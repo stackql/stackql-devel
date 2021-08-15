@@ -1,0 +1,11 @@
+MethodName,RequiredParams
+delete,bucket
+get,bucket
+getIamPolicy,bucket
+insert,"project, body__name"
+list,project
+lockRetentionPolicy,"bucket, ifMetagenerationMatch"
+patch,bucket
+setIamPolicy,"bucket, body__bindings"
+testIamPermissions,"bucket, permissions"
+update,"bucket, body__acl"

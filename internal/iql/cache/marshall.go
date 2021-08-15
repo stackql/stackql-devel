@@ -123,9 +123,15 @@ func (dm *GoogleServiceDiscoveryMarshaller) Unmarshal(item *Item) error {
 			return err
 		}
 	}
-	blob["resources"] = wrapperBlob.Resources
-	blob["schemas"] = wrapperBlob.Schemas
 	so := wrapperBlob.SchemaObjects
+	for _, rsc := range wrapperBlob.Resources {
+		for k, method := range rsc.Methods {
+			method.SchemaCentral = sr
+			rsc.Methods[k] = method
+		}
+	}
+	blob["schemas"] = wrapperBlob.Schemas
+	blob["resources"] = wrapperBlob.Resources
 	blob["schemas_parsed"] = so
 	blob["tablespace"] = item.Tablespace
 	blob["tablespace_generation_id"] = item.TablespaceID

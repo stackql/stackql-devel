@@ -284,52 +284,6 @@ func TestK8sTheHardWayAsync(t *testing.T) {
 
 }
 
-func TestSimpleShowResourcesFiltered(t *testing.T) {
-
-	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
-		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
-		if err != nil {
-			t.Fatalf("TestSimpleShowResourcesFiltered failed: %v", err)
-		}
-		sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
-		if err != nil {
-			t.Fatalf("Test failed: %v", err)
-		}
-		showInsertFile, err := util.GetFilePathFromRepositoryRoot(testobjects.SimpleShowResourcesFilteredFile)
-		if err != nil {
-			t.Fatalf("TestSimpleShowResourcesFiltered failed: %v", err)
-		}
-		runtimeCtx.InfilePath = showInsertFile
-		runtimeCtx.OutputFormat = "text"
-		runtimeCtx.CSVHeadersDisable = true
-
-		rdr, err := os.Open(runtimeCtx.InfilePath)
-		if err != nil {
-			t.Fatalf("Test failed: %v", err)
-		}
-
-		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, rdr, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), sqlEngine)
-		if err != nil {
-			t.Fatalf("Test failed: %v", err)
-		}
-
-		handlerCtx.Outfile = outFile
-		handlerCtx.OutErrFile = os.Stderr
-
-		tc, err := entryutil.GetTxnCounterManager(handlerCtx)
-		if err != nil {
-			t.Fatalf("Test failed: %v", err)
-		}
-		handlerCtx.TxnCounterMgr = tc
-
-		ProcessQuery(&handlerCtx)
-	}
-
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedShowResourcesFilteredFile})
-
-}
-
 func TestSimpleDryRunK8sTheHardWayDriver(t *testing.T) {
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
@@ -378,50 +332,5 @@ func TestSimpleDryRunK8sTheHardWayDriver(t *testing.T) {
 	}
 
 	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedK8STheHardWayRenderedFile})
-
-}
-
-func TestSimpleShowInsertComputeAddressesRequired(t *testing.T) {
-
-	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
-		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
-		if err != nil {
-			t.Fatalf("TestSimpleTemplateComputeAddressesRequired failed: %v", err)
-		}
-		sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
-		if err != nil {
-			t.Fatalf("Test failed: %v", err)
-		}
-		showInsertFile, err := util.GetFilePathFromRepositoryRoot(testobjects.ShowInsertAddressesRequiredInputFile)
-		if err != nil {
-			t.Fatalf("TestSimpleTemplateComputeAddressesRequired failed: %v", err)
-		}
-		runtimeCtx.InfilePath = showInsertFile
-		runtimeCtx.CSVHeadersDisable = true
-
-		rdr, err := os.Open(runtimeCtx.InfilePath)
-		if err != nil {
-			t.Fatalf("Test failed: %v", err)
-		}
-
-		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, rdr, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), sqlEngine)
-		if err != nil {
-			t.Fatalf("Test failed: %v", err)
-		}
-
-		handlerCtx.Outfile = outFile
-		handlerCtx.OutErrFile = os.Stderr
-
-		tc, err := entryutil.GetTxnCounterManager(handlerCtx)
-		if err != nil {
-			t.Fatalf("Test failed: %v", err)
-		}
-		handlerCtx.TxnCounterMgr = tc
-
-		ProcessQuery(&handlerCtx)
-	}
-
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedShowInsertAddressesRequiredFile})
 
 }
