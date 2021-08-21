@@ -304,7 +304,7 @@ func (m *Method) ToPresentationMap(extended bool) map[string]interface{} {
 		rs, ok := m.SchemaCentral.SchemaRef[m.RequestType.Type]
 		if ok {
 			for k, pr := range rs.Properties {
-				paramName := fmt.Sprintf("body__%s", k)
+				paramName := fmt.Sprintf("%s%s", constants.RequestBodyBaseKey, k)
 				if pr.AlwaysRequired {
 					requiredBodyParamNames = append(requiredBodyParamNames, paramName)
 					continue
