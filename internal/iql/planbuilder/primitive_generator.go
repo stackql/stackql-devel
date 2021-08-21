@@ -3,6 +3,7 @@ package planbuilder
 import (
 	"fmt"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -293,8 +294,14 @@ func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, hand
 			return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, keys, columnOrder, nil, err, nil))
 		}
 		methodKeys := make(map[string]map[string]interface{})
+		var rowKeys []string
+		for k, _ := range methods {
+			rowKeys = append(rowKeys, k)
+		}
+		sort.Strings(rowKeys)
 		var i int = 0
-		for _, method := range methods {
+		for _, k := range rowKeys {
+			method := methods[k]
 			methMap := method.ToPresentationMap(extended)
 			methodKeys[strconv.Itoa(i)] = methMap
 			i++

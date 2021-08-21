@@ -36,7 +36,12 @@ func (sv *SchemaRequestTemplateVisitor) recordSchemaVisited(schemaKey string) {
 	sv.visitedObjects[schemaKey] = true
 }
 
-func (sv *SchemaRequestTemplateVisitor) isVisited(schemaKey string) bool {
+func (sv *SchemaRequestTemplateVisitor) isVisited(schemaKey string, localVisited map[string]bool) bool {
+	if localVisited != nil {
+		if localVisited[schemaKey] {
+			return true
+		}
+	}
 	return sv.visitedObjects[schemaKey]
 }
 
@@ -165,46 +170,59 @@ func ToInsertStatement(columns sqlparser.Columns, m *metadata.Method, schemaMap 
 	return retVal, err
 }
 
-func (sv *SchemaRequestTemplateVisitor) RetrieveTemplate(sc *metadata.Schema, method *metadata.Method, extended bool) (map[string]string, error) {
+func (sv *SchemaRequestTemplateVisitor) processSubSchemasMap(sc *metadata.Schema, method *metadata.Method, properties map[string]metadata.SchemaHandle) (map[string]string, error) {
 	retVal := make(map[string]string)
-	sv.recordSchemaVisited(method.RequestType.Type)
-	switch sc.Type {
-	case "object":
-		for k, v := range sc.Properties {
-			ss, idStr := v.GetSchema(sc.SchemaCentral)
-			if ss != nil && (idStr == "" || !sv.isVisited(idStr)) {
-				sv.recordSchemaVisited(idStr)
-				if ss.OutputOnly || (sv.requiredOnly && !ss.IsRequired(method)) {
-					log.Infoln(fmt.Sprintf("property = '%s' will be skipped", k))
-					continue
-				}
-				rv, err := sv.retrieveTemplateVal(ss, ".values."+constants.RequestBodyBaseKey+k)
+	for k, v := range properties {
+		ss, idStr := v.GetSchema(sc.SchemaCentral)
+		log.Infoln(fmt.Sprintf("RetrieveTemplate() k = '%s', idStr = '%s' ss is nil ? '%t'", k, idStr, ss == nil))
+		if ss != nil && (idStr == "" || !sv.isVisited(idStr, nil)) {
+			localSchemaVisitedMap := make(map[string]bool)
+			localSchemaVisitedMap[idStr] = true
+			if !v.AlwaysRequired && (ss.OutputOnly || (sv.requiredOnly && !ss.IsRequired(method))) {
+				log.Infoln(fmt.Sprintf("property = '%s' will be skipped", k))
+				continue
+			}
+			rv, err := sv.retrieveTemplateVal(ss, ".values."+constants.RequestBodyBaseKey+k, localSchemaVisitedMap)
+			if err != nil {
+				return nil, err
+			}
+			switch rvt := rv.(type) {
+			case map[string]interface{}, []interface{}, string:
+				bytes, err := sv.PrettyPrinter.PrintTemplatedJSON(rvt)
 				if err != nil {
 					return nil, err
 				}
-				switch rvt := rv.(type) {
-				case map[string]interface{}, []interface{}, string:
-					bytes, err := sv.PrettyPrinter.PrintTemplatedJSON(rvt)
-					if err != nil {
-						return nil, err
-					}
-					retVal[k] = string(bytes)
-				case nil:
-					continue
-				default:
-					return nil, fmt.Errorf("error processing template key '%s' with disallowed type '%T'", k, rvt)
-				}
+				retVal[k] = string(bytes)
+			case nil:
+				continue
+			default:
+				return nil, fmt.Errorf("error processing template key '%s' with disallowed type '%T'", k, rvt)
 			}
 		}
+	}
+	return retVal, nil
+}
+
+func (sv *SchemaRequestTemplateVisitor) RetrieveTemplate(sc *metadata.Schema, method *metadata.Method, extended bool) (map[string]string, error) {
+	retVal := make(map[string]string)
+	var err error
+	sv.recordSchemaVisited(method.RequestType.Type)
+	switch sc.Type {
+	case "object":
+		retVal, err = sv.processSubSchemasMap(sc, method, sc.Properties)
+		if len(retVal) != 0 || err != nil {
+			return retVal, err
+		}
+		retVal, err = sv.processSubSchemasMap(sc, method, map[string]metadata.SchemaHandle{"k1": sc.AdditionalProperties})
 		if len(retVal) == 0 {
 			return nil, nil
 		}
-		return retVal, nil
+		return retVal, err
 	}
 	return nil, fmt.Errorf("templating of request body only supported for object type payload")
 }
 
-func (sv *SchemaRequestTemplateVisitor) retrieveTemplateVal(sc *metadata.Schema, objectKey string) (interface{}, error) {
+func (sv *SchemaRequestTemplateVisitor) retrieveTemplateVal(sc *metadata.Schema, objectKey string, localSchemaVisitedMap map[string]bool) (interface{}, error) {
 	sSplit := strings.Split(objectKey, ".")
 	oKey := sSplit[len(sSplit)-1]
 	oPrefix := objectKey
@@ -218,14 +236,22 @@ func (sv *SchemaRequestTemplateVisitor) retrieveTemplateVal(sc *metadata.Schema,
 	if oPrefix == "" {
 		templateValName = templateValSuffix
 	}
+	initialLocalSchemaVisitedMap := make(map[string]bool)
+	for k, v := range localSchemaVisitedMap {
+		initialLocalSchemaVisitedMap[k] = v
+	}
 	switch sc.Type {
 	case "object":
 		rv := make(map[string]interface{})
 		for k, v := range sc.Properties {
+			propertyLocalSchemaVisitedMap := make(map[string]bool)
+			for k, v := range initialLocalSchemaVisitedMap {
+				propertyLocalSchemaVisitedMap[k] = v
+			}
 			ss, idStr := v.GetSchema(sc.SchemaCentral)
-			if ss != nil && ((idStr == "" && ss.Type != "array") || !sv.isVisited(idStr)) {
-				sv.recordSchemaVisited(idStr)
-				sv, err := sv.retrieveTemplateVal(ss, templateValName+"."+k)
+			if ss != nil && ((idStr == "" && ss.Type != "array") || !sv.isVisited(idStr, propertyLocalSchemaVisitedMap)) {
+				propertyLocalSchemaVisitedMap[idStr] = true
+				sv, err := sv.retrieveTemplateVal(ss, templateValName+"."+k, propertyLocalSchemaVisitedMap)
 				if err != nil {
 					return nil, err
 				}
@@ -235,18 +261,39 @@ func (sv *SchemaRequestTemplateVisitor) retrieveTemplateVal(sc *metadata.Schema,
 			}
 		}
 		if len(rv) == 0 {
+			if sc.AdditionalProperties.SchemaRef != nil && len(sc.AdditionalProperties.SchemaRef) == 1 {
+				for k, v := range sc.AdditionalProperties.SchemaRef {
+					if k == "" {
+						k = "key"
+					}
+					key := fmt.Sprintf("{{ %s[0].%s }}", templateValName, k)
+					valBase := fmt.Sprintf("{{ %s[0].val }}", templateValName)
+					switch v.Type {
+					case "string":
+						rv[key] = fmt.Sprintf(`"%s"`, valBase)
+					case "number", "int", "int32", "int64":
+						rv[key] = valBase
+					default:
+						rv[key] = valBase
+					}
+				}
+			}
+		}
+		if len(rv) == 0 {
 			return nil, nil
 		}
 		return rv, nil
-		// bytes, err := json.Marshal(rv)
-		// return string(bytes), err
 	case "array":
 		var arr []interface{}
 		iSch, err := sc.GetItemsSchema()
 		if err != nil {
 			return nil, err
 		}
-		itemS, err := sv.retrieveTemplateVal(iSch, templateValName+"[0]")
+		itemLocalSchemaVisitedMap := make(map[string]bool)
+		for k, v := range initialLocalSchemaVisitedMap {
+			itemLocalSchemaVisitedMap[k] = v
+		}
+		itemS, err := sv.retrieveTemplateVal(iSch, templateValName+"[0]", itemLocalSchemaVisitedMap)
 		arr = append(arr, itemS)
 		if err != nil {
 			return nil, err

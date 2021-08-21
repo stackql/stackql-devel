@@ -168,7 +168,7 @@
       ],
     },
     {
-      "name": "SHOW INSERT bq.jobs ;\" -- prebuilt with cmake",
+      "name": "SHOW INSERT bq.datasets ;\" -- prebuilt with cmake",
       "type": "go",
       "request": "launch",
       "mode": "exec",
@@ -176,7 +176,7 @@
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
-        "SHOW INSERT INTO google.bigquery.jobs;;",
+        "SHOW EXTENDED INSERT INTO google.bigquery.datasets;",
         "-o",
         "pptext"
       ],

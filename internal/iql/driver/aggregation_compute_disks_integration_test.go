@@ -9,11 +9,20 @@ import (
 	"infraql/internal/iql/responsehandler"
 	"infraql/internal/test/infraqltestutil"
 	"infraql/internal/test/testobjects"
+	"io/ioutil"
+	"os"
 	"strings"
 	"testing"
 
+	log "github.com/sirupsen/logrus"
+
 	lrucache "vitess.io/vitess/go/cache"
 )
+
+func TestMain(m *testing.M) {
+	log.SetOutput(ioutil.Discard)
+	os.Exit(m.Run())
+}
 
 func TestSelectComputeDisksOrderByCrtTmstpAsc(t *testing.T) {
 

@@ -2,6 +2,7 @@ package httpexec_test
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -13,7 +14,14 @@ import (
 
 	"infraql/internal/test/testhttpapi"
 	"infraql/internal/test/testutil"
+
+	log "github.com/sirupsen/logrus"
 )
+
+func TestMain(m *testing.M) {
+	log.SetOutput(ioutil.Discard)
+	os.Exit(m.Run())
+}
 
 func validateContextualisedHTTPCallLightweight(t *testing.T, requestCtx IHttpContext, expectations testhttpapi.ExpectationStore, handlerFunc http.HandlerFunc) {
 	handler := testhttpapi.GetRequestTestHandler(t, expectations, handlerFunc)

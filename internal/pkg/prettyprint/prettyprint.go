@@ -2,6 +2,7 @@ package prettyprint
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -114,11 +115,16 @@ func (pp *PrettyPrinter) printTemplatedJSON(body interface{}) (string, error) {
 	startPos := pp.getCurrentIndentation()
 	switch bt := body.(type) {
 	case map[string]interface{}:
+		var keys []string
+		for k := range bt {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
 		var keyVals []string
 		kIndent := pp.incrementCurrentIndentation()
-		for k, v := range bt {
+		for _, k := range keys {
 			indent := ""
-			val, err := pp.printTemplatedJSON(v)
+			val, err := pp.printTemplatedJSON(bt[k])
 			if err != nil {
 				pp.setCurrentIndentation(startPos)
 				return "", err

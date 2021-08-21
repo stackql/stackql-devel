@@ -461,6 +461,8 @@ github.com/infraql/vitess v0.0.8-beta4 h1:sj+a48GVsO6ews57mQuVdRtzqw+3hGRAtDKGWw
 github.com/infraql/vitess v0.0.8-beta4/go.mod h1:4M5NhkFYCF10+U3LS4owUYY2GsUt+7t1kN9Rv5UVc9A=
 github.com/infraql/vitess v0.0.8-beta5 h1:GdnW6h2Qqhl/qvqUy74NJfwdiyqPyGZ26NeO1e6vts0=
 github.com/infraql/vitess v0.0.8-beta5/go.mod h1:4M5NhkFYCF10+U3LS4owUYY2GsUt+7t1kN9Rv5UVc9A=
+github.com/infraql/vitess v0.0.8-beta6 h1:UIxKYu4vlUuZJoLYEU++Ikb1sh7YRv/EFjmBphWyIG0=
+github.com/infraql/vitess v0.0.8-beta6/go.mod h1:4M5NhkFYCF10+U3LS4owUYY2GsUt+7t1kN9Rv5UVc9A=
 github.com/infraql/vitess v0.0.8-rc1 h1:7LdxQY3C0eM1u0nHCQkn1+UzcFIOuCeBzYbfpxUFFn4=
 github.com/infraql/vitess v0.0.8-rc1/go.mod h1:SiTgKW7kcBhL3xNeEWFQ9krv8iVn0C2sDPuOEXojZUU=
 github.com/infraql/vitess v0.0.8-rc2 h1:3KBpW3ofqrm+z+lGtMc+po6HjHCsNMx2wDr5IT59/+4=

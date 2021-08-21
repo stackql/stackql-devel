@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"sort"
 	"strings"
 
 	"infraql/internal/iql/constants"
@@ -174,7 +175,7 @@ func (sv *Service) GetKey(lhs string) (interface{}, error) {
 func (m *Method) GetKey(lhs string) (interface{}, error) {
 	val, ok := m.ToPresentationMap(true)[lhs]
 	if !ok {
-		return nil, fmt.Errorf("key '%s' no preset in metadata_service", lhs)
+		return nil, fmt.Errorf("key '%s' no preset in metadata_method", lhs)
 	}
 	return val, nil
 }
@@ -266,15 +267,16 @@ func (st *SchemaType) GetFormat() string {
 }
 
 type Method struct {
-	ID           string                        `json:"id"`
-	Name         string                        `json:"name"`
-	Path         string                        `json:"path"`
-	Description  string                        `json:"description"`
-	Protocol     string                        `json:"__protocol__"`
-	Verb         string                        `json:"httpMethod"`
-	RequestType  SchemaType                    `json:"request"`
-	ResponseType SchemaType                    `json:"response"`
-	Parameters   map[string]iqlmodel.Parameter `json:"parameters"`
+	SchemaCentral *SchemaRegistry               `json:"-"`
+	ID            string                        `json:"id"`
+	Name          string                        `json:"name"`
+	Path          string                        `json:"path"`
+	Description   string                        `json:"description"`
+	Protocol      string                        `json:"__protocol__"`
+	Verb          string                        `json:"httpMethod"`
+	RequestType   SchemaType                    `json:"request"`
+	ResponseType  SchemaType                    `json:"response"`
+	Parameters    map[string]iqlmodel.Parameter `json:"parameters"`
 }
 
 func (m *Method) GetColumnOrder(extended bool) []string {
@@ -295,6 +297,29 @@ func (m *Method) ToPresentationMap(extended bool) map[string]interface{} {
 	requiredParams := m.GetRequiredParameters()
 	var requiredParamNames []string
 	for s := range requiredParams {
+		requiredParamNames = append(requiredParamNames, s)
+	}
+	var requiredBodyParamNames []string
+	if m.RequestType.Type != "" {
+		rs, ok := m.SchemaCentral.SchemaRef[m.RequestType.Type]
+		if ok {
+			for k, pr := range rs.Properties {
+				paramName := fmt.Sprintf("body__%s", k)
+				if pr.AlwaysRequired {
+					requiredBodyParamNames = append(requiredBodyParamNames, paramName)
+					continue
+				}
+				if s, _ := pr.GetSchema(m.SchemaCentral); s != nil {
+					if s.Required[m.ID] {
+						requiredBodyParamNames = append(requiredBodyParamNames, paramName)
+					}
+				}
+			}
+		}
+	}
+	sort.Strings(requiredParamNames)
+	sort.Strings(requiredBodyParamNames)
+	for _, s := range requiredBodyParamNames {
 		requiredParamNames = append(requiredParamNames, s)
 	}
 	retVal := map[string]interface{}{
@@ -355,19 +380,20 @@ func (s *Schema) ConditionIsValid(lhs string, rhs interface{}) bool {
 }
 
 type Schema struct {
-	SchemaCentral    *SchemaRegistry         `json:"-"`
-	Description      string                  `json:"description"`
-	ID               string                  `json:"__id__"`
-	OutputOnly       bool                    `json:"__output_only__"`
-	Properties       map[string]SchemaHandle `json:"properties"`
-	Type             string                  `json:"type"`
-	Enum             []string                `json:"enum"`
-	EnumDescriptions []string                `json:"enumDescriptions"`
-	Format           string                  `json:"__format__"`
-	ItemsRawValue    json.RawMessage         `json:"items"`
-	Items            SchemaHandle            `json:"__items__"`
-	Path             string                  `json:"path"`
-	Required         map[string]bool         `json:"__required__"`
+	SchemaCentral        *SchemaRegistry         `json:"-"`
+	Description          string                  `json:"description"`
+	ID                   string                  `json:"__id__"`
+	OutputOnly           bool                    `json:"__output_only__"`
+	Properties           map[string]SchemaHandle `json:"properties"`
+	AdditionalProperties SchemaHandle            `json:"additionalProperties"`
+	Type                 string                  `json:"type"`
+	Enum                 []string                `json:"enum"`
+	EnumDescriptions     []string                `json:"enumDescriptions"`
+	Format               string                  `json:"__format__"`
+	ItemsRawValue        json.RawMessage         `json:"items"`
+	Items                SchemaHandle            `json:"__items__"`
+	Path                 string                  `json:"path"`
+	Required             map[string]bool         `json:"__required__"`
 }
 
 func (s *Schema) IsIntegral() bool {
@@ -460,8 +486,9 @@ type SchemaRegistry struct {
 }
 
 type SchemaHandle struct {
-	NamedRef  string
-	SchemaRef map[string]Schema
+	NamedRef       string
+	SchemaRef      map[string]Schema
+	AlwaysRequired bool
 }
 
 func (sh *SchemaHandle) IsEmpty() bool {

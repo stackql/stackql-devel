@@ -9,6 +9,7 @@ import (
 	"infraql/internal/iql/metadata"
 	"infraql/internal/iql/sqlengine"
 	"infraql/internal/iql/util"
+	"regexp"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -21,7 +22,9 @@ const (
 )
 
 var (
-	drmConfig drm.DRMConfig = drm.GetGoogleV1SQLiteConfig()
+	drmConfig        drm.DRMConfig  = drm.GetGoogleV1SQLiteConfig()
+	outputOnlyRegexp *regexp.Regexp = regexp.MustCompile(`(?i)^\[Output.Only\].*$`)
+	requiredRegexpV2 *regexp.Regexp = regexp.MustCompile(`(?i)^\[Required\].*$`)
 )
 
 func TranslateServiceKeyGoogleToIql(serviceKey string) string {
@@ -110,6 +113,12 @@ func GoogleServiceDiscoveryDocParser(bytes []byte, dbEngine sqlengine.SQLEngine,
 			schemas[k] = *so
 		}
 	}
+	for _, rsc := range keys {
+		for k, method := range rsc.Methods {
+			method.SchemaCentral = &sReg
+			rsc.Methods[k] = method
+		}
+	}
 	var tabluationsAnnotated []util.AnnotatedTabulation
 	extraSchemas := make(map[string]metadata.Schema)
 	for _, v := range schemas {
@@ -168,7 +177,6 @@ func GoogleServiceDiscoveryDocParser(bytes []byte, dbEngine sqlengine.SQLEngine,
 		return nil, err
 	}
 	for _, tblt := range tabluationsAnnotated {
-		// log.Infoln(fmt.Sprintf("tabulation %d = %s", i, tblt.GetName()))
 		ddl := drmConfig.GenerateDDL(tblt, discoveryGenerationId)
 		for _, q := range ddl {
 			// log.Infoln(q)
@@ -196,6 +204,7 @@ func GoogleServiceDiscoveryDocParser(bytes []byte, dbEngine sqlengine.SQLEngine,
 
 func parseSchema(schemaDeepMap map[string]interface{}, sReg *metadata.SchemaRegistry) (*metadata.Schema, error) {
 	properties, propertiesOk := schemaDeepMap["properties"].(map[string]interface{})
+	additionalProperties, additionalPropertiesOk := schemaDeepMap["additionalProperties"].(map[string]interface{})
 	bytes, marshalErr := json.Marshal(schemaDeepMap)
 	if marshalErr != nil {
 		return nil, marshalErr
@@ -218,9 +227,11 @@ func parseSchema(schemaDeepMap map[string]interface{}, sReg *metadata.SchemaRegi
 			return nil, unmarshalErr
 		}
 		ref, isRef := itemsMap["$ref"]
+		alwaysRequired := isAlwaysRequired(itemsMap)
 		if isRef {
 			so.Items = metadata.SchemaHandle{
-				NamedRef: ref.(string),
+				NamedRef:       ref.(string),
+				AlwaysRequired: alwaysRequired,
 			}
 		} else {
 			itemsObj, parseErr := parseSchema(itemsMap, sReg)
@@ -232,6 +243,7 @@ func parseSchema(schemaDeepMap map[string]interface{}, sReg *metadata.SchemaRegi
 				SchemaRef: map[string]metadata.Schema{
 					"items": *itemsObj,
 				},
+				AlwaysRequired: alwaysRequired,
 			}
 		}
 	}
@@ -241,9 +253,11 @@ func parseSchema(schemaDeepMap map[string]interface{}, sReg *metadata.SchemaRegi
 		for k, property := range properties {
 			prop := property.(map[string]interface{})
 			ref, isRef := prop["$ref"]
+			alwaysRequired := isAlwaysRequired(prop)
 			if isRef {
 				prMap[k] = metadata.SchemaHandle{
-					NamedRef: ref.(string),
+					NamedRef:       ref.(string),
+					AlwaysRequired: alwaysRequired,
 				}
 				// colDes := metadata.ColumnDescriptor{Name: k, Schema: }
 			} else {
@@ -254,11 +268,46 @@ func parseSchema(schemaDeepMap map[string]interface{}, sReg *metadata.SchemaRegi
 						SchemaRef: map[string]metadata.Schema{
 							k: *sObj,
 						},
+						AlwaysRequired: alwaysRequired,
 					}
 				}
 			}
 		}
 		so.Properties = prMap
+	}
+	if additionalPropertiesOk {
+		ref, isRef := additionalProperties["$ref"]
+		if isRef {
+			so.AdditionalProperties = metadata.SchemaHandle{
+				NamedRef: ref.(string),
+			}
+			// colDes := metadata.ColumnDescriptor{Name: k, Schema: }
+		} else {
+			typeId, typeOk := additionalProperties["type"]
+			if typeOk {
+				switch typeId := typeId.(type) {
+				case string:
+					so.AdditionalProperties = metadata.SchemaHandle{
+						NamedRef: "",
+						SchemaRef: map[string]metadata.Schema{
+							"": {
+								Type: typeId,
+							},
+						},
+					}
+				}
+			} else {
+				sObj, err := parseSchema(additionalProperties, sReg)
+				if err == nil {
+					so.AdditionalProperties = metadata.SchemaHandle{
+						NamedRef: "",
+						SchemaRef: map[string]metadata.Schema{
+							"": *sObj,
+						},
+					}
+				}
+			}
+		}
 	}
 
 	return &so, err
@@ -415,7 +464,7 @@ func isOutputOnly(obj map[string]interface{}) bool {
 	}
 	switch d := desc.(type) {
 	case string:
-		return strings.Contains(d, "[Output Only]")
+		return outputOnlyRegexp.MatchString(d)
 	}
 	return false
 }
@@ -513,6 +562,17 @@ func getRequestTypeIfPresent(request interface{}) metadata.SchemaType {
 		}
 	}
 	return retVal
+}
+
+func isAlwaysRequired(item interface{}) bool {
+	if rMap, ok := item.(map[string]interface{}); ok {
+		if desc, ok := rMap["description"]; ok {
+			if descStr, ok := desc.(string); ok {
+				return requiredRegexpV2.MatchString(descStr)
+			}
+		}
+	}
+	return false
 }
 
 func getRequiredIfPresent(item interface{}) map[string]bool {
