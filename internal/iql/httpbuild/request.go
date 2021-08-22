@@ -1,11 +1,10 @@
 package httpbuild
 
 import (
-
-	"fmt"
 	"bytes"
-	"net/http"
 	"encoding/json"
+	"fmt"
+	"net/http"
 
 	"infraql/internal/iql/dto"
 	"infraql/internal/iql/handler"
@@ -28,16 +27,16 @@ type ExecContext struct {
 func NewExecContext(payload *dto.ExecPayload, rsc *metadata.Resource) *ExecContext {
 	return &ExecContext{
 		ExecPayload: payload,
-		Resource: rsc,
+		Resource:    rsc,
 	}
 }
 
 type HTTPArmoury struct {
-	Header http.Header
-	Parameters *metadata.HttpParameters
-	Context httpexec.IHttpContext
-	BodyBytes []byte
-	RequestSchema *metadata.Schema
+	Header         http.Header
+	Parameters     *metadata.HttpParameters
+	Context        httpexec.IHttpContext
+	BodyBytes      []byte
+	RequestSchema  *metadata.Schema
 	ResponseSchema *metadata.Schema
 }
 
@@ -46,7 +45,6 @@ func NewHTTPArmoury() HTTPArmoury {
 		Header: make(http.Header),
 	}
 }
-
 
 func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, prov provider.IProvider, m *metadata.Method, schemaMap map[string]metadata.Schema, insertValOnlyRows map[int]map[int]interface{}, execContext *ExecContext) (*HTTPArmoury, error) {
 	var err error
@@ -77,7 +75,7 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 	if err != nil {
 		return nil, err
 	}
-	if execContext != nil &&  execContext.ExecPayload != nil {
+	if execContext != nil && execContext.ExecPayload != nil {
 		httpArmoury.BodyBytes = execContext.ExecPayload.Payload
 		for k, v := range execContext.ExecPayload.Header {
 			httpArmoury.Header[k] = v
@@ -109,6 +107,7 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 	}
 	httpArmoury.Context, err = prov.Parameterise(baseRequestCtx, httpArmoury.Parameters, httpArmoury.RequestSchema)
 	if httpArmoury.BodyBytes != nil && httpArmoury.Header != nil && len(httpArmoury.Header) > 0 {
+		log.Infoln(fmt.Sprintf("setting http request body = %s", string(httpArmoury.BodyBytes)))
 		httpArmoury.Context.SetBody(bytes.NewReader(httpArmoury.BodyBytes))
 		httpArmoury.Context.SetHeaders(httpArmoury.Header)
 	}

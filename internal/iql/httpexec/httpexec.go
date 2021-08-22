@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type IHttpContext interface {
@@ -120,6 +122,7 @@ func HTTPApiCall(httpClient *http.Client, requestCtx IHttpContext) (*http.Respon
 	if requestErr != nil {
 		return nil, requestErr
 	}
+	log.Infoln(fmt.Sprintf("http request = %v", req))
 	response, reponseErr := httpClient.Do(req)
 	if reponseErr != nil {
 		return nil, reponseErr

@@ -20,6 +20,7 @@ import (
 	"infraql/internal/iql/sqltypeutil"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 
@@ -535,14 +536,14 @@ func (gp *GoogleProvider) Parameterise(httpContext httpexec.IHttpContext, parame
 	for k, v := range parameters.PathParams {
 		if strings.Contains(httpContext.GetTemplateUrl(), "{"+k+"}") {
 			args[i] = "{" + k + "}"
-			args[i+1] = fmt.Sprint(v)
+			args[i+1] = url.QueryEscape(fmt.Sprint(v))
 			i += 2
 			visited[k] = true
 			continue
 		}
 		if strings.Contains(httpContext.GetTemplateUrl(), "{+"+k+"}") {
 			args[i] = "{+" + k + "}"
-			args[i+1] = fmt.Sprint(v)
+			args[i+1] = url.QueryEscape(fmt.Sprint(v))
 			i += 2
 			visited[k] = true
 			continue
@@ -554,7 +555,7 @@ func (gp *GoogleProvider) Parameterise(httpContext httpexec.IHttpContext, parame
 	for k, v := range parameters.QueryParams {
 		vStr, vOk := v.(string)
 		if isVisited, kExists := visited[k]; !kExists || (!isVisited && vOk) {
-			queryParams = append(queryParams, k+"="+vStr)
+			queryParams = append(queryParams, k+"="+url.QueryEscape(vStr))
 			visited[k] = true
 		}
 	}
