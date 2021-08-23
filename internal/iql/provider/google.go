@@ -30,6 +30,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+var (
+	storageObjectsRegex *regexp.Regexp = regexp.MustCompile(`^storage\.objects\..*$`)
+)
+
 type googleServiceAccount struct {
 	Email      string `json:"client_email"`
 	PrivateKey string `json:"private_key"`
@@ -527,7 +531,14 @@ func (gp *GoogleProvider) GenerateHTTPRestInstruction(httpContext httpexec.IHttp
 	return httpContext, nil
 }
 
-func (gp *GoogleProvider) Parameterise(httpContext httpexec.IHttpContext, parameters *metadata.HttpParameters, requestSchema *metadata.Schema) (httpexec.IHttpContext, error) {
+func (gp *GoogleProvider) escapeUrlParameter(k string, v string, method *metadata.Method) string {
+	if storageObjectsRegex.MatchString(method.ID) {
+		return url.QueryEscape(v)
+	}
+	return v
+}
+
+func (gp *GoogleProvider) Parameterise(httpContext httpexec.IHttpContext, method *metadata.Method, parameters *dto.HttpParameters, requestSchema *metadata.Schema) (httpexec.IHttpContext, error) {
 	visited := make(map[string]bool)
 	args := make([]string, len(parameters.PathParams)*2)
 	var sb strings.Builder
@@ -536,14 +547,14 @@ func (gp *GoogleProvider) Parameterise(httpContext httpexec.IHttpContext, parame
 	for k, v := range parameters.PathParams {
 		if strings.Contains(httpContext.GetTemplateUrl(), "{"+k+"}") {
 			args[i] = "{" + k + "}"
-			args[i+1] = url.QueryEscape(fmt.Sprint(v))
+			args[i+1] = gp.escapeUrlParameter(k, fmt.Sprint(v), method)
 			i += 2
 			visited[k] = true
 			continue
 		}
 		if strings.Contains(httpContext.GetTemplateUrl(), "{+"+k+"}") {
 			args[i] = "{+" + k + "}"
-			args[i+1] = url.QueryEscape(fmt.Sprint(v))
+			args[i+1] = gp.escapeUrlParameter(k, fmt.Sprint(v), method)
 			i += 2
 			visited[k] = true
 			continue

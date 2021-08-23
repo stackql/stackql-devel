@@ -12,6 +12,7 @@ import (
 	"infraql/internal/iql/metadata"
 	"infraql/internal/iql/parserutil"
 	"infraql/internal/iql/provider"
+	"infraql/internal/iql/requests"
 	"infraql/internal/iql/util"
 
 	"vitess.io/vitess/go/vt/sqlparser"
@@ -33,7 +34,7 @@ func NewExecContext(payload *dto.ExecPayload, rsc *metadata.Resource) *ExecConte
 
 type HTTPArmoury struct {
 	Header         http.Header
-	Parameters     *metadata.HttpParameters
+	Parameters     *dto.HttpParameters
 	Context        httpexec.IHttpContext
 	BodyBytes      []byte
 	RequestSchema  *metadata.Schema
@@ -71,7 +72,7 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 	if err != nil {
 		return nil, err
 	}
-	httpArmoury.Parameters, err = metadata.SplitHttpParameters(paramMap, m, httpArmoury.RequestSchema, httpArmoury.ResponseSchema)
+	httpArmoury.Parameters, err = requests.SplitHttpParameters(prov, paramMap, m, httpArmoury.RequestSchema, httpArmoury.ResponseSchema)
 	if err != nil {
 		return nil, err
 	}
@@ -105,9 +106,17 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 	if err != nil {
 		return nil, err
 	}
-	httpArmoury.Context, err = prov.Parameterise(baseRequestCtx, httpArmoury.Parameters, httpArmoury.RequestSchema)
+	httpArmoury.Context, err = prov.Parameterise(baseRequestCtx, m, httpArmoury.Parameters, httpArmoury.RequestSchema)
+	if handlerCtx.RuntimeContext.HTTPLogEnabled {
+		url, _ := httpArmoury.Context.GetUrl()
+		handlerCtx.OutErrFile.Write([]byte(fmt.Sprintln(fmt.Sprintf("http request url: %s", url))))
+	}
 	if httpArmoury.BodyBytes != nil && httpArmoury.Header != nil && len(httpArmoury.Header) > 0 {
-		log.Infoln(fmt.Sprintf("setting http request body = %s", string(httpArmoury.BodyBytes)))
+		requestBodyMsg := fmt.Sprintf("http request body: %s", string(httpArmoury.BodyBytes))
+		log.Infoln(requestBodyMsg)
+		if handlerCtx.RuntimeContext.HTTPLogEnabled {
+			handlerCtx.OutErrFile.Write([]byte(fmt.Sprintln(requestBodyMsg)))
+		}
 		httpArmoury.Context.SetBody(bytes.NewReader(httpArmoury.BodyBytes))
 		httpArmoury.Context.SetHeaders(httpArmoury.Header)
 	}

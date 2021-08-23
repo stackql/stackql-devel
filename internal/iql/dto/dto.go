@@ -29,6 +29,7 @@ const (
 	DbInitFilePathKey         string = "dbinitfilepath"
 	DelimiterKey              string = "delimiter"
 	ErrorPresentationKey      string = "errorpresentation"
+	HTTPLogEnabledKey         string = "http.log.enabled"
 	HTTPMaxResultsKey         string = "http.response.maxResults"
 	HTTPProxyHostKey          string = "http.proxy.host"
 	HTTPProxyPasswordKey      string = "http.proxy.password"
@@ -119,6 +120,7 @@ type RuntimeCtx struct {
 	Delimiter            string
 	DryRunFlag           bool
 	ErrorPresentation    string
+	HTTPLogEnabled       bool
 	HTTPMaxResults       int
 	HTTPProxyHost        string
 	HTTPProxyPassword    string
@@ -196,6 +198,8 @@ func (rc *RuntimeCtx) Set(key string, val string) error {
 		retVal = setBool(&rc.DryRunFlag, val)
 	case ErrorPresentationKey:
 		rc.ErrorPresentation = val
+	case HTTPLogEnabledKey:
+		retVal = setBool(&rc.HTTPLogEnabled, val)
 	case HTTPMaxResultsKey:
 		retVal = setInt(&rc.HTTPMaxResults, val)
 	case HTTPProxyHostKey:

@@ -61,8 +61,9 @@ func TestBasicHTTPSExamples(t *testing.T) {
 	validateContextualisedHTTPCallHeavyweight(t, requestCtx, ex)
 
 	// Lightweight test on httpexec request context.
+	ex.Put("google.com/path-one", *expectations)
 	lightweightRequestCtx := CreateNonTemplatedHttpContext("GET", "https://google.com/path-one", nil)
-	validateContextualisedHTTPCallLightweight(t, lightweightRequestCtx, nil, nil)
+	validateContextualisedHTTPCallLightweight(t, lightweightRequestCtx, ex, nil)
 }
 
 func TestContextualisedHTTPSCall(t *testing.T) {

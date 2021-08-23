@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"infraql/internal/iql/util"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 
@@ -108,6 +109,19 @@ func (bc *BasicHttpContext) SetQueryParam(k string, v string) {
 	bc.queryParams[k] = v
 }
 
+func getErroneousBody(response *http.Response) string {
+	nullErr := "empty response body"
+	if response.Body == nil {
+		return nullErr
+	}
+	bodyBytes, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nullErr
+	}
+	bodyString := string(bodyBytes)
+	return bodyString
+}
+
 func HTTPApiCall(httpClient *http.Client, requestCtx IHttpContext) (*http.Response, error) {
 	urlStr, err := requestCtx.GetUrl()
 	if err != nil {
@@ -124,8 +138,12 @@ func HTTPApiCall(httpClient *http.Client, requestCtx IHttpContext) (*http.Respon
 	}
 	log.Infoln(fmt.Sprintf("http request = %v", req))
 	response, reponseErr := httpClient.Do(req)
+	log.Infoln(fmt.Sprintf("http response = %v", response))
 	if reponseErr != nil {
-		return nil, reponseErr
+		return response, reponseErr
+	}
+	if response != nil && (response.StatusCode >= 400) {
+		return response, fmt.Errorf("API error, status code %d: %s", response.StatusCode, getErroneousBody(response))
 	}
 	return response, nil
 }
