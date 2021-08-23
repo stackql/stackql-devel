@@ -1,28 +1,13 @@
-package metadata
+package requests
 
 import (
 	"encoding/json"
 	"infraql/internal/iql/constants"
+	"infraql/internal/iql/dto"
+	"infraql/internal/iql/metadata"
+	"infraql/internal/iql/provider"
 	"strings"
 )
-
-type HttpParameters struct {
-	PathParams   map[string]interface{}
-	QueryParams  map[string]interface{}
-	RequestBody  map[string]interface{}
-	ResponseBody map[string]interface{}
-	Unassigned   map[string]interface{}
-}
-
-func NewHttpParameters() *HttpParameters {
-	return &HttpParameters{
-		PathParams:   make(map[string]interface{}),
-		QueryParams:  make(map[string]interface{}),
-		RequestBody:  make(map[string]interface{}),
-		ResponseBody: make(map[string]interface{}),
-		Unassigned:   make(map[string]interface{}),
-	}
-}
 
 type requestBodyParam struct {
 	Key string
@@ -55,8 +40,8 @@ func parseRequestBodyParam(k string, v interface{}) *requestBodyParam {
 	return nil
 }
 
-func SplitHttpParameters(sqlParamMap map[string]interface{}, method *Method, requestSchema *Schema, responseSchema *Schema) (*HttpParameters, error) {
-	retVal := NewHttpParameters()
+func SplitHttpParameters(prov provider.IProvider, sqlParamMap map[string]interface{}, method *metadata.Method, requestSchema *metadata.Schema, responseSchema *metadata.Schema) (*dto.HttpParameters, error) {
+	retVal := dto.NewHttpParameters()
 	for k, v := range sqlParamMap {
 		var assignedToRequest bool
 		if param, ok := method.Parameters[k]; ok {
