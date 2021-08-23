@@ -107,8 +107,16 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 		return nil, err
 	}
 	httpArmoury.Context, err = prov.Parameterise(baseRequestCtx, m, httpArmoury.Parameters, httpArmoury.RequestSchema)
+	if handlerCtx.RuntimeContext.HTTPLogEnabled {
+		url, _ := httpArmoury.Context.GetUrl()
+		handlerCtx.OutErrFile.Write([]byte(fmt.Sprintln(fmt.Sprintf("http request url: %s", url))))
+	}
 	if httpArmoury.BodyBytes != nil && httpArmoury.Header != nil && len(httpArmoury.Header) > 0 {
-		log.Infoln(fmt.Sprintf("setting http request body = %s", string(httpArmoury.BodyBytes)))
+		requestBodyMsg := fmt.Sprintf("http request body: %s", string(httpArmoury.BodyBytes))
+		log.Infoln(requestBodyMsg)
+		if handlerCtx.RuntimeContext.HTTPLogEnabled {
+			handlerCtx.OutErrFile.Write([]byte(fmt.Sprintln(requestBodyMsg)))
+		}
 		httpArmoury.Context.SetBody(bytes.NewReader(httpArmoury.BodyBytes))
 		httpArmoury.Context.SetHeaders(httpArmoury.Header)
 	}

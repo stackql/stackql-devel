@@ -140,7 +140,7 @@ func HTTPApiCall(httpClient *http.Client, requestCtx IHttpContext) (*http.Respon
 	response, reponseErr := httpClient.Do(req)
 	log.Infoln(fmt.Sprintf("http response = %v", response))
 	if reponseErr != nil {
-		return nil, reponseErr
+		return response, reponseErr
 	}
 	if response != nil && (response.StatusCode >= 400) {
 		return response, fmt.Errorf("API error, status code %d: %s", response.StatusCode, getErroneousBody(response))
