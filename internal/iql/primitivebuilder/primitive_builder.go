@@ -6,7 +6,8 @@ import (
 	"infraql/internal/iql/iqlmodel"
 	"infraql/internal/iql/metadata"
 	"infraql/internal/iql/parserutil"
-	"infraql/internal/iql/plan"
+	"infraql/internal/iql/primitive"
+	"infraql/internal/iql/primitivegraph"
 	"infraql/internal/iql/provider"
 	"infraql/internal/iql/symtab"
 	"infraql/internal/iql/taxonomy"
@@ -22,6 +23,8 @@ type PrimitiveBuilder struct {
 	ast sqlparser.Statement
 
 	builder Builder
+
+	graph *primitivegraph.PrimitiveGraph
 
 	drmConfig drm.DRMConfig
 
@@ -49,8 +52,8 @@ type PrimitiveBuilder struct {
 	// per query -- SHOW INSERT only
 	insertSchemaMap map[string]metadata.Schema
 
-	// TODO: universally retire in favour of builder, which returns plan.IPrimitive
-	primitive plan.IPrimitive
+	// TODO: universally retire in favour of builder, which returns primitive.IPrimitive
+	primitive primitive.IPrimitive
 
 	symTab symtab.HashMapTreeSymTab
 
@@ -59,6 +62,10 @@ type PrimitiveBuilder struct {
 
 func (pb *PrimitiveBuilder) SetTxnCtrlCtrs(tc *dto.TxnControlCounters) {
 	pb.txnCtrlCtrs = tc
+}
+
+func (pb *PrimitiveBuilder) GetGraph() *primitivegraph.PrimitiveGraph {
+	return pb.graph
 }
 
 func (pb *PrimitiveBuilder) GetSymbol(k interface{}) (symtab.SymTabEntry, error) {
@@ -124,11 +131,11 @@ func (pb *PrimitiveBuilder) SetColumnOrder(co []parserutil.ColumnHandle) {
 	pb.columnOrder = colOrd
 }
 
-func (pb *PrimitiveBuilder) GetPrimitive() plan.IPrimitive {
+func (pb *PrimitiveBuilder) GetPrimitive() primitive.IPrimitive {
 	return pb.primitive
 }
 
-func (pb *PrimitiveBuilder) SetPrimitive(primitive plan.IPrimitive) {
+func (pb *PrimitiveBuilder) SetPrimitive(primitive primitive.IPrimitive) {
 	pb.primitive = primitive
 }
 
@@ -233,21 +240,27 @@ func (pb PrimitiveBuilder) GetDRMConfig() drm.DRMConfig {
 }
 
 type HTTPRestPrimitive struct {
-	Provider      provider.IProvider
-	Executor      func(pc plan.IPrimitiveCtx) dto.ExecutorOutput
-	Preparator    func() *drm.PreparedStatementCtx
-	TxnControlCtr *dto.TxnControlCounters
+	Provider             provider.IProvider
+	Executor             func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput
+	Preparator           func() *drm.PreparedStatementCtx
+	TxnControlCtr        *dto.TxnControlCounters
+	Inputs               map[int64]dto.ExecutorOutput
+	InputAliases         map[string]int64
+	id                   int64
+	cachedExecutorOutout *dto.ExecutorOutput
 }
 
 type MetaDataPrimitive struct {
 	Provider   provider.IProvider
-	Executor   func(pc plan.IPrimitiveCtx) dto.ExecutorOutput
+	Executor   func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput
 	Preparator func() *drm.PreparedStatementCtx
+	id         int64
 }
 
 type LocalPrimitive struct {
-	Executor   func(pc plan.IPrimitiveCtx) dto.ExecutorOutput
+	Executor   func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput
 	Preparator func() *drm.PreparedStatementCtx
+	id         int64
 }
 
 func (pr *HTTPRestPrimitive) SetTxnId(id int) {
@@ -262,71 +275,107 @@ func (pr *MetaDataPrimitive) SetTxnId(id int) {
 func (pr *LocalPrimitive) SetTxnId(id int) {
 }
 
-func (pr *HTTPRestPrimitive) Execute(pc plan.IPrimitiveCtx) dto.ExecutorOutput {
-	if pr.Executor != nil {
-		return pr.Executor(pc)
-	}
-	return dto.NewExecutorOutput(nil, nil, nil, nil)
-}
-
-func (pr *HTTPRestPrimitive) GetPreparedStatementContext() *drm.PreparedStatementCtx {
-	if pr.Preparator != nil {
-		return pr.Preparator()
-	}
+func (pr *HTTPRestPrimitive) IncidentData(fromId int64, input dto.ExecutorOutput) error {
+	pr.Inputs[fromId] = input
 	return nil
 }
 
-func (pr *MetaDataPrimitive) GetPreparedStatementContext() *drm.PreparedStatementCtx {
-	if pr.Preparator != nil {
-		return pr.Preparator()
-	}
+func (pr *MetaDataPrimitive) IncidentData(fromId int64, input dto.ExecutorOutput) error {
 	return nil
 }
 
-func (pr *LocalPrimitive) GetPreparedStatementContext() *drm.PreparedStatementCtx {
-	if pr.Preparator != nil {
-		return pr.Preparator()
-	}
+func (pr *LocalPrimitive) IncidentData(fromId int64, input dto.ExecutorOutput) error {
 	return nil
 }
 
-func (pr *MetaDataPrimitive) Execute(pc plan.IPrimitiveCtx) dto.ExecutorOutput {
+func (pr *HTTPRestPrimitive) SetInputAlias(alias string, id int64) error {
+	pr.InputAliases[alias] = id
+	return nil
+}
+
+func (pr *MetaDataPrimitive) SetInputAlias(alias string, id int64) error {
+	return nil
+}
+
+func (pr *LocalPrimitive) SetInputAlias(alias string, id int64) error {
+	return nil
+}
+
+func (pr *HTTPRestPrimitive) Optimise() error {
+	return nil
+}
+
+func (pr *MetaDataPrimitive) Optimise() error {
+	return nil
+}
+
+func (pr *LocalPrimitive) Optimise() error {
+	return nil
+}
+
+func (pr *HTTPRestPrimitive) Execute(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+	if pr.cachedExecutorOutout != nil {
+		return *(pr.cachedExecutorOutout)
+	}
+	if pr.Executor != nil {
+		op := pr.Executor(pc)
+		pr.cachedExecutorOutout = &op
+		return op
+	}
+	return dto.NewExecutorOutput(nil, nil, nil, nil, nil)
+}
+
+func (pr *HTTPRestPrimitive) ID() int64 {
+	return pr.id
+}
+
+func (pr *MetaDataPrimitive) ID() int64 {
+	return pr.id
+}
+
+func (pr *LocalPrimitive) ID() int64 {
+	return pr.id
+}
+
+func (pr *MetaDataPrimitive) Execute(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 	if pr.Executor != nil {
 		return pr.Executor(pc)
 	}
-	return dto.NewExecutorOutput(nil, nil, nil, nil)
+	return dto.NewExecutorOutput(nil, nil, nil, nil, nil)
 }
 
-func (pr *LocalPrimitive) Execute(pc plan.IPrimitiveCtx) dto.ExecutorOutput {
+func (pr *LocalPrimitive) Execute(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 	if pr.Executor != nil {
 		return pr.Executor(pc)
 	}
-	return dto.NewExecutorOutput(nil, nil, nil, nil)
+	return dto.NewExecutorOutput(nil, nil, nil, nil, nil)
 }
 
-func NewMetaDataPrimitive(provider provider.IProvider, executor func(pc plan.IPrimitiveCtx) dto.ExecutorOutput) *MetaDataPrimitive {
+func NewMetaDataPrimitive(provider provider.IProvider, executor func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput) *MetaDataPrimitive {
 	return &MetaDataPrimitive{
 		Provider: provider,
 		Executor: executor,
 	}
 }
 
-func NewHTTPRestPrimitive(provider provider.IProvider, executor func(pc plan.IPrimitiveCtx) dto.ExecutorOutput, preparator func() *drm.PreparedStatementCtx, txnCtrlCtr *dto.TxnControlCounters) *HTTPRestPrimitive {
+func NewHTTPRestPrimitive(provider provider.IProvider, executor func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput, preparator func() *drm.PreparedStatementCtx, txnCtrlCtr *dto.TxnControlCounters) *HTTPRestPrimitive {
 	return &HTTPRestPrimitive{
 		Provider:      provider,
 		Executor:      executor,
 		Preparator:    preparator,
 		TxnControlCtr: txnCtrlCtr,
+		Inputs:        make(map[int64]dto.ExecutorOutput),
+		InputAliases:  make(map[string]int64),
 	}
 }
 
-func NewLocalPrimitive(executor func(pc plan.IPrimitiveCtx) dto.ExecutorOutput) *LocalPrimitive {
+func NewLocalPrimitive(executor func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput) *LocalPrimitive {
 	return &LocalPrimitive{
 		Executor: executor,
 	}
 }
 
-func NewPrimitiveBuilder(ast sqlparser.Statement, drmConfig drm.DRMConfig, txnCtrMgr *txncounter.TxnCounterManager) *PrimitiveBuilder {
+func NewPrimitiveBuilder(ast sqlparser.Statement, drmConfig drm.DRMConfig, txnCtrMgr *txncounter.TxnCounterManager, graph *primitivegraph.PrimitiveGraph) *PrimitiveBuilder {
 	return &PrimitiveBuilder{
 		ast:               ast,
 		drmConfig:         drmConfig,
@@ -336,5 +385,6 @@ func NewPrimitiveBuilder(ast sqlparser.Statement, drmConfig drm.DRMConfig, txnCt
 		colsVisited:       make(map[string]bool),
 		txnCounterManager: txnCtrMgr,
 		symTab:            symtab.NewHashMapTreeSymTab(),
+		graph:             graph,
 	}
 }

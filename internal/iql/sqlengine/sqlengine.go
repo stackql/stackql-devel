@@ -82,7 +82,6 @@ type SQLEngine interface {
 	CacheStoreGet(string) ([]byte, error)
 	CacheStoreGetAll() ([]dto.KeyVal, error)
 	CacheStorePut(string, []byte, string, int) error
-	// QueryOutput(*SQLEnginePayload, *dto.ExecutorOutput) dto.ExecutorOutput
 }
 
 type SQLiteEngine struct {
@@ -390,20 +389,20 @@ func (se SQLiteEngine) query(query string, varArgs ...interface{}) (*sql.Rows, e
 func (se SQLiteEngine) QueryOutput(payload *SQLEnginePayload, substrate *dto.ExecutorOutput) dto.ExecutorOutput {
 	rows, err := se.db.Query(payload.query)
 	if err != nil {
-		return dto.NewExecutorOutput(nil, nil, nil, err)
+		return dto.NewExecutorOutput(nil, nil, nil, nil, err)
 	}
 	defer rows.Close()
 	if err := rows.Err(); err != nil {
-		return dto.NewExecutorOutput(nil, nil, nil, err)
+		return dto.NewExecutorOutput(nil, nil, nil, nil, err)
 	}
 	return prepareResultSet(payload, rows)
 }
 
 func prepareResultSet(payload *SQLEnginePayload, rows *sql.Rows) dto.ExecutorOutput {
 	if err := rows.Err(); err != nil {
-		return dto.ExecutorOutput{
-			Err: err,
-		}
+		return dto.NewExecutorOutput(
+			nil, nil, nil, nil, err,
+		)
 	}
 
 	colNames := payload.ColNames()
@@ -422,18 +421,21 @@ func prepareResultSet(payload *SQLEnginePayload, rows *sql.Rows) dto.ExecutorOut
 	for rows.Next() {
 		svs = payload.getScanVars()
 		if err := rows.Scan(svs...); err != nil {
-			return dto.NewExecutorOutput(nil, nil, nil, err)
+			return dto.NewExecutorOutput(nil, nil, nil, nil, err)
 		}
 		res.Rows = append(res.Rows, resultutil.TransformRow(svs))
 		// fmt.Printf("dept=%d stddev=%f\n", dept, dev)
 	}
 	if err := rows.Err(); err != nil {
-		return dto.NewExecutorOutput(nil, nil, nil, err)
+		return dto.NewExecutorOutput(nil, nil, nil, nil, err)
 	}
 
-	return dto.ExecutorOutput{
-		Result: res,
-	}
+	return dto.NewExecutorOutput(
+		res,
+		nil,
+		nil,
+		nil,
+		nil)
 }
 
 func singleColRowsToString(rows *sql.Rows) (string, error) {

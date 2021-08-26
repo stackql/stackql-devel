@@ -13,6 +13,8 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 
 	querypb "vitess.io/vitess/go/vt/proto/query"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var defaultColSortArr []string = []string{
@@ -42,29 +44,33 @@ func extractExecParams(node *sqlparser.Exec) (map[string]interface{}, error) {
 	return paramMap, err
 }
 
-func extractInsertParams(insert *sqlparser.Insert, insertValOnlyRows map[int]map[int]interface{}) (map[string]interface{}, error) {
-	retVal := make(map[string]interface{})
+func extractInsertParams(insert *sqlparser.Insert, insertValOnlyRows map[int]map[int]interface{}) (map[int]map[string]interface{}, error) {
+	retVal := make(map[int]map[string]interface{})
 	var err error
 	if len(insertValOnlyRows) < 1 {
 		return nil, fmt.Errorf("cannot insert zero data")
 	}
-	for _, row := range insertValOnlyRows {
+	for i, row := range insertValOnlyRows {
+		rowVal := make(map[string]interface{})
 		if len(insert.Columns) != len(row) {
+			log.Infoln(fmt.Sprintf("row = %v", row))
 			return nil, fmt.Errorf("disparity in fields to insert and supplied data")
 		}
-	}
-	for idx, col := range insert.Columns {
-		key := col.GetRawVal()
-		val := insertValOnlyRows[0][idx]
-		retVal[key] = val
+		for idx, col := range insert.Columns {
+			key := col.GetRawVal()
+			val := insertValOnlyRows[i][idx]
+			rowVal[key] = val
+		}
+		retVal[i] = rowVal
 	}
 	return retVal, err
 }
 
-func ExtractSQLNodeParams(statement sqlparser.SQLNode, insertValOnlyRows map[int]map[int]interface{}) (map[string]interface{}, error) {
+func ExtractSQLNodeParams(statement sqlparser.SQLNode, insertValOnlyRows map[int]map[int]interface{}) (map[int]map[string]interface{}, error) {
 	switch stmt := statement.(type) {
 	case *sqlparser.Exec:
-		return extractExecParams(stmt)
+		val, err := extractExecParams(stmt)
+		return map[int]map[string]interface{}{0: val}, err
 	case *sqlparser.Insert:
 		return extractInsertParams(stmt, insertValOnlyRows)
 	}
@@ -72,7 +78,6 @@ func ExtractSQLNodeParams(statement sqlparser.SQLNode, insertValOnlyRows map[int
 	var err error
 	sqlparser.Walk(func(node sqlparser.SQLNode) (bool, error) {
 		switch node := node.(type) {
-
 		case *sqlparser.ComparisonExpr:
 			if node.Operator == sqlparser.EqualStr {
 				switch l := node.Left.(type) {
@@ -95,13 +100,13 @@ func ExtractSQLNodeParams(statement sqlparser.SQLNode, insertValOnlyRows map[int
 		}
 		return true, err
 	}, statement)
-	return paramMap, err
+	return map[int]map[string]interface{}{0: paramMap}, err
 }
 
 func InterfaceToBytes(subject interface{}, isErrorCol bool) []byte {
 	switch sub := subject.(type) {
-	case bool:
-		if sub {
+	case bool, sqlparser.BoolVal:
+		if sub == true {
 			return []byte("true")
 		}
 		return []byte("false")
@@ -166,17 +171,22 @@ func GenerateSimpleErroneousOutput(err error) dto.ExecutorOutput {
 
 func PrepareResultSet(payload dto.PrepareResultSetDTO) dto.ExecutorOutput {
 	if payload.Err != nil {
-		return dto.ExecutorOutput{
-			OutputBody: payload.OutputBody,
-			Msg:        payload.Msg,
-			Err:        payload.Err,
-		}
+		return dto.NewExecutorOutput(
+			nil,
+			payload.OutputBody,
+			nil,
+			payload.Msg,
+			payload.Err,
+		)
 	}
 	if payload.RowMap == nil || len(payload.RowMap) == 0 {
-		return dto.ExecutorOutput{
-			OutputBody: payload.OutputBody,
-			Msg:        payload.Msg,
-		}
+		return dto.NewExecutorOutput(
+			nil,
+			payload.OutputBody,
+			nil,
+			payload.Msg,
+			nil,
+		)
 	}
 	if payload.RowSort == nil {
 		payload.RowSort = DefaultRowSort
@@ -269,12 +279,13 @@ func PrepareResultSet(payload dto.PrepareResultSetDTO) dto.ExecutorOutput {
 			}
 		}
 	}
-	return dto.ExecutorOutput{
-		Result:     res,
-		OutputBody: payload.OutputBody,
-		Msg:        payload.Msg,
-		Err:        payload.Err,
-	}
+	return dto.NewExecutorOutput(
+		res,
+		payload.OutputBody,
+		payload.RawRows,
+		payload.Msg,
+		payload.Err,
+	)
 }
 
 func DescribeRowSort(rows map[string]map[string]interface{}) []string {

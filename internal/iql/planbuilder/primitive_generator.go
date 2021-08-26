@@ -1,6 +1,7 @@
 package planbuilder
 
 import (
+	"bytes"
 	"fmt"
 	"regexp"
 	"sort"
@@ -11,14 +12,16 @@ import (
 	"infraql/internal/iql/constants"
 	"infraql/internal/iql/dto"
 	"infraql/internal/iql/handler"
+	"infraql/internal/iql/httpbuild"
 	"infraql/internal/iql/httpexec"
 	"infraql/internal/iql/httpmiddleware"
 	"infraql/internal/iql/iqlmodel"
 	"infraql/internal/iql/iqlutil"
 	"infraql/internal/iql/metadata"
 	"infraql/internal/iql/metadatavisitors"
-	"infraql/internal/iql/plan"
+	"infraql/internal/iql/primitive"
 	"infraql/internal/iql/primitivebuilder"
+	"infraql/internal/iql/primitivegraph"
 	"infraql/internal/iql/provider"
 	"infraql/internal/iql/relational"
 	"infraql/internal/iql/sqltypeutil"
@@ -36,9 +39,9 @@ type primitiveGenerator struct {
 	PrimitiveBuilder *primitivebuilder.PrimitiveBuilder
 }
 
-func newPrimitiveGenerator(ast sqlparser.Statement, handlerCtx *handler.HandlerContext) *primitiveGenerator {
+func newPrimitiveGenerator(ast sqlparser.Statement, handlerCtx *handler.HandlerContext, graph *primitivegraph.PrimitiveGraph) *primitiveGenerator {
 	return &primitiveGenerator{
-		PrimitiveBuilder: primitivebuilder.NewPrimitiveBuilder(ast, handlerCtx.DrmConfig, handlerCtx.TxnCounterMgr),
+		PrimitiveBuilder: primitivebuilder.NewPrimitiveBuilder(ast, handlerCtx.DrmConfig, handlerCtx.TxnCounterMgr, graph),
 	}
 }
 
@@ -386,7 +389,7 @@ func extractStringFromMap(m map[string]interface{}, k string) string {
 	return retVal
 }
 
-func (pb *primitiveGenerator) selectExecutor(handlerCtx *handler.HandlerContext, node *sqlparser.Select, rowSort func(map[string]map[string]interface{}) []string) (plan.IPrimitive, error) {
+func (pb *primitiveGenerator) selectExecutor(handlerCtx *handler.HandlerContext, node *sqlparser.Select, rowSort func(map[string]map[string]interface{}) []string) (primitive.IPrimitive, error) {
 	if pb.PrimitiveBuilder.GetBuilder() == nil {
 		return nil, fmt.Errorf("builder not created for select, cannot proceed")
 	}
@@ -397,7 +400,7 @@ func (pb *primitiveGenerator) selectExecutor(handlerCtx *handler.HandlerContext,
 	return pb.PrimitiveBuilder.GetBuilder().GetPrimitive(), nil
 }
 
-func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext, node *sqlparser.Insert, rowSort func(map[string]map[string]interface{}) []string) (plan.IPrimitive, error) {
+func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext, node *sqlparser.Insert, rowSort func(map[string]map[string]interface{}) []string) (primitive.IPrimitive, error) {
 	tbl, err := pb.PrimitiveBuilder.GetTable(node)
 	if err != nil {
 		return nil, err
@@ -406,58 +409,120 @@ func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext,
 	if err != nil {
 		return nil, err
 	}
-	ex := func(pc plan.IPrimitiveCtx) dto.ExecutorOutput {
-		var err error
-		response, apiErr := httpmiddleware.HttpApiCall(*handlerCtx, prov, tbl.HttpArmoury.Context)
-		if apiErr != nil {
-			return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, nil, nil, rowSort, apiErr, nil))
-		}
-		target, err := httpexec.ProcessHttpResponse(response)
-		if err != nil {
-			return util.PrepareResultSet(dto.NewPrepareResultSetDTO(
-				nil,
-				nil,
-				nil,
-				nil,
-				err,
-				nil,
-			))
-		}
-		log.Infoln(fmt.Sprintf("target = %v", target))
-		items, ok := target[prov.GetDefaultKeyForSelectItems()]
-		keys := make(map[string]map[string]interface{})
-		if ok {
-			iArr, ok := items.([]interface{})
-			if ok && len(iArr) > 0 {
-				for i := range iArr {
-					item, ok := iArr[i].(map[string]interface{})
-					if ok {
-						keys[strconv.Itoa(i)] = item
-					}
-				}
-			}
-		}
-		msgs := dto.BackendMessages{}
-		if err == nil {
-			msgs.WorkingMessages = generateSuccessMessagesFromHeirarchy(tbl)
-		}
-		return dto.NewExecutorOutput(nil, target, &msgs, err)
+	m, err := tbl.GetMethod()
+	if err != nil {
+		return nil, err
 	}
 	insertPrimitive := primitivebuilder.NewHTTPRestPrimitive(
 		prov,
-		ex,
+		nil,
 		nil,
 		nil,
 	)
-	if !pb.PrimitiveBuilder.IsAwait() {
-		return insertPrimitive, nil
+	ex := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+		key, keyExists := insertPrimitive.InputAliases[""]
+		if !keyExists {
+			return dto.NewErroneousExecutorOutput(fmt.Errorf("input for insert key does not exist"))
+		}
+		input, inputExists := insertPrimitive.Inputs[key]
+		if !inputExists {
+			return dto.NewErroneousExecutorOutput(fmt.Errorf("input for insert does not exist"))
+		}
+		sm, err := prov.GetSchemaMap(tbl.HeirarchyObjects.HeirarchyIds.ServiceStr, tbl.HeirarchyObjects.HeirarchyIds.ResourceStr)
+		if err != nil {
+			return dto.NewErroneousExecutorOutput(err)
+		}
+		inputMap, err := input.ResultToMap()
+		if err != nil {
+			return dto.NewErroneousExecutorOutput(err)
+		}
+		httpArmoury, err := httpbuild.BuildHTTPRequestCtx(handlerCtx, node, prov, m, sm, inputMap, nil)
+		if err != nil {
+			return dto.NewErroneousExecutorOutput(err)
+		}
+		var target map[string]interface{}
+
+		var zeroArityExecutors []func() dto.ExecutorOutput
+		for _, r := range httpArmoury.RequestParams {
+			req := r
+			zeroArityEx := func() dto.ExecutorOutput {
+				log.Infoln(fmt.Sprintf("req.BodyBytes = %s", string(req.BodyBytes)))
+				req.Context.SetBody(bytes.NewReader(req.BodyBytes))
+				log.Infoln(fmt.Sprintf("req.Context = %v", req.Context))
+				response, apiErr := httpmiddleware.HttpApiCall(*handlerCtx, prov, req.Context)
+				if apiErr != nil {
+					return dto.NewErroneousExecutorOutput(err)
+				}
+
+				target, err = httpexec.ProcessHttpResponse(response)
+				pb.composeAsyncMonitor(handlerCtx, insertPrimitive, tbl)
+				if err != nil {
+					return dto.NewErroneousExecutorOutput(err)
+				}
+				log.Infoln(fmt.Sprintf("target = %v", target))
+				items, ok := target[prov.GetDefaultKeyForSelectItems()]
+				keys := make(map[string]map[string]interface{})
+				if ok {
+					iArr, ok := items.([]interface{})
+					if ok && len(iArr) > 0 {
+						for i := range iArr {
+							item, ok := iArr[i].(map[string]interface{})
+							if ok {
+								keys[strconv.Itoa(i)] = item
+							}
+						}
+					}
+				}
+				msgs := dto.BackendMessages{}
+				if err == nil {
+					msgs.WorkingMessages = generateSuccessMessagesFromHeirarchy(tbl)
+				}
+				return dto.NewExecutorOutput(nil, target, nil, &msgs, err)
+			}
+			zeroArityExecutors = append(zeroArityExecutors, zeroArityEx)
+		}
+		resultSet := dto.NewErroneousExecutorOutput(fmt.Errorf("no executions detected"))
+		if !pb.PrimitiveBuilder.IsAwait() {
+			for _, execInstance := range zeroArityExecutors {
+				resultSet = execInstance()
+			}
+			return resultSet
+		}
+		for _, eI := range zeroArityExecutors {
+			execInstance := eI
+			dependentInsertPrimitive := primitivebuilder.NewHTTPRestPrimitive(
+				prov,
+				nil,
+				nil,
+				nil,
+			)
+			dependentInsertPrimitive.Executor = func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+				return execInstance()
+			}
+			execPrim, err := pb.composeAsyncMonitor(handlerCtx, dependentInsertPrimitive, tbl)
+			if err != nil {
+				return dto.NewErroneousExecutorOutput(err)
+			}
+			resultSet = execPrim.Execute(pc)
+			if resultSet.Err != nil {
+				return resultSet
+			}
+			// graph := pb.PrimitiveBuilder.GetGraph()
+			// n := graph.CreatePrimitiveNode(execPrim)
+			// primitiveNodes = append(primitiveNodes, n)
+			// if i > 0 {
+			// 	graph.NewDependency(primitiveNodes[i-1], n, 1.0)
+			// }
+		}
+		return resultSet
 	}
-	return pb.composeAsyncMonitor(handlerCtx, insertPrimitive, tbl)
+	insertPrimitive.Executor = ex
+	return insertPrimitive, nil
 }
 
-func (pb *primitiveGenerator) localSelectExecutor(handlerCtx *handler.HandlerContext, node *sqlparser.Select, rowSort func(map[string]map[string]interface{}) []string) (plan.IPrimitive, error) {
+func (pb *primitiveGenerator) localSelectExecutor(handlerCtx *handler.HandlerContext, node *sqlparser.Select, rowSort func(map[string]map[string]interface{}) []string) (primitive.IPrimitive, error) {
 	return primitivebuilder.NewLocalPrimitive(
-		func(pc plan.IPrimitiveCtx) dto.ExecutorOutput {
+		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 			var columnOrder []string
 			keys := make(map[string]map[string]interface{})
 			row := make(map[string]interface{})
@@ -483,7 +548,39 @@ func (pb *primitiveGenerator) localSelectExecutor(handlerCtx *handler.HandlerCon
 		}), nil
 }
 
-func (pb *primitiveGenerator) deleteExecutor(handlerCtx *handler.HandlerContext, node *sqlparser.Delete) (plan.IPrimitive, error) {
+func (pb *primitiveGenerator) insertableValsExecutor(handlerCtx *handler.HandlerContext, vals map[int]map[int]interface{}) (primitive.IPrimitive, error) {
+	return primitivebuilder.NewLocalPrimitive(
+		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+			keys := make(map[string]map[string]interface{})
+			row := make(map[string]interface{})
+			var rowKeys []int
+			var colKeys []int
+			var columnOrder []string
+			for k, _ := range vals {
+				rowKeys = append(rowKeys, k)
+			}
+			for _, v := range vals {
+				for ck, _ := range v {
+					colKeys = append(colKeys, ck)
+				}
+				break
+			}
+			sort.Ints(rowKeys)
+			sort.Ints(colKeys)
+			for _, ck := range colKeys {
+				columnOrder = append(columnOrder, "val_"+strconv.Itoa(ck))
+			}
+			for idx := range colKeys {
+				col := vals[0][idx]
+				colName := columnOrder[idx]
+				row[colName] = col
+			}
+			keys["0"] = row
+			return util.PrepareResultSet(dto.NewPrepareResultSetPlusRawDTO(nil, keys, columnOrder, nil, nil, nil, vals))
+		}), nil
+}
+
+func (pb *primitiveGenerator) deleteExecutor(handlerCtx *handler.HandlerContext, node *sqlparser.Delete) (primitive.IPrimitive, error) {
 	tbl, err := pb.PrimitiveBuilder.GetTable(node)
 	if err != nil {
 		return nil, err
@@ -492,32 +589,36 @@ func (pb *primitiveGenerator) deleteExecutor(handlerCtx *handler.HandlerContext,
 	if err != nil {
 		return nil, err
 	}
-	ex := func(pc plan.IPrimitiveCtx) dto.ExecutorOutput {
-		response, apiErr := httpmiddleware.HttpApiCall(*handlerCtx, prov, tbl.HttpArmoury.Context)
-		if apiErr != nil {
-			return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil))
-		}
-		target, err := httpexec.ProcessHttpResponse(response)
-		if err != nil {
-			return util.PrepareResultSet(dto.NewPrepareResultSetDTO(
-				nil,
-				nil,
-				nil,
-				nil,
-				err,
-				nil,
-			))
-		}
-		log.Infoln(fmt.Sprintf("target = %v", target))
-		items, ok := target[prov.GetDefaultKeyForDeleteItems()]
+	ex := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+		var target map[string]interface{}
+		var err error
 		keys := make(map[string]map[string]interface{})
-		if ok {
-			iArr, ok := items.([]interface{})
-			if ok && len(iArr) > 0 {
-				for i := range iArr {
-					item, ok := iArr[i].(map[string]interface{})
-					if ok {
-						keys[strconv.Itoa(i)] = item
+		for _, req := range tbl.HttpArmoury.RequestParams {
+			response, apiErr := httpmiddleware.HttpApiCall(*handlerCtx, prov, req.Context)
+			if apiErr != nil {
+				return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil))
+			}
+			target, err = httpexec.ProcessHttpResponse(response)
+			if err != nil {
+				return util.PrepareResultSet(dto.NewPrepareResultSetDTO(
+					nil,
+					nil,
+					nil,
+					nil,
+					err,
+					nil,
+				))
+			}
+			log.Infoln(fmt.Sprintf("target = %v", target))
+			items, ok := target[prov.GetDefaultKeyForDeleteItems()]
+			if ok {
+				iArr, ok := items.([]interface{})
+				if ok && len(iArr) > 0 {
+					for i := range iArr {
+						item, ok := iArr[i].(map[string]interface{})
+						if ok {
+							keys[strconv.Itoa(i)] = item
+						}
 					}
 				}
 			}
@@ -560,10 +661,10 @@ func (pb *primitiveGenerator) generateResultIfNeededfunc(resultMap map[string]ma
 	if pb.PrimitiveBuilder.GetCommentDirectives() != nil && pb.PrimitiveBuilder.GetCommentDirectives().IsSet("SHOWRESULTS") {
 		return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, resultMap, nil, nil, nil, nil))
 	}
-	return dto.NewExecutorOutput(nil, body, msg, err)
+	return dto.NewExecutorOutput(nil, body, nil, msg, err)
 }
 
-func (pb *primitiveGenerator) execExecutor(handlerCtx *handler.HandlerContext, node *sqlparser.Exec) (plan.IPrimitive, error) {
+func (pb *primitiveGenerator) execExecutor(handlerCtx *handler.HandlerContext, node *sqlparser.Exec) (primitive.IPrimitive, error) {
 	var target map[string]interface{}
 	tbl, err := pb.PrimitiveBuilder.GetTable(node)
 	if err != nil {
@@ -573,44 +674,46 @@ func (pb *primitiveGenerator) execExecutor(handlerCtx *handler.HandlerContext, n
 	if err != nil {
 		return nil, err
 	}
-	ex := func(pc plan.IPrimitiveCtx) dto.ExecutorOutput {
+	ex := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 		var err error
 		var columnOrder []string
-		response, apiErr := httpmiddleware.HttpApiCall(*handlerCtx, prov, tbl.HttpArmoury.Context)
-		if apiErr != nil {
-			return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil))
-		}
-		target, err = httpexec.ProcessHttpResponse(response)
-		if err != nil {
-			return util.PrepareResultSet(dto.NewPrepareResultSetDTO(
-				nil,
-				nil,
-				nil,
-				nil,
-				err,
-				nil,
-			))
-		}
-		log.Infoln(fmt.Sprintf("target = %v", target))
-		items, ok := target[prov.GetDefaultKeyForSelectItems()]
 		keys := make(map[string]map[string]interface{})
-		if ok {
-			iArr, ok := items.([]interface{})
-			if ok && len(iArr) > 0 {
-				for i := range iArr {
-					item, ok := iArr[i].(map[string]interface{})
-					if ok {
-						keys[strconv.Itoa(i)] = item
+		for i, req := range tbl.HttpArmoury.RequestParams {
+			response, apiErr := httpmiddleware.HttpApiCall(*handlerCtx, prov, req.Context)
+			if apiErr != nil {
+				return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil))
+			}
+			target, err = httpexec.ProcessHttpResponse(response)
+			if err != nil {
+				return util.PrepareResultSet(dto.NewPrepareResultSetDTO(
+					nil,
+					nil,
+					nil,
+					nil,
+					err,
+					nil,
+				))
+			}
+			log.Infoln(fmt.Sprintf("target = %v", target))
+			items, ok := target[prov.GetDefaultKeyForSelectItems()]
+			if ok {
+				iArr, ok := items.([]interface{})
+				if ok && len(iArr) > 0 {
+					for i := range iArr {
+						item, ok := iArr[i].(map[string]interface{})
+						if ok {
+							keys[strconv.Itoa(i)] = item
+						}
 					}
 				}
+			} else {
+				keys[fmt.Sprintf("%d", i)] = target
 			}
-		} else {
-			keys["0"] = target
+			// optional data return pattern to be included in grammar subsequently
+			// return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, keys, columnOrder, nil, err, nil))
+			log.Debugln(fmt.Sprintf("keys = %v", keys))
+			log.Debugln(fmt.Sprintf("columnOrder = %v", columnOrder))
 		}
-		// optional data return pattern to be included in grammar subsequently
-		// return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, keys, columnOrder, nil, err, nil))
-		log.Debugln(fmt.Sprintf("keys = %v", keys))
-		log.Debugln(fmt.Sprintf("columnOrder = %v", columnOrder))
 		msgs := dto.BackendMessages{}
 		if err == nil {
 			msgs.WorkingMessages = generateSuccessMessagesFromHeirarchy(tbl)
@@ -629,7 +732,7 @@ func (pb *primitiveGenerator) execExecutor(handlerCtx *handler.HandlerContext, n
 	return pb.composeAsyncMonitor(handlerCtx, execPrimitive, tbl)
 }
 
-func (pb *primitiveGenerator) composeAsyncMonitor(handlerCtx *handler.HandlerContext, precursor plan.IPrimitive, meta taxonomy.ExtendedTableMetadata) (plan.IPrimitive, error) {
+func (pb *primitiveGenerator) composeAsyncMonitor(handlerCtx *handler.HandlerContext, precursor primitive.IPrimitive, meta taxonomy.ExtendedTableMetadata) (primitive.IPrimitive, error) {
 	prov, err := meta.GetProvider()
 	if err != nil {
 		return nil, err
@@ -638,18 +741,18 @@ func (pb *primitiveGenerator) composeAsyncMonitor(handlerCtx *handler.HandlerCon
 	if err != nil {
 		return nil, err
 	}
-	authCtx, err := handlerCtx.GetAuthContext(prov.GetProviderString())
+	// might be pointless
+	_, err = handlerCtx.GetAuthContext(prov.GetProviderString())
 	if err != nil {
 		return nil, err
 	}
+	//
 	pl := dto.NewBasicPrimitiveContext(
-		nil,
-		authCtx,
+		handlerCtx.GetAuthContext,
 		handlerCtx.Outfile,
 		handlerCtx.OutErrFile,
-		pb.PrimitiveBuilder.GetCommentDirectives(),
 	)
-	primitive, err := asm.GetMonitorPrimitive(meta.HeirarchyObjects, precursor, pl)
+	primitive, err := asm.GetMonitorPrimitive(meta.HeirarchyObjects, precursor, pl, pb.PrimitiveBuilder.GetCommentDirectives())
 	if err != nil {
 		return nil, err
 	}

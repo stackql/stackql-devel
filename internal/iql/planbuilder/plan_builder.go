@@ -7,8 +7,11 @@ import (
 	"infraql/internal/iql/handler"
 	"infraql/internal/iql/iqlerror"
 	"infraql/internal/iql/parse"
+	"infraql/internal/iql/parserutil"
 	"infraql/internal/iql/plan"
+	"infraql/internal/iql/primitive"
 	"infraql/internal/iql/primitivebuilder"
+	"infraql/internal/iql/primitivegraph"
 	"infraql/internal/iql/util"
 	"strings"
 
@@ -17,144 +20,162 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func createInstructionFor(handlerCtx *handler.HandlerContext, stmt sqlparser.Statement) (plan.IPrimitive, error) {
-	switch stmt := stmt.(type) {
-	case *sqlparser.Auth:
-		return handleAuth(handlerCtx, stmt)
-	case *sqlparser.AuthRevoke:
-		return handleAuthRevoke(handlerCtx, stmt)
-	case *sqlparser.Begin:
-		return nil, iqlerror.GetStatementNotSupportedError("TRANSACTION: BEGIN")
-	case *sqlparser.Commit:
-		return nil, iqlerror.GetStatementNotSupportedError("TRANSACTION: COMMIT")
-	case *sqlparser.DBDDL:
-		return nil, iqlerror.GetStatementNotSupportedError(fmt.Sprintf("unsupported: Database DDL %v", sqlparser.String(stmt)))
-	case *sqlparser.DDL:
-		return nil, iqlerror.GetStatementNotSupportedError("DDL")
-	case *sqlparser.Delete:
-		return handleDelete(handlerCtx, stmt)
-	case *sqlparser.DescribeTable:
-		return handleDescribe(handlerCtx, stmt)
-	case *sqlparser.Exec:
-		return handleExec(handlerCtx, stmt)
-	case *sqlparser.Explain:
-		return nil, iqlerror.GetStatementNotSupportedError("EXPLAIN")
-	case *sqlparser.Insert:
-		return handleInsert(handlerCtx, stmt)
-	case *sqlparser.OtherRead, *sqlparser.OtherAdmin:
-		return nil, iqlerror.GetStatementNotSupportedError("OTHER")
-	case *sqlparser.Rollback:
-		return nil, iqlerror.GetStatementNotSupportedError("TRANSACTION: ROLLBACK")
-	case *sqlparser.Savepoint:
-		return nil, iqlerror.GetStatementNotSupportedError("TRANSACTION: SAVEPOINT")
-	case *sqlparser.Select:
-		return handleSelect(handlerCtx, stmt)
-	case *sqlparser.Set:
-		return nil, iqlerror.GetStatementNotSupportedError("SET")
-	case *sqlparser.SetTransaction:
-		return nil, iqlerror.GetStatementNotSupportedError("SET TRANSACTION")
-	case *sqlparser.Show:
-		return handleShow(handlerCtx, stmt)
-	case *sqlparser.Sleep:
-		return handleSleep(handlerCtx, stmt)
-	case *sqlparser.SRollback:
-		return nil, iqlerror.GetStatementNotSupportedError("TRANSACTION: SROLLBACK")
-	case *sqlparser.Release:
-		return nil, iqlerror.GetStatementNotSupportedError("TRANSACTION: RELEASE")
-	case *sqlparser.Union:
-		return nil, iqlerror.GetStatementNotSupportedError("UNION")
-	case *sqlparser.Update:
-		return nil, iqlerror.GetStatementNotSupportedError("UPDATE")
-	case *sqlparser.Use:
-		return handleUse(handlerCtx, stmt)
-	}
-	return nil, iqlerror.GetStatementNotSupportedError(fmt.Sprintf("BUG: unexpected statement type: %T", stmt))
+type planGraphBuilder struct {
+	planGraph *primitivegraph.PrimitiveGraph
 }
 
-func handleAuth(handlerCtx *handler.HandlerContext, node *sqlparser.Auth) (plan.IPrimitive, error) {
-	primitiveGenerator := newPrimitiveGenerator(node, handlerCtx)
+func newPlanGraphBuilder() *planGraphBuilder {
+	return &planGraphBuilder{
+		planGraph: primitivegraph.NewPrimitiveGraph(),
+	}
+}
+
+func (pgb *planGraphBuilder) createInstructionFor(handlerCtx *handler.HandlerContext, stmt sqlparser.Statement) error {
+	switch stmt := stmt.(type) {
+	case *sqlparser.Auth:
+		return pgb.handleAuth(handlerCtx, stmt)
+	case *sqlparser.AuthRevoke:
+		return pgb.handleAuthRevoke(handlerCtx, stmt)
+	case *sqlparser.Begin:
+		return iqlerror.GetStatementNotSupportedError("TRANSACTION: BEGIN")
+	case *sqlparser.Commit:
+		return iqlerror.GetStatementNotSupportedError("TRANSACTION: COMMIT")
+	case *sqlparser.DBDDL:
+		return iqlerror.GetStatementNotSupportedError(fmt.Sprintf("unsupported: Database DDL %v", sqlparser.String(stmt)))
+	case *sqlparser.DDL:
+		return iqlerror.GetStatementNotSupportedError("DDL")
+	case *sqlparser.Delete:
+		return pgb.handleDelete(handlerCtx, stmt)
+	case *sqlparser.DescribeTable:
+		return pgb.handleDescribe(handlerCtx, stmt)
+	case *sqlparser.Exec:
+		return pgb.handleExec(handlerCtx, stmt)
+	case *sqlparser.Explain:
+		return iqlerror.GetStatementNotSupportedError("EXPLAIN")
+	case *sqlparser.Insert:
+		return pgb.handleInsert(handlerCtx, stmt)
+	case *sqlparser.OtherRead, *sqlparser.OtherAdmin:
+		return iqlerror.GetStatementNotSupportedError("OTHER")
+	case *sqlparser.Rollback:
+		return iqlerror.GetStatementNotSupportedError("TRANSACTION: ROLLBACK")
+	case *sqlparser.Savepoint:
+		return iqlerror.GetStatementNotSupportedError("TRANSACTION: SAVEPOINT")
+	case *sqlparser.Select:
+		_, err := pgb.handleSelect(handlerCtx, stmt)
+		return err
+	case *sqlparser.Set:
+		return iqlerror.GetStatementNotSupportedError("SET")
+	case *sqlparser.SetTransaction:
+		return iqlerror.GetStatementNotSupportedError("SET TRANSACTION")
+	case *sqlparser.Show:
+		return pgb.handleShow(handlerCtx, stmt)
+	case *sqlparser.Sleep:
+		return pgb.handleSleep(handlerCtx, stmt)
+	case *sqlparser.SRollback:
+		return iqlerror.GetStatementNotSupportedError("TRANSACTION: SROLLBACK")
+	case *sqlparser.Release:
+		return iqlerror.GetStatementNotSupportedError("TRANSACTION: RELEASE")
+	case *sqlparser.Union:
+		return iqlerror.GetStatementNotSupportedError("UNION")
+	case *sqlparser.Update:
+		return iqlerror.GetStatementNotSupportedError("UPDATE")
+	case *sqlparser.Use:
+		return pgb.handleUse(handlerCtx, stmt)
+	}
+	return iqlerror.GetStatementNotSupportedError(fmt.Sprintf("BUG: unexpected statement type: %T", stmt))
+}
+
+func (pgb *planGraphBuilder) handleAuth(handlerCtx *handler.HandlerContext, node *sqlparser.Auth) error {
+	primitiveGenerator := newPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 	prov, err := handlerCtx.GetProvider(node.Provider)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	err = primitiveGenerator.analyzeStatement(handlerCtx, node)
 	if err != nil {
 		log.Debugln(fmt.Sprintf("err = %s", err.Error()))
-		return nil, err
+		return err
 	}
 	authCtx, authErr := handlerCtx.GetAuthContext(node.Provider)
 	if authErr != nil {
-		return nil, authErr
+		return authErr
 	}
-	return primitivebuilder.NewMetaDataPrimitive(
+	pr := primitivebuilder.NewMetaDataPrimitive(
 		prov,
-		func(pc plan.IPrimitiveCtx) dto.ExecutorOutput {
+		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 			authType := strings.ToLower(node.Type)
 			if node.KeyFilePath != "" {
 				authCtx.KeyFilePath = node.KeyFilePath
 			}
 			_, err := prov.Auth(authCtx, authType, true)
-			return dto.NewExecutorOutput(nil, nil, nil, err)
-		}), nil
+			return dto.NewExecutorOutput(nil, nil, nil, nil, err)
+		})
+	pgb.planGraph.CreatePrimitiveNode(pr)
+	return nil
 }
 
-func handleAuthRevoke(handlerCtx *handler.HandlerContext, node *sqlparser.AuthRevoke) (plan.IPrimitive, error) {
-	primitiveGenerator := newPrimitiveGenerator(node, handlerCtx)
+func (pgb *planGraphBuilder) handleAuthRevoke(handlerCtx *handler.HandlerContext, node *sqlparser.AuthRevoke) error {
+	primitiveGenerator := newPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 	err := primitiveGenerator.analyzeStatement(handlerCtx, node)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	prov, err := handlerCtx.GetProvider(node.Provider)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	authCtx, authErr := handlerCtx.GetAuthContext(node.Provider)
 	if authErr != nil {
-		return nil, authErr
+		return authErr
 	}
-	return primitivebuilder.NewMetaDataPrimitive(
+	pr := primitivebuilder.NewMetaDataPrimitive(
 		prov,
-		func(pc plan.IPrimitiveCtx) dto.ExecutorOutput {
-			return dto.NewExecutorOutput(nil, nil, nil, prov.AuthRevoke(authCtx))
-		}), nil
+		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+			return dto.NewExecutorOutput(nil, nil, nil, nil, prov.AuthRevoke(authCtx))
+		})
+	pgb.planGraph.CreatePrimitiveNode(pr)
+	return nil
 }
 
-func handleDescribe(handlerCtx *handler.HandlerContext, node *sqlparser.DescribeTable) (plan.IPrimitive, error) {
-	primitiveGenerator := newPrimitiveGenerator(node, handlerCtx)
+func (pgb *planGraphBuilder) handleDescribe(handlerCtx *handler.HandlerContext, node *sqlparser.DescribeTable) error {
+	primitiveGenerator := newPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 	err := primitiveGenerator.analyzeStatement(handlerCtx, node)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	md, err := primitiveGenerator.PrimitiveBuilder.GetTable(node)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	prov, err := md.GetProvider()
 	if err != nil {
-		return nil, err
+		return err
 	}
 	var extended bool = strings.TrimSpace(strings.ToUpper(node.Extended)) == "EXTENDED"
 	var full bool = strings.TrimSpace(strings.ToUpper(node.Full)) == "FULL"
 	svcStr, err := md.GetServiceStr()
 	if err != nil {
-		return nil, err
+		return err
 	}
 	rStr, err := md.GetResourceStr()
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return primitivebuilder.NewMetaDataPrimitive(
+	pr := primitivebuilder.NewMetaDataPrimitive(
 		prov,
-		func(pc plan.IPrimitiveCtx) dto.ExecutorOutput {
+		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 			return primitiveGenerator.describeInstructionExecutor(prov, svcStr, rStr, handlerCtx, extended, full)
-		}), nil
+		})
+	pgb.planGraph.CreatePrimitiveNode(pr)
+	return nil
 }
 
-func handleSelect(handlerCtx *handler.HandlerContext, node *sqlparser.Select) (plan.IPrimitive, error) {
+func (pgb *planGraphBuilder) handleSelect(handlerCtx *handler.HandlerContext, node *sqlparser.Select) (*primitivegraph.PrimitiveNode, error) {
 	if !handlerCtx.RuntimeContext.TestWithoutApiCalls {
-		primitiveGenerator := newPrimitiveGenerator(node, handlerCtx)
+		primitiveGenerator := newPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 		err := primitiveGenerator.analyzeStatement(handlerCtx, node)
 		if err != nil {
+			log.Infoln(fmt.Sprintf("select statement analysis error = '%s'", err.Error()))
 			return nil, err
 		}
 		isLocallyExecutable := true
@@ -162,91 +183,159 @@ func handleSelect(handlerCtx *handler.HandlerContext, node *sqlparser.Select) (p
 			isLocallyExecutable = isLocallyExecutable && val.IsLocallyExecutable
 		}
 		if isLocallyExecutable {
-			return primitiveGenerator.localSelectExecutor(handlerCtx, node, util.DefaultRowSort)
+			pr, err := primitiveGenerator.localSelectExecutor(handlerCtx, node, util.DefaultRowSort)
+			if err != nil {
+				return nil, err
+			}
+			rv := pgb.planGraph.CreatePrimitiveNode(pr)
+			return &rv, nil
 		}
-		return primitiveGenerator.selectExecutor(handlerCtx, node, util.DefaultRowSort)
-	}
-	return primitivebuilder.NewLocalPrimitive(nil), nil
-}
-
-func handleDelete(handlerCtx *handler.HandlerContext, node *sqlparser.Delete) (plan.IPrimitive, error) {
-	if !handlerCtx.RuntimeContext.TestWithoutApiCalls {
-		primitiveGenerator := newPrimitiveGenerator(node, handlerCtx)
-		err := primitiveGenerator.analyzeStatement(handlerCtx, node)
+		pr, err := primitiveGenerator.selectExecutor(handlerCtx, node, util.DefaultRowSort)
 		if err != nil {
 			return nil, err
 		}
-		return primitiveGenerator.deleteExecutor(handlerCtx, node)
+		rv := pgb.planGraph.CreatePrimitiveNode(pr)
+		return &rv, nil
+	}
+	pr := primitivebuilder.NewLocalPrimitive(nil)
+	rv := pgb.planGraph.CreatePrimitiveNode(pr)
+	return &rv, nil
+}
+
+func (pgb *planGraphBuilder) handleDelete(handlerCtx *handler.HandlerContext, node *sqlparser.Delete) error {
+	if !handlerCtx.RuntimeContext.TestWithoutApiCalls {
+		primitiveGenerator := newPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
+		err := primitiveGenerator.analyzeStatement(handlerCtx, node)
+		if err != nil {
+			return err
+		}
+		pr, err := primitiveGenerator.deleteExecutor(handlerCtx, node)
+		if err != nil {
+			return err
+		}
+		pgb.planGraph.CreatePrimitiveNode(pr)
+		return nil
 	} else {
-		return primitivebuilder.NewHTTPRestPrimitive(nil, nil, nil, nil), nil
+		pr := primitivebuilder.NewHTTPRestPrimitive(nil, nil, nil, nil)
+		pgb.planGraph.CreatePrimitiveNode(pr)
+		return nil
 	}
-	return nil, nil
+	return nil
 }
 
-func handleInsert(handlerCtx *handler.HandlerContext, node *sqlparser.Insert) (plan.IPrimitive, error) {
+func (pgb *planGraphBuilder) handleInsert(handlerCtx *handler.HandlerContext, node *sqlparser.Insert) error {
 	if !handlerCtx.RuntimeContext.TestWithoutApiCalls {
-		primitiveGenerator := newPrimitiveGenerator(node, handlerCtx)
-		err := primitiveGenerator.analyzeStatement(handlerCtx, node)
+		primitiveGenerator := newPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
+		err := primitiveGenerator.analyzeInsert(handlerCtx, node)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		return primitiveGenerator.insertExecutor(handlerCtx, node, util.DefaultRowSort)
+		insertValOnlyRows, nonValCols, err := parserutil.ExtractInsertValColumns(node)
+		if err != nil {
+			return err
+		}
+		var selectPrimitive primitive.IPrimitive
+		var selectPrimitiveNode *primitivegraph.PrimitiveNode
+		if nonValCols > 0 {
+			switch rowsNode := node.Rows.(type) {
+			case *sqlparser.Select:
+				selectPrimitiveNode, err = pgb.handleSelect(handlerCtx, rowsNode)
+				if err != nil {
+					return err
+				}
+			default:
+				return fmt.Errorf("insert with rows of type '%T' not currently supported", rowsNode)
+			}
+		} else {
+			selectPrimitive, err = primitiveGenerator.insertableValsExecutor(handlerCtx, insertValOnlyRows)
+			if err != nil {
+				return err
+			}
+			sn := pgb.planGraph.CreatePrimitiveNode(selectPrimitive)
+			selectPrimitiveNode = &sn
+		}
+		pr, err := primitiveGenerator.insertExecutor(handlerCtx, node, util.DefaultRowSort)
+		if err != nil {
+			return err
+		}
+		if selectPrimitiveNode == nil {
+			return fmt.Errorf("nil selection for insert -- cannot work")
+		}
+		pr.SetInputAlias("", selectPrimitiveNode.ID())
+		prNode := pgb.planGraph.CreatePrimitiveNode(pr)
+		pgb.planGraph.NewDependency(*selectPrimitiveNode, prNode, 1.0)
+		return nil
 	} else {
-		return primitivebuilder.NewHTTPRestPrimitive(nil, nil, nil, nil), nil
+		pr := primitivebuilder.NewHTTPRestPrimitive(nil, nil, nil, nil)
+		pgb.planGraph.CreatePrimitiveNode(pr)
+		return nil
 	}
-	return nil, nil
+	return nil
 }
 
-func handleExec(handlerCtx *handler.HandlerContext, node *sqlparser.Exec) (plan.IPrimitive, error) {
+func (pgb *planGraphBuilder) handleExec(handlerCtx *handler.HandlerContext, node *sqlparser.Exec) error {
 	if !handlerCtx.RuntimeContext.TestWithoutApiCalls {
-		primitiveGenerator := newPrimitiveGenerator(node, handlerCtx)
+		primitiveGenerator := newPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 		err := primitiveGenerator.analyzeStatement(handlerCtx, node)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		return primitiveGenerator.execExecutor(handlerCtx, node)
+		pr, err := primitiveGenerator.execExecutor(handlerCtx, node)
+		if err != nil {
+			return err
+		}
+		pgb.planGraph.CreatePrimitiveNode(pr)
+		return nil
 	}
-	return primitivebuilder.NewHTTPRestPrimitive(nil, nil, nil, nil), nil
+	pr := primitivebuilder.NewHTTPRestPrimitive(nil, nil, nil, nil)
+	pgb.planGraph.CreatePrimitiveNode(pr)
+	return nil
 }
 
-func handleShow(handlerCtx *handler.HandlerContext, node *sqlparser.Show) (plan.IPrimitive, error) {
-	primitiveGenerator := newPrimitiveGenerator(node, handlerCtx)
+func (pgb *planGraphBuilder) handleShow(handlerCtx *handler.HandlerContext, node *sqlparser.Show) error {
+	primitiveGenerator := newPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 	err := primitiveGenerator.analyzeStatement(handlerCtx, node)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return primitivebuilder.NewMetaDataPrimitive(
+	pr := primitivebuilder.NewMetaDataPrimitive(
 		primitiveGenerator.PrimitiveBuilder.GetProvider(),
-		func(pc plan.IPrimitiveCtx) dto.ExecutorOutput {
+		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 			return primitiveGenerator.showInstructionExecutor(node, handlerCtx)
-		}), nil
+		})
+	pgb.planGraph.CreatePrimitiveNode(pr)
+	return nil
 }
 
-func handleSleep(handlerCtx *handler.HandlerContext, node *sqlparser.Sleep) (plan.IPrimitive, error) {
-	primitiveGenerator := newPrimitiveGenerator(node, handlerCtx)
+func (pgb *planGraphBuilder) handleSleep(handlerCtx *handler.HandlerContext, node *sqlparser.Sleep) error {
+	primitiveGenerator := newPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 	err := primitiveGenerator.analyzeStatement(handlerCtx, node)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return primitiveGenerator.PrimitiveBuilder.GetPrimitive(), nil
+	pr := primitiveGenerator.PrimitiveBuilder.GetPrimitive()
+	pgb.planGraph.CreatePrimitiveNode(pr)
+	return nil
 }
 
-func handleUse(handlerCtx *handler.HandlerContext, node *sqlparser.Use) (plan.IPrimitive, error) {
-	primitiveGenerator := newPrimitiveGenerator(node, handlerCtx)
+func (pgb *planGraphBuilder) handleUse(handlerCtx *handler.HandlerContext, node *sqlparser.Use) error {
+	primitiveGenerator := newPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 	err := primitiveGenerator.analyzeStatement(handlerCtx, node)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return primitivebuilder.NewMetaDataPrimitive(
+	pr := primitivebuilder.NewMetaDataPrimitive(
 		primitiveGenerator.PrimitiveBuilder.GetProvider(),
-		func(pc plan.IPrimitiveCtx) dto.ExecutorOutput {
+		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 			handlerCtx.CurrentProvider = node.DBName.GetRawVal()
-			return dto.NewExecutorOutput(nil, nil, nil, nil)
-		}), nil
+			return dto.NewExecutorOutput(nil, nil, nil, nil, nil)
+		})
+	pgb.planGraph.CreatePrimitiveNode(pr)
+	return nil
 }
 
 func createErroneousPlan(handlerCtx *handler.HandlerContext, qPlan *plan.Plan, rowSort func(map[string]map[string]interface{}) []string, err error) (*plan.Plan, error) {
-	qPlan.Instructions = primitivebuilder.NewLocalPrimitive(func(pc plan.IPrimitiveCtx) dto.ExecutorOutput {
+	qPlan.Instructions = primitivebuilder.NewLocalPrimitive(func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 		return util.PrepareResultSet(
 			dto.PrepareResultSetDTO{
 				OutputBody:  nil,
@@ -307,14 +396,20 @@ func BuildPlanFromContext(handlerCtx *handler.HandlerContext) (*plan.Plan, error
 	}
 	qPlan.Type = statementType
 
-	instructions, createInstructionError := createInstructionFor(handlerCtx, result.AST)
+	pGBuilder := newPlanGraphBuilder()
+
+	createInstructionError := pGBuilder.createInstructionFor(handlerCtx, result.AST)
 	if createInstructionError != nil {
-		err = createInstructionError
+		return nil, createInstructionError
 	}
 
-	qPlan.Instructions = instructions
+	qPlan.Instructions = pGBuilder.planGraph
 
-	if instructions != nil {
+	if qPlan.Instructions != nil {
+		err = qPlan.Instructions.Optimise()
+		if err != nil {
+			return createErroneousPlan(handlerCtx, qPlan, rowSort, err)
+		}
 		handlerCtx.LRUCache.Set(planKey, qPlan)
 	}
 

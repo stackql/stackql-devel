@@ -28,7 +28,7 @@ func SetupSimpleSelectGoogleComputeInstance(t *testing.T) {
 	provider.DummyAuth = true
 }
 
-func SetupSimpleSelectGoogleComputeDisks(t *testing.T) {
+func getDisksSelectExpectations(t *testing.T) map[string]testhttpapi.HTTPRequestExpectations {
 	path := "/compute/v1/projects/testing-project/zones/australia-southeast1-b/disks"
 	url := &url.URL{
 		Path: path,
@@ -42,8 +42,17 @@ func SetupSimpleSelectGoogleComputeDisks(t *testing.T) {
 		t.Fatalf("%v", err)
 	}
 	ex := testhttpapi.NewHTTPRequestExpectations(nil, nil, "GET", url, testobjects.GoogleComputeHost, string(responseBytes), nil)
+
+	return map[string]testhttpapi.HTTPRequestExpectations{
+		testobjects.GoogleComputeHost + path: *ex,
+	}
+}
+
+func SetupSimpleSelectGoogleComputeDisks(t *testing.T) {
 	expectations := testhttpapi.NewExpectationStore(1)
-	expectations.Put(testobjects.GoogleComputeHost+path, *ex)
+	for k, v := range getDisksSelectExpectations(t) {
+		expectations.Put(k, v)
+	}
 	testhttpapi.StartServer(t, expectations)
 	provider.DummyAuth = true
 }
@@ -147,6 +156,39 @@ func getNetworkInsertSuccessExpectations() map[string]testhttpapi.HTTPRequestExp
 
 	return map[string]testhttpapi.HTTPRequestExpectations{
 		testobjects.GoogleComputeHost + testobjects.NetworkInsertPath:             *networkInsertExpectation,
+		testobjects.GoogleApisHost + testobjects.GoogleComputeInsertOperationPath: *networkInsertOpPollExpectation,
+	}
+}
+
+func getDiskInsertSuccessExpectations(expectedRequestBody string) map[string]testhttpapi.HTTPRequestExpectations {
+	diskInsertURL := &url.URL{
+		Path: testobjects.DiskInsertPath,
+	}
+	diskInsertExpectation := testhttpapi.NewHTTPRequestExpectations(
+		testutil.CreateReadCloserFromString(expectedRequestBody),
+		nil,
+		"POST",
+		diskInsertURL,
+		testobjects.GoogleComputeHost,
+		testobjects.GetSimpleGoogleNetworkInsertResponse(),
+		nil,
+	)
+
+	diskInsertOpPollURL := &url.URL{
+		Path: testobjects.GoogleComputeInsertOperationPath,
+	}
+	networkInsertOpPollExpectation := testhttpapi.NewHTTPRequestExpectations(
+		nil,
+		nil,
+		"GET",
+		diskInsertOpPollURL,
+		testobjects.GoogleApisHost,
+		testobjects.GetSimplePollOperationGoogleNetworkInsertResponse(),
+		nil,
+	)
+
+	return map[string]testhttpapi.HTTPRequestExpectations{
+		testobjects.GoogleComputeHost + testobjects.DiskInsertPath:                *diskInsertExpectation,
 		testobjects.GoogleApisHost + testobjects.GoogleComputeInsertOperationPath: *networkInsertOpPollExpectation,
 	}
 }
@@ -361,6 +403,40 @@ func SetupSimpleInsertGoogleComputeNetworks(t *testing.T) {
 	asyncmonitor.MonitorPollIntervalSeconds = 2
 }
 
+func SetupDependentInsertGoogleComputeDisks(t *testing.T) {
+
+	expectations := testhttpapi.NewExpectationStore(5)
+	for k, v := range getDisksSelectExpectations(t) {
+		expectations.Put(k, v)
+	}
+	for k, v := range getDiskInsertSuccessExpectations(testobjects.CreateGoogleComputeDiskRequestPayload01) {
+		expectations.Put(k, v)
+	}
+	for k, v := range getDiskInsertSuccessExpectations(testobjects.CreateGoogleComputeDiskRequestPayload02) {
+		expectations.Put(k, v)
+	}
+	testhttpapi.StartServer(t, expectations)
+	provider.DummyAuth = true
+	asyncmonitor.MonitorPollIntervalSeconds = 2
+}
+
+func SetupDependentInsertGoogleComputeDisksReversed(t *testing.T) {
+
+	expectations := testhttpapi.NewExpectationStore(5)
+	for k, v := range getDisksSelectExpectations(t) {
+		expectations.Put(k, v)
+	}
+	for k, v := range getDiskInsertSuccessExpectations(testobjects.CreateGoogleComputeDiskRequestPayload03) {
+		expectations.Put(k, v)
+	}
+	for k, v := range getDiskInsertSuccessExpectations(testobjects.CreateGoogleComputeDiskRequestPayload04) {
+		expectations.Put(k, v)
+	}
+	testhttpapi.StartServer(t, expectations)
+	provider.DummyAuth = true
+	asyncmonitor.MonitorPollIntervalSeconds = 2
+}
+
 func SetupSimpleDeleteGoogleComputeNetworks(t *testing.T) {
 
 	expectations := testhttpapi.NewExpectationStore(3)
@@ -373,6 +449,42 @@ func SetupSimpleDeleteGoogleComputeNetworks(t *testing.T) {
 }
 
 func SetupK8sTheHardWayE2eSuccess(t *testing.T) {
+
+	computeControllerInstanceCount := 3
+	computeWorkerInstanceCount := 3
+
+	expectations := testhttpapi.NewExpectationStore(30)
+	for k, v := range getNetworkInsertSuccessExpectations() {
+		expectations.Put(k, v)
+	}
+	for k, v := range getSubnetworkInsertSuccessExpectations() {
+		expectations.Put(k, v)
+	}
+	for k, v := range getIPInsertSuccessExpectations() {
+		expectations.Put(k, v)
+	}
+	for k, v := range getInternalFirewallInsertSuccessExpectations() {
+		expectations.Put(k, v)
+	}
+	for k, v := range getExternalFirewallInsertSuccessExpectations() {
+		expectations.Put(k, v)
+	}
+	for i := 0; i < computeControllerInstanceCount; i++ {
+		for k, v := range getComputeInstanceInsertSuccessExpectations(fmt.Sprintf("controller-%d", i), "controller", fmt.Sprintf("10.240.0.%d", 10+i)) {
+			expectations.Put(k, v)
+		}
+	}
+	for i := 0; i < computeWorkerInstanceCount; i++ {
+		for k, v := range getComputeInstanceInsertSuccessExpectations(fmt.Sprintf("worker-%d", i), "worker", fmt.Sprintf("10.240.0.%d", 20+i)) {
+			expectations.Put(k, v)
+		}
+	}
+	testhttpapi.StartServer(t, expectations)
+	provider.DummyAuth = true
+	asyncmonitor.MonitorPollIntervalSeconds = 2
+}
+
+func SetupInsertDependentComputeDiskSuccess(t *testing.T) {
 
 	computeControllerInstanceCount := 3
 	computeWorkerInstanceCount := 3

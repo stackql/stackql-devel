@@ -14,6 +14,7 @@ const (
 	ExpectedShowInsertBQDatasetsFile                                   string = "test/assets/expected/simple-templating/insert-bigquery-datasets.iql"
 	ExpectedShowInsertBQDatasetsRequiredFile                           string = "test/assets/expected/simple-templating/insert-bigquery-datasets-required.iql"
 	ExpectedComputeNetworkInsertAsyncFile                              string = "test/assets/expected/simple-insert/compute-network/insert-compute-network.txt"
+	ExpectedComputeDisksDependentInsertAsyncFile                       string = "test/assets/expected/simple-insert/compute-disk/insert-dependent-compute-disk.txt"
 	ExpectedComputeNetworkDeleteAsyncFile                              string = "test/assets/expected/simple-delete/compute-network/delete-compute-network.txt"
 	ExpectedK8STheHardWayAsyncFile                                     string = "test/assets/expected/k8s-the-hard-way/k8s-the-hard-way-e2e/success.txt"
 	ExpectedShowResourcesFilteredFile                                  string = "test/assets/expected/show/show-resources-filtered.csv"

@@ -56,8 +56,12 @@ func TestSimpleSelectGoogleComputeInstanceQuerySubmit(t *testing.T) {
 	handlerCtx.Query = testobjects.SimpleSelectGoogleComputeInstance
 	response := SubmitQuery(&handlerCtx)
 
-	if len(response.Result.Rows) != 2 {
-		t.Fatalf("response size not as expected, actual != expected: %d != %d", len(response.Result.Rows), 2)
+	if response.GetSQLResult() == nil {
+		t.Fatalf("response is unexpectedly nil")
+	}
+
+	if len(response.GetSQLResult().Rows) != 2 {
+		t.Fatalf("response size not as expected, actual != expected: %d != %d", len(response.GetSQLResult().Rows), 2)
 	}
 
 	t.Logf("simple select driver integration test passed")

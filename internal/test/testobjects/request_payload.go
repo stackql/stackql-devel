@@ -5,6 +5,10 @@ import (
 )
 
 const (
+	CreateGoogleComputeDiskRequestPayload01  string = `{"name":"demo-disk-qq1-new16"}`
+	CreateGoogleComputeDiskRequestPayload02  string = `{"name":"demo-disk-qq2-new16"}`
+	CreateGoogleComputeDiskRequestPayload03  string = `{"name":"demo-disk-xx5-new16"}`
+	CreateGoogleComputeDiskRequestPayload04  string = `{"name":"demo-disk-xx4-new16"}`
 	CreateGoogleComputeNetworkRequestPayload string = `
 	{
 		"name": "kubernetes-the-hard-way-vpc",

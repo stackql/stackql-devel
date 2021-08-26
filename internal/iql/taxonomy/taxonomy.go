@@ -164,7 +164,7 @@ func getHids(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode) (*dto.H
 	case *sqlparser.Exec:
 		hIds = dto.ResolveMethodTerminalHeirarchyIdentifiers(n.MethodName)
 	case *sqlparser.Select:
-		currentSvcRsc, err := sqlparser.TableFromStatement(handlerCtx.Query)
+		currentSvcRsc, err := parserutil.TableFromSelectNode(n)
 		if err != nil {
 			return nil, err
 		}

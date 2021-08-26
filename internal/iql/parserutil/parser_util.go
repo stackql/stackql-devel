@@ -143,6 +143,8 @@ func ExtractSelectValColumns(selStmt *sqlparser.Select) (map[int]map[string]inte
 					cols[idx] = nil
 					nonValCount++
 				}
+			case *sqlparser.OrExpr:
+				nonValCount++
 			case sqlparser.BoolVal:
 				cols[idx] = map[string]interface{}{fmt.Sprintf("$$unaliased_col_%d", idx): expr}
 			default:
@@ -160,6 +162,14 @@ func ExtractSelectValColumns(selStmt *sqlparser.Select) (map[int]map[string]inte
 }
 
 func ExtractInsertValColumns(insStmt *sqlparser.Insert) (map[int]map[int]interface{}, int, error) {
+	return extractInsertValColumns(insStmt, false)
+}
+
+func ExtractInsertValColumnsPlusPlaceHolders(insStmt *sqlparser.Insert) (map[int]map[int]interface{}, int, error) {
+	return extractInsertValColumns(insStmt, false)
+}
+
+func extractInsertValColumns(insStmt *sqlparser.Insert, includePlaceholders bool) (map[int]map[int]interface{}, int, error) {
 	var nonValCount int
 	var err error
 	switch node := insStmt.Rows.(type) {
@@ -171,6 +181,11 @@ func ExtractInsertValColumns(insStmt *sqlparser.Insert) (map[int]map[int]interfa
 				for _, c := range v {
 					transformedRow[k] = c
 					break
+				}
+			} else {
+				if includePlaceholders {
+					nvc = 0
+					transformedRow[k] = nil
 				}
 			}
 		}
@@ -425,4 +440,19 @@ func ExtractSingleTableFromTableExprs(tableExprs sqlparser.TableExprs) (*sqlpars
 		return ExtractTableNameFromTableExpr(t)
 	}
 	return nil, fmt.Errorf("could not extract table name from TableExprs")
+}
+
+func TableFromSelectNode(sel *sqlparser.Select) (sqlparser.TableName, error) {
+	if len(sel.From) != 1 {
+		return sqlparser.TableName{}, fmt.Errorf("table expression is complex")
+	}
+	aliased, ok := sel.From[0].(*sqlparser.AliasedTableExpr)
+	if !ok {
+		return sqlparser.TableName{}, fmt.Errorf("table expression is complex")
+	}
+	tableName, ok := aliased.Expr.(sqlparser.TableName)
+	if !ok {
+		return sqlparser.TableName{}, fmt.Errorf("table expression is complex")
+	}
+	return tableName, nil
 }

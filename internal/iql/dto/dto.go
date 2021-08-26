@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"vitess.io/vitess/go/sqltypes"
-	"vitess.io/vitess/go/vt/sqlparser"
 )
 
 const (
@@ -261,6 +260,7 @@ type OutputContext struct {
 type PrepareResultSetDTO struct {
 	OutputBody  map[string]interface{}
 	Msg         *BackendMessages
+	RawRows     map[int]map[int]interface{}
 	RowMap      map[string]map[string]interface{}
 	ColumnOrder []string
 	RowSort     func(map[string]map[string]interface{}) []string
@@ -282,49 +282,82 @@ func NewPrepareResultSetDTO(
 		RowSort:     rowSort,
 		Err:         err,
 		Msg:         msg,
+		RawRows:     map[int]map[int]interface{}{},
+	}
+}
+
+func NewPrepareResultSetPlusRawDTO(
+	body map[string]interface{},
+	rowMap map[string]map[string]interface{},
+	columnOrder []string,
+	rowSort func(map[string]map[string]interface{}) []string,
+	err error,
+	msg *BackendMessages,
+	rawRows map[int]map[int]interface{},
+) PrepareResultSetDTO {
+	return PrepareResultSetDTO{
+		OutputBody:  body,
+		RowMap:      rowMap,
+		ColumnOrder: columnOrder,
+		RowSort:     rowSort,
+		Err:         err,
+		Msg:         msg,
+		RawRows:     rawRows,
 	}
 }
 
 type ExecutorOutput struct {
-	Result     *sqltypes.Result
-	OutputBody map[string]interface{}
-	Msg        *BackendMessages
-	Err        error
+	GetSQLResult  func() *sqltypes.Result
+	GetRawResult  func() map[int]map[int]interface{}
+	GetOutputBody func() map[string]interface{}
+	Msg           *BackendMessages
+	Err           error
 }
 
-func NewExecutorOutput(result *sqltypes.Result, body map[string]interface{}, msg *BackendMessages, err error) ExecutorOutput {
+func (ex ExecutorOutput) ResultToMap() (map[int]map[int]interface{}, error) {
+	return ex.GetRawResult(), nil
+}
+
+func NewExecutorOutput(result *sqltypes.Result, body map[string]interface{}, rawResult map[int]map[int]interface{}, msg *BackendMessages, err error) ExecutorOutput {
+	return newExecutorOutput(result, body, rawResult, msg, err)
+}
+
+func newExecutorOutput(result *sqltypes.Result, body map[string]interface{}, rawResult map[int]map[int]interface{}, msg *BackendMessages, err error) ExecutorOutput {
 	return ExecutorOutput{
-		Result:     result,
-		OutputBody: body,
-		Msg:        msg,
-		Err:        err,
+		GetSQLResult: func() *sqltypes.Result { return result },
+		GetRawResult: func() map[int]map[int]interface{} {
+			if rawResult == nil {
+				return make(map[int]map[int]interface{})
+			}
+			return rawResult
+		},
+		GetOutputBody: func() map[string]interface{} { return body },
+		Msg:           msg,
+		Err:           err,
 	}
+}
+
+func NewErroneousExecutorOutput(err error) ExecutorOutput {
+	return newExecutorOutput(nil, nil, nil, nil, err)
 }
 
 type BasicPrimitiveContext struct {
-	body              map[string]interface{}
-	authCtx           *AuthCtx
-	writer            io.Writer
-	errWriter         io.Writer
-	commentDirectives sqlparser.CommentDirectives
+	body      map[string]interface{}
+	authCtx   func(string) (*AuthCtx, error)
+	writer    io.Writer
+	errWriter io.Writer
 }
 
-func NewBasicPrimitiveContext(body map[string]interface{}, authCtx *AuthCtx, writer io.Writer, errWriter io.Writer, commentDirectives sqlparser.CommentDirectives) *BasicPrimitiveContext {
+func NewBasicPrimitiveContext(authCtx func(string) (*AuthCtx, error), writer io.Writer, errWriter io.Writer) *BasicPrimitiveContext {
 	return &BasicPrimitiveContext{
-		body:              body,
-		authCtx:           authCtx,
-		writer:            writer,
-		errWriter:         errWriter,
-		commentDirectives: commentDirectives,
+		authCtx:   authCtx,
+		writer:    writer,
+		errWriter: errWriter,
 	}
 }
 
-func (bpp *BasicPrimitiveContext) GetBody() map[string]interface{} {
-	return bpp.body
-}
-
-func (bpp *BasicPrimitiveContext) GetAuthContext() *AuthCtx {
-	return bpp.authCtx
+func (bpp *BasicPrimitiveContext) GetAuthContext(prov string) (*AuthCtx, error) {
+	return bpp.authCtx(prov)
 }
 
 func (bpp *BasicPrimitiveContext) GetWriter() io.Writer {
@@ -333,8 +366,4 @@ func (bpp *BasicPrimitiveContext) GetWriter() io.Writer {
 
 func (bpp *BasicPrimitiveContext) GetErrWriter() io.Writer {
 	return bpp.errWriter
-}
-
-func (bpp *BasicPrimitiveContext) GetCommentDirectives() sqlparser.CommentDirectives {
-	return bpp.commentDirectives
 }

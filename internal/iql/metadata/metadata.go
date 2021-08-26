@@ -279,6 +279,10 @@ type Method struct {
 	Parameters    map[string]iqlmodel.Parameter `json:"parameters"`
 }
 
+func (m *Method) IsAwaitable() bool {
+	return m.ResponseType.Type == "Operation"
+}
+
 func (m *Method) GetColumnOrder(extended bool) []string {
 	if extended {
 		return []string{
