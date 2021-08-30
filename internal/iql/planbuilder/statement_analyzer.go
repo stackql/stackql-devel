@@ -297,15 +297,41 @@ func (pb *primitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sqlparser.
 		case *sqlparser.SQLVal:
 			paramMAtchStr = string(rhs.Val)
 		}
+		switch rhs := expr.Left.(type) {
+		case *sqlparser.SQLVal:
+			paramMAtchStr = string(rhs.Val)
+		}
 		newRhs := &sqlparser.SQLVal{
 			Type: sqlparser.StrVal,
-			Val:  []byte(fmt.Sprintf("%%%s", paramMAtchStr)),
+			Val:  []byte(fmt.Sprintf("%%%s%%", paramMAtchStr)),
 		}
-		return &sqlparser.ComparisonExpr{
-			Left:     expr.Left,
-			Right:    newRhs,
-			Operator: sqlparser.LikeStr,
-			Escape:   nil,
+		return &sqlparser.OrExpr{
+			Left: &sqlparser.ComparisonExpr{
+				Left:     expr.Left,
+				Right:    newRhs,
+				Operator: sqlparser.LikeStr,
+				Escape:   nil,
+			},
+			Right: &sqlparser.ComparisonExpr{
+				Left: expr.Right,
+				Right: &sqlparser.BinaryExpr{
+					Left: &sqlparser.BinaryExpr{
+						Left: &sqlparser.SQLVal{
+							Type: sqlparser.StrVal,
+							Val:  []byte("%"),
+						},
+						Right:    expr.Left,
+						Operator: sqlparser.BitOrStr,
+					},
+					Right: &sqlparser.SQLVal{
+						Type: sqlparser.StrVal,
+						Val:  []byte("%"),
+					},
+					Operator: sqlparser.BitOrStr,
+				},
+				Operator: sqlparser.LikeStr,
+				Escape:   nil,
+			},
 		}, nil
 	}
 	return &sqlparser.ComparisonExpr{
