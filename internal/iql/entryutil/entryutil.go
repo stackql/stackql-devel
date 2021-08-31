@@ -1,6 +1,7 @@
 package entryutil
 
 import (
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -38,24 +39,49 @@ func GetTxnCounterManager(handlerCtx handler.HandlerContext) (*txncounter.TxnCou
 	return txncounter.NewTxnCounterManager(genId, sessionId), nil
 }
 
-func BuildHandlerContext(runtimeCtx dto.RuntimeCtx, rdr io.Reader, lruCache *lrucache.LRUCache, sqlEngine sqlengine.SQLEngine) (handler.HandlerContext, error) {
+func PreprocessInline(runtimeCtx dto.RuntimeCtx, s string) (string, error) {
+	rdr := strings.NewReader(s)
+	bt, err := assemblePreprocessor(runtimeCtx, rdr)
+	if err != nil || bt == nil {
+		return s, err
+	}
+	return string(bt), nil
+}
+
+func assemblePreprocessor(runtimeCtx dto.RuntimeCtx, rdr io.Reader) ([]byte, error) {
 	var err error
 	var prepRd, externalTmplRdr io.Reader
 	pp := preprocessor.NewPreprocessor(preprocessor.TripleLessThanToken, preprocessor.TripleGreaterThanToken)
-	iqlerror.PrintErrorAndExitOneIfNil(pp, "preprocessor error")
+	if pp == nil {
+		return nil, fmt.Errorf("preprocessor error")
+	}
 	if runtimeCtx.TemplateCtxFilePath == "" {
 		prepRd, err = pp.Prepare(rdr, runtimeCtx.InfilePath)
+		if err != nil {
+			return nil, err
+		}
 	} else {
 		externalTmplRdr, err = os.Open(runtimeCtx.TemplateCtxFilePath)
-		iqlerror.PrintErrorAndExitOneIfError(err)
+		if err != nil {
+			return nil, err
+		}
 		prepRd = rdr
 		err = pp.PrepareExternal(strings.Trim(strings.ToLower(filepath.Ext(runtimeCtx.TemplateCtxFilePath)), "."), externalTmplRdr, runtimeCtx.TemplateCtxFilePath)
 	}
-	iqlerror.PrintErrorAndExitOneIfError(err)
+	if err != nil {
+		return nil, err
+	}
 	ppRd, err := pp.Render(prepRd)
-	iqlerror.PrintErrorAndExitOneIfError(err)
+	if err != nil {
+		return nil, err
+	}
 	var bb []byte
 	bb, err = ioutil.ReadAll(ppRd)
+	return bb, err
+}
+
+func BuildHandlerContext(runtimeCtx dto.RuntimeCtx, rdr io.Reader, lruCache *lrucache.LRUCache, sqlEngine sqlengine.SQLEngine) (handler.HandlerContext, error) {
+	bb, err := assemblePreprocessor(runtimeCtx, rdr)
 	iqlerror.PrintErrorAndExitOneIfError(err)
 	return handler.GetHandlerCtx(strings.TrimSpace(string(bb)), runtimeCtx, lruCache, sqlEngine)
 }
