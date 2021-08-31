@@ -182,7 +182,11 @@ func (pp *Preprocessor) Prepare(infile io.Reader, infileName string) (io.Reader,
 			return nil, fmt.Errorf("declaration block unclosed, cannot preprocess input")
 		}
 		i = blockTermIdx + len(pp.declarationBlockEndToken)
-		db, err := pp.inferBlock(inContents[blockIdx+len(pp.declarationBlockStartToken):blockTermIdx], infileName)
+		startIdx := blockIdx + len(pp.declarationBlockStartToken)
+		if startIdx > blockTermIdx {
+			return nil, fmt.Errorf("declaration block delimiters improperly placed")
+		}
+		db, err := pp.inferBlock(inContents[startIdx:blockTermIdx], infileName)
 		if err != nil {
 			return nil, err
 		}
