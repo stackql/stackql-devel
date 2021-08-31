@@ -194,12 +194,13 @@ var shellCmd = &cobra.Command{
 					line = strings.TrimSpace(line[:semiColonIdx+1])
 					semiColonIdx := strings.Index(line, ";")
 					sb.WriteString(" " + line[:semiColonIdx+1])
-					queryToExecute, err := entryutil.PreprocessInline(runtimeCtx, sb.String())
+					rawQuery := sb.String()
+					queryToExecute, err := entryutil.PreprocessInline(runtimeCtx, rawQuery)
 					if err != nil {
 						io.WriteString(outErrFile, "\r\n"+err.Error()+"\r\n")
 					}
 					handlerCtx.RawQuery = queryToExecute
-					l.WriteToHistory(queryToExecute)
+					l.WriteToHistory(rawQuery)
 					RunCommand(&handlerCtx, outfile, outErrFile)
 					sb.Reset()
 					sb.WriteString(line[semiColonIdx+1:])
