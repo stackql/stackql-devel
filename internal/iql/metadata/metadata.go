@@ -375,6 +375,16 @@ func (m *Method) GetRequiredParameters() map[string]iqlmodel.Parameter {
 	return retVal
 }
 
+func (m *Method) GetOptionalParameters() map[string]iqlmodel.Parameter {
+	retVal := make(map[string]iqlmodel.Parameter)
+	for k, p := range m.Parameters {
+		if !p.Required {
+			retVal[k] = p
+		}
+	}
+	return retVal
+}
+
 func (s *Schema) ConditionIsValid(lhs string, rhs interface{}) bool {
 	return iqlutil.ProviderTypeConditionIsValid(s.Type, lhs, rhs)
 }

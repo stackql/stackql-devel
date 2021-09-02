@@ -231,14 +231,14 @@ func (pb *primitiveGenerator) traverseWhereFilterDeprecated(table *metadata.Meth
 	return retVal, nil
 }
 
-func (pb *primitiveGenerator) traverseWhereFilter(node sqlparser.SQLNode, requiredParameters map[string]iqlmodel.Parameter) (sqlparser.Expr, error) {
+func (pb *primitiveGenerator) traverseWhereFilter(node sqlparser.SQLNode, requiredParameters, optionalParameters map[string]iqlmodel.Parameter) (sqlparser.Expr, error) {
 	switch node := node.(type) {
 	case *sqlparser.ComparisonExpr:
-		return pb.whereComparisonExprCopyAndReWrite(node, requiredParameters)
+		return pb.whereComparisonExprCopyAndReWrite(node, requiredParameters, optionalParameters)
 	case *sqlparser.AndExpr:
 		log.Infoln("complex AND expr detected")
-		lhs, lhErr := pb.traverseWhereFilter(node.Left, requiredParameters)
-		rhs, rhErr := pb.traverseWhereFilter(node.Right, requiredParameters)
+		lhs, lhErr := pb.traverseWhereFilter(node.Left, requiredParameters, optionalParameters)
+		rhs, rhErr := pb.traverseWhereFilter(node.Right, requiredParameters, optionalParameters)
 		if lhErr != nil {
 			return nil, lhErr
 		}
@@ -248,8 +248,8 @@ func (pb *primitiveGenerator) traverseWhereFilter(node sqlparser.SQLNode, requir
 		return &sqlparser.AndExpr{Left: lhs, Right: rhs}, nil
 	case *sqlparser.OrExpr:
 		log.Infoln("complex OR expr detected")
-		lhs, lhErr := pb.traverseWhereFilter(node.Left, requiredParameters)
-		rhs, rhErr := pb.traverseWhereFilter(node.Right, requiredParameters)
+		lhs, lhErr := pb.traverseWhereFilter(node.Left, requiredParameters, optionalParameters)
+		rhs, rhErr := pb.traverseWhereFilter(node.Right, requiredParameters, optionalParameters)
 		if lhErr != nil {
 			return nil, lhErr
 		}
@@ -270,7 +270,7 @@ func (pb *primitiveGenerator) traverseWhereFilter(node sqlparser.SQLNode, requir
 	return nil, fmt.Errorf("unsupported constraint in metadata filter: %v", sqlparser.String(node))
 }
 
-func (pb *primitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sqlparser.ComparisonExpr, requiredParameters map[string]iqlmodel.Parameter) (sqlparser.Expr, error) {
+func (pb *primitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sqlparser.ComparisonExpr, requiredParameters, optionalParameters map[string]iqlmodel.Parameter) (sqlparser.Expr, error) {
 	qualifiedName, ok := expr.Left.(*sqlparser.ColName)
 	if !ok {
 		return nil, fmt.Errorf("unexpected: %v", sqlparser.String(expr))
@@ -278,13 +278,19 @@ func (pb *primitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sqlparser.
 	colName := qualifiedName.Name.GetRawVal()
 	symTabEntry, symTabErr := pb.PrimitiveBuilder.GetSymbol(colName)
 	_, requiredParamPresent := requiredParameters[colName]
+	_, optionalParamPresent := optionalParameters[colName]
 	log.Infoln(fmt.Sprintf("symTabEntry = %v", symTabEntry))
-	if symTabErr != nil && !requiredParamPresent {
+	if symTabErr != nil && !(requiredParamPresent || optionalParamPresent) {
 		return nil, symTabErr
 	}
-	delete(requiredParameters, colName)
+	if requiredParamPresent {
+		delete(requiredParameters, colName)
+	}
+	if optionalParamPresent {
+		delete(optionalParameters, colName)
+	}
 	if symTabErr == nil {
-		if !requiredParamPresent {
+		if !(requiredParamPresent || optionalParamPresent) {
 			return &sqlparser.ComparisonExpr{
 				Left:     expr.Left,
 				Right:    expr.Right,
@@ -420,6 +426,7 @@ func (pb *primitiveGenerator) analyzeSingleTableWhere(where *sqlparser.Where, sc
 func (pb *primitiveGenerator) analyzeWhere(where *sqlparser.Where, schema *metadata.Schema) (*sqlparser.Where, error) {
 	requiredParameters := make(map[string]iqlmodel.Parameter)
 	remainingRequiredParameters := make(map[string]iqlmodel.Parameter)
+	optionalParameters := make(map[string]iqlmodel.Parameter)
 	for _, v := range pb.PrimitiveBuilder.GetTables() {
 		method, err := v.GetMethod()
 		if err != nil {
@@ -432,11 +439,18 @@ func (pb *primitiveGenerator) analyzeWhere(where *sqlparser.Where, schema *metad
 			}
 			requiredParameters[k] = v
 		}
+		for k, v := range method.GetOptionalParameters() {
+			_, keyExists := optionalParameters[k]
+			if keyExists {
+				return nil, fmt.Errorf("key already is optional: %s", k)
+			}
+			optionalParameters[k] = v
+		}
 	}
 	var retVal sqlparser.Expr
 	var err error
 	if where != nil {
-		retVal, err = pb.traverseWhereFilter(where.Expr, requiredParameters)
+		retVal, err = pb.traverseWhereFilter(where.Expr, requiredParameters, optionalParameters)
 		if err != nil {
 			return nil, err
 		}
