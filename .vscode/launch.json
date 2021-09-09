@@ -71,7 +71,7 @@
     },
     // select * from compute.networks cp inner join compute.networks cp2 on cp.name = cp2.name  where cp.project = 'lab-kr-network-01';
     {
-      "name": "Launch JOIN exec \"SELECT compute.networks ... ;\" -- prebuilt with cmake",
+      "name": "Launch JOIN exec \"SELECT projects.logs ... ;\" -- prebuilt with cmake",
       "type": "go",
       "request": "launch",
       "mode": "exec",
@@ -79,9 +79,7 @@
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
-        "select * from compute.networks cp inner join compute.networks cp2 on cp.name = cp2.name  where cp.project = 'lab-kr-network-01' and cp2.project = 'lab-kr-network-01';",
-        // "select * from compute.instances WHERE `google.compute.project` = 'lab-kr-network-01' ;",
-        // "select canIpForward from compute.instances WHERE zone = 2 AND project = 'lab-kr-network-01' ;",
+        "select * from google.logging.`projects.logs` WHERE parent = 'projects/lab-kr-network-01';",
         "-o",
         "json"
       ],
