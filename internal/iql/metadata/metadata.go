@@ -579,6 +579,9 @@ func (s *Schema) Tabulate(omitColumns bool) *Tabulation {
 		if items, _ := s.Items.GetSchema(s.SchemaCentral); items != nil {
 			return items.Tabulate(false)
 		}
+	} else if s.Type == "string" {
+		cd := ColumnDescriptor{Name: "_", Schema: s}
+		return &Tabulation{columns: []ColumnDescriptor{cd}, name: s.ID}
 	}
 	return nil
 }
