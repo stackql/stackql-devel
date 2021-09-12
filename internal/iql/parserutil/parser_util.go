@@ -166,7 +166,7 @@ func ExtractInsertValColumns(insStmt *sqlparser.Insert) (map[int]map[int]interfa
 }
 
 func ExtractInsertValColumnsPlusPlaceHolders(insStmt *sqlparser.Insert) (map[int]map[int]interface{}, int, error) {
-	return extractInsertValColumns(insStmt, false)
+	return extractInsertValColumns(insStmt, true)
 }
 
 func extractInsertValColumns(insStmt *sqlparser.Insert, includePlaceholders bool) (map[int]map[int]interface{}, int, error) {
