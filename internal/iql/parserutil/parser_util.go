@@ -145,6 +145,10 @@ func ExtractSelectValColumns(selStmt *sqlparser.Select) (map[int]map[string]inte
 				}
 			case *sqlparser.OrExpr:
 				nonValCount++
+			case *sqlparser.FuncExpr:
+				nonValCount++
+			case *sqlparser.ColName:
+				nonValCount++
 			case sqlparser.BoolVal:
 				cols[idx] = map[string]interface{}{fmt.Sprintf("$$unaliased_col_%d", idx): expr}
 			default:
