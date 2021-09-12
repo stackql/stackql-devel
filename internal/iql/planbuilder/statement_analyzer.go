@@ -1017,11 +1017,11 @@ func (p *primitiveGenerator) analyzeInsert(handlerCtx *handler.HandlerContext, n
 		case *sqlparser.Select:
 			for k, v := range insertValOnlyRows {
 				row := v
-				lenV := len(row)
+				maxKey := util.MaxMapKey(row)
 				for i := 0; i < nonValCols; i++ {
-					row[lenV+i] = "placeholder"
+					row[maxKey+i+1] = "placeholder"
 				}
-				insertValOnlyRows[k] = v
+				insertValOnlyRows[k] = row
 			}
 		default:
 			return fmt.Errorf("insert with rows of type '%T' not currently supported", rowsNode)
