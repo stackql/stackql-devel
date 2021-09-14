@@ -24,7 +24,7 @@ func ProcessDryRun(handlerCtx *handler.HandlerContext) {
 }
 
 func throwErr(err error, handlerCtx *handler.HandlerContext) {
-	response := dto.NewExecutorOutput(nil, nil, nil, err)
+	response := dto.NewExecutorOutput(nil, nil, nil, nil, err)
 	responsehandler.HandleResponse(handlerCtx, response)
 }
 

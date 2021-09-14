@@ -1,6 +1,7 @@
 package httpexec
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"infraql/internal/iql/util"
@@ -127,7 +128,15 @@ func HTTPApiCall(httpClient *http.Client, requestCtx IHttpContext) (*http.Respon
 	if err != nil {
 		return nil, err
 	}
-	req, requestErr := http.NewRequest(requestCtx.GetMethod(), urlStr, requestCtx.GetBody())
+	body := requestCtx.GetBody()
+	var bytez []byte
+	if body != nil {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(body)
+		bytez = buf.Bytes()
+	}
+	log.Infoln(fmt.Sprintf("request body = %s", string(bytez)))
+	req, requestErr := http.NewRequest(requestCtx.GetMethod(), urlStr, bytes.NewReader(bytez))
 	for k, v := range requestCtx.GetHeaders() {
 		for i := range v {
 			req.Header.Set(k, v[i])
@@ -140,9 +149,11 @@ func HTTPApiCall(httpClient *http.Client, requestCtx IHttpContext) (*http.Respon
 	response, reponseErr := httpClient.Do(req)
 	log.Infoln(fmt.Sprintf("http response = %v", response))
 	if reponseErr != nil {
+		log.Infoln(fmt.Errorf("error for request method = %v, url = %v", req.Method, req.URL))
 		return response, reponseErr
 	}
 	if response != nil && (response.StatusCode >= 400) {
+		log.Infoln(fmt.Errorf("code-dictated error for request method = %v, url = %v", req.Method, req.URL))
 		return response, fmt.Errorf("API error, status code %d: %s", response.StatusCode, getErroneousBody(response))
 	}
 	return response, nil

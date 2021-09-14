@@ -85,7 +85,7 @@
       ],
     },
     {
-      "name": "Launch exec \"SELECT compute.instances ... ;\" -- prebuilt with cmake",
+      "name": "Launch exec \"INSERT /*+ AWAIT */ logging...buckets ... ;\" -- prebuilt with cmake",
       "type": "go",
       "request": "launch",
       "mode": "exec",
@@ -93,10 +93,7 @@
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
-        "--http.proxy.host=localhost", "--http.proxy.port=22",
-        "select name, region from google.compute.subnetworks where region = 'australia-southeast1' AND /* */ project = 'lab-kr-network-01';",
-        // "select * from compute.instances WHERE `google.compute.project` = 'lab-kr-network-01' ;",
-        // "select canIpForward from compute.instances WHERE zone = 2 AND project = 'lab-kr-network-01' ;",
+        "insert /*+ AWAIT */ into google.logging.`organizations.locations.buckets`(parent, bucketId) values('projects/lab-kr-network-01/locations/australia-southeast1', 'kr-lab-network-01-logging-bucket-03');",
         "-o",
         "json"
       ],
@@ -152,7 +149,7 @@
       ],
     },
     {
-      "name": "Launch exec \"SELECT compute.machineTypes ... ;\" -- prebuilt with cmake",
+      "name": "Launch exec \"COMPLEX INSERT ... ;\" -- prebuilt with cmake",
       "type": "go",
       "request": "launch",
       "mode": "exec",
@@ -160,7 +157,7 @@
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
-        "select name from google.compute.machineTypes WHERE project = 'lab-kr-network-01' and zone = 'australia-southeast1-b';",
+        "insert into google.compute.disks(project, zone, data__name) SELECT 'lab-kr-network-01', 'australia-southeast1-a', name || '-newzy2' as name from google.compute.disks where project = 'lab-kr-network-01' and zone =  'australia-southeast1-a' limit 2;",
         "-o",
         "json"
       ],

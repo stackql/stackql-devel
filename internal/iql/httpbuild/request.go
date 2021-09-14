@@ -32,19 +32,27 @@ func NewExecContext(payload *dto.ExecPayload, rsc *metadata.Resource) *ExecConte
 	}
 }
 
+type HTTPArmouryParameters struct {
+	Header     http.Header
+	Parameters *dto.HttpParameters
+	Context    httpexec.IHttpContext
+	BodyBytes  []byte
+}
+
 type HTTPArmoury struct {
-	Header         http.Header
-	Parameters     *dto.HttpParameters
-	Context        httpexec.IHttpContext
-	BodyBytes      []byte
+	RequestParams  []HTTPArmouryParameters
 	RequestSchema  *metadata.Schema
 	ResponseSchema *metadata.Schema
 }
 
-func NewHTTPArmoury() HTTPArmoury {
-	return HTTPArmoury{
+func NewHTTPArmouryParameters() HTTPArmouryParameters {
+	return HTTPArmouryParameters{
 		Header: make(http.Header),
 	}
+}
+
+func NewHTTPArmoury() HTTPArmoury {
+	return HTTPArmoury{}
 }
 
 func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, prov provider.IProvider, m *metadata.Method, schemaMap map[string]metadata.Schema, insertValOnlyRows map[int]map[int]interface{}, execContext *ExecContext) (*HTTPArmoury, error) {
@@ -72,23 +80,32 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 	if err != nil {
 		return nil, err
 	}
-	httpArmoury.Parameters, err = requests.SplitHttpParameters(prov, paramMap, m, httpArmoury.RequestSchema, httpArmoury.ResponseSchema)
+	paramList, err := requests.SplitHttpParameters(prov, paramMap, m, httpArmoury.RequestSchema, httpArmoury.ResponseSchema)
 	if err != nil {
 		return nil, err
 	}
-	if execContext != nil && execContext.ExecPayload != nil {
-		httpArmoury.BodyBytes = execContext.ExecPayload.Payload
-		for k, v := range execContext.ExecPayload.Header {
-			httpArmoury.Header[k] = v
-		}
-	}
-	if httpArmoury.Parameters.RequestBody != nil && len(httpArmoury.Parameters.RequestBody) != 0 {
-		b, err := json.Marshal(httpArmoury.Parameters.RequestBody)
+	for _, params := range paramList {
+		pm := NewHTTPArmouryParameters()
 		if err != nil {
 			return nil, err
 		}
-		httpArmoury.BodyBytes = b
-		httpArmoury.Header["Content-Type"] = []string{"application/json"}
+		if execContext != nil && execContext.ExecPayload != nil {
+			pm.BodyBytes = execContext.ExecPayload.Payload
+			for j, v := range execContext.ExecPayload.Header {
+				pm.Header[j] = v
+			}
+
+		}
+		if params.RequestBody != nil && len(params.RequestBody) != 0 {
+			b, err := json.Marshal(params.RequestBody)
+			if err != nil {
+				return nil, err
+			}
+			pm.BodyBytes = b
+			pm.Header["Content-Type"] = []string{"application/json"}
+		}
+		pm.Parameters = params
+		httpArmoury.RequestParams = append(httpArmoury.RequestParams, pm)
 	}
 	var baseRequestCtx httpexec.IHttpContext
 	switch node := node.(type) {
@@ -106,19 +123,28 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 	if err != nil {
 		return nil, err
 	}
-	httpArmoury.Context, err = prov.Parameterise(baseRequestCtx, m, httpArmoury.Parameters, httpArmoury.RequestSchema)
-	if handlerCtx.RuntimeContext.HTTPLogEnabled {
-		url, _ := httpArmoury.Context.GetUrl()
-		handlerCtx.OutErrFile.Write([]byte(fmt.Sprintln(fmt.Sprintf("http request url: %s", url))))
-	}
-	if httpArmoury.BodyBytes != nil && httpArmoury.Header != nil && len(httpArmoury.Header) > 0 {
-		requestBodyMsg := fmt.Sprintf("http request body: %s", string(httpArmoury.BodyBytes))
-		log.Infoln(requestBodyMsg)
+	for i, p := range httpArmoury.RequestParams {
+		log.Infoln(fmt.Sprintf("pre transform: httpArmoury.RequestParams[%d] = %s", i, string(p.BodyBytes)))
+		p.Context, err = prov.Parameterise(baseRequestCtx, m, p.Parameters, httpArmoury.RequestSchema)
 		if handlerCtx.RuntimeContext.HTTPLogEnabled {
-			handlerCtx.OutErrFile.Write([]byte(fmt.Sprintln(requestBodyMsg)))
+			url, _ := p.Context.GetUrl()
+			handlerCtx.OutErrFile.Write([]byte(fmt.Sprintln(fmt.Sprintf("http request url: %s", url))))
 		}
-		httpArmoury.Context.SetBody(bytes.NewReader(httpArmoury.BodyBytes))
-		httpArmoury.Context.SetHeaders(httpArmoury.Header)
+		if p.Header == nil {
+			p.Header = make(http.Header)
+		}
+		p.Header["Content-Type"] = []string{"application/json"}
+		if p.BodyBytes != nil && p.Header != nil && len(p.Header) > 0 {
+			requestBodyMsg := fmt.Sprintf("http request body: %s", string(p.BodyBytes))
+			log.Infoln(requestBodyMsg)
+			if handlerCtx.RuntimeContext.HTTPLogEnabled {
+				handlerCtx.OutErrFile.Write([]byte(fmt.Sprintln(requestBodyMsg)))
+			}
+			p.Context.SetBody(bytes.NewReader(p.BodyBytes))
+			p.Context.SetHeaders(p.Header)
+		}
+		log.Infoln(fmt.Sprintf("post transform: httpArmoury.RequestParams[%d] = %s", i, string(p.BodyBytes)))
+		httpArmoury.RequestParams[i] = p
 	}
 	if err != nil {
 		return nil, err
@@ -130,7 +156,7 @@ func getSelectRequestCtx(handlerCtx *handler.HandlerContext, prov provider.IProv
 	var path string
 	var httpVerb string
 	var err error
-	currentSvcRsc, _ := sqlparser.TableFromStatement(handlerCtx.Query)
+	currentSvcRsc, _ := parserutil.TableFromSelectNode(node)
 	currentService := currentSvcRsc.Qualifier.GetRawVal()
 	currentResource := currentSvcRsc.Name.GetRawVal()
 	rsc, err := prov.GetResource(currentService, currentResource, handlerCtx.RuntimeContext)

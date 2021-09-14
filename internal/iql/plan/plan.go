@@ -1,9 +1,7 @@
 package plan
 
 import (
-	"infraql/internal/iql/drm"
-	"infraql/internal/iql/dto"
-	"io"
+	"infraql/internal/iql/primitive"
 	"sync"
 	"time"
 
@@ -11,26 +9,10 @@ import (
 	// log "github.com/sirupsen/logrus"
 )
 
-type IPrimitiveCtx interface {
-	GetAuthContext() *dto.AuthCtx
-	GetBody() map[string]interface{}
-	GetWriter() io.Writer
-	GetErrWriter() io.Writer
-	GetCommentDirectives() sqlparser.CommentDirectives
-}
-
-type IPrimitive interface {
-	Execute(IPrimitiveCtx) dto.ExecutorOutput
-
-	GetPreparedStatementContext() *drm.PreparedStatementCtx
-
-	SetTxnId(int)
-}
-
 type Plan struct {
 	Type                   sqlparser.StatementType // The type of query we have
 	Original               string                  // Original is the original query.
-	Instructions           IPrimitive              // Instructions contains the instructions needed to fulfil the query.
+	Instructions           primitive.IPrimitive    // Instructions contains the instructions needed to fulfil the query.
 	sqlparser.BindVarNeeds                         // Stores BindVars needed to be provided as part of expression rewriting
 
 	mu           sync.Mutex    // Mutex to protect the fields below

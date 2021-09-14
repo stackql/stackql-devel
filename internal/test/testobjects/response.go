@@ -146,8 +146,10 @@ const (
 	GoogleContainerHost                                     string = "container.googleapis.com"
 	GoogleComputeHost                                       string = "compute.googleapis.com"
 	GoogleProjectDefault                                    string = "infraql-demo"
+	DiskInsertPath                                          string = "/compute/v1/projects/testing-project/zones/australia-southeast1-b/disks"
 	NetworkInsertPath                                       string = "/compute/v1/projects/infraql-demo/global/networks"
 	networkDeletePath                                       string = "/compute/v1/projects/%s/global/networks/%s"
+	DiskInsertURL                                           string = "https://" + GoogleComputeHost + DiskInsertPath
 	NetworkInsertURL                                        string = "https://" + GoogleComputeHost + NetworkInsertPath
 	SubnetworkInsertPath                                    string = "/compute/v1/projects/infraql-demo/regions/australia-southeast1/subnetworks"
 	IPInsertPath                                            string = "/compute/v1/projects/infraql-demo/regions/australia-southeast1/addresses"

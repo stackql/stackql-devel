@@ -6,6 +6,7 @@ import (
 	"infraql/internal/iql/dto"
 	"infraql/internal/iql/metadata"
 	"infraql/internal/iql/provider"
+	"sort"
 	"strings"
 )
 
@@ -40,31 +41,40 @@ func parseRequestBodyParam(k string, v interface{}) *requestBodyParam {
 	return nil
 }
 
-func SplitHttpParameters(prov provider.IProvider, sqlParamMap map[string]interface{}, method *metadata.Method, requestSchema *metadata.Schema, responseSchema *metadata.Schema) (*dto.HttpParameters, error) {
-	retVal := dto.NewHttpParameters()
-	for k, v := range sqlParamMap {
-		var assignedToRequest bool
-		if param, ok := method.Parameters[k]; ok {
-			if param.Location == "query" {
-				retVal.QueryParams[k] = v
-				assignedToRequest = true
-			} else if param.Location == "path" {
-				retVal.PathParams[k] = v
-				assignedToRequest = true
-			}
-		}
-		if !assignedToRequest {
-			if requestSchema != nil {
-				rbp := parseRequestBodyParam(k, v)
-				if rbp != nil {
-					retVal.RequestBody[rbp.Key] = rbp.Val
+func SplitHttpParameters(prov provider.IProvider, sqlParamMap map[int]map[string]interface{}, method *metadata.Method, requestSchema *metadata.Schema, responseSchema *metadata.Schema) ([]*dto.HttpParameters, error) {
+	var retVal []*dto.HttpParameters
+	var rowKeys []int
+	for idx, _ := range sqlParamMap {
+		rowKeys = append(rowKeys, idx)
+	}
+	sort.Ints(rowKeys)
+	for _, k := range rowKeys {
+		sqlRow := sqlParamMap[k]
+		reqMap := dto.NewHttpParameters()
+		for k, v := range sqlRow {
+			var assignedToRequest bool
+			if param, ok := method.Parameters[k]; ok {
+				if param.Location == "query" {
+					reqMap.QueryParams[k] = v
+					assignedToRequest = true
+				} else if param.Location == "path" {
+					reqMap.PathParams[k] = v
+					assignedToRequest = true
 				}
 			}
+			if !assignedToRequest {
+				if requestSchema != nil {
+					rbp := parseRequestBodyParam(k, v)
+					if rbp != nil {
+						reqMap.RequestBody[rbp.Key] = rbp.Val
+					}
+				}
+			}
+			if responseSchema != nil && responseSchema.FindByPath(k, nil) != nil {
+				reqMap.ResponseBody[k] = v
+			}
 		}
-		if responseSchema != nil && responseSchema.FindByPath(k, nil) != nil {
-			retVal.ResponseBody[k] = v
-		}
-
+		retVal = append(retVal, reqMap)
 	}
 	return retVal, nil
 }

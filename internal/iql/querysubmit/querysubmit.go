@@ -12,14 +12,12 @@ func SubmitQuery(handlerCtx *handler.HandlerContext) dto.ExecutorOutput {
 	log.Debugln("SubmitQuery() invoked...")
 	plan, err := planbuilder.BuildPlanFromContext(handlerCtx)
 	if err != nil {
-		return dto.NewExecutorOutput(nil, nil, nil, err)
+		return dto.NewExecutorOutput(nil, nil, nil, nil, err)
 	}
 	pl := dto.NewBasicPrimitiveContext(
 		nil,
-		nil,
 		handlerCtx.Outfile,
 		handlerCtx.OutErrFile,
-		nil,
 	)
 	return plan.Instructions.Execute(pl)
 }

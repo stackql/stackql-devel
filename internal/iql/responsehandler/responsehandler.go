@@ -24,33 +24,33 @@ func handleEmptyWriter(outputWriter output.IOutputWriter, err error) {
 func HandleResponse(handlerCtx *handler.HandlerContext, response dto.ExecutorOutput) error {
 	var outputWriter output.IOutputWriter
 	var err error
-	log.Debugln(fmt.Sprintf("response from query = '%v'", response.Result))
+	log.Debugln(fmt.Sprintf("response from query = '%v'", response.GetSQLResult()))
 	if response.Msg != nil {
 		for _, msg := range response.Msg.WorkingMessages {
 			handlerCtx.Outfile.Write([]byte(msg + fmt.Sprintln("")))
 		}
 	}
-	if response.Result != nil && response.Result.Fields != nil && response.Err == nil {
+	if response.GetSQLResult() != nil && response.GetSQLResult().Fields != nil && response.Err == nil {
 		outputWriter, err = output.GetOutputWriter(
 			handlerCtx.Outfile,
 			handlerCtx.OutErrFile,
 			dto.OutputContext{
 				RuntimeContext: handlerCtx.RuntimeContext,
-				Result:         response.Result,
+				Result:         response.GetSQLResult(),
 			},
 		)
 		if outputWriter == nil || err != nil {
 			handleEmptyWriter(outputWriter, err)
 			return err
 		}
-		outputWriter.Write(response.Result)
+		outputWriter.Write(response.GetSQLResult())
 	} else if response.Err != nil {
 		outputWriter, err = output.GetOutputWriter(
 			handlerCtx.Outfile,
 			handlerCtx.OutErrFile,
 			dto.OutputContext{
 				RuntimeContext: handlerCtx.RuntimeContext,
-				Result:         response.Result,
+				Result:         response.GetSQLResult(),
 			},
 		)
 		if outputWriter == nil || err != nil {

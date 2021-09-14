@@ -16,7 +16,7 @@ import (
 	"infraql/internal/iql/iqlutil"
 	"infraql/internal/iql/metadata"
 	"infraql/internal/iql/parserutil"
-	"infraql/internal/iql/plan"
+	"infraql/internal/iql/primitive"
 	"infraql/internal/iql/primitivebuilder"
 	"infraql/internal/iql/provider"
 	"infraql/internal/iql/relational"
@@ -513,6 +513,10 @@ func (p *primitiveGenerator) analyzeExec(handlerCtx *handler.HandlerContext, nod
 		return err
 	}
 
+	if p.PrimitiveBuilder.IsAwait() && !method.IsAwaitable() {
+		return fmt.Errorf("method %s is not awaitalbe", method.ID)
+	}
+
 	requiredParams := method.GetRequiredParameters()
 
 	colz, err := parserutil.GetColumnUsageTypesForExec(node)
@@ -559,7 +563,7 @@ func (p *primitiveGenerator) analyzeExec(handlerCtx *handler.HandlerContext, nod
 	if err != nil {
 		return err
 	}
-	err = p.buildRequestContext(handlerCtx, node, &meta, sm, httpbuild.NewExecContext(execPayload, rsc))
+	_, err = p.buildRequestContext(handlerCtx, node, &meta, sm, httpbuild.NewExecContext(execPayload, rsc), nil)
 	if err != nil {
 		return err
 	}
@@ -742,7 +746,7 @@ func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, n
 			if err != nil {
 				return err
 			}
-			rhsPb := newPrimitiveGenerator(p.PrimitiveBuilder.GetAst(), handlerCtx)
+			rhsPb := newPrimitiveGenerator(p.PrimitiveBuilder.GetAst(), handlerCtx, p.PrimitiveBuilder.GetGraph())
 			tbl, err = rhsPb.analyzeTableExpr(handlerCtx, ft.RightExpr)
 			if err != nil {
 				return err
@@ -908,7 +912,7 @@ func (p *primitiveGenerator) analyzeSelectDetail(handlerCtx *handler.HandlerCont
 	if err != nil {
 		return err
 	}
-	err = p.buildRequestContext(handlerCtx, node, tbl, sm, nil)
+	_, err = p.buildRequestContext(handlerCtx, node, tbl, sm, nil, nil)
 	if err != nil {
 		return err
 	}
@@ -961,25 +965,25 @@ func (p *primitiveGenerator) analyzeTableExpr(handlerCtx *handler.HandlerContext
 	return &tbl, nil
 }
 
-func (p *primitiveGenerator) buildRequestContext(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, meta *taxonomy.ExtendedTableMetadata, schemaMap map[string]metadata.Schema, execContext *httpbuild.ExecContext) error {
+func (p *primitiveGenerator) buildRequestContext(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, meta *taxonomy.ExtendedTableMetadata, schemaMap map[string]metadata.Schema, execContext *httpbuild.ExecContext, rowsToInsert map[int]map[int]interface{}) (*httpbuild.HTTPArmoury, error) {
 	m, err := meta.GetMethod()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	switch m.Protocol {
 	case "http":
 		prov, err := meta.GetProvider()
 		if err != nil {
-			return err
+			return nil, err
 		}
-		httpArmoury, err := httpbuild.BuildHTTPRequestCtx(handlerCtx, node, prov, m, schemaMap, p.PrimitiveBuilder.GetInsertValOnlyRows(), execContext)
+		httpArmoury, err := httpbuild.BuildHTTPRequestCtx(handlerCtx, node, prov, m, schemaMap, rowsToInsert, execContext)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		meta.HttpArmoury = httpArmoury
-		return nil
+		return httpArmoury, err
 	}
-	return fmt.Errorf("protocol '%s' unsupported", m.Protocol)
+	return nil, fmt.Errorf("protocol '%s' unsupported", m.Protocol)
 }
 
 func (p *primitiveGenerator) analyzeInsert(handlerCtx *handler.HandlerContext, node *sqlparser.Insert) error {
@@ -1003,16 +1007,37 @@ func (p *primitiveGenerator) analyzeInsert(handlerCtx *handler.HandlerContext, n
 	if err != nil {
 		return err
 	}
-	insertValOnlyRows, nonValCols, err := parserutil.ExtractInsertValColumns(node)
+	insertValOnlyRows, nonValCols, err := parserutil.ExtractInsertValColumnsPlusPlaceHolders(node)
 	if err != nil {
 		return err
 	}
 	p.PrimitiveBuilder.SetInsertValOnlyRows(insertValOnlyRows)
 	if nonValCols > 0 {
-		return fmt.Errorf("insert not supported for anything but static values: found %d non-static values", nonValCols)
+		switch rowsNode := node.Rows.(type) {
+		case *sqlparser.Select:
+			for k, v := range insertValOnlyRows {
+				row := v
+				maxKey := util.MaxMapKey(row)
+				for i := 0; i < nonValCols; i++ {
+					row[maxKey+i+1] = "placeholder"
+				}
+				insertValOnlyRows[k] = row
+			}
+		default:
+			return fmt.Errorf("insert with rows of type '%T' not currently supported", rowsNode)
+		}
 	}
 
 	p.parseComments(node.Comments)
+
+	method, err := tbl.GetMethod()
+	if err != nil {
+		return err
+	}
+
+	if p.PrimitiveBuilder.IsAwait() && !method.IsAwaitable() {
+		return fmt.Errorf("method %s is not awaitalbe", method.ID)
+	}
 
 	_, err = checkResource(handlerCtx, prov, currentService, currentResource)
 	if err != nil {
@@ -1024,7 +1049,7 @@ func (p *primitiveGenerator) analyzeInsert(handlerCtx *handler.HandlerContext, n
 		return err
 	}
 
-	err = p.buildRequestContext(handlerCtx, node, &tbl, sm, nil)
+	_, err = p.buildRequestContext(handlerCtx, node, &tbl, sm, nil, insertValOnlyRows)
 	if err != nil {
 		return err
 	}
@@ -1058,6 +1083,13 @@ func (p *primitiveGenerator) analyzeDelete(handlerCtx *handler.HandlerContext, n
 	method, err := tbl.GetMethod()
 	if err != nil {
 		return err
+	}
+
+	if p.PrimitiveBuilder.IsAwait() && !method.IsAwaitable() {
+		return fmt.Errorf("method %s is not awaitalbe", method.ID)
+	}
+	if p.PrimitiveBuilder.IsAwait() && !method.IsAwaitable() {
+		return fmt.Errorf("method %s is not awaitalbe", method.ID)
 	}
 	currentService, err := tbl.GetServiceStr()
 	if err != nil {
@@ -1107,7 +1139,7 @@ func (p *primitiveGenerator) analyzeDelete(handlerCtx *handler.HandlerContext, n
 	if err != nil {
 		return err
 	}
-	err = p.buildRequestContext(handlerCtx, node, &tbl, sm, nil)
+	_, err = p.buildRequestContext(handlerCtx, node, &tbl, sm, nil, nil)
 	if err != nil {
 		return err
 	}
@@ -1157,14 +1189,14 @@ func (p *primitiveGenerator) analyzeSleep(handlerCtx *handler.HandlerContext, no
 		return fmt.Errorf("sleep duration %d not allowed, must be > 0", sleepDuration)
 	}
 	p.PrimitiveBuilder.SetPrimitive(primitivebuilder.NewLocalPrimitive(
-		func(pc plan.IPrimitiveCtx) dto.ExecutorOutput {
+		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 			time.Sleep(time.Duration(sleepDuration) * time.Millisecond)
 			msgs := dto.BackendMessages{
 				WorkingMessages: []string{
 					fmt.Sprintf("Success: slept for %d milliseconds", sleepDuration),
 				},
 			}
-			return dto.NewExecutorOutput(nil, nil, &msgs, nil)
+			return dto.NewExecutorOutput(nil, nil, nil, &msgs, nil)
 		},
 	),
 	)
