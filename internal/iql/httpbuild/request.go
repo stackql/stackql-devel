@@ -84,7 +84,8 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 	if err != nil {
 		return nil, err
 	}
-	for _, params := range paramList {
+	for _, prms := range paramList {
+		params := prms
 		pm := NewHTTPArmouryParameters()
 		if err != nil {
 			return nil, err
@@ -107,27 +108,29 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 		pm.Parameters = params
 		httpArmoury.RequestParams = append(httpArmoury.RequestParams, pm)
 	}
-	var baseRequestCtx httpexec.IHttpContext
-	switch node := node.(type) {
-	case *sqlparser.Delete:
-		baseRequestCtx, err = getDeleteRequestCtx(handlerCtx, prov, node, m)
-	case *sqlparser.Exec:
-		baseRequestCtx, err = getExecRequestCtx(execContext.Resource, m)
-	case *sqlparser.Insert:
-		baseRequestCtx, err = getInsertRequestCtx(handlerCtx, prov, node, m)
-	case *sqlparser.Select:
-		baseRequestCtx, err = getSelectRequestCtx(handlerCtx, prov, node, m)
-	default:
-		return nil, fmt.Errorf("cannot create http primitive for sql node of type %T", node)
-	}
-	if err != nil {
-		return nil, err
-	}
-	for i, p := range httpArmoury.RequestParams {
+	for i, param := range httpArmoury.RequestParams {
+		p := param
+		var baseRequestCtx httpexec.IHttpContext
+		switch node := node.(type) {
+		case *sqlparser.Delete:
+			baseRequestCtx, err = getDeleteRequestCtx(handlerCtx, prov, node, m)
+		case *sqlparser.Exec:
+			baseRequestCtx, err = getExecRequestCtx(execContext.Resource, m)
+		case *sqlparser.Insert:
+			baseRequestCtx, err = getInsertRequestCtx(handlerCtx, prov, node, m)
+		case *sqlparser.Select:
+			baseRequestCtx, err = getSelectRequestCtx(handlerCtx, prov, node, m)
+		default:
+			return nil, fmt.Errorf("cannot create http primitive for sql node of type %T", node)
+		}
+		if err != nil {
+			return nil, err
+		}
 		log.Infoln(fmt.Sprintf("pre transform: httpArmoury.RequestParams[%d] = %s", i, string(p.BodyBytes)))
 		p.Context, err = prov.Parameterise(baseRequestCtx, m, p.Parameters, httpArmoury.RequestSchema)
 		if handlerCtx.RuntimeContext.HTTPLogEnabled {
 			url, _ := p.Context.GetUrl()
+			// fmt.Printf("url for request = %s\n", url)
 			handlerCtx.OutErrFile.Write([]byte(fmt.Sprintln(fmt.Sprintf("http request url: %s", url))))
 		}
 		if p.Header == nil {

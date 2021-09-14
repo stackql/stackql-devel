@@ -48,6 +48,27 @@ func getDisksSelectExpectations(t *testing.T) map[string]testhttpapi.HTTPRequest
 	}
 }
 
+func getCloudResourceManagerProjectSelectExpectations(t *testing.T) map[string]testhttpapi.HTTPRequestExpectations {
+	path := "/v3/projects"
+	url := &url.URL{
+		Path:     path,
+		RawQuery: "parent=organizations%2F123456789012",
+	}
+	responseFile, err := util.GetFilePathFromRepositoryRoot(testobjects.GoogleCloudResourceManagerProjectsListResponseFile)
+	if err != nil {
+		t.Fatalf("Test failed: %v", err)
+	}
+	responseBytes, err := ioutil.ReadFile(responseFile)
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	ex := testhttpapi.NewHTTPRequestExpectations(nil, nil, "GET", url, testobjects.GoogleComputeHost, string(responseBytes), nil)
+
+	return map[string]testhttpapi.HTTPRequestExpectations{
+		testobjects.GoogleCloudResourceManagerHost + path + "?parent=organizations%2F123456789012": *ex,
+	}
+}
+
 func SetupSimpleSelectGoogleComputeDisks(t *testing.T) {
 	expectations := testhttpapi.NewExpectationStore(1)
 	for k, v := range getDisksSelectExpectations(t) {
@@ -190,6 +211,25 @@ func getDiskInsertSuccessExpectations(expectedRequestBody string) map[string]tes
 	return map[string]testhttpapi.HTTPRequestExpectations{
 		testobjects.GoogleComputeHost + testobjects.DiskInsertPath:                *diskInsertExpectation,
 		testobjects.GoogleApisHost + testobjects.GoogleComputeInsertOperationPath: *networkInsertOpPollExpectation,
+	}
+}
+
+func getBQDatasetInsertSuccessExpectations(bqInsertPath, expectedRequestBody, responseBody string) map[string]testhttpapi.HTTPRequestExpectations {
+	datasetInsertURL := &url.URL{
+		Path: bqInsertPath,
+	}
+	datasetInsertExpectation := testhttpapi.NewHTTPRequestExpectations(
+		testutil.CreateReadCloserFromString(expectedRequestBody),
+		nil,
+		"POST",
+		datasetInsertURL,
+		testobjects.GoogleBQHost,
+		responseBody,
+		nil,
+	)
+
+	return map[string]testhttpapi.HTTPRequestExpectations{
+		testobjects.GoogleBQHost + bqInsertPath: *datasetInsertExpectation,
 	}
 }
 
@@ -423,13 +463,46 @@ func SetupDependentInsertGoogleComputeDisks(t *testing.T) {
 func SetupDependentInsertGoogleComputeDisksReversed(t *testing.T) {
 
 	expectations := testhttpapi.NewExpectationStore(5)
-	for k, v := range getDisksSelectExpectations(t) {
+	for k, v := range getCloudResourceManagerProjectSelectExpectations(t) {
 		expectations.Put(k, v)
 	}
 	for k, v := range getDiskInsertSuccessExpectations(testobjects.CreateGoogleComputeDiskRequestPayload03) {
 		expectations.Put(k, v)
 	}
 	for k, v := range getDiskInsertSuccessExpectations(testobjects.CreateGoogleComputeDiskRequestPayload04) {
+		expectations.Put(k, v)
+	}
+	testhttpapi.StartServer(t, expectations)
+	provider.DummyAuth = true
+	asyncmonitor.MonitorPollIntervalSeconds = 2
+}
+
+func SetupDependentInsertGoogleBQDatasets(t *testing.T) {
+
+	expectations := testhttpapi.NewExpectationStore(3)
+	for k, v := range getCloudResourceManagerProjectSelectExpectations(t) {
+		expectations.Put(k, v)
+	}
+	responseFile01, err := util.GetFilePathFromRepositoryRoot(testobjects.SimpleGoogleBQDatasetInsertResponseFile01)
+	if err != nil {
+		t.Fatalf("Test failed: %v", err)
+	}
+	responseBytes01, err := ioutil.ReadFile(responseFile01)
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	responseFile02, err := util.GetFilePathFromRepositoryRoot(testobjects.SimpleGoogleBQDatasetInsertResponseFile02)
+	if err != nil {
+		t.Fatalf("Test failed: %v", err)
+	}
+	responseBytes02, err := ioutil.ReadFile(responseFile02)
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	for k, v := range getBQDatasetInsertSuccessExpectations(testobjects.BQPRoject01InsertURL, testobjects.CreateGoogleBQDatasetRequestPayload01, string(responseBytes01)) {
+		expectations.Put(k, v)
+	}
+	for k, v := range getBQDatasetInsertSuccessExpectations(testobjects.BQPRoject02InsertURL, testobjects.CreateGoogleBQDatasetRequestPayload02, string(responseBytes02)) {
 		expectations.Put(k, v)
 	}
 	testhttpapi.StartServer(t, expectations)

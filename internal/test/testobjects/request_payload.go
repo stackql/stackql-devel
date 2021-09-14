@@ -63,6 +63,19 @@ const (
 	`
 )
 
+var (
+	CreateGoogleBQDatasetRequestPayload01 string = fmt.Sprintf(`
+	{
+		"datasetReference": {"datasetId":"test_dataset_zz","projectId":"%s"},
+		"location": "US"
+	}`, GoogleBQPRoject01)
+	CreateGoogleBQDatasetRequestPayload02 string = fmt.Sprintf(`
+	{
+		"datasetReference": {"datasetId":"test_dataset_zz","projectId":"%s"},
+		"location": "US"
+	}`, GoogleBQPRoject02)
+)
+
 func GetCreateGoogleComputeInstancePayload(name string, secondaryTag string, netWorkIP string) string {
 	return fmt.Sprintf(createGoogleComputeInstancePayload, name, netWorkIP, secondaryTag)
 }
