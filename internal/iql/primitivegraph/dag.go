@@ -23,6 +23,9 @@ func (pg *PrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) dto.ExecutorOutpu
 		switch node := node.(type) {
 		case PrimitiveNode:
 			output = node.Primitive.Execute(ctx)
+			if output.Err != nil {
+				return output
+			}
 			destinationNodes := pg.g.From(node.ID())
 			for {
 				if !destinationNodes.Next() {

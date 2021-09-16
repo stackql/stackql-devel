@@ -48,6 +48,27 @@ func getDisksSelectExpectations(t *testing.T) map[string]testhttpapi.HTTPRequest
 	}
 }
 
+func getCloudResourceManagerOrganizationsGetIamPolicyExpectations(t *testing.T) map[string]testhttpapi.HTTPRequestExpectations {
+	path := "/v3/organizations/123456789012:getIamPolicy"
+	url := &url.URL{
+		Path: path,
+	}
+
+	responseFile, err := util.GetFilePathFromRepositoryRoot(testobjects.GoogleCloudResourceManagerGetIamPolicyResponseFile)
+	if err != nil {
+		t.Fatalf("Test failed: %v", err)
+	}
+	responseBytes, err := ioutil.ReadFile(responseFile)
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	ex := testhttpapi.NewHTTPRequestExpectations(nil, nil, "POST", url, testobjects.GoogleCloudResourceManagerHost, string(responseBytes), nil)
+
+	return map[string]testhttpapi.HTTPRequestExpectations{
+		testobjects.GoogleCloudResourceManagerHost + path: *ex,
+	}
+}
+
 func getCloudResourceManagerProjectSelectExpectations(t *testing.T) map[string]testhttpapi.HTTPRequestExpectations {
 	path := "/v3/projects"
 	url := &url.URL{
@@ -62,7 +83,7 @@ func getCloudResourceManagerProjectSelectExpectations(t *testing.T) map[string]t
 	if err != nil {
 		t.Fatalf("%v", err)
 	}
-	ex := testhttpapi.NewHTTPRequestExpectations(nil, nil, "GET", url, testobjects.GoogleComputeHost, string(responseBytes), nil)
+	ex := testhttpapi.NewHTTPRequestExpectations(nil, nil, "GET", url, testobjects.GoogleCloudResourceManagerHost, string(responseBytes), nil)
 
 	return map[string]testhttpapi.HTTPRequestExpectations{
 		testobjects.GoogleCloudResourceManagerHost + path + "?parent=organizations%2F123456789012": *ex,
@@ -458,6 +479,16 @@ func SetupDependentInsertGoogleComputeDisks(t *testing.T) {
 	testhttpapi.StartServer(t, expectations)
 	provider.DummyAuth = true
 	asyncmonitor.MonitorPollIntervalSeconds = 2
+}
+
+func SetupExecGoogleOrganizationsGetIamPolicy(t *testing.T) {
+
+	expectations := testhttpapi.NewExpectationStore(1)
+	for k, v := range getCloudResourceManagerOrganizationsGetIamPolicyExpectations(t) {
+		expectations.Put(k, v)
+	}
+	testhttpapi.StartServer(t, expectations)
+	provider.DummyAuth = true
 }
 
 func SetupDependentInsertGoogleComputeDisksReversed(t *testing.T) {

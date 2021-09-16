@@ -12,6 +12,7 @@ import (
 	"infraql/internal/iql/httpmiddleware"
 	"infraql/internal/iql/metadata"
 	"infraql/internal/iql/primitive"
+	"infraql/internal/iql/primitivegraph"
 	"infraql/internal/iql/taxonomy"
 	"infraql/internal/iql/util"
 
@@ -26,7 +27,23 @@ type Builder interface {
 
 	GetQuery() string
 
-	GetPrimitive() primitive.IPrimitive
+	GetRoot() primitivegraph.PrimitiveNode
+
+	GetTail() primitivegraph.PrimitiveNode
+}
+
+type SingleSelectAcquire struct {
+	primitiveBuilder           *PrimitiveBuilder
+	query                      string
+	handlerCtx                 *handler.HandlerContext
+	tableMeta                  taxonomy.ExtendedTableMetadata
+	tabulation                 metadata.Tabulation
+	drmCfg                     drm.DRMConfig
+	insertPreparedStatementCtx *drm.PreparedStatementCtx
+	selectPreparedStatementCtx *drm.PreparedStatementCtx
+	txnCtrlCtr                 *dto.TxnControlCounters
+	rowSort                    func(map[string]map[string]interface{}) []string
+	root                       primitivegraph.PrimitiveNode
 }
 
 type SingleSelect struct {
@@ -40,7 +57,13 @@ type SingleSelect struct {
 	selectPreparedStatementCtx *drm.PreparedStatementCtx
 	txnCtrlCtr                 *dto.TxnControlCounters
 	rowSort                    func(map[string]map[string]interface{}) []string
-	prim                       primitive.IPrimitive
+	root                       primitivegraph.PrimitiveNode
+}
+
+type SingleAcquireAndSelect struct {
+	primitiveBuilder *PrimitiveBuilder
+	acquireBuilder   *SingleSelectAcquire
+	selectBuilder    *SingleSelect
 }
 
 type Join struct {
@@ -48,6 +71,19 @@ type Join struct {
 	lhs, rhs     Builder
 	handlerCtx   *handler.HandlerContext
 	rowSort      func(map[string]map[string]interface{}) []string
+}
+
+func NewSingleSelectAcquire(pb *PrimitiveBuilder, handlerCtx *handler.HandlerContext, tableMeta taxonomy.ExtendedTableMetadata, insertCtx *drm.PreparedStatementCtx, selectCtx *drm.PreparedStatementCtx, rowSort func(map[string]map[string]interface{}) []string) *SingleSelectAcquire {
+	return &SingleSelectAcquire{
+		primitiveBuilder:           pb,
+		handlerCtx:                 handlerCtx,
+		tableMeta:                  tableMeta,
+		rowSort:                    rowSort,
+		drmCfg:                     handlerCtx.DrmConfig,
+		insertPreparedStatementCtx: insertCtx,
+		selectPreparedStatementCtx: selectCtx,
+		txnCtrlCtr:                 selectCtx.TxnCtrlCtrs,
+	}
 }
 
 func NewSingleSelect(pb *PrimitiveBuilder, handlerCtx *handler.HandlerContext, tableMeta taxonomy.ExtendedTableMetadata, insertCtx *drm.PreparedStatementCtx, selectCtx *drm.PreparedStatementCtx, rowSort func(map[string]map[string]interface{}) []string) *SingleSelect {
@@ -63,6 +99,14 @@ func NewSingleSelect(pb *PrimitiveBuilder, handlerCtx *handler.HandlerContext, t
 	}
 }
 
+func NewSingleAcquireAndSelect(pb *PrimitiveBuilder, handlerCtx *handler.HandlerContext, tableMeta taxonomy.ExtendedTableMetadata, insertCtx *drm.PreparedStatementCtx, selectCtx *drm.PreparedStatementCtx, rowSort func(map[string]map[string]interface{}) []string) *SingleAcquireAndSelect {
+	return &SingleAcquireAndSelect{
+		primitiveBuilder: pb,
+		acquireBuilder:   NewSingleSelectAcquire(pb, handlerCtx, tableMeta, insertCtx, selectCtx, rowSort),
+		selectBuilder:    NewSingleSelect(pb, handlerCtx, tableMeta, insertCtx, selectCtx, rowSort),
+	}
+}
+
 func NewJoin(lhsPb *PrimitiveBuilder, rhsPb *PrimitiveBuilder, handlerCtx *handler.HandlerContext, rowSort func(map[string]map[string]interface{}) []string) *Join {
 	return &Join{
 		lhsPb:      lhsPb,
@@ -73,105 +117,13 @@ func NewJoin(lhsPb *PrimitiveBuilder, rhsPb *PrimitiveBuilder, handlerCtx *handl
 }
 
 func (ss *SingleSelect) Build() error {
-	prov, err := ss.tableMeta.GetProvider()
-	if err != nil {
-		return err
-	}
-	ex := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+
+	selectEx := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 		defer ss.handlerCtx.SQLEngine.GCCollectObsolete(ss.insertPreparedStatementCtx.TxnCtrlCtrs)
-		if err != nil {
-			return util.PrepareResultSet(dto.NewPrepareResultSetDTO(
-				nil,
-				nil,
-				nil,
-				nil,
-				err,
-				nil,
-			))
-		}
-		mr := prov.InferMaxResultsElement(ss.tableMeta.HeirarchyObjects.Method)
-		if mr != nil {
-			_, ok := ss.tableMeta.HeirarchyObjects.Method.Parameters[mr.Name]
-			if ok && ss.handlerCtx.RuntimeContext.HTTPMaxResults > 0 {
-				for i, param := range ss.tableMeta.HttpArmoury.RequestParams {
-					param.Context.SetQueryParam("maxResults", strconv.Itoa(ss.handlerCtx.RuntimeContext.HTTPMaxResults))
-					ss.tableMeta.HttpArmoury.RequestParams[i] = param
-				}
-			}
-		}
 		altKeys := make(map[string]map[string]interface{})
 		rawRows := make(map[int]map[int]interface{})
-		for _, reqCtx := range ss.tableMeta.HttpArmoury.RequestParams {
-			response, apiErr := httpmiddleware.HttpApiCall(*(ss.handlerCtx), prov, reqCtx.Context)
-			housekeepingDone := false
-			for {
-				if apiErr != nil {
-					return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, nil, nil, ss.rowSort, apiErr, nil))
-				}
-				target, err := httpexec.ProcessHttpResponse(response)
-				if err != nil {
-					return util.PrepareResultSet(dto.NewPrepareResultSetDTO(
-						nil,
-						nil,
-						nil,
-						nil,
-						err,
-						nil,
-					))
-				}
-				log.Infoln(fmt.Sprintf("target = %v", target))
-				items, ok := target[ss.tableMeta.SelectItemsKey]
-				keys := make(map[string]map[string]interface{})
 
-				if ok {
-					iArr, ok := items.([]interface{})
-					if ok && len(iArr) > 0 {
-						if !housekeepingDone {
-							_, err = ss.handlerCtx.SQLEngine.Exec(ss.insertPreparedStatementCtx.GetGCHousekeepingQueries())
-							housekeepingDone = true
-						}
-						if err != nil {
-							return util.PrepareResultSet(dto.NewPrepareResultSetDTO(
-								nil,
-								nil,
-								nil,
-								nil,
-								err,
-								nil,
-							))
-						}
-
-						for i := range iArr {
-							item, ok := iArr[i].(map[string]interface{})
-							if ok {
-
-								log.Infoln(fmt.Sprintf("running insert with control parameters: %v", ss.insertPreparedStatementCtx.TxnCtrlCtrs))
-								r, err := ss.drmCfg.ExecuteInsertDML(ss.handlerCtx.SQLEngine, ss.insertPreparedStatementCtx, item)
-								log.Infoln(fmt.Sprintf("insert result = %v, error = %v", r, err))
-								keys[strconv.Itoa(i)] = item
-							}
-						}
-					}
-				}
-				npt := prov.InferNextPageResponseElement(ss.tableMeta.HeirarchyObjects.Method)
-				nptKey := prov.InferNextPageRequestElement(ss.tableMeta.HeirarchyObjects.Method)
-				if npt == nil || nptKey == nil {
-					break
-				}
-				nextPageToken, ok := target[npt.Name]
-				if !ok || nextPageToken == "" {
-					log.Infoln("breaking out")
-					break
-				}
-				tk, ok := nextPageToken.(string)
-				if !ok {
-					log.Infoln("breaking out")
-					break
-				}
-				reqCtx.Context.SetQueryParam(nptKey.Name, tk)
-				response, apiErr = httpmiddleware.HttpApiCall(*(ss.handlerCtx), prov, reqCtx.Context)
-			}
-		}
+		// select phase
 		log.Infoln(fmt.Sprintf("running select with control parameters: %v", ss.selectPreparedStatementCtx.TxnCtrlCtrs))
 		r, sqlErr := ss.drmCfg.QueryDML(ss.handlerCtx.SQLEngine, ss.selectPreparedStatementCtx, nil)
 		log.Infoln(fmt.Sprintf("select result = %v, error = %v", r, sqlErr))
@@ -232,8 +184,8 @@ func (ss *SingleSelect) Build() error {
 			}
 			return rv
 		}
-		rv := util.PrepareResultSet(dto.NewPrepareResultSetPlusRawDTO(nil, altKeys, cNames, rowSort, err, nil, rawRows))
-		if rv.GetSQLResult() == nil && err == nil {
+		rv := util.PrepareResultSet(dto.NewPrepareResultSetPlusRawDTO(nil, altKeys, cNames, rowSort, nil, nil, rawRows))
+		if rv.GetSQLResult() == nil {
 
 			resVal := &sqltypes.Result{
 				Fields: make([]*querypb.Field, len(ss.selectPreparedStatementCtx.NonControlColumns)),
@@ -246,26 +198,154 @@ func (ss *SingleSelect) Build() error {
 			}
 			rv.GetSQLResult = func() *sqltypes.Result { return resVal }
 		}
-		// rv.Result.Rows = rows
 		return rv
 	}
+	graph := ss.primitiveBuilder.GetGraph()
+	selectNode := graph.CreatePrimitiveNode(NewLocalPrimitive(selectEx))
+	ss.root = selectNode
+
+	return nil
+}
+
+func (ss *SingleSelectAcquire) Build() error {
+	prov, err := ss.tableMeta.GetProvider()
+	if err != nil {
+		return err
+	}
+	ex := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+		mr := prov.InferMaxResultsElement(ss.tableMeta.HeirarchyObjects.Method)
+		if mr != nil {
+			_, ok := ss.tableMeta.HeirarchyObjects.Method.Parameters[mr.Name]
+			if ok && ss.handlerCtx.RuntimeContext.HTTPMaxResults > 0 {
+				for i, param := range ss.tableMeta.HttpArmoury.RequestParams {
+					param.Context.SetQueryParam("maxResults", strconv.Itoa(ss.handlerCtx.RuntimeContext.HTTPMaxResults))
+					ss.tableMeta.HttpArmoury.RequestParams[i] = param
+				}
+			}
+		}
+		for _, reqCtx := range ss.tableMeta.HttpArmoury.RequestParams {
+			response, apiErr := httpmiddleware.HttpApiCall(*(ss.handlerCtx), prov, reqCtx.Context)
+			housekeepingDone := false
+			for {
+				if apiErr != nil {
+					return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, nil, nil, ss.rowSort, apiErr, nil))
+				}
+				target, err := httpexec.ProcessHttpResponse(response)
+				if err != nil {
+					return dto.NewErroneousExecutorOutput(err)
+				}
+				log.Infoln(fmt.Sprintf("target = %v", target))
+				items, ok := target[ss.tableMeta.SelectItemsKey]
+				keys := make(map[string]map[string]interface{})
+
+				if ok {
+					iArr, ok := items.([]interface{})
+					if ok && len(iArr) > 0 {
+						if !housekeepingDone {
+							_, err = ss.handlerCtx.SQLEngine.Exec(ss.insertPreparedStatementCtx.GetGCHousekeepingQueries())
+							housekeepingDone = true
+						}
+						if err != nil {
+							return dto.NewErroneousExecutorOutput(err)
+						}
+
+						for i := range iArr {
+							item, ok := iArr[i].(map[string]interface{})
+							if ok {
+
+								log.Infoln(fmt.Sprintf("running insert with control parameters: %v", ss.insertPreparedStatementCtx.TxnCtrlCtrs))
+								r, err := ss.drmCfg.ExecuteInsertDML(ss.handlerCtx.SQLEngine, ss.insertPreparedStatementCtx, item)
+								log.Infoln(fmt.Sprintf("insert result = %v, error = %v", r, err))
+								keys[strconv.Itoa(i)] = item
+							}
+						}
+					}
+				}
+				npt := prov.InferNextPageResponseElement(ss.tableMeta.HeirarchyObjects.Method)
+				nptKey := prov.InferNextPageRequestElement(ss.tableMeta.HeirarchyObjects.Method)
+				if npt == nil || nptKey == nil {
+					break
+				}
+				nextPageToken, ok := target[npt.Name]
+				if !ok || nextPageToken == "" {
+					log.Infoln("breaking out")
+					break
+				}
+				tk, ok := nextPageToken.(string)
+				if !ok {
+					log.Infoln("breaking out")
+					break
+				}
+				reqCtx.Context.SetQueryParam(nptKey.Name, tk)
+				response, apiErr = httpmiddleware.HttpApiCall(*(ss.handlerCtx), prov, reqCtx.Context)
+			}
+		}
+		return dto.ExecutorOutput{}
+	}
+
 	prep := func() *drm.PreparedStatementCtx {
 		return ss.selectPreparedStatementCtx
 	}
-	ss.prim = NewHTTPRestPrimitive(
+	insertPrim := NewHTTPRestPrimitive(
 		prov,
 		ex,
 		prep,
 		ss.txnCtrlCtr,
 	)
+	graph := ss.primitiveBuilder.GetGraph()
+	insertNode := graph.CreatePrimitiveNode(insertPrim)
+	ss.root = insertNode
+
 	return nil
 }
 
-func (ss *SingleSelect) GetPrimitive() primitive.IPrimitive {
-	return ss.prim
+func (ss *SingleAcquireAndSelect) GetRoot() primitivegraph.PrimitiveNode {
+	return ss.acquireBuilder.GetRoot()
+}
+
+func (ss *SingleAcquireAndSelect) GetTail() primitivegraph.PrimitiveNode {
+	return ss.selectBuilder.GetTail()
+}
+
+func (ss *SingleAcquireAndSelect) GetQuery() string {
+	return ss.acquireBuilder.query
+}
+
+func (ss *SingleAcquireAndSelect) Build() error {
+	err := ss.acquireBuilder.Build()
+	if err != nil {
+		return err
+	}
+	err = ss.selectBuilder.Build()
+	if err != nil {
+		return err
+	}
+	graph := ss.primitiveBuilder.GetGraph()
+	graph.NewDependency(ss.acquireBuilder.root, ss.selectBuilder.root, 1.0)
+	return nil
+}
+
+func (ss *SingleSelect) GetRoot() primitivegraph.PrimitiveNode {
+	return ss.root
+}
+
+func (ss *SingleSelect) GetTail() primitivegraph.PrimitiveNode {
+	return ss.root
 }
 
 func (ss *SingleSelect) GetQuery() string {
+	return ss.query
+}
+
+func (ss *SingleSelectAcquire) GetRoot() primitivegraph.PrimitiveNode {
+	return ss.root
+}
+
+func (ss *SingleSelectAcquire) GetTail() primitivegraph.PrimitiveNode {
+	return ss.root
+}
+
+func (ss *SingleSelectAcquire) GetQuery() string {
 	return ss.query
 }
 
@@ -277,10 +357,20 @@ func (j *Join) GetQuery() string {
 	return ""
 }
 
-func (j *Join) GetPrimitive() primitive.IPrimitive {
-	return NewLocalPrimitive(
-		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
-			return util.GenerateSimpleErroneousOutput(fmt.Errorf("joins not yet supported"))
-		},
-	)
+func (j *Join) getErrNode() primitivegraph.PrimitiveNode {
+	graph := j.lhsPb.GetGraph()
+	return graph.CreatePrimitiveNode(
+		NewLocalPrimitive(
+			func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+				return util.GenerateSimpleErroneousOutput(fmt.Errorf("joins not yet supported"))
+			},
+		))
+}
+
+func (j *Join) GetRoot() primitivegraph.PrimitiveNode {
+	return j.getErrNode()
+}
+
+func (j *Join) GetTail() primitivegraph.PrimitiveNode {
+	return j.getErrNode()
 }

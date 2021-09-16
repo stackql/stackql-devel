@@ -38,4 +38,5 @@ const (
 	ExpectedSelectComputeDisksAggPaginatedSizeOrderSizeDesc            string = "test/assets/expected/aggregated-select/google/disks-paginated/text/disks-grp-by-sizeGb-order-crt-tmstp-desc.csv"
 	ExpectedSelectComputeDisksAggPaginatedSizeTotal                    string = "test/assets/expected/aggregated-select/google/disks-paginated/text/disks-sizeGb-total-sum.csv"
 	ExpectedSelectComputeDisksAggPaginatedStringTotal                  string = "test/assets/expected/aggregated-select/google/disks-paginated/text/disks-total-string-agg.csv"
+	ExpectedSelectExecOrgGetIamPolicyAgg                               string = "test/assets/expected/aggregated-select/google/cloudresourcemanager/select-exec-getiampolicy-agg.csv"
 )

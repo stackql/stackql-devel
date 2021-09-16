@@ -14,6 +14,43 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
+const (
+	defaultSelectItemsKEy = "items"
+)
+
+func (ex ExtendedTableMetadata) LookupSelectItemsKey() string {
+	if ex.HeirarchyObjects == nil {
+		return defaultSelectItemsKEy
+	}
+	return ex.HeirarchyObjects.LookupSelectItemsKey()
+}
+
+func (ho *HeirarchyObjects) LookupSelectItemsKey() string {
+	prov := ho.Provider
+	svcHdl := ho.ServiceHdl
+	rsc := ho.Resource
+	method := ho.Method
+	if method == nil {
+		return defaultSelectItemsKEy
+	}
+	responseSchema := method.ResponseType
+	if prov.GetProviderString() == "google" {
+		if svcHdl.Service.Name == "bigquery" && svcHdl.Service.Version == "v2" {
+			if rsc.ID != "" {
+			}
+			if method.ID != "" {
+			}
+			if responseSchema.Type == "GetQueryResultsResponse" {
+				return "rows"
+			}
+		}
+		if responseSchema.Type == "Policy" {
+			return "bindings"
+		}
+	}
+	return "items"
+}
+
 type TblMap map[sqlparser.SQLNode]ExtendedTableMetadata
 
 func (tm TblMap) GetTable(node sqlparser.SQLNode) (ExtendedTableMetadata, error) {
@@ -60,10 +97,44 @@ func (ex ExtendedTableMetadata) GetResource() (*metadata.Resource, error) {
 }
 
 func (ex ExtendedTableMetadata) GetMethod() (*metadata.Method, error) {
+	return ex.getMethod()
+}
+
+func (ex ExtendedTableMetadata) getMethod() (*metadata.Method, error) {
 	if ex.HeirarchyObjects == nil || ex.HeirarchyObjects.Method == nil {
 		return nil, fmt.Errorf("cannot resolve Method")
 	}
 	return ex.HeirarchyObjects.Method, nil
+}
+
+func (ex ExtendedTableMetadata) GetResponseSchema() (*metadata.Schema, error) {
+	return ex.HeirarchyObjects.GetResponseSchema()
+}
+
+func (ho *HeirarchyObjects) GetResponseSchema() (*metadata.Schema, error) {
+	m := ho.Method
+	if m == nil {
+		return nil, fmt.Errorf("method is nil")
+	}
+	return ho.Provider.GetObjectSchema(
+		ho.HeirarchyIds.ServiceStr,
+		ho.HeirarchyIds.ResourceStr,
+		m.ResponseType.Type)
+}
+
+func (ex ExtendedTableMetadata) GetRequestSchema() (*metadata.Schema, error) {
+	return ex.HeirarchyObjects.GetRequestSchema()
+}
+
+func (ho *HeirarchyObjects) GetRequestSchema() (*metadata.Schema, error) {
+	m := ho.Method
+	if m == nil {
+		return nil, fmt.Errorf("method is nil")
+	}
+	return ho.Provider.GetObjectSchema(
+		ho.HeirarchyIds.ServiceStr,
+		ho.HeirarchyIds.ResourceStr,
+		m.RequestType.Type)
 }
 
 func (ex ExtendedTableMetadata) GetServiceStr() (string, error) {
@@ -142,7 +213,7 @@ func (ho *HeirarchyObjects) GetItemsObjectSchema() (*metadata.Schema, error) {
 	if err != nil {
 		return nil, err
 	}
-	itemS, _ := responseObj.GetSelectListItems(ho.Provider.GetDefaultKeyForSelectItems())
+	itemS, _ := responseObj.GetSelectListItems(ho.LookupSelectItemsKey())
 	if itemS == nil {
 		return nil, fmt.Errorf("could not locate dml aggregate object for response type '%v'", responseObj.ID)
 	}
@@ -163,6 +234,8 @@ func getHids(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode) (*dto.H
 	switch n := node.(type) {
 	case *sqlparser.Exec:
 		hIds = dto.ResolveMethodTerminalHeirarchyIdentifiers(n.MethodName)
+	case *sqlparser.ExecSubquery:
+		hIds = dto.ResolveMethodTerminalHeirarchyIdentifiers(n.Exec.MethodName)
 	case *sqlparser.Select:
 		currentSvcRsc, err := parserutil.TableFromSelectNode(n)
 		if err != nil {
@@ -213,7 +286,7 @@ func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparse
 	methodRequired := true
 	var methodAction string
 	switch n := node.(type) {
-	case *sqlparser.Exec:
+	case *sqlparser.Exec, *sqlparser.ExecSubquery:
 	case *sqlparser.Select:
 		methodAction = "select"
 	case *sqlparser.DescribeTable:

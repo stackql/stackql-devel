@@ -14,6 +14,7 @@ const (
 	SimpleInsertDependentComputeDisksFile         string = "test/assets/input/insert-dependent-compute-disk.iql"
 	SimpleInsertDependentComputeDisksReversedFile string = "test/assets/input/insert-dependent-compute-disk-reversed.iql"
 	SimpleInsertDependentBQDatasetFile            string = "test/assets/input/insert-dependent-bq-datasets.iql"
+	SimpleSelectExecDependentOrgIamPolicyFile     string = "test/assets/input/select-exec-dependent-org-iam-policy.iql"
 	SimpleInsertComputeNetwork                    string = `
 	--
 	-- create VPC 

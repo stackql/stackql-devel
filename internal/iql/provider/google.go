@@ -58,7 +58,7 @@ type GoogleProvider struct {
 	methodSelector   methodselect.IMethodSelector
 }
 
-func (gp *GoogleProvider) GetDefaultKeyForSelectItems() string {
+func (gp *GoogleProvider) getDefaultKeyForSelectItems(sc *metadata.Schema) string {
 	return "items"
 }
 
@@ -378,121 +378,22 @@ func (gp *GoogleProvider) GetProviderServices() (map[string]metadata.Service, er
 	return retVal, nil
 }
 
-func (gp *GoogleProvider) GetProviderServicesRedacted(runtimeCtx dto.RuntimeCtx, extended bool) (map[string]metadata.Service, []string, error) {
+func (gp *GoogleProvider) GetProviderServicesRedacted(runtimeCtx dto.RuntimeCtx, extended bool) (map[string]metadata.Service, error) {
 	services, err := gp.GetProviderServices()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	retVal := make(map[string]metadata.Service)
 	for key, item := range services {
 		item.ID = key
 		retVal[key] = item
 	}
-	return retVal, gp.getServicesHeader(extended), err
+	return retVal, err
 }
 
-func (gp *GoogleProvider) getDescribeHeader(extended bool) []string {
-	var retVal []string
-	if extended {
-		retVal = []string{
-			"name",
-			"type",
-			"description",
-		}
-	} else {
-		retVal = []string{
-			"name",
-			"type",
-		}
-	}
-	return retVal
-}
-
-func (gp *GoogleProvider) getServicesHeader(extended bool) []string {
-	var retVal []string
-	if extended {
-		retVal = []string{
-			"id",
-			"name",
-			"title",
-			"description",
-			"version",
-			"preferred",
-		}
-	} else {
-		retVal = []string{
-			"id",
-			"name",
-			"title",
-		}
-	}
-	return retVal
-}
-
-func (gp *GoogleProvider) getResourcesHeader(extended bool) []string {
-	var retVal []string
-	if extended {
-		retVal = []string{
-			"name",
-			"id",
-			"title",
-			"description",
-		}
-	} else {
-		retVal = []string{
-			"name",
-			"id",
-			"title",
-		}
-	}
-	return retVal
-}
-
-func (gp *GoogleProvider) GetResourcesRedacted(currentService string, runtimeCtx dto.RuntimeCtx, extended bool) (map[string]metadata.Resource, []string, error) {
+func (gp *GoogleProvider) GetResourcesRedacted(currentService string, runtimeCtx dto.RuntimeCtx, extended bool) (map[string]metadata.Resource, error) {
 	svcDiscDocMap, err := gp.discoveryAdapter.GetResourcesMap(currentService)
-	headers := gp.getResourcesHeader(extended)
-	return svcDiscDocMap, headers, err
-}
-
-func (gp *GoogleProvider) DescribeResource(serviceName string, resourceName string, runtimeCtx dto.RuntimeCtx, extended bool, full bool) (*metadata.Schema, []string, error) {
-	header := gp.getDescribeHeader(extended)
-	canonicalError := fmt.Errorf("can't find DESCRIBE schema for service '%s' resource '%s'", serviceName, resourceName)
-
-	describeErr := fmt.Errorf("Error generating DESCRIBE for service = '%s' and resource = '%s'", serviceName, resourceName)
-	rescources, err := gp.discoveryAdapter.GetResourcesMap(serviceName)
-	if err != nil {
-		return nil, nil, canonicalError
-	}
-	rsc, ok := rescources[resourceName]
-	if !ok {
-		return nil, header, describeErr
-	}
-	m, methodName, err := gp.InferDescribeMethod(&rsc)
-	if err != nil {
-		return nil, nil, canonicalError
-	}
-	schemaName := m.ResponseType.Type
-	sm, err := gp.discoveryAdapter.GetSchemaMap(serviceName, resourceName)
-	if err != nil {
-		return nil, nil, err
-	}
-	responseSch, ok := sm[schemaName]
-	if !ok {
-		return nil, nil, fmt.Errorf("can't find schema '%s'", schemaName)
-	}
-	if strings.HasPrefix(methodName, "get") {
-		return &responseSch, header, err
-	}
-	itemS, _ := responseSch.GetSelectListItems(gp.GetDefaultKeyForSelectItems())
-	if itemS == nil {
-		return nil, nil, fmt.Errorf("could not obtain describe metadata")
-	}
-	is := itemS.Items
-	itemObjS, _ := is.GetSchema(itemS.SchemaCentral)
-	if itemObjS == nil {
-		return nil, nil, fmt.Errorf("could not obtain describe metadata")
-	}
-	return itemObjS, header, err
+	return svcDiscDocMap, err
 }
 
 func parseServiceAccountFile(credentialFile string) (googleServiceAccount, error) {

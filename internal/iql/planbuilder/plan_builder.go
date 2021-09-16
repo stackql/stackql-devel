@@ -61,7 +61,7 @@ func (pgb *planGraphBuilder) createInstructionFor(handlerCtx *handler.HandlerCon
 	case *sqlparser.Savepoint:
 		return iqlerror.GetStatementNotSupportedError("TRANSACTION: SAVEPOINT")
 	case *sqlparser.Select:
-		_, err := pgb.handleSelect(handlerCtx, stmt)
+		_, _, err := pgb.handleSelect(handlerCtx, stmt)
 		return err
 	case *sqlparser.Set:
 		return iqlerror.GetStatementNotSupportedError("SET")
@@ -153,30 +153,22 @@ func (pgb *planGraphBuilder) handleDescribe(handlerCtx *handler.HandlerContext, 
 	}
 	var extended bool = strings.TrimSpace(strings.ToUpper(node.Extended)) == "EXTENDED"
 	var full bool = strings.TrimSpace(strings.ToUpper(node.Full)) == "FULL"
-	svcStr, err := md.GetServiceStr()
-	if err != nil {
-		return err
-	}
-	rStr, err := md.GetResourceStr()
-	if err != nil {
-		return err
-	}
 	pr := primitivebuilder.NewMetaDataPrimitive(
 		prov,
 		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
-			return primitiveGenerator.describeInstructionExecutor(prov, svcStr, rStr, handlerCtx, extended, full)
+			return primitiveGenerator.describeInstructionExecutor(handlerCtx, md, extended, full)
 		})
 	pgb.planGraph.CreatePrimitiveNode(pr)
 	return nil
 }
 
-func (pgb *planGraphBuilder) handleSelect(handlerCtx *handler.HandlerContext, node *sqlparser.Select) (*primitivegraph.PrimitiveNode, error) {
+func (pgb *planGraphBuilder) handleSelect(handlerCtx *handler.HandlerContext, node *sqlparser.Select) (*primitivegraph.PrimitiveNode, *primitivegraph.PrimitiveNode, error) {
 	if !handlerCtx.RuntimeContext.TestWithoutApiCalls {
 		primitiveGenerator := newPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 		err := primitiveGenerator.analyzeStatement(handlerCtx, node)
 		if err != nil {
 			log.Infoln(fmt.Sprintf("select statement analysis error = '%s'", err.Error()))
-			return nil, err
+			return nil, nil, err
 		}
 		isLocallyExecutable := true
 		for _, val := range primitiveGenerator.PrimitiveBuilder.GetTables() {
@@ -185,21 +177,26 @@ func (pgb *planGraphBuilder) handleSelect(handlerCtx *handler.HandlerContext, no
 		if isLocallyExecutable {
 			pr, err := primitiveGenerator.localSelectExecutor(handlerCtx, node, util.DefaultRowSort)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			rv := pgb.planGraph.CreatePrimitiveNode(pr)
-			return &rv, nil
+			return &rv, &rv, nil
 		}
-		pr, err := primitiveGenerator.selectExecutor(handlerCtx, node, util.DefaultRowSort)
+		if primitiveGenerator.PrimitiveBuilder.GetBuilder() == nil {
+			return nil, nil, fmt.Errorf("builder not created for select, cannot proceed")
+		}
+		builder := primitiveGenerator.PrimitiveBuilder.GetBuilder()
+		err = builder.Build()
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		rv := pgb.planGraph.CreatePrimitiveNode(pr)
-		return &rv, nil
+		root := builder.GetRoot()
+		tail := builder.GetTail()
+		return &root, &tail, nil
 	}
 	pr := primitivebuilder.NewLocalPrimitive(nil)
 	rv := pgb.planGraph.CreatePrimitiveNode(pr)
-	return &rv, nil
+	return &rv, &rv, nil
 }
 
 func (pgb *planGraphBuilder) handleDelete(handlerCtx *handler.HandlerContext, node *sqlparser.Delete) error {
@@ -239,7 +236,7 @@ func (pgb *planGraphBuilder) handleInsert(handlerCtx *handler.HandlerContext, no
 		if nonValCols > 0 {
 			switch rowsNode := node.Rows.(type) {
 			case *sqlparser.Select:
-				selectPrimitiveNode, err = pgb.handleSelect(handlerCtx, rowsNode)
+				_, selectPrimitiveNode, err = pgb.handleSelect(handlerCtx, rowsNode)
 				if err != nil {
 					return err
 				}
@@ -280,11 +277,10 @@ func (pgb *planGraphBuilder) handleExec(handlerCtx *handler.HandlerContext, node
 		if err != nil {
 			return err
 		}
-		pr, err := primitiveGenerator.execExecutor(handlerCtx, node)
+		_, err = primitiveGenerator.execExecutor(handlerCtx, node)
 		if err != nil {
 			return err
 		}
-		pgb.planGraph.CreatePrimitiveNode(pr)
 		return nil
 	}
 	pr := primitivebuilder.NewHTTPRestPrimitive(nil, nil, nil, nil)
@@ -313,8 +309,6 @@ func (pgb *planGraphBuilder) handleSleep(handlerCtx *handler.HandlerContext, nod
 	if err != nil {
 		return err
 	}
-	pr := primitiveGenerator.PrimitiveBuilder.GetPrimitive()
-	pgb.planGraph.CreatePrimitiveNode(pr)
 	return nil
 }
 
