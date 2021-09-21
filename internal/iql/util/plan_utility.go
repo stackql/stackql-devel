@@ -119,19 +119,21 @@ func InterfaceToBytes(subject interface{}, isErrorCol bool) []byte {
 	case float64:
 		return []byte(fmt.Sprintf("%f", sub))
 	case []interface{}:
-		return []byte("[array]")
-	case map[string]interface{}:
-		if isErrorCol {
-			str, err := json.Marshal(subject)
-			if err == nil {
-				return []byte(str)
-			}
+		str, err := json.Marshal(subject)
+		if err == nil {
+			return []byte(str)
 		}
-		return []byte("{object}")
+		return []byte(fmt.Sprintf(`{ "marshallingError": {"type": "array", "error": "%s"}}`, err.Error()))
+	case map[string]interface{}:
+		str, err := json.Marshal(subject)
+		if err == nil {
+			return []byte(str)
+		}
+		return []byte(fmt.Sprintf(`{ "marshallingError": {"type": "array", "error": "%s"}}`, err.Error()))
 	case nil:
 		return []byte("null")
 	default:
-		return []byte("{object}")
+		return []byte(fmt.Sprintf(`{ "displayError": {"type": "%T", "error": "currently unable to represent object of type %T"}}`, subject, subject))
 	}
 }
 
