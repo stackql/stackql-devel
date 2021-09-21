@@ -13,6 +13,7 @@ const (
 	ShowInsertBQDatasetsRequiredFile              string = "test/assets/input/simple-templating/show-insert-bigquery-datasets-required.iql"
 	SimpleInsertDependentComputeDisksFile         string = "test/assets/input/insert-dependent-compute-disk.iql"
 	SimpleInsertDependentComputeDisksReversedFile string = "test/assets/input/insert-dependent-compute-disk-reversed.iql"
+	SimpleInsertDependentBQDatasetFile            string = "test/assets/input/insert-dependent-bq-datasets.iql"
 	SimpleInsertComputeNetwork                    string = `
 	--
 	-- create VPC 

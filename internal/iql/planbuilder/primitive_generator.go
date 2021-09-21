@@ -451,7 +451,7 @@ func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext,
 				log.Infoln(fmt.Sprintf("req.Context = %v", req.Context))
 				response, apiErr := httpmiddleware.HttpApiCall(*handlerCtx, prov, req.Context)
 				if apiErr != nil {
-					return dto.NewErroneousExecutorOutput(err)
+					return dto.NewErroneousExecutorOutput(apiErr)
 				}
 
 				target, err = httpexec.ProcessHttpResponse(response)
@@ -476,16 +476,30 @@ func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext,
 				msgs := dto.BackendMessages{}
 				if err == nil {
 					msgs.WorkingMessages = generateSuccessMessagesFromHeirarchy(tbl)
+				} else {
+					msgs.WorkingMessages = []string{err.Error()}
 				}
 				return dto.NewExecutorOutput(nil, target, nil, &msgs, err)
 			}
 			zeroArityExecutors = append(zeroArityExecutors, zeroArityEx)
 		}
 		resultSet := dto.NewErroneousExecutorOutput(fmt.Errorf("no executions detected"))
+		msgs := dto.BackendMessages{}
 		if !pb.PrimitiveBuilder.IsAwait() {
-			for _, execInstance := range zeroArityExecutors {
+			for _, ei := range zeroArityExecutors {
+				execInstance := ei
 				resultSet = execInstance()
+				if resultSet.Msg != nil && resultSet.Msg.WorkingMessages != nil && len(resultSet.Msg.WorkingMessages) > 0 {
+					for _, m := range resultSet.Msg.WorkingMessages {
+						msgs.WorkingMessages = append(msgs.WorkingMessages, m)
+					}
+				}
+				if resultSet.Err != nil {
+					resultSet.Msg = &msgs
+					return resultSet
+				}
 			}
+			resultSet.Msg = &msgs
 			return resultSet
 		}
 		for _, eI := range zeroArityExecutors {
@@ -507,12 +521,6 @@ func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext,
 			if resultSet.Err != nil {
 				return resultSet
 			}
-			// graph := pb.PrimitiveBuilder.GetGraph()
-			// n := graph.CreatePrimitiveNode(execPrim)
-			// primitiveNodes = append(primitiveNodes, n)
-			// if i > 0 {
-			// 	graph.NewDependency(primitiveNodes[i-1], n, 1.0)
-			// }
 		}
 		return resultSet
 	}

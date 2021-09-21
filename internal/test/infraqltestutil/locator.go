@@ -60,6 +60,14 @@ func BuildSQLEngine(runtimeCtx dto.RuntimeCtx) (sqlengine.SQLEngine, error) {
 	if err != nil {
 		return nil, err
 	}
+	googleCloudResourceManagerDiscoveryBytes, err := getBytesFromLocalPath("test/db/google.cloudresourcemanager.json")
+	if err != nil {
+		return nil, err
+	}
+	googleBQDiscoveryBytes, err := getBytesFromLocalPath("test/db/google.bigquery.json")
+	if err != nil {
+		return nil, err
+	}
 	sqlEng.Exec(`INSERT INTO "__iql__.cache.key_val"(k, v) VALUES(?, ?)`, "https://www.googleapis.com/discovery/v1/apis", googleRootDiscoveryBytes)
 	if err != nil {
 		return nil, err
@@ -69,6 +77,14 @@ func BuildSQLEngine(runtimeCtx dto.RuntimeCtx) (sqlengine.SQLEngine, error) {
 		return nil, err
 	}
 	sqlEng.Exec(`INSERT INTO "__iql__.cache.key_val"(k, v) VALUES(?, ?)`, "https://container.googleapis.com/$discovery/rest?version=v1", googleContainerDiscoveryBytes)
+	if err != nil {
+		return nil, err
+	}
+	sqlEng.Exec(`INSERT INTO "__iql__.cache.key_val"(k, v) VALUES(?, ?)`, "https://cloudresourcemanager.googleapis.com/$discovery/rest?version=v3", googleCloudResourceManagerDiscoveryBytes)
+	if err != nil {
+		return nil, err
+	}
+	sqlEng.Exec(`INSERT INTO "__iql__.cache.key_val"(k, v) VALUES(?, ?)`, "https://bigquery.googleapis.com/$discovery/rest?version=v2", googleBQDiscoveryBytes)
 	if err != nil {
 		return nil, err
 	}
