@@ -319,7 +319,11 @@ func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, hand
 			return prepareErroneousResultSet(keys, columnOrder, fmt.Errorf("no service designated from which to resolve resources"))
 		}
 		var resources map[string]metadata.Resource
-		resources, columnOrder, err = pb.PrimitiveBuilder.GetProvider().GetResourcesRedacted(svcName, handlerCtx.RuntimeContext, extended)
+		resources, err = pb.PrimitiveBuilder.GetProvider().GetResourcesRedacted(svcName, handlerCtx.RuntimeContext, extended)
+		if err != nil {
+			return prepareErroneousResultSet(keys, columnOrder, err)
+		}
+		columnOrder = metadata.GetResourcesHeader(extended)
 		var filter func(iqlmodel.ITable) (iqlmodel.ITable, error)
 		if err != nil {
 			log.Infoln(fmt.Sprintf("table and therefore filter not found for AST, shall procede nil filter"))
@@ -337,7 +341,11 @@ func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, hand
 	case "SERVICES":
 		log.Infoln(fmt.Sprintf("Show For node.Type = '%s': Displaying services for provider = '%s'", node.Type, pb.PrimitiveBuilder.GetProvider().GetProviderString()))
 		var services map[string]metadata.Service
-		services, columnOrder, err = pb.PrimitiveBuilder.GetProvider().GetProviderServicesRedacted(handlerCtx.RuntimeContext, extended)
+		services, err = pb.PrimitiveBuilder.GetProvider().GetProviderServicesRedacted(handlerCtx.RuntimeContext, extended)
+		if err != nil {
+			return prepareErroneousResultSet(keys, columnOrder, err)
+		}
+		columnOrder = metadata.GetServicesHeader(extended)
 		services, err = filterServices(services, pb.PrimitiveBuilder.GetTableFilter(), handlerCtx.RuntimeContext.UseNonPreferredAPIs)
 		if err != nil {
 			return prepareErroneousResultSet(keys, columnOrder, err)
@@ -360,12 +368,12 @@ func prepareErroneousResultSet(rowMap map[string]map[string]interface{}, columnO
 	)
 }
 
-func (pb *primitiveGenerator) describeInstructionExecutor(prov provider.IProvider, serviceName string, resourceName string, handlerCtx *handler.HandlerContext, extended bool, full bool) dto.ExecutorOutput {
-	var schema *metadata.Schema
-	schema, columnOrder, err := prov.DescribeResource(serviceName, resourceName, handlerCtx.RuntimeContext, extended, full)
+func (pb *primitiveGenerator) describeInstructionExecutor(handlerCtx *handler.HandlerContext, tbl taxonomy.ExtendedTableMetadata, extended bool, full bool) dto.ExecutorOutput {
+	schema, err := tbl.GetItemsObjectSchema()
 	if err != nil {
-		return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, nil, nil, nil, err, nil))
+		return dto.NewErroneousExecutorOutput(err)
 	}
+	columnOrder := metadata.GetDescribeHeader(extended)
 	descriptionMap := schema.ToDescriptionMap(extended)
 	keys := make(map[string]map[string]interface{})
 	for k, v := range descriptionMap {
@@ -389,17 +397,6 @@ func extractStringFromMap(m map[string]interface{}, k string) string {
 	return retVal
 }
 
-func (pb *primitiveGenerator) selectExecutor(handlerCtx *handler.HandlerContext, node *sqlparser.Select, rowSort func(map[string]map[string]interface{}) []string) (primitive.IPrimitive, error) {
-	if pb.PrimitiveBuilder.GetBuilder() == nil {
-		return nil, fmt.Errorf("builder not created for select, cannot proceed")
-	}
-	err := pb.PrimitiveBuilder.GetBuilder().Build()
-	if err != nil {
-		return nil, err
-	}
-	return pb.PrimitiveBuilder.GetBuilder().GetPrimitive(), nil
-}
-
 func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext, node *sqlparser.Insert, rowSort func(map[string]map[string]interface{}) []string) (primitive.IPrimitive, error) {
 	tbl, err := pb.PrimitiveBuilder.GetTable(node)
 	if err != nil {
@@ -410,6 +407,10 @@ func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext,
 		return nil, err
 	}
 	m, err := tbl.GetMethod()
+	if err != nil {
+		return nil, err
+	}
+	_, err = tbl.GetResponseSchema()
 	if err != nil {
 		return nil, err
 	}
@@ -460,7 +461,7 @@ func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext,
 					return dto.NewErroneousExecutorOutput(err)
 				}
 				log.Infoln(fmt.Sprintf("target = %v", target))
-				items, ok := target[prov.GetDefaultKeyForSelectItems()]
+				items, ok := target[tbl.LookupSelectItemsKey()]
 				keys := make(map[string]map[string]interface{})
 				if ok {
 					iArr, ok := items.([]interface{})
@@ -665,22 +666,33 @@ func generateSuccessMessagesFromHeirarchy(meta taxonomy.ExtendedTableMetadata) [
 	return successMsgs
 }
 
+func (pb *primitiveGenerator) isShowResults() bool {
+	return pb.PrimitiveBuilder.GetCommentDirectives() != nil && pb.PrimitiveBuilder.GetCommentDirectives().IsSet("SHOWRESULTS")
+}
+
 func (pb *primitiveGenerator) generateResultIfNeededfunc(resultMap map[string]map[string]interface{}, body map[string]interface{}, msg *dto.BackendMessages, err error) dto.ExecutorOutput {
-	if pb.PrimitiveBuilder.GetCommentDirectives() != nil && pb.PrimitiveBuilder.GetCommentDirectives().IsSet("SHOWRESULTS") {
+	if pb.isShowResults() {
 		return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, resultMap, nil, nil, nil, nil))
 	}
 	return dto.NewExecutorOutput(nil, body, nil, msg, err)
 }
 
-func (pb *primitiveGenerator) execExecutor(handlerCtx *handler.HandlerContext, node *sqlparser.Exec) (primitive.IPrimitive, error) {
+func (pb *primitiveGenerator) execExecutor(handlerCtx *handler.HandlerContext, node *sqlparser.Exec) (primitivegraph.PrimitiveNode, error) {
+	if pb.isShowResults() && pb.PrimitiveBuilder.GetBuilder() != nil {
+		err := pb.PrimitiveBuilder.GetBuilder().Build()
+		if err != nil {
+			return primitivegraph.PrimitiveNode{}, err
+		}
+		return pb.PrimitiveBuilder.GetBuilder().GetRoot(), nil
+	}
 	var target map[string]interface{}
 	tbl, err := pb.PrimitiveBuilder.GetTable(node)
 	if err != nil {
-		return nil, err
+		return primitivegraph.PrimitiveNode{}, err
 	}
 	prov, err := tbl.GetProvider()
 	if err != nil {
-		return nil, err
+		return primitivegraph.PrimitiveNode{}, err
 	}
 	ex := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 		var err error
@@ -703,7 +715,7 @@ func (pb *primitiveGenerator) execExecutor(handlerCtx *handler.HandlerContext, n
 				))
 			}
 			log.Infoln(fmt.Sprintf("target = %v", target))
-			items, ok := target[prov.GetDefaultKeyForSelectItems()]
+			items, ok := target[tbl.LookupSelectItemsKey()]
 			if ok {
 				iArr, ok := items.([]interface{})
 				if ok && len(iArr) > 0 {
@@ -734,10 +746,15 @@ func (pb *primitiveGenerator) execExecutor(handlerCtx *handler.HandlerContext, n
 		nil,
 		nil,
 	)
+	graph := pb.PrimitiveBuilder.GetGraph()
 	if !pb.PrimitiveBuilder.IsAwait() {
-		return execPrimitive, nil
+		return graph.CreatePrimitiveNode(execPrimitive), nil
 	}
-	return pb.composeAsyncMonitor(handlerCtx, execPrimitive, tbl)
+	pr, err := pb.composeAsyncMonitor(handlerCtx, execPrimitive, tbl)
+	if err != nil {
+		return primitivegraph.PrimitiveNode{}, err
+	}
+	return graph.CreatePrimitiveNode(pr), nil
 }
 
 func (pb *primitiveGenerator) composeAsyncMonitor(handlerCtx *handler.HandlerContext, precursor primitive.IPrimitive, meta taxonomy.ExtendedTableMetadata) (primitive.IPrimitive, error) {

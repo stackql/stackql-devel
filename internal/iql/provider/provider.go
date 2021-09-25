@@ -48,15 +48,11 @@ type IProvider interface {
 
 	CheckServiceAccountFile(credentialFile string) error
 
-	DescribeResource(serviceName string, resourceName string, runtimeCtx dto.RuntimeCtx, extended bool, full bool) (*metadata.Schema, []string, error)
-
 	EnhanceMetadataFilter(string, func(iqlmodel.ITable) (iqlmodel.ITable, error), map[string]bool) (func(iqlmodel.ITable) (iqlmodel.ITable, error), error)
 
 	GenerateHTTPRestInstruction(httpContext httpexec.IHttpContext) (httpexec.IHttpContext, error)
 
 	GetCurrentService() string
-
-	GetDefaultKeyForSelectItems() string
 
 	GetDefaultKeyForDeleteItems() string
 
@@ -70,13 +66,13 @@ type IProvider interface {
 
 	GetProviderString() string
 
-	GetProviderServicesRedacted(runtimeCtx dto.RuntimeCtx, extended bool) (map[string]metadata.Service, []string, error)
+	GetProviderServicesRedacted(runtimeCtx dto.RuntimeCtx, extended bool) (map[string]metadata.Service, error)
 
 	GetResource(serviceKey string, resourceKey string, runtimeCtx dto.RuntimeCtx) (*metadata.Resource, error)
 
 	GetResourcesMap(serviceKey string, runtimeCtx dto.RuntimeCtx) (map[string]metadata.Resource, error)
 
-	GetResourcesRedacted(currentService string, runtimeCtx dto.RuntimeCtx, extended bool) (map[string]metadata.Resource, []string, error)
+	GetResourcesRedacted(currentService string, runtimeCtx dto.RuntimeCtx, extended bool) (map[string]metadata.Resource, error)
 
 	GetServiceHandle(serviceKey string, runtimeCtx dto.RuntimeCtx) (*metadata.ServiceHandle, error)
 

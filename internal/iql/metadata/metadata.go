@@ -18,6 +18,63 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
+func GetDescribeHeader(extended bool) []string {
+	var retVal []string
+	if extended {
+		retVal = []string{
+			"name",
+			"type",
+			"description",
+		}
+	} else {
+		retVal = []string{
+			"name",
+			"type",
+		}
+	}
+	return retVal
+}
+
+func GetServicesHeader(extended bool) []string {
+	var retVal []string
+	if extended {
+		retVal = []string{
+			"id",
+			"name",
+			"title",
+			"description",
+			"version",
+			"preferred",
+		}
+	} else {
+		retVal = []string{
+			"id",
+			"name",
+			"title",
+		}
+	}
+	return retVal
+}
+
+func GetResourcesHeader(extended bool) []string {
+	var retVal []string
+	if extended {
+		retVal = []string{
+			"name",
+			"id",
+			"title",
+			"description",
+		}
+	} else {
+		retVal = []string{
+			"name",
+			"id",
+			"title",
+		}
+	}
+	return retVal
+}
+
 type Provider struct {
 	Name         string
 	DiscoveryDoc string

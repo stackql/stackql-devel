@@ -1,6 +1,7 @@
 package primitivebuilder
 
 import (
+	"fmt"
 	"infraql/internal/iql/drm"
 	"infraql/internal/iql/dto"
 	"infraql/internal/iql/iqlmodel"
@@ -53,7 +54,7 @@ type PrimitiveBuilder struct {
 	insertSchemaMap map[string]metadata.Schema
 
 	// TODO: universally retire in favour of builder, which returns primitive.IPrimitive
-	primitive primitive.IPrimitive
+	root primitivegraph.PrimitiveNode
 
 	symTab symtab.HashMapTreeSymTab
 
@@ -131,12 +132,12 @@ func (pb *PrimitiveBuilder) SetColumnOrder(co []parserutil.ColumnHandle) {
 	pb.columnOrder = colOrd
 }
 
-func (pb *PrimitiveBuilder) GetPrimitive() primitive.IPrimitive {
-	return pb.primitive
+func (pb *PrimitiveBuilder) GetRoot() primitivegraph.PrimitiveNode {
+	return pb.root
 }
 
-func (pb *PrimitiveBuilder) SetPrimitive(primitive primitive.IPrimitive) {
-	pb.primitive = primitive
+func (pb *PrimitiveBuilder) SetRoot(root primitivegraph.PrimitiveNode) {
+	pb.root = root
 }
 
 func (pb *PrimitiveBuilder) GetCommentDirectives() sqlparser.CommentDirectives {
@@ -240,14 +241,13 @@ func (pb PrimitiveBuilder) GetDRMConfig() drm.DRMConfig {
 }
 
 type HTTPRestPrimitive struct {
-	Provider             provider.IProvider
-	Executor             func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput
-	Preparator           func() *drm.PreparedStatementCtx
-	TxnControlCtr        *dto.TxnControlCounters
-	Inputs               map[int64]dto.ExecutorOutput
-	InputAliases         map[string]int64
-	id                   int64
-	cachedExecutorOutout *dto.ExecutorOutput
+	Provider      provider.IProvider
+	Executor      func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput
+	Preparator    func() *drm.PreparedStatementCtx
+	TxnControlCtr *dto.TxnControlCounters
+	Inputs        map[int64]dto.ExecutorOutput
+	InputAliases  map[string]int64
+	id            int64
 }
 
 type MetaDataPrimitive struct {
@@ -260,6 +260,7 @@ type MetaDataPrimitive struct {
 type LocalPrimitive struct {
 	Executor   func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput
 	Preparator func() *drm.PreparedStatementCtx
+	Inputs     map[int64]dto.ExecutorOutput
 	id         int64
 }
 
@@ -281,10 +282,11 @@ func (pr *HTTPRestPrimitive) IncidentData(fromId int64, input dto.ExecutorOutput
 }
 
 func (pr *MetaDataPrimitive) IncidentData(fromId int64, input dto.ExecutorOutput) error {
-	return nil
+	return fmt.Errorf("MetaDataPrimitive cannot handle IncidentData")
 }
 
 func (pr *LocalPrimitive) IncidentData(fromId int64, input dto.ExecutorOutput) error {
+	pr.Inputs[fromId] = input
 	return nil
 }
 
@@ -314,12 +316,8 @@ func (pr *LocalPrimitive) Optimise() error {
 }
 
 func (pr *HTTPRestPrimitive) Execute(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
-	if pr.cachedExecutorOutout != nil {
-		return *(pr.cachedExecutorOutout)
-	}
 	if pr.Executor != nil {
 		op := pr.Executor(pc)
-		pr.cachedExecutorOutout = &op
 		return op
 	}
 	return dto.NewExecutorOutput(nil, nil, nil, nil, nil)
@@ -372,6 +370,7 @@ func NewHTTPRestPrimitive(provider provider.IProvider, executor func(pc primitiv
 func NewLocalPrimitive(executor func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput) *LocalPrimitive {
 	return &LocalPrimitive{
 		Executor: executor,
+		Inputs:   make(map[int64]dto.ExecutorOutput),
 	}
 }
 

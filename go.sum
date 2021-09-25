@@ -471,6 +471,14 @@ github.com/infraql/vitess v0.0.8-rc3 h1:R9YRynAIN1yzfBwWqxXCi3DhOmKMBqGJBlx4v+CP
 github.com/infraql/vitess v0.0.8-rc3/go.mod h1:4M5NhkFYCF10+U3LS4owUYY2GsUt+7t1kN9Rv5UVc9A=
 github.com/infraql/vitess v0.0.8-rc4 h1:HF3PIC17qkmydf+Oo66tt745ojbT9JMmnPhAL6oOlJs=
 github.com/infraql/vitess v0.0.8-rc4/go.mod h1:4M5NhkFYCF10+U3LS4owUYY2GsUt+7t1kN9Rv5UVc9A=
+github.com/infraql/vitess v0.0.9-alpha1 h1:lOduav/RdbwykUM/nK4wfPXgPcAkejZPpSBArTagYx8=
+github.com/infraql/vitess v0.0.9-alpha1/go.mod h1:4M5NhkFYCF10+U3LS4owUYY2GsUt+7t1kN9Rv5UVc9A=
+github.com/infraql/vitess v0.0.9-alpha2 h1:Re+Ki6SSHxQWo4c1yya1S7lk6zslZvsI21QCCMaBNI4=
+github.com/infraql/vitess v0.0.9-alpha2/go.mod h1:4M5NhkFYCF10+U3LS4owUYY2GsUt+7t1kN9Rv5UVc9A=
+github.com/infraql/vitess v0.0.9-alpha3 h1:4+4IYgJsIj4/mgoZqEN/ZvaoZtxIEUta1hJ44rvUVMQ=
+github.com/infraql/vitess v0.0.9-alpha3/go.mod h1:4M5NhkFYCF10+U3LS4owUYY2GsUt+7t1kN9Rv5UVc9A=
+github.com/infraql/vitess v0.0.9-alpha4 h1:cFTSomHetQ/6GJwgQVSTIDbxNVzeqKa6hvkGzy04Ynk=
+github.com/infraql/vitess v0.0.9-alpha4/go.mod h1:4M5NhkFYCF10+U3LS4owUYY2GsUt+7t1kN9Rv5UVc9A=
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=
 github.com/jonboulle/clockwork v0.1.0/go.mod h1:Ii8DK3G1RaLaWxj9trq07+26W01tbo22gdxWY5EU2bo=

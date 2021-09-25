@@ -158,3 +158,50 @@ func TestSimpleInsertDependentGoogleBQDatasetAsync(t *testing.T) {
 	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedBQDatasetsDependentInsertFile})
 
 }
+
+func TestSimpleSelectExecDependentGoogleOrganizationsGetIamPolicy(t *testing.T) {
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "csv")
+	if err != nil {
+		t.Fatalf("Test failed: %v", err)
+	}
+	inputFile, err := util.GetFilePathFromRepositoryRoot(testobjects.SimpleSelectExecDependentOrgIamPolicyFile)
+	if err != nil {
+		t.Fatalf("TestSimpleSelectExecDependentGoogleOrganizationsGetIamPolicy failed: %v", err)
+	}
+	runtimeCtx.InfilePath = inputFile
+	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	if err != nil {
+		t.Fatalf("Test failed: %v", err)
+	}
+
+	testSubject := func(t *testing.T, outFile *bufio.Writer) {
+
+		rdr, err := os.Open(runtimeCtx.InfilePath)
+		if err != nil {
+			t.Fatalf("Test failed: %v", err)
+		}
+		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, rdr, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), sqlEngine)
+		if err != nil {
+			t.Fatalf("Test failed: %v", err)
+		}
+
+		handlerCtx.Outfile = outFile
+		handlerCtx.OutErrFile = os.Stderr
+
+		if err != nil {
+			t.Fatalf("Test failed: %v", err)
+		}
+
+		tc, err := entryutil.GetTxnCounterManager(handlerCtx)
+		if err != nil {
+			t.Fatalf("Test failed: %v", err)
+		}
+		handlerCtx.TxnCounterMgr = tc
+
+		ProcessQuery(&handlerCtx)
+	}
+
+	infraqltestutil.SetupExecGoogleOrganizationsGetIamPolicy(t)
+	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectExecOrgGetIamPolicyAgg})
+
+}

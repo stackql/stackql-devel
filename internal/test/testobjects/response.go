@@ -143,6 +143,7 @@ const (
 	SimpleGoogleComputeDisksListResponsePaginated5Page1File string = "test/assets/response/google/compute/disks/disks-list-paginated-5-max-page-01.json"
 	SimpleGoogleComputeDisksListResponsePaginated5Page2File string = "test/assets/response/google/compute/disks/disks-list-paginated-5-max-page-02.json"
 	SimpleGoogleComputeDisksListResponsePaginated5Page3File string = "test/assets/response/google/compute/disks/disks-list-paginated-5-max-page-03.json"
+	GoogleCloudResourceManagerGetIamPolicyResponseFile      string = "test/assets/response/google/cloudresourcemanager/projects/organizations-getIamPolicy.json"
 	GoogleCloudResourceManagerProjectsListResponseFile      string = "test/assets/response/google/cloudresourcemanager/projects/projects-list.json"
 	SimpleGoogleBQDatasetInsertResponseFile01               string = "test/assets/response/google/bigquery/dataset/create/dataset-01.json"
 	SimpleGoogleBQDatasetInsertResponseFile02               string = "test/assets/response/google/bigquery/dataset/create/dataset-02.json"

@@ -496,25 +496,25 @@ func (p *primitiveGenerator) persistHerarchyToBuilder(heirarchy *taxonomy.Heirar
 	p.PrimitiveBuilder.SetTable(node, taxonomy.NewExtendedTableMetadata(heirarchy))
 }
 
-func (p *primitiveGenerator) analyzeExec(handlerCtx *handler.HandlerContext, node *sqlparser.Exec) error {
+func (p *primitiveGenerator) analyzeUnaryExec(handlerCtx *handler.HandlerContext, node *sqlparser.Exec, selectNode *sqlparser.Select, cols []parserutil.ColumnHandle) (*taxonomy.ExtendedTableMetadata, error) {
 	err := p.inferHeirarchyAndPersist(handlerCtx, node)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	p.parseComments(node.Comments)
 
 	meta, err := p.PrimitiveBuilder.GetTable(node)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	method, err := meta.GetMethod()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if p.PrimitiveBuilder.IsAwait() && !method.IsAwaitable() {
-		return fmt.Errorf("method %s is not awaitalbe", method.ID)
+		return nil, fmt.Errorf("method %s is not awaitalbe", method.ID)
 	}
 
 	requiredParams := method.GetRequiredParameters()
@@ -522,52 +522,71 @@ func (p *primitiveGenerator) analyzeExec(handlerCtx *handler.HandlerContext, nod
 	colz, err := parserutil.GetColumnUsageTypesForExec(node)
 	usageErr := parserutil.CheckColUsagesAgainstTable(colz, method)
 	if usageErr != nil {
-		return usageErr
+		return nil, usageErr
 	}
 	for k, param := range requiredParams {
 		log.Debugln(fmt.Sprintf("param = %v", param))
 		_, err := extractVarDefFromExec(node, k)
 		if err != nil {
-			return fmt.Errorf("required param not supplied for exec: %s", err.Error())
+			return nil, fmt.Errorf("required param not supplied for exec: %s", err.Error())
 		}
 	}
 	prov, err := meta.GetProvider()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	svcStr, err := meta.GetServiceStr()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	rStr, err := meta.GetResourceStr()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	requestSchema, err := prov.GetObjectSchema(svcStr, rStr, method.RequestType.Type)
+	// if err != nil {
+	// 	return err
+	// }
 	var execPayload *dto.ExecPayload
 	if node.OptExecPayload != nil {
 		execPayload, err = p.parseExecPayload(node.OptExecPayload, method.RequestType.GetFormat())
 		if err != nil {
-			return err
+			return nil, err
 		}
 		err = p.analyzeSchemaVsMap(handlerCtx, requestSchema, execPayload.PayloadMap, method)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 	sm, err := prov.GetSchemaMap(svcStr, rStr)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	rsc, err := meta.GetResource()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	_, err = p.buildRequestContext(handlerCtx, node, &meta, sm, httpbuild.NewExecContext(execPayload, rsc), nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	p.PrimitiveBuilder.SetTable(node, meta)
+
+	// parse response with SQL
+	if selectNode != nil {
+		return &meta, p.analyzeUnarySelection(handlerCtx, selectNode, selectNode.Where, &meta, cols)
+	}
+	return &meta, p.analyzeUnarySelection(handlerCtx, node, nil, &meta, cols)
+}
+
+func (p *primitiveGenerator) analyzeExec(handlerCtx *handler.HandlerContext, node *sqlparser.Exec) error {
+	tbl, err := p.analyzeUnaryExec(handlerCtx, node, nil, nil)
+	if err != nil {
+		log.Infoln(fmt.Sprintf("error analyzing EXEC as selection: '%s'", err.Error()))
+	} else {
+		p.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(p.PrimitiveBuilder, handlerCtx, *tbl, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), p.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
+	}
+
 	return nil
 }
 
@@ -706,7 +725,17 @@ func (p *primitiveGenerator) analyzeSchemaVsMap(handlerCtx *handler.HandlerConte
 func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, node *sqlparser.Select) error {
 
 	for i, fromExpr := range node.From {
-		tbl, err := p.analyzeTableExpr(handlerCtx, fromExpr)
+		var err error
+		var tbl *taxonomy.ExtendedTableMetadata
+		switch from := fromExpr.(type) {
+		case *sqlparser.ExecSubquery:
+			log.Infoln(fmt.Sprintf("from = %v", from))
+			tbl, err = p.analyzeTableExpr(handlerCtx, from)
+			// return fmt.Errorf("from clause of type - '%T' currently not supported", from)
+		default:
+			tbl, err = p.analyzeTableExpr(handlerCtx, from)
+		}
+
 		if err != nil {
 			return err
 		}
@@ -766,7 +795,19 @@ func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, n
 			if err != nil {
 				return err
 			}
-			p.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleSelect(p.PrimitiveBuilder, handlerCtx, *tbl, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), p.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
+			p.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(p.PrimitiveBuilder, handlerCtx, *tbl, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), p.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
+			return nil
+		case *sqlparser.ExecSubquery:
+			cols, err := parserutil.ExtractSelectColumnNames(node)
+			if err != nil {
+				return err
+			}
+			tbl, err := p.analyzeUnaryExec(handlerCtx, ft.Exec, node, cols)
+			if err != nil {
+				return err
+			}
+
+			p.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(p.PrimitiveBuilder, handlerCtx, *tbl, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), p.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
 			return nil
 		}
 	}
@@ -779,7 +820,6 @@ func (p *primitiveGenerator) analyzeSelectDetail(handlerCtx *handler.HandlerCont
 	p.PrimitiveBuilder.SetValOnlyCols(valOnlyCols)
 	svcStr, _ := tbl.GetServiceStr()
 	rStr, _ := tbl.GetResourceStr()
-	provStr, _ := tbl.GetProviderStr()
 	if rStr == "dual" { // some bizarre artifact of vitess.io, indicates no table supplied
 		tbl.IsLocallyExecutable = true
 		if svcStr == "" {
@@ -791,6 +831,27 @@ func (p *primitiveGenerator) analyzeSelectDetail(handlerCtx *handler.HandlerCont
 		}
 		return err
 	}
+	cols, err := parserutil.ExtractSelectColumnNames(node)
+	if err != nil {
+		return err
+	}
+
+	responseSchema, err := tbl.GetResponseSchema()
+	if err != nil {
+		return err
+	}
+
+	rewrittenWhere, whereErr := p.analyzeWhere(node.Where, responseSchema)
+	if whereErr != nil {
+		return whereErr
+	}
+	p.PrimitiveBuilder.SetWhere(rewrittenWhere)
+
+	err = p.analyzeUnarySelection(handlerCtx, node, rewrittenWhere, tbl, cols)
+	if err != nil {
+		return err
+	}
+
 	prov, err := tbl.GetProvider()
 	if err != nil {
 		return err
@@ -799,77 +860,10 @@ func (p *primitiveGenerator) analyzeSelectDetail(handlerCtx *handler.HandlerCont
 	if err != nil {
 		return err
 	}
-	schema, err := prov.GetObjectSchema(svcStr, rStr, method.ResponseType.Type)
-	if err != nil {
-		return err
-	}
-	rewrittenWhere, whereErr := p.analyzeWhere(node.Where, schema)
-	if whereErr != nil {
-		return whereErr
-	}
-	p.PrimitiveBuilder.SetWhere(rewrittenWhere)
-	cols, err := parserutil.ExtractSelectColumnNames(node)
-	if err != nil {
-		return err
-	}
-	unsuitableSchemaMsg := "schema unsuitable for select query"
-	log.Infoln(fmt.Sprintf("schema.ID = %v", schema.ID))
-	log.Infoln(fmt.Sprintf("schema.Items = %v", schema.Items))
-	log.Infoln(fmt.Sprintf("schema.Properties = %v", schema.Properties))
-	var itemS *metadata.Schema
-	itemS, tbl.SelectItemsKey = schema.GetSelectListItems(prov.GetDefaultKeyForSelectItems())
-	if itemS == nil {
-		return fmt.Errorf(unsuitableSchemaMsg)
-	}
-	is := itemS.Items
-	itemObjS, _ := is.GetSchema(schema.SchemaCentral)
-	if itemObjS == nil {
-		return fmt.Errorf(unsuitableSchemaMsg)
-	}
-	if len(cols) == 0 {
-		colNames := itemObjS.GetAllColumns()
-		for _, v := range colNames {
-			cols = append(cols, parserutil.NewUnaliasedColumnHandle(v))
-		}
-	}
-	insertTabulation := itemObjS.Tabulate(false)
 
-	hIds := dto.NewHeirarchyIdentifiers(provStr, svcStr, insertTabulation.GetName(), "")
-	selectTabulation := itemObjS.Tabulate(true)
 	// TODO: get rid of prefix garbage
 	colPrefix := tbl.SelectItemsKey + "[]."
-	annotatedInsertTabulation := util.NewAnnotatedTabulation(insertTabulation, hIds)
-	tableDTO, err := p.PrimitiveBuilder.GetDRMConfig().GetCurrentTable(hIds, handlerCtx.SQLEngine)
-	if err != nil {
-		return err
-	}
 
-	insPsc, err := p.PrimitiveBuilder.GetDRMConfig().GenerateInsertDML(annotatedInsertTabulation, p.PrimitiveBuilder.GetTxnCounterManager(), tableDTO.GetDiscoveryID())
-	if err != nil {
-		return err
-	}
-	p.PrimitiveBuilder.SetTxnCtrlCtrs(insPsc.TxnCtrlCtrs)
-	for _, col := range cols {
-		foundSchema := schema.FindByPath(col.Name, nil)
-		cc, ok := method.Parameters[col.Name]
-		if ok && cc.ID == col.Name {
-			continue
-		}
-		if foundSchema == nil && col.IsColumn {
-			return fmt.Errorf("column = '%s' is NOT present in either:  - data returned from provider, - acceptable parameters, use the DESCRIBE command to view available fields for SELECT operations", col.Name)
-		}
-		selectTabulation.PushBackColumn(metadata.NewColumnDescriptor(col.Alias, col.Name, col.DecoratedColumn, foundSchema, col.Val))
-		log.Infoln(fmt.Sprintf("rsc = %T", col))
-		log.Infoln(fmt.Sprintf("schema type = %T", schema))
-	}
-
-	selPsc, err := p.PrimitiveBuilder.GetDRMConfig().GenerateSelectDML(util.NewAnnotatedTabulation(selectTabulation, hIds), insPsc.TxnCtrlCtrs, node, rewrittenWhere)
-	if err != nil {
-		return err
-	}
-	p.PrimitiveBuilder.SetInsertPreparedStatementCtx(&insPsc)
-	p.PrimitiveBuilder.SetSelectPreparedStatementCtx(&selPsc)
-	p.PrimitiveBuilder.SetColumnOrder(cols)
 	whereNames, err := parserutil.ExtractWhereColNames(node.Where)
 	if err != nil {
 		return err
@@ -880,8 +874,8 @@ func (p *primitiveGenerator) analyzeSelectDetail(handlerCtx *handler.HandlerCont
 			continue
 		}
 		log.Infoln(fmt.Sprintf("w = '%s'", w))
-		foundSchemaPrefixed := schema.FindByPath(colPrefix+w, nil)
-		foundSchema := schema.FindByPath(w, nil)
+		foundSchemaPrefixed := responseSchema.FindByPath(colPrefix+w, nil)
+		foundSchema := responseSchema.FindByPath(w, nil)
 		if foundSchemaPrefixed == nil && foundSchema == nil {
 			return fmt.Errorf("SELECT Where element = '%s' is NOT present in data returned from provider", w)
 		}
@@ -899,8 +893,8 @@ func (p *primitiveGenerator) analyzeSelectDetail(handlerCtx *handler.HandlerCont
 			continue
 		}
 		log.Infoln(fmt.Sprintf("w = '%s'", w))
-		foundSchemaPrefixed := schema.FindByPath(colPrefix+w, nil)
-		foundSchema := schema.FindByPath(w, nil)
+		foundSchemaPrefixed := responseSchema.FindByPath(colPrefix+w, nil)
+		foundSchema := responseSchema.FindByPath(w, nil)
 		if foundSchemaPrefixed == nil && foundSchema == nil {
 			return fmt.Errorf("SELECT HAVING element = '%s' is NOT present in data returned from provider", w)
 		}
@@ -920,11 +914,16 @@ func (p *primitiveGenerator) analyzeSelectDetail(handlerCtx *handler.HandlerCont
 }
 
 func (p *primitiveGenerator) analyzeTableExpr(handlerCtx *handler.HandlerContext, node sqlparser.TableExpr) (*taxonomy.ExtendedTableMetadata, error) {
-	err := p.inferHeirarchyAndPersist(handlerCtx, node)
+	var nodeToPersist sqlparser.SQLNode = node
+	switch node := node.(type) {
+	case *sqlparser.ExecSubquery:
+		nodeToPersist = node.Exec
+	}
+	err := p.inferHeirarchyAndPersist(handlerCtx, nodeToPersist)
 	if err != nil {
 		return nil, err
 	}
-	tbl, err := p.PrimitiveBuilder.GetTable(node)
+	tbl, err := p.PrimitiveBuilder.GetTable(nodeToPersist)
 	if err != nil {
 		return nil, err
 	}
@@ -953,7 +952,7 @@ func (p *primitiveGenerator) analyzeTableExpr(handlerCtx *handler.HandlerContext
 	log.Infoln(fmt.Sprintf("schema.Items = %v", schema.Items))
 	log.Infoln(fmt.Sprintf("schema.Properties = %v", schema.Properties))
 	var itemS *metadata.Schema
-	itemS, tbl.SelectItemsKey = schema.GetSelectListItems(prov.GetDefaultKeyForSelectItems())
+	itemS, tbl.SelectItemsKey = schema.GetSelectListItems(tbl.LookupSelectItemsKey())
 	if itemS == nil {
 		return nil, fmt.Errorf(unsuitableSchemaMsg)
 	}
@@ -1188,17 +1187,21 @@ func (p *primitiveGenerator) analyzeSleep(handlerCtx *handler.HandlerContext, no
 	if sleepDuration <= 0 {
 		return fmt.Errorf("sleep duration %d not allowed, must be > 0", sleepDuration)
 	}
-	p.PrimitiveBuilder.SetPrimitive(primitivebuilder.NewLocalPrimitive(
-		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
-			time.Sleep(time.Duration(sleepDuration) * time.Millisecond)
-			msgs := dto.BackendMessages{
-				WorkingMessages: []string{
-					fmt.Sprintf("Success: slept for %d milliseconds", sleepDuration),
+	graph := p.PrimitiveBuilder.GetGraph()
+	p.PrimitiveBuilder.SetRoot(
+		graph.CreatePrimitiveNode(
+			primitivebuilder.NewLocalPrimitive(
+				func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+					time.Sleep(time.Duration(sleepDuration) * time.Millisecond)
+					msgs := dto.BackendMessages{
+						WorkingMessages: []string{
+							fmt.Sprintf("Success: slept for %d milliseconds", sleepDuration),
+						},
+					}
+					return dto.NewExecutorOutput(nil, nil, nil, &msgs, nil)
 				},
-			}
-			return dto.NewExecutorOutput(nil, nil, nil, &msgs, nil)
-		},
-	),
+			),
+		),
 	)
 	return err
 }
