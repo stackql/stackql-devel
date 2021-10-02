@@ -14,6 +14,7 @@ import (
 )
 
 type IHttpContext interface {
+	RemoveQueryParam(string)
 	GetHeaders() http.Header
 	GetMethod() string
 	GetTemplateUrl() string
@@ -108,6 +109,10 @@ func (bc *BasicHttpContext) SetHeader(k string, v string) {
 
 func (bc *BasicHttpContext) SetQueryParam(k string, v string) {
 	bc.queryParams[k] = v
+}
+
+func (bc *BasicHttpContext) RemoveQueryParam(k string) {
+	delete(bc.queryParams, k)
 }
 
 func getErroneousBody(response *http.Response) string {

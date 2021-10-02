@@ -10,6 +10,7 @@ import (
 	"infraql/internal/iql/primitive"
 	"infraql/internal/iql/primitivegraph"
 	"infraql/internal/iql/provider"
+	"infraql/internal/iql/sqlengine"
 	"infraql/internal/iql/symtab"
 	"infraql/internal/iql/taxonomy"
 
@@ -19,9 +20,13 @@ import (
 )
 
 type PrimitiveBuilder struct {
+	parent *PrimitiveBuilder
+
+	children []*PrimitiveBuilder
+
 	await bool
 
-	ast sqlparser.Statement
+	ast sqlparser.SQLNode
 
 	builder Builder
 
@@ -56,9 +61,15 @@ type PrimitiveBuilder struct {
 	// TODO: universally retire in favour of builder, which returns primitive.IPrimitive
 	root primitivegraph.PrimitiveNode
 
-	symTab symtab.HashMapTreeSymTab
+	symTab symtab.SymTab
 
 	where *sqlparser.Where
+
+	sqlEngine sqlengine.SQLEngine
+}
+
+func (pb *PrimitiveBuilder) ShouldCollectGarbage() bool {
+	return pb.parent == nil
 }
 
 func (pb *PrimitiveBuilder) SetTxnCtrlCtrs(tc *dto.TxnControlCounters) {
@@ -69,8 +80,24 @@ func (pb *PrimitiveBuilder) GetGraph() *primitivegraph.PrimitiveGraph {
 	return pb.graph
 }
 
+func (pb *PrimitiveBuilder) GetParent() *PrimitiveBuilder {
+	return pb.parent
+}
+
+func (pb *PrimitiveBuilder) GetChildren() []*PrimitiveBuilder {
+	return pb.children
+}
+
+func (pb *PrimitiveBuilder) AddChild(val *PrimitiveBuilder) {
+	pb.children = append(pb.children, val)
+}
+
 func (pb *PrimitiveBuilder) GetSymbol(k interface{}) (symtab.SymTabEntry, error) {
 	return pb.symTab.GetSymbol(k)
+}
+
+func (pb *PrimitiveBuilder) GetSymTab() symtab.SymTab {
+	return pb.symTab
 }
 
 func (pb *PrimitiveBuilder) SetSymbol(k interface{}, v symtab.SymTabEntry) error {
@@ -85,11 +112,7 @@ func (pb *PrimitiveBuilder) SetWhere(where *sqlparser.Where) {
 	pb.where = where
 }
 
-func (pb *PrimitiveBuilder) SetLeaf(k interface{}, l symtab.SymTab) error {
-	return pb.symTab.SetLeaf(k, l)
-}
-
-func (pb *PrimitiveBuilder) GetAst() sqlparser.Statement {
+func (pb *PrimitiveBuilder) GetAst() sqlparser.SQLNode {
 	return pb.ast
 }
 
@@ -101,11 +124,10 @@ func (pb *PrimitiveBuilder) GetTxnCounterManager() *txncounter.TxnCounterManager
 	return pb.txnCounterManager
 }
 
-func (pb *PrimitiveBuilder) GetQuery() string {
-	if pb.builder != nil {
-		return pb.builder.GetQuery()
-	}
-	return ""
+func (pb *PrimitiveBuilder) NewChildPrimitiveBuilder(ast sqlparser.SQLNode) *PrimitiveBuilder {
+	child := NewPrimitiveBuilder(pb, ast, pb.drmConfig, pb.txnCounterManager, pb.graph, pb.tables, pb.symTab, pb.sqlEngine)
+	pb.children = append(pb.children, child)
+	return child
 }
 
 func (pb *PrimitiveBuilder) SetInsertSchemaMap(m map[string]metadata.Schema) {
@@ -209,7 +231,19 @@ func (pb *PrimitiveBuilder) SetProvider(prov provider.IProvider) {
 }
 
 func (pb *PrimitiveBuilder) GetBuilder() Builder {
-	return pb.builder
+	if pb.children == nil || len(pb.children) == 0 {
+		return pb.builder
+	}
+	var builders []Builder
+	for _, child := range pb.children {
+		if bldr := child.GetBuilder(); bldr != nil {
+			builders = append(builders, bldr)
+		}
+	}
+	if true {
+		return NewDiamondBuilder(pb.builder, builders, pb.graph, pb.sqlEngine, pb.ShouldCollectGarbage())
+	}
+	return NewSubTreeBuilder(builders)
 }
 
 func (pb *PrimitiveBuilder) SetBuilder(builder Builder) {
@@ -240,6 +274,10 @@ func (pb PrimitiveBuilder) GetDRMConfig() drm.DRMConfig {
 	return pb.drmConfig
 }
 
+func (pb PrimitiveBuilder) GetSQLEngine() sqlengine.SQLEngine {
+	return pb.sqlEngine
+}
+
 type HTTPRestPrimitive struct {
 	Provider      provider.IProvider
 	Executor      func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput
@@ -264,6 +302,30 @@ type LocalPrimitive struct {
 	id         int64
 }
 
+type PassThroughPrimitive struct {
+	Inputs                 map[int64]dto.ExecutorOutput
+	id                     int64
+	sqlEngine              sqlengine.SQLEngine
+	shouldCollectGarbage   bool
+	txnControlCounterSlice []dto.TxnControlCounters
+}
+
+func (pt *PassThroughPrimitive) collectGarbage() {
+	if pt.shouldCollectGarbage {
+		for _, gc := range pt.txnControlCounterSlice {
+			pt.sqlEngine.GCCollectObsolete(&gc)
+		}
+	}
+}
+
+func (pt *PassThroughPrimitive) Execute(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+	defer pt.collectGarbage()
+	for _, input := range pt.Inputs {
+		return input
+	}
+	return dto.ExecutorOutput{}
+}
+
 func (pr *HTTPRestPrimitive) SetTxnId(id int) {
 	if pr.TxnControlCtr != nil {
 		pr.TxnControlCtr.TxnId = id
@@ -276,7 +338,15 @@ func (pr *MetaDataPrimitive) SetTxnId(id int) {
 func (pr *LocalPrimitive) SetTxnId(id int) {
 }
 
+func (pr *PassThroughPrimitive) SetTxnId(id int) {
+}
+
 func (pr *HTTPRestPrimitive) IncidentData(fromId int64, input dto.ExecutorOutput) error {
+	pr.Inputs[fromId] = input
+	return nil
+}
+
+func (pr *PassThroughPrimitive) IncidentData(fromId int64, input dto.ExecutorOutput) error {
 	pr.Inputs[fromId] = input
 	return nil
 }
@@ -303,6 +373,10 @@ func (pr *LocalPrimitive) SetInputAlias(alias string, id int64) error {
 	return nil
 }
 
+func (pr *PassThroughPrimitive) SetInputAlias(alias string, id int64) error {
+	return nil
+}
+
 func (pr *HTTPRestPrimitive) Optimise() error {
 	return nil
 }
@@ -312,6 +386,10 @@ func (pr *MetaDataPrimitive) Optimise() error {
 }
 
 func (pr *LocalPrimitive) Optimise() error {
+	return nil
+}
+
+func (pr *PassThroughPrimitive) Optimise() error {
 	return nil
 }
 
@@ -374,16 +452,27 @@ func NewLocalPrimitive(executor func(pc primitive.IPrimitiveCtx) dto.ExecutorOut
 	}
 }
 
-func NewPrimitiveBuilder(ast sqlparser.Statement, drmConfig drm.DRMConfig, txnCtrMgr *txncounter.TxnCounterManager, graph *primitivegraph.PrimitiveGraph) *PrimitiveBuilder {
+func NewPassThroughPrimitive(sqlEngine sqlengine.SQLEngine, txnControlCounterSlice []dto.TxnControlCounters, shouldCollectGarbage bool) *PassThroughPrimitive {
+	return &PassThroughPrimitive{
+		Inputs:                 make(map[int64]dto.ExecutorOutput),
+		sqlEngine:              sqlEngine,
+		txnControlCounterSlice: txnControlCounterSlice,
+		shouldCollectGarbage:   shouldCollectGarbage,
+	}
+}
+
+func NewPrimitiveBuilder(parent *PrimitiveBuilder, ast sqlparser.SQLNode, drmConfig drm.DRMConfig, txnCtrMgr *txncounter.TxnCounterManager, graph *primitivegraph.PrimitiveGraph, tblMap map[sqlparser.SQLNode]taxonomy.ExtendedTableMetadata, symTab symtab.SymTab, sqlEngine sqlengine.SQLEngine) *PrimitiveBuilder {
 	return &PrimitiveBuilder{
+		parent:            parent,
 		ast:               ast,
 		drmConfig:         drmConfig,
-		tables:            make(map[sqlparser.SQLNode]taxonomy.ExtendedTableMetadata),
+		tables:            tblMap,
 		valOnlyCols:       make(map[int]map[string]interface{}),
 		insertValOnlyRows: make(map[int]map[int]interface{}),
 		colsVisited:       make(map[string]bool),
 		txnCounterManager: txnCtrMgr,
-		symTab:            symtab.NewHashMapTreeSymTab(),
+		symTab:            symTab,
 		graph:             graph,
+		sqlEngine:         sqlEngine,
 	}
 }

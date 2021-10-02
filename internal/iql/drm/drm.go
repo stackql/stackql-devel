@@ -12,6 +12,7 @@ import (
 	"infraql/internal/iql/util"
 	"infraql/internal/pkg/txncounter"
 	"reflect"
+	"sort"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -72,6 +73,7 @@ func NewColDescriptor(col metadata.ColumnDescriptor, relTypeStr string) ColumnMe
 
 type PreparedStatementCtx struct {
 	Query                   string
+	Kind                    string // string annotation applicale only in some cases eg UNION [ALL]
 	GenIdControlColName     string
 	SessionIdControlColName string
 	TableNames              []string
@@ -79,6 +81,10 @@ type PreparedStatementCtx struct {
 	InsIdControlColName     string
 	NonControlColumns       []ColumnMetadata
 	TxnCtrlCtrs             *dto.TxnControlCounters
+}
+
+func NewQueryOnlyPreparedStatementCtx(query string) *PreparedStatementCtx {
+	return &PreparedStatementCtx{Query: query}
 }
 
 func (ps PreparedStatementCtx) GetGCHousekeepingQueries() string {
@@ -90,6 +96,39 @@ func (ps PreparedStatementCtx) GetGCHousekeepingQueries() string {
 	return strings.Join(housekeepingQueries, "; ")
 }
 
+type PreparedStatementParameterized struct {
+	Ctx                 *PreparedStatementCtx
+	args                map[string]interface{}
+	controlArgsRequired bool
+	children            map[int]PreparedStatementParameterized
+}
+
+func (ps PreparedStatementParameterized) AddChild(key int, val PreparedStatementParameterized) {
+	ps.children[key] = val
+}
+
+type PreparedStatementArgs struct {
+	query    string
+	args     []interface{}
+	children map[int]PreparedStatementArgs
+}
+
+func NewPreparedStatementArgs(query string) PreparedStatementArgs {
+	return PreparedStatementArgs{
+		query:    query,
+		children: make(map[int]PreparedStatementArgs),
+	}
+}
+
+func NewPreparedStatementParameterized(ctx *PreparedStatementCtx, args map[string]interface{}, controlArgsRequired bool) PreparedStatementParameterized {
+	return PreparedStatementParameterized{
+		Ctx:                 ctx,
+		args:                args,
+		controlArgsRequired: controlArgsRequired,
+		children:            make(map[int]PreparedStatementParameterized),
+	}
+}
+
 type DRMConfig interface {
 	ExtractFromGolangValue(interface{}) interface{}
 	GetCurrentTable(*dto.HeirarchyIdentifiers, sqlengine.SQLEngine) (dto.DBTable, error)
@@ -99,7 +138,7 @@ type DRMConfig interface {
 	GenerateInsertDML(util.AnnotatedTabulation, *txncounter.TxnCounterManager, int) (PreparedStatementCtx, error)
 	GenerateSelectDML(util.AnnotatedTabulation, *dto.TxnControlCounters, sqlparser.SQLNode, *sqlparser.Where) (PreparedStatementCtx, error)
 	ExecuteInsertDML(sqlengine.SQLEngine, *PreparedStatementCtx, map[string]interface{}) (sql.Result, error)
-	QueryDML(sqlengine.SQLEngine, *PreparedStatementCtx, map[string]interface{}) (*sql.Rows, error)
+	QueryDML(sqlengine.SQLEngine, PreparedStatementParameterized) (*sql.Rows, error)
 }
 
 type StaticDRMConfig struct {
@@ -333,68 +372,98 @@ func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 	}, nil
 }
 
-func (dc *StaticDRMConfig) generateControlVarArgs(ctx PreparedStatementCtx) ([]interface{}, error) {
+func (dc *StaticDRMConfig) generateControlVarArgs(cp PreparedStatementParameterized) ([]interface{}, error) {
 	// log.Infoln(fmt.Sprintf("%v", ctx))
 	var varArgs []interface{}
-	varArgs = append(varArgs, ctx.TxnCtrlCtrs.GenId)
-	varArgs = append(varArgs, ctx.TxnCtrlCtrs.SessionId)
-	varArgs = append(varArgs, ctx.TxnCtrlCtrs.TxnId)
-	varArgs = append(varArgs, ctx.TxnCtrlCtrs.InsertId)
+	if cp.controlArgsRequired {
+		varArgs = append(varArgs, cp.Ctx.TxnCtrlCtrs.GenId)
+		varArgs = append(varArgs, cp.Ctx.TxnCtrlCtrs.SessionId)
+		varArgs = append(varArgs, cp.Ctx.TxnCtrlCtrs.TxnId)
+		varArgs = append(varArgs, cp.Ctx.TxnCtrlCtrs.InsertId)
+	}
 	return varArgs, nil
 }
 
-func (dc *StaticDRMConfig) generateVarArgs(ctx PreparedStatementCtx, payload map[string]interface{}) ([]interface{}, error) {
-	log.Infoln(fmt.Sprintf("%v", payload))
-	varArgs, _ := dc.generateControlVarArgs(ctx)
-	for _, col := range ctx.NonControlColumns {
-		va, ok := payload[col.GetName()]
-		if !ok {
-			varArgs = append(varArgs, nil)
-			continue
-			// return nil, fmt.Errorf("expected column '%s' missing", col)
+func (dc *StaticDRMConfig) generateVarArgs(cp PreparedStatementParameterized) (PreparedStatementArgs, error) {
+	retVal := NewPreparedStatementArgs(cp.Ctx.Query)
+	for i, child := range cp.children {
+		chidRv, err := dc.generateVarArgs(child)
+		if err != nil {
+			return retVal, err
 		}
-		switch vt := va.(type) {
-		case map[string]interface{}, []interface{}:
-			b, err := json.Marshal(vt)
-			if err != nil {
-				return nil, err
+		retVal.children[i] = chidRv
+	}
+	varArgs, _ := dc.generateControlVarArgs(cp)
+	if cp.args != nil && len(cp.args) > 0 {
+		for _, col := range cp.Ctx.NonControlColumns {
+			va, ok := cp.args[col.GetName()]
+			if !ok {
+				varArgs = append(varArgs, nil)
+				continue
 			}
-			varArgs = append(varArgs, string(b))
-		default:
-			varArgs = append(varArgs, va)
+			switch vt := va.(type) {
+			case map[string]interface{}, []interface{}:
+				b, err := json.Marshal(vt)
+				if err != nil {
+					return retVal, err
+				}
+				varArgs = append(varArgs, string(b))
+			default:
+				varArgs = append(varArgs, va)
+			}
 		}
 	}
-	return varArgs, nil
+	retVal.args = varArgs
+	return retVal, nil
 }
 
 func (dc *StaticDRMConfig) ExecuteInsertDML(dbEngine sqlengine.SQLEngine, ctx *PreparedStatementCtx, payload map[string]interface{}) (sql.Result, error) {
 	if ctx == nil {
 		return nil, fmt.Errorf("cannot execute on nil PreparedStatementContext")
 	}
-	log.Infoln(fmt.Sprintf("%v", ctx.Query))
-	varArgs, err := dc.generateVarArgs(*ctx, payload)
+	stmtArgs, err := dc.generateVarArgs(PreparedStatementParameterized{Ctx: ctx, args: payload, controlArgsRequired: true})
 	if err != nil {
 		return nil, err
 	}
-	return dbEngine.Exec(ctx.Query, varArgs...)
+	return dbEngine.Exec(stmtArgs.query, stmtArgs.args...)
 }
 
-func (dc *StaticDRMConfig) QueryDML(dbEngine sqlengine.SQLEngine, ctx *PreparedStatementCtx, payload map[string]interface{}) (*sql.Rows, error) {
-	if ctx == nil {
+func (dc *StaticDRMConfig) QueryDML(dbEngine sqlengine.SQLEngine, ctxParameterized PreparedStatementParameterized) (*sql.Rows, error) {
+	if ctxParameterized.Ctx == nil {
 		return nil, fmt.Errorf("cannot execute on nil PreparedStatementContext")
 	}
-	log.Infoln(fmt.Sprintf("%v", ctx.Query))
-	var varArgs []interface{}
-	var err error
-	if payload != nil {
-		varArgs, err = dc.generateVarArgs(*ctx, payload)
-	} else {
-		varArgs, err = dc.generateControlVarArgs(*ctx)
-	}
+	rootArgs, err := dc.generateVarArgs(ctxParameterized)
 	if err != nil {
 		return nil, err
 	}
-	return dbEngine.Query(ctx.Query, varArgs...)
+	var varArgs []interface{}
+	j := 0
+	query := rootArgs.query
+	var childQueryStrings []interface{} // dunno why
+	var keys []int
+	for i := range rootArgs.children {
+		keys = append(keys, i)
+	}
+	sort.Ints(keys)
+	for _, k := range keys {
+		cp := rootArgs.children[k]
+		log.Infoln(fmt.Sprintf("adding child query = %s", cp.query))
+		childQueryStrings = append(childQueryStrings, cp.query)
+		if len(rootArgs.args) >= k {
+			varArgs = append(varArgs, rootArgs.args[j:k]...)
+		}
+		varArgs = append(varArgs, cp.args...)
+		j = k
+	}
+	log.Infoln(fmt.Sprintf("raw query = %s", query))
+	if len(childQueryStrings) > 0 {
+		query = fmt.Sprintf(rootArgs.query, childQueryStrings...)
+	}
+	if len(rootArgs.args) >= j {
+		varArgs = append(varArgs, rootArgs.args[j:]...)
+	}
+	log.Infoln(fmt.Sprintf("query = %s", query))
+	return dbEngine.Query(query, varArgs...)
 }
 
 func GetGoogleV1SQLiteConfig() DRMConfig {

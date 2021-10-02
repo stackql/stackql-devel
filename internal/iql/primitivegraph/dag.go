@@ -13,8 +13,17 @@ import (
 )
 
 type PrimitiveGraph struct {
-	g      *simple.WeightedDirectedGraph
-	sorted []graph.Node
+	g                      *simple.WeightedDirectedGraph
+	sorted                 []graph.Node
+	txnControlCounterSlice []dto.TxnControlCounters
+}
+
+func (pg *PrimitiveGraph) AddTxnControlCounters(t dto.TxnControlCounters) {
+	pg.txnControlCounterSlice = append(pg.txnControlCounterSlice, t)
+}
+
+func (pg *PrimitiveGraph) GetTxnControlCounterSlice() []dto.TxnControlCounters {
+	return pg.txnControlCounterSlice
 }
 
 func (pg *PrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) dto.ExecutorOutput {

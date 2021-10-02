@@ -2,6 +2,7 @@ package astvisit
 
 import (
 	"fmt"
+	"strings"
 
 	"vitess.io/vitess/go/vt/sqlparser"
 )
@@ -49,6 +50,35 @@ func GenerateModifiedSelectSuffix(node sqlparser.SQLNode) string {
 			limitStr, node.Lock)
 		v.rewrittenQuery = rq
 	}
+	return v.GetRewrittenQuery()
+}
+
+func GenerateUnionTemplateQuery(node *sqlparser.Union) string {
+	v := NewDRMAstVisitor("", false)
+
+	var sb strings.Builder
+	sb.WriteString("%s ")
+	for _, unionSelect := range node.UnionSelects {
+		sb.WriteString(fmt.Sprintf("%s %%s ", unionSelect.Type))
+	}
+
+	var orderByStr, limitStr string
+	if node.OrderBy != nil {
+		node.OrderBy.Accept(v)
+		orderByStr = v.GetRewrittenQuery()
+	}
+	if node.Limit != nil {
+		node.Limit.Accept(v)
+		orderByStr = v.GetRewrittenQuery()
+	}
+	sb.WriteString(
+		fmt.Sprintf(
+			"%v%v%s",
+			orderByStr,
+			limitStr,
+			node.Lock))
+	v.rewrittenQuery = sb.String()
+
 	return v.GetRewrittenQuery()
 }
 

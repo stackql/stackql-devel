@@ -22,6 +22,7 @@ func NewSymTabEntry(t string, data interface{}) SymTabEntry {
 
 type SymTab interface {
 	GetSymbol(interface{}) (SymTabEntry, error)
+	NewLeaf(k interface{}) (SymTab, error)
 	SetSymbol(interface{}, SymTabEntry) error
 }
 
@@ -30,14 +31,14 @@ type HashMapTreeSymTab struct {
 	leaves map[interface{}]SymTab
 }
 
-func NewHashMapTreeSymTab() HashMapTreeSymTab {
-	return HashMapTreeSymTab{
+func NewHashMapTreeSymTab() *HashMapTreeSymTab {
+	return &HashMapTreeSymTab{
 		tab:    make(map[interface{}]SymTabEntry),
 		leaves: make(map[interface{}]SymTab),
 	}
 }
 
-func (st HashMapTreeSymTab) GetSymbol(k interface{}) (SymTabEntry, error) {
+func (st *HashMapTreeSymTab) GetSymbol(k interface{}) (SymTabEntry, error) {
 	switch k := k.(type) {
 	case *sqlparser.ColName:
 		log.Infoln(fmt.Sprintf("reading from symbol table using ColIdent %v", k))
@@ -56,7 +57,7 @@ func (st HashMapTreeSymTab) GetSymbol(k interface{}) (SymTabEntry, error) {
 	return SymTabEntry{}, fmt.Errorf("could not locate symbol %v", k)
 }
 
-func (st HashMapTreeSymTab) SetSymbol(k interface{}, v SymTabEntry) error {
+func (st *HashMapTreeSymTab) SetSymbol(k interface{}, v SymTabEntry) error {
 	_, ok := st.tab[k]
 	if ok {
 		return fmt.Errorf("symbol %v already present in symtab", k)
@@ -65,11 +66,11 @@ func (st HashMapTreeSymTab) SetSymbol(k interface{}, v SymTabEntry) error {
 	return nil
 }
 
-func (st HashMapTreeSymTab) SetLeaf(k interface{}, v SymTab) error {
+func (st *HashMapTreeSymTab) NewLeaf(k interface{}) (SymTab, error) {
 	_, ok := st.leaves[k]
 	if ok {
-		return fmt.Errorf("leaf symtab %v already present in symtab", k)
+		return nil, fmt.Errorf("leaf symtab %v already present in symtab", k)
 	}
-	st.leaves[k] = v
-	return nil
+	st.leaves[k] = NewHashMapTreeSymTab()
+	return st.leaves[k], nil
 }
