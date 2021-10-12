@@ -61,7 +61,7 @@ func TestSelectComputeDisksOrderByCrtTmstpAsc(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupSimpleSelectGoogleComputeDisks(t)
+	infraqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 1)
 	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksOrderCrtTmstpAsc})
 
 }
@@ -103,7 +103,7 @@ func TestSelectComputeDisksAggOrderBySizeAsc(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupSimpleSelectGoogleComputeDisks(t)
+	infraqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 1)
 	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggSizeOrderSizeAsc})
 
 }
@@ -145,7 +145,7 @@ func TestSelectComputeDisksAggOrderBySizeDesc(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupSimpleSelectGoogleComputeDisks(t)
+	infraqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 1)
 	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggSizeOrderSizeDesc})
 
 }
@@ -187,7 +187,7 @@ func TestSelectComputeDisksAggTotalSize(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupSimpleSelectGoogleComputeDisks(t)
+	infraqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 1)
 	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggSizeTotal})
 
 }
@@ -229,7 +229,7 @@ func TestSelectComputeDisksAggTotalString(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupSimpleSelectGoogleComputeDisks(t)
+	infraqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 1)
 	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggStringTotal})
 
 }

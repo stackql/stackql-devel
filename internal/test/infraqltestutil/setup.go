@@ -90,10 +90,12 @@ func getCloudResourceManagerProjectSelectExpectations(t *testing.T) map[string]t
 	}
 }
 
-func SetupSimpleSelectGoogleComputeDisks(t *testing.T) {
-	expectations := testhttpapi.NewExpectationStore(1)
+func SetupSimpleSelectGoogleComputeDisks(t *testing.T, requestCount int) {
+	expectations := testhttpapi.NewExpectationStore(requestCount)
 	for k, v := range getDisksSelectExpectations(t) {
-		expectations.Put(k, v)
+		for i := 0; i < requestCount; i++ {
+			expectations.Put(k, v)
+		}
 	}
 	testhttpapi.StartServer(t, expectations)
 	provider.DummyAuth = true

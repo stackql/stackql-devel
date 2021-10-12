@@ -13,6 +13,7 @@ import (
 	"infraql/internal/iql/metadata"
 	"infraql/internal/iql/primitive"
 	"infraql/internal/iql/primitivegraph"
+	"infraql/internal/iql/sqlengine"
 	"infraql/internal/iql/taxonomy"
 	"infraql/internal/iql/util"
 
@@ -22,10 +23,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+var ()
+
 type Builder interface {
 	Build() error
-
-	GetQuery() string
 
 	GetRoot() primitivegraph.PrimitiveNode
 
@@ -58,6 +59,91 @@ type SingleSelect struct {
 	txnCtrlCtr                 *dto.TxnControlCounters
 	rowSort                    func(map[string]map[string]interface{}) []string
 	root                       primitivegraph.PrimitiveNode
+}
+
+type SubTreeBuilder struct {
+	children []Builder
+}
+
+type DiamondBuilder struct {
+	SubTreeBuilder
+	parentBuilder            Builder
+	graph                    *primitivegraph.PrimitiveGraph
+	root, tailRoot, tailTail primitivegraph.PrimitiveNode
+	sqlEngine                sqlengine.SQLEngine
+	shouldCollectGarbage     bool
+	txnControlCounterSlice   []dto.TxnControlCounters
+}
+
+func NewSubTreeBuilder(children []Builder) *SubTreeBuilder {
+	return &SubTreeBuilder{
+		children: children,
+	}
+}
+
+func NewDiamondBuilder(parent Builder, children []Builder, graph *primitivegraph.PrimitiveGraph, sqlEngine sqlengine.SQLEngine, shouldCollectGarbage bool) *DiamondBuilder {
+	return &DiamondBuilder{
+		SubTreeBuilder:       SubTreeBuilder{children: children},
+		parentBuilder:        parent,
+		graph:                graph,
+		sqlEngine:            sqlEngine,
+		shouldCollectGarbage: shouldCollectGarbage,
+	}
+}
+
+func (st *SubTreeBuilder) Build() error {
+	for _, child := range st.children {
+		err := child.Build()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (st *SubTreeBuilder) GetRoot() primitivegraph.PrimitiveNode {
+	return st.children[0].GetRoot()
+}
+
+func (st *SubTreeBuilder) GetTail() primitivegraph.PrimitiveNode {
+	return st.children[len(st.children)-1].GetTail()
+}
+
+func (db *DiamondBuilder) Build() error {
+	for _, child := range db.children {
+		err := child.Build()
+		if err != nil {
+			return err
+		}
+	}
+	db.root = db.graph.CreatePrimitiveNode(NewPassThroughPrimitive(db.sqlEngine, db.graph.GetTxnControlCounterSlice(), false))
+	if db.parentBuilder != nil {
+		err := db.parentBuilder.Build()
+		if err != nil {
+			return err
+		}
+		db.tailRoot = db.parentBuilder.GetRoot()
+		db.tailTail = db.parentBuilder.GetTail()
+	} else {
+		db.tailRoot = db.graph.CreatePrimitiveNode(NewPassThroughPrimitive(db.sqlEngine, db.graph.GetTxnControlCounterSlice(), db.shouldCollectGarbage))
+		db.tailTail = db.tailRoot
+	}
+	for _, child := range db.children {
+		root := child.GetRoot()
+		tail := child.GetTail()
+		db.graph.NewDependency(db.root, root, 1.0)
+		db.graph.NewDependency(tail, db.tailRoot, 1.0)
+		// db.tail.Primitive = child.GetTail().Primitive
+	}
+	return nil
+}
+
+func (db *DiamondBuilder) GetRoot() primitivegraph.PrimitiveNode {
+	return db.root
+}
+
+func (db *DiamondBuilder) GetTail() primitivegraph.PrimitiveNode {
+	return db.tailTail
 }
 
 type SingleAcquireAndSelect struct {
@@ -99,6 +185,44 @@ func NewSingleSelect(pb *PrimitiveBuilder, handlerCtx *handler.HandlerContext, t
 	}
 }
 
+type Union struct {
+	unionCtx         *drm.PreparedStatementCtx
+	primitiveBuilder *PrimitiveBuilder
+	handlerCtx       *handler.HandlerContext
+	drmCfg           drm.DRMConfig
+	lhs              *drm.PreparedStatementCtx
+	rhs              []*drm.PreparedStatementCtx
+	root, tail       primitivegraph.PrimitiveNode
+}
+
+func (un *Union) Build() error {
+	unionEx := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+		us := drm.NewPreparedStatementParameterized(un.unionCtx, nil, false)
+		i := 0
+		us.AddChild(i, drm.NewPreparedStatementParameterized(un.lhs, nil, true))
+		for _, rhsElement := range un.rhs {
+			i++
+			us.AddChild(i, drm.NewPreparedStatementParameterized(rhsElement, nil, true))
+		}
+		return prepareGolangResult(un.handlerCtx.SQLEngine, us, un.lhs.NonControlColumns, un.drmCfg)
+	}
+	graph := un.primitiveBuilder.GetGraph()
+	unionNode := graph.CreatePrimitiveNode(NewLocalPrimitive(unionEx))
+	un.root = unionNode
+	return nil
+}
+
+func NewUnion(pb *PrimitiveBuilder, handlerCtx *handler.HandlerContext, unionCtx *drm.PreparedStatementCtx, lhs *drm.PreparedStatementCtx, rhs []*drm.PreparedStatementCtx) *Union {
+	return &Union{
+		primitiveBuilder: pb,
+		handlerCtx:       handlerCtx,
+		drmCfg:           handlerCtx.DrmConfig,
+		unionCtx:         unionCtx,
+		lhs:              lhs,
+		rhs:              rhs,
+	}
+}
+
 func NewSingleAcquireAndSelect(pb *PrimitiveBuilder, handlerCtx *handler.HandlerContext, tableMeta taxonomy.ExtendedTableMetadata, insertCtx *drm.PreparedStatementCtx, selectCtx *drm.PreparedStatementCtx, rowSort func(map[string]map[string]interface{}) []string) *SingleAcquireAndSelect {
 	return &SingleAcquireAndSelect{
 		primitiveBuilder: pb,
@@ -119,86 +243,11 @@ func NewJoin(lhsPb *PrimitiveBuilder, rhsPb *PrimitiveBuilder, handlerCtx *handl
 func (ss *SingleSelect) Build() error {
 
 	selectEx := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
-		defer ss.handlerCtx.SQLEngine.GCCollectObsolete(ss.insertPreparedStatementCtx.TxnCtrlCtrs)
-		altKeys := make(map[string]map[string]interface{})
-		rawRows := make(map[int]map[int]interface{})
 
 		// select phase
 		log.Infoln(fmt.Sprintf("running select with control parameters: %v", ss.selectPreparedStatementCtx.TxnCtrlCtrs))
-		r, sqlErr := ss.drmCfg.QueryDML(ss.handlerCtx.SQLEngine, ss.selectPreparedStatementCtx, nil)
-		log.Infoln(fmt.Sprintf("select result = %v, error = %v", r, sqlErr))
-		var ks []int
-		i := 0
-		var keyArr []string
-		var ifArr []interface{}
-		for i < len(ss.selectPreparedStatementCtx.NonControlColumns) {
-			x := ss.selectPreparedStatementCtx.NonControlColumns[i]
-			y := ss.drmCfg.GetGolangValue(x.GetType())
-			ifArr = append(ifArr, y)
-			keyArr = append(keyArr, x.Column.GetIdentifier())
-			i++
-		}
-		if r != nil {
-			i := 0
-			for r.Next() {
-				errScan := r.Scan(ifArr...)
-				if errScan != nil {
-					log.Infoln(fmt.Sprintf("%v", errScan))
-				}
-				for ord, val := range ifArr {
-					log.Infoln(fmt.Sprintf("col #%d '%s':  %v  type: %T", ord, ss.selectPreparedStatementCtx.NonControlColumns[ord].GetName(), val, val))
-				}
-				im := make(map[string]interface{})
-				imRaw := make(map[int]interface{})
-				for ord, key := range keyArr {
-					val := ifArr[ord]
-					ev := ss.drmCfg.ExtractFromGolangValue(val)
-					im[key] = ev
-					imRaw[ord] = ev
-				}
-				altKeys[strconv.Itoa(i)] = im
-				rawRows[i] = imRaw
-				ks = append(ks, i)
-				i++
-			}
 
-			for ord := range ks {
-				val := altKeys[strconv.Itoa(ord)]
-				log.Infoln(fmt.Sprintf("row #%d:  %v  type: %T", ord, val, val))
-			}
-		}
-		var cNames []string
-		for _, v := range ss.selectPreparedStatementCtx.NonControlColumns {
-			cNames = append(cNames, v.Column.GetIdentifier())
-		}
-		rowSort := func(m map[string]map[string]interface{}) []string {
-			var arr []int
-			for k, _ := range m {
-				ord, _ := strconv.Atoi(k)
-				arr = append(arr, ord)
-			}
-			sort.Ints(arr)
-			var rv []string
-			for _, v := range arr {
-				rv = append(rv, strconv.Itoa(v))
-			}
-			return rv
-		}
-		rv := util.PrepareResultSet(dto.NewPrepareResultSetPlusRawDTO(nil, altKeys, cNames, rowSort, nil, nil, rawRows))
-		if rv.GetSQLResult() == nil {
-
-			resVal := &sqltypes.Result{
-				Fields: make([]*querypb.Field, len(ss.selectPreparedStatementCtx.NonControlColumns)),
-			}
-
-			for f := range resVal.Fields {
-				resVal.Fields[f] = &querypb.Field{
-					Name: cNames[f],
-				}
-			}
-			rv.GetSQLResult = func() *sqltypes.Result { return resVal }
-		}
-		return rv
+		return prepareGolangResult(ss.handlerCtx.SQLEngine, drm.NewPreparedStatementParameterized(ss.selectPreparedStatementCtx, nil, true), ss.selectPreparedStatementCtx.NonControlColumns, ss.drmCfg)
 	}
 	graph := ss.primitiveBuilder.GetGraph()
 	selectNode := graph.CreatePrimitiveNode(NewLocalPrimitive(selectEx))
@@ -207,12 +256,95 @@ func (ss *SingleSelect) Build() error {
 	return nil
 }
 
+func prepareGolangResult(sqlEngine sqlengine.SQLEngine, stmtCtx drm.PreparedStatementParameterized, nonControlColumns []drm.ColumnMetadata, drmCfg drm.DRMConfig) dto.ExecutorOutput {
+	r, sqlErr := drmCfg.QueryDML(
+		sqlEngine,
+		stmtCtx,
+	)
+	log.Infoln(fmt.Sprintf("select result = %v, error = %v", r, sqlErr))
+	altKeys := make(map[string]map[string]interface{})
+	rawRows := make(map[int]map[int]interface{})
+	var ks []int
+	i := 0
+	var keyArr []string
+	var ifArr []interface{}
+	for i < len(nonControlColumns) {
+		x := nonControlColumns[i]
+		y := drmCfg.GetGolangValue(x.GetType())
+		ifArr = append(ifArr, y)
+		keyArr = append(keyArr, x.Column.GetIdentifier())
+		i++
+	}
+	if r != nil {
+		i := 0
+		for r.Next() {
+			errScan := r.Scan(ifArr...)
+			if errScan != nil {
+				log.Infoln(fmt.Sprintf("%v", errScan))
+			}
+			for ord, val := range ifArr {
+				log.Infoln(fmt.Sprintf("col #%d '%s':  %v  type: %T", ord, nonControlColumns[ord].GetName(), val, val))
+			}
+			im := make(map[string]interface{})
+			imRaw := make(map[int]interface{})
+			for ord, key := range keyArr {
+				val := ifArr[ord]
+				ev := drmCfg.ExtractFromGolangValue(val)
+				im[key] = ev
+				imRaw[ord] = ev
+			}
+			altKeys[strconv.Itoa(i)] = im
+			rawRows[i] = imRaw
+			ks = append(ks, i)
+			i++
+		}
+
+		for ord := range ks {
+			val := altKeys[strconv.Itoa(ord)]
+			log.Infoln(fmt.Sprintf("row #%d:  %v  type: %T", ord, val, val))
+		}
+	}
+	var cNames []string
+	for _, v := range nonControlColumns {
+		cNames = append(cNames, v.Column.GetIdentifier())
+	}
+	rowSort := func(m map[string]map[string]interface{}) []string {
+		var arr []int
+		for k, _ := range m {
+			ord, _ := strconv.Atoi(k)
+			arr = append(arr, ord)
+		}
+		sort.Ints(arr)
+		var rv []string
+		for _, v := range arr {
+			rv = append(rv, strconv.Itoa(v))
+		}
+		return rv
+	}
+	rv := util.PrepareResultSet(dto.NewPrepareResultSetPlusRawDTO(nil, altKeys, cNames, rowSort, nil, nil, rawRows))
+	if rv.GetSQLResult() == nil {
+
+		resVal := &sqltypes.Result{
+			Fields: make([]*querypb.Field, len(nonControlColumns)),
+		}
+
+		for f := range resVal.Fields {
+			resVal.Fields[f] = &querypb.Field{
+				Name: cNames[f],
+			}
+		}
+		rv.GetSQLResult = func() *sqltypes.Result { return resVal }
+	}
+	return rv
+}
+
 func (ss *SingleSelectAcquire) Build() error {
 	prov, err := ss.tableMeta.GetProvider()
 	if err != nil {
 		return err
 	}
 	ex := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+		ss.primitiveBuilder.graph.AddTxnControlCounters(*ss.primitiveBuilder.txnCtrlCtrs)
 		mr := prov.InferMaxResultsElement(ss.tableMeta.HeirarchyObjects.Method)
 		if mr != nil {
 			_, ok := ss.tableMeta.HeirarchyObjects.Method.Parameters[mr.Name]
@@ -226,6 +358,8 @@ func (ss *SingleSelectAcquire) Build() error {
 		for _, reqCtx := range ss.tableMeta.HttpArmoury.RequestParams {
 			response, apiErr := httpmiddleware.HttpApiCall(*(ss.handlerCtx), prov, reqCtx.Context)
 			housekeepingDone := false
+			npt := prov.InferNextPageResponseElement(ss.tableMeta.HeirarchyObjects.Method)
+			nptKey := prov.InferNextPageRequestElement(ss.tableMeta.HeirarchyObjects.Method)
 			for {
 				if apiErr != nil {
 					return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, nil, nil, ss.rowSort, apiErr, nil))
@@ -261,8 +395,6 @@ func (ss *SingleSelectAcquire) Build() error {
 						}
 					}
 				}
-				npt := prov.InferNextPageResponseElement(ss.tableMeta.HeirarchyObjects.Method)
-				nptKey := prov.InferNextPageRequestElement(ss.tableMeta.HeirarchyObjects.Method)
 				if npt == nil || nptKey == nil {
 					break
 				}
@@ -279,6 +411,7 @@ func (ss *SingleSelectAcquire) Build() error {
 				reqCtx.Context.SetQueryParam(nptKey.Name, tk)
 				response, apiErr = httpmiddleware.HttpApiCall(*(ss.handlerCtx), prov, reqCtx.Context)
 			}
+			reqCtx.Context.RemoveQueryParam(nptKey.Name)
 		}
 		return dto.ExecutorOutput{}
 	}
@@ -307,10 +440,6 @@ func (ss *SingleAcquireAndSelect) GetTail() primitivegraph.PrimitiveNode {
 	return ss.selectBuilder.GetTail()
 }
 
-func (ss *SingleAcquireAndSelect) GetQuery() string {
-	return ss.acquireBuilder.query
-}
-
 func (ss *SingleAcquireAndSelect) Build() error {
 	err := ss.acquireBuilder.Build()
 	if err != nil {
@@ -333,8 +462,12 @@ func (ss *SingleSelect) GetTail() primitivegraph.PrimitiveNode {
 	return ss.root
 }
 
-func (ss *SingleSelect) GetQuery() string {
-	return ss.query
+func (ss *Union) GetRoot() primitivegraph.PrimitiveNode {
+	return ss.root
+}
+
+func (ss *Union) GetTail() primitivegraph.PrimitiveNode {
+	return ss.tail
 }
 
 func (ss *SingleSelectAcquire) GetRoot() primitivegraph.PrimitiveNode {
@@ -345,16 +478,8 @@ func (ss *SingleSelectAcquire) GetTail() primitivegraph.PrimitiveNode {
 	return ss.root
 }
 
-func (ss *SingleSelectAcquire) GetQuery() string {
-	return ss.query
-}
-
 func (j *Join) Build() error {
 	return nil
-}
-
-func (j *Join) GetQuery() string {
-	return ""
 }
 
 func (j *Join) getErrNode() primitivegraph.PrimitiveNode {

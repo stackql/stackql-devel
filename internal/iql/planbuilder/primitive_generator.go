@@ -25,6 +25,7 @@ import (
 	"infraql/internal/iql/provider"
 	"infraql/internal/iql/relational"
 	"infraql/internal/iql/sqltypeutil"
+	"infraql/internal/iql/symtab"
 	"infraql/internal/iql/taxonomy"
 	"infraql/internal/iql/util"
 	"infraql/internal/pkg/prettyprint"
@@ -36,13 +37,42 @@ import (
 )
 
 type primitiveGenerator struct {
+	Parent           *primitiveGenerator
+	Children         []*primitiveGenerator
 	PrimitiveBuilder *primitivebuilder.PrimitiveBuilder
 }
 
-func newPrimitiveGenerator(ast sqlparser.Statement, handlerCtx *handler.HandlerContext, graph *primitivegraph.PrimitiveGraph) *primitiveGenerator {
+func newRootPrimitiveGenerator(ast sqlparser.SQLNode, handlerCtx *handler.HandlerContext, graph *primitivegraph.PrimitiveGraph) *primitiveGenerator {
+	tblMap := make(map[sqlparser.SQLNode]taxonomy.ExtendedTableMetadata)
+	symTab := symtab.NewHashMapTreeSymTab()
 	return &primitiveGenerator{
-		PrimitiveBuilder: primitivebuilder.NewPrimitiveBuilder(ast, handlerCtx.DrmConfig, handlerCtx.TxnCounterMgr, graph),
+		PrimitiveBuilder: primitivebuilder.NewPrimitiveBuilder(nil, ast, handlerCtx.DrmConfig, handlerCtx.TxnCounterMgr, graph, tblMap, symTab, handlerCtx.SQLEngine),
 	}
+}
+
+func (pb *primitiveGenerator) addChildPrimitiveGenerator(ast sqlparser.SQLNode, leaf symtab.SymTab) *primitiveGenerator {
+	tables := pb.PrimitiveBuilder.GetTables()
+	switch node := ast.(type) {
+	case sqlparser.Statement:
+		log.Infoln(fmt.Sprintf("creating new table map for node = %v", node))
+		tables = make(taxonomy.TblMap)
+	}
+	retVal := &primitiveGenerator{
+		Parent: pb,
+		PrimitiveBuilder: primitivebuilder.NewPrimitiveBuilder(
+			pb.PrimitiveBuilder,
+			ast,
+			pb.PrimitiveBuilder.GetDRMConfig(),
+			pb.PrimitiveBuilder.GetTxnCounterManager(),
+			pb.PrimitiveBuilder.GetGraph(),
+			tables,
+			leaf,
+			pb.PrimitiveBuilder.GetSQLEngine(),
+		),
+	}
+	pb.Children = append(pb.Children, retVal)
+	pb.PrimitiveBuilder.AddChild(retVal.PrimitiveBuilder)
+	return retVal
 }
 
 func (pb *primitiveGenerator) comparisonExprToFilterFunc(table iqlmodel.ITable, parentNode *sqlparser.Show, expr *sqlparser.ComparisonExpr) (func(iqlmodel.ITable) (iqlmodel.ITable, error), error) {

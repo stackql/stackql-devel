@@ -7,7 +7,9 @@ import (
 	"strings"
 	"time"
 
+	"infraql/internal/iql/astvisit"
 	"infraql/internal/iql/constants"
+	"infraql/internal/iql/drm"
 	"infraql/internal/iql/dto"
 	"infraql/internal/iql/handler"
 	"infraql/internal/iql/httpbuild"
@@ -29,7 +31,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func (p *primitiveGenerator) analyzeStatement(handlerCtx *handler.HandlerContext, statement sqlparser.Statement) error {
+func (p *primitiveGenerator) analyzeStatement(handlerCtx *handler.HandlerContext, statement sqlparser.SQLNode) error {
 	var err error
 	switch stmt := statement.(type) {
 	case *sqlparser.Auth:
@@ -75,7 +77,7 @@ func (p *primitiveGenerator) analyzeStatement(handlerCtx *handler.HandlerContext
 	case *sqlparser.Release:
 		return iqlerror.GetStatementNotSupportedError("TRANSACTION: RELEASE")
 	case *sqlparser.Union:
-		return iqlerror.GetStatementNotSupportedError("UNION")
+		return p.analyzeUnion(handlerCtx, stmt)
 	case *sqlparser.Update:
 		return iqlerror.GetStatementNotSupportedError("UPDATE")
 	case *sqlparser.Use:
@@ -90,6 +92,59 @@ func (p *primitiveGenerator) analyzeUse(handlerCtx *handler.HandlerContext, node
 		return pErr
 	}
 	p.PrimitiveBuilder.SetProvider(prov)
+	return nil
+}
+
+func (p *primitiveGenerator) analyzeUnion(handlerCtx *handler.HandlerContext, node *sqlparser.Union) error {
+	unionQuery := astvisit.GenerateUnionTemplateQuery(node)
+	i := 0
+	leaf, err := p.PrimitiveBuilder.GetSymTab().NewLeaf(i)
+	if err != nil {
+		return err
+	}
+	pChild := p.addChildPrimitiveGenerator(node.FirstStatement, leaf)
+	err = pChild.analyzeSelectStatement(handlerCtx, node.FirstStatement)
+	if err != nil {
+		return err
+	}
+	var selectStatementContexts []*drm.PreparedStatementCtx
+	for _, rhsStmt := range node.UnionSelects {
+		i++
+		leaf, err := p.PrimitiveBuilder.GetSymTab().NewLeaf(i)
+		if err != nil {
+			return err
+		}
+		pChild := p.addChildPrimitiveGenerator(rhsStmt.Statement, leaf)
+		err = pChild.analyzeSelectStatement(handlerCtx, rhsStmt.Statement)
+		if err != nil {
+			return err
+		}
+		ctx := pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx()
+		ctx.Kind = rhsStmt.Type
+		selectStatementContexts = append(selectStatementContexts, ctx)
+	}
+
+	bldr := primitivebuilder.NewUnion(
+		p.PrimitiveBuilder,
+		handlerCtx,
+		drm.NewQueryOnlyPreparedStatementCtx(unionQuery),
+		pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx(),
+		selectStatementContexts,
+	)
+	p.PrimitiveBuilder.SetBuilder(bldr)
+
+	return nil
+}
+
+func (p *primitiveGenerator) analyzeSelectStatement(handlerCtx *handler.HandlerContext, node sqlparser.SelectStatement) error {
+	switch node := node.(type) {
+	case *sqlparser.Select:
+		return p.analyzeSelect(handlerCtx, node)
+	case *sqlparser.ParenSelect:
+		return p.analyzeSelectStatement(handlerCtx, node.Select)
+	case *sqlparser.Union:
+		return p.analyzeUnion(handlerCtx, node)
+	}
 	return nil
 }
 
@@ -725,25 +780,6 @@ func (p *primitiveGenerator) analyzeSchemaVsMap(handlerCtx *handler.HandlerConte
 func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, node *sqlparser.Select) error {
 
 	for i, fromExpr := range node.From {
-		var err error
-		var tbl *taxonomy.ExtendedTableMetadata
-		switch from := fromExpr.(type) {
-		case *sqlparser.ExecSubquery:
-			log.Infoln(fmt.Sprintf("from = %v", from))
-			tbl, err = p.analyzeTableExpr(handlerCtx, from)
-			// return fmt.Errorf("from clause of type - '%T' currently not supported", from)
-		default:
-			tbl, err = p.analyzeTableExpr(handlerCtx, from)
-		}
-
-		if err != nil {
-			return err
-		}
-		fromSymTab := symtab.NewHashMapTreeSymTab()
-		responseSchema, err := tbl.GetItemsObjectSchema()
-		if err != nil {
-			return err
-		}
 		var leafKey interface{} = i
 		switch tbl := fromExpr.(type) {
 		case *sqlparser.AliasedTableExpr:
@@ -751,64 +787,86 @@ func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, n
 				leafKey = tbl.As.GetRawVal()
 			}
 		}
+		leaf, err := p.PrimitiveBuilder.GetSymTab().NewLeaf(leafKey)
+		if err != nil {
+			return err
+		}
+		pChild := p.addChildPrimitiveGenerator(fromExpr, leaf)
+		var tbl *taxonomy.ExtendedTableMetadata
+		switch from := fromExpr.(type) {
+		case *sqlparser.ExecSubquery:
+			log.Infoln(fmt.Sprintf("from = %v", from))
+			tbl, err = pChild.analyzeTableExpr(handlerCtx, from)
+			// return fmt.Errorf("from clause of type - '%T' currently not supported", from)
+		default:
+			tbl, err = pChild.analyzeTableExpr(handlerCtx, from)
+		}
+
+		if err != nil {
+			return err
+		}
+		responseSchema, err := tbl.GetItemsObjectSchema()
+		if err != nil {
+			return err
+		}
 		for colName, col := range responseSchema.Properties {
 			colSchema, _ := col.GetSchema(responseSchema.SchemaCentral)
 			if colSchema == nil {
 				return fmt.Errorf("could not infer column information")
 			}
 			colEntry := symtab.NewSymTabEntry(
-				p.PrimitiveBuilder.GetDRMConfig().GetRelationalType(colSchema.Type),
+				pChild.PrimitiveBuilder.GetDRMConfig().GetRelationalType(colSchema.Type),
 				colSchema,
 			)
-			fromSymTab.SetSymbol(colName, colEntry)
+			pChild.PrimitiveBuilder.SetSymbol(colName, colEntry)
 		}
-		p.PrimitiveBuilder.SetLeaf(leafKey, fromSymTab)
-	}
-	if len(node.From) == 1 {
-		switch ft := node.From[0].(type) {
-		case *sqlparser.JoinTableExpr:
-			tbl, err := p.analyzeTableExpr(handlerCtx, ft.LeftExpr)
-			if err != nil {
-				return err
-			}
-			err = p.analyzeSelectDetail(handlerCtx, node, tbl)
-			if err != nil {
-				return err
-			}
-			rhsPb := newPrimitiveGenerator(p.PrimitiveBuilder.GetAst(), handlerCtx, p.PrimitiveBuilder.GetGraph())
-			tbl, err = rhsPb.analyzeTableExpr(handlerCtx, ft.RightExpr)
-			if err != nil {
-				return err
-			}
-			err = rhsPb.analyzeSelectDetail(handlerCtx, node, tbl)
-			if err != nil {
-				return err
-			}
-			p.PrimitiveBuilder.SetBuilder(primitivebuilder.NewJoin(p.PrimitiveBuilder, rhsPb.PrimitiveBuilder, handlerCtx, nil))
-			return nil
-		case *sqlparser.AliasedTableExpr:
-			tbl, err := p.analyzeTableExpr(handlerCtx, node.From[0])
-			if err != nil {
-				return err
-			}
-			err = p.analyzeSelectDetail(handlerCtx, node, tbl)
-			if err != nil {
-				return err
-			}
-			p.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(p.PrimitiveBuilder, handlerCtx, *tbl, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), p.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
-			return nil
-		case *sqlparser.ExecSubquery:
-			cols, err := parserutil.ExtractSelectColumnNames(node)
-			if err != nil {
-				return err
-			}
-			tbl, err := p.analyzeUnaryExec(handlerCtx, ft.Exec, node, cols)
-			if err != nil {
-				return err
-			}
+		if len(node.From) == 1 {
+			switch ft := node.From[0].(type) {
+			case *sqlparser.JoinTableExpr:
+				tbl, err := pChild.analyzeTableExpr(handlerCtx, ft.LeftExpr)
+				if err != nil {
+					return err
+				}
+				err = pChild.analyzeSelectDetail(handlerCtx, node, tbl)
+				if err != nil {
+					return err
+				}
+				rhsPb := newRootPrimitiveGenerator(pChild.PrimitiveBuilder.GetAst(), handlerCtx, pChild.PrimitiveBuilder.GetGraph())
+				tbl, err = rhsPb.analyzeTableExpr(handlerCtx, ft.RightExpr)
+				if err != nil {
+					return err
+				}
+				err = rhsPb.analyzeSelectDetail(handlerCtx, node, tbl)
+				if err != nil {
+					return err
+				}
+				pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewJoin(pChild.PrimitiveBuilder, rhsPb.PrimitiveBuilder, handlerCtx, nil))
+				return nil
+			case *sqlparser.AliasedTableExpr:
+				tbl, err := pChild.analyzeTableExpr(handlerCtx, node.From[0])
+				if err != nil {
+					return err
+				}
+				err = pChild.analyzeSelectDetail(handlerCtx, node, tbl)
+				if err != nil {
+					return err
+				}
+				pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveBuilder, handlerCtx, *tbl, pChild.PrimitiveBuilder.GetInsertPreparedStatementCtx(), pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
+				p.PrimitiveBuilder.SetSelectPreparedStatementCtx(pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx())
+				return nil
+			case *sqlparser.ExecSubquery:
+				cols, err := parserutil.ExtractSelectColumnNames(node)
+				if err != nil {
+					return err
+				}
+				tbl, err := pChild.analyzeUnaryExec(handlerCtx, ft.Exec, node, cols)
+				if err != nil {
+					return err
+				}
 
-			p.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(p.PrimitiveBuilder, handlerCtx, *tbl, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), p.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
-			return nil
+				pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveBuilder, handlerCtx, *tbl, pChild.PrimitiveBuilder.GetInsertPreparedStatementCtx(), pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
+				return nil
+			}
 		}
 	}
 	return fmt.Errorf("cannot process complex select just yet")

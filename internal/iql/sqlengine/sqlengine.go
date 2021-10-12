@@ -4,18 +4,13 @@ import (
 	"database/sql"
 	"fmt"
 	"infraql/internal/iql/dto"
-	"infraql/internal/iql/resultutil"
 	"infraql/internal/iql/util"
 	"io/ioutil"
 	"strings"
 	"sync"
 
-	"vitess.io/vitess/go/sqltypes"
-
 	_ "github.com/infraql/go-sqlite3"
 	log "github.com/sirupsen/logrus"
-	querypb "vitess.io/vitess/go/vt/proto/query"
-	"vitess.io/vitess/go/vt/sqlparser"
 )
 
 type SQLEngineConfig struct {
@@ -30,36 +25,6 @@ func NewSQLEngineConfig(runctimeCtx dto.RuntimeCtx) SQLEngineConfig {
 		initFileName: runctimeCtx.DbInitFilePath,
 		dbEngine:     runctimeCtx.DbEngine,
 	}
-}
-
-type SQLEnginePayload struct {
-	Statement   sqlparser.Statement
-	query       string
-	getColNames func() []string
-	getScanVars func() []interface{}
-}
-
-func (se *SQLEnginePayload) getQuery() string {
-	if se.query != "" {
-		return se.query
-	}
-	return se.query
-}
-
-func NewSQLEnginePayload(statement sqlparser.Statement, getColNames func() []string, getScanVars func() []interface{}) *SQLEnginePayload {
-	return &SQLEnginePayload{
-		Statement:   statement,
-		getColNames: getColNames,
-		getScanVars: getScanVars,
-	}
-}
-
-func (se *SQLEnginePayload) ColNames() []string {
-	return se.getColNames()
-}
-
-func (se *SQLEnginePayload) ScanVars() []interface{} {
-	return se.getScanVars()
 }
 
 type SQLEngine interface {
@@ -384,58 +349,6 @@ func (se SQLiteEngine) query(query string, varArgs ...interface{}) (*sql.Rows, e
 	res, err := se.db.Query(query, varArgs...)
 	// log.Infoln(fmt.Sprintf("res= %v, err = %v", res, err))
 	return res, err
-}
-
-func (se SQLiteEngine) QueryOutput(payload *SQLEnginePayload, substrate *dto.ExecutorOutput) dto.ExecutorOutput {
-	rows, err := se.db.Query(payload.query)
-	if err != nil {
-		return dto.NewExecutorOutput(nil, nil, nil, nil, err)
-	}
-	defer rows.Close()
-	if err := rows.Err(); err != nil {
-		return dto.NewExecutorOutput(nil, nil, nil, nil, err)
-	}
-	return prepareResultSet(payload, rows)
-}
-
-func prepareResultSet(payload *SQLEnginePayload, rows *sql.Rows) dto.ExecutorOutput {
-	if err := rows.Err(); err != nil {
-		return dto.NewExecutorOutput(
-			nil, nil, nil, nil, err,
-		)
-	}
-
-	colNames := payload.ColNames()
-	svs := payload.getScanVars()
-
-	res := &sqltypes.Result{
-		Fields: make([]*querypb.Field, len(colNames)),
-	}
-
-	for i, name := range colNames {
-		res.Fields[i] = &querypb.Field{
-			Name: name,
-		}
-	}
-
-	for rows.Next() {
-		svs = payload.getScanVars()
-		if err := rows.Scan(svs...); err != nil {
-			return dto.NewExecutorOutput(nil, nil, nil, nil, err)
-		}
-		res.Rows = append(res.Rows, resultutil.TransformRow(svs))
-		// fmt.Printf("dept=%d stddev=%f\n", dept, dev)
-	}
-	if err := rows.Err(); err != nil {
-		return dto.NewExecutorOutput(nil, nil, nil, nil, err)
-	}
-
-	return dto.NewExecutorOutput(
-		res,
-		nil,
-		nil,
-		nil,
-		nil)
 }
 
 func singleColRowsToString(rows *sql.Rows) (string, error) {
