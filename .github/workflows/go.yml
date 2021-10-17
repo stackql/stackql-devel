@@ -253,3 +253,65 @@ jobs:
       with:
         name: infraql_darwin_amd64
         path: build/infraql
+
+  macosarmbuild:
+    name: MacOS ARM Build
+    runs-on: macos-latest
+    steps:
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.16
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Get dependencies
+      run: $GOGETCMD
+      env:
+        GOGETCMD: ${{env.GOGETCMD}}
+        CGO_ENABLED: 1
+
+    - name: Generate Build Flags and Build
+      env:
+        BUILDCOMMITSHA: ${{github.sha}}
+        BUILDBRANCH: ${{github.ref}}
+        BUILDPLATFORM: "darwin_arm64"
+        BUILDPATCHVERSION: ${{github.run_number}}
+        CGO_ENABLED: 1
+      run: |
+        source version.txt
+        BUILDMAJORVERSION=$MajorVersion
+        BUILDMINORVERSION=$MinorVersion
+        if [[ ! "$BUILDBRANCH" == *develop ]]
+          then
+          BUILDPATCHVERSION="${BUILDPATCHVERSION}"
+        fi
+        BUILDSHORTCOMMITSHA=$(echo $BUILDCOMMITSHA | cut -c 1-7)
+        BUILDDATE=$(date)
+        echo "BUILDMAJORVERSION: ${BUILDMAJORVERSION}"
+        echo "BUILDMINORVERSION: ${BUILDMINORVERSION}"
+        echo "BUILDPATCHVERSION: ${BUILDPATCHVERSION}"
+        echo "BUILDBRANCH: ${BUILDBRANCH}"
+        echo "BUILDCOMMITSHA: ${BUILDCOMMITSHA}"
+        echo "BUILDSHORTCOMMITSHA: ${BUILDSHORTCOMMITSHA}"
+        echo "BUILDDATE: ${BUILDDATE}"
+        echo "BUILDPLATFORM: ${BUILDPLATFORM}"
+
+        GOOS=darwin GOARCH=arm64 \
+        go build -x -v --tags "json1" -ldflags "-X infraql/internal/iql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
+        -X infraql/internal/iql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
+        -X infraql/internal/iql/cmd.BuildPatchVersion=$BUILDPATCHVERSION \
+        -X infraql/internal/iql/cmd.BuildCommitSHA=$BUILDCOMMITSHA \
+        -X infraql/internal/iql/cmd.BuildShortCommitSHA=$BUILDSHORTCOMMITSHA \
+        -X \"infraql/internal/iql/cmd.BuildDate=$BUILDDATE\" \
+        -X infraql/internal/iql/cmd.BuildPlatform=$BUILDPLATFORM" \
+        -o build/ ./...
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      if: success()
+      with:
+        name: infraql_darwin_arm64
+        path: build/infraql
