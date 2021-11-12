@@ -1,13 +1,16 @@
 package requests
 
 import (
-	"encoding/json"
-	"infraql/internal/iql/constants"
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/metadata"
-	"infraql/internal/iql/provider"
 	"sort"
 	"strings"
+
+	"encoding/json"
+
+	"infraql/internal/iql/constants"
+	"infraql/internal/iql/dto"
+	"infraql/internal/iql/provider"
+
+	"infraql/internal/pkg/openapistackql"
 )
 
 type requestBodyParam struct {
@@ -41,9 +44,11 @@ func parseRequestBodyParam(k string, v interface{}) *requestBodyParam {
 	return nil
 }
 
-func SplitHttpParameters(prov provider.IProvider, sqlParamMap map[int]map[string]interface{}, method *metadata.Method, requestSchema *metadata.Schema, responseSchema *metadata.Schema) ([]*dto.HttpParameters, error) {
+func SplitHttpParameters(prov provider.IProvider, sqlParamMap map[int]map[string]interface{}, method *openapistackql.OperationStore) ([]*dto.HttpParameters, error) {
 	var retVal []*dto.HttpParameters
 	var rowKeys []int
+	requestSchema, _ := method.GetRequestBodySchema()
+	responseSchema, _ := method.GetRequestBodySchema()
 	for idx, _ := range sqlParamMap {
 		rowKeys = append(rowKeys, idx)
 	}
@@ -52,17 +57,9 @@ func SplitHttpParameters(prov provider.IProvider, sqlParamMap map[int]map[string
 		sqlRow := sqlParamMap[k]
 		reqMap := dto.NewHttpParameters()
 		for k, v := range sqlRow {
-			var assignedToRequest bool
-			if param, ok := method.Parameters[k]; ok {
-				if param.Location == "query" {
-					reqMap.QueryParams[k] = v
-					assignedToRequest = true
-				} else if param.Location == "path" {
-					reqMap.PathParams[k] = v
-					assignedToRequest = true
-				}
-			}
-			if !assignedToRequest {
+			if param, ok := method.GetOperationParameter(k); ok {
+				reqMap.StoreParameter(param, v)
+			} else {
 				if requestSchema != nil {
 					rbp := parseRequestBodyParam(k, v)
 					if rbp != nil {

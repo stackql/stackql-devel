@@ -5,19 +5,21 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	"infraql/internal/iql/constants"
 	"infraql/internal/iql/discovery"
 	"infraql/internal/iql/dto"
 	sdk "infraql/internal/iql/google_sdk"
 	"infraql/internal/iql/googlediscovery"
 	"infraql/internal/iql/httpexec"
-	"infraql/internal/iql/iqlmodel"
-	"infraql/internal/iql/metadata"
 	"infraql/internal/iql/methodselect"
 	"infraql/internal/iql/netutils"
 	"infraql/internal/iql/relational"
 	"infraql/internal/iql/sqlengine"
-	"infraql/internal/iql/sqltypeutil"
+
+	"infraql/internal/pkg/openapistackql"
+	"infraql/internal/pkg/sqltypeutil"
+
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -58,7 +60,7 @@ type GoogleProvider struct {
 	methodSelector   methodselect.IMethodSelector
 }
 
-func (gp *GoogleProvider) getDefaultKeyForSelectItems(sc *metadata.Schema) string {
+func (gp *GoogleProvider) getDefaultKeyForSelectItems(sc *openapistackql.Schema) string {
 	return "items"
 }
 
@@ -78,12 +80,8 @@ func (gp *GoogleProvider) GetVersion() string {
 	return gp.apiVersion
 }
 
-func (gp *GoogleProvider) GetServiceHandlesMap(runtimeCtx dto.RuntimeCtx) (map[string]metadata.ServiceHandle, error) {
-	return gp.discoveryAdapter.GetServiceHandlesMap()
-}
-
-func (gp *GoogleProvider) GetServiceHandle(serviceKey string, runtimeCtx dto.RuntimeCtx) (*metadata.ServiceHandle, error) {
-	return gp.discoveryAdapter.GetServiceHandle(serviceKey)
+func (gp *GoogleProvider) GetService(serviceKey string, runtimeCtx dto.RuntimeCtx) (*openapistackql.Service, error) {
+	return gp.discoveryAdapter.GetService("google", serviceKey)
 }
 
 func (gp *GoogleProvider) inferAuthType(authCtx dto.AuthCtx, authTypeRequested string) string {
@@ -123,7 +121,7 @@ func (gp *GoogleProvider) AuthRevoke(authCtx *dto.AuthCtx) error {
 	return fmt.Errorf(`Auth revoke for Google Failed; improper auth method: "%s" speciied`, authCtx.Type)
 }
 
-func (gp *GoogleProvider) GetMethodForAction(serviceName string, resourceName string, iqlAction string, runtimeCtx dto.RuntimeCtx) (*metadata.Method, string, error) {
+func (gp *GoogleProvider) GetMethodForAction(serviceName string, resourceName string, iqlAction string, runtimeCtx dto.RuntimeCtx) (*openapistackql.OperationStore, string, error) {
 	rsc, err := gp.GetResource(serviceName, resourceName, runtimeCtx)
 	if err != nil {
 		return nil, "", err
@@ -131,58 +129,57 @@ func (gp *GoogleProvider) GetMethodForAction(serviceName string, resourceName st
 	return gp.methodSelector.GetMethodForAction(rsc, iqlAction)
 }
 
-func (gp *GoogleProvider) InferDescribeMethod(rsc *metadata.Resource) (*metadata.Method, string, error) {
+func (gp *GoogleProvider) InferDescribeMethod(rsc *openapistackql.Resource) (*openapistackql.OperationStore, string, error) {
 	if rsc == nil {
 		return nil, "", fmt.Errorf("cannot infer describe method from nil resource")
 	}
-	var method metadata.Method
-	m, methodPresent := rsc.Methods["list"]
-	if methodPresent {
-		method = m
-		return &method, "list", nil
+	var method *openapistackql.OperationStore
+	m, methodErr := rsc.FindMethod("list")
+	if methodErr == nil && m != nil {
+		return m, "list", nil
 	}
-	m, methodPresent = rsc.Methods["aggregatedList"]
-	if methodPresent {
-		method = m
-		return &method, "aggregatedList", nil
+	m, methodErr = rsc.FindMethod("aggregatedList")
+	if methodErr == nil && m != nil {
+		return m, "aggregatedList", nil
 	}
-	m, methodPresent = rsc.Methods["get"]
-	if methodPresent {
-		method = m
-		return &method, "get", nil
+	m, methodErr = rsc.FindMethod("get")
+	if methodErr == nil && m != nil {
+		return m, "get", nil
 	}
 	var ms []string
-	for k, v := range rsc.Methods {
-		ms = append(ms, k)
-		if strings.HasPrefix(k, "get") {
-			method = v
-			return &method, k, nil
+	for _, v := range rsc.Methods {
+		vp := &v
+		ms = append(ms, v.GetName())
+		if strings.HasPrefix(v.GetName(), "get") {
+			method = vp
+			return method, v.GetName(), nil
 		}
 	}
-	for k, v := range rsc.Methods {
-		if strings.HasPrefix(k, "list") {
-			method = v
-			return &method, k, nil
+	for _, v := range rsc.Methods {
+		vp := &v
+		if strings.HasPrefix(v.GetName(), "list") {
+			method = vp
+			return method, v.GetName(), nil
 		}
 	}
 	return nil, "", fmt.Errorf("SELECT not supported for this resource, use SHOW METHODS to view available operations for the resource and then invoke a supported method using the EXEC command")
 }
 
-func (gp *GoogleProvider) retrieveSchemaMap(serviceName string, resourceName string) (map[string]metadata.Schema, error) {
-	return gp.discoveryAdapter.GetSchemaMap(serviceName, resourceName)
+func (gp *GoogleProvider) retrieveSchemaMap(serviceName string, resourceName string) (map[string]*openapistackql.Schema, error) {
+	return gp.discoveryAdapter.GetSchemaMap("google", serviceName, resourceName)
 }
 
-func (gp *GoogleProvider) GetSchemaMap(serviceName string, resourceName string) (map[string]metadata.Schema, error) {
-	return gp.discoveryAdapter.GetSchemaMap(serviceName, resourceName)
+func (gp *GoogleProvider) GetSchemaMap(serviceName string, resourceName string) (map[string]*openapistackql.Schema, error) {
+	return gp.discoveryAdapter.GetSchemaMap("google", serviceName, resourceName)
 }
 
-func (gp *GoogleProvider) GetObjectSchema(serviceName string, resourceName string, schemaName string) (*metadata.Schema, error) {
+func (gp *GoogleProvider) GetObjectSchema(serviceName string, resourceName string, schemaName string) (*openapistackql.Schema, error) {
 	sm, err := gp.retrieveSchemaMap(serviceName, resourceName)
 	if err != nil {
 		return nil, err
 	}
 	s := sm[schemaName]
-	return &s, nil
+	return s, nil
 }
 
 type transport struct {
@@ -210,16 +207,16 @@ func deactivateAuth(authCtx *dto.AuthCtx) {
 	authCtx.Active = false
 }
 
-func (gp *GoogleProvider) ShowAuth(authCtx *dto.AuthCtx) (*metadata.AuthMetadata, error) {
+func (gp *GoogleProvider) ShowAuth(authCtx *dto.AuthCtx) (*openapistackql.AuthMetadata, error) {
 	var err error
-	var retVal *metadata.AuthMetadata
-	var authObj metadata.AuthMetadata
+	var retVal *openapistackql.AuthMetadata
+	var authObj openapistackql.AuthMetadata
 	switch gp.inferAuthType(*authCtx, authCtx.Type) {
 	case dto.AuthServiceAccountStr:
 		var sa googleServiceAccount
 		sa, err = parseServiceAccountFile(authCtx.KeyFilePath)
 		if err == nil {
-			authObj = metadata.AuthMetadata{
+			authObj = openapistackql.AuthMetadata{
 				Principal: sa.Email,
 				Type:      strings.ToUpper(dto.AuthServiceAccountStr),
 				Source:    authCtx.KeyFilePath,
@@ -232,7 +229,7 @@ func (gp *GoogleProvider) ShowAuth(authCtx *dto.AuthCtx) (*metadata.AuthMetadata
 		if sdkErr == nil {
 			principalStr := string(principal)
 			if principalStr != "" {
-				authObj = metadata.AuthMetadata{
+				authObj = openapistackql.AuthMetadata{
 					Principal: principalStr,
 					Type:      strings.ToUpper(dto.AuthInteractiveStr),
 					Source:    "OAuth",
@@ -287,16 +284,16 @@ func (gp *GoogleProvider) keyFileAuth(authCtx *dto.AuthCtx) (*http.Client, error
 	return serviceAccount(authCtx, scopes, gp.runtimeCtx)
 }
 
-func (gp *GoogleProvider) getServiceType(service metadata.Service) string {
+func (gp *GoogleProvider) getServiceType(service *openapistackql.Service) string {
 	specialServiceNamesMap := map[string]bool{
 		"storage": true,
 		"compute": true,
 		"dns":     true,
 		"sql":     true,
 	}
-	nameIsSpecial, ok := specialServiceNamesMap[service.Name]
+	nameIsSpecial, ok := specialServiceNamesMap[service.GetName()]
 	cloudRegex := regexp.MustCompile(`(^https://.*cloud\.google\.com|^https://firebase\.google\.com)`)
-	if service.Preferred && (cloudRegex.MatchString(service.DocLink) || (ok && nameIsSpecial)) {
+	if service.IsPreferred() && (cloudRegex.MatchString(service.Info.Contact.URL) || (ok && nameIsSpecial)) {
 		return "cloud"
 	}
 	return "developer"
@@ -328,7 +325,7 @@ func (gp *GoogleProvider) GetLikeableColumns(tableName string) []string {
 	return retVal
 }
 
-func (gp *GoogleProvider) EnhanceMetadataFilter(metadataType string, metadataFilter func(iqlmodel.ITable) (iqlmodel.ITable, error), colsVisited map[string]bool) (func(iqlmodel.ITable) (iqlmodel.ITable, error), error) {
+func (gp *GoogleProvider) EnhanceMetadataFilter(metadataType string, metadataFilter func(openapistackql.ITable) (openapistackql.ITable, error), colsVisited map[string]bool) (func(openapistackql.ITable) (openapistackql.ITable, error), error) {
 	typeVisited, typeOk := colsVisited["type"]
 	preferredVisited, preferredOk := colsVisited["preferred"]
 	sqlTrue, sqlTrueErr := sqltypeutil.InterfaceToSQLType(true)
@@ -365,34 +362,24 @@ func (gp *GoogleProvider) EnhanceMetadataFilter(metadataType string, metadataFil
 	return metadataFilter, nil
 }
 
-func (gp *GoogleProvider) GetProviderServices() (map[string]metadata.Service, error) {
-	retVal := make(map[string]metadata.Service)
-	disDoc, err := gp.discoveryAdapter.GetServiceHandlesMap()
+func (gp *GoogleProvider) getProviderServices() (map[string]openapistackql.ProviderService, error) {
+	retVal := make(map[string]openapistackql.ProviderService)
+	disDoc, err := gp.discoveryAdapter.GetServiceHandlesMap("google")
 	if err != nil {
 		return nil, err
 	}
-	for _, item := range disDoc {
-		item.Service.Type = gp.getServiceType(item.Service)
-		retVal[googlediscovery.TranslateServiceKeyGoogleToIql(item.Service.ID)] = item.Service
+	for k, item := range disDoc {
+		retVal[googlediscovery.TranslateServiceKeyGoogleToIql(k)] = item
 	}
 	return retVal, nil
 }
 
-func (gp *GoogleProvider) GetProviderServicesRedacted(runtimeCtx dto.RuntimeCtx, extended bool) (map[string]metadata.Service, error) {
-	services, err := gp.GetProviderServices()
-	if err != nil {
-		return nil, err
-	}
-	retVal := make(map[string]metadata.Service)
-	for key, item := range services {
-		item.ID = key
-		retVal[key] = item
-	}
-	return retVal, err
+func (gp *GoogleProvider) GetProviderServicesRedacted(runtimeCtx dto.RuntimeCtx, extended bool) (map[string]openapistackql.ProviderService, error) {
+	return gp.getProviderServices()
 }
 
-func (gp *GoogleProvider) GetResourcesRedacted(currentService string, runtimeCtx dto.RuntimeCtx, extended bool) (map[string]metadata.Resource, error) {
-	svcDiscDocMap, err := gp.discoveryAdapter.GetResourcesMap(currentService)
+func (gp *GoogleProvider) GetResourcesRedacted(currentService string, runtimeCtx dto.RuntimeCtx, extended bool) (map[string]*openapistackql.Resource, error) {
+	svcDiscDocMap, err := gp.discoveryAdapter.GetResourcesMap("google", currentService)
 	return svcDiscDocMap, err
 }
 
@@ -432,14 +419,14 @@ func (gp *GoogleProvider) GenerateHTTPRestInstruction(httpContext httpexec.IHttp
 	return httpContext, nil
 }
 
-func (gp *GoogleProvider) escapeUrlParameter(k string, v string, method *metadata.Method) string {
-	if storageObjectsRegex.MatchString(method.ID) {
+func (gp *GoogleProvider) escapeUrlParameter(k string, v string, method *openapistackql.OperationStore) string {
+	if storageObjectsRegex.MatchString(method.GetName()) {
 		return url.QueryEscape(v)
 	}
 	return v
 }
 
-func (gp *GoogleProvider) Parameterise(httpContext httpexec.IHttpContext, method *metadata.Method, parameters *dto.HttpParameters, requestSchema *metadata.Schema) (httpexec.IHttpContext, error) {
+func (gp *GoogleProvider) Parameterise(httpContext httpexec.IHttpContext, method *openapistackql.OperationStore, parameters *dto.HttpParameters, requestSchema *openapistackql.Schema) (httpexec.IHttpContext, error) {
 	visited := make(map[string]bool)
 	args := make([]string, len(parameters.PathParams)*2)
 	var sb strings.Builder
@@ -465,7 +452,7 @@ func (gp *GoogleProvider) Parameterise(httpContext httpexec.IHttpContext, method
 		sb.WriteString("?")
 	}
 	for k, v := range parameters.QueryParams {
-		vStr, vOk := v.(string)
+		vStr, vOk := v.Val.(string)
 		if isVisited, kExists := visited[k]; !kExists || (!isVisited && vOk) {
 			queryParams = append(queryParams, k+"="+url.QueryEscape(vStr))
 			visited[k] = true
@@ -495,38 +482,38 @@ func (gp *GoogleProvider) getPathParams(httpContext httpexec.IHttpContext) map[s
 	return retVal
 }
 
-func (gp *GoogleProvider) GetResourcesMap(serviceKey string, runtimeCtx dto.RuntimeCtx) (map[string]metadata.Resource, error) {
-	return gp.discoveryAdapter.GetResourcesMap(serviceKey)
+func (gp *GoogleProvider) GetResourcesMap(serviceKey string, runtimeCtx dto.RuntimeCtx) (map[string]*openapistackql.Resource, error) {
+	return gp.discoveryAdapter.GetResourcesMap("google", serviceKey)
 }
 
-func (gp *GoogleProvider) GetResource(serviceKey string, resourceKey string, runtimeCtx dto.RuntimeCtx) (*metadata.Resource, error) {
+func (gp *GoogleProvider) GetResource(serviceKey string, resourceKey string, runtimeCtx dto.RuntimeCtx) (*openapistackql.Resource, error) {
 	rm, err := gp.GetResourcesMap(serviceKey, runtimeCtx)
 	retVal, ok := rm[resourceKey]
 	if !ok {
 		return nil, fmt.Errorf("Could not obtain resource '%s' from service '%s'", resourceKey, serviceKey)
 	}
-	return &retVal, err
+	return retVal, err
 }
 
 func (gp *GoogleProvider) GetProviderString() string {
 	return googleProviderName
 }
 
-func (gp *GoogleProvider) InferMaxResultsElement(*metadata.Method) *dto.HTTPElement {
+func (gp *GoogleProvider) InferMaxResultsElement(*openapistackql.OperationStore) *dto.HTTPElement {
 	return &dto.HTTPElement{
 		Type: dto.QueryParam,
 		Name: "maxResults",
 	}
 }
 
-func (gp *GoogleProvider) InferNextPageRequestElement(*metadata.Method) *dto.HTTPElement {
+func (gp *GoogleProvider) InferNextPageRequestElement(*openapistackql.OperationStore) *dto.HTTPElement {
 	return &dto.HTTPElement{
 		Type: dto.QueryParam,
 		Name: "pageToken",
 	}
 }
 
-func (gp *GoogleProvider) InferNextPageResponseElement(*metadata.Method) *dto.HTTPElement {
+func (gp *GoogleProvider) InferNextPageResponseElement(*openapistackql.OperationStore) *dto.HTTPElement {
 	return &dto.HTTPElement{
 		Type: dto.BodyAttribute,
 		Name: "nextPageToken",

@@ -1,7 +1,6 @@
 package planbuilder
 
 import (
-	"bytes"
 	"fmt"
 	"regexp"
 	"sort"
@@ -15,20 +14,20 @@ import (
 	"infraql/internal/iql/httpbuild"
 	"infraql/internal/iql/httpexec"
 	"infraql/internal/iql/httpmiddleware"
-	"infraql/internal/iql/iqlmodel"
 	"infraql/internal/iql/iqlutil"
-	"infraql/internal/iql/metadata"
 	"infraql/internal/iql/metadatavisitors"
 	"infraql/internal/iql/primitive"
 	"infraql/internal/iql/primitivebuilder"
 	"infraql/internal/iql/primitivegraph"
 	"infraql/internal/iql/provider"
 	"infraql/internal/iql/relational"
-	"infraql/internal/iql/sqltypeutil"
 	"infraql/internal/iql/symtab"
 	"infraql/internal/iql/taxonomy"
 	"infraql/internal/iql/util"
+
+	"infraql/internal/pkg/openapistackql"
 	"infraql/internal/pkg/prettyprint"
+	"infraql/internal/pkg/sqltypeutil"
 
 	log "github.com/sirupsen/logrus"
 
@@ -75,7 +74,7 @@ func (pb *primitiveGenerator) addChildPrimitiveGenerator(ast sqlparser.SQLNode, 
 	return retVal
 }
 
-func (pb *primitiveGenerator) comparisonExprToFilterFunc(table iqlmodel.ITable, parentNode *sqlparser.Show, expr *sqlparser.ComparisonExpr) (func(iqlmodel.ITable) (iqlmodel.ITable, error), error) {
+func (pb *primitiveGenerator) comparisonExprToFilterFunc(table openapistackql.ITable, parentNode *sqlparser.Show, expr *sqlparser.ComparisonExpr) (func(openapistackql.ITable) (openapistackql.ITable, error), error) {
 	qualifiedName, ok := expr.Left.(*sqlparser.ColName)
 	if !ok {
 		return nil, fmt.Errorf("unexpected: %v", sqlparser.String(expr))
@@ -117,7 +116,7 @@ func (pb *primitiveGenerator) comparisonExprToFilterFunc(table iqlmodel.ITable, 
 	default:
 		return nil, fmt.Errorf("unexpected: %v", sqlparser.String(right))
 	}
-	var retVal func(iqlmodel.ITable) (iqlmodel.ITable, error)
+	var retVal func(openapistackql.ITable) (openapistackql.ITable, error)
 	if expr.Operator == sqlparser.LikeStr || expr.Operator == sqlparser.NotLikeStr {
 		likeRegexp, err := regexp.Compile(iqlutil.TranslateLikeToRegexPattern(rhsStr))
 		if err != nil {
@@ -137,7 +136,7 @@ func (pb *primitiveGenerator) comparisonExprToFilterFunc(table iqlmodel.ITable, 
 	return relational.ConstructTablePredicateFilter(colName, resolved, operatorPredicate), nil
 }
 
-func getProviderServiceMap(item metadata.Service, extended bool) map[string]interface{} {
+func getProviderServiceMap(item openapistackql.ProviderService, extended bool) map[string]interface{} {
 	var retVal map[string]interface{}
 	retVal = map[string]interface{}{
 		"id":    item.ID,
@@ -147,12 +146,11 @@ func getProviderServiceMap(item metadata.Service, extended bool) map[string]inte
 	if extended {
 		retVal["description"] = item.Description
 		retVal["version"] = item.Version
-		retVal["preferred"] = item.Preferred
 	}
 	return retVal
 }
 
-func convertProviderServicesToMap(services map[string]metadata.Service, extended bool) map[string]map[string]interface{} {
+func convertProviderServicesToMap(services map[string]openapistackql.ProviderService, extended bool) map[string]map[string]interface{} {
 	retVal := make(map[string]map[string]interface{})
 	for k, v := range services {
 		retVal[k] = getProviderServiceMap(v, extended)
@@ -160,14 +158,14 @@ func convertProviderServicesToMap(services map[string]metadata.Service, extended
 	return retVal
 }
 
-func filterResources(resources map[string]metadata.Resource, tableFilter func(iqlmodel.ITable) (iqlmodel.ITable, error)) (map[string]metadata.Resource, error) {
+func filterResources(resources map[string]*openapistackql.Resource, tableFilter func(openapistackql.ITable) (openapistackql.ITable, error)) (map[string]*openapistackql.Resource, error) {
 	var err error
 	if tableFilter != nil {
-		filteredResources := make(map[string]metadata.Resource)
+		filteredResources := make(map[string]*openapistackql.Resource)
 		for k, rsc := range resources {
-			filteredResource, filterErr := tableFilter(&rsc)
+			filteredResource, filterErr := tableFilter(rsc)
 			if filterErr == nil && filteredResource != nil {
-				filteredResources[k] = *(filteredResource.(*metadata.Resource))
+				filteredResources[k] = filteredResource.(*openapistackql.Resource)
 			}
 			if filterErr != nil {
 				err = filterErr
@@ -178,15 +176,15 @@ func filterResources(resources map[string]metadata.Resource, tableFilter func(iq
 	return resources, err
 }
 
-func filterServices(services map[string]metadata.Service, tableFilter func(iqlmodel.ITable) (iqlmodel.ITable, error), useNonPreferredAPIs bool) (map[string]metadata.Service, error) {
+func filterServices(services map[string]openapistackql.ProviderService, tableFilter func(openapistackql.ITable) (openapistackql.ITable, error), useNonPreferredAPIs bool) (map[string]openapistackql.ProviderService, error) {
 	var err error
 	if tableFilter != nil {
-		filteredServices := make(map[string]metadata.Service)
+		filteredServices := make(map[string]openapistackql.ProviderService)
 		for k, svc := range services {
 			if useNonPreferredAPIs || svc.Preferred {
 				filteredService, filterErr := tableFilter(&svc)
 				if filterErr == nil && filteredService != nil {
-					filteredServices[k] = *(filteredService.(*metadata.Service))
+					filteredServices[k] = *(filteredService.(*openapistackql.ProviderService))
 				}
 				if filterErr != nil {
 					err = filterErr
@@ -198,14 +196,14 @@ func filterServices(services map[string]metadata.Service, tableFilter func(iqlmo
 	return services, err
 }
 
-func filterMethods(methods map[string]metadata.Method, tableFilter func(iqlmodel.ITable) (iqlmodel.ITable, error)) (map[string]metadata.Method, error) {
+func filterMethods(methods openapistackql.Methods, tableFilter func(openapistackql.ITable) (openapistackql.ITable, error)) (openapistackql.Methods, error) {
 	var err error
 	if tableFilter != nil {
-		filteredMethods := make(map[string]metadata.Method)
-		for k, rsc := range methods {
-			filteredMethod, filterErr := tableFilter(&rsc)
+		filteredMethods := make(openapistackql.Methods)
+		for k, m := range methods {
+			filteredMethod, filterErr := tableFilter(&m)
 			if filterErr == nil && filteredMethod != nil {
-				filteredMethods[k] = *(filteredMethod.(*metadata.Method))
+				filteredMethods[k] = m
 			}
 			if filterErr != nil {
 				err = filterErr
@@ -264,7 +262,7 @@ func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, hand
 	var keys map[string]map[string]interface{}
 	var columnOrder []string
 	var err error
-	var filter func(interface{}) (iqlmodel.ITable, error)
+	var filter func(interface{}) (openapistackql.ITable, error)
 	log.Infoln(fmt.Sprintf("filter type = %T", filter))
 	switch nodeTypeUpperCase {
 	case "AUTH":
@@ -272,7 +270,7 @@ func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, hand
 		if err == nil {
 			authCtx, err := handlerCtx.GetAuthContext(pb.PrimitiveBuilder.GetProvider().GetProviderString())
 			if err == nil {
-				var authMeta *metadata.AuthMetadata
+				var authMeta *openapistackql.AuthMetadata
 				authMeta, err = pb.PrimitiveBuilder.GetProvider().ShowAuth(authCtx)
 				if err == nil {
 					keys = map[string]map[string]interface{}{
@@ -298,9 +296,13 @@ func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, hand
 			rsc, _ := tbl.GetResourceStr()
 			return util.GenerateSimpleErroneousOutput(fmt.Errorf("error creating insert statement for %s: %s", rsc, err.Error()))
 		}
+		svc, err := tbl.GetService()
+		if err != nil {
+			return util.GenerateSimpleErroneousOutput(err)
+		}
 		pp := prettyprint.NewPrettyPrinter(ppCtx)
 		requiredOnly := pb.PrimitiveBuilder.GetCommentDirectives() != nil && pb.PrimitiveBuilder.GetCommentDirectives().IsSet("REQUIRED")
-		insertStmt, err := metadatavisitors.ToInsertStatement(node.Columns, meth, pb.PrimitiveBuilder.GetInsertSchemaMap(), extended, pp, requiredOnly)
+		insertStmt, err := metadatavisitors.ToInsertStatement(node.Columns, meth, svc, extended, pp, requiredOnly)
 		tableName, _ := tbl.GetTableName()
 		if err != nil {
 			return util.GenerateSimpleErroneousOutput(fmt.Errorf("error creating insert statement for %s: %s", tableName, err.Error()))
@@ -312,11 +314,11 @@ func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, hand
 			},
 		}
 	case "METHODS":
-		var rsc *metadata.Resource
+		var rsc *openapistackql.Resource
 		rsc, err = pb.PrimitiveBuilder.GetProvider().GetResource(node.OnTable.Qualifier.GetRawVal(), node.OnTable.Name.GetRawVal(), handlerCtx.RuntimeContext)
 		methods := rsc.Methods
 		tbl, err := pb.PrimitiveBuilder.GetTable(node.OnTable)
-		var filter func(iqlmodel.ITable) (iqlmodel.ITable, error)
+		var filter func(openapistackql.ITable) (openapistackql.ITable, error)
 		if err != nil {
 			log.Infoln(fmt.Sprintf("table and therefore filter not found for AST, shall procede nil filter"))
 		} else {
@@ -332,12 +334,10 @@ func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, hand
 			rowKeys = append(rowKeys, k)
 		}
 		sort.Strings(rowKeys)
-		var i int = 0
-		for _, k := range rowKeys {
+		for i, k := range rowKeys {
 			method := methods[k]
 			methMap := method.ToPresentationMap(extended)
 			methodKeys[strconv.Itoa(i)] = methMap
-			i++
 			columnOrder = method.GetColumnOrder(extended)
 		}
 		keys = methodKeys
@@ -348,13 +348,13 @@ func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, hand
 		if svcName == "" {
 			return prepareErroneousResultSet(keys, columnOrder, fmt.Errorf("no service designated from which to resolve resources"))
 		}
-		var resources map[string]metadata.Resource
+		var resources map[string]*openapistackql.Resource
 		resources, err = pb.PrimitiveBuilder.GetProvider().GetResourcesRedacted(svcName, handlerCtx.RuntimeContext, extended)
 		if err != nil {
 			return prepareErroneousResultSet(keys, columnOrder, err)
 		}
-		columnOrder = metadata.GetResourcesHeader(extended)
-		var filter func(iqlmodel.ITable) (iqlmodel.ITable, error)
+		columnOrder = openapistackql.GetResourcesHeader(extended)
+		var filter func(openapistackql.ITable) (openapistackql.ITable, error)
 		if err != nil {
 			log.Infoln(fmt.Sprintf("table and therefore filter not found for AST, shall procede nil filter"))
 		} else {
@@ -370,12 +370,12 @@ func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, hand
 		}
 	case "SERVICES":
 		log.Infoln(fmt.Sprintf("Show For node.Type = '%s': Displaying services for provider = '%s'", node.Type, pb.PrimitiveBuilder.GetProvider().GetProviderString()))
-		var services map[string]metadata.Service
+		var services map[string]openapistackql.ProviderService
 		services, err = pb.PrimitiveBuilder.GetProvider().GetProviderServicesRedacted(handlerCtx.RuntimeContext, extended)
 		if err != nil {
 			return prepareErroneousResultSet(keys, columnOrder, err)
 		}
-		columnOrder = metadata.GetServicesHeader(extended)
+		columnOrder = openapistackql.GetServicesHeader(extended)
 		services, err = filterServices(services, pb.PrimitiveBuilder.GetTableFilter(), handlerCtx.RuntimeContext.UseNonPreferredAPIs)
 		if err != nil {
 			return prepareErroneousResultSet(keys, columnOrder, err)
@@ -403,7 +403,7 @@ func (pb *primitiveGenerator) describeInstructionExecutor(handlerCtx *handler.Ha
 	if err != nil {
 		return dto.NewErroneousExecutorOutput(err)
 	}
-	columnOrder := metadata.GetDescribeHeader(extended)
+	columnOrder := openapistackql.GetDescribeHeader(extended)
 	descriptionMap := schema.ToDescriptionMap(extended)
 	keys := make(map[string]map[string]interface{})
 	for k, v := range descriptionMap {
@@ -436,6 +436,10 @@ func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext,
 	if err != nil {
 		return nil, err
 	}
+	svc, err := tbl.GetService()
+	if err != nil {
+		return nil, err
+	}
 	m, err := tbl.GetMethod()
 	if err != nil {
 		return nil, err
@@ -459,7 +463,7 @@ func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext,
 		if !inputExists {
 			return dto.NewErroneousExecutorOutput(fmt.Errorf("input for insert does not exist"))
 		}
-		sm, err := prov.GetSchemaMap(tbl.HeirarchyObjects.HeirarchyIds.ServiceStr, tbl.HeirarchyObjects.HeirarchyIds.ResourceStr)
+		_, err := prov.GetSchemaMap(tbl.HeirarchyObjects.HeirarchyIds.ServiceStr, tbl.HeirarchyObjects.HeirarchyIds.ResourceStr)
 		if err != nil {
 			return dto.NewErroneousExecutorOutput(err)
 		}
@@ -467,7 +471,7 @@ func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext,
 		if err != nil {
 			return dto.NewErroneousExecutorOutput(err)
 		}
-		httpArmoury, err := httpbuild.BuildHTTPRequestCtx(handlerCtx, node, prov, m, sm, inputMap, nil)
+		httpArmoury, err := httpbuild.BuildHTTPRequestCtx(handlerCtx, node, prov, m, svc, inputMap, nil)
 		if err != nil {
 			return dto.NewErroneousExecutorOutput(err)
 		}
@@ -477,10 +481,10 @@ func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext,
 		for _, r := range httpArmoury.RequestParams {
 			req := r
 			zeroArityEx := func() dto.ExecutorOutput {
-				log.Infoln(fmt.Sprintf("req.BodyBytes = %s", string(req.BodyBytes)))
-				req.Context.SetBody(bytes.NewReader(req.BodyBytes))
-				log.Infoln(fmt.Sprintf("req.Context = %v", req.Context))
-				response, apiErr := httpmiddleware.HttpApiCall(*handlerCtx, prov, req.Context)
+				// log.Infoln(fmt.Sprintf("req.BodyBytes = %s", string(req.BodyBytes)))
+				// req.Context.SetBody(bytes.NewReader(req.BodyBytes))
+				// log.Infoln(fmt.Sprintf("req.Context = %v", req.Context))
+				response, apiErr := httpmiddleware.HttpApiCallFromRequest(*handlerCtx, prov, req.Request)
 				if apiErr != nil {
 					return dto.NewErroneousExecutorOutput(apiErr)
 				}
@@ -633,7 +637,7 @@ func (pb *primitiveGenerator) deleteExecutor(handlerCtx *handler.HandlerContext,
 		var err error
 		keys := make(map[string]map[string]interface{})
 		for _, req := range tbl.HttpArmoury.RequestParams {
-			response, apiErr := httpmiddleware.HttpApiCall(*handlerCtx, prov, req.Context)
+			response, apiErr := httpmiddleware.HttpApiCallFromRequest(*handlerCtx, prov, req.Request)
 			if apiErr != nil {
 				return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil))
 			}
@@ -687,7 +691,7 @@ func generateSuccessMessagesFromHeirarchy(meta taxonomy.ExtendedTableMetadata) [
 	m, methodErr := meta.GetMethod()
 	prov, err := meta.GetProvider()
 	if methodErr == nil && err == nil && m != nil && prov != nil && prov.GetProviderString() == "google" {
-		if m.Name == "get" || m.Name == "list" || m.Name == "aggregatedList" {
+		if m.APIMethod == "get" || m.APIMethod == "list" || m.APIMethod == "aggregatedList" {
 			successMsgs = []string{
 				"The operation completed successfully, consider using a SELECT statement if you are performing an operation that returns data, see https://docs.infraql.io/language-spec/select for more information",
 			}
@@ -729,7 +733,7 @@ func (pb *primitiveGenerator) execExecutor(handlerCtx *handler.HandlerContext, n
 		var columnOrder []string
 		keys := make(map[string]map[string]interface{})
 		for i, req := range tbl.HttpArmoury.RequestParams {
-			response, apiErr := httpmiddleware.HttpApiCall(*handlerCtx, prov, req.Context)
+			response, apiErr := httpmiddleware.HttpApiCallFromRequest(*handlerCtx, prov, req.Request)
 			if apiErr != nil {
 				return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil))
 			}

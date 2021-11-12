@@ -3,7 +3,6 @@ package iqlutil
 import (
 	"bytes"
 	"encoding/json"
-	"reflect"
 	"regexp"
 	"sort"
 	"strings"
@@ -15,22 +14,6 @@ func TranslateLikeToRegexPattern(likeString string) string {
 
 func SanitisePossibleTickEscapedTerm(term string) string {
 	return strings.TrimSuffix(strings.TrimPrefix(term, "`"), "`")
-}
-
-func ProviderTypeConditionIsValid(providerType string, lhs string, rhs interface{}) bool {
-	switch providerType {
-	case "string":
-		return reflect.TypeOf(rhs).String() == "string"
-	case "object":
-		return false
-	case "array":
-		return false
-	case "int", "int32", "int64":
-		return reflect.TypeOf(rhs).String() == "int"
-	default:
-		return false
-	}
-	return false
 }
 
 func PrettyPrintSomeJson(body []byte) ([]byte, error) {

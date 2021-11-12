@@ -3,9 +3,9 @@ package metadatavisitors
 import (
 	"fmt"
 	"infraql/internal/iql/constants"
-	"infraql/internal/iql/iqlmodel"
 	"infraql/internal/iql/iqlutil"
-	"infraql/internal/iql/metadata"
+
+	"infraql/internal/pkg/openapistackql"
 	"infraql/internal/pkg/prettyprint"
 	"sort"
 	"strings"
@@ -82,18 +82,18 @@ func isBodyParam(paramName string) bool {
 	return strings.HasPrefix(paramName, constants.RequestBodyBaseKey)
 }
 
-func ToInsertStatement(columns sqlparser.Columns, m *metadata.Method, schemaMap map[string]metadata.Schema, extended bool, prettyPrinter *prettyprint.PrettyPrinter, requiredOnly bool) (string, error) {
-	paramsToInclude := m.Parameters
+func ToInsertStatement(columns sqlparser.Columns, m *openapistackql.OperationStore, svc *openapistackql.Service, extended bool, prettyPrinter *prettyprint.PrettyPrinter, requiredOnly bool) (string, error) {
+	paramsToInclude := m.GetParameters()
 	successfullyIncludedCols := make(map[string]bool)
 	if !extended {
 		paramsToInclude = m.GetRequiredParameters()
 	}
 	if columns != nil {
-		paramsToInclude = make(map[string]iqlmodel.Parameter)
+		paramsToInclude = make(map[string]*openapistackql.Parameter)
 		for _, col := range columns {
 			cName := col.GetRawVal()
 			if !isBodyParam(cName) {
-				p, ok := m.Parameters[cName]
+				p, ok := m.GetParameter(cName)
 				if !ok {
 					return "", fmt.Errorf("cannot generate insert statement: column '%s' not present", cName)
 				}
@@ -109,8 +109,12 @@ func ToInsertStatement(columns sqlparser.Columns, m *metadata.Method, schemaMap 
 	sort.Strings(includedParamNames)
 	var columnList, exprList []string
 	for _, s := range includedParamNames {
+		p, ok := m.GetParameter(s)
+		if !ok {
+			return "", fmt.Errorf("'%s'", s)
+		}
 		columnList = append(columnList, prettyPrinter.RenderColumnName(s))
-		switch m.Parameters[s].Type {
+		switch p.GetType() {
 		case "string":
 			exprList = append(exprList, prettyPrinter.RenderTemplateVarAndDelimit(s))
 		default:
@@ -118,12 +122,10 @@ func ToInsertStatement(columns sqlparser.Columns, m *metadata.Method, schemaMap 
 		}
 	}
 
-	var sch *metadata.Schema
-	if m.RequestType.Type != "" {
-		s, ok := schemaMap[m.RequestType.Type]
-		if ok {
-			sch = &s
-		}
+	sch, err := m.GetRequestBodySchema()
+
+	if err != nil {
+		return "", err
 	}
 
 	if sch == nil {
@@ -164,21 +166,20 @@ func ToInsertStatement(columns sqlparser.Columns, m *metadata.Method, schemaMap 
 		}
 	}
 
-	err := checkAllColumnsPresent(columns, successfullyIncludedCols)
+	err = checkAllColumnsPresent(columns, successfullyIncludedCols)
 	retVal := "INSERT INTO %s" + "(\n" + strings.Join(columnList, ",\n") +
 		"\n)\n" + "SELECT\n" + strings.Join(exprList, ",\n") + "\n;\n"
 	return retVal, err
 }
 
-func (sv *SchemaRequestTemplateVisitor) processSubSchemasMap(sc *metadata.Schema, method *metadata.Method, properties map[string]metadata.SchemaHandle) (map[string]string, error) {
+func (sv *SchemaRequestTemplateVisitor) processSubSchemasMap(sc *openapistackql.Schema, method *openapistackql.OperationStore, properties map[string]*openapistackql.Schema) (map[string]string, error) {
 	retVal := make(map[string]string)
-	for k, v := range properties {
-		ss, idStr := v.GetSchema(sc.SchemaCentral)
-		log.Infoln(fmt.Sprintf("RetrieveTemplate() k = '%s', idStr = '%s' ss is nil ? '%t'", k, idStr, ss == nil))
-		if ss != nil && (idStr == "" || !sv.isVisited(idStr, nil)) {
+	for k, ss := range properties {
+		log.Infoln(fmt.Sprintf("RetrieveTemplate() k = '%s', ss is nil ? '%t'", k, ss == nil))
+		if ss != nil && (k == "" || !sv.isVisited(k, nil)) {
 			localSchemaVisitedMap := make(map[string]bool)
-			localSchemaVisitedMap[idStr] = true
-			if !v.AlwaysRequired && (ss.OutputOnly || (sv.requiredOnly && !ss.IsRequired(method))) {
+			localSchemaVisitedMap[k] = true
+			if !method.IsRequiredRequestBodyProperty(k) && (ss.ReadOnly || (sv.requiredOnly && !sc.IsRequired(k))) {
 				log.Infoln(fmt.Sprintf("property = '%s' will be skipped", k))
 				continue
 			}
@@ -203,17 +204,22 @@ func (sv *SchemaRequestTemplateVisitor) processSubSchemasMap(sc *metadata.Schema
 	return retVal, nil
 }
 
-func (sv *SchemaRequestTemplateVisitor) RetrieveTemplate(sc *metadata.Schema, method *metadata.Method, extended bool) (map[string]string, error) {
+func (sv *SchemaRequestTemplateVisitor) RetrieveTemplate(sc *openapistackql.Schema, method *openapistackql.OperationStore, extended bool) (map[string]string, error) {
 	retVal := make(map[string]string)
-	var err error
-	sv.recordSchemaVisited(method.RequestType.Type)
+	sv.recordSchemaVisited(sc.GetName())
 	switch sc.Type {
 	case "object":
-		retVal, err = sv.processSubSchemasMap(sc, method, sc.Properties)
+		prop, err := sc.GetProperties()
+		if err != nil {
+			return nil, err
+		}
+		retVal, err = sv.processSubSchemasMap(sc, method, prop)
 		if len(retVal) != 0 || err != nil {
 			return retVal, err
 		}
-		retVal, err = sv.processSubSchemasMap(sc, method, map[string]metadata.SchemaHandle{"k1": sc.AdditionalProperties})
+		if sc.AdditionalProperties != nil && sc.AdditionalProperties.Value != nil {
+			retVal, err = sv.processSubSchemasMap(sc, method, map[string]*openapistackql.Schema{"k1": openapistackql.NewSchema(sc.AdditionalProperties.Value, "k1")})
+		}
 		if len(retVal) == 0 {
 			return nil, nil
 		}
@@ -222,7 +228,7 @@ func (sv *SchemaRequestTemplateVisitor) RetrieveTemplate(sc *metadata.Schema, me
 	return nil, fmt.Errorf("templating of request body only supported for object type payload")
 }
 
-func (sv *SchemaRequestTemplateVisitor) retrieveTemplateVal(sc *metadata.Schema, objectKey string, localSchemaVisitedMap map[string]bool) (interface{}, error) {
+func (sv *SchemaRequestTemplateVisitor) retrieveTemplateVal(sc *openapistackql.Schema, objectKey string, localSchemaVisitedMap map[string]bool) (interface{}, error) {
 	sSplit := strings.Split(objectKey, ".")
 	oKey := sSplit[len(sSplit)-1]
 	oPrefix := objectKey
@@ -243,14 +249,17 @@ func (sv *SchemaRequestTemplateVisitor) retrieveTemplateVal(sc *metadata.Schema,
 	switch sc.Type {
 	case "object":
 		rv := make(map[string]interface{})
-		for k, v := range sc.Properties {
+		props, err := sc.GetProperties()
+		if err != nil {
+			return nil, err
+		}
+		for k, ss := range props {
 			propertyLocalSchemaVisitedMap := make(map[string]bool)
 			for k, v := range initialLocalSchemaVisitedMap {
 				propertyLocalSchemaVisitedMap[k] = v
 			}
-			ss, idStr := v.GetSchema(sc.SchemaCentral)
-			if ss != nil && ((idStr == "" && ss.Type != "array") || !sv.isVisited(idStr, propertyLocalSchemaVisitedMap)) {
-				propertyLocalSchemaVisitedMap[idStr] = true
+			if ss != nil && ((ss.Type != "array") || !sv.isVisited(ss.Title, propertyLocalSchemaVisitedMap)) {
+				propertyLocalSchemaVisitedMap[ss.Title] = true
 				sv, err := sv.retrieveTemplateVal(ss, templateValName+"."+k, propertyLocalSchemaVisitedMap)
 				if err != nil {
 					return nil, err
@@ -261,21 +270,21 @@ func (sv *SchemaRequestTemplateVisitor) retrieveTemplateVal(sc *metadata.Schema,
 			}
 		}
 		if len(rv) == 0 {
-			if sc.AdditionalProperties.SchemaRef != nil && len(sc.AdditionalProperties.SchemaRef) == 1 {
-				for k, v := range sc.AdditionalProperties.SchemaRef {
+			if aps := sc.AdditionalProperties.Value; aps != nil {
+				aps := openapistackql.NewSchema(aps, "additionalProperties")
+				hasProperties := false
+				for k, v := range aps.Properties {
+					hasProperties = true
+					ss := openapistackql.NewSchema(v.Value, k)
 					if k == "" {
 						k = "key"
 					}
 					key := fmt.Sprintf("{{ %s[0].%s }}", templateValName, k)
-					valBase := fmt.Sprintf("{{ %s[0].val }}", templateValName)
-					switch v.Type {
-					case "string":
-						rv[key] = fmt.Sprintf(`"%s"`, valBase)
-					case "number", "int", "int32", "int64":
-						rv[key] = valBase
-					default:
-						rv[key] = valBase
-					}
+					rv[key] = getAdditionalStuff(ss, templateValName)
+				}
+				if !hasProperties {
+					key := fmt.Sprintf("{{ %s[0].%s }}", templateValName, "key")
+					rv[key] = getAdditionalStuff(aps, templateValName)
 				}
 			}
 		}
@@ -305,4 +314,16 @@ func (sv *SchemaRequestTemplateVisitor) retrieveTemplateVal(sc *metadata.Schema,
 		return "{{ " + templateValName + " }}", nil
 	}
 	return nil, nil
+}
+
+func getAdditionalStuff(ss *openapistackql.Schema, templateValName string) string {
+	valBase := fmt.Sprintf("{{ %s[0].val }}", templateValName)
+	switch ss.Type {
+	case "string":
+		return fmt.Sprintf(`"%s"`, valBase)
+	case "number", "int", "int32", "int64":
+		return valBase
+	default:
+		return valBase
+	}
 }

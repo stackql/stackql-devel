@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"infraql/internal/iql/drm"
 	"infraql/internal/iql/dto"
-	"infraql/internal/iql/iqlmodel"
-	"infraql/internal/iql/metadata"
 	"infraql/internal/iql/parserutil"
 	"infraql/internal/iql/primitive"
 	"infraql/internal/iql/primitivegraph"
@@ -13,6 +11,7 @@ import (
 	"infraql/internal/iql/sqlengine"
 	"infraql/internal/iql/symtab"
 	"infraql/internal/iql/taxonomy"
+	"infraql/internal/pkg/openapistackql"
 
 	"infraql/internal/pkg/txncounter"
 
@@ -36,7 +35,7 @@ type PrimitiveBuilder struct {
 
 	// needed globally for non-heirarchy queries, such as "SHOW SERVICES FROM google;"
 	prov            provider.IProvider
-	tableFilter     func(iqlmodel.ITable) (iqlmodel.ITable, error)
+	tableFilter     func(openapistackql.ITable) (openapistackql.ITable, error)
 	colsVisited     map[string]bool
 	likeAbleColumns []string
 
@@ -56,7 +55,7 @@ type PrimitiveBuilder struct {
 	selectPreparedStatementCtx *drm.PreparedStatementCtx
 
 	// per query -- SHOW INSERT only
-	insertSchemaMap map[string]metadata.Schema
+	insertSchemaMap map[string]*openapistackql.Schema
 
 	// TODO: universally retire in favour of builder, which returns primitive.IPrimitive
 	root primitivegraph.PrimitiveNode
@@ -116,7 +115,7 @@ func (pb *PrimitiveBuilder) GetAst() sqlparser.SQLNode {
 	return pb.ast
 }
 
-func (pb *PrimitiveBuilder) GetInsertSchemaMap() map[string]metadata.Schema {
+func (pb *PrimitiveBuilder) GetInsertSchemaMap() map[string]*openapistackql.Schema {
 	return pb.insertSchemaMap
 }
 
@@ -130,7 +129,7 @@ func (pb *PrimitiveBuilder) NewChildPrimitiveBuilder(ast sqlparser.SQLNode) *Pri
 	return child
 }
 
-func (pb *PrimitiveBuilder) SetInsertSchemaMap(m map[string]metadata.Schema) {
+func (pb *PrimitiveBuilder) SetInsertSchemaMap(m map[string]*openapistackql.Schema) {
 	pb.insertSchemaMap = m
 }
 
@@ -198,11 +197,11 @@ func (pb *PrimitiveBuilder) SetColVisited(colname string, isVisited bool) {
 	pb.colsVisited[colname] = isVisited
 }
 
-func (pb *PrimitiveBuilder) GetTableFilter() func(iqlmodel.ITable) (iqlmodel.ITable, error) {
+func (pb *PrimitiveBuilder) GetTableFilter() func(openapistackql.ITable) (openapistackql.ITable, error) {
 	return pb.tableFilter
 }
 
-func (pb *PrimitiveBuilder) SetTableFilter(tableFilter func(iqlmodel.ITable) (iqlmodel.ITable, error)) {
+func (pb *PrimitiveBuilder) SetTableFilter(tableFilter func(openapistackql.ITable) (openapistackql.ITable, error)) {
 	pb.tableFilter = tableFilter
 }
 

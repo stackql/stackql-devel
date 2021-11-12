@@ -2,14 +2,14 @@ package methodselect
 
 import (
 	"fmt"
-	"infraql/internal/iql/metadata"
+	"infraql/internal/pkg/openapistackql"
 	"strings"
 )
 
 type IMethodSelector interface {
-	GetMethod(resource *metadata.Resource, methodName string) (*metadata.Method, error)
+	GetMethod(resource *openapistackql.Resource, methodName string) (*openapistackql.OperationStore, error)
 
-	GetMethodForAction(resource *metadata.Resource, iqlAction string) (*metadata.Method, string, error)
+	GetMethodForAction(resource *openapistackql.Resource, iqlAction string) (*openapistackql.OperationStore, string, error)
 }
 
 func NewMethodSelector(provider string, version string) (IMethodSelector, error) {
@@ -31,7 +31,7 @@ func newGoogleMethodSelector(version string) (IMethodSelector, error) {
 type DefaultGoogleMethodSelector struct {
 }
 
-func (sel *DefaultGoogleMethodSelector) GetMethodForAction(resource *metadata.Resource, iqlAction string) (*metadata.Method, string, error) {
+func (sel *DefaultGoogleMethodSelector) GetMethodForAction(resource *openapistackql.Resource, iqlAction string) (*openapistackql.OperationStore, string, error) {
 	var methodName string
 	switch strings.ToLower(iqlAction) {
 	case "select":
@@ -40,14 +40,14 @@ func (sel *DefaultGoogleMethodSelector) GetMethodForAction(resource *metadata.Re
 		methodName = "delete"
 	case "insert":
 		methodName = "insert"
-		m, ok := resource.Methods[methodName]
-		if ok {
-			return &m, methodName, nil
+		m, err := resource.FindMethod(methodName)
+		if err == nil {
+			return m, methodName, nil
 		}
 		methodName = "create"
-		m, ok = resource.Methods[methodName]
-		if ok {
-			return &m, methodName, nil
+		m, err = resource.FindMethod(methodName)
+		if err == nil {
+			return m, methodName, nil
 		}
 		return nil, "", fmt.Errorf("iql action = '%s' curently not supported, there is no method mapping possible for any resource", iqlAction)
 	default:
@@ -57,14 +57,14 @@ func (sel *DefaultGoogleMethodSelector) GetMethodForAction(resource *metadata.Re
 	return m, methodName, err
 }
 
-func (sel *DefaultGoogleMethodSelector) GetMethod(resource *metadata.Resource, methodName string) (*metadata.Method, error) {
+func (sel *DefaultGoogleMethodSelector) GetMethod(resource *openapistackql.Resource, methodName string) (*openapistackql.OperationStore, error) {
 	return sel.getMethodByName(resource, methodName)
 }
 
-func (sel *DefaultGoogleMethodSelector) getMethodByName(resource *metadata.Resource, methodName string) (*metadata.Method, error) {
-	m, ok := resource.Methods[methodName]
-	if !ok {
+func (sel *DefaultGoogleMethodSelector) getMethodByName(resource *openapistackql.Resource, methodName string) (*openapistackql.OperationStore, error) {
+	m, err := resource.FindMethod(methodName)
+	if err != nil {
 		return nil, fmt.Errorf("no method = '%s' for resource = '%s'", methodName, resource.Name)
 	}
-	return &m, nil
+	return m, nil
 }

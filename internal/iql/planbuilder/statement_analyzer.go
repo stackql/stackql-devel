@@ -14,9 +14,7 @@ import (
 	"infraql/internal/iql/handler"
 	"infraql/internal/iql/httpbuild"
 	"infraql/internal/iql/iqlerror"
-	"infraql/internal/iql/iqlmodel"
 	"infraql/internal/iql/iqlutil"
-	"infraql/internal/iql/metadata"
 	"infraql/internal/iql/parserutil"
 	"infraql/internal/iql/primitive"
 	"infraql/internal/iql/primitivebuilder"
@@ -25,6 +23,8 @@ import (
 	"infraql/internal/iql/symtab"
 	"infraql/internal/iql/taxonomy"
 	"infraql/internal/iql/util"
+
+	"infraql/internal/pkg/openapistackql"
 
 	"vitess.io/vitess/go/vt/sqlparser"
 
@@ -169,28 +169,23 @@ func (p *primitiveGenerator) analyzeAuthRevoke(handlerCtx *handler.HandlerContex
 	return fmt.Errorf(`Auth revoke for Google Failed; improper auth method: "%s" specified`, authCtx.Type)
 }
 
-func checkResource(handlerCtx *handler.HandlerContext, prov provider.IProvider, service string, resource string) (*metadata.Resource, error) {
+func checkResource(handlerCtx *handler.HandlerContext, prov provider.IProvider, service string, resource string) (*openapistackql.Resource, error) {
 	return prov.GetResource(service, resource, handlerCtx.RuntimeContext)
 }
 
-func checkService(handlerCtx *handler.HandlerContext, prov provider.IProvider, service string) (*metadata.ServiceHandle, error) {
-	return prov.GetServiceHandle(service, handlerCtx.RuntimeContext)
+func checkService(handlerCtx *handler.HandlerContext, prov provider.IProvider, service string) (*openapistackql.Service, error) {
+	return prov.GetService(service, handlerCtx.RuntimeContext)
 }
 
-func (pb *primitiveGenerator) assembleServiceAndResources(handlerCtx *handler.HandlerContext, prov provider.IProvider, service string) (*metadata.ServiceHandle, error) {
-	svc, err := prov.GetServiceHandle(service, handlerCtx.RuntimeContext)
+func (pb *primitiveGenerator) assembleServiceAndResources(handlerCtx *handler.HandlerContext, prov provider.IProvider, service string) (*openapistackql.Service, error) {
+	svc, err := prov.GetService(service, handlerCtx.RuntimeContext)
 	if err != nil {
 		return nil, err
 	}
-	rscMap, err := prov.GetResourcesMap(service, handlerCtx.RuntimeContext)
-	if err != nil {
-		return nil, err
-	}
-	svc.Resources = rscMap
 	return svc, err
 }
 
-func (pb *primitiveGenerator) analyzeShowFilter(node *sqlparser.Show, table iqlmodel.ITable) error {
+func (pb *primitiveGenerator) analyzeShowFilter(node *sqlparser.Show, table openapistackql.ITable) error {
 	showFilter := node.ShowTablesOpt.Filter
 	if showFilter == nil {
 		return nil
@@ -215,8 +210,8 @@ func (pb *primitiveGenerator) analyzeShowFilter(node *sqlparser.Show, table iqlm
 	return nil
 }
 
-func (pb *primitiveGenerator) traverseShowFilter(table iqlmodel.ITable, node *sqlparser.Show, filter sqlparser.Expr) (func(iqlmodel.ITable) (iqlmodel.ITable, error), error) {
-	var retVal func(iqlmodel.ITable) (iqlmodel.ITable, error)
+func (pb *primitiveGenerator) traverseShowFilter(table openapistackql.ITable, node *sqlparser.Show, filter sqlparser.Expr) (func(openapistackql.ITable) (openapistackql.ITable, error), error) {
+	var retVal func(openapistackql.ITable) (openapistackql.ITable, error)
 	switch filter := filter.(type) {
 	case *sqlparser.ComparisonExpr:
 		return pb.comparisonExprToFilterFunc(table, node, filter)
@@ -243,16 +238,16 @@ func (pb *primitiveGenerator) traverseShowFilter(table iqlmodel.ITable, node *sq
 		}
 		return relational.OrTableFilters(lhs, rhs), nil
 	case *sqlparser.FuncExpr:
-		return nil, fmt.Errorf("unsupported constraint in metadata filter: %v", sqlparser.String(filter))
+		return nil, fmt.Errorf("unsupported constraint in openapistackql filter: %v", sqlparser.String(filter))
 	default:
-		return nil, fmt.Errorf("unsupported constraint in metadata filter: %v", sqlparser.String(filter))
+		return nil, fmt.Errorf("unsupported constraint in openapistackql filter: %v", sqlparser.String(filter))
 	}
 	return retVal, nil
 }
 
 // DEPRECATED
-func (pb *primitiveGenerator) traverseWhereFilterDeprecated(table *metadata.Method, node sqlparser.Expr, schema *metadata.Schema, requiredParameters map[string]iqlmodel.Parameter) (func(iqlmodel.ITable) (iqlmodel.ITable, error), error) {
-	var retVal func(iqlmodel.ITable) (iqlmodel.ITable, error)
+func (pb *primitiveGenerator) traverseWhereFilterDeprecated(table *openapistackql.OperationStore, node sqlparser.Expr, schema *openapistackql.Schema, requiredParameters map[string]*openapistackql.Parameter) (func(openapistackql.ITable) (openapistackql.ITable, error), error) {
+	var retVal func(openapistackql.ITable) (openapistackql.ITable, error)
 	switch node := node.(type) {
 	case *sqlparser.ComparisonExpr:
 		return pb.whereComparisonExprToFilterFunc(node, table, schema, requiredParameters)
@@ -279,14 +274,14 @@ func (pb *primitiveGenerator) traverseWhereFilterDeprecated(table *metadata.Meth
 		}
 		return relational.OrTableFilters(lhs, rhs), nil
 	case *sqlparser.FuncExpr:
-		return nil, fmt.Errorf("unsupported constraint in metadata filter: %v", sqlparser.String(node))
+		return nil, fmt.Errorf("unsupported constraint in openapistackql filter: %v", sqlparser.String(node))
 	default:
-		return nil, fmt.Errorf("unsupported constraint in metadata filter: %v", sqlparser.String(node))
+		return nil, fmt.Errorf("unsupported constraint in openapistackql filter: %v", sqlparser.String(node))
 	}
 	return retVal, nil
 }
 
-func (pb *primitiveGenerator) traverseWhereFilter(node sqlparser.SQLNode, requiredParameters, optionalParameters map[string]iqlmodel.Parameter) (sqlparser.Expr, error) {
+func (pb *primitiveGenerator) traverseWhereFilter(node sqlparser.SQLNode, requiredParameters, optionalParameters map[string]*openapistackql.Parameter) (sqlparser.Expr, error) {
 	switch node := node.(type) {
 	case *sqlparser.ComparisonExpr:
 		return pb.whereComparisonExprCopyAndReWrite(node, requiredParameters, optionalParameters)
@@ -313,19 +308,19 @@ func (pb *primitiveGenerator) traverseWhereFilter(node sqlparser.SQLNode, requir
 		}
 		return &sqlparser.OrExpr{Left: lhs, Right: rhs}, nil
 	case *sqlparser.FuncExpr:
-		return nil, fmt.Errorf("unsupported constraint in metadata filter: %v", sqlparser.String(node))
+		return nil, fmt.Errorf("unsupported constraint in openapistackql filter: %v", sqlparser.String(node))
 	case *sqlparser.IsExpr:
 		return &sqlparser.IsExpr{
 			Operator: node.Operator,
 			Expr:     node.Expr,
 		}, nil
 	default:
-		return nil, fmt.Errorf("unsupported constraint in metadata filter: %v", sqlparser.String(node))
+		return nil, fmt.Errorf("unsupported constraint in openapistackql filter: %v", sqlparser.String(node))
 	}
-	return nil, fmt.Errorf("unsupported constraint in metadata filter: %v", sqlparser.String(node))
+	return nil, fmt.Errorf("unsupported constraint in openapistackql filter: %v", sqlparser.String(node))
 }
 
-func (pb *primitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sqlparser.ComparisonExpr, requiredParameters, optionalParameters map[string]iqlmodel.Parameter) (sqlparser.Expr, error) {
+func (pb *primitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sqlparser.ComparisonExpr, requiredParameters, optionalParameters map[string]*openapistackql.Parameter) (sqlparser.Expr, error) {
 	qualifiedName, ok := expr.Left.(*sqlparser.ColName)
 	if !ok {
 		return nil, fmt.Errorf("unexpected: %v", sqlparser.String(expr))
@@ -404,7 +399,7 @@ func (pb *primitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sqlparser.
 }
 
 // DEPRECATED
-func (pb *primitiveGenerator) whereComparisonExprToFilterFunc(expr *sqlparser.ComparisonExpr, table *metadata.Method, schema *metadata.Schema, requiredParameters map[string]iqlmodel.Parameter) (func(iqlmodel.ITable) (iqlmodel.ITable, error), error) {
+func (pb *primitiveGenerator) whereComparisonExprToFilterFunc(expr *sqlparser.ComparisonExpr, table *openapistackql.OperationStore, schema *openapistackql.Schema, requiredParameters map[string]*openapistackql.Parameter) (func(openapistackql.ITable) (openapistackql.ITable, error), error) {
 	qualifiedName, ok := expr.Left.(*sqlparser.ColName)
 	if !ok {
 		return nil, fmt.Errorf("unexpected: %v", sqlparser.String(expr))
@@ -416,7 +411,7 @@ func (pb *primitiveGenerator) whereComparisonExprToFilterFunc(expr *sqlparser.Co
 		return nil, fmt.Errorf("col name = '%s' not found in resource name = '%s'", colName, table.GetName())
 	}
 	delete(requiredParameters, colName)
-	if tableContainsKey && subSchema != nil && !subSchema.OutputOnly {
+	if tableContainsKey && subSchema != nil && !subSchema.ReadOnly {
 		log.Infoln(fmt.Sprintf("tableContainsKey && subSchema = %v", subSchema))
 		return nil, fmt.Errorf("col name = '%s' ambiguous for resource name = '%s'", colName, table.GetName())
 	}
@@ -441,8 +436,8 @@ func (pb *primitiveGenerator) whereComparisonExprToFilterFunc(expr *sqlparser.Co
 }
 
 // DEPRECATED
-func (pb *primitiveGenerator) analyzeSingleTableWhere(where *sqlparser.Where, schema *metadata.Schema) error {
-	remainingRequiredParameters := make(map[string]iqlmodel.Parameter)
+func (pb *primitiveGenerator) analyzeSingleTableWhere(where *sqlparser.Where, schema *openapistackql.Schema) error {
+	remainingRequiredParameters := make(map[string]*openapistackql.Parameter)
 	for _, v := range pb.PrimitiveBuilder.GetTables() {
 		method, err := v.GetMethod()
 		if err != nil {
@@ -478,10 +473,10 @@ func (pb *primitiveGenerator) analyzeSingleTableWhere(where *sqlparser.Where, sc
 	return nil
 }
 
-func (pb *primitiveGenerator) analyzeWhere(where *sqlparser.Where, schema *metadata.Schema) (*sqlparser.Where, error) {
-	requiredParameters := make(map[string]iqlmodel.Parameter)
-	remainingRequiredParameters := make(map[string]iqlmodel.Parameter)
-	optionalParameters := make(map[string]iqlmodel.Parameter)
+func (pb *primitiveGenerator) analyzeWhere(where *sqlparser.Where, schema *openapistackql.Schema) (*sqlparser.Where, error) {
+	requiredParameters := make(map[string]*openapistackql.Parameter)
+	remainingRequiredParameters := make(map[string]*openapistackql.Parameter)
+	optionalParameters := make(map[string]*openapistackql.Parameter)
 	for _, v := range pb.PrimitiveBuilder.GetTables() {
 		method, err := v.GetMethod()
 		if err != nil {
@@ -569,12 +564,15 @@ func (p *primitiveGenerator) analyzeUnaryExec(handlerCtx *handler.HandlerContext
 	}
 
 	if p.PrimitiveBuilder.IsAwait() && !method.IsAwaitable() {
-		return nil, fmt.Errorf("method %s is not awaitalbe", method.ID)
+		return nil, fmt.Errorf("method %s is not awaitable", method.GetName())
 	}
 
 	requiredParams := method.GetRequiredParameters()
 
 	colz, err := parserutil.GetColumnUsageTypesForExec(node)
+	if err != nil {
+		return nil, err
+	}
 	usageErr := parserutil.CheckColUsagesAgainstTable(colz, method)
 	if usageErr != nil {
 		return nil, usageErr
@@ -598,13 +596,14 @@ func (p *primitiveGenerator) analyzeUnaryExec(handlerCtx *handler.HandlerContext
 	if err != nil {
 		return nil, err
 	}
-	requestSchema, err := prov.GetObjectSchema(svcStr, rStr, method.RequestType.Type)
-	// if err != nil {
-	// 	return err
-	// }
+	requestSchema, err := method.GetRequestBodySchema()
+	// requestSchema, err := prov.GetObjectSchema(svcStr, rStr, method.Request.BodyMediaType)
+	if err != nil {
+		return nil, err
+	}
 	var execPayload *dto.ExecPayload
 	if node.OptExecPayload != nil {
-		execPayload, err = p.parseExecPayload(node.OptExecPayload, method.RequestType.GetFormat())
+		execPayload, err = p.parseExecPayload(node.OptExecPayload, method.Request.BodyMediaType)
 		if err != nil {
 			return nil, err
 		}
@@ -613,7 +612,7 @@ func (p *primitiveGenerator) analyzeUnaryExec(handlerCtx *handler.HandlerContext
 			return nil, err
 		}
 	}
-	sm, err := prov.GetSchemaMap(svcStr, rStr)
+	_, err = prov.GetSchemaMap(svcStr, rStr)
 	if err != nil {
 		return nil, err
 	}
@@ -621,7 +620,7 @@ func (p *primitiveGenerator) analyzeUnaryExec(handlerCtx *handler.HandlerContext
 	if err != nil {
 		return nil, err
 	}
-	_, err = p.buildRequestContext(handlerCtx, node, &meta, sm, httpbuild.NewExecContext(execPayload, rsc), nil)
+	_, err = p.buildRequestContext(handlerCtx, node, &meta, httpbuild.NewExecContext(execPayload, rsc), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -656,7 +655,7 @@ func (p *primitiveGenerator) parseExecPayload(node *sqlparser.ExecVarDef, payloa
 		return nil, fmt.Errorf("payload map of SQL type = '%T' not allowed", val)
 	}
 	switch payloadType {
-	case constants.JsonStr:
+	case constants.JsonStr, "application/json":
 		m["Content-Type"] = []string{"application/json"}
 		err := json.Unmarshal(b, &pm)
 		if err != nil {
@@ -681,37 +680,27 @@ func contains(slice []interface{}, elem interface{}) bool {
 	return false
 }
 
-func (p *primitiveGenerator) analyzeSchemaVsMap(handlerCtx *handler.HandlerContext, schema *metadata.Schema, payload map[string]interface{}, method *metadata.Method) error {
+func (p *primitiveGenerator) analyzeSchemaVsMap(handlerCtx *handler.HandlerContext, schema *openapistackql.Schema, payload map[string]interface{}, method *openapistackql.OperationStore) error {
 	requiredElements := make(map[string]bool)
-	for k, v := range schema.Properties {
-		if v.NamedRef != "" {
-			ss := schema.SchemaCentral.SchemaRef[v.NamedRef]
-			if ss.IsRequired(method) {
-				requiredElements[k] = true
-			}
-		} else {
-			ss := v.SchemaRef[k]
-			if ss.IsRequired(method) {
-				requiredElements[k] = true
-			}
+	schemas, err := schema.GetProperties()
+	if err != nil {
+		return err
+	}
+	for k, _ := range schemas {
+		if schema.IsRequired(k) {
+			requiredElements[k] = true
 		}
 	}
 	for k, v := range payload {
-		subSchema, ok := schema.Properties[k]
-		if !ok {
+		ss, err := schema.GetProperty(k)
+		if err != nil {
 			return fmt.Errorf("schema does not possess payload key '%s'", k)
-		}
-		var ss metadata.Schema
-		if subSchema.NamedRef != "" {
-			ss = schema.SchemaCentral.SchemaRef[subSchema.NamedRef]
-		} else {
-			ss = subSchema.SchemaRef[k]
 		}
 		switch val := v.(type) {
 		case map[string]interface{}:
 			delete(requiredElements, k)
 			var err error
-			err = p.analyzeSchemaVsMap(handlerCtx, &ss, val, method)
+			err = p.analyzeSchemaVsMap(handlerCtx, ss, val, method)
 			if err != nil {
 				return err
 			}
@@ -809,8 +798,11 @@ func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, n
 		if err != nil {
 			return err
 		}
-		for colName, col := range responseSchema.Properties {
-			colSchema, _ := col.GetSchema(responseSchema.SchemaCentral)
+		cols, err := responseSchema.GetProperties()
+		if err != nil {
+			return err
+		}
+		for colName, colSchema := range cols {
 			if colSchema == nil {
 				return fmt.Errorf("could not infer column information")
 			}
@@ -960,11 +952,11 @@ func (p *primitiveGenerator) analyzeSelectDetail(handlerCtx *handler.HandlerCont
 	if err != nil {
 		return err
 	}
-	sm, err := prov.GetSchemaMap(svcStr, rStr)
+	_, err = prov.GetSchemaMap(svcStr, rStr)
 	if err != nil {
 		return err
 	}
-	_, err = p.buildRequestContext(handlerCtx, node, tbl, sm, nil, nil)
+	_, err = p.buildRequestContext(handlerCtx, node, tbl, nil, nil)
 	if err != nil {
 		return err
 	}
@@ -985,7 +977,7 @@ func (p *primitiveGenerator) analyzeTableExpr(handlerCtx *handler.HandlerContext
 	if err != nil {
 		return nil, err
 	}
-	prov, err := tbl.GetProvider()
+	_, err = tbl.GetProvider()
 	if err != nil {
 		return nil, err
 	}
@@ -993,54 +985,53 @@ func (p *primitiveGenerator) analyzeTableExpr(handlerCtx *handler.HandlerContext
 	if err != nil {
 		return nil, err
 	}
-	svcStr, err := tbl.GetServiceStr()
+	_, err = tbl.GetServiceStr()
 	if err != nil {
 		return nil, err
 	}
-	rStr, err := tbl.GetResourceStr()
+	_, err = tbl.GetResourceStr()
 	if err != nil {
 		return nil, err
 	}
-	schema, err := prov.GetObjectSchema(svcStr, rStr, method.ResponseType.Type)
-	if err != nil {
-		return nil, err
-	}
+	schema := method.Response.Schema
 	unsuitableSchemaMsg := "schema unsuitable for select query"
-	log.Infoln(fmt.Sprintf("schema.ID = %v", schema.ID))
+	// log.Infoln(fmt.Sprintf("schema.ID = %v", schema.ID))
 	log.Infoln(fmt.Sprintf("schema.Items = %v", schema.Items))
 	log.Infoln(fmt.Sprintf("schema.Properties = %v", schema.Properties))
-	var itemS *metadata.Schema
+	var itemS *openapistackql.Schema
 	itemS, tbl.SelectItemsKey = schema.GetSelectListItems(tbl.LookupSelectItemsKey())
 	if itemS == nil {
 		return nil, fmt.Errorf(unsuitableSchemaMsg)
 	}
-	is := itemS.Items
-	itemObjS, _ := is.GetSchema(schema.SchemaCentral)
+	itemObjS, err := itemS.GetItems()
+	if err != nil {
+		return nil, err
+	}
 	if itemObjS == nil {
 		return nil, fmt.Errorf(unsuitableSchemaMsg)
 	}
 	return &tbl, nil
 }
 
-func (p *primitiveGenerator) buildRequestContext(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, meta *taxonomy.ExtendedTableMetadata, schemaMap map[string]metadata.Schema, execContext *httpbuild.ExecContext, rowsToInsert map[int]map[int]interface{}) (*httpbuild.HTTPArmoury, error) {
+func (p *primitiveGenerator) buildRequestContext(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, meta *taxonomy.ExtendedTableMetadata, execContext *httpbuild.ExecContext, rowsToInsert map[int]map[int]interface{}) (*httpbuild.HTTPArmoury, error) {
 	m, err := meta.GetMethod()
 	if err != nil {
 		return nil, err
 	}
-	switch m.Protocol {
-	case "http":
-		prov, err := meta.GetProvider()
-		if err != nil {
-			return nil, err
-		}
-		httpArmoury, err := httpbuild.BuildHTTPRequestCtx(handlerCtx, node, prov, m, schemaMap, rowsToInsert, execContext)
-		if err != nil {
-			return nil, err
-		}
-		meta.HttpArmoury = httpArmoury
-		return httpArmoury, err
+	prov, err := meta.GetProvider()
+	if err != nil {
+		return nil, err
 	}
-	return nil, fmt.Errorf("protocol '%s' unsupported", m.Protocol)
+	svc, err := meta.GetService()
+	if err != nil {
+		return nil, err
+	}
+	httpArmoury, err := httpbuild.BuildHTTPRequestCtx(handlerCtx, node, prov, m, svc, rowsToInsert, execContext)
+	if err != nil {
+		return nil, err
+	}
+	meta.HttpArmoury = httpArmoury
+	return httpArmoury, err
 }
 
 func (p *primitiveGenerator) analyzeInsert(handlerCtx *handler.HandlerContext, node *sqlparser.Insert) error {
@@ -1093,7 +1084,7 @@ func (p *primitiveGenerator) analyzeInsert(handlerCtx *handler.HandlerContext, n
 	}
 
 	if p.PrimitiveBuilder.IsAwait() && !method.IsAwaitable() {
-		return fmt.Errorf("method %s is not awaitalbe", method.ID)
+		return fmt.Errorf("method %s is not awaitable", method.GetName())
 	}
 
 	_, err = checkResource(handlerCtx, prov, currentService, currentResource)
@@ -1101,12 +1092,12 @@ func (p *primitiveGenerator) analyzeInsert(handlerCtx *handler.HandlerContext, n
 		return err
 	}
 
-	sm, err := prov.GetSchemaMap(currentService, currentResource)
+	_, err = prov.GetSchemaMap(currentService, currentResource)
 	if err != nil {
 		return err
 	}
 
-	_, err = p.buildRequestContext(handlerCtx, node, &tbl, sm, nil, insertValOnlyRows)
+	_, err = p.buildRequestContext(handlerCtx, node, &tbl, nil, insertValOnlyRows)
 	if err != nil {
 		return err
 	}
@@ -1143,10 +1134,10 @@ func (p *primitiveGenerator) analyzeDelete(handlerCtx *handler.HandlerContext, n
 	}
 
 	if p.PrimitiveBuilder.IsAwait() && !method.IsAwaitable() {
-		return fmt.Errorf("method %s is not awaitalbe", method.ID)
+		return fmt.Errorf("method %s is not awaitable", method.GetName())
 	}
 	if p.PrimitiveBuilder.IsAwait() && !method.IsAwaitable() {
-		return fmt.Errorf("method %s is not awaitalbe", method.ID)
+		return fmt.Errorf("method %s is not awaitable", method.GetName())
 	}
 	currentService, err := tbl.GetServiceStr()
 	if err != nil {
@@ -1164,7 +1155,7 @@ func (p *primitiveGenerator) analyzeDelete(handlerCtx *handler.HandlerContext, n
 	if err != nil {
 		return err
 	}
-	schema, err := prov.GetObjectSchema(currentService, currentResource, method.ResponseType.Type)
+	schema, err := method.GetResponseBodySchema()
 	if err != nil {
 		return err
 	}
@@ -1192,11 +1183,11 @@ func (p *primitiveGenerator) analyzeDelete(handlerCtx *handler.HandlerContext, n
 	if err != nil {
 		return err
 	}
-	sm, err := prov.GetSchemaMap(currentService, currentResource)
+	_, err = prov.GetSchemaMap(currentService, currentResource)
 	if err != nil {
 		return err
 	}
-	_, err = p.buildRequestContext(handlerCtx, node, &tbl, sm, nil, nil)
+	_, err = p.buildRequestContext(handlerCtx, node, &tbl, nil, nil)
 	if err != nil {
 		return err
 	}
@@ -1334,7 +1325,7 @@ func (p *primitiveGenerator) analyzeShow(handlerCtx *handler.HandlerContext, nod
 			return err
 		}
 		if node.ShowTablesOpt != nil {
-			meth := &metadata.Method{}
+			meth := &openapistackql.OperationStore{}
 			err = p.analyzeShowFilter(node, meth)
 			if err != nil {
 				return err
@@ -1354,12 +1345,12 @@ func (p *primitiveGenerator) analyzeShow(handlerCtx *handler.HandlerContext, nod
 			return err
 		}
 		for _, col := range colNames {
-			if !metadata.ResourceKeyExists(col) {
+			if !openapistackql.ResourceKeyExists(col) {
 				return fmt.Errorf("SHOW key = '%s' does NOT exist", col)
 			}
 		}
 		for _, colUsage := range colUsages {
-			if !metadata.ResourceKeyExists(colUsage.ColName.Name.GetRawVal()) {
+			if !openapistackql.ResourceKeyExists(colUsage.ColName.Name.GetRawVal()) {
 				return fmt.Errorf("SHOW key = '%s' does NOT exist", colUsage.ColName.Name.GetRawVal())
 			}
 			usageErr := parserutil.CheckSqlParserTypeVsResourceColumn(colUsage)
@@ -1368,7 +1359,7 @@ func (p *primitiveGenerator) analyzeShow(handlerCtx *handler.HandlerContext, nod
 			}
 		}
 		if node.ShowTablesOpt != nil {
-			rsc := &metadata.Resource{}
+			rsc := &openapistackql.Resource{}
 			err = p.analyzeShowFilter(node, rsc)
 			if err != nil {
 				return err
@@ -1381,12 +1372,12 @@ func (p *primitiveGenerator) analyzeShow(handlerCtx *handler.HandlerContext, nod
 		}
 		p.PrimitiveBuilder.SetProvider(prov)
 		for _, col := range colNames {
-			if !metadata.ServiceKeyExists(col) {
+			if !openapistackql.ServiceKeyExists(col) {
 				return fmt.Errorf("SHOW key = '%s' does NOT exist", col)
 			}
 		}
 		for _, colUsage := range colUsages {
-			if !metadata.ServiceKeyExists(colUsage.ColName.Name.GetRawVal()) {
+			if !openapistackql.ServiceKeyExists(colUsage.ColName.Name.GetRawVal()) {
 				return fmt.Errorf("SHOW key = '%s' does NOT exist", colUsage.ColName.Name.GetRawVal())
 			}
 			usageErr := parserutil.CheckSqlParserTypeVsServiceColumn(colUsage)
@@ -1395,7 +1386,7 @@ func (p *primitiveGenerator) analyzeShow(handlerCtx *handler.HandlerContext, nod
 			}
 		}
 		if node.ShowTablesOpt != nil {
-			svc := &metadata.Service{}
+			svc := &openapistackql.ProviderService{}
 			err = p.analyzeShowFilter(node, svc)
 			if err != nil {
 				return err

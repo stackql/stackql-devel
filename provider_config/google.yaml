@@ -1,9 +1,0 @@
-google:
-  services:
-    bigquery:
-      versions:
-        v2:
-          layout: googleV2
-          schemas:
-            QueryResponse:
-              selectItemsKey: rows

@@ -10,12 +10,12 @@ import (
 	"infraql/internal/iql/handler"
 	"infraql/internal/iql/httpexec"
 	"infraql/internal/iql/httpmiddleware"
-	"infraql/internal/iql/metadata"
 	"infraql/internal/iql/primitive"
 	"infraql/internal/iql/primitivegraph"
 	"infraql/internal/iql/sqlengine"
 	"infraql/internal/iql/taxonomy"
 	"infraql/internal/iql/util"
+	"infraql/internal/pkg/openapistackql"
 
 	"vitess.io/vitess/go/sqltypes"
 	querypb "vitess.io/vitess/go/vt/proto/query"
@@ -38,7 +38,7 @@ type SingleSelectAcquire struct {
 	query                      string
 	handlerCtx                 *handler.HandlerContext
 	tableMeta                  taxonomy.ExtendedTableMetadata
-	tabulation                 metadata.Tabulation
+	tabulation                 openapistackql.Tabulation
 	drmCfg                     drm.DRMConfig
 	insertPreparedStatementCtx *drm.PreparedStatementCtx
 	selectPreparedStatementCtx *drm.PreparedStatementCtx
@@ -52,7 +52,7 @@ type SingleSelect struct {
 	query                      string
 	handlerCtx                 *handler.HandlerContext
 	tableMeta                  taxonomy.ExtendedTableMetadata
-	tabulation                 metadata.Tabulation
+	tabulation                 openapistackql.Tabulation
 	drmCfg                     drm.DRMConfig
 	insertPreparedStatementCtx *drm.PreparedStatementCtx
 	selectPreparedStatementCtx *drm.PreparedStatementCtx
@@ -347,16 +347,20 @@ func (ss *SingleSelectAcquire) Build() error {
 		ss.primitiveBuilder.graph.AddTxnControlCounters(*ss.primitiveBuilder.txnCtrlCtrs)
 		mr := prov.InferMaxResultsElement(ss.tableMeta.HeirarchyObjects.Method)
 		if mr != nil {
-			_, ok := ss.tableMeta.HeirarchyObjects.Method.Parameters[mr.Name]
+			// TODO: infer param position and act accordingly
+			ok := true
 			if ok && ss.handlerCtx.RuntimeContext.HTTPMaxResults > 0 {
 				for i, param := range ss.tableMeta.HttpArmoury.RequestParams {
-					param.Context.SetQueryParam("maxResults", strconv.Itoa(ss.handlerCtx.RuntimeContext.HTTPMaxResults))
+					// param.Context.SetQueryParam("maxResults", strconv.Itoa(ss.handlerCtx.RuntimeContext.HTTPMaxResults))
+					q := param.Request.URL.Query()
+					q.Set("maxResults", strconv.Itoa(ss.handlerCtx.RuntimeContext.HTTPMaxResults))
+					param.Request.URL.RawQuery = q.Encode()
 					ss.tableMeta.HttpArmoury.RequestParams[i] = param
 				}
 			}
 		}
 		for _, reqCtx := range ss.tableMeta.HttpArmoury.RequestParams {
-			response, apiErr := httpmiddleware.HttpApiCall(*(ss.handlerCtx), prov, reqCtx.Context)
+			response, apiErr := httpmiddleware.HttpApiCallFromRequest(*(ss.handlerCtx), prov, reqCtx.Request)
 			housekeepingDone := false
 			npt := prov.InferNextPageResponseElement(ss.tableMeta.HeirarchyObjects.Method)
 			nptKey := prov.InferNextPageRequestElement(ss.tableMeta.HeirarchyObjects.Method)
@@ -408,10 +412,16 @@ func (ss *SingleSelectAcquire) Build() error {
 					log.Infoln("breaking out")
 					break
 				}
-				reqCtx.Context.SetQueryParam(nptKey.Name, tk)
-				response, apiErr = httpmiddleware.HttpApiCall(*(ss.handlerCtx), prov, reqCtx.Context)
+				q := reqCtx.Request.URL.Query()
+				q.Set(nptKey.Name, tk)
+				reqCtx.Request.URL.RawQuery = q.Encode()
+				response, apiErr = httpmiddleware.HttpApiCallFromRequest(*(ss.handlerCtx), prov, reqCtx.Request)
 			}
-			reqCtx.Context.RemoveQueryParam(nptKey.Name)
+			if reqCtx.Request != nil {
+				q := reqCtx.Request.URL.Query()
+				q.Del(nptKey.Name)
+				reqCtx.Request.URL.RawQuery = q.Encode()
+			}
 		}
 		return dto.ExecutorOutput{}
 	}

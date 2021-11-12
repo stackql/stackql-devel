@@ -194,7 +194,7 @@ func (gm *DefaultGoogleAsyncMonitor) getV1Monitor(heirarchy *taxonomy.HeirarchyO
 		}
 		return &asyncPrim, nil
 	}
-	return nil, fmt.Errorf("method %s is not awaitable", heirarchy.Method.ID)
+	return nil, fmt.Errorf("method %s is not awaitable", heirarchy.Method.GetName())
 }
 
 func prepareReultSet(prim *AsyncHttpMonitorPrimitive, pc primitive.IPrimitiveCtx, target map[string]interface{}, operationDescriptor string) dto.ExecutorOutput {

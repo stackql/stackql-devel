@@ -5,10 +5,11 @@ import (
 	"infraql/internal/iql/dto"
 	"infraql/internal/iql/handler"
 	"infraql/internal/iql/httpbuild"
-	"infraql/internal/iql/iqlmodel"
-	"infraql/internal/iql/metadata"
 	"infraql/internal/iql/parserutil"
 	"infraql/internal/iql/provider"
+
+	"infraql/internal/pkg/openapistackql"
+
 	"strings"
 
 	"vitess.io/vitess/go/vt/sqlparser"
@@ -33,18 +34,33 @@ func (ho *HeirarchyObjects) LookupSelectItemsKey() string {
 	if method == nil {
 		return defaultSelectItemsKEy
 	}
-	responseSchema := method.ResponseType
+	responseSchema, _ := method.GetResponseBodySchema()
 	if prov.GetProviderString() == "google" {
-		if svcHdl.Service.Name == "bigquery" && svcHdl.Service.Version == "v2" {
+		sn := svcHdl.GetName()
+		if sn == "bigquery" && svcHdl.Info.Version == "v2" {
 			if rsc.ID != "" {
 			}
-			if method.ID != "" {
+			if method.GetName() != "" {
 			}
-			if responseSchema.Type == "GetQueryResultsResponse" {
+			if responseSchema.GetName() == "GetQueryResultsResponse" {
 				return "rows"
 			}
 		}
-		if responseSchema.Type == "Policy" {
+		if sn == "container" && svcHdl.Info.Version == "v1" {
+			if rsc.ID != "" {
+			}
+			if method.GetName() != "" {
+			}
+			if responseSchema.GetName() == "ListUsableSubnetworksResponse" {
+				return "subnetworks"
+			}
+		}
+		if sn == "cloudresourcemanager" && svcHdl.Info.Version == "v3" {
+			if responseSchema.GetName() == "ListProjectsResponse" {
+				return "projects"
+			}
+		}
+		if responseSchema.GetName() == "Policy" {
 			return "bindings"
 		}
 	}
@@ -56,7 +72,7 @@ type TblMap map[sqlparser.SQLNode]ExtendedTableMetadata
 func (tm TblMap) GetTable(node sqlparser.SQLNode) (ExtendedTableMetadata, error) {
 	tbl, ok := tm[node]
 	if !ok {
-		return ExtendedTableMetadata{}, fmt.Errorf("could not locate table metadata for AST node: %v", node)
+		return ExtendedTableMetadata{}, fmt.Errorf("could not locate table openapistackql for AST node: %v", node)
 	}
 	return tbl, nil
 }
@@ -66,10 +82,10 @@ func (tm TblMap) SetTable(node sqlparser.SQLNode, table ExtendedTableMetadata) {
 }
 
 type ExtendedTableMetadata struct {
-	TableFilter         func(iqlmodel.ITable) (iqlmodel.ITable, error)
+	TableFilter         func(openapistackql.ITable) (openapistackql.ITable, error)
 	ColsVisited         map[string]bool
 	HeirarchyObjects    *HeirarchyObjects
-	RequiredParameters  map[string]iqlmodel.Parameter
+	RequiredParameters  map[string]openapistackql.Parameter
 	IsLocallyExecutable bool
 	HttpArmoury         *httpbuild.HTTPArmoury
 	SelectItemsKey      string
@@ -82,59 +98,53 @@ func (ex ExtendedTableMetadata) GetProvider() (provider.IProvider, error) {
 	return ex.HeirarchyObjects.Provider, nil
 }
 
-func (ex ExtendedTableMetadata) GetServiceHandle() (*metadata.ServiceHandle, error) {
+func (ex ExtendedTableMetadata) GetService() (*openapistackql.Service, error) {
 	if ex.HeirarchyObjects == nil || ex.HeirarchyObjects.ServiceHdl == nil {
 		return nil, fmt.Errorf("cannot resolve ServiceHandle")
 	}
 	return ex.HeirarchyObjects.ServiceHdl, nil
 }
 
-func (ex ExtendedTableMetadata) GetResource() (*metadata.Resource, error) {
+func (ex ExtendedTableMetadata) GetResource() (*openapistackql.Resource, error) {
 	if ex.HeirarchyObjects == nil || ex.HeirarchyObjects.Resource == nil {
 		return nil, fmt.Errorf("cannot resolve Resource")
 	}
 	return ex.HeirarchyObjects.Resource, nil
 }
 
-func (ex ExtendedTableMetadata) GetMethod() (*metadata.Method, error) {
+func (ex ExtendedTableMetadata) GetMethod() (*openapistackql.OperationStore, error) {
 	return ex.getMethod()
 }
 
-func (ex ExtendedTableMetadata) getMethod() (*metadata.Method, error) {
+func (ex ExtendedTableMetadata) getMethod() (*openapistackql.OperationStore, error) {
 	if ex.HeirarchyObjects == nil || ex.HeirarchyObjects.Method == nil {
 		return nil, fmt.Errorf("cannot resolve Method")
 	}
 	return ex.HeirarchyObjects.Method, nil
 }
 
-func (ex ExtendedTableMetadata) GetResponseSchema() (*metadata.Schema, error) {
+func (ex ExtendedTableMetadata) GetResponseSchema() (*openapistackql.Schema, error) {
 	return ex.HeirarchyObjects.GetResponseSchema()
 }
 
-func (ho *HeirarchyObjects) GetResponseSchema() (*metadata.Schema, error) {
+func (ho *HeirarchyObjects) GetResponseSchema() (*openapistackql.Schema, error) {
 	m := ho.Method
 	if m == nil {
 		return nil, fmt.Errorf("method is nil")
 	}
-	return ho.Provider.GetObjectSchema(
-		ho.HeirarchyIds.ServiceStr,
-		ho.HeirarchyIds.ResourceStr,
-		m.ResponseType.Type)
+	return m.GetResponseBodySchema()
 }
 
-func (ex ExtendedTableMetadata) GetRequestSchema() (*metadata.Schema, error) {
+func (ex ExtendedTableMetadata) GetRequestSchema() (*openapistackql.Schema, error) {
 	return ex.HeirarchyObjects.GetRequestSchema()
 }
 
-func (ho *HeirarchyObjects) GetRequestSchema() (*metadata.Schema, error) {
+func (ho *HeirarchyObjects) GetRequestSchema() (*openapistackql.Schema, error) {
 	m := ho.Method
 	if m == nil {
 		return nil, fmt.Errorf("method is nil")
 	}
-	return ho.Provider.GetObjectSchema(
-		ho.HeirarchyIds.ServiceStr,
-		ho.HeirarchyIds.ResourceStr,
-		m.RequestType.Type)
+	return ho.GetRequestSchema()
 }
 
 func (ex ExtendedTableMetadata) GetServiceStr() (string, error) {
@@ -176,14 +186,14 @@ func (ex ExtendedTableMetadata) GetTableName() (string, error) {
 	return ex.HeirarchyObjects.HeirarchyIds.GetTableName(), nil
 }
 
-func (ex ExtendedTableMetadata) GetItemsObjectSchema() (*metadata.Schema, error) {
+func (ex ExtendedTableMetadata) GetItemsObjectSchema() (*openapistackql.Schema, error) {
 	return ex.HeirarchyObjects.GetItemsObjectSchema()
 }
 
 func NewExtendedTableMetadata(heirarchyObjects *HeirarchyObjects) ExtendedTableMetadata {
 	return ExtendedTableMetadata{
 		ColsVisited:        make(map[string]bool),
-		RequiredParameters: make(map[string]iqlmodel.Parameter),
+		RequiredParameters: make(map[string]openapistackql.Parameter),
 		HeirarchyObjects:   heirarchyObjects,
 	}
 }
@@ -191,38 +201,38 @@ func NewExtendedTableMetadata(heirarchyObjects *HeirarchyObjects) ExtendedTableM
 type HeirarchyObjects struct {
 	HeirarchyIds dto.HeirarchyIdentifiers
 	Provider     provider.IProvider
-	ServiceHdl   *metadata.ServiceHandle
-	Resource     *metadata.Resource
-	Method       *metadata.Method
+	ServiceHdl   *openapistackql.Service
+	Resource     *openapistackql.Resource
+	Method       *openapistackql.OperationStore
 }
 
 func (ho *HeirarchyObjects) GetTableName() string {
 	return ho.HeirarchyIds.GetTableName()
 }
 
-func (ho *HeirarchyObjects) GetObjectSchema() (*metadata.Schema, error) {
+func (ho *HeirarchyObjects) GetObjectSchema() (*openapistackql.Schema, error) {
 	return ho.getObjectSchema()
 }
 
-func (ho *HeirarchyObjects) getObjectSchema() (*metadata.Schema, error) {
-	return ho.Provider.GetObjectSchema(ho.HeirarchyIds.ServiceStr, ho.HeirarchyIds.ResourceStr, ho.Method.ResponseType.Type)
+func (ho *HeirarchyObjects) getObjectSchema() (*openapistackql.Schema, error) {
+	return ho.Method.GetResponseBodySchema()
 }
 
-func (ho *HeirarchyObjects) GetItemsObjectSchema() (*metadata.Schema, error) {
+func (ho *HeirarchyObjects) GetItemsObjectSchema() (*openapistackql.Schema, error) {
 	responseObj, err := ho.getObjectSchema()
 	if err != nil {
 		return nil, err
 	}
 	itemS, _ := responseObj.GetSelectListItems(ho.LookupSelectItemsKey())
 	if itemS == nil {
-		return nil, fmt.Errorf("could not locate dml aggregate object for response type '%v'", responseObj.ID)
+		return nil, fmt.Errorf("could not locate dml aggregate object for response type '%v'", ho.Method.Response.ObjectKey)
 	}
 	is := itemS.Items
-	itemObjS, _ := is.GetSchema(itemS.SchemaCentral)
+	itemObjS := is.Value
 	if itemObjS == nil {
-		return nil, fmt.Errorf("could not locate dml object for response type '%v'", responseObj.ID)
+		return nil, fmt.Errorf("could not locate dml object for response type '%v'", ho.Method.Response.ObjectKey)
 	}
-	return itemObjS, nil
+	return openapistackql.NewSchema(itemObjS, ""), nil
 }
 
 func GetHeirarchyIDs(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode) (*dto.HeirarchyIdentifiers, error) {
@@ -318,7 +328,7 @@ func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparse
 	if err != nil {
 		return nil, err
 	}
-	svcHdl, err := prov.GetServiceHandle(hIds.ServiceStr, handlerCtx.RuntimeContext)
+	svcHdl, err := prov.GetService(hIds.ServiceStr, handlerCtx.RuntimeContext)
 	if err != nil {
 		return nil, err
 	}
@@ -328,8 +338,8 @@ func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparse
 		return nil, err
 	}
 	retVal.Resource = rsc
-	method, methodPresent := rsc.Methods[hIds.MethodStr]
-	if !methodPresent && methodRequired {
+	method, methodErr := rsc.FindMethod(hIds.MethodStr) // rsc.Methods[hIds.MethodStr]
+	if methodErr != nil && methodRequired {
 		switch node.(type) {
 		case *sqlparser.DescribeTable:
 			m, mStr, err := prov.InferDescribeMethod(rsc)
@@ -347,11 +357,11 @@ func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparse
 		if err != nil {
 			return nil, fmt.Errorf("could not find method in taxonomy: %s", err.Error())
 		}
-		method = *meth
+		method = meth
 		retVal.HeirarchyIds.MethodStr = methStr
 	}
 	if methodRequired {
-		retVal.Method = &method
+		retVal.Method = method
 	}
 	return &retVal, nil
 }

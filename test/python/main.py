@@ -119,7 +119,7 @@ INVOCATION_BASE_ARGS = [
 
 INVOCATION_SIMPLE_ARGS = INVOCATION_BASE_ARGS + [ 'exec' ]
 
-COMPUTE_RSC_STR = "compute__v1"
+COMPUTE_RSC_STR = "compute"
 
 GOOGLE_PROV_STR = "google"
 
@@ -410,7 +410,7 @@ def simple_test_suite():
         '-f={}'.format(_SHOW_EXTENDED_SERVICES_OUTPUT_FILE_ALT_CSV),
         'exec',
         "show extended services where description like 'Provides natural language%' and version = 'v1'",
-        expected = [ 'id;name;title;description;version;preferred', 'language__v1;.*' ],
+        expected = [ 'id;name;title;description;version;preferred', 'language:v1;.*' ],
         test_output_file = _SHOW_EXTENDED_SERVICES_OUTPUT_FILE_ALT_CSV,
         verbose = args.verbosetesting,
         name = 'Verbose output, filtered, alt-deimited CSV file based SHOW EXTENDED SERVICES test + assertion'
@@ -423,7 +423,7 @@ def simple_test_suite():
         '-f={}'.format(_SHOW_EXTENDED_RESOURCES_FILTERED_OUTPUT_FILE_ALT_CSV),
         'exec',
         "show extended resources from google.compute where name = 'resourcePolicies' and id like '%.resourcePol%';",
-        expected = [ 'name;id;title;description', 'resourcePolicies;.*' ],
+        expected = [ 'name;id;type;description', 'resourcePolicies;.*' ],
         test_output_file = _SHOW_EXTENDED_RESOURCES_FILTERED_OUTPUT_FILE_ALT_CSV,
         verbose = args.verbosetesting,
         name = 'Verbose output, filtered, alt-deimited CSV file based SHOW EXTENDED RESOURCES test + assertion'

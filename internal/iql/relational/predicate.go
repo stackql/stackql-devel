@@ -2,7 +2,7 @@ package relational
 
 import (
 	"fmt"
-	"infraql/internal/iql/iqlmodel"
+	"infraql/internal/pkg/openapistackql"
 	"regexp"
 
 	"vitess.io/vitess/go/sqltypes"
@@ -10,11 +10,11 @@ import (
 	"vitess.io/vitess/go/vt/vtgate/evalengine"
 )
 
-func AndTableFilters(lhs, rhs func(iqlmodel.ITable) (iqlmodel.ITable, error)) func(iqlmodel.ITable) (iqlmodel.ITable, error) {
+func AndTableFilters(lhs, rhs func(openapistackql.ITable) (openapistackql.ITable, error)) func(openapistackql.ITable) (openapistackql.ITable, error) {
 	if lhs == nil {
 		return rhs
 	}
-	return func(t iqlmodel.ITable) (iqlmodel.ITable, error) {
+	return func(t openapistackql.ITable) (openapistackql.ITable, error) {
 		lResult, lErr := lhs(t)
 		rResult, rErr := rhs(t)
 		if lErr != nil {
@@ -30,11 +30,11 @@ func AndTableFilters(lhs, rhs func(iqlmodel.ITable) (iqlmodel.ITable, error)) fu
 	}
 }
 
-func OrTableFilters(lhs, rhs func(iqlmodel.ITable) (iqlmodel.ITable, error)) func(iqlmodel.ITable) (iqlmodel.ITable, error) {
+func OrTableFilters(lhs, rhs func(openapistackql.ITable) (openapistackql.ITable, error)) func(openapistackql.ITable) (openapistackql.ITable, error) {
 	if lhs == nil {
 		return rhs
 	}
-	return func(t iqlmodel.ITable) (iqlmodel.ITable, error) {
+	return func(t openapistackql.ITable) (openapistackql.ITable, error) {
 		lResult, lErr := lhs(t)
 		rResult, rErr := rhs(t)
 		if lErr != nil {
@@ -53,8 +53,8 @@ func OrTableFilters(lhs, rhs func(iqlmodel.ITable) (iqlmodel.ITable, error)) fun
 	}
 }
 
-func ConstructTablePredicateFilter(colName string, rhs sqltypes.Value, operatorPredicate func(int) bool) func(iqlmodel.ITable) (iqlmodel.ITable, error) {
-	return func(row iqlmodel.ITable) (iqlmodel.ITable, error) {
+func ConstructTablePredicateFilter(colName string, rhs sqltypes.Value, operatorPredicate func(int) bool) func(openapistackql.ITable) (openapistackql.ITable, error) {
+	return func(row openapistackql.ITable) (openapistackql.ITable, error) {
 		v, e := row.GetKeyAsSqlVal(colName)
 		if e != nil {
 			return nil, e
@@ -67,8 +67,8 @@ func ConstructTablePredicateFilter(colName string, rhs sqltypes.Value, operatorP
 	}
 }
 
-func ConstructLikePredicateFilter(colName string, rhs *regexp.Regexp, isNegating bool) func(iqlmodel.ITable) (iqlmodel.ITable, error) {
-	return func(row iqlmodel.ITable) (iqlmodel.ITable, error) {
+func ConstructLikePredicateFilter(colName string, rhs *regexp.Regexp, isNegating bool) func(openapistackql.ITable) (openapistackql.ITable, error) {
+	return func(row openapistackql.ITable) (openapistackql.ITable, error) {
 		v, vErr := row.GetKey(colName)
 		if vErr != nil {
 			return nil, vErr

@@ -15,14 +15,14 @@
       ]
     },
     {
-      "name": "Launch exec \"show services from google;\" -- prebuilt with cmake",
+      "name": "Launch exec \"show services from google where name = 'abusiveexperiencereport';\" -- prebuilt with cmake",
       "type": "go",
       "request": "launch",
       "mode": "exec",
       "program": "${workspaceFolder}/build/infraql",
       "args": [
         "exec",
-        "show services from google;"
+        "show services from google where name = 'abusiveexperiencereport';"
       ],
     },
     {

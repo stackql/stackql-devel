@@ -7,7 +7,7 @@
       "instruction": "exec",
       "query": "show extended resources from google.compute where name = 'resourcePolicies' and id like '%.resourcePol%';",
       "expected": [ 
-        "name;id;title;description",
+        "name;id;type;description",
         "resourcePolicies;.*"
       ],
       "output_file": "output/filtered_resources_semicolon.csv",
@@ -21,7 +21,7 @@
       "query": "show extended services where description like 'Provides natural language%' and version = 'v1';",
       "expected": [ 
         "id;name;title;description;version;preferred",
-        "language__v1;.*" 
+        "language:v1;.*" 
       ],
       "output_file": "output/filtered_services_semicolon.csv",
       "verbose": true
@@ -34,7 +34,7 @@
       "query": "show extended services where description like 'Provides natural language%' and version = 'v1';",
       "expected": [ 
         "id;name;title;description;version;preferred",
-        "language__v1;.*" 
+        "language:v1;.*" 
       ],
       "output_file": "output/filtered_services_semicolon.csv",
       "verbose": true
@@ -47,7 +47,7 @@
       "query": "show extended services where description like 'Provides natural language%' and version = 'v1';",
       "expected": [ 
         "id;name;title;description;version;preferred",
-        "language__v1;.*" 
+        "language:v1;.*" 
       ],
       "output_file": "output/stdout",
       "verbose": true
@@ -61,7 +61,7 @@
         "\\|[\\|\\-]*\\|$",
         "\\|[\\W]+id",
         "\\|[\\|\\-]*\\|$",
-        "\\|[\\W]+language__v1.*"
+        "\\|[\\W]+language\\:v1.*"
       ],
       "output_file": "output/stdout",
       "verbose": true
@@ -135,7 +135,7 @@
       "input_file": "input/json-templated-show-services-extended-filtered.iql",
       "expected": [ 
         "id;name;title;description;version;preferred",
-        "language__v1;.*" 
+        "language:v1;.*" 
       ],
       "output_file": "output/from_file_json_templated_filtered_services_semicolon.csv",
       "verbose": true
@@ -148,7 +148,7 @@
       "input_file": "input/jsonnet-templated-show-services-extended-filtered.iql",
       "expected": [ 
         "id;name;title;description;version;preferred",
-        "language__v1;.*" 
+        "language:v1;.*" 
       ],
       "output_file": "output/from_file_jsonnet_templated_filtered_services_semicolon.csv",
       "verbose": true
@@ -162,7 +162,7 @@
       "external_tmpl_ctx_file": "input/show-services-ctx.json",
       "expected": [ 
         "id;name;title;description;version;preferred",
-        "language__v1;.*" 
+        "language:v1;.*" 
       ],
       "output_file": "output/from_file_external_jsonnet_templated_filtered_services_semicolon.csv",
       "verbose": true
@@ -176,7 +176,7 @@
       "external_tmpl_ctx_file": "input/show-services-ctx.jsonnet",
       "expected": [ 
         "id;name;title;description;version;preferred",
-        "language__v1;.*" 
+        "language:v1;.*" 
       ],
       "output_file": "output/from_file_external_jsonnet_templated_filtered_services_semicolon.csv",
       "verbose": true

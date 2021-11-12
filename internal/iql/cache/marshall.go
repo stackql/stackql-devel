@@ -1,9 +1,13 @@
 package cache
 
 import (
-	"encoding/json"
 	"fmt"
-	"infraql/internal/iql/metadata"
+
+	"encoding/json"
+
+	"infraql/internal/pkg/openapistackql"
+
+	"gopkg.in/yaml.v2"
 )
 
 type IMarshaller interface {
@@ -12,30 +16,14 @@ type IMarshaller interface {
 	GetKey() string
 }
 
-type ServiceDiscoveryDocWrapper struct {
-	Resources        map[string]metadata.Resource `json:"-"`
-	RawResources     json.RawMessage              `json:"raw_resources"`
-	Schemas          map[string]interface{}       `json:"schemas"`
-	SchemaObjects    map[string]metadata.Schema   `json:"schema_objects"`
-	RawSchemaObjects json.RawMessage              `json:"raw_schema_objects"`
-}
-
-func newServiceDiscoveryDocWrapper() *ServiceDiscoveryDocWrapper {
-	return &ServiceDiscoveryDocWrapper{
-		Resources:     make(map[string]metadata.Resource),
-		Schemas:       make(map[string]interface{}),
-		SchemaObjects: make(map[string]metadata.Schema),
-	}
-}
-
 func GetMarshaller(key string) (IMarshaller, error) {
 	switch key {
 	case DefaultMarshallerKey:
 		return &DefaultMarshaller{}, nil
-	case GoogleRootMarshallerKey:
-		return &GoogleRootDiscoveryMarshaller{}, nil
-	case GoogleServiceMarshallerKey:
-		return &GoogleServiceDiscoveryMarshaller{}, nil
+	case RootMarshallerKey:
+		return &RootDiscoveryMarshaller{}, nil
+	case ServiceMarshallerKey:
+		return &ServiceDiscoveryMarshaller{}, nil
 	}
 	return nil, fmt.Errorf("cannot find apt marshaller")
 }
@@ -54,11 +42,11 @@ func (dm *DefaultMarshaller) GetKey() string {
 	return DefaultMarshallerKey
 }
 
-type GoogleRootDiscoveryMarshaller struct{}
+type RootDiscoveryMarshaller struct{}
 
-func (dm *GoogleRootDiscoveryMarshaller) Unmarshal(item *Item) error {
+func (dm *RootDiscoveryMarshaller) Unmarshal(item *Item) error {
 	var err error
-	var blob map[string]metadata.ServiceHandle
+	var blob map[string]*openapistackql.Service
 	err = json.Unmarshal(item.RawValue, &blob)
 	if err != nil {
 		return err
@@ -67,131 +55,38 @@ func (dm *GoogleRootDiscoveryMarshaller) Unmarshal(item *Item) error {
 	return err
 }
 
-func (dm *GoogleRootDiscoveryMarshaller) Marshal(item *Item) error {
+func (dm *RootDiscoveryMarshaller) Marshal(item *Item) error {
 	var err error
-	blob := make(map[string]metadata.ServiceHandle)
-	switch val := item.Value.(type) {
-	case map[string]metadata.ServiceHandle:
-		for k, hn := range val {
-			blob[k] = hn
-		}
-	case map[string]interface{}:
-		for k, hn := range val {
-			handle, ok := hn.(metadata.ServiceHandle)
-			if ok {
-				blob[k] = handle
-			} else {
-				fmt.Errorf("cannot Marshal value where item where type is %T", hn)
-			}
-
-		}
-	default:
-		return fmt.Errorf("cannot Marshal where type is %T", val)
+	prov, ok := item.Value.(openapistackql.Provider)
+	if !ok {
+		return fmt.Errorf("cannot marshal root discovery doc of type = %T", prov)
 	}
-	item.RawValue, err = json.Marshal(blob)
+	item.RawValue, err = yaml.Marshal(&prov)
 	return err
 }
 
-func (dm *GoogleRootDiscoveryMarshaller) GetKey() string {
-	return GoogleRootMarshallerKey
+func (dm *RootDiscoveryMarshaller) GetKey() string {
+	return RootMarshallerKey
 }
 
-type GoogleServiceDiscoveryMarshaller struct{}
+type ServiceDiscoveryMarshaller struct{}
 
-func (dm *GoogleServiceDiscoveryMarshaller) Unmarshal(item *Item) error {
-	var err error
-	wrapperBlob := newServiceDiscoveryDocWrapper()
-	blob := make(map[string]interface{})
-	err = json.Unmarshal(item.RawValue, wrapperBlob)
-	if err != nil {
-		return err
-	}
-	err = json.Unmarshal(wrapperBlob.RawResources, &wrapperBlob.Resources)
-	if err != nil {
-		return err
-	}
-	err = json.Unmarshal(wrapperBlob.RawSchemaObjects, &wrapperBlob.SchemaObjects)
-	if err != nil {
-		return err
-	}
-	sr := &metadata.SchemaRegistry{}
-	for k, v := range wrapperBlob.SchemaObjects {
-		v.Unmarshal()
-		v.SchemaCentral = sr
-		wrapperBlob.SchemaObjects[k] = v
-		if err != nil {
-			return err
-		}
-	}
-	so := wrapperBlob.SchemaObjects
-	for _, rsc := range wrapperBlob.Resources {
-		for k, method := range rsc.Methods {
-			method.SchemaCentral = sr
-			rsc.Methods[k] = method
-		}
-	}
-	blob["schemas"] = wrapperBlob.Schemas
-	blob["resources"] = wrapperBlob.Resources
-	blob["schemas_parsed"] = so
-	blob["tablespace"] = item.Tablespace
-	blob["tablespace_generation_id"] = item.TablespaceID
-	for _, v := range blob["schemas_parsed"].(map[string]metadata.Schema) {
-		v.UpdateSchemaRegistry(sr)
-	}
-	sr.SchemaRef = so
+func (dm *ServiceDiscoveryMarshaller) Unmarshal(item *Item) error {
+	blob, err := openapistackql.LoadServiceDocFromBytes(item.RawValue)
 	item.Value = blob
 	return err
 }
 
-func (dm *GoogleServiceDiscoveryMarshaller) Marshal(item *Item) error {
-	var err error
-	wrapperBlob := newServiceDiscoveryDocWrapper()
-	resources := make(map[string]metadata.Resource)
-	schemas := make(map[string]metadata.Schema)
-	value, ok := item.Value.(map[string]interface{})
+func (dm *ServiceDiscoveryMarshaller) Marshal(item *Item) error {
+	value, ok := item.Value.(*openapistackql.Service)
 	if !ok {
 		return fmt.Errorf("Cannot Marshal cache object of type: %T", item.Value)
 	}
-	for tlk, tlv := range value {
-		switch tlk {
-		case "resources":
-			switch tlvt := tlv.(type) {
-			case map[string]metadata.Resource:
-				for k, hn := range tlvt {
-					resources[k] = hn
-				}
-			default:
-				return fmt.Errorf("reseources cannot be marshaled, unexpected type = %T", tlvt)
-			}
-		case "schemas_parsed":
-			switch tlvt := tlv.(type) {
-			case map[string]metadata.Schema:
-				for k, hn := range tlvt {
-					schemas[k] = hn
-				}
-			default:
-				return fmt.Errorf("schemas_parsed cannot be marshaled, unexpected type = %T", tlvt)
-			}
-		case "schemas":
-			wrapperBlob.Schemas = tlv.(map[string]interface{})
-		case "tablespace":
-			item.Tablespace = tlv.(string)
-		case "tablespace_generation_id":
-			item.TablespaceID = tlv.(int)
-		}
-	}
-	wrapperBlob.RawResources, err = json.Marshal(resources)
-	if err != nil {
-		return err
-	}
-	wrapperBlob.RawSchemaObjects, err = json.Marshal(schemas)
-	if err != nil {
-		return err
-	}
-	item.RawValue, err = json.Marshal(wrapperBlob)
+	bytes, err := value.MarshalJSON()
+	item.RawValue = (json.RawMessage)(bytes)
 	return err
 }
 
-func (dm *GoogleServiceDiscoveryMarshaller) GetKey() string {
-	return GoogleServiceMarshallerKey
+func (dm *ServiceDiscoveryMarshaller) GetKey() string {
+	return ServiceMarshallerKey
 }

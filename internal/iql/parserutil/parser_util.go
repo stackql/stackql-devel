@@ -2,7 +2,7 @@ package parserutil
 
 import (
 	"fmt"
-	"infraql/internal/iql/metadata"
+	"infraql/internal/pkg/openapistackql"
 	"strconv"
 	"strings"
 
@@ -259,9 +259,9 @@ type ColumnUsageMetadata struct {
 	ColVal  *sqlparser.SQLVal
 }
 
-func CheckColUsagesAgainstTable(colUsages []ColumnUsageMetadata, table *metadata.Method) error {
+func CheckColUsagesAgainstTable(colUsages []ColumnUsageMetadata, table *openapistackql.OperationStore) error {
 	for _, colUsage := range colUsages {
-		param, ok := table.Parameters[colUsage.ColName.Name.GetRawVal()]
+		param, ok := table.GetParameter(colUsage.ColName.Name.GetRawVal())
 		if ok {
 			usageErr := CheckSqlParserTypeVsColumn(colUsage, param.ConditionIsValid)
 			if usageErr != nil {
@@ -388,11 +388,11 @@ func inferColNameFromExpr(node *sqlparser.AliasedExpr) ColumnHandle {
 }
 
 func CheckSqlParserTypeVsServiceColumn(colUsage ColumnUsageMetadata) error {
-	return CheckSqlParserTypeVsColumn(colUsage, metadata.ServiceConditionIsValid)
+	return CheckSqlParserTypeVsColumn(colUsage, openapistackql.ServiceConditionIsValid)
 }
 
 func CheckSqlParserTypeVsResourceColumn(colUsage ColumnUsageMetadata) error {
-	return CheckSqlParserTypeVsColumn(colUsage, metadata.ResourceConditionIsValid)
+	return CheckSqlParserTypeVsColumn(colUsage, openapistackql.ResourceConditionIsValid)
 }
 
 func CheckSqlParserTypeVsColumn(colUsage ColumnUsageMetadata, verifyCallback func(string, interface{}) bool) error {

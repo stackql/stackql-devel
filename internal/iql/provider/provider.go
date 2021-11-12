@@ -2,6 +2,10 @@ package provider
 
 import (
 	"fmt"
+
+	"net/http"
+	"path/filepath"
+
 	"infraql/internal/iql/cache"
 	"infraql/internal/iql/config"
 	"infraql/internal/iql/constants"
@@ -9,12 +13,10 @@ import (
 	"infraql/internal/iql/dto"
 	"infraql/internal/iql/googlediscovery"
 	"infraql/internal/iql/httpexec"
-	"infraql/internal/iql/iqlmodel"
-	"infraql/internal/iql/metadata"
 	"infraql/internal/iql/methodselect"
 	"infraql/internal/iql/sqlengine"
-	"net/http"
-	"path/filepath"
+
+	"infraql/internal/pkg/openapistackql"
 )
 
 const (
@@ -48,7 +50,7 @@ type IProvider interface {
 
 	CheckServiceAccountFile(credentialFile string) error
 
-	EnhanceMetadataFilter(string, func(iqlmodel.ITable) (iqlmodel.ITable, error), map[string]bool) (func(iqlmodel.ITable) (iqlmodel.ITable, error), error)
+	EnhanceMetadataFilter(string, func(openapistackql.ITable) (openapistackql.ITable, error), map[string]bool) (func(openapistackql.ITable) (openapistackql.ITable, error), error)
 
 	GenerateHTTPRestInstruction(httpContext httpexec.IHttpContext) (httpexec.IHttpContext, error)
 
@@ -58,45 +60,41 @@ type IProvider interface {
 
 	GetLikeableColumns(string) []string
 
-	GetMethodForAction(serviceName string, resourceName string, iqlAction string, runtimeCtx dto.RuntimeCtx) (*metadata.Method, string, error)
+	GetMethodForAction(serviceName string, resourceName string, iqlAction string, runtimeCtx dto.RuntimeCtx) (*openapistackql.OperationStore, string, error)
 
 	GetMethodSelector() methodselect.IMethodSelector
 
-	GetProviderServices() (map[string]metadata.Service, error)
-
 	GetProviderString() string
 
-	GetProviderServicesRedacted(runtimeCtx dto.RuntimeCtx, extended bool) (map[string]metadata.Service, error)
+	GetProviderServicesRedacted(runtimeCtx dto.RuntimeCtx, extended bool) (map[string]openapistackql.ProviderService, error)
 
-	GetResource(serviceKey string, resourceKey string, runtimeCtx dto.RuntimeCtx) (*metadata.Resource, error)
+	GetResource(serviceKey string, resourceKey string, runtimeCtx dto.RuntimeCtx) (*openapistackql.Resource, error)
 
-	GetResourcesMap(serviceKey string, runtimeCtx dto.RuntimeCtx) (map[string]metadata.Resource, error)
+	GetResourcesMap(serviceKey string, runtimeCtx dto.RuntimeCtx) (map[string]*openapistackql.Resource, error)
 
-	GetResourcesRedacted(currentService string, runtimeCtx dto.RuntimeCtx, extended bool) (map[string]metadata.Resource, error)
+	GetResourcesRedacted(currentService string, runtimeCtx dto.RuntimeCtx, extended bool) (map[string]*openapistackql.Resource, error)
 
-	GetServiceHandle(serviceKey string, runtimeCtx dto.RuntimeCtx) (*metadata.ServiceHandle, error)
+	GetService(serviceKey string, runtimeCtx dto.RuntimeCtx) (*openapistackql.Service, error)
 
-	GetServiceHandlesMap(runtimeCtx dto.RuntimeCtx) (map[string]metadata.ServiceHandle, error)
+	GetObjectSchema(serviceName string, resourceName string, schemaName string) (*openapistackql.Schema, error)
 
-	GetObjectSchema(serviceName string, resourceName string, schemaName string) (*metadata.Schema, error)
-
-	GetSchemaMap(serviceName string, resourceName string) (map[string]metadata.Schema, error)
+	GetSchemaMap(serviceName string, resourceName string) (map[string]*openapistackql.Schema, error)
 
 	GetVersion() string
 
-	InferDescribeMethod(*metadata.Resource) (*metadata.Method, string, error)
+	InferDescribeMethod(*openapistackql.Resource) (*openapistackql.OperationStore, string, error)
 
-	InferMaxResultsElement(*metadata.Method) *dto.HTTPElement
+	InferMaxResultsElement(*openapistackql.OperationStore) *dto.HTTPElement
 
-	InferNextPageRequestElement(*metadata.Method) *dto.HTTPElement
+	InferNextPageRequestElement(*openapistackql.OperationStore) *dto.HTTPElement
 
-	InferNextPageResponseElement(*metadata.Method) *dto.HTTPElement
+	InferNextPageResponseElement(*openapistackql.OperationStore) *dto.HTTPElement
 
-	Parameterise(httpContext httpexec.IHttpContext, method *metadata.Method, parameters *dto.HttpParameters, requestSchema *metadata.Schema) (httpexec.IHttpContext, error)
+	Parameterise(httpContext httpexec.IHttpContext, method *openapistackql.OperationStore, parameters *dto.HttpParameters, requestSchema *openapistackql.Schema) (httpexec.IHttpContext, error)
 
 	SetCurrentService(serviceKey string)
 
-	ShowAuth(authCtx *dto.AuthCtx) (*metadata.AuthMetadata, error)
+	ShowAuth(authCtx *dto.AuthCtx) (*openapistackql.AuthMetadata, error)
 
 	GetDiscoveryGeneration(sqlengine.SQLEngine) (int, error)
 }
@@ -136,15 +134,15 @@ func NewGoogleProvider(rtCtx dto.RuntimeCtx, providerStr string, dbEngine sqleng
 			discovery.NewTTLDiscoveryStore(
 				dbEngine,
 				rtCtx, constants.GoogleV1ProviderCacheName,
-				rtCtx.CacheKeyCount, ttl, &cache.GoogleRootDiscoveryMarshaller{},
+				rtCtx.CacheKeyCount, ttl, &cache.RootDiscoveryMarshaller{},
 				dbEngine, rtCtx.ProviderStr, // TODO: allow multiple
 			),
 			getGoogleProviderCacheDir(rtCtx),
 			&rtCtx,
 			googlediscovery.GoogleRootDiscoveryDocParser,
 			googlediscovery.GoogleServiceDiscoveryDocParser,
-			&cache.GoogleRootDiscoveryMarshaller{},
-			&cache.GoogleServiceDiscoveryMarshaller{},
+			&cache.RootDiscoveryMarshaller{},
+			&cache.ServiceDiscoveryMarshaller{},
 		),
 		apiVersion:     constants.GoogleV1String,
 		methodSelector: methSel,

@@ -5,7 +5,10 @@ go 1.16
 require (
 	github.com/coreos/etcd v3.3.13+incompatible // indirect
 	github.com/fatih/color v1.9.0
+	github.com/getkin/kin-openapi v0.80.0
+	github.com/ghodss/yaml v1.0.0
 	github.com/go-delve/delve v1.6.1 // indirect
+	github.com/go-openapi/jsonpointer v0.19.5
 	github.com/google/go-jsonnet v0.17.0
 	github.com/infraql/go-sqlite3 v0.0.1-infraqlalpha
 	github.com/magiconair/properties v1.8.5
@@ -14,6 +17,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.0-20180130162743-b8a9be070da4
 	github.com/peterh/liner v1.2.1 // indirect
 	github.com/pkg/profile v0.0.0-20170413231811-06b906832ed0 // indirect
+	github.com/prometheus/common v0.9.1
 	github.com/prometheus/tsdb v0.7.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sirupsen/logrus v1.8.1

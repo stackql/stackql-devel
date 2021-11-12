@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"infraql/internal/iql/dto"
 	"infraql/internal/iql/handler"
-	"infraql/internal/iql/metadata"
 	"infraql/internal/iql/parserutil"
 	"infraql/internal/iql/taxonomy"
 	"infraql/internal/iql/util"
+	"infraql/internal/pkg/openapistackql"
 
 	log "github.com/sirupsen/logrus"
 	"vitess.io/vitess/go/vt/sqlparser"
@@ -18,10 +18,10 @@ func (p *primitiveGenerator) assembleUnarySelectionBuilder(
 	node sqlparser.SQLNode,
 	rewrittenWhere *sqlparser.Where,
 	hIds *dto.HeirarchyIdentifiers,
-	schema *metadata.Schema,
+	schema *openapistackql.Schema,
 	tbl *taxonomy.ExtendedTableMetadata,
-	selectTabulation *metadata.Tabulation,
-	insertTabulation *metadata.Tabulation,
+	selectTabulation *openapistackql.Tabulation,
+	insertTabulation *openapistackql.Tabulation,
 	cols []parserutil.ColumnHandle,
 ) error {
 	annotatedInsertTabulation := util.NewAnnotatedTabulation(insertTabulation, hIds)
@@ -42,14 +42,14 @@ func (p *primitiveGenerator) assembleUnarySelectionBuilder(
 	p.PrimitiveBuilder.SetTxnCtrlCtrs(insPsc.TxnCtrlCtrs)
 	for _, col := range cols {
 		foundSchema := schema.FindByPath(col.Name, nil)
-		cc, ok := method.Parameters[col.Name]
-		if ok && cc.ID == col.Name {
-			continue
+		cc, ok := method.GetParameter(col.Name)
+		if ok && cc.Name == col.Name {
+			// continue
 		}
 		if foundSchema == nil && col.IsColumn {
 			return fmt.Errorf("column = '%s' is NOT present in either:  - data returned from provider, - acceptable parameters, use the DESCRIBE command to view available fields for SELECT operations", col.Name)
 		}
-		selectTabulation.PushBackColumn(metadata.NewColumnDescriptor(col.Alias, col.Name, col.DecoratedColumn, foundSchema, col.Val))
+		selectTabulation.PushBackColumn(openapistackql.NewColumnDescriptor(col.Alias, col.Name, col.DecoratedColumn, foundSchema, col.Val))
 		log.Infoln(fmt.Sprintf("rsc = %T", col))
 		log.Infoln(fmt.Sprintf("schema type = %T", schema))
 	}
@@ -80,17 +80,20 @@ func (p *primitiveGenerator) analyzeUnarySelection(
 	}
 	provStr, _ := tbl.GetProviderStr()
 	svcStr, _ := tbl.GetServiceStr()
+	// rscStr, _ := tbl.GetResourceStr()
 	unsuitableSchemaMsg := "schema unsuitable for select query"
-	log.Infoln(fmt.Sprintf("schema.ID = %v", schema.ID))
+	// log.Infoln(fmt.Sprintf("schema.ID = %v", schema.ID))
 	log.Infoln(fmt.Sprintf("schema.Items = %v", schema.Items))
 	log.Infoln(fmt.Sprintf("schema.Properties = %v", schema.Properties))
-	var itemS *metadata.Schema
+	var itemS *openapistackql.Schema
 	itemS, tbl.SelectItemsKey = schema.GetSelectListItems(tbl.LookupSelectItemsKey())
 	if itemS == nil {
 		return fmt.Errorf(unsuitableSchemaMsg)
 	}
-	is := itemS.Items
-	itemObjS, _ := is.GetSchema(schema.SchemaCentral)
+	itemObjS, err := itemS.GetItems()
+	if err != nil {
+		return err
+	}
 	if itemObjS == nil {
 		return fmt.Errorf(unsuitableSchemaMsg)
 	}
@@ -102,7 +105,7 @@ func (p *primitiveGenerator) analyzeUnarySelection(
 	}
 	insertTabulation := itemObjS.Tabulate(false)
 
-	hIds := dto.NewHeirarchyIdentifiers(provStr, svcStr, insertTabulation.GetName(), "")
+	hIds := dto.NewHeirarchyIdentifiers(provStr, svcStr, itemObjS.GetName(), "")
 	selectTabulation := itemObjS.Tabulate(true)
 
 	return p.assembleUnarySelectionBuilder(

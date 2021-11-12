@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"infraql/internal/iql/astvisit"
 	"infraql/internal/iql/dto"
-	"infraql/internal/iql/metadata"
 	"infraql/internal/iql/parserutil"
 	"infraql/internal/iql/sqlengine"
 	"infraql/internal/iql/util"
+	"infraql/internal/pkg/openapistackql"
 	"infraql/internal/pkg/txncounter"
 	"reflect"
 	"sort"
@@ -37,7 +37,7 @@ type DRMCoupling struct {
 
 type ColumnMetadata struct {
 	Coupling DRMCoupling
-	Column   metadata.ColumnDescriptor
+	Column   openapistackql.ColumnDescriptor
 }
 
 func (cd ColumnMetadata) GetName() string {
@@ -64,7 +64,7 @@ func (cd ColumnMetadata) getTypeFromVal() string {
 	}
 }
 
-func NewColDescriptor(col metadata.ColumnDescriptor, relTypeStr string) ColumnMetadata {
+func NewColDescriptor(col openapistackql.ColumnDescriptor, relTypeStr string) ColumnMetadata {
 	return ColumnMetadata{
 		Coupling: DRMCoupling{RelationalType: relTypeStr, GolangKind: reflect.String},
 		Column:   col,

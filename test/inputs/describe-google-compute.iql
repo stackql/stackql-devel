@@ -1,2 +1,2 @@
 use google; 
-describe  compute__v1.instances;
+describe  compute.instances;

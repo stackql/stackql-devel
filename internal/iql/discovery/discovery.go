@@ -1,21 +1,26 @@
 package discovery
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"os"
+	"path"
+	"regexp"
+	"strings"
+
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
+	"path/filepath"
+
 	"infraql/internal/iql/cache"
 	"infraql/internal/iql/dto"
 	"infraql/internal/iql/googlediscovery"
-	"infraql/internal/iql/metadata"
 	"infraql/internal/iql/netutils"
 	"infraql/internal/iql/sqlengine"
-	"io"
-	"io/ioutil"
-	"net/http"
-	"os"
-	"path"
-	"path/filepath"
+
+	"infraql/internal/pkg/openapistackql"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -25,7 +30,8 @@ const (
 )
 
 type IDiscoveryStore interface {
-	ProcessDiscoveryDoc(string, string, dto.RuntimeCtx, string, func([]byte, sqlengine.SQLEngine, string) (map[string]interface{}, error), cache.IMarshaller) (map[string]interface{}, error)
+	ProcessProviderDiscoveryDoc(string, string, dto.RuntimeCtx, string, func([]byte, sqlengine.SQLEngine, string) (*openapistackql.Provider, error), cache.IMarshaller) (*openapistackql.Provider, error)
+	ProcessServiceDiscoveryDoc(string, *openapistackql.ProviderService, string, dto.RuntimeCtx, string, func([]byte, sqlengine.SQLEngine, string) (*openapistackql.Service, error), cache.IMarshaller) (*openapistackql.Service, error)
 }
 
 type TTLDiscoveryStore struct {
@@ -34,10 +40,12 @@ type TTLDiscoveryStore struct {
 }
 
 type IDiscoveryAdapter interface {
-	GetResourcesMap(serviceKey string) (map[string]metadata.Resource, error)
-	GetSchemaMap(serviceName string, resourceName string) (map[string]metadata.Schema, error)
-	GetServiceHandle(serviceKey string) (*metadata.ServiceHandle, error)
-	GetServiceHandlesMap() (map[string]metadata.ServiceHandle, error)
+	GetResourcesMap(providerKey, serviceKey string) (map[string]*openapistackql.Resource, error)
+	GetSchemaMap(providerName, serviceName string, resourceName string) (map[string]*openapistackql.Schema, error)
+	GetService(providerKey, serviceKey string) (*openapistackql.Service, error)
+	GetServiceHandlesMap(providerKey string) (map[string]openapistackql.ProviderService, error)
+	GetServiceHandle(providerKey, serviceKey string) (*openapistackql.ProviderService, error)
+	GetProvider(providerKey string) (*openapistackql.Provider, error)
 }
 
 type BasicDiscoveryAdapter struct {
@@ -46,8 +54,8 @@ type BasicDiscoveryAdapter struct {
 	discoveryStore     IDiscoveryStore
 	cacheDir           string
 	runtimeCtx         *dto.RuntimeCtx
-	rootDocParser      func(bytes []byte, dbEngine sqlengine.SQLEngine, alias string) (map[string]interface{}, error)
-	serviceDocParser   func(bytes []byte, dbEngine sqlengine.SQLEngine, alias string) (map[string]interface{}, error)
+	rootDocParser      func(bytes []byte, dbEngine sqlengine.SQLEngine, alias string) (*openapistackql.Provider, error)
+	serviceDocParser   func(bytes []byte, dbEngine sqlengine.SQLEngine, alias string) (*openapistackql.Service, error)
 	rootMarshaller     cache.IMarshaller
 	serviceMarshaller  cache.IMarshaller
 }
@@ -58,8 +66,8 @@ func NewBasicDiscoveryAdapter(
 	discoveryStore IDiscoveryStore,
 	cacheDir string,
 	runtimeCtx *dto.RuntimeCtx,
-	rootDocParser func(bytes []byte, dbEngine sqlengine.SQLEngine, alias string) (map[string]interface{}, error),
-	serviceDocParser func(bytes []byte, dbEngine sqlengine.SQLEngine, alias string) (map[string]interface{}, error),
+	rootDocParser func(bytes []byte, dbEngine sqlengine.SQLEngine, alias string) (*openapistackql.Provider, error),
+	serviceDocParser func(bytes []byte, dbEngine sqlengine.SQLEngine, alias string) (*openapistackql.Service, error),
 	rootMarshaller cache.IMarshaller,
 	serviceMarshaller cache.IMarshaller,
 ) IDiscoveryAdapter {
@@ -76,88 +84,65 @@ func NewBasicDiscoveryAdapter(
 	}
 }
 
-func (adp *BasicDiscoveryAdapter) getServiceDiscoveryDoc(serviceKey string, runtimeCtx dto.RuntimeCtx) (map[string]interface{}, error) {
-	component, err := adp.GetServiceHandle(serviceKey)
+func (adp *BasicDiscoveryAdapter) getServiceDiscoveryDoc(providerKey, serviceKey string, runtimeCtx dto.RuntimeCtx) (*openapistackql.Service, error) {
+	component, err := adp.GetServiceHandle(providerKey, serviceKey)
 	if component == nil || err != nil {
 		return nil, err
 	}
-	return adp.discoveryStore.ProcessDiscoveryDoc(component.Service.DiscoveryDoc, adp.cacheDir, runtimeCtx, fmt.Sprintf("%s.%s", adp.alias, serviceKey), adp.serviceDocParser, adp.serviceMarshaller)
+	return adp.discoveryStore.ProcessServiceDiscoveryDoc(providerKey, component, adp.cacheDir, runtimeCtx, fmt.Sprintf("%s.%s", adp.alias, serviceKey), adp.serviceDocParser, adp.serviceMarshaller)
 }
 
-func (adp *BasicDiscoveryAdapter) GetServiceHandlesMap() (map[string]metadata.ServiceHandle, error) {
-	disDoc, err := adp.discoveryStore.ProcessDiscoveryDoc(adp.apiDiscoveryDocUrl, adp.cacheDir, *adp.runtimeCtx, adp.alias, adp.rootDocParser, adp.rootMarshaller)
+func (adp *BasicDiscoveryAdapter) GetProvider(providerKey string) (*openapistackql.Provider, error) {
+	return adp.discoveryStore.ProcessProviderDiscoveryDoc(adp.apiDiscoveryDocUrl, adp.cacheDir, *adp.runtimeCtx, adp.alias, adp.rootDocParser, adp.rootMarshaller)
+}
+
+func (adp *BasicDiscoveryAdapter) GetServiceHandlesMap(providerKey string) (map[string]openapistackql.ProviderService, error) {
+	disDoc, err := adp.GetProvider(providerKey)
 	if err != nil {
 		return nil, err
 	}
-	retVal := make(map[string]metadata.ServiceHandle)
-	for k, service := range disDoc {
-		handle, ok := service.(metadata.ServiceHandle)
-		if !ok {
-			return nil, fmt.Errorf("Service Handles corrupted, got unexpected type '%T'", service)
-		}
-		retVal[k] = handle
-	}
-	return retVal, err
+	return disDoc.ProviderServices, err
 }
 
-func (adp *BasicDiscoveryAdapter) GetSchemaMap(serviceName string, resourceName string) (map[string]metadata.Schema, error) {
-	svcDiscDocMap, err := adp.getServiceDiscoveryDoc(serviceName, *adp.runtimeCtx)
-	cannotGetSchemaErr := fmt.Errorf("Cannot obtain object schema map for service = '%s', resource = '%s'", serviceName, resourceName)
+func (adp *BasicDiscoveryAdapter) GetServiceHandle(providerKey, serviceKey string) (*openapistackql.ProviderService, error) {
+	ps, err := adp.GetServiceHandlesMap(providerKey)
 	if err != nil {
 		return nil, err
 	}
-	switch sch := svcDiscDocMap["schemas_parsed"].(type) {
-	case map[string]metadata.Schema:
-		return sch, nil
-	default:
-		return nil, cannotGetSchemaErr
+	rv, ok := ps[serviceKey]
+	if !ok {
+		return nil, fmt.Errorf("could not find providerService = '%s'", serviceKey)
 	}
-	return nil, cannotGetSchemaErr
+	return &rv, nil
 }
 
-func (adp *BasicDiscoveryAdapter) GetServiceHandle(serviceKey string) (*metadata.ServiceHandle, error) {
+func (adp *BasicDiscoveryAdapter) GetSchemaMap(providerName string, serviceName string, resourceName string) (map[string]*openapistackql.Schema, error) {
+	svcDiscDocMap, err := adp.getServiceDiscoveryDoc(providerName, serviceName, *adp.runtimeCtx)
+	if err != nil {
+		return nil, err
+	}
+	return svcDiscDocMap.GetSchemas()
+}
+
+func (adp *BasicDiscoveryAdapter) GetService(providerKey, serviceKey string) (*openapistackql.Service, error) {
 	serviceIdString := googlediscovery.TranslateServiceKeyIqlToGoogle(serviceKey)
-	var foundById, foundByName metadata.ServiceHandle
-	var foundByIdCount, foundByNameCount int = 0, 0
-	handles, err := adp.GetServiceHandlesMap()
+	sh, err := adp.GetServiceHandle(providerKey, serviceIdString)
 	if err != nil {
 		return nil, err
 	}
-	log.Debugln(fmt.Sprintf("handles = %v", handles))
-	for _, handle := range handles {
-		svcMap := handle.Service
-		if svcMap.ID == serviceIdString {
-			foundByIdCount += 1
-			foundById = handle
-		}
-		if adp.runtimeCtx.UseNonPreferredAPIs || (svcMap.Preferred) {
-			if svcMap.Name == serviceKey {
-				foundByNameCount += 1
-				foundByName = handle
-			}
-		}
-	}
-	if foundByNameCount == 1 && (!adp.runtimeCtx.UseNonPreferredAPIs || foundByIdCount < 2) {
-		return &foundByName, nil
-	} else if foundByIdCount == 1 {
-		return &foundById, nil
-	}
-	if foundByNameCount > 1 {
-		err = errors.New(ambiguousServiceErrorMessage)
-	}
-	return nil, fmt.Errorf("Could not find Service: '%s' from Provider: '%s'", serviceKey, "google")
+	return sh.GetService()
 }
 
-func (adp *BasicDiscoveryAdapter) GetResourcesMap(serviceKey string) (map[string]metadata.Resource, error) {
-	component, err := adp.GetServiceHandle(serviceKey)
+func (adp *BasicDiscoveryAdapter) GetResourcesMap(providerKey, serviceKey string) (map[string]*openapistackql.Resource, error) {
+	component, err := adp.GetServiceHandle(providerKey, serviceKey)
 	if component == nil || err != nil {
 		return nil, err
 	}
-	disDoc, err := adp.discoveryStore.ProcessDiscoveryDoc(component.Service.DiscoveryDoc, adp.cacheDir, *adp.runtimeCtx, fmt.Sprintf("%s.%s", adp.alias, serviceKey), adp.serviceDocParser, adp.serviceMarshaller)
+	disDoc, err := adp.discoveryStore.ProcessServiceDiscoveryDoc(providerKey, component, adp.cacheDir, *adp.runtimeCtx, fmt.Sprintf("%s.%s", adp.alias, serviceKey), adp.serviceDocParser, adp.serviceMarshaller)
 	if err != nil {
 		return nil, err
 	}
-	return disDoc["resources"].(map[string]metadata.Resource), err
+	return disDoc.GetResources()
 }
 
 func NewTTLDiscoveryStore(dbEngine sqlengine.SQLEngine, runtimeCtx dto.RuntimeCtx, cacheName string, size int, ttl int, marshaller cache.IMarshaller, sqlengine sqlengine.SQLEngine, alias string) IDiscoveryStore {
@@ -183,13 +168,13 @@ func DownloadDiscoveryDoc(url string, runtimeCtx dto.RuntimeCtx) (io.ReadCloser,
 	return res.Body, nil
 }
 
-func defaultParser(bytes []byte, dbEngine sqlengine.SQLEngine, alias string) (map[string]interface{}, error) {
+func defaultParser(bytes []byte, dbEngine sqlengine.SQLEngine, alias string) (interface{}, error) {
 	var result map[string]interface{}
 	jsonErr := json.Unmarshal(bytes, &result)
 	return result, jsonErr
 }
 
-func parseDiscoveryDoc(bodyBytes []byte, dbEngine sqlengine.SQLEngine, alias string, parser func([]byte, sqlengine.SQLEngine, string) (map[string]interface{}, error)) (map[string]interface{}, error) {
+func parseServiceDiscoveryDoc(bodyBytes []byte, dbEngine sqlengine.SQLEngine, alias string, parser func([]byte, sqlengine.SQLEngine, string) (*openapistackql.Service, error)) (*openapistackql.Service, error) {
 	result, jsonErr := parser(bodyBytes, dbEngine, alias)
 	if jsonErr != nil {
 		return nil, jsonErr
@@ -197,13 +182,25 @@ func parseDiscoveryDoc(bodyBytes []byte, dbEngine sqlengine.SQLEngine, alias str
 	return result, nil
 }
 
-func processDiscoveryDoc(url string, cacheDir string, fileMode os.FileMode, runtimeCtx dto.RuntimeCtx, dbEngine sqlengine.SQLEngine, alias string, parser func([]byte, sqlengine.SQLEngine, string) (map[string]interface{}, error)) (map[string]interface{}, error) {
+func parseProviderDiscoveryDoc(bodyBytes []byte, dbEngine sqlengine.SQLEngine, alias string, parser func([]byte, sqlengine.SQLEngine, string) (*openapistackql.Provider, error)) (*openapistackql.Provider, error) {
+	result, jsonErr := parser(bodyBytes, dbEngine, alias)
+	if jsonErr != nil {
+		return nil, jsonErr
+	}
+	return result, nil
+}
+
+func processProviderDiscoveryDoc(url string, cacheDir string, fileMode os.FileMode, runtimeCtx dto.RuntimeCtx, dbEngine sqlengine.SQLEngine, alias string, parser func([]byte, sqlengine.SQLEngine, string) (*openapistackql.Provider, error)) (*openapistackql.Provider, error) {
+	isMatch, _ := regexp.MatchString(`google`, url)
+	if isMatch {
+		return openapistackql.LoadProviderByName("google")
+	}
 	body, err := DownloadDiscoveryDoc(url, runtimeCtx)
 	if err != nil {
 		return nil, err
 	}
 	if body == nil {
-		return nil, fmt.Errorf("error downloading discovery document.  Hint: check network settings, proxy config.")
+		return nil, fmt.Errorf("error downloading provider discovery document.  Hint: check network settings, proxy config.")
 	}
 	defer body.Close()
 	bodyBytes, readErr := ioutil.ReadAll(body)
@@ -211,42 +208,63 @@ func processDiscoveryDoc(url string, cacheDir string, fileMode os.FileMode, runt
 		return nil, readErr
 	}
 
-	// TODO: convert to metadata
-	return parseDiscoveryDoc(bodyBytes, dbEngine, alias, parser)
+	// TODO: convert to openapistackql
+	return parseProviderDiscoveryDoc(bodyBytes, dbEngine, alias, parser)
 }
 
-func (store *TTLDiscoveryStore) ProcessDiscoveryDoc(url string, cacheDir string, runtimeCtx dto.RuntimeCtx, alias string, parser func([]byte, sqlengine.SQLEngine, string) (map[string]interface{}, error), marshaller cache.IMarshaller) (map[string]interface{}, error) {
-	if parser == nil {
-		parser = defaultParser
+// func is() bool {
+
+// }
+
+func processServiceDiscoveryDoc(url string, cacheDir string, fileMode os.FileMode, runtimeCtx dto.RuntimeCtx, dbEngine sqlengine.SQLEngine, alias string, parser func([]byte, sqlengine.SQLEngine, string) (*openapistackql.Service, error)) (*openapistackql.Service, error) {
+	pathComponents := strings.Split(url, "/")
+	if len(pathComponents) > 1 {
+		provDir := pathComponents[0]
+		svcDir := pathComponents[1]
+		switch provDir {
+		case "googleapis.com", "google":
+			pr, err := openapistackql.LoadProviderByName("google")
+			if err != nil {
+				return nil, err
+			}
+			return pr.GetService(svcDir)
+		}
 	}
+	body, err := DownloadDiscoveryDoc(url, runtimeCtx)
+	if err != nil {
+		return nil, err
+	}
+	if body == nil {
+		return nil, fmt.Errorf("error downloading service discovery document.  Hint: check network settings, proxy config.")
+	}
+	defer body.Close()
+	bodyBytes, readErr := ioutil.ReadAll(body)
+	if readErr != nil {
+		return nil, readErr
+	}
+
+	// TODO: convert to openapistackql
+	return parseServiceDiscoveryDoc(bodyBytes, dbEngine, alias, parser)
+}
+
+func (store *TTLDiscoveryStore) ProcessProviderDiscoveryDoc(url string, cacheDir string, runtimeCtx dto.RuntimeCtx, alias string, parser func([]byte, sqlengine.SQLEngine, string) (*openapistackql.Provider, error), marshaller cache.IMarshaller) (*openapistackql.Provider, error) {
+	switch url {
+	case "https://www.googleapis.com/discovery/v1/apis":
+		return openapistackql.LoadProviderByName("google")
+	}
+
 	fileMode := os.FileMode(runtimeCtx.ProviderRootPathMode)
 	val := store.ttlCache.Get(url, marshaller)
-	retVal := make(map[string]interface{})
+	var retVal *openapistackql.Provider
 	var err error
 	switch rv := val.(type) {
-	case map[string]metadata.ServiceHandle:
-		if len(rv) > 0 {
-			for k, v := range rv {
-				retVal[k] = v
-			}
-			return retVal, nil
-		}
-	case map[string]metadata.Resource:
-		if len(rv) > 0 {
-			for k, v := range rv {
-				retVal[k] = v
-			}
-			return retVal, nil
-		}
-	case map[string]interface{}:
-		log.Infoln("retrieving discovery doc from cache")
+	case *openapistackql.Provider:
 		return rv, nil
-
 	default:
 		log.Infoln(fmt.Sprintf("coud not retrieve discovery doc from cache, type = %T", val))
 	}
 	if runtimeCtx.WorkOffline {
-		retVal, err = processDiscoveryDocFromLocal(url, cacheDir, store.sqlengine, alias, parser)
+		retVal, err = processProviderDiscoveryDocFromLocal(url, cacheDir, store.sqlengine, alias, parser)
 		if retVal != nil && err == nil {
 			log.Infoln("placing discovery doc into cache")
 			store.ttlCache.Put(url, retVal, marshaller)
@@ -256,7 +274,7 @@ func (store *TTLDiscoveryStore) ProcessDiscoveryDoc(url string, cacheDir string,
 		}
 		return retVal, err
 	}
-	retVal, err = processDiscoveryDoc(url, cacheDir, fileMode, runtimeCtx, store.sqlengine, alias, parser)
+	retVal, err = processProviderDiscoveryDoc(url, cacheDir, fileMode, runtimeCtx, store.sqlengine, alias, parser)
 	if err != nil {
 		return nil, err
 	}
@@ -277,7 +295,63 @@ func (store *TTLDiscoveryStore) ProcessDiscoveryDoc(url string, cacheDir string,
 	return retVal, err
 }
 
-func processDiscoveryDocFromLocal(url string, cacheDir string, dbEngine sqlengine.SQLEngine, alias string, parser func([]byte, sqlengine.SQLEngine, string) (map[string]interface{}, error)) (map[string]interface{}, error) {
+func (store *TTLDiscoveryStore) ProcessServiceDiscoveryDoc(providerKey string, serviceHandle *openapistackql.ProviderService, cacheDir string, runtimeCtx dto.RuntimeCtx, alias string, parser func([]byte, sqlengine.SQLEngine, string) (*openapistackql.Service, error), marshaller cache.IMarshaller) (*openapistackql.Service, error) {
+	switch providerKey {
+	case "googleapis.com", "google":
+		pr, err := openapistackql.LoadProviderByName("google")
+		if err != nil {
+			return nil, err
+		}
+		svc, err := pr.GetService(serviceHandle.Name)
+		if err != nil {
+			svc, err = pr.GetService(serviceHandle.ID)
+		}
+		return svc, err
+	}
+
+	fileMode := os.FileMode(runtimeCtx.ProviderRootPathMode)
+	val := store.ttlCache.Get(serviceHandle.ServiceRef.Ref, marshaller)
+	var retVal *openapistackql.Service
+	var err error
+	switch rv := val.(type) {
+	case *openapistackql.Service:
+		return rv, nil
+	default:
+		log.Infoln(fmt.Sprintf("coud not retrieve discovery doc from cache, type = %T", val))
+	}
+	if runtimeCtx.WorkOffline {
+		retVal, err = processServiceDiscoveryDocFromLocal(serviceHandle.ServiceRef.Ref, cacheDir, store.sqlengine, alias, parser)
+		if retVal != nil && err == nil {
+			log.Infoln("placing discovery doc into cache")
+			store.ttlCache.Put(serviceHandle.ServiceRef.Ref, retVal, marshaller)
+		} else if err != nil {
+			log.Infoln(err.Error())
+			err = errors.New("Provider information is not available in offline mode, run the command once without the --offline flag, then try again in offline mode")
+		}
+		return retVal, err
+	}
+	retVal, err = processServiceDiscoveryDoc(serviceHandle.ServiceRef.Ref, cacheDir, fileMode, runtimeCtx, store.sqlengine, alias, parser)
+	if err != nil {
+		return nil, err
+	}
+	log.Infoln("placing discovery doc into cache")
+	store.ttlCache.Put(serviceHandle.ServiceRef.Ref, retVal, marshaller)
+	db, err := store.sqlengine.GetDB()
+	if err != nil {
+		return nil, err
+	}
+	txn, err := db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	err = txn.Commit()
+	if err != nil {
+		return nil, err
+	}
+	return retVal, err
+}
+
+func processServiceDiscoveryDocFromLocal(url string, cacheDir string, dbEngine sqlengine.SQLEngine, alias string, parser func([]byte, sqlengine.SQLEngine, string) (*openapistackql.Service, error)) (*openapistackql.Service, error) {
 	_, fileName := path.Split(url)
 	fullPath := filepath.Join(cacheDir, fileName)
 	bodyBytes, readErr := ioutil.ReadFile(fullPath)
@@ -285,5 +359,16 @@ func processDiscoveryDocFromLocal(url string, cacheDir string, dbEngine sqlengin
 		log.Infoln(fmt.Sprintf(`cannot process discovery doc with url = "%s", cacheDir = "%s", fullPath = "%s"`, url, cacheDir, fullPath))
 		return nil, readErr
 	}
-	return parseDiscoveryDoc(bodyBytes, dbEngine, alias, parser)
+	return parseServiceDiscoveryDoc(bodyBytes, dbEngine, alias, parser)
+}
+
+func processProviderDiscoveryDocFromLocal(url string, cacheDir string, dbEngine sqlengine.SQLEngine, alias string, parser func([]byte, sqlengine.SQLEngine, string) (*openapistackql.Provider, error)) (*openapistackql.Provider, error) {
+	_, fileName := path.Split(url)
+	fullPath := filepath.Join(cacheDir, fileName)
+	bodyBytes, readErr := ioutil.ReadFile(fullPath)
+	if readErr != nil {
+		log.Infoln(fmt.Sprintf(`cannot process discovery doc with url = "%s", cacheDir = "%s", fullPath = "%s"`, url, cacheDir, fullPath))
+		return nil, readErr
+	}
+	return parseProviderDiscoveryDoc(bodyBytes, dbEngine, alias, parser)
 }

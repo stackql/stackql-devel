@@ -1,1 +1,1 @@
-instances,compute__v1.instances,Instance
+instances,google.compute.instances,InstanceList

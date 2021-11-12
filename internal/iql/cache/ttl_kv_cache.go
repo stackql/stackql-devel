@@ -14,9 +14,9 @@ import (
 )
 
 const (
-	DefaultMarshallerKey       string = "default_marshaller"
-	GoogleRootMarshallerKey    string = "google_root_marshaller"
-	GoogleServiceMarshallerKey string = "google_service_marshaller"
+	DefaultMarshallerKey string = "default_marshaller"
+	RootMarshallerKey    string = "root_marshaller"
+	ServiceMarshallerKey string = "service_marshaller"
 )
 
 type IKeyValCache interface {
@@ -107,7 +107,13 @@ func (m *TTLMap) restoreFromFile() error {
 	return nil
 }
 
-func NewTTLMap(dbEngine sqlengine.SQLEngine, runtimeCtx dto.RuntimeCtx, cacheName string, initSize int, maxTTL int, marshaller IMarshaller) IKeyValCache {
+func NewTTLMap(
+	dbEngine sqlengine.SQLEngine,
+	runtimeCtx dto.RuntimeCtx,
+	cacheName string,
+	initSize int,
+	maxTTL int,
+	marshaller IMarshaller) IKeyValCache {
 	log.Infoln(fmt.Sprintf("cache op: created new cache"))
 	m := &TTLMap{
 		m:               make(map[string]*Item, initSize),
