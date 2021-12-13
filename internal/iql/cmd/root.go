@@ -22,7 +22,7 @@ import (
 	"infraql/internal/iql/dto"
 	"infraql/internal/pkg/txncounter"
 	"os"
-	"path/filepath"
+	"path"
 
 	"github.com/magiconair/properties"
 	"github.com/spf13/cobra"
@@ -169,12 +169,12 @@ func initConfig() {
 
 	setLogLevel()
 	config.CreateDirIfNotExists(runtimeCtx.ProviderRootPath, os.FileMode(runtimeCtx.ProviderRootPathMode))
-	config.CreateDirIfNotExists(filepath.Join(runtimeCtx.ProviderRootPath, runtimeCtx.ProviderStr), os.FileMode(runtimeCtx.ProviderRootPathMode))
+	config.CreateDirIfNotExists(path.Join(runtimeCtx.ProviderRootPath, runtimeCtx.ProviderStr), os.FileMode(runtimeCtx.ProviderRootPathMode))
 	config.CreateDirIfNotExists(config.GetReadlineDirPath(runtimeCtx), os.FileMode(runtimeCtx.ProviderRootPathMode))
 	if runtimeCtx.Reinit {
 		os.Remove(runtimeCtx.DbFilePath)
 	}
-	viper.SetConfigFile(filepath.Join(runtimeCtx.ProviderRootPath, runtimeCtx.ViperCfgFileName))
+	viper.SetConfigFile(path.Join(runtimeCtx.ProviderRootPath, runtimeCtx.ViperCfgFileName))
 	viper.AddConfigPath(runtimeCtx.ProviderRootPath)
 	log.Infof("ProviderRootPath = %s, ViperCfgFileName = %s", runtimeCtx.ProviderRootPath, runtimeCtx.ViperCfgFileName)
 

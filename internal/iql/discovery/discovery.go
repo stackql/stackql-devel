@@ -12,7 +12,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"path/filepath"
 
 	"infraql/internal/iql/cache"
 	"infraql/internal/iql/dto"
@@ -353,7 +352,7 @@ func (store *TTLDiscoveryStore) ProcessServiceDiscoveryDoc(providerKey string, s
 
 func processServiceDiscoveryDocFromLocal(url string, cacheDir string, dbEngine sqlengine.SQLEngine, alias string, parser func([]byte, sqlengine.SQLEngine, string) (*openapistackql.Service, error)) (*openapistackql.Service, error) {
 	_, fileName := path.Split(url)
-	fullPath := filepath.Join(cacheDir, fileName)
+	fullPath := path.Join(cacheDir, fileName)
 	bodyBytes, readErr := ioutil.ReadFile(fullPath)
 	if readErr != nil {
 		log.Infoln(fmt.Sprintf(`cannot process discovery doc with url = "%s", cacheDir = "%s", fullPath = "%s"`, url, cacheDir, fullPath))
@@ -364,7 +363,7 @@ func processServiceDiscoveryDocFromLocal(url string, cacheDir string, dbEngine s
 
 func processProviderDiscoveryDocFromLocal(url string, cacheDir string, dbEngine sqlengine.SQLEngine, alias string, parser func([]byte, sqlengine.SQLEngine, string) (*openapistackql.Provider, error)) (*openapistackql.Provider, error) {
 	_, fileName := path.Split(url)
-	fullPath := filepath.Join(cacheDir, fileName)
+	fullPath := path.Join(cacheDir, fileName)
 	bodyBytes, readErr := ioutil.ReadFile(fullPath)
 	if readErr != nil {
 		log.Infoln(fmt.Sprintf(`cannot process discovery doc with url = "%s", cacheDir = "%s", fullPath = "%s"`, url, cacheDir, fullPath))

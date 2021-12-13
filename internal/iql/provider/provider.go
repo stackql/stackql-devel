@@ -2,9 +2,9 @@ package provider
 
 import (
 	"fmt"
+	"path"
 
 	"net/http"
-	"path/filepath"
 
 	"infraql/internal/iql/cache"
 	"infraql/internal/iql/config"
@@ -100,7 +100,7 @@ type IProvider interface {
 }
 
 func getProviderCacheDir(runtimeCtx dto.RuntimeCtx, providerName string) string {
-	return filepath.Join(runtimeCtx.ProviderRootPath, providerName)
+	return path.Join(runtimeCtx.ProviderRootPath, providerName)
 }
 
 func getGoogleProviderCacheDir(runtimeCtx dto.RuntimeCtx) string {

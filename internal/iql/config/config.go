@@ -3,7 +3,7 @@ package config
 import (
 	"infraql/internal/iql/dto"
 	"os"
-	"path/filepath"
+	"path"
 	"runtime"
 
 	log "github.com/sirupsen/logrus"
@@ -52,11 +52,11 @@ func GetWorkingDir() string {
 }
 
 func GetDefaultProviderCacheRoot() string {
-	return filepath.Join(GetWorkingDir(), defaultConfigCacheDir)
+	return path.Join(GetWorkingDir(), defaultConfigCacheDir)
 }
 
 func GetDefaultConfigFilePath() string {
-	return filepath.Join(GetWorkingDir(), defaultConfigFileName)
+	return path.Join(GetWorkingDir(), defaultConfigFileName)
 }
 
 func GetDefaultColorScheme() string {
@@ -67,11 +67,11 @@ func GetDefaultColorScheme() string {
 }
 
 func GetReadlineDirPath(runtimeCtx dto.RuntimeCtx) string {
-	return filepath.Join(runtimeCtx.ProviderRootPath, readlineDir)
+	return path.Join(runtimeCtx.ProviderRootPath, readlineDir)
 }
 
 func GetReadlineFilePath(runtimeCtx dto.RuntimeCtx) string {
-	return filepath.Join(runtimeCtx.ProviderRootPath, readlineDir, readlineTmpFile)
+	return path.Join(runtimeCtx.ProviderRootPath, readlineDir, readlineTmpFile)
 }
 
 func GetDefaultViperConfigFileName() string {

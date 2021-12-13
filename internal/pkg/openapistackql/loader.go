@@ -8,7 +8,7 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"os"
-	"path/filepath"
+	"path"
 	"sort"
 	"strings"
 
@@ -190,7 +190,7 @@ func GetProviderDocBytes(prov string) ([]byte, error) {
 			if err != nil {
 				return nil, fmt.Errorf("huh: %s", err.Error())
 			}
-			return googleProvider.ReadFile(filepath.Join("embeddedproviders/googleapis.com", fn))
+			return googleProvider.ReadFile(path.Join("embeddedproviders/googleapis.com", fn))
 		}
 	}
 	fn, err := getProviderDoc(prov)
@@ -207,7 +207,7 @@ func GetServiceDocBytes(url string) ([]byte, error) {
 		svc := pathElems[1]
 		switch prov {
 		case "google", "googleapis.com":
-			entries, err := googleProvider.ReadDir(filepath.Join("embeddedproviders/googleapis.com", svc))
+			entries, err := googleProvider.ReadDir(path.Join("embeddedproviders/googleapis.com", svc))
 			if err != nil {
 				return nil, fmt.Errorf("wtf: %s", err.Error())
 			}
@@ -215,10 +215,10 @@ func GetServiceDocBytes(url string) ([]byte, error) {
 			if err != nil {
 				return nil, fmt.Errorf("huh: %s", err.Error())
 			}
-			return googleProvider.ReadFile(filepath.Join("embeddedproviders/googleapis.com", svc, fn))
+			return googleProvider.ReadFile(path.Join("embeddedproviders/googleapis.com", svc, fn))
 		}
 	}
-	return os.ReadFile(filepath.Join(OpenapiFileRoot, url))
+	return os.ReadFile(path.Join(OpenapiFileRoot, url))
 }
 
 func LoadProviderByName(provider string) (*Provider, error) {
@@ -245,7 +245,7 @@ func findLatestDoc(serviceDir string) (string, error) {
 		return "", fmt.Errorf("no openapi files present in directory = '%s'", serviceDir)
 	}
 	sort.Strings(fileNames)
-	return filepath.Join(serviceDir, fileNames[fileCount-1]), nil
+	return path.Join(serviceDir, fileNames[fileCount-1]), nil
 }
 
 func getLatestFile(entries []fs.DirEntry) (string, error) {
@@ -279,15 +279,15 @@ func getLatestFile(entries []fs.DirEntry) (string, error) {
 // 		return "", fmt.Errorf("no openapi files present in directory = '%s'", serviceDir)
 // 	}
 // 	sort.Strings(fileNames)
-// 	return filepath.Join(serviceDir, fileNames[fileCount-1]), nil
+// 	return path.Join(serviceDir, fileNames[fileCount-1]), nil
 // }
 
 func getProviderDoc(provider string) (string, error) {
 	switch provider {
 	case "google":
-		return findLatestDoc(filepath.Join(OpenapiFileRoot, "googleapis.com"))
+		return findLatestDoc(path.Join(OpenapiFileRoot, "googleapis.com"))
 	}
-	return findLatestDoc(filepath.Join(OpenapiFileRoot, provider))
+	return findLatestDoc(path.Join(OpenapiFileRoot, provider))
 }
 
 func loadServiceDocFromBytes(bytes []byte) (*Service, error) {

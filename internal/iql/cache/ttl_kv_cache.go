@@ -6,7 +6,7 @@ import (
 	"infraql/internal/iql/constants"
 	"infraql/internal/iql/dto"
 	"infraql/internal/iql/sqlengine"
-	"path/filepath"
+	"path"
 	"sync"
 	"time"
 
@@ -64,7 +64,7 @@ func (m *TTLMap) persistToFile() {
 }
 
 func (m *TTLMap) getCacheDir(relativePath string) string {
-	return filepath.Join(m.runtimeCtx.ProviderRootPath, relativePath)
+	return path.Join(m.runtimeCtx.ProviderRootPath, relativePath)
 }
 
 func sanitisePath(p string) string {
