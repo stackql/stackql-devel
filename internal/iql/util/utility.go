@@ -1,7 +1,6 @@
 package util
 
 import (
-	"path"
 	"path/filepath"
 	"runtime"
 )
@@ -9,7 +8,7 @@ import (
 func GetFilePathFromRepositoryRoot(relativePath string) (string, error) {
 	_, filename, _, _ := runtime.Caller(0)
 	curDir := filepath.Dir(filename)
-	return filepath.Abs(path.Join(curDir, "../../..", relativePath))
+	return filepath.Abs(filepath.Join(curDir, "../../..", relativePath))
 }
 
 func MaxMapKey(numbers map[int]interface{}) int {
