@@ -8,7 +8,7 @@ import (
 //go:embed embeddedproviders/googleapis.com/* embeddedproviders/googleapis.com/*/*
 var googleProvider embed.FS
 
-//go:embed embeddedproviders/okta/*
+//go:embed embeddedproviders/okta/* embeddedproviders/okta/*/*
 var oktaProvider embed.FS
 
 func GetEmbeddedProvider(prov string) (embed.FS, error) {

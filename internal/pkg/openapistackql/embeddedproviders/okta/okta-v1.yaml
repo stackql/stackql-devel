@@ -1,0 +1,26 @@
+id: okta
+name: okta
+version: v1
+description: Identity Provider Services for org, user and app lifecycles
+title: Okta Identity Provider
+providerServices:
+  application:
+    description: Okta application
+      management.
+    id: application:v1
+    name: application
+    preferred: true
+    service:
+      $ref: okta/services/Application.yaml
+    title: Application API
+    version: v1
+  authenticator:
+    description: Okta authenticator
+      management.
+    id: authenticator:v1
+    name: authenticator
+    preferred: true
+    service:
+      $ref: okta/services/Authenticator.yaml
+    title: Authenticator API
+    version: v1

@@ -111,12 +111,12 @@ func GetProviderFromRuntimeCtx(runtimeCtx dto.RuntimeCtx, dbEngine sqlengine.SQL
 	providerStr := runtimeCtx.ProviderStr // TODO: support multiple providers
 	switch providerStr {
 	case config.GetGoogleProviderString():
-		return NewGoogleProvider(runtimeCtx, providerStr, dbEngine)
+		return NewGenericProvider(runtimeCtx, providerStr, dbEngine)
 	}
 	return nil, fmt.Errorf("provider %s not supported", providerStr)
 }
 
-func NewGoogleProvider(rtCtx dto.RuntimeCtx, providerStr string, dbEngine sqlengine.SQLEngine) (IProvider, error) {
+func NewGenericProvider(rtCtx dto.RuntimeCtx, providerStr string, dbEngine sqlengine.SQLEngine) (IProvider, error) {
 	ttl := rtCtx.CacheTTL
 	if rtCtx.WorkOffline {
 		ttl = -1
@@ -126,8 +126,11 @@ func NewGoogleProvider(rtCtx dto.RuntimeCtx, providerStr string, dbEngine sqleng
 		return nil, err
 	}
 
-	gp := &GoogleProvider{
-		runtimeCtx: rtCtx,
+	gp := &GenericProvider{
+		providerName:          "google",
+		defaultSelectItemsKey: "items",
+		defaultDeleteItemsKey: "items",
+		runtimeCtx:            rtCtx,
 		discoveryAdapter: discovery.NewBasicDiscoveryAdapter(
 			rtCtx.ProviderStr, // TODO: allow multiple
 			constants.GoogleV1DiscoveryDoc,
