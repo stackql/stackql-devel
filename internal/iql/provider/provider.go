@@ -10,8 +10,8 @@ import (
 	"infraql/internal/iql/config"
 	"infraql/internal/iql/constants"
 	"infraql/internal/iql/discovery"
+	"infraql/internal/iql/docparser"
 	"infraql/internal/iql/dto"
-	"infraql/internal/iql/googlediscovery"
 	"infraql/internal/iql/httpexec"
 	"infraql/internal/iql/methodselect"
 	"infraql/internal/iql/sqlengine"
@@ -22,7 +22,7 @@ import (
 const (
 	ambiguousServiceErrorMessage string = "More than one service exists with this name, please use the id in the object name, or unset the --usenonpreferredapis flag"
 	googleProviderName           string = "google"
-	SchemaDelimiter              string = googlediscovery.SchemaDelimiter
+	SchemaDelimiter              string = docparser.SchemaDelimiter
 )
 
 var DummyAuth bool = false
@@ -126,29 +126,35 @@ func NewGenericProvider(rtCtx dto.RuntimeCtx, providerStr string, dbEngine sqlen
 		return nil, err
 	}
 
-	gp := &GenericProvider{
-		providerName:          "google",
-		defaultSelectItemsKey: "items",
-		defaultDeleteItemsKey: "items",
-		runtimeCtx:            rtCtx,
-		discoveryAdapter: discovery.NewBasicDiscoveryAdapter(
-			rtCtx.ProviderStr, // TODO: allow multiple
-			constants.GoogleV1DiscoveryDoc,
-			discovery.NewTTLDiscoveryStore(
-				dbEngine,
-				rtCtx, constants.GoogleV1ProviderCacheName,
-				rtCtx.CacheKeyCount, ttl, &cache.RootDiscoveryMarshaller{},
-				dbEngine, rtCtx.ProviderStr, // TODO: allow multiple
-			),
-			getGoogleProviderCacheDir(rtCtx),
-			&rtCtx,
-			googlediscovery.GoogleRootDiscoveryDocParser,
-			googlediscovery.GoogleServiceDiscoveryDocParser,
-			&cache.RootDiscoveryMarshaller{},
-			&cache.ServiceDiscoveryMarshaller{},
+	da := discovery.NewBasicDiscoveryAdapter(
+		rtCtx.ProviderStr, // TODO: allow multiple
+		constants.GoogleV1DiscoveryDoc,
+		discovery.NewTTLDiscoveryStore(
+			dbEngine,
+			rtCtx, constants.GoogleV1ProviderCacheName,
+			rtCtx.CacheKeyCount, ttl, &cache.RootDiscoveryMarshaller{},
+			dbEngine, rtCtx.ProviderStr, // TODO: allow multiple
 		),
-		apiVersion:     constants.GoogleV1String,
-		methodSelector: methSel,
+		getGoogleProviderCacheDir(rtCtx),
+		&rtCtx,
+		docparser.OpenapiStackQLRootDiscoveryDocParser,
+		docparser.OpenapiStackQLServiceDiscoveryDocParser,
+		&cache.RootDiscoveryMarshaller{},
+		&cache.ServiceDiscoveryMarshaller{},
+	)
+
+	p, err := da.GetProvider(rtCtx.ProviderStr)
+
+	if err != nil {
+		return nil, err
+	}
+
+	gp := &GenericProvider{
+		provider:         p,
+		runtimeCtx:       rtCtx,
+		discoveryAdapter: da,
+		apiVersion:       constants.GoogleV1String,
+		methodSelector:   methSel,
 	}
 	return gp, err
 }

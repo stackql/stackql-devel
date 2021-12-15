@@ -6,9 +6,9 @@ import (
 
 	"infraql/internal/iql/constants"
 	"infraql/internal/iql/discovery"
+	"infraql/internal/iql/docparser"
 	"infraql/internal/iql/dto"
 	sdk "infraql/internal/iql/google_sdk"
-	"infraql/internal/iql/googlediscovery"
 	"infraql/internal/iql/httpexec"
 	"infraql/internal/iql/methodselect"
 	"infraql/internal/iql/netutils"
@@ -27,18 +27,19 @@ import (
 )
 
 type GenericProvider struct {
-	providerName          string
-	defaultSelectItemsKey string
-	defaultDeleteItemsKey string
-	runtimeCtx            dto.RuntimeCtx
-	currentService        string
-	discoveryAdapter      discovery.IDiscoveryAdapter
-	apiVersion            string
-	methodSelector        methodselect.IMethodSelector
+	provider         *openapistackql.Provider
+	runtimeCtx       dto.RuntimeCtx
+	currentService   string
+	discoveryAdapter discovery.IDiscoveryAdapter
+	apiVersion       string
+	methodSelector   methodselect.IMethodSelector
 }
 
 func (gp *GenericProvider) getDefaultKeyForSelectItems(sc *openapistackql.Schema) string {
-	return gp.defaultSelectItemsKey
+	if gp.provider.SelectItemsKey != "" {
+		return gp.provider.SelectItemsKey
+	}
+	return "items"
 }
 
 func (gp *GenericProvider) GetDiscoveryGeneration(dbEngine sqlengine.SQLEngine) (int, error) {
@@ -46,7 +47,10 @@ func (gp *GenericProvider) GetDiscoveryGeneration(dbEngine sqlengine.SQLEngine) 
 }
 
 func (gp *GenericProvider) GetDefaultKeyForDeleteItems() string {
-	return gp.defaultDeleteItemsKey
+	if gp.provider.DeleteItemsKey != "" {
+		return gp.provider.DeleteItemsKey
+	}
+	return "items"
 }
 
 func (gp *GenericProvider) GetMethodSelector() methodselect.IMethodSelector {
@@ -58,7 +62,7 @@ func (gp *GenericProvider) GetVersion() string {
 }
 
 func (gp *GenericProvider) GetService(serviceKey string, runtimeCtx dto.RuntimeCtx) (*openapistackql.Service, error) {
-	return gp.discoveryAdapter.GetService(gp.providerName, serviceKey)
+	return gp.discoveryAdapter.GetService(gp.provider.Name, serviceKey)
 }
 
 func (gp *GenericProvider) inferAuthType(authCtx dto.AuthCtx, authTypeRequested string) string {
@@ -143,11 +147,11 @@ func (gp *GenericProvider) InferDescribeMethod(rsc *openapistackql.Resource) (*o
 }
 
 func (gp *GenericProvider) retrieveSchemaMap(serviceName string, resourceName string) (map[string]*openapistackql.Schema, error) {
-	return gp.discoveryAdapter.GetSchemaMap(gp.providerName, serviceName, resourceName)
+	return gp.discoveryAdapter.GetSchemaMap(gp.provider.Name, serviceName, resourceName)
 }
 
 func (gp *GenericProvider) GetSchemaMap(serviceName string, resourceName string) (map[string]*openapistackql.Schema, error) {
-	return gp.discoveryAdapter.GetSchemaMap(gp.providerName, serviceName, resourceName)
+	return gp.discoveryAdapter.GetSchemaMap(gp.provider.Name, serviceName, resourceName)
 }
 
 func (gp *GenericProvider) GetObjectSchema(serviceName string, resourceName string, schemaName string) (*openapistackql.Schema, error) {
@@ -316,12 +320,12 @@ func (gp *GenericProvider) EnhanceMetadataFilter(metadataType string, metadataFi
 
 func (gp *GenericProvider) getProviderServices() (map[string]openapistackql.ProviderService, error) {
 	retVal := make(map[string]openapistackql.ProviderService)
-	disDoc, err := gp.discoveryAdapter.GetServiceHandlesMap(gp.providerName)
+	disDoc, err := gp.discoveryAdapter.GetServiceHandlesMap(gp.provider.Name)
 	if err != nil {
 		return nil, err
 	}
 	for k, item := range disDoc {
-		retVal[googlediscovery.TranslateServiceKeyGoogleToIql(k)] = item
+		retVal[docparser.TranslateServiceKeyGenericProviderToIql(k)] = item
 	}
 	return retVal, nil
 }
@@ -331,7 +335,7 @@ func (gp *GenericProvider) GetProviderServicesRedacted(runtimeCtx dto.RuntimeCtx
 }
 
 func (gp *GenericProvider) GetResourcesRedacted(currentService string, runtimeCtx dto.RuntimeCtx, extended bool) (map[string]*openapistackql.Resource, error) {
-	svcDiscDocMap, err := gp.discoveryAdapter.GetResourcesMap(gp.providerName, currentService)
+	svcDiscDocMap, err := gp.discoveryAdapter.GetResourcesMap(gp.provider.Name, currentService)
 	return svcDiscDocMap, err
 }
 
@@ -408,7 +412,7 @@ func (gp *GenericProvider) getPathParams(httpContext httpexec.IHttpContext) map[
 }
 
 func (gp *GenericProvider) GetResourcesMap(serviceKey string, runtimeCtx dto.RuntimeCtx) (map[string]*openapistackql.Resource, error) {
-	return gp.discoveryAdapter.GetResourcesMap(gp.providerName, serviceKey)
+	return gp.discoveryAdapter.GetResourcesMap(gp.provider.Name, serviceKey)
 }
 
 func (gp *GenericProvider) GetResource(serviceKey string, resourceKey string, runtimeCtx dto.RuntimeCtx) (*openapistackql.Resource, error) {

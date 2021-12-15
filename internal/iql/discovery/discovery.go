@@ -14,8 +14,8 @@ import (
 	"net/http"
 
 	"infraql/internal/iql/cache"
+	"infraql/internal/iql/docparser"
 	"infraql/internal/iql/dto"
-	"infraql/internal/iql/googlediscovery"
 	"infraql/internal/iql/netutils"
 	"infraql/internal/iql/sqlengine"
 
@@ -124,7 +124,7 @@ func (adp *BasicDiscoveryAdapter) GetSchemaMap(providerName string, serviceName 
 }
 
 func (adp *BasicDiscoveryAdapter) GetService(providerKey, serviceKey string) (*openapistackql.Service, error) {
-	serviceIdString := googlediscovery.TranslateServiceKeyIqlToGoogle(serviceKey)
+	serviceIdString := docparser.TranslateServiceKeyIqlToGenericProvider(serviceKey)
 	sh, err := adp.GetServiceHandle(providerKey, serviceIdString)
 	if err != nil {
 		return nil, err

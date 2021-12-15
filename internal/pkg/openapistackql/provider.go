@@ -10,8 +10,14 @@ import (
 	"vitess.io/vitess/go/sqltypes"
 )
 
+type ResponseKeys struct {
+	SelectItemsKey string `json:"selectItemsKey,omitempty" yaml:"selectItemsKey,omitempty"`
+	DeleteItemsKey string `json:"deleteItemsKey,omitempty" yaml:"deleteItemsKey,omitempty"`
+}
+
 type Provider struct {
 	openapi3.ExtensionProps
+	ResponseKeys
 	ID               string                     `json:"id" yaml:"id"`
 	Name             string                     `json:"name" yaml:"name"`
 	Title            string                     `json:"title" yaml:"title"`

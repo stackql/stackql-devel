@@ -1,4 +1,4 @@
-package googlediscovery
+package docparser
 
 import (
 	"fmt"
@@ -28,15 +28,15 @@ var (
 	requiredRegexpV2 *regexp.Regexp = regexp.MustCompile(`(?i)^\[Required\].*$`)
 )
 
-func TranslateServiceKeyGoogleToIql(serviceKey string) string {
+func TranslateServiceKeyGenericProviderToIql(serviceKey string) string {
 	return strings.Replace(serviceKey, googleServiceKeyDelimiter, infraqlServiceKeyDelimiter, -1)
 }
 
-func TranslateServiceKeyIqlToGoogle(serviceKey string) string {
+func TranslateServiceKeyIqlToGenericProvider(serviceKey string) string {
 	return strings.Replace(serviceKey, infraqlServiceKeyDelimiter, googleServiceKeyDelimiter, -1)
 }
 
-func GoogleServiceDiscoveryDocParser(bytes []byte, dbEngine sqlengine.SQLEngine, prefix string) (*openapistackql.Service, error) {
+func OpenapiStackQLServiceDiscoveryDocParser(bytes []byte, dbEngine sqlengine.SQLEngine, prefix string) (*openapistackql.Service, error) {
 	fields := strings.Split(prefix, ".")
 	if len(fields) != 2 {
 		return nil, fmt.Errorf("improper resource prefix '%s'", prefix)
@@ -124,7 +124,7 @@ func GoogleServiceDiscoveryDocParser(bytes []byte, dbEngine sqlengine.SQLEngine,
 	return retVal, nil
 }
 
-func GoogleRootDiscoveryDocParser(bytes []byte, dbEngine sqlengine.SQLEngine, prefix string) (*openapistackql.Provider, error) {
+func OpenapiStackQLRootDiscoveryDocParser(bytes []byte, dbEngine sqlengine.SQLEngine, prefix string) (*openapistackql.Provider, error) {
 	retVal, err := openapistackql.LoadProviderDocFromBytes(bytes)
 	return retVal, err
 }
