@@ -37,11 +37,16 @@ func (hc *HandlerContext) GetProvider(providerName string) (provider.IProvider, 
 	if providerName == "" {
 		providerName = hc.RuntimeContext.ProviderStr
 	}
-	provider, ok := hc.providers[providerName]
+	prov, ok := hc.providers[providerName]
 	if !ok {
-		err = fmt.Errorf("cannot find provider = '%s'", providerName)
+		prov, err = provider.GetProvider(hc.RuntimeContext, providerName, "v1", hc.SQLEngine)
+		if err == nil {
+			hc.providers[providerName] = prov
+			return prov, err
+		}
+		err = fmt.Errorf("cannot find provider = '%s': %s", providerName, err.Error())
 	}
-	return provider, err
+	return prov, err
 }
 
 func (hc *HandlerContext) GetAuthContext(providerName string) (*dto.AuthCtx, error) {
