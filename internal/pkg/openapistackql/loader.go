@@ -191,6 +191,16 @@ func GetProviderDocBytes(prov string) ([]byte, error) {
 				return nil, fmt.Errorf("huh: %s", err.Error())
 			}
 			return googleProvider.ReadFile(path.Join("embeddedproviders/googleapis.com", fn))
+		case "okta":
+			entries, err := oktaProvider.ReadDir("embeddedproviders/okta")
+			if err != nil {
+				return nil, fmt.Errorf("wtf: %s", err.Error())
+			}
+			fn, err := getLatestFile(entries)
+			if err != nil {
+				return nil, fmt.Errorf("huh: %s", err.Error())
+			}
+			return oktaProvider.ReadFile(path.Join("embeddedproviders/okta", fn))
 		}
 	}
 	fn, err := getProviderDoc(prov)
