@@ -2,11 +2,9 @@ package provider
 
 import (
 	"fmt"
-	"path"
 
 	"net/http"
 
-	"infraql/internal/iql/cache"
 	"infraql/internal/iql/config"
 	"infraql/internal/iql/constants"
 	"infraql/internal/iql/discovery"
@@ -99,48 +97,52 @@ type IProvider interface {
 	GetDiscoveryGeneration(sqlengine.SQLEngine) (int, error)
 }
 
-func getProviderCacheDir(runtimeCtx dto.RuntimeCtx, providerName string) string {
-	return path.Join(runtimeCtx.ProviderRootPath, providerName)
-}
-
-func getGoogleProviderCacheDir(runtimeCtx dto.RuntimeCtx) string {
-	return getProviderCacheDir(runtimeCtx, googleProviderName)
-}
-
 func GetProviderFromRuntimeCtx(runtimeCtx dto.RuntimeCtx, dbEngine sqlengine.SQLEngine) (IProvider, error) {
-	providerStr := runtimeCtx.ProviderStr // TODO: support multiple providers
+	providerStr := runtimeCtx.ProviderStr
 	switch providerStr {
 	case config.GetGoogleProviderString():
-		return NewGenericProvider(runtimeCtx, providerStr, dbEngine)
+		return newGenericProvider(runtimeCtx, providerStr, "v1", dbEngine)
 	}
 	return nil, fmt.Errorf("provider %s not supported", providerStr)
 }
 
-func NewGenericProvider(rtCtx dto.RuntimeCtx, providerStr string, dbEngine sqlengine.SQLEngine) (IProvider, error) {
-	ttl := rtCtx.CacheTTL
-	if rtCtx.WorkOffline {
-		ttl = -1
+func GetProvider(runtimeCtx dto.RuntimeCtx, providerStr, providerVersion string, dbEngine sqlengine.SQLEngine) (IProvider, error) {
+	switch providerStr {
+	case config.GetGoogleProviderString(), config.GetOktaProviderString():
+		return newGenericProvider(runtimeCtx, providerStr, providerVersion, dbEngine)
 	}
-	methSel, err := methodselect.NewMethodSelector(googleProviderName, constants.GoogleV1String)
+	return nil, fmt.Errorf("provider %s not supported", providerStr)
+}
+
+func getUrl(prov string) (string, error) {
+	switch prov {
+	case "google":
+		return constants.GoogleV1DiscoveryDoc, nil
+	case "okta":
+		return "okta", nil
+	}
+	return "", fmt.Errorf("cannot find root doc for provider = '%s'", prov)
+}
+
+func newGenericProvider(rtCtx dto.RuntimeCtx, providerStr, versionStr string, dbEngine sqlengine.SQLEngine) (IProvider, error) {
+	methSel, err := methodselect.NewMethodSelector(providerStr, versionStr)
+	if err != nil {
+		return nil, err
+	}
+
+	rootUrl, err := getUrl(providerStr)
 	if err != nil {
 		return nil, err
 	}
 
 	da := discovery.NewBasicDiscoveryAdapter(
-		rtCtx.ProviderStr, // TODO: allow multiple
-		constants.GoogleV1DiscoveryDoc,
+		providerStr,
+		rootUrl,
 		discovery.NewTTLDiscoveryStore(
 			dbEngine,
-			rtCtx, constants.GoogleV1ProviderCacheName,
-			rtCtx.CacheKeyCount, ttl, &cache.RootDiscoveryMarshaller{},
-			dbEngine, rtCtx.ProviderStr, // TODO: allow multiple
+			rtCtx,
 		),
-		getGoogleProviderCacheDir(rtCtx),
 		&rtCtx,
-		docparser.OpenapiStackQLRootDiscoveryDocParser,
-		docparser.OpenapiStackQLServiceDiscoveryDocParser,
-		&cache.RootDiscoveryMarshaller{},
-		&cache.ServiceDiscoveryMarshaller{},
 	)
 
 	p, err := da.GetProvider(rtCtx.ProviderStr)
@@ -153,7 +155,7 @@ func NewGenericProvider(rtCtx dto.RuntimeCtx, providerStr string, dbEngine sqlen
 		provider:         p,
 		runtimeCtx:       rtCtx,
 		discoveryAdapter: da,
-		apiVersion:       constants.GoogleV1String,
+		apiVersion:       versionStr,
 		methodSelector:   methSel,
 	}
 	return gp, err

@@ -14,7 +14,7 @@ type IMethodSelector interface {
 
 func NewMethodSelector(provider string, version string) (IMethodSelector, error) {
 	switch provider {
-	case "google":
+	case "google", "okta":
 		return newGoogleMethodSelector(version)
 	}
 	return nil, fmt.Errorf("method selector for provider = '%s', api version = '%s' currently not supported", provider, version)

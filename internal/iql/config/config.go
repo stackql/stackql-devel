@@ -25,6 +25,8 @@ const defaltErrorPresentation = "stderr"
 
 const googleProvider = "google"
 
+const oktaProvider = "okta"
+
 const readlineDir = "readline"
 
 const readlineTmpFile = "readline.tmp"
@@ -33,6 +35,10 @@ const defaultDbEngine = "sqlite3"
 
 func GetGoogleProviderString() string {
 	return googleProvider
+}
+
+func GetOktaProviderString() string {
+	return oktaProvider
 }
 
 func GetDefaultLogLevelString() string {
