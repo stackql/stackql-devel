@@ -26,14 +26,14 @@
       ],
     },
     {
-      "name": "Launch exec \"SHOW  resources FROM google.storage;\" -- prebuilt with cmake",
+      "name": "Launch exec \"show resources from okta.application;;\" -- prebuilt with cmake",
       "type": "go",
       "request": "launch",
       "mode": "exec",
       "program": "${workspaceFolder}/build/infraql",
       "args": [
         "exec",
-        "SHOW  resources FROM google.storage WHERE name = '';"
+        "show resources from okta.application;;"
       ],
     },
     {

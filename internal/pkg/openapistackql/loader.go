@@ -226,6 +226,8 @@ func GetServiceDocBytes(url string) ([]byte, error) {
 				return nil, fmt.Errorf("huh: %s", err.Error())
 			}
 			return googleProvider.ReadFile(path.Join("embeddedproviders/googleapis.com", svc, fn))
+		case "okta":
+			return oktaProvider.ReadFile(path.Join("embeddedproviders", url))
 		}
 	}
 	return os.ReadFile(path.Join(OpenapiFileRoot, url))
