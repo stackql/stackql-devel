@@ -64,9 +64,13 @@ func (s *Schema) GetProperties() (Schemas, error) {
 	return retVal, nil
 }
 
-func (s *Schema) GetName() string {
-	pathSplit := strings.Split(s.key, "/")
+func getPathSuffix(path string) string {
+	pathSplit := strings.Split(path, "/")
 	return pathSplit[len(pathSplit)-1]
+}
+
+func (s *Schema) GetName() string {
+	return getPathSuffix(s.key)
 }
 
 func (s *Schema) IsRequired(key string) bool {

@@ -1616,6 +1616,62 @@ components:
       in: header
       name: Authorization
       type: apiKey
+  x-stackQL-resources:
+    apps:
+      id: okta.application.apps
+      methods:
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/apps
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/apps/{appId}
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/apps/{appId}
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/apps
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        update:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/apps/{appId}
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: apps
+      title: apps
 externalDocs:
   description: Find more info here
   url: https://developer.okta.com/docs/api/getting_started/design_principles.html

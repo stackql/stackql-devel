@@ -423,7 +423,11 @@ func (loader *Loader) resolveExpectedResponse(doc *Service, op *openapi3.Operati
 			return nil
 		}
 		sRef := op.Responses[ek].Value.Content[bmt].Schema
-		s := NewSchema(sRef.Value, sRef.Ref)
+		textualRepresentation := sRef.Ref
+		if textualRepresentation == "" && sRef.Value.Items != nil && sRef.Value.Items.Ref != "" {
+			textualRepresentation = fmt.Sprintf("[]%s", getPathSuffix(sRef.Value.Items.Ref))
+		}
+		s := NewSchema(sRef.Value, textualRepresentation)
 		component.Schema = s
 		return nil
 	}
