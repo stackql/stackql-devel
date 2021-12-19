@@ -253,8 +253,15 @@ func getServersFromHeirarchy(t *Service, op *OperationStore) openapi3.Servers {
 	return servers
 }
 
-func selectServer(servers openapi3.Servers) (string, error) {
-	srvs, err := obtainServerURLsFromServers(servers, nil)
+func selectServer(servers openapi3.Servers, inputParams map[string]interface{}) (string, error) {
+	paramsConformed := make(map[string]string)
+	for k, v := range inputParams {
+		switch v := v.(type) {
+		case string:
+			paramsConformed[k] = v
+		}
+	}
+	srvs, err := obtainServerURLsFromServers(servers, paramsConformed)
 	if err != nil {
 		return "", err
 	}
@@ -336,7 +343,7 @@ func (op *OperationStore) Parameterize(parentDoc *Service, inputParams map[strin
 		return nil, err
 	}
 	servers := getServersFromHeirarchy(parentDoc, op)
-	sv, err := selectServer(servers)
+	sv, err := selectServer(servers, inputParams)
 	if err != nil {
 		return nil, err
 	}
