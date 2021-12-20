@@ -29,13 +29,14 @@ type serviceAccount struct {
 
 type transport struct {
 	token               []byte
+	authType            string
 	underlyingTransport http.RoundTripper
 }
 
 func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	req.Header.Add(
 		"Authorization",
-		fmt.Sprintf("Bearer %s", string(t.token)),
+		fmt.Sprintf("%s %s", t.authType, string(t.token)),
 	)
 	return t.underlyingTransport.RoundTrip(req)
 }
@@ -77,4 +78,20 @@ func oauthServiceAccount(authCtx *dto.AuthCtx, scopes []string, runtimeCtx dto.R
 		// return httpClient, nil
 	}
 	return config.Client(context.WithValue(oauth2.NoContext, oauth2.HTTPClient, httpClient)), nil
+}
+
+func apiTokenAuth(authCtx *dto.AuthCtx, runtimeCtx dto.RuntimeCtx) (*http.Client, error) {
+	credentialFile := authCtx.KeyFilePath
+	b, err := ioutil.ReadFile(credentialFile)
+	if err != nil {
+		return nil, errors.New(constants.ServiceAccountPathErrStr)
+	}
+	activateAuth(authCtx, "", dto.AuthServiceAccountStr)
+	httpClient := netutils.GetHttpClient(runtimeCtx, http.DefaultClient)
+	httpClient.Transport = &transport{
+		token:               b,
+		authType:            "SSWS",
+		underlyingTransport: httpClient.Transport,
+	}
+	return httpClient, nil
 }

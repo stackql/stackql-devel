@@ -67,6 +67,8 @@ func (gp *GenericProvider) GetService(serviceKey string, runtimeCtx dto.RuntimeC
 
 func (gp *GenericProvider) inferAuthType(authCtx dto.AuthCtx, authTypeRequested string) string {
 	switch strings.ToLower(authTypeRequested) {
+	case dto.AuthApiKeyStr:
+		return dto.AuthApiKeyStr
 	case dto.AuthServiceAccountStr:
 		return dto.AuthServiceAccountStr
 	case dto.AuthInteractiveStr:
@@ -80,6 +82,8 @@ func (gp *GenericProvider) inferAuthType(authCtx dto.AuthCtx, authTypeRequested 
 
 func (gp *GenericProvider) Auth(authCtx *dto.AuthCtx, authTypeRequested string, enforceRevokeFirst bool) (*http.Client, error) {
 	switch gp.inferAuthType(*authCtx, authTypeRequested) {
+	case dto.AuthApiKeyStr:
+		return gp.apiTokenFileAuth(authCtx)
 	case dto.AuthServiceAccountStr:
 		return gp.keyFileAuth(authCtx)
 	case dto.AuthInteractiveStr:
@@ -225,6 +229,7 @@ func (gp *GenericProvider) oAuth(authCtx *dto.AuthCtx, enforceRevokeFirst bool) 
 	client := netutils.GetHttpClient(gp.runtimeCtx, nil)
 	client.Transport = &transport{
 		token:               tokenBytes,
+		authType:            "Bearer",
 		underlyingTransport: client.Transport,
 	}
 	return client, nil
@@ -238,6 +243,10 @@ func (gp *GenericProvider) keyFileAuth(authCtx *dto.AuthCtx) (*http.Client, erro
 		}
 	}
 	return oauthServiceAccount(authCtx, scopes, gp.runtimeCtx)
+}
+
+func (gp *GenericProvider) apiTokenFileAuth(authCtx *dto.AuthCtx) (*http.Client, error) {
+	return apiTokenAuth(authCtx, gp.runtimeCtx)
 }
 
 func (gp *GenericProvider) getServiceType(service *openapistackql.Service) string {

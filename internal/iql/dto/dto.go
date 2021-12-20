@@ -8,6 +8,7 @@ import (
 )
 
 const (
+	AuthApiKeyStr             string = "api_key"
 	AuthInteractiveStr        string = "interactive"
 	AuthServiceAccountStr     string = "serviceaccount"
 	DarkColorScheme           string = "dark"
@@ -37,6 +38,7 @@ const (
 	HTTPProxyUserKey          string = "http.proxy.user"
 	InfilePathKey             string = "infile"
 	KeyFilePathKey            string = "keyfilepath"
+	KeyFileTypeKey            string = "keyfiletype"
 	LogLevelStrKey            string = "loglevel"
 	OutfilePathKey            string = "outfile"
 	OutputFormatKey           string = "output"
@@ -90,12 +92,19 @@ type ExecPayload struct {
 	PayloadMap map[string]interface{}
 }
 
-func GetAuthCtx(scopes []string, keyFilePath string) *AuthCtx {
+func inferKeyFileType(keyFileType string) string {
+	if keyFileType == "" {
+		return AuthServiceAccountStr
+	}
+	return keyFileType
+}
+
+func GetAuthCtx(scopes []string, keyFilePath string, keyFileType string) *AuthCtx {
 	var authType string
 	if keyFilePath == "" {
 		authType = AuthInteractiveStr
 	} else {
-		authType = AuthServiceAccountStr
+		authType = inferKeyFileType(keyFileType)
 	}
 	return &AuthCtx{
 		Scopes:      scopes,
@@ -128,6 +137,7 @@ type RuntimeCtx struct {
 	HTTPProxyUser        string
 	InfilePath           string
 	KeyFilePath          string
+	KeyFileType          string
 	LogLevelStr          string
 	OutfilePath          string
 	OutputFormat         string
@@ -215,6 +225,8 @@ func (rc *RuntimeCtx) Set(key string, val string) error {
 		rc.InfilePath = val
 	case KeyFilePathKey:
 		rc.KeyFilePath = val
+	case KeyFileTypeKey:
+		rc.KeyFileType = val
 	case LogLevelStrKey:
 		rc.LogLevelStr = val
 	case OutfilePathKey:

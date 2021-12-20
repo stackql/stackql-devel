@@ -73,7 +73,7 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 			runtimeCtx.ProviderStr: prov,
 		},
 		authContexts: map[string]*dto.AuthCtx{
-			runtimeCtx.ProviderStr: dto.GetAuthCtx(nil, runtimeCtx.KeyFilePath),
+			runtimeCtx.ProviderStr: dto.GetAuthCtx(nil, runtimeCtx.KeyFilePath, runtimeCtx.KeyFileType),
 		},
 		ErrorPresentation: runtimeCtx.ErrorPresentation,
 		LRUCache:          lruCache,
