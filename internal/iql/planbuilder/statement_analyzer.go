@@ -998,16 +998,9 @@ func (p *primitiveGenerator) analyzeTableExpr(handlerCtx *handler.HandlerContext
 	// log.Infoln(fmt.Sprintf("schema.ID = %v", schema.ID))
 	log.Infoln(fmt.Sprintf("schema.Items = %v", schema.Items))
 	log.Infoln(fmt.Sprintf("schema.Properties = %v", schema.Properties))
-	var itemS *openapistackql.Schema
-	itemS, tbl.SelectItemsKey = schema.GetSelectListItems(tbl.LookupSelectItemsKey())
-	if itemS == nil {
-		return nil, fmt.Errorf(unsuitableSchemaMsg)
-	}
-	itemObjS, err := itemS.GetItems()
-	if err != nil {
-		return nil, err
-	}
-	if itemObjS == nil {
+	var itemObjS *openapistackql.Schema
+	itemObjS, tbl.SelectItemsKey, err = schema.GetSelectListItemsSchema(tbl.LookupSelectItemsKey())
+	if itemObjS == nil || err != nil {
 		return nil, fmt.Errorf(unsuitableSchemaMsg)
 	}
 	return &tbl, nil
