@@ -434,7 +434,7 @@ func (gp *GenericProvider) GetResource(serviceKey string, resourceKey string, ru
 }
 
 func (gp *GenericProvider) GetProviderString() string {
-	return googleProviderName
+	return gp.provider.Name
 }
 
 func (gp *GenericProvider) InferMaxResultsElement(*openapistackql.OperationStore) *dto.HTTPElement {
