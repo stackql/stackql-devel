@@ -150,11 +150,18 @@ func (schema *Schema) GetSelectListItems(key string) (*Schema, string) {
 }
 
 func (schema *Schema) GetSelectListItemsSchema(key string) (*Schema, string, error) {
-	propS, ok := schema.Properties[key]
-	if !ok {
-		return nil, "", fmt.Errorf("could not find items for key = '%s'", key)
+	var itemS *openapi3.Schema
+	log.Infoln(fmt.Sprintf("schema.GetSelectListItemsSchema() key = '%s'", key))
+	if strings.HasPrefix(schema.key, "[]") {
+		rv, err := schema.GetItems()
+		return rv, key, err
+	} else {
+		propS, ok := schema.Properties[key]
+		if !ok {
+			return nil, "", fmt.Errorf("could not find items for key = '%s'", key)
+		}
+		itemS = propS.Value
 	}
-	itemS := propS.Value
 	if itemS != nil {
 		s := NewSchema(
 			itemS,

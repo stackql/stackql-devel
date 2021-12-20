@@ -223,16 +223,11 @@ func (ho *HeirarchyObjects) GetItemsObjectSchema() (*openapistackql.Schema, erro
 	if err != nil {
 		return nil, err
 	}
-	itemS, _ := responseObj.GetSelectListItems(ho.LookupSelectItemsKey())
-	if itemS == nil {
-		return nil, fmt.Errorf("could not locate dml aggregate object for response type '%v'", ho.Method.Response.ObjectKey)
-	}
-	is := itemS.Items
-	itemObjS := is.Value
-	if itemObjS == nil {
+	itemObjS, _, err := responseObj.GetSelectListItemsSchema(ho.LookupSelectItemsKey())
+	if itemObjS == nil || err != nil {
 		return nil, fmt.Errorf("could not locate dml object for response type '%v'", ho.Method.Response.ObjectKey)
 	}
-	return openapistackql.NewSchema(itemObjS, ""), nil
+	return itemObjS, nil
 }
 
 func GetHeirarchyIDs(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode) (*dto.HeirarchyIdentifiers, error) {
