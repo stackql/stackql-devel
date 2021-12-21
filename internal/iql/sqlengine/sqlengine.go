@@ -192,7 +192,7 @@ func (se SQLiteEngine) getCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifie
 	res := se.db.QueryRow(`select name, CAST(REPLACE(name, ?, '') AS INTEGER) from sqlite_schema where type = 'table' and name like ? ORDER BY name DESC limit 1`, tableNameLHSRemove, tableNamePattern)
 	err := res.Scan(&tableName, &discoID)
 	if err != nil {
-		log.Infoln(fmt.Sprintf("err = %v for tableNamePattern = '%s' and tableNameLHSRemove = '%s'", err, tableNamePattern, tableNameLHSRemove))
+		log.Errorln(fmt.Sprintf("err = %v for tableNamePattern = '%s' and tableNameLHSRemove = '%s'", err, tableNamePattern, tableNameLHSRemove))
 	}
 	return dto.NewDBTable(tableName, discoID, tableHeirarchyIDs), err
 }

@@ -36,29 +36,18 @@ func TranslateServiceKeyIqlToGenericProvider(serviceKey string) string {
 	return strings.Replace(serviceKey, infraqlServiceKeyDelimiter, googleServiceKeyDelimiter, -1)
 }
 
-func OpenapiStackQLServiceDiscoveryDocParser(bytes []byte, dbEngine sqlengine.SQLEngine, prefix string) (*openapistackql.Service, error) {
-	fields := strings.Split(prefix, ".")
-	if len(fields) != 2 {
-		return nil, fmt.Errorf("improper resource prefix '%s'", prefix)
-	}
-	provStr := fields[0]
-	svcStr := fields[1]
-	retVal, err := openapistackql.LoadServiceDocFromBytes(bytes)
-	if err != nil {
-		return nil, err
-	}
-	// var result map[string]interface{}
-	// jsonErr := json.Unmarshal(bytes, &result)
+func OpenapiStackQLServiceDiscoveryDocPersistor(prov *openapistackql.Provider, svc *openapistackql.Service, dbEngine sqlengine.SQLEngine, prefix string) error {
+	// replace := false
 	discoveryGenerationId, err := dbEngine.GetCurrentDiscoveryGenerationId(prefix)
 	if err != nil {
 		discoveryGenerationId, err = dbEngine.GetNextDiscoveryGenerationId(prefix)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
-	version := retVal.Info.Version
+	version := svc.Info.Version
 	var tabluationsAnnotated []util.AnnotatedTabulation
-	for name, s := range retVal.Components.Schemas {
+	for name, s := range svc.Components.Schemas {
 		v := openapistackql.NewSchema(s.Value, name)
 		if v.IsArrayRef() {
 			continue
@@ -67,7 +56,7 @@ func OpenapiStackQLServiceDiscoveryDocParser(bytes []byte, dbEngine sqlengine.SQ
 		switch v.Type {
 		case "object":
 			tabulation := v.Tabulate(false)
-			annTab := util.NewAnnotatedTabulation(tabulation, dto.NewHeirarchyIdentifiers(provStr, svcStr, tabulation.GetName(), ""))
+			annTab := util.NewAnnotatedTabulation(tabulation, dto.NewHeirarchyIdentifiers(prov.Name, svc.GetName(), tabulation.GetName(), ""))
 			tabluationsAnnotated = append(tabluationsAnnotated, annTab)
 			if version == "v2" {
 				for pr, prVal := range v.Properties {
@@ -78,7 +67,7 @@ func OpenapiStackQLServiceDiscoveryDocParser(bytes []byte, dbEngine sqlengine.SQ
 							tb := iSc.Tabulate(false)
 							log.Infoln(fmt.Sprintf("tb = %v", tb))
 							if tb != nil {
-								annTab := util.NewAnnotatedTabulation(tb, dto.NewHeirarchyIdentifiers(provStr, svcStr, tb.GetName(), ""))
+								annTab := util.NewAnnotatedTabulation(tb, dto.NewHeirarchyIdentifiers(prov.Name, svc.GetName(), tb.GetName(), ""))
 								tabluationsAnnotated = append(tabluationsAnnotated, annTab)
 							}
 						}
@@ -91,18 +80,18 @@ func OpenapiStackQLServiceDiscoveryDocParser(bytes []byte, dbEngine sqlengine.SQ
 			if len(itemsSchema.Properties) > 0 {
 				// create "inline" table
 				tabulation := v.Tabulate(false)
-				annTab := util.NewAnnotatedTabulation(tabulation, dto.NewHeirarchyIdentifiers(provStr, svcStr, tabulation.GetName(), ""))
+				annTab := util.NewAnnotatedTabulation(tabulation, dto.NewHeirarchyIdentifiers(prov.Name, svc.GetName(), tabulation.GetName(), ""))
 				tabluationsAnnotated = append(tabluationsAnnotated, annTab)
 			}
 		}
 	}
 	db, err := dbEngine.GetDB()
 	if err != nil {
-		return nil, err
+		return err
 	}
 	txn, err := db.Begin()
 	if err != nil {
-		return nil, err
+		return err
 	}
 	for _, tblt := range tabluationsAnnotated {
 		ddl := drmConfig.GenerateDDL(tblt, discoveryGenerationId)
@@ -113,20 +102,15 @@ func OpenapiStackQLServiceDiscoveryDocParser(bytes []byte, dbEngine sqlengine.SQ
 				errStr := fmt.Sprintf("aborting DDL run on query = %s, err = %v", q, err)
 				log.Infoln(errStr)
 				txn.Rollback()
-				return nil, err
+				return err
 			}
 		}
 	}
 	err = txn.Commit()
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return retVal, nil
-}
-
-func OpenapiStackQLRootDiscoveryDocParser(bytes []byte, dbEngine sqlengine.SQLEngine, prefix string) (*openapistackql.Provider, error) {
-	retVal, err := openapistackql.LoadProviderDocFromBytes(bytes)
-	return retVal, err
+	return nil
 }
 
 func isAlwaysRequired(item interface{}) bool {

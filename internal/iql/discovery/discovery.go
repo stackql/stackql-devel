@@ -12,6 +12,8 @@ import (
 	"infraql/internal/iql/sqlengine"
 
 	"infraql/internal/pkg/openapistackql"
+
+	"gopkg.in/yaml.v2"
 )
 
 type IDiscoveryStore interface {
@@ -149,8 +151,14 @@ func (store *TTLDiscoveryStore) ProcessProviderDiscoveryDoc(url string, alias st
 }
 
 func (store *TTLDiscoveryStore) ProcessServiceDiscoveryDoc(providerKey string, serviceHandle *openapistackql.ProviderService, alias string) (*openapistackql.Service, error) {
+	k := fmt.Sprintf("%s.%s", providerKey, serviceHandle.Name)
 	switch providerKey {
 	case "googleapis.com", "google":
+		k = fmt.Sprintf("%s.%s", "google", serviceHandle.Name)
+		b, err := store.sqlengine.CacheStoreGet(k)
+		if b != nil && err == nil {
+			return openapistackql.LoadServiceDocFromBytes(b)
+		}
 		pr, err := openapistackql.LoadProviderByName("google")
 		if err != nil {
 			return nil, err
@@ -159,8 +167,21 @@ func (store *TTLDiscoveryStore) ProcessServiceDiscoveryDoc(providerKey string, s
 		if err != nil {
 			svc, err = pr.GetService(serviceHandle.ID)
 		}
+		bt, err := svc.ToYaml()
+		if err != nil {
+			return nil, err
+		}
+		err = store.sqlengine.CacheStorePut(k, bt, "", 0)
+		if err != nil {
+			return nil, err
+		}
+		// err = docparser.OpenapiStackQLServiceDiscoveryDocPersistor(pr, svc, store.sqlengine, pr.Name)
 		return svc, err
 	default:
+		b, err := store.sqlengine.CacheStoreGet(k)
+		if b != nil && err == nil {
+			return openapistackql.LoadServiceDocFromBytes(b)
+		}
 		pr, err := openapistackql.LoadProviderByName(providerKey)
 		if err != nil {
 			return nil, err
@@ -169,6 +190,19 @@ func (store *TTLDiscoveryStore) ProcessServiceDiscoveryDoc(providerKey string, s
 		if err != nil {
 			svc, err = pr.GetService(serviceHandle.ID)
 		}
+		bt, err := yaml.Marshal(svc)
+		if err != nil {
+			return nil, err
+		}
+		err = store.sqlengine.CacheStorePut(k, bt, "", 0)
+		if err != nil {
+			return nil, err
+		}
+		err = docparser.OpenapiStackQLServiceDiscoveryDocPersistor(pr, svc, store.sqlengine, pr.Name)
 		return svc, err
 	}
 }
+
+// func (store *TTLDiscoveryStore) GetService(providerKey string, serviceHandle *openapistackql.ProviderService, alias string) (*openapistackql.Service, error) {
+
+// }
