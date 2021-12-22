@@ -426,6 +426,9 @@ func (gp *GenericProvider) GetResourcesMap(serviceKey string, runtimeCtx dto.Run
 
 func (gp *GenericProvider) GetResource(serviceKey string, resourceKey string, runtimeCtx dto.RuntimeCtx) (*openapistackql.Resource, error) {
 	rm, err := gp.GetResourcesMap(serviceKey, runtimeCtx)
+	if err != nil {
+		return nil, err
+	}
 	retVal, ok := rm[resourceKey]
 	if !ok {
 		return nil, fmt.Errorf("Could not obtain resource '%s' from service '%s'", resourceKey, serviceKey)
