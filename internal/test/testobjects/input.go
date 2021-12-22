@@ -1,6 +1,7 @@
 package testobjects
 
 const (
+	SimpleSelectOktaApplicationApps               string = `select label, json_extract(settings, '$.notifications.vpn') st from okta.application.apps where subdomain = 'some-silly-subdomain';`
 	SimpleSelectGoogleComputeInstance             string = `select name, zone from google.compute.instances where zone = 'australia-southeast1-b' AND /* */ project = 'testing-project';`
 	SimpleSelectGoogleContainerSubnetworks        string = "select subnetwork, ipCidrRange from  google.container.`projects.aggregated.usableSubnetworks` where parent = 'testing-project' ;"
 	K8STheHardWayTemplateFile                     string = "test/assets/input/k8s-the-hard-way/k8s-the-hard-way.iql"

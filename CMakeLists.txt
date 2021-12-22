@@ -39,7 +39,7 @@ add_custom_command(TARGET ${TARGET}
   PRE_BUILD
   DEPENDS ${SRCS}
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  COMMAND go test -p 1 --tags "json1" ./...
+  COMMAND go test -p 2 --tags "json1" ./...
   COMMENT "Running Go Unit Tests"
 )
 

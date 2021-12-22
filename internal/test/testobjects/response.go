@@ -139,6 +139,7 @@ const (
 		"id_token": "eyJhbGciOiJSUzI1NiIsImN0eSI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNjAzMzc2MDExLCJleHAiOjExNjI4NTY1MzY0LCJhdWQiOiJhdWQteCIsImlzcyI6Imdvb2dsZSIsInNjb3BlIjoiZ29vZ2xlYXBpcyJ9.g_MHGMGbRt0MZaOyKPA7zQNrYRDgabBJwEzUGlCHlWlidWnYSG9mo5YixHwk1AfeDsRTnxxyT9Ki1mSppamKbS_QHj-o54PMLibP6jcQV4aLxwug9cKbzIvQTndWPm41gBT4Bxfip4ZI9DZUtVZ4nv89reDdmZ_WLG_HuDw-3p4E5L_5iIJGGEnfyko8Da1LiHZg6tNGzpmMyjxUhocvUdM5iEHeppkLlGlu9Lw38UVxUCvskKy6WRCnLU7uCZxeoA-Ah8jg-Ie6IPdKm2UvqUflQbfG-Ga7LqzMxSVE_KvRD9_02mYZykjuWQiEAWqMYnBqK4TtoFfAZLTa1cFGvQ",
 		"expires_in": 3600 
 	}`
+	SimpleOktaApplicationsAppsListResponseFile              string = "test/assets/response/okta/application/apps-list.json"
 	SimpleGoogleComputeDisksListResponseFile                string = "test/assets/response/google/compute/disks/disks-list.json"
 	SimpleGoogleComputeDisksListResponsePaginated5Page1File string = "test/assets/response/google/compute/disks/disks-list-paginated-5-max-page-01.json"
 	SimpleGoogleComputeDisksListResponsePaginated5Page2File string = "test/assets/response/google/compute/disks/disks-list-paginated-5-max-page-02.json"
