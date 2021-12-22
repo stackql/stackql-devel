@@ -53,8 +53,8 @@ func SplitHttpParameters(prov provider.IProvider, sqlParamMap map[int]map[string
 		rowKeys = append(rowKeys, idx)
 	}
 	sort.Ints(rowKeys)
-	for _, k := range rowKeys {
-		sqlRow := sqlParamMap[k]
+	for _, key := range rowKeys {
+		sqlRow := sqlParamMap[key]
 		reqMap := dto.NewHttpParameters()
 		for k, v := range sqlRow {
 			if param, ok := method.GetOperationParameter(k); ok {
@@ -64,8 +64,10 @@ func SplitHttpParameters(prov provider.IProvider, sqlParamMap map[int]map[string
 					rbp := parseRequestBodyParam(k, v)
 					if rbp != nil {
 						reqMap.RequestBody[rbp.Key] = rbp.Val
+						continue
 					}
 				}
+				reqMap.ServerParams[k] = dto.NewParameterBinding(&openapistackql.Parameter{In: "server"}, v)
 			}
 			if responseSchema != nil && responseSchema.FindByPath(k, nil) != nil {
 				reqMap.ResponseBody[k] = v

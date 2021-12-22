@@ -26,6 +26,7 @@ type HttpParameters struct {
 	QueryParams  map[string]ParameterBinding
 	RequestBody  map[string]interface{}
 	ResponseBody map[string]interface{}
+	ServerParams map[string]ParameterBinding
 	Unassigned   map[string]ParameterBinding
 }
 
@@ -37,6 +38,7 @@ func NewHttpParameters() *HttpParameters {
 		QueryParams:  make(map[string]ParameterBinding),
 		RequestBody:  make(map[string]interface{}),
 		ResponseBody: make(map[string]interface{}),
+		ServerParams: make(map[string]ParameterBinding),
 		Unassigned:   make(map[string]ParameterBinding),
 	}
 }
@@ -56,6 +58,10 @@ func (hp *HttpParameters) StoreParameter(param *openapistackql.Parameter, val in
 	}
 	if param.In == openapi3.ParameterInCookie {
 		hp.CookieParams[param.Name] = NewParameterBinding(param, val)
+		return
+	}
+	if param.In == "server" {
+		hp.ServerParams[param.Name] = NewParameterBinding(param, val)
 		return
 	}
 }
@@ -91,6 +97,12 @@ func (hp *HttpParameters) ToFlatMap() (map[string]interface{}, error) {
 		}
 	}
 	for k, v := range hp.QueryParams {
+		err := hp.updateStuff(k, v, rv, visited)
+		if err != nil {
+			return nil, err
+		}
+	}
+	for k, v := range hp.ServerParams {
 		err := hp.updateStuff(k, v, rv, visited)
 		if err != nil {
 			return nil, err

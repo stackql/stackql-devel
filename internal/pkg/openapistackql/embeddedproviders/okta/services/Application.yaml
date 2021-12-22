@@ -2691,4 +2691,4 @@ servers:
 - url: https://{subdomain}.okta.com/
   variables: 
     subdomain:
-      default: dev-79923018-admin
+      default: my-domain
