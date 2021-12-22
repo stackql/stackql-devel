@@ -19,7 +19,7 @@ import (
 )
 
 func TestSimpleInsertDependentGoogleComputeDiskAsync(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleInsertDependentGoogleComputeDiskAsync")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -66,7 +66,7 @@ func TestSimpleInsertDependentGoogleComputeDiskAsync(t *testing.T) {
 }
 
 func TestSimpleInsertDependentGoogleComputeDiskAsyncReversed(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleInsertDependentGoogleComputeDiskAsyncReversed")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -113,7 +113,7 @@ func TestSimpleInsertDependentGoogleComputeDiskAsyncReversed(t *testing.T) {
 }
 
 func TestSimpleInsertDependentGoogleBQDatasetAsync(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleInsertDependentGoogleBQDatasetAsync")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -160,7 +160,7 @@ func TestSimpleInsertDependentGoogleBQDatasetAsync(t *testing.T) {
 }
 
 func TestSimpleSelectExecDependentGoogleOrganizationsGetIamPolicy(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "csv")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "csv", "TestSimpleSelectExecDependentGoogleOrganizationsGetIamPolicy")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}

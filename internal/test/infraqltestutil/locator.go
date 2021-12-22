@@ -10,7 +10,7 @@ import (
 	"infraql/internal/iql/util"
 )
 
-func GetRuntimeCtx(providerStr string, outputFmtStr string) (*dto.RuntimeCtx, error) {
+func GetRuntimeCtx(providerStr string, outputFmtStr string, testName string) (*dto.RuntimeCtx, error) {
 	saKeyPath, err := util.GetFilePathFromRepositoryRoot("test/assets/credentials/dummy/google/dummy-sa-key.json")
 	if err != nil {
 		return nil, fmt.Errorf("test failed on %s: %v", saKeyPath, err)
@@ -30,7 +30,7 @@ func GetRuntimeCtx(providerStr string, outputFmtStr string) (*dto.RuntimeCtx, er
 		KeyFilePath:      saKeyPath,
 		ProviderRootPath: providerDir,
 		OutputFormat:     outputFmtStr,
-		DbFilePath:       ":memory:",
+		DbFilePath:       fmt.Sprintf("file:%s?mode=memory&cache=shared", testName),
 		DbInitFilePath:   dbInitFilePath,
 	}, nil
 }

@@ -17,7 +17,7 @@ import (
 
 func TestSelectComputeDisksOrderByCrtTmstpAscPaginated(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksOrderByCrtTmstpAscPaginated")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -60,7 +60,7 @@ func TestSelectComputeDisksOrderByCrtTmstpAscPaginated(t *testing.T) {
 
 func TestSelectComputeDisksAggOrderBySizeAscPaginated(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggOrderBySizeAscPaginated")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -103,7 +103,7 @@ func TestSelectComputeDisksAggOrderBySizeAscPaginated(t *testing.T) {
 
 func TestSelectComputeDisksAggOrderBySizeDescPaginated(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggOrderBySizeDescPaginated")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -146,7 +146,7 @@ func TestSelectComputeDisksAggOrderBySizeDescPaginated(t *testing.T) {
 
 func TestSelectComputeDisksAggTotalSizePaginated(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggTotalSizePaginated")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -189,7 +189,7 @@ func TestSelectComputeDisksAggTotalSizePaginated(t *testing.T) {
 
 func TestSelectComputeDisksAggTotalStringPaginated(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggTotalStringPaginated")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}

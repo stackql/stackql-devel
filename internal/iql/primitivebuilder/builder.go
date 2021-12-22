@@ -394,6 +394,9 @@ func (ss *SingleSelectAcquire) Build() error {
 								log.Infoln(fmt.Sprintf("running insert with control parameters: %v", ss.insertPreparedStatementCtx.TxnCtrlCtrs))
 								r, err := ss.drmCfg.ExecuteInsertDML(ss.handlerCtx.SQLEngine, ss.insertPreparedStatementCtx, item)
 								log.Infoln(fmt.Sprintf("insert result = %v, error = %v", r, err))
+								if err != nil {
+									return dto.NewErroneousExecutorOutput(err)
+								}
 								keys[strconv.Itoa(i)] = item
 							}
 						}

@@ -26,7 +26,7 @@ func TestMain(m *testing.M) {
 
 func TestSelectComputeDisksOrderByCrtTmstpAsc(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksOrderByCrtTmstpAsc")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -68,7 +68,7 @@ func TestSelectComputeDisksOrderByCrtTmstpAsc(t *testing.T) {
 
 func TestSelectComputeDisksAggOrderBySizeAsc(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggOrderBySizeAsc")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -110,7 +110,7 @@ func TestSelectComputeDisksAggOrderBySizeAsc(t *testing.T) {
 
 func TestSelectComputeDisksAggOrderBySizeDesc(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggOrderBySizeDesc")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -152,7 +152,7 @@ func TestSelectComputeDisksAggOrderBySizeDesc(t *testing.T) {
 
 func TestSelectComputeDisksAggTotalSize(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggTotalSize")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -194,7 +194,7 @@ func TestSelectComputeDisksAggTotalSize(t *testing.T) {
 
 func TestSelectComputeDisksAggTotalString(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggTotalString")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}

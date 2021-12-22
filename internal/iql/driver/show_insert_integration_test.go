@@ -22,7 +22,7 @@ func TestSimpleShowInsertComputeAddressesRequired(t *testing.T) {
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
 
-		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleShowInsertComputeAddressesRequired")
 		if err != nil {
 			t.Fatalf("TestSimpleTemplateComputeAddressesRequired failed: %v", err)
 		}
@@ -67,7 +67,7 @@ func TestSimpleShowInsertBiqueryDatasets(t *testing.T) {
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
 
-		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleShowInsertBiqueryDatasets")
 		if err != nil {
 			t.Fatalf("TestSimpleShowInsertBiqueryDatasets failed: %v", err)
 		}
@@ -112,7 +112,7 @@ func TestSimpleShowInsertBiqueryDatasetsRequired(t *testing.T) {
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
 
-		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleShowInsertBiqueryDatasetsRequired")
 		if err != nil {
 			t.Fatalf("TestSimpleShowInsertBiqueryDatasetsRequired failed: %v", err)
 		}

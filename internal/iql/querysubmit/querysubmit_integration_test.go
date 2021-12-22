@@ -20,7 +20,7 @@ import (
 )
 
 func TestSimpleSelectGoogleComputeInstanceQuerySubmit(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleComputeInstanceQuerySubmit")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}

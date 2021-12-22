@@ -22,7 +22,7 @@ func TestSimpleShowResourcesFiltered(t *testing.T) {
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
 
-		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleShowResourcesFiltered")
 		if err != nil {
 			t.Fatalf("TestSimpleShowResourcesFiltered failed: %v", err)
 		}
@@ -68,7 +68,7 @@ func TestSimpleShowBQDatasets(t *testing.T) {
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
 
-		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleShowBQDatasets")
 		if err != nil {
 			t.Fatalf("TestSimpleShowResourcesFiltered failed: %v", err)
 		}
@@ -114,7 +114,7 @@ func TestSimpleShowGoogleStorageBuckets(t *testing.T) {
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
 
-		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleShowGoogleStorageBuckets")
 		if err != nil {
 			t.Fatalf("TestSimpleShowResourcesFiltered failed: %v", err)
 		}

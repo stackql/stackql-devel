@@ -21,7 +21,7 @@ import (
 
 func TestUnionAllSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonExtract(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "csv")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "csv", "TestUnionAllSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonExtract")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}

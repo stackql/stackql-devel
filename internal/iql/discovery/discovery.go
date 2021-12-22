@@ -173,7 +173,7 @@ func (store *TTLDiscoveryStore) ProcessServiceDiscoveryDoc(providerKey string, s
 		if err != nil {
 			return nil, err
 		}
-		// err = docparser.OpenapiStackQLServiceDiscoveryDocPersistor(pr, svc, store.sqlengine, pr.Name)
+		err = docparser.OpenapiStackQLServiceDiscoveryDocPersistor(pr, svc, store.sqlengine, pr.Name)
 		return svc, err
 	default:
 		k := fmt.Sprintf("%s.%s", providerKey, serviceHandle.Name)
@@ -197,7 +197,7 @@ func (store *TTLDiscoveryStore) ProcessServiceDiscoveryDoc(providerKey string, s
 		if err != nil {
 			return nil, err
 		}
-		// err = docparser.OpenapiStackQLServiceDiscoveryDocPersistor(pr, svc, store.sqlengine, pr.Name)
+		err = docparser.OpenapiStackQLServiceDiscoveryDocPersistor(pr, svc, store.sqlengine, pr.Name)
 		return svc, err
 	}
 }

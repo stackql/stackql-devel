@@ -27,7 +27,7 @@ import (
 )
 
 func TestSimpleSelectGoogleComputeInstanceDriver(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleComputeInstanceDriver")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -71,7 +71,7 @@ func TestSimpleSelectGoogleComputeInstanceDriver(t *testing.T) {
 }
 
 func TestSimpleSelectGoogleComputeInstanceDriverOutput(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleComputeInstanceDriverOutput")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -112,7 +112,7 @@ func TestSimpleSelectGoogleComputeInstanceDriverOutput(t *testing.T) {
 }
 
 func TestSimpleSelectGoogleComputeInstanceDriverOutputRepeated(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleComputeInstanceDriverOutputRepeated")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -153,7 +153,7 @@ func TestSimpleSelectGoogleComputeInstanceDriverOutputRepeated(t *testing.T) {
 }
 
 func TestSimpleSelectGoogleContainerSubnetworksAllowedDriverOutput(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleContainerSubnetworksAllowedDriverOutput")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -194,7 +194,7 @@ func TestSimpleSelectGoogleContainerSubnetworksAllowedDriverOutput(t *testing.T)
 }
 
 func TestSimpleInsertGoogleComputeNetworkAsync(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleInsertGoogleComputeNetworkAsync")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -236,7 +236,7 @@ func TestSimpleInsertGoogleComputeNetworkAsync(t *testing.T) {
 
 func TestK8sTheHardWayAsync(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestK8sTheHardWayAsync")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -288,7 +288,7 @@ func TestSimpleDryRunK8sTheHardWayDriver(t *testing.T) {
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
 
-		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text")
+		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleDryRunK8sTheHardWayDriver")
 		if err != nil {
 			t.Fatalf("TestSimpleDryRunDriver failed: %v", err)
 		}

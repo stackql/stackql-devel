@@ -58,7 +58,7 @@ type SQLiteEngine struct {
 }
 
 func (se *SQLiteEngine) IsMemory() bool {
-	return strings.Contains(se.fileName, ":memory:")
+	return strings.Contains(se.fileName, ":memory:") || strings.Contains(se.fileName, "mode=memory")
 }
 
 func (se *SQLiteEngine) GetDB() (*sql.DB, error) {
