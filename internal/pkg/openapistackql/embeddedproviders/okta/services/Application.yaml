@@ -1687,6 +1687,7 @@ info:
   termsOfService: https://developer.okta.com/terms/
   title: Okta API
   version: 2.8.0
+  x-serviceName: application
 openapi: 3.0.1
 paths:
   /api/v1/apps:
@@ -2687,4 +2688,7 @@ paths:
       - Application
       x-codegen-request-body-name: appUser
 servers:
-- url: https://your-subdomain.okta.com/
+- url: https://{subdomain}.okta.com/
+  variables: 
+    subdomain:
+      default: dev-79923018-admin

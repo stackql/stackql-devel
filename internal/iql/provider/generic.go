@@ -66,7 +66,8 @@ func (gp *GenericProvider) GetService(serviceKey string, runtimeCtx dto.RuntimeC
 }
 
 func (gp *GenericProvider) inferAuthType(authCtx dto.AuthCtx, authTypeRequested string) string {
-	switch strings.ToLower(authTypeRequested) {
+	ft := strings.ToLower(authTypeRequested)
+	switch ft {
 	case dto.AuthApiKeyStr:
 		return dto.AuthApiKeyStr
 	case dto.AuthServiceAccountStr:

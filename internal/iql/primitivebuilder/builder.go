@@ -373,7 +373,15 @@ func (ss *SingleSelectAcquire) Build() error {
 					return dto.NewErroneousExecutorOutput(err)
 				}
 				log.Infoln(fmt.Sprintf("target = %v", target))
-				items, ok := target[ss.tableMeta.SelectItemsKey]
+				var items interface{}
+				var ok bool
+				switch pl := target.(type) {
+				case map[string]interface{}:
+					items, ok = pl[ss.tableMeta.SelectItemsKey]
+				case []interface{}:
+					items = pl
+					ok = true
+				}
 				keys := make(map[string]map[string]interface{})
 
 				if ok {
@@ -405,14 +413,8 @@ func (ss *SingleSelectAcquire) Build() error {
 				if npt == nil || nptKey == nil {
 					break
 				}
-				nextPageToken, ok := target[npt.Name]
-				if !ok || nextPageToken == "" {
-					log.Infoln("breaking out")
-					break
-				}
-				tk, ok := nextPageToken.(string)
-				if !ok {
-					log.Infoln("breaking out")
+				tk := extractNextPageToken(target, npt.Name)
+				if tk == "" {
 					break
 				}
 				q := reqCtx.Request.URL.Query()
@@ -443,6 +445,24 @@ func (ss *SingleSelectAcquire) Build() error {
 	ss.root = insertNode
 
 	return nil
+}
+
+func extractNextPageToken(body interface{}, tokenKey string) string {
+	switch target := body.(type) {
+	case map[string]interface{}:
+		nextPageToken, ok := target[tokenKey]
+		if !ok || nextPageToken == "" {
+			log.Infoln("breaking out")
+			return ""
+		}
+		tk, ok := nextPageToken.(string)
+		if !ok {
+			log.Infoln("breaking out")
+			return ""
+		}
+		return tk
+	}
+	return ""
 }
 
 func (ss *SingleAcquireAndSelect) GetRoot() primitivegraph.PrimitiveNode {

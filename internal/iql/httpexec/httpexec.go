@@ -164,12 +164,12 @@ func HTTPApiCall(httpClient *http.Client, requestCtx IHttpContext) (*http.Respon
 	return response, nil
 }
 
-func ProcessHttpResponse(response *http.Response) (map[string]interface{}, error) {
+func ProcessHttpResponse(response *http.Response) (interface{}, error) {
 	body := response.Body
 	if body != nil {
 		defer body.Close()
 	}
-	var target map[string]interface{}
+	var target interface{}
 	err := json.NewDecoder(body).Decode(&target)
 	if err == nil && response.StatusCode >= 400 {
 		err = fmt.Errorf(fmt.Sprintf("HTTP response error: %s", string(util.InterfaceToBytes(target, true))))
@@ -180,4 +180,17 @@ func ProcessHttpResponse(response *http.Response) (map[string]interface{}, error
 		}
 	}
 	return target, err
+}
+
+func DeprecatedProcessHttpResponse(response *http.Response) (map[string]interface{}, error) {
+	target, err := ProcessHttpResponse(response)
+	if err != nil {
+		return nil, err
+	}
+	switch rv := target.(type) {
+	case map[string]interface{}:
+		return rv, nil
+	default:
+		return nil, fmt.Errorf("DeprecatedProcessHttpResponse() cannot acccept response of type %T", rv)
+	}
 }

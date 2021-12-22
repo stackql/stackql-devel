@@ -26,7 +26,7 @@ type AsyncHttpMonitorPrimitive struct {
 	initialCtx          primitive.IPrimitiveCtx
 	precursor           primitive.IPrimitive
 	transferPayload     map[string]interface{}
-	executor            func(pc primitive.IPrimitiveCtx, initalBody map[string]interface{}) dto.ExecutorOutput
+	executor            func(pc primitive.IPrimitiveCtx, initalBody interface{}) dto.ExecutorOutput
 	elapsedSeconds      int
 	pollIntervalSeconds int
 	noStatus            bool
@@ -141,7 +141,11 @@ func (gm *DefaultGoogleAsyncMonitor) getV1Monitor(heirarchy *taxonomy.HeirarchyO
 		asyncPrim.noStatus = comments.IsSet("NOSTATUS")
 	}
 	if heirarchy.Method.IsAwaitable() {
-		asyncPrim.executor = func(pc primitive.IPrimitiveCtx, body map[string]interface{}) dto.ExecutorOutput {
+		asyncPrim.executor = func(pc primitive.IPrimitiveCtx, bd interface{}) dto.ExecutorOutput {
+			body, ok := bd.(map[string]interface{})
+			if !ok {
+				return dto.NewExecutorOutput(nil, nil, nil, nil, fmt.Errorf("cannot execute monitor: response body of type '%T' unreadable", bd))
+			}
 			if pc == nil {
 				return dto.NewExecutorOutput(nil, nil, nil, nil, fmt.Errorf("cannot execute monitor: nil plan primitive"))
 			}

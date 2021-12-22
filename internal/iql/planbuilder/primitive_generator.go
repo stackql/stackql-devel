@@ -489,7 +489,7 @@ func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext,
 					return dto.NewErroneousExecutorOutput(apiErr)
 				}
 
-				target, err = httpexec.ProcessHttpResponse(response)
+				target, err = httpexec.DeprecatedProcessHttpResponse(response)
 				pb.composeAsyncMonitor(handlerCtx, insertPrimitive, tbl)
 				if err != nil {
 					return dto.NewErroneousExecutorOutput(err)
@@ -641,7 +641,7 @@ func (pb *primitiveGenerator) deleteExecutor(handlerCtx *handler.HandlerContext,
 			if apiErr != nil {
 				return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil))
 			}
-			target, err = httpexec.ProcessHttpResponse(response)
+			target, err = httpexec.DeprecatedProcessHttpResponse(response)
 			if err != nil {
 				return util.PrepareResultSet(dto.NewPrepareResultSetDTO(
 					nil,
@@ -737,7 +737,7 @@ func (pb *primitiveGenerator) execExecutor(handlerCtx *handler.HandlerContext, n
 			if apiErr != nil {
 				return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil))
 			}
-			target, err = httpexec.ProcessHttpResponse(response)
+			target, err = httpexec.DeprecatedProcessHttpResponse(response)
 			if err != nil {
 				return util.PrepareResultSet(dto.NewPrepareResultSetDTO(
 					nil,

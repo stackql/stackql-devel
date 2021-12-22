@@ -132,12 +132,12 @@
       "name": "okta \"select from exec ... ;\" -- prebuilt with cmake",
       "type": "go",
       "request": "launch",
-      "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "mode": "debug",
+      "program": "${workspaceFolder}/infraql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/okta-key.txt",
-        "--keyfiletype=api_token",
+        "--keyfilepath=${workspaceFolder}/keys/okta-token.txt",
+        "--keyfiletype=api_key",
         "select * from okta.application.apps;",
         "-o",
         "json"
