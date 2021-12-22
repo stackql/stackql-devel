@@ -10,13 +10,15 @@ import (
 
 type SymTabEntry struct {
 	Type string
+	In   string
 	Data interface{}
 }
 
-func NewSymTabEntry(t string, data interface{}) SymTabEntry {
+func NewSymTabEntry(t string, data interface{}, in string) SymTabEntry {
 	return SymTabEntry{
 		Type: t,
 		Data: data,
+		In:   in,
 	}
 }
 

@@ -138,7 +138,7 @@
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/okta-token.txt",
         "--keyfiletype=api_key",
-        "select * from okta.application.apps;",
+        "select * from okta.application.apps where subdomain = 'dev-79923018-admin';",
         "-o",
         "json"
       ],

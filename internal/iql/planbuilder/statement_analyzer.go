@@ -339,7 +339,7 @@ func (pb *primitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sqlparser.
 	if optionalParamPresent {
 		delete(optionalParameters, colName)
 	}
-	if symTabErr == nil {
+	if symTabErr == nil && symTabEntry.In != "server" {
 		if !(requiredParamPresent || optionalParamPresent) {
 			return &sqlparser.ComparisonExpr{
 				Left:     expr.Left,
@@ -794,6 +794,22 @@ func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, n
 		if err != nil {
 			return err
 		}
+		svc, err := tbl.GetService()
+		if err != nil {
+			return err
+		}
+		// svc.Servers
+		for _, sv := range svc.Servers {
+			for k := range sv.Variables {
+				colEntry := symtab.NewSymTabEntry(
+					pChild.PrimitiveBuilder.GetDRMConfig().GetRelationalType("string"),
+					"",
+					"server",
+				)
+				pChild.PrimitiveBuilder.SetSymbol(k, colEntry)
+			}
+			break
+		}
 		responseSchema, err := tbl.GetItemsObjectSchema()
 		if err != nil {
 			return err
@@ -809,6 +825,7 @@ func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, n
 			colEntry := symtab.NewSymTabEntry(
 				pChild.PrimitiveBuilder.GetDRMConfig().GetRelationalType(colSchema.Type),
 				colSchema,
+				"",
 			)
 			pChild.PrimitiveBuilder.SetSymbol(colName, colEntry)
 		}
