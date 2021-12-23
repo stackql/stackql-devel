@@ -170,16 +170,27 @@ func ProcessHttpResponse(response *http.Response) (interface{}, error) {
 		defer body.Close()
 	}
 	var target interface{}
-	err := json.NewDecoder(body).Decode(&target)
-	if err == nil && response.StatusCode >= 400 {
-		err = fmt.Errorf(fmt.Sprintf("HTTP response error: %s", string(util.InterfaceToBytes(target, true))))
-	}
-	if err == io.EOF {
-		if response.StatusCode >= 200 && response.StatusCode < 300 {
-			return map[string]interface{}{"result": "The Operation Completed Successfully"}, nil
+	rt := response.Header.Get("Content-Type")
+	if rt == "application/json" {
+		err := json.NewDecoder(body).Decode(&target)
+		if err == nil && response.StatusCode >= 400 {
+			err = fmt.Errorf(fmt.Sprintf("HTTP response error: %s", string(util.InterfaceToBytes(target, true))))
 		}
+		if err == io.EOF {
+			if response.StatusCode >= 200 && response.StatusCode < 300 {
+				return map[string]interface{}{"result": "The Operation Completed Successfully"}, nil
+			}
+		}
+		return target, err
 	}
-	return target, err
+	b, err := io.ReadAll(body)
+	if err != nil {
+		return nil, err
+	}
+	if response.StatusCode >= 400 {
+		return nil, fmt.Errorf("error: status code = %d, response = '%s'", response.StatusCode, string(b))
+	}
+	return nil, fmt.Errorf("error: unable to parse response = %s", string(b))
 }
 
 func DeprecatedProcessHttpResponse(response *http.Response) (map[string]interface{}, error) {

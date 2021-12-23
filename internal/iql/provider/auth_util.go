@@ -34,7 +34,7 @@ type transport struct {
 }
 
 func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
-	req.Header.Add(
+	req.Header.Set(
 		"Authorization",
 		fmt.Sprintf("%s %s", t.authType, string(t.token)),
 	)
@@ -86,7 +86,7 @@ func apiTokenAuth(authCtx *dto.AuthCtx, runtimeCtx dto.RuntimeCtx) (*http.Client
 	if err != nil {
 		return nil, errors.New(constants.ServiceAccountPathErrStr)
 	}
-	activateAuth(authCtx, "", dto.AuthServiceAccountStr)
+	activateAuth(authCtx, "", "api_key")
 	httpClient := netutils.GetHttpClient(runtimeCtx, http.DefaultClient)
 	httpClient.Transport = &transport{
 		token:               b,

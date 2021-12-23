@@ -123,9 +123,15 @@ func newSimpleTransportHandler(ex ExpectationStore) func(*http.Request) (*http.R
 			return nil, err
 		}
 		responseHeader := make(http.Header)
+		responseHeader.Set("Content-Type", "application/json")
 		var responseBody io.ReadCloser
 		if ok {
-			responseHeader = expectations.ResponseExpectations.Header
+			if expectations.ResponseExpectations.Header != nil {
+				responseHeader = expectations.ResponseExpectations.Header
+			}
+			if responseHeader.Get("Content-Type") == "" {
+				responseHeader.Set("Content-Type", "application/json")
+			}
 			responseBody = testutil.CreateReadCloserFromString(expectations.ResponseExpectations.Body)
 		}
 		response := &http.Response{
