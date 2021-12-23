@@ -28,6 +28,26 @@ func SetupSimpleSelectGoogleComputeInstance(t *testing.T) {
 	provider.DummyAuth = true
 }
 
+func SetupSelectOktaApplicationApps(t *testing.T) {
+	responseFile1, err := util.GetFilePathFromRepositoryRoot(testobjects.SimpleOktaApplicationsAppsListResponseFile)
+	if err != nil {
+		t.Fatalf("Test failed: %v", err)
+	}
+	responseBytes1, err := ioutil.ReadFile(responseFile1)
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	path := "/api/v1/apps"
+	url := &url.URL{
+		Path: path,
+	}
+	ex := testhttpapi.NewHTTPRequestExpectations(nil, nil, "GET", url, "some-silly-subdomain.okta.com", string(responseBytes1), nil)
+	expectations := testhttpapi.NewExpectationStore(1)
+	expectations.Put("some-silly-subdomain.okta.com"+path, *ex)
+	testhttpapi.StartServer(t, expectations)
+	provider.DummyAuth = true
+}
+
 func getDisksSelectExpectations(t *testing.T) map[string]testhttpapi.HTTPRequestExpectations {
 	path := "/compute/v1/projects/testing-project/zones/australia-southeast1-b/disks"
 	url := &url.URL{
