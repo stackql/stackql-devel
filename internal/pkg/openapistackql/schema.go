@@ -189,7 +189,7 @@ func (s *Schema) GetAllColumns() []string {
 	if s.Type == "object" || (s.Properties != nil && len(s.Properties) > 0) {
 		for k, val := range s.Properties {
 			valSchema := val.Value
-			if valSchema != nil && !valSchema.ReadOnly {
+			if valSchema != nil {
 				retVal = append(retVal, k)
 			}
 		}

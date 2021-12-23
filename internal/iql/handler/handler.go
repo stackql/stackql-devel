@@ -74,7 +74,7 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 		},
 		authContexts: map[string]*dto.AuthCtx{
 			"google": dto.GetAuthCtx(nil, runtimeCtx.KeyFilePath, runtimeCtx.KeyFileType),
-			"okta":   dto.GetAuthCtx(nil, runtimeCtx.KeyFilePath, runtimeCtx.KeyFileType),
+			"okta":   dto.GetAuthCtx(nil, runtimeCtx.KeyFilePath, "api_key"),
 		},
 		ErrorPresentation: runtimeCtx.ErrorPresentation,
 		LRUCache:          lruCache,

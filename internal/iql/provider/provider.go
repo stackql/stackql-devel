@@ -99,11 +99,7 @@ type IProvider interface {
 
 func GetProviderFromRuntimeCtx(runtimeCtx dto.RuntimeCtx, dbEngine sqlengine.SQLEngine) (IProvider, error) {
 	providerStr := runtimeCtx.ProviderStr
-	switch providerStr {
-	case config.GetGoogleProviderString():
-		return newGenericProvider(runtimeCtx, providerStr, "v1", dbEngine)
-	}
-	return nil, fmt.Errorf("provider %s not supported", providerStr)
+	return GetProvider(runtimeCtx, providerStr, "v1", dbEngine)
 }
 
 func GetProvider(runtimeCtx dto.RuntimeCtx, providerStr, providerVersion string, dbEngine sqlengine.SQLEngine) (IProvider, error) {
