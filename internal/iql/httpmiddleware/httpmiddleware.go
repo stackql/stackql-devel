@@ -25,6 +25,7 @@ func HttpApiCallFromRequest(handlerCtx handler.HandlerContext, prov provider.IPr
 	if httpClientErr != nil {
 		return nil, httpClientErr
 	}
+	request.Header.Del("Authorization")
 	r, err := httpClient.Do(request)
 	if handlerCtx.RuntimeContext.HTTPLogEnabled {
 		if r != nil {

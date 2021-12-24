@@ -1,6 +1,7 @@
 package primitivebuilder
 
 import (
+	"context"
 	"fmt"
 	"sort"
 	"strconv"
@@ -360,7 +361,7 @@ func (ss *SingleSelectAcquire) Build() error {
 			}
 		}
 		for _, reqCtx := range ss.tableMeta.HttpArmoury.RequestParams {
-			response, apiErr := httpmiddleware.HttpApiCallFromRequest(*(ss.handlerCtx), prov, reqCtx.Request)
+			response, apiErr := httpmiddleware.HttpApiCallFromRequest(*(ss.handlerCtx), prov, reqCtx.Request.Clone(context.Background()))
 			housekeepingDone := false
 			npt := prov.InferNextPageResponseElement(ss.tableMeta.HeirarchyObjects.Method)
 			nptKey := prov.InferNextPageRequestElement(ss.tableMeta.HeirarchyObjects.Method)

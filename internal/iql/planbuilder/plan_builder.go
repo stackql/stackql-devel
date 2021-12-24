@@ -371,7 +371,7 @@ func createErroneousPlan(handlerCtx *handler.HandlerContext, qPlan *plan.Plan, r
 
 func BuildPlanFromContext(handlerCtx *handler.HandlerContext) (*plan.Plan, error) {
 	planKey := handlerCtx.Query
-	if qp, ok := handlerCtx.LRUCache.Get(planKey); ok {
+	if qp, ok := handlerCtx.LRUCache.Get(planKey); ok && false {
 		log.Infoln("retrieving query plan from cache")
 		pl, ok := qp.(*plan.Plan)
 		if ok {
