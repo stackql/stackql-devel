@@ -28,6 +28,8 @@ exec /*+ SHOWRESULTS */ okta.application.users.get @appId = '0oa3cy8k41YM15j4H5d
 
 select id, JSON_EXTRACT(profile, '$.email') as em  from okta.user.users where subdomain = 'dev-79923018-admin';
 
+exec /*+ SHOWRESULTS */ okta.user.users.get @userId = '00u3cy8k9ovI1nGq95d7', @subdomain = 'dev-79923018-admin';
+
 ```
 
 ## Theoretical
