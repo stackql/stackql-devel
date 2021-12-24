@@ -21,28 +21,10 @@ select id from okta.application.apps where subdomain = 'dev-79923018-admin';
 insert into okta.application.apps() where subdomain = 'dev-79923018-admin';
 
 
-INSERT INTO okta.application.apps(
-  data__accessibility,
-  data__credentials,
-  data__features,
-  data__label,
-  data__licensing,
-  data__profile,
-  data__settings,
-  data__signOnMode,
-  data__visibility
-)
-SELECT
-  '{ "errorRedirectUrl": "{{ .values.data__accessibility.errorRedirectUrl }}", "loginRedirectUrl": "{{ .values.data__accessibility.loginRedirectUrl }}", "selfService": {{ .values.data__accessibility.selfService }} }',
-  '{ "signing": { "kid": "{{ .values.data__credentials.signing.kid }}", "lastRotated": "{{ .values.data__credentials.signing.lastRotated }}", "nextRotation": "{{ .values.data__credentials.signing.nextRotation }}", "rotationMode": "{{ .values.data__credentials.signing.rotationMode }}", "use": "{{ .values.data__credentials.signing.use }}" }, "userNameTemplate": { "suffix": "{{ .values.data__credentials.userNameTemplate.suffix }}", "template": "{{ .values.data__credentials.userNameTemplate.template }}", "type": "{{ .values.data__credentials.userNameTemplate.type }}" } }',
-  '[ "{{ .values.data__features[0] }}" ]',
-  '{{ .values.data__label }}',
-  '{ "seatCount": {{ .values.data__licensing.seatCount }} }',
-  '{ "{{ .values.data__profile[0].key }}": {{ .values.data__profile[0].val }} }',
-  '{ "implicitAssignment": {{ .values.data__settings.implicitAssignment }}, "inlineHookId": "{{ .values.data__settings.inlineHookId }}", "notes": { "admin": "{{ .values.data__settings.notes.admin }}", "enduser": "{{ .values.data__settings.notes.enduser }}" }, "notifications": { "vpn": { "helpUrl": "{{ .values.data__settings.notifications.vpn.helpUrl }}", "message": "{{ .values.data__settings.notifications.vpn.message }}", "network": { "connection": "{{ .values.data__settings.notifications.vpn.network.connection }}" } } } }',
-  '{{ .values.data__signOnMode }}',
-  '{ "appLinks": { "{{ .values.data__visibility.appLinks[0].key }}": {{ .values.data__visibility.appLinks[0].val }} }, "autoLaunch": {{ .values.data__visibility.autoLaunch }}, "autoSubmitToolbar": {{ .values.data__visibility.autoSubmitToolbar }}, "hide": { "iOS": {{ .values.data__visibility.hide.iOS }}, "web": {{ .values.data__visibility.hide.web }} } }'
-;
+select * from okta.application.users where appId = '0oa3cy8k41YM15j4H5d7' and subdomain = 'dev-79923018-admin';
+
+
+exec /*+ SHOWRESULTS */ okta.application.users.get @appId = '0oa3cy8k41YM15j4H5d7', @userId = '00u3cy8k9ovI1nGq95d7', @subdomain = 'dev-79923018-admin';
 
 ```
 
