@@ -270,21 +270,23 @@ func (sv *SchemaRequestTemplateVisitor) retrieveTemplateVal(sc *openapistackql.S
 			}
 		}
 		if len(rv) == 0 {
-			if aps := sc.AdditionalProperties.Value; aps != nil {
-				aps := openapistackql.NewSchema(aps, "additionalProperties")
-				hasProperties := false
-				for k, v := range aps.Properties {
-					hasProperties = true
-					ss := openapistackql.NewSchema(v.Value, k)
-					if k == "" {
-						k = "key"
+			if sc.AdditionalProperties != nil {
+				if aps := sc.AdditionalProperties.Value; aps != nil {
+					aps := openapistackql.NewSchema(aps, "additionalProperties")
+					hasProperties := false
+					for k, v := range aps.Properties {
+						hasProperties = true
+						ss := openapistackql.NewSchema(v.Value, k)
+						if k == "" {
+							k = "key"
+						}
+						key := fmt.Sprintf("{{ %s[0].%s }}", templateValName, k)
+						rv[key] = getAdditionalStuff(ss, templateValName)
 					}
-					key := fmt.Sprintf("{{ %s[0].%s }}", templateValName, k)
-					rv[key] = getAdditionalStuff(ss, templateValName)
-				}
-				if !hasProperties {
-					key := fmt.Sprintf("{{ %s[0].%s }}", templateValName, "key")
-					rv[key] = getAdditionalStuff(aps, templateValName)
+					if !hasProperties {
+						key := fmt.Sprintf("{{ %s[0].%s }}", templateValName, "key")
+						rv[key] = getAdditionalStuff(aps, templateValName)
+					}
 				}
 			}
 		}

@@ -127,7 +127,6 @@
         "json"
       ],
     },
-    // "select * from okta.application.apps;" -o csv --keyfilepath=/Users/admin/moonlighting/infraql-original/keys/okta-token.txt --keyfiletype=api_token
     {
       "name": "okta \"select from exec ... ;\" -- prebuilt with cmake",
       "type": "go",
@@ -139,6 +138,21 @@
         "--keyfilepath=${workspaceFolder}/keys/okta-token.txt",
         "--keyfiletype=api_key",
         "select * from okta.application.apps where subdomain = 'dev-79923018-admin';",
+        "-o",
+        "json"
+      ],
+    },
+    {
+      "name": "okta \"show insert into okta.application.apps ;\" -- prebuilt with cmake",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/infraql",
+      "args": [
+        "exec",
+        "--keyfilepath=${workspaceFolder}/keys/okta-token.txt",
+        "--keyfiletype=api_key",
+        "show insert into okta.application.apps;",
         "-o",
         "json"
       ],
