@@ -24,3 +24,13 @@ providerServices:
       $ref: okta/services/Authenticator.yaml
     title: Authenticator API
     version: v1
+  user:
+    description: Okta user
+      management.
+    id: user:v1
+    name: user
+    preferred: true
+    service:
+      $ref: okta/services/User.yaml
+    title: User API
+    version: v1

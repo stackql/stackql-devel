@@ -2325,6 +2325,62 @@ components:
       in: header
       name: Authorization
       type: apiKey
+  x-stackQL-resources:
+    users:
+      id: okta.user.users
+      methods:
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/users/{userId}
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users/{userId}
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/users
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        update:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/users/{userId}
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: apps
+      title: apps
 externalDocs:
   description: Find more info here
   url: https://developer.okta.com/docs/api/getting_started/design_principles.html
@@ -2340,6 +2396,7 @@ info:
   termsOfService: https://developer.okta.com/terms/
   title: Okta API
   version: 2.8.0
+  x-serviceName: user
 openapi: 3.0.1
 paths:
   /api/v1/users:
@@ -3832,4 +3889,7 @@ paths:
       tags:
       - User
 servers:
-- url: https://your-subdomain.okta.com/
+- url: https://{subdomain}.okta.com/
+  variables: 
+    subdomain:
+      default: my-domain

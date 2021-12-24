@@ -143,7 +143,7 @@
       ],
     },
     {
-      "name": "okta \"show insert into okta.application.apps ;\" -- prebuilt with cmake",
+      "name": "okta \"select from okta.user.users ;\" -- prebuilt with cmake",
       "type": "go",
       "request": "launch",
       "mode": "debug",
@@ -152,7 +152,7 @@
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/okta-token.txt",
         "--keyfiletype=api_key",
-        "show insert into okta.application.apps;",
+        "select * from okta.user.users where subdomain = 'dev-79923018-admin';",
         "-o",
         "json"
       ],
