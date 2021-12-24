@@ -26,6 +26,8 @@ select * from okta.application.users where appId = '0oa3cy8k41YM15j4H5d7' and su
 
 exec /*+ SHOWRESULTS */ okta.application.users.get @appId = '0oa3cy8k41YM15j4H5d7', @userId = '00u3cy8k9ovI1nGq95d7', @subdomain = 'dev-79923018-admin';
 
+select id, JSON_EXTRACT(profile, '$.email') as em  from okta.user.users where subdomain = 'dev-79923018-admin';
+
 ```
 
 ## Theoretical
