@@ -2379,8 +2379,492 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: apps
-      title: apps
+      name: users
+      title: users
+    grants:
+      id: okta.user.grants
+      methods:
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users/{userId}/grants
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/users/{userId}/grants/{grantId}
+          response:
+            openAPIDocKey: '204'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users/{userId}/grants/{grantId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: grants
+      title: grants
+    grantsall:
+      id: okta.user.grantsall
+      methods:
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/users/{userId}/grants
+          response:
+            openAPIDocKey: '204'
+      name: grantsall
+      title: grantsall
+    linkedobject:
+      id: okta.user.linkedobjects
+      methods:
+        update:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/users/{associatedUserId}/linkedObjects/{primaryRelationshipName}/{primaryUserId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '204'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users/{userId}/linkedObjects/{relationshipName}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/users/{userId}/linkedObjects/{relationshipName}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '204'
+      name: linkedobjects
+      title: linkedobjects
+    applinks:
+      id: okta.user.applinks
+      methods:
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users/{userId}/appLinks
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: applinks
+      title: applinks
+    clients:
+      id: okta.user.clients
+      methods:
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users/{userId}/appLinks
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: clients
+      title: clients
+    clientgrants:
+      id: okta.user.clientgrants
+      methods:
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users/{userId}/clients/{clientId}/grants
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/users/{userId}/clients/{clientId}/grants
+          response:
+            openAPIDocKey: '204'
+      name: clientgrants
+      title: clientgrants
+    clienttokens:
+      id: okta.user.clienttokens
+      methods:
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users/{userId}/clients/{clientId}/tokens
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users/{userId}/clients/{clientId}/tokens/{tokenId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/users/{userId}/clients/{clientId}/tokens/{tokenId}
+          response:
+            openAPIDocKey: '204'
+      name: clienttokens
+      title: clienttokens
+    clienttokensall:
+      id: okta.user.clienttokensall
+      methods:
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/users/{userId}/clients/{clientId}/tokens
+          response:
+            openAPIDocKey: '204'
+      name: clienttokensall
+      title: clienttokensall
+    changepassword:
+      id: okta.user.changepassword
+      methods:
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/users/{userId}/credentials/change_password
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: changepassword
+      title: changepassword
+    changerecoveryquestion:
+      id: okta.user.changerecoveryquestion
+      methods:
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/users/{userId}/credentials/change_recovery_question
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: changerecoveryquestion
+      title: changerecoveryquestion
+    forgotpassword:
+      id: okta.user.forgotpassword
+      methods:
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/users/{userId}/credentials/forgot_password
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: forgotpassword
+      title: forgotpassword
+    roles:
+      id: okta.user.roles
+      methods:
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users/{userId}/roles
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/users/{userId}/roles/{roleId}
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users/{userId}/roles/{roleId}
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/users/{userId}/roles
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: roles
+      title: roles
+    idps:
+      id: okta.user.idps
+      methods:
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users/{userId}/idps
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: idps
+      title: idps
+    activation:
+      id: okta.user.activation
+      methods:
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/users/{userId}/lifecycle/activate
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        delete:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/users/{userId}/lifecycle/deactivate
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: activation
+      title: activation
+    expirepassword:
+      id: okta.user.expirepassword
+      methods:
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/users/{userId}/lifecycle/expire_password?tempPassword=false
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: expirepassword
+      title: expirepassword
+    expirepasswordtemp:
+      id: okta.user.expirepasswordtemp
+      methods:
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/users/{userId}/lifecycle/expire_password?tempPassword=true
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: expirepasswordtemp
+      title: expirepasswordtemp
+    reactivate:
+      id: okta.user.reactivate
+      methods:
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/users/{userId}/lifecycle/reactivate
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: reactivate
+      title: reactivate
+    resetfactors:
+      id: okta.user.resetfactors
+      methods:
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/users/{userId}/lifecycle/reset_factors
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: resetfactors
+      title: resetfactors
+    resetpassword:
+      id: okta.user.resetpassword
+      methods:
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/users/{userId}/lifecycle/reset_password
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: resetpassword
+      title: resetpassword
+    suspend:
+      id: okta.user.suspend
+      methods:
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/users/{userId}/lifecycle/suspend
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: suspend
+      title: suspend
+    unlock:
+      id: okta.user.unlock
+      methods:
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/users/{userId}/lifecycle/unlock
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: unlock
+      title: unlock
+    unsuspend:
+      id: okta.user.unsuspend
+      methods:
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/users/{userId}/lifecycle/unsuspend
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: unsuspend
+      title: unsuspend
+    sessions:
+      id: okta.user.sessions
+      methods:
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/users/{userId}/sessions
+          response:
+            openAPIDocKey: '204'
+      name: sessions
+      title: sessions
+    appadmintargets:
+      id: okta.user.appadmintargets
+      methods:
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users/{userId}/roles/{roleId}/targets/catalog/apps
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/users/{userId}/roles/{roleId}/targets/catalog/apps/{appName}/{applicationId}
+          response:
+            openAPIDocKey: '204'
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/users/{userId}/roles/{roleId}/targets/catalog/apps/{appName}/{applicationId}
+          response:
+            openAPIDocKey: '204'
+      name: appadmintargets
+      title: appadmintargets
+    appadmintargetsall:
+      id: okta.user.appadmintargetsall
+      methods:
+        insert:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/users/{userId}/roles/{roleId}/targets/catalog/apps
+          response:
+            openAPIDocKey: '200'
+      name: appadmintargetsall
+      title: appadmintargetsall
+    appinstanceadmintargets:
+      id: okta.user.appinstanceadmintargets
+      methods:
+        insert:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/users/{userId}/roles/{roleId}/targets/catalog/apps/{appName}/{applicationId}
+          response:
+            openAPIDocKey: '204'
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/users/{userId}/roles/{roleId}/targets/catalog/apps/{appName}/{applicationId}
+          response:
+            openAPIDocKey: '204'
+      name: appinstanceadmintargets
+      title: appinstanceadmintargets
+    grouptargets:
+      id: okta.user.grouptargets
+      methods:
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users/{userId}/roles/{roleId}/targets/groups
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/users/{userId}/roles/{roleId}/targets/groups/{groupId}
+          response:
+            openAPIDocKey: '200'
+        delete:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/users/{userId}/roles/{roleId}/targets/groups/{groupId}
+          response:
+            openAPIDocKey: '204'
+      name: grouptargets
+      title: grouptargets
 externalDocs:
   description: Find more info here
   url: https://developer.okta.com/docs/api/getting_started/design_principles.html

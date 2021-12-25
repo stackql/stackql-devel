@@ -1,10 +1,10 @@
 
 ## Required
 
-- [ ] Identity Providers
+- [ ] Identity Providers -- **underway**
 - [x] Applications
 - [ ] Groups
-- [ ] Users **underway**
+- [x] Users
 - [ ] Policies
 
 ## Golden Path
