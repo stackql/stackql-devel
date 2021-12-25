@@ -54,3 +54,13 @@ providerServices:
       $ref: okta/services/Policy.yaml
     title: Policy API
     version: v1
+  group:
+    description: Okta group
+      management.
+    id: group:v1
+    name: group
+    preferred: true
+    service:
+      $ref: okta/services/Group.yaml
+    title: Group API
+    version: v1

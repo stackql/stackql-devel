@@ -26,14 +26,14 @@
       ],
     },
     {
-      "name": "Launch exec \"show resources from okta.user;\" -- prebuilt with cmake",
+      "name": "okta -- Launch exec \"show resources from okta.group;\" -- prebuilt with cmake",
       "type": "go",
       "request": "launch",
       "mode": "exec",
       "program": "${workspaceFolder}/build/infraql",
       "args": [
         "exec",
-        "show resources from okta.user;"
+        "show resources from okta.group;"
       ],
     },
     {
@@ -158,7 +158,7 @@
       ],
     },
     {
-      "name": "okta \"show resources from okta.policy ;\" -- prebuilt with cmake",
+      "name": "okta \"show resources from okta.group ;\" -- prebuilt with cmake",
       "type": "go",
       "request": "launch",
       "mode": "debug",
@@ -167,7 +167,7 @@
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/okta-token.txt",
         "--keyfiletype=api_key",
-        "show resources from okta.policy;",
+        "show resources from okta.group;",
         "-o",
         "json"
       ],

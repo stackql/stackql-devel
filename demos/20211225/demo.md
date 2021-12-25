@@ -3,7 +3,7 @@
 
 - [x] Identity Providers
 - [x] Applications
-- [ ] Groups -- **underway**
+- [x] Groups
 - [x] Users
 - [x] Policies
 
