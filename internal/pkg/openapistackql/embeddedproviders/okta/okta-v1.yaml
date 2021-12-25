@@ -34,3 +34,13 @@ providerServices:
       $ref: okta/services/User.yaml
     title: User API
     version: v1
+  identityprovider:
+    description: Okta user
+      management.
+    id: identityprovider:v1
+    name: identityprovider
+    preferred: true
+    service:
+      $ref: okta/services/IdentityProvider.yaml
+    title: IDP API
+    version: v1
