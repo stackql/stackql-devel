@@ -44,3 +44,13 @@ providerServices:
       $ref: okta/services/IdentityProvider.yaml
     title: IDP API
     version: v1
+  policy:
+    description: Okta policy
+      management.
+    id: policy:v1
+    name: policy
+    preferred: true
+    service:
+      $ref: okta/services/Policy.yaml
+    title: Policy API
+    version: v1
