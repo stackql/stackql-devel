@@ -214,18 +214,18 @@ func GetServiceDocBytes(url string) ([]byte, error) {
 	if !IgnoreEmbedded {
 		pathElems := strings.Split(url, "/")
 		prov := pathElems[0]
-		svc := pathElems[1]
+		// svc := pathElems[1]
 		switch prov {
 		case "google", "googleapis.com":
-			entries, err := googleProvider.ReadDir(path.Join("embeddedproviders/googleapis.com", svc))
-			if err != nil {
-				return nil, fmt.Errorf("wtf: %s", err.Error())
-			}
-			fn, err := getLatestFile(entries)
-			if err != nil {
-				return nil, fmt.Errorf("huh: %s", err.Error())
-			}
-			return googleProvider.ReadFile(path.Join("embeddedproviders/googleapis.com", svc, fn))
+			// entries, err := googleProvider.ReadDir(path.Join("embeddedproviders/googleapis.com", svc))
+			// if err != nil {
+			// 	return nil, fmt.Errorf("wtf: %s", err.Error())
+			// }
+			// fn, err := getLatestFile(entries)
+			// if err != nil {
+			// 	return nil, fmt.Errorf("huh: %s", err.Error())
+			// }
+			return googleProvider.ReadFile(path.Join("embeddedproviders", strings.ReplaceAll(url, "/google/", "/googleapis.com/")))
 		case "okta":
 			return oktaProvider.ReadFile(path.Join("embeddedproviders", url))
 		}
