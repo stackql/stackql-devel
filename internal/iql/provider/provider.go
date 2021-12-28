@@ -20,6 +20,7 @@ import (
 const (
 	ambiguousServiceErrorMessage string = "More than one service exists with this name, please use the id in the object name, or unset the --usenonpreferredapis flag"
 	googleProviderName           string = "google"
+	oktaProviderName             string = "okta"
 	SchemaDelimiter              string = docparser.SchemaDelimiter
 )
 
@@ -34,9 +35,11 @@ type ProviderParam struct {
 func GetSupportedProviders(extended bool) map[string]map[string]interface{} {
 	retVal := make(map[string]map[string]interface{})
 	if extended {
-		retVal[googleProviderName] = getGoogleMapExtended()
+		retVal[googleProviderName] = getProviderMapExtended(googleProviderName)
+		retVal[oktaProviderName] = getProviderMapExtended(oktaProviderName)
 	} else {
-		retVal[googleProviderName] = getGoogleMap()
+		retVal[googleProviderName] = getProviderMap(googleProviderName)
+		retVal[oktaProviderName] = getProviderMap(oktaProviderName)
 	}
 	return retVal
 }

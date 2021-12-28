@@ -1,12 +1,12 @@
 package provider
 
-func getGoogleMap() map[string]interface{} {
+func getProviderMap(providerName string) map[string]interface{} {
 	googleMap := map[string]interface{}{
-		"name": googleProviderName,
+		"name": providerName,
 	}
 	return googleMap
 }
 
-func getGoogleMapExtended() map[string]interface{} {
-	return getGoogleMap()
+func getProviderMapExtended(providerName string) map[string]interface{} {
+	return getProviderMap(providerName)
 }
