@@ -48,9 +48,11 @@ Welcome to the interactive shell for running InfraQL commands.
 
 	notAuthenticatedMsg string = `Not authenticated, to authenticate to a provider use the AUTH LOGIN command, see https://docs.infraql.io/language-spec/auth`
 
-	saFileErrorMsgTmpl string = `Not authenticated, service account referenced in keyfilepath (%s) does not exist, authenticate interactively using AUTH LOGIN, for more information see https://docs.infraql.io/language-spec/auth`
+	saFileErrorMsgTmpl string = `Not authenticated, credentials referenced in keyfilepath (%s) does not exist, authenticate interactively using AUTH LOGIN, for more information see https://docs.infraql.io/language-spec/auth`
 
-	saSuccessMsgTmpl string = `Authenticated using a service account set using the keyfilepath flag (%s), for more information see https://docs.infraql.io/language-spec/auth`
+	saSuccessMsgTmpl string = `Authenticated using credentials set using the keyfilepath flag (%s) of type = '%s', for more information see https://docs.infraql.io/language-spec/auth`
+
+	credentialProvidedMsgTmpl string = `Credentials provided using the keyfilepath flag (%s) of type = '%s', for more information see https://docs.infraql.io/language-spec/auth`
 )
 
 func getShellIntroLong() string {
@@ -79,12 +81,16 @@ func getIntroAuthMsg(authCtx *dto.AuthCtx, provider provider.IProvider) string {
 			switch authCtx.Type {
 			case dto.AuthInteractiveStr:
 				return fmt.Sprintf(interactiveSuccessMsgTmpl, authCtx.ID)
-			case dto.AuthServiceAccountStr:
-				return fmt.Sprintf(saSuccessMsgTmpl, authCtx.KeyFilePath)
+			case dto.AuthServiceAccountStr, dto.AuthApiKeyStr:
+				return fmt.Sprintf(saSuccessMsgTmpl, authCtx.KeyFilePath, authCtx.Type)
 			}
-		} else if err := provider.CheckServiceAccountFile(authCtx.KeyFilePath); authCtx.KeyFilePath != "" && err != nil {
+		} else if err := provider.CheckCredentialFile(authCtx); authCtx.KeyFilePath != "" && err != nil {
 			log.Debugln(fmt.Sprintf("authCtx.KeyFilePath = %v", authCtx.KeyFilePath))
 			return fmt.Sprintf(saFileErrorMsgTmpl, authCtx.KeyFilePath)
+		}
+		switch authCtx.Type {
+		case dto.AuthServiceAccountStr, dto.AuthApiKeyStr:
+			return fmt.Sprintf(credentialProvidedMsgTmpl, authCtx.KeyFilePath, authCtx.Type)
 		}
 	}
 	return notAuthenticatedMsg
@@ -114,7 +120,10 @@ var shellCmd = &cobra.Command{
 		sqlEngine, err := entryutil.BuildSQLEngine(runtimeCtx)
 		iqlerror.PrintErrorAndExitOneIfError(err)
 
-		handlerCtx, _ := handler.GetHandlerCtx("", runtimeCtx, queryCache, sqlEngine)
+		handlerCtx, handlerrErr := handler.GetHandlerCtx("", runtimeCtx, queryCache, sqlEngine)
+		if handlerrErr != nil {
+			fmt.Fprintln(outErrFile, fmt.Sprintf("Error setting up handler context for provider '%s'", runtimeCtx.ProviderStr))
+		}
 		provider, pErr := handlerCtx.GetProvider(handlerCtx.RuntimeContext.ProviderStr)
 		authCtx, authErr := handlerCtx.GetAuthContext(provider.GetProviderString())
 		if authErr != nil {

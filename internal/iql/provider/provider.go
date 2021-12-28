@@ -49,7 +49,7 @@ type IProvider interface {
 
 	AuthRevoke(authCtx *dto.AuthCtx) error
 
-	CheckServiceAccountFile(credentialFile string) error
+	CheckCredentialFile(authCtx *dto.AuthCtx) error
 
 	EnhanceMetadataFilter(string, func(openapistackql.ITable) (openapistackql.ITable, error), map[string]bool) (func(openapistackql.ITable) (openapistackql.ITable, error), error)
 

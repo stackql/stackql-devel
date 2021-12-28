@@ -3,6 +3,7 @@ package provider
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 
 	"infraql/internal/iql/constants"
 	"infraql/internal/iql/discovery"
@@ -349,9 +350,16 @@ func (gp *GenericProvider) GetResourcesRedacted(currentService string, runtimeCt
 	return svcDiscDocMap, err
 }
 
-func (gp *GenericProvider) CheckServiceAccountFile(credentialFile string) error {
-	_, err := parseServiceAccountFile(credentialFile)
-	return err
+func (gp *GenericProvider) CheckCredentialFile(authCtx *dto.AuthCtx) error {
+	switch authCtx.Type {
+	case dto.AuthServiceAccountStr:
+		_, err := parseServiceAccountFile(authCtx.KeyFilePath)
+		return err
+	case dto.AuthApiKeyStr:
+		_, err := ioutil.ReadFile(authCtx.KeyFilePath)
+		return err
+	}
+	return fmt.Errorf("auth type = '%s' not supported", authCtx.Type)
 }
 
 func (gp *GenericProvider) GenerateHTTPRestInstruction(httpContext httpexec.IHttpContext) (httpexec.IHttpContext, error) {
