@@ -128,7 +128,7 @@
       ],
     },
     {
-      "name": "okta debug \"select from idps ... ;\" -- prebuilt with cmake",
+      "name": "okta debug \"insert into apps ... ;\" -- prebuilt with cmake",
       "type": "go",
       "request": "launch",
       "mode": "debug",
@@ -137,7 +137,7 @@
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/okta-token.txt",
         "--keyfiletype=api_key",
-        "select * from okta.identityprovider.idps where subdomain = 'dev-79923018-admin';",
+        "insert into okta.application.apps(subdomain, data__name, data__label, data__signOnMode, data__settings) SELECT 'dev-79923018-admin', 'template_basic_auth', 'some new app again', 'BASIC_AUTH', '{ \"app\": { \"authURL\": \"https://example.com/auth.html\", \"url\": \"https://example.com/bookmark.htm\" } }' ;",
         "-o",
         "json"
       ],

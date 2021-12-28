@@ -138,7 +138,6 @@ components:
         licensing:
           $ref: '#/components/schemas/ApplicationLicensing'
         name:
-          readOnly: true
           type: string
         profile:
           additionalProperties:
