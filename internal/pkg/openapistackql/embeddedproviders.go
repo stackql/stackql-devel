@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-//go:embed embeddedproviders/googleapis.com/* embeddedproviders/googleapis.com/bigquery/* embeddedproviders/googleapis.com/cloudresourcemanager/* embeddedproviders/googleapis.com/compute/* embeddedproviders/googleapis.com/container/* embeddedproviders/googleapis.com/services/*
+//go:embed embeddedproviders/googleapis.com/* embeddedproviders/googleapis.com/services/*
 var googleProvider embed.FS
 
 //go:embed embeddedproviders/okta/* embeddedproviders/okta/*/*

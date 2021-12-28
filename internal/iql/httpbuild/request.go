@@ -65,9 +65,14 @@ func NewHTTPArmoury() HTTPArmoury {
 func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, prov provider.IProvider, m *openapistackql.OperationStore, svc *openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext *ExecContext) (*HTTPArmoury, error) {
 	var err error
 	httpArmoury := NewHTTPArmoury()
-	requestSchema := m.Request.Schema
+	var requestSchema, responseSchema *openapistackql.Schema
+	if m.Request != nil && m.Request.Schema != nil {
+		requestSchema = m.Request.Schema
+	}
+	if m.Response != nil && m.Response.Schema != nil {
+		requestSchema = m.Response.Schema
+	}
 	httpArmoury.RequestSchema = requestSchema
-	responseSchema := m.Response.Schema
 	httpArmoury.ResponseSchema = responseSchema
 	paramMap, err := util.ExtractSQLNodeParams(node, insertValOnlyRows)
 	if err != nil {
@@ -106,6 +111,9 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 	}
 	for i, param := range httpArmoury.RequestParams {
 		p := param
+		if len(p.Parameters.RequestBody) == 0 {
+			p.Parameters.RequestBody = nil
+		}
 		var baseRequestCtx *http.Request
 		switch node := node.(type) {
 		case *sqlparser.Delete, *sqlparser.Exec, *sqlparser.Insert, *sqlparser.Select:

@@ -128,7 +128,7 @@
       ],
     },
     {
-      "name": "okta \"select from exec ... ;\" -- prebuilt with cmake",
+      "name": "okta debug \"select from idps ... ;\" -- prebuilt with cmake",
       "type": "go",
       "request": "launch",
       "mode": "debug",
@@ -137,7 +137,7 @@
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/okta-token.txt",
         "--keyfiletype=api_key",
-        "select * from okta.application.apps where subdomain = 'dev-79923018-admin';",
+        "select * from okta.identityprovider.idps where subdomain = 'dev-79923018-admin';",
         "-o",
         "json"
       ],

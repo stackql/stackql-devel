@@ -349,7 +349,7 @@ func (op *OperationStore) Parameterize(parentDoc *Service, inputParams map[strin
 	}
 	contentTypeHeaderRequired := false
 	var bodyReader io.Reader
-	if requestBody != nil {
+	if requestBody != nil && op.Request != nil {
 		b, err := marshalBody(requestBody, op.Request.BodyMediaType)
 		if err != nil {
 			return nil, err
@@ -389,11 +389,17 @@ func (op *OperationStore) Parameterize(parentDoc *Service, inputParams map[strin
 }
 
 func (op *OperationStore) GetRequestBodySchema() (*Schema, error) {
-	return op.Request.Schema, nil
+	if op.Request != nil {
+		return op.Request.Schema, nil
+	}
+	return nil, fmt.Errorf("no request body for operation =  %s", op.GetName())
 }
 
 func (op *OperationStore) GetRequestBodyRequiredProperties() ([]string, error) {
-	return op.Request.Required, nil
+	if op.Request != nil {
+		return op.Request.Required, nil
+	}
+	return nil, fmt.Errorf("no request body required elements for operation =  %s", op.GetName())
 }
 
 func (op *OperationStore) IsRequiredRequestBodyProperty(key string) bool {
@@ -409,5 +415,8 @@ func (op *OperationStore) IsRequiredRequestBodyProperty(key string) bool {
 }
 
 func (op *OperationStore) GetResponseBodySchema() (*Schema, error) {
-	return op.Response.Schema, nil
+	if op.Response != nil {
+		return op.Response.Schema, nil
+	}
+	return nil, fmt.Errorf("no response body for operation =  %s", op.GetName())
 }
