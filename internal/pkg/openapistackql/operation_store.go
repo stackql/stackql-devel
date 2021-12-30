@@ -73,6 +73,7 @@ type OperationStore struct {
 	OperationRef *OperationRef          `json:"operation" yaml:"operation"` // Required
 	Request      *ExpectedRequest       `json:"request" yaml:"request"`
 	Response     *ExpectedResponse      `json:"response" yaml:"response"`
+	Servers      *openapi3.Servers      `json:"servers" yaml:"servers"`
 	// private
 	parameterizedPath string `json:"-" yaml:"-"`
 }
@@ -85,9 +86,31 @@ func (m *OperationStore) KeyExists(lhs string) bool {
 	if lhs == MethodName {
 		return true
 	}
-	for key, _ := range m.Parameters {
-		if key == lhs {
+	if m.OperationRef == nil {
+		return false
+	}
+	if m.OperationRef.Value == nil {
+		return false
+	}
+	params := m.OperationRef.Value.Parameters
+	if params == nil {
+		return false
+	}
+	for _, p := range params {
+		if p.Value == nil {
+			continue
+		}
+		if lhs == p.Value.Name {
 			return true
+		}
+	}
+	if m.Servers != nil {
+		for _, s := range *m.Servers {
+			for k, _ := range s.Variables {
+				if lhs == k {
+					return true
+				}
+			}
 		}
 	}
 	return false

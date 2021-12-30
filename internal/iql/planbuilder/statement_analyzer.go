@@ -406,7 +406,10 @@ func (pb *primitiveGenerator) whereComparisonExprToFilterFunc(expr *sqlparser.Co
 	}
 	colName := qualifiedName.Name.GetRawVal()
 	tableContainsKey := table.KeyExists(colName)
-	subSchema := schema.FindByPath(colName, nil)
+	var subSchema *openapistackql.Schema
+	if schema != nil {
+		subSchema = schema.FindByPath(colName, nil)
+	}
 	if !tableContainsKey && subSchema == nil {
 		return nil, fmt.Errorf("col name = '%s' not found in resource name = '%s'", colName, table.GetName())
 	}
@@ -1179,7 +1182,7 @@ func (p *primitiveGenerator) analyzeDelete(handlerCtx *handler.HandlerContext, n
 		return err
 	}
 	for _, w := range whereNames {
-		_, ok := method.Parameters[w]
+		ok := method.KeyExists(w)
 		if ok {
 			continue
 		}

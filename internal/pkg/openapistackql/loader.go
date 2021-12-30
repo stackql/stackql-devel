@@ -97,6 +97,7 @@ func (l *Loader) extractResources(svc *Service) error {
 			if err != nil {
 				return err
 			}
+			v.Servers = &svc.Servers
 			rsc.Methods[k] = v
 		}
 	}
