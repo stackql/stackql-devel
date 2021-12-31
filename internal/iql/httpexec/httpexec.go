@@ -190,7 +190,7 @@ func ProcessHttpResponse(response *http.Response) (interface{}, error) {
 	if response.StatusCode >= 400 {
 		return nil, fmt.Errorf("error: status code = %d, response = '%s'", response.StatusCode, string(b))
 	}
-	return nil, fmt.Errorf("error: unable to parse response = %s", string(b))
+	return nil, nil
 }
 
 func DeprecatedProcessHttpResponse(response *http.Response) (map[string]interface{}, error) {
@@ -201,6 +201,8 @@ func DeprecatedProcessHttpResponse(response *http.Response) (map[string]interfac
 	switch rv := target.(type) {
 	case map[string]interface{}:
 		return rv, nil
+	case nil:
+		return nil, nil
 	default:
 		return nil, fmt.Errorf("DeprecatedProcessHttpResponse() cannot acccept response of type %T", rv)
 	}

@@ -382,6 +382,8 @@ func (ss *SingleSelectAcquire) Build() error {
 				case []interface{}:
 					items = pl
 					ok = true
+				case nil:
+					return dto.ExecutorOutput{}
 				}
 				keys := make(map[string]map[string]interface{})
 

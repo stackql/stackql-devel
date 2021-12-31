@@ -152,7 +152,7 @@
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/okta-token.txt",
         "--keyfiletype=api_key",
-        "delete from okta.application.apps where appId = '0oa3fvxtqwHNZLAoC5d7' and subdomain = 'dev-79923018-admin';",
+        "delete from okta.application.apps where appId = '0oa3fvey86qdXch1g5d7' and subdomain = 'dev-79923018-admin';",
         "-o",
         "json"
       ],

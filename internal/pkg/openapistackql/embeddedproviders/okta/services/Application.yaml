@@ -1671,6 +1671,26 @@ components:
             openAPIDocKey: '200'
       name: apps
       title: apps
+    appactivations:
+      id: okta.application.appactivations
+      methods:
+        delete:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/apps/{appId}/lifecycle/deactivate
+          response:
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/apps/{appId}/lifecycle/activate
+          request:
+          response:
+            openAPIDocKey: '200'
+      name: appactivations
+      title: appactivations
     csrs:
       id: okta.application.csrs
       methods:
