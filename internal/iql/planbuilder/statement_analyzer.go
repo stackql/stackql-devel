@@ -601,7 +601,7 @@ func (p *primitiveGenerator) analyzeUnaryExec(handlerCtx *handler.HandlerContext
 	}
 	requestSchema, err := method.GetRequestBodySchema()
 	// requestSchema, err := prov.GetObjectSchema(svcStr, rStr, method.Request.BodyMediaType)
-	if err != nil {
+	if err != nil && method.Request != nil {
 		return nil, err
 	}
 	var execPayload *dto.ExecPayload
@@ -630,6 +630,9 @@ func (p *primitiveGenerator) analyzeUnaryExec(handlerCtx *handler.HandlerContext
 	p.PrimitiveBuilder.SetTable(node, meta)
 
 	// parse response with SQL
+	if method.IsNullary() && !p.PrimitiveBuilder.IsAwait() {
+		return &meta, nil
+	}
 	if selectNode != nil {
 		return &meta, p.analyzeUnarySelection(handlerCtx, selectNode, selectNode.Where, &meta, cols)
 	}
@@ -641,9 +644,16 @@ func (p *primitiveGenerator) analyzeExec(handlerCtx *handler.HandlerContext, nod
 	if err != nil {
 		log.Infoln(fmt.Sprintf("error analyzing EXEC as selection: '%s'", err.Error()))
 	} else {
+		m, err := tbl.GetMethod()
+		if err != nil {
+			return err
+		}
+		if m.IsNullary() && !p.PrimitiveBuilder.IsAwait() {
+			p.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleSelectAcquire(p.PrimitiveBuilder, handlerCtx, *tbl, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), p.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
+			return nil
+		}
 		p.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(p.PrimitiveBuilder, handlerCtx, *tbl, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), p.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
 	}
-
 	return nil
 }
 

@@ -82,6 +82,11 @@ func (op *OperationStore) GetParameterizedPath() string {
 	return op.parameterizedPath
 }
 
+func (op *OperationStore) IsNullary() bool {
+	rbs, _ := op.GetResponseBodySchema()
+	return rbs == nil
+}
+
 func (m *OperationStore) KeyExists(lhs string) bool {
 	if lhs == MethodName {
 		return true

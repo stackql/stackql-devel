@@ -158,6 +158,21 @@
       ],
     },
     {
+      "name": "okta deactivate \"okta.application.apps.deactivate ;\" -- prebuilt with cmake",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/infraql",
+      "args": [
+        "exec",
+        "--keyfilepath=${workspaceFolder}/keys/okta-token.txt",
+        "--keyfiletype=api_key",
+        "exec okta.application.apps.deactivate @appId = '0oa3gvv2cruvhWBXU5d7',  @subdomain = 'dev-79923018-admin';",
+        "-o",
+        "json"
+      ],
+    },
+    {
       "name": "okta \"show resources from okta.group ;\" -- prebuilt with cmake",
       "type": "go",
       "request": "launch",

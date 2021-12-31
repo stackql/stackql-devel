@@ -48,6 +48,17 @@ type SingleSelectAcquire struct {
 	root                       primitivegraph.PrimitiveNode
 }
 
+type NullaryAction struct {
+	primitiveBuilder *PrimitiveBuilder
+	query            string
+	handlerCtx       *handler.HandlerContext
+	tableMeta        taxonomy.ExtendedTableMetadata
+	tabulation       openapistackql.Tabulation
+	drmCfg           drm.DRMConfig
+	txnCtrlCtr       *dto.TxnControlCounters
+	root             primitivegraph.PrimitiveNode
+}
+
 type SingleSelect struct {
 	primitiveBuilder           *PrimitiveBuilder
 	query                      string
@@ -161,6 +172,10 @@ type Join struct {
 }
 
 func NewSingleSelectAcquire(pb *PrimitiveBuilder, handlerCtx *handler.HandlerContext, tableMeta taxonomy.ExtendedTableMetadata, insertCtx *drm.PreparedStatementCtx, selectCtx *drm.PreparedStatementCtx, rowSort func(map[string]map[string]interface{}) []string) *SingleSelectAcquire {
+	var tcc *dto.TxnControlCounters
+	if selectCtx != nil {
+		tcc = selectCtx.TxnCtrlCtrs
+	}
 	return &SingleSelectAcquire{
 		primitiveBuilder:           pb,
 		handlerCtx:                 handlerCtx,
@@ -169,7 +184,7 @@ func NewSingleSelectAcquire(pb *PrimitiveBuilder, handlerCtx *handler.HandlerCon
 		drmCfg:                     handlerCtx.DrmConfig,
 		insertPreparedStatementCtx: insertCtx,
 		selectPreparedStatementCtx: selectCtx,
-		txnCtrlCtr:                 selectCtx.TxnCtrlCtrs,
+		txnCtrlCtr:                 tcc,
 	}
 }
 
@@ -390,7 +405,7 @@ func (ss *SingleSelectAcquire) Build() error {
 				if ok {
 					iArr, ok := items.([]interface{})
 					if ok && len(iArr) > 0 {
-						if !housekeepingDone {
+						if !housekeepingDone && ss.insertPreparedStatementCtx != nil {
 							_, err = ss.handlerCtx.SQLEngine.Exec(ss.insertPreparedStatementCtx.GetGCHousekeepingQueries())
 							housekeepingDone = true
 						}
