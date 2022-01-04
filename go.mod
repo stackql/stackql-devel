@@ -5,7 +5,7 @@ go 1.16
 require (
 	github.com/coreos/etcd v3.3.13+incompatible // indirect
 	github.com/fatih/color v1.9.0
-	github.com/getkin/kin-openapi v0.80.0
+	github.com/getkin/kin-openapi v0.88.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-delve/delve v1.6.1 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5
@@ -42,4 +42,4 @@ replace github.com/fatih/color => github.com/infraql/color v1.10.1-0.20210418074
 
 replace vitess.io/vitess => github.com/infraql/vitess v0.0.9-alpha5
 
-replace github.com/getkin/kin-openapi => github.com/infraql/kin-openapi v0.9.0-sortreverse-alpha1
+// replace github.com/getkin/kin-openapi => github.com/infraql/kin-openapi v0.9.0-sortreverse-alpha1
