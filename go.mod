@@ -41,3 +41,5 @@ replace readline => github.com/infraql/readline v0.0.0-20210418072316-6e4ad520d2
 replace github.com/fatih/color => github.com/infraql/color v1.10.1-0.20210418074258-4aa529ee76ed
 
 replace vitess.io/vitess => github.com/infraql/vitess v0.0.9-alpha5
+
+replace github.com/getkin/kin-openapi => github.com/infraql/kin-openapi v0.9.0-sortreverse-alpha1

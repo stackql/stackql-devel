@@ -429,6 +429,8 @@ github.com/infraql/color v1.10.1-0.20210418074258-4aa529ee76ed h1:lqFwdg0UCMi8Jp
 github.com/infraql/color v1.10.1-0.20210418074258-4aa529ee76ed/go.mod h1:ELkj/draVOlAH/xkhN6mQ50Qd0MPOk5AAr3maGEBuJM=
 github.com/infraql/go-sqlite3 v0.0.1-infraqlalpha h1:Cpxh+zYaQayTs/3wCQyA5Vigouax/1ZSEDlWn7k9FrM=
 github.com/infraql/go-sqlite3 v0.0.1-infraqlalpha/go.mod h1:Xh9BLcW+cWAiFWlNCa9ecHSixBnzJ8Vk4XOczAHQFRo=
+github.com/infraql/kin-openapi v0.9.0-sortreverse-alpha1 h1:UT03/6URxVt1rTBVF62PN7chE7eIA57+j3dldE+tVBI=
+github.com/infraql/kin-openapi v0.9.0-sortreverse-alpha1/go.mod h1:660oXbgy5JFMKreazJaQTw7o+X00qeSyhcnluiMv+Xg=
 github.com/infraql/readline v0.0.0-20210418072316-6e4ad520d2b4 h1:93QhSXytpHV6dnkDE3qWn3Wp+1EOZzh73IwJ+V/FDKs=
 github.com/infraql/readline v0.0.0-20210418072316-6e4ad520d2b4/go.mod h1:GsQot9cgbH0B1/8pwoQKJ3KAAXaE+8BjFD2RvJOGs1Y=
 github.com/infraql/vitess v0.0.1 h1:9VD73gn9Rk1YDe8cUxHVsno+3Z5nr3yP/aV+GrYLUqQ=
