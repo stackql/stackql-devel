@@ -1534,30 +1534,26 @@ components:
       type: oauth2
   x-stackQL-resources:
     achievementDefinitions:
-      id: google.services.achievementDefinitions
+      id: google.games.achievementDefinitions
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /games/v1/achievements
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: achievementDefinitions
       title: achievementDefinitions
     achievements:
-      id: google.services.achievements
+      id: google.games.achievements
       methods:
         increment:
           operation:
             $ref: post
           path:
             $ref: /games/v1/achievements/{achievementId}/increment
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1566,8 +1562,6 @@ components:
             $ref: get
           path:
             $ref: /games/v1/players/{playerId}/achievements
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1576,8 +1570,6 @@ components:
             $ref: post
           path:
             $ref: /games/v1/achievements/{achievementId}/reveal
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1586,8 +1578,6 @@ components:
             $ref: post
           path:
             $ref: /games/v1/achievements/{achievementId}/setStepsAtLeast
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1596,8 +1586,6 @@ components:
             $ref: post
           path:
             $ref: /games/v1/achievements/{achievementId}/unlock
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1614,15 +1602,13 @@ components:
       name: achievements
       title: achievements
     applications:
-      id: google.services.applications
+      id: google.games.applications
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /games/v1/applications/{applicationId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1631,8 +1617,6 @@ components:
             $ref: post
           path:
             $ref: /games/v1/applications/getEndPoint
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1641,33 +1625,26 @@ components:
             $ref: post
           path:
             $ref: /games/v1/applications/played
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         verify:
           operation:
             $ref: get
           path:
             $ref: /games/v1/applications/{applicationId}/verify
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: applications
       title: applications
     events:
-      id: google.services.events
+      id: google.games.events
       methods:
         listByPlayer:
           operation:
             $ref: get
           path:
             $ref: /games/v1/events
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1676,8 +1653,6 @@ components:
             $ref: get
           path:
             $ref: /games/v1/eventDefinitions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1694,15 +1669,13 @@ components:
       name: events
       title: events
     leaderboards:
-      id: google.services.leaderboards
+      id: google.games.leaderboards
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /games/v1/leaderboards/{leaderboardId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1711,23 +1684,19 @@ components:
             $ref: get
           path:
             $ref: /games/v1/leaderboards
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: leaderboards
       title: leaderboards
     metagame:
-      id: google.services.metagame
+      id: google.games.metagame
       methods:
         getMetagameConfig:
           operation:
             $ref: get
           path:
             $ref: /games/v1/metagameConfig
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1736,23 +1705,19 @@ components:
             $ref: get
           path:
             $ref: /games/v1/players/{playerId}/categories/{collection}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: metagame
       title: metagame
     players:
-      id: google.services.players
+      id: google.games.players
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /games/v1/players/{playerId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1761,38 +1726,32 @@ components:
             $ref: get
           path:
             $ref: /games/v1/players/me/players/{collection}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: players
       title: players
     revisions:
-      id: google.services.revisions
+      id: google.games.revisions
       methods:
         check:
           operation:
             $ref: get
           path:
             $ref: /games/v1/revisions/check
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: revisions
       title: revisions
     scores:
-      id: google.services.scores
+      id: google.games.scores
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /games/v1/players/{playerId}/leaderboards/{leaderboardId}/scores/{timeSpan}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1801,8 +1760,6 @@ components:
             $ref: get
           path:
             $ref: /games/v1/leaderboards/{leaderboardId}/scores/{collection}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1811,8 +1768,6 @@ components:
             $ref: get
           path:
             $ref: /games/v1/leaderboards/{leaderboardId}/window/{collection}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1821,8 +1776,6 @@ components:
             $ref: post
           path:
             $ref: /games/v1/leaderboards/{leaderboardId}/scores
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1839,15 +1792,13 @@ components:
       name: scores
       title: scores
     snapshots:
-      id: google.services.snapshots
+      id: google.games.snapshots
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /games/v1/snapshots/{snapshotId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1856,23 +1807,19 @@ components:
             $ref: get
           path:
             $ref: /games/v1/players/{playerId}/snapshots
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: snapshots
       title: snapshots
     stats:
-      id: google.services.stats
+      id: google.games.stats
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /games/v1/stats
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

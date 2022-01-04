@@ -1806,15 +1806,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     contactGroups:
-      id: google.services.contactGroups
+      id: google.people.contactGroups
       methods:
         batchGet:
           operation:
             $ref: get
           path:
             $ref: /v1/contactGroups:batchGet
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1832,9 +1830,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{resourceName}
-          request:
-            mediaType: application/json
+            $ref: /v1/contactGroups/{contactGroupsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1842,9 +1838,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{resourceName}
-          request:
-            mediaType: application/json
+            $ref: /v1/contactGroups/{contactGroupsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1853,8 +1847,6 @@ components:
             $ref: get
           path:
             $ref: /v1/contactGroups
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1862,7 +1854,7 @@ components:
           operation:
             $ref: put
           path:
-            $ref: /v1/{resourceName}
+            $ref: /v1/contactGroups/{contactGroupsId}
           request:
             mediaType: application/json
           response:
@@ -1870,34 +1862,29 @@ components:
             openAPIDocKey: '200'
       name: contactGroups
       title: contactGroups
-    contactGroups.resources:
-      id: google.services.contactGroups.resources
-      methods: {}
-      name: contactGroups.resources
-      title: contactGroups.resources
-    contactGroups.resources.members:
-      id: google.services.contactGroups.resources.members
+    contactGroups.members:
+      id: google.people.contactGroups.members
       methods:
         modify:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resourceName}/members:modify
+            $ref: /v1/contactGroups/{contactGroupsId}/members:modify
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: contactGroups.resources.members
-      title: contactGroups.resources.members
+      name: contactGroups.members
+      title: contactGroups.members
     otherContacts:
-      id: google.services.otherContacts
+      id: google.people.otherContacts
       methods:
         copyOtherContactToMyContactsGroup:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resourceName}:copyOtherContactToMyContactsGroup
+            $ref: /v1/otherContacts/{otherContactsId}:copyOtherContactToMyContactsGroup
           request:
             mediaType: application/json
           response:
@@ -1908,8 +1895,6 @@ components:
             $ref: get
           path:
             $ref: /v1/otherContacts
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1918,15 +1903,13 @@ components:
             $ref: get
           path:
             $ref: /v1/otherContacts:search
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: otherContacts
       title: otherContacts
     people:
-      id: google.services.people
+      id: google.people.people
       methods:
         batchCreateContacts:
           operation:
@@ -1972,9 +1955,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{resourceName}:deleteContact
-          request:
-            mediaType: application/json
+            $ref: /v1/people/{peopleId}:deleteContact
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1982,9 +1963,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{resourceName}:deleteContactPhoto
-          request:
-            mediaType: application/json
+            $ref: /v1/people/{peopleId}:deleteContactPhoto
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1992,9 +1971,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{resourceName}
-          request:
-            mediaType: application/json
+            $ref: /v1/people/{peopleId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2003,8 +1980,6 @@ components:
             $ref: get
           path:
             $ref: /v1/people:batchGet
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2013,8 +1988,6 @@ components:
             $ref: get
           path:
             $ref: /v1/people:listDirectoryPeople
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2023,8 +1996,6 @@ components:
             $ref: get
           path:
             $ref: /v1/people:searchContacts
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2033,8 +2004,6 @@ components:
             $ref: get
           path:
             $ref: /v1/people:searchDirectoryPeople
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2042,7 +2011,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{resourceName}:updateContact
+            $ref: /v1/people/{peopleId}:updateContact
           request:
             mediaType: application/json
           response:
@@ -2052,7 +2021,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{resourceName}:updateContactPhoto
+            $ref: /v1/people/{peopleId}:updateContactPhoto
           request:
             mediaType: application/json
           response:
@@ -2060,26 +2029,19 @@ components:
             openAPIDocKey: '200'
       name: people
       title: people
-    people.resources:
-      id: google.services.people.resources
-      methods: {}
-      name: people.resources
-      title: people.resources
-    people.resources.connections:
-      id: google.services.people.resources.connections
+    people.connections:
+      id: google.people.people.connections
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/{resourceName}/connections
-          request:
-            mediaType: application/json
+            $ref: /v1/people/{peopleId}/connections
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: people.resources.connections
-      title: people.resources.connections
+      name: people.connections
+      title: people.connections
 externalDocs:
   url: https://developers.google.com/people/
 info:
@@ -2191,6 +2153,222 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ContactGroup'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/contacts
+        Oauth2c:
+        - https://www.googleapis.com/auth/contacts
+      tags:
+      - contactGroups
+  /v1/contactGroups/{contactGroupsId}:
+    delete:
+      description: Delete an existing contact group owned by the authenticated user
+        by specifying a contact group resource name.
+      operationId: people.contactGroups.delete
+      parameters:
+      - description: Optional. Set to true to also delete the contacts in the specified
+          group.
+        in: query
+        name: deleteContacts
+        schema:
+          type: boolean
+      - in: path
+        name: contactGroupsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/contacts
+        Oauth2c:
+        - https://www.googleapis.com/auth/contacts
+      tags:
+      - contactGroups
+    get:
+      description: Provides information about a person by specifying a resource name.
+        Use `people/me` to indicate the authenticated user. The request returns a
+        400 error if 'personFields' is not specified.
+      operationId: people.people.get
+      parameters:
+      - description: 'Required. A field mask to restrict which fields on the person
+          are returned. Multiple fields can be specified by separating them with commas.
+          Valid values are: * addresses * ageRanges * biographies * birthdays * calendarUrls
+          * clientData * coverPhotos * emailAddresses * events * externalIds * genders
+          * imClients * interests * locales * locations * memberships * metadata *
+          miscKeywords * names * nicknames * occupations * organizations * phoneNumbers
+          * photos * relations * sipAddresses * skills * urls * userDefined'
+        in: query
+        name: personFields
+        schema:
+          type: string
+      - description: 'Required. Comma-separated list of person fields to be included
+          in the response. Each path should start with `person.`: for example, `person.names`
+          or `person.photos`.'
+        in: query
+        name: requestMask.includeField
+        schema:
+          type: string
+      - description: Optional. A mask of what source types to return. Defaults to
+          READ_SOURCE_TYPE_PROFILE and READ_SOURCE_TYPE_CONTACT if not set.
+        explode: true
+        in: query
+        name: sources
+        schema:
+          items:
+            enum:
+            - READ_SOURCE_TYPE_UNSPECIFIED
+            - READ_SOURCE_TYPE_PROFILE
+            - READ_SOURCE_TYPE_CONTACT
+            - READ_SOURCE_TYPE_DOMAIN_CONTACT
+            type: string
+          type: array
+        style: form
+      - in: path
+        name: contactGroupsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/contacts
+        Oauth2c:
+        - https://www.googleapis.com/auth/contacts
+      - Oauth2:
+        - https://www.googleapis.com/auth/contacts.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/contacts.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/directory.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/directory.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/user.addresses.read
+        Oauth2c:
+        - https://www.googleapis.com/auth/user.addresses.read
+      - Oauth2:
+        - https://www.googleapis.com/auth/user.birthday.read
+        Oauth2c:
+        - https://www.googleapis.com/auth/user.birthday.read
+      - Oauth2:
+        - https://www.googleapis.com/auth/user.emails.read
+        Oauth2c:
+        - https://www.googleapis.com/auth/user.emails.read
+      - Oauth2:
+        - https://www.googleapis.com/auth/user.gender.read
+        Oauth2c:
+        - https://www.googleapis.com/auth/user.gender.read
+      - Oauth2:
+        - https://www.googleapis.com/auth/user.organization.read
+        Oauth2c:
+        - https://www.googleapis.com/auth/user.organization.read
+      - Oauth2:
+        - https://www.googleapis.com/auth/user.phonenumbers.read
+        Oauth2c:
+        - https://www.googleapis.com/auth/user.phonenumbers.read
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.profile
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.profile
+      tags:
+      - people
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Update the name of an existing contact group owned by the authenticated
+        user. Updated contact group names must be unique to the users contact groups.
+        Attempting to create a group with a duplicate name will return a HTTP 409
+        error.
+      operationId: people.contactGroups.update
+      parameters:
+      - in: path
+        name: contactGroupsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactGroupRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactGroup'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/contacts
+        Oauth2c:
+        - https://www.googleapis.com/auth/contacts
+      tags:
+      - contactGroups
+  /v1/contactGroups/{contactGroupsId}/members:modify:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Modify the members of a contact group owned by the authenticated
+        user. The only system contact groups that can have members added are `contactGroups/myContacts`
+        and `contactGroups/starred`. Other system contact groups are deprecated and
+        can only have contacts removed.
+      operationId: people.contactGroups.members.modify
+      parameters:
+      - in: path
+        name: contactGroupsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModifyContactGroupMembersRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModifyContactGroupMembersResponse'
           description: Successful response
       security:
       - Oauth2:
@@ -2363,6 +2541,52 @@ paths:
     - $ref: '#/components/parameters/quotaUser'
     - $ref: '#/components/parameters/upload_protocol'
     - $ref: '#/components/parameters/uploadType'
+  /v1/otherContacts/{otherContactsId}:copyOtherContactToMyContactsGroup:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Copies an "Other contact" to a new contact in the user's "myContacts"
+        group
+      operationId: people.otherContacts.copyOtherContactToMyContactsGroup
+      parameters:
+      - in: path
+        name: otherContactsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CopyOtherContactToMyContactsGroupRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/contacts
+        Oauth2c:
+        - https://www.googleapis.com/auth/contacts
+      - Oauth2:
+        - https://www.googleapis.com/auth/contacts.other.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/contacts.other.readonly
+      tags:
+      - otherContacts
   /v1/otherContacts:search:
     get:
       description: 'Provides a list of contacts in the authenticated user''s other
@@ -2420,6 +2644,536 @@ paths:
     - $ref: '#/components/parameters/quotaUser'
     - $ref: '#/components/parameters/upload_protocol'
     - $ref: '#/components/parameters/uploadType'
+  /v1/people/{peopleId}:
+    delete:
+      description: Delete an existing contact group owned by the authenticated user
+        by specifying a contact group resource name.
+      operationId: people.contactGroups.delete
+      parameters:
+      - description: Optional. Set to true to also delete the contacts in the specified
+          group.
+        in: query
+        name: deleteContacts
+        schema:
+          type: boolean
+      - in: path
+        name: peopleId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/contacts
+        Oauth2c:
+        - https://www.googleapis.com/auth/contacts
+      tags:
+      - contactGroups
+    get:
+      description: Provides information about a person by specifying a resource name.
+        Use `people/me` to indicate the authenticated user. The request returns a
+        400 error if 'personFields' is not specified.
+      operationId: people.people.get
+      parameters:
+      - description: 'Required. A field mask to restrict which fields on the person
+          are returned. Multiple fields can be specified by separating them with commas.
+          Valid values are: * addresses * ageRanges * biographies * birthdays * calendarUrls
+          * clientData * coverPhotos * emailAddresses * events * externalIds * genders
+          * imClients * interests * locales * locations * memberships * metadata *
+          miscKeywords * names * nicknames * occupations * organizations * phoneNumbers
+          * photos * relations * sipAddresses * skills * urls * userDefined'
+        in: query
+        name: personFields
+        schema:
+          type: string
+      - description: 'Required. Comma-separated list of person fields to be included
+          in the response. Each path should start with `person.`: for example, `person.names`
+          or `person.photos`.'
+        in: query
+        name: requestMask.includeField
+        schema:
+          type: string
+      - description: Optional. A mask of what source types to return. Defaults to
+          READ_SOURCE_TYPE_PROFILE and READ_SOURCE_TYPE_CONTACT if not set.
+        explode: true
+        in: query
+        name: sources
+        schema:
+          items:
+            enum:
+            - READ_SOURCE_TYPE_UNSPECIFIED
+            - READ_SOURCE_TYPE_PROFILE
+            - READ_SOURCE_TYPE_CONTACT
+            - READ_SOURCE_TYPE_DOMAIN_CONTACT
+            type: string
+          type: array
+        style: form
+      - in: path
+        name: peopleId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/contacts
+        Oauth2c:
+        - https://www.googleapis.com/auth/contacts
+      - Oauth2:
+        - https://www.googleapis.com/auth/contacts.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/contacts.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/directory.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/directory.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/user.addresses.read
+        Oauth2c:
+        - https://www.googleapis.com/auth/user.addresses.read
+      - Oauth2:
+        - https://www.googleapis.com/auth/user.birthday.read
+        Oauth2c:
+        - https://www.googleapis.com/auth/user.birthday.read
+      - Oauth2:
+        - https://www.googleapis.com/auth/user.emails.read
+        Oauth2c:
+        - https://www.googleapis.com/auth/user.emails.read
+      - Oauth2:
+        - https://www.googleapis.com/auth/user.gender.read
+        Oauth2c:
+        - https://www.googleapis.com/auth/user.gender.read
+      - Oauth2:
+        - https://www.googleapis.com/auth/user.organization.read
+        Oauth2c:
+        - https://www.googleapis.com/auth/user.organization.read
+      - Oauth2:
+        - https://www.googleapis.com/auth/user.phonenumbers.read
+        Oauth2c:
+        - https://www.googleapis.com/auth/user.phonenumbers.read
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.profile
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.profile
+      tags:
+      - people
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Update the name of an existing contact group owned by the authenticated
+        user. Updated contact group names must be unique to the users contact groups.
+        Attempting to create a group with a duplicate name will return a HTTP 409
+        error.
+      operationId: people.contactGroups.update
+      parameters:
+      - in: path
+        name: peopleId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactGroupRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactGroup'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/contacts
+        Oauth2c:
+        - https://www.googleapis.com/auth/contacts
+      tags:
+      - contactGroups
+  /v1/people/{peopleId}/connections:
+    get:
+      description: Provides a list of the authenticated user's contacts. Sync tokens
+        expire 7 days after the full sync. A request with an expired sync token will
+        result in a 410 error. In the case of such an error clients should make a
+        full sync request without a `sync_token`. The first page of a full sync request
+        has an additional quota. If the quota is exceeded, a 429 error will be returned.
+        This quota is fixed and can not be increased. When the `sync_token` is specified,
+        resources deleted since the last sync will be returned as a person with `PersonMetadata.deleted`
+        set to true. When the `page_token` or `sync_token` is specified, all other
+        request parameters must match the first call. Writes may have a propagation
+        delay of several minutes for sync requests. Incremental syncs are not intended
+        for read-after-write use cases. See example usage at [List the user's contacts
+        that have changed](/people/v1/contacts#list_the_users_contacts_that_have_changed).
+      operationId: people.people.connections.list
+      parameters:
+      - description: Optional. The number of connections to include in the response.
+          Valid values are between 1 and 1000, inclusive. Defaults to 100 if not set
+          or set to 0.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A page token, received from a previous response `next_page_token`.
+          Provide this to retrieve the subsequent page. When paginating, all other
+          parameters provided to `people.connections.list` must match the first call
+          that provided the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: 'Required. A field mask to restrict which fields on each person
+          are returned. Multiple fields can be specified by separating them with commas.
+          Valid values are: * addresses * ageRanges * biographies * birthdays * calendarUrls
+          * clientData * coverPhotos * emailAddresses * events * externalIds * genders
+          * imClients * interests * locales * locations * memberships * metadata *
+          miscKeywords * names * nicknames * occupations * organizations * phoneNumbers
+          * photos * relations * sipAddresses * skills * urls * userDefined'
+        in: query
+        name: personFields
+        schema:
+          type: string
+      - description: 'Required. Comma-separated list of person fields to be included
+          in the response. Each path should start with `person.`: for example, `person.names`
+          or `person.photos`.'
+        in: query
+        name: requestMask.includeField
+        schema:
+          type: string
+      - description: Optional. Whether the response should return `next_sync_token`
+          on the last page of results. It can be used to get incremental changes since
+          the last request by setting it on the request `sync_token`. More details
+          about sync behavior at `people.connections.list`.
+        in: query
+        name: requestSyncToken
+        schema:
+          type: boolean
+      - description: Optional. The order in which the connections should be sorted.
+          Defaults to `LAST_MODIFIED_ASCENDING`.
+        in: query
+        name: sortOrder
+        schema:
+          enum:
+          - LAST_MODIFIED_ASCENDING
+          - LAST_MODIFIED_DESCENDING
+          - FIRST_NAME_ASCENDING
+          - LAST_NAME_ASCENDING
+          type: string
+      - description: Optional. A mask of what source types to return. Defaults to
+          READ_SOURCE_TYPE_CONTACT and READ_SOURCE_TYPE_PROFILE if not set.
+        explode: true
+        in: query
+        name: sources
+        schema:
+          items:
+            enum:
+            - READ_SOURCE_TYPE_UNSPECIFIED
+            - READ_SOURCE_TYPE_PROFILE
+            - READ_SOURCE_TYPE_CONTACT
+            - READ_SOURCE_TYPE_DOMAIN_CONTACT
+            type: string
+          type: array
+        style: form
+      - description: Optional. A sync token, received from a previous response `next_sync_token`
+          Provide this to retrieve only the resources changed since the last request.
+          When syncing, all other parameters provided to `people.connections.list`
+          must match the first call that provided the sync token. More details about
+          sync behavior at `people.connections.list`.
+        in: query
+        name: syncToken
+        schema:
+          type: string
+      - in: path
+        name: peopleId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListConnectionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/contacts
+        Oauth2c:
+        - https://www.googleapis.com/auth/contacts
+      - Oauth2:
+        - https://www.googleapis.com/auth/contacts.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/contacts.readonly
+      tags:
+      - people
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/people/{peopleId}:deleteContact:
+    delete:
+      description: Delete a contact person. Any non-contact data will not be deleted.
+      operationId: people.people.deleteContact
+      parameters:
+      - in: path
+        name: peopleId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/contacts
+        Oauth2c:
+        - https://www.googleapis.com/auth/contacts
+      tags:
+      - people
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/people/{peopleId}:deleteContactPhoto:
+    delete:
+      description: Delete a contact's photo.
+      operationId: people.people.deleteContactPhoto
+      parameters:
+      - description: 'Optional. A field mask to restrict which fields on the person
+          are returned. Multiple fields can be specified by separating them with commas.
+          Defaults to empty if not set, which will skip the post mutate get. Valid
+          values are: * addresses * ageRanges * biographies * birthdays * calendarUrls
+          * clientData * coverPhotos * emailAddresses * events * externalIds * genders
+          * imClients * interests * locales * locations * memberships * metadata *
+          miscKeywords * names * nicknames * occupations * organizations * phoneNumbers
+          * photos * relations * sipAddresses * skills * urls * userDefined'
+        in: query
+        name: personFields
+        schema:
+          type: string
+      - description: Optional. A mask of what source types to return. Defaults to
+          READ_SOURCE_TYPE_CONTACT and READ_SOURCE_TYPE_PROFILE if not set.
+        explode: true
+        in: query
+        name: sources
+        schema:
+          items:
+            enum:
+            - READ_SOURCE_TYPE_UNSPECIFIED
+            - READ_SOURCE_TYPE_PROFILE
+            - READ_SOURCE_TYPE_CONTACT
+            - READ_SOURCE_TYPE_DOMAIN_CONTACT
+            type: string
+          type: array
+        style: form
+      - in: path
+        name: peopleId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteContactPhotoResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/contacts
+        Oauth2c:
+        - https://www.googleapis.com/auth/contacts
+      tags:
+      - people
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/people/{peopleId}:updateContact:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Update contact data for an existing contact person. Any non-contact
+        data will not be modified. Any non-contact data in the person to update will
+        be ignored. All fields specified in the `update_mask` will be replaced. The
+        server returns a 400 error if `person.metadata.sources` is not specified for
+        the contact to be updated or if there is no contact source. The server returns
+        a 400 error with reason `"failedPrecondition"` if `person.metadata.sources.etag`
+        is different than the contact''s etag, which indicates the contact has changed
+        since its data was read. Clients should get the latest person and merge their
+        updates into the latest person. The server returns a 400 error if `memberships`
+        are being updated and there are no contact group memberships specified on
+        the person. The server returns a 400 error if more than one field is specified
+        on a field that is a singleton for contact sources: * biographies * birthdays
+        * genders * names'
+      operationId: people.people.updateContact
+      parameters:
+      - description: 'Optional. A field mask to restrict which fields on each person
+          are returned. Multiple fields can be specified by separating them with commas.
+          Defaults to all fields if not set. Valid values are: * addresses * ageRanges
+          * biographies * birthdays * calendarUrls * clientData * coverPhotos * emailAddresses
+          * events * externalIds * genders * imClients * interests * locales * locations
+          * memberships * metadata * miscKeywords * names * nicknames * occupations
+          * organizations * phoneNumbers * photos * relations * sipAddresses * skills
+          * urls * userDefined'
+        in: query
+        name: personFields
+        schema:
+          type: string
+      - description: Optional. A mask of what source types to return. Defaults to
+          READ_SOURCE_TYPE_CONTACT and READ_SOURCE_TYPE_PROFILE if not set.
+        explode: true
+        in: query
+        name: sources
+        schema:
+          items:
+            enum:
+            - READ_SOURCE_TYPE_UNSPECIFIED
+            - READ_SOURCE_TYPE_PROFILE
+            - READ_SOURCE_TYPE_CONTACT
+            - READ_SOURCE_TYPE_DOMAIN_CONTACT
+            type: string
+          type: array
+        style: form
+      - description: 'Required. A field mask to restrict which fields on the person
+          are updated. Multiple fields can be specified by separating them with commas.
+          All updated fields will be replaced. Valid values are: * addresses * biographies
+          * birthdays * calendarUrls * clientData * emailAddresses * events * externalIds
+          * genders * imClients * interests * locales * locations * memberships *
+          miscKeywords * names * nicknames * occupations * organizations * phoneNumbers
+          * relations * sipAddresses * urls * userDefined'
+        in: query
+        name: updatePersonFields
+        schema:
+          type: string
+      - in: path
+        name: peopleId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Person'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/contacts
+        Oauth2c:
+        - https://www.googleapis.com/auth/contacts
+      tags:
+      - people
+  /v1/people/{peopleId}:updateContactPhoto:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Update a contact's photo.
+      operationId: people.people.updateContactPhoto
+      parameters:
+      - in: path
+        name: peopleId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactPhotoRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateContactPhotoResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/contacts
+        Oauth2c:
+        - https://www.googleapis.com/auth/contacts
+      tags:
+      - people
   /v1/people:batchCreateContacts:
     parameters:
     - $ref: '#/components/parameters/_.xgafv'

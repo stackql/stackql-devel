@@ -430,35 +430,26 @@ components:
       type: oauth2
   x-stackQL-resources:
     projects:
-      id: google.services.projects
+      id: google.clouderrorreporting.projects
       methods:
         deleteEvents:
           operation:
             $ref: delete
           path:
-            $ref: /v1beta1/{projectName}/events
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/events
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: projects
       title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.events:
-      id: google.services.projects.resources.events
+    projects.events:
+      id: google.clouderrorreporting.projects.events
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{projectName}/events
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/events
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -466,39 +457,35 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{projectName}/events:report
+            $ref: /v1beta1/projects/{projectsId}/events:report
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.events
-      title: projects.resources.events
-    projects.resources.groupStats:
-      id: google.services.projects.resources.groupStats
+      name: projects.events
+      title: projects.events
+    projects.groupStats:
+      id: google.clouderrorreporting.projects.groupStats
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{projectName}/groupStats
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/groupStats
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.groupStats
-      title: projects.resources.groupStats
-    projects.resources.groups:
-      id: google.services.projects.resources.groups
+      name: projects.groupStats
+      title: projects.groupStats
+    projects.groups:
+      id: google.clouderrorreporting.projects.groups
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{groupName}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/groups/{groupsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -506,14 +493,14 @@ components:
           operation:
             $ref: put
           path:
-            $ref: /v1beta1/{name}
+            $ref: /v1beta1/projects/{projectsId}/groups/{groupsId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.groups
-      title: projects.resources.groups
+      name: projects.groups
+      title: projects.groups
 externalDocs:
   url: https://cloud.google.com/error-reporting/
 info:
@@ -547,6 +534,315 @@ info:
   x-serviceName: clouderrorreporting
 openapi: 3.0.0
 paths:
+  /v1beta1/projects/{projectsId}/events:
+    delete:
+      description: Deletes all error events of a given project.
+      operationId: clouderrorreporting.projects.deleteEvents
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteEventsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Lists the specified events.
+      operationId: clouderrorreporting.projects.events.list
+      parameters:
+      - description: Required. The group for which events shall be returned.
+        in: query
+        name: groupId
+        schema:
+          type: string
+      - description: Optional. The maximum number of results to return per response.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A `next_page_token` provided by a previous response.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: Optional. The exact value to match against [`ServiceContext.resource_type`](/error-reporting/reference/rest/v1beta1/ServiceContext#FIELDS.resource_type).
+        in: query
+        name: serviceFilter.resourceType
+        schema:
+          type: string
+      - description: Optional. The exact value to match against [`ServiceContext.service`](/error-reporting/reference/rest/v1beta1/ServiceContext#FIELDS.service).
+        in: query
+        name: serviceFilter.service
+        schema:
+          type: string
+      - description: Optional. The exact value to match against [`ServiceContext.version`](/error-reporting/reference/rest/v1beta1/ServiceContext#FIELDS.version).
+        in: query
+        name: serviceFilter.version
+        schema:
+          type: string
+      - description: Restricts the query to the specified time range.
+        in: query
+        name: timeRange.period
+        schema:
+          enum:
+          - PERIOD_UNSPECIFIED
+          - PERIOD_1_HOUR
+          - PERIOD_6_HOURS
+          - PERIOD_1_DAY
+          - PERIOD_1_WEEK
+          - PERIOD_30_DAYS
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEventsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1beta1/projects/{projectsId}/events:report:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Report an individual error event and record the event to a log.
+        This endpoint accepts **either** an OAuth token, **or** an [API key](https://support.google.com/cloud/answer/6158862)
+        for authentication. To use an API key, append it to the URL as the value of
+        a `key` parameter. For example: `POST https://clouderrorreporting.googleapis.com/v1beta1/{projectName}/events:report?key=123ABC456`
+        **Note:** [Error Reporting] (https://cloud.google.com/error-reporting) is
+        a global service built on Cloud Logging and doesn''t analyze logs stored in
+        regional log buckets or logs routed to other Google Cloud projects. For more
+        information, see [Using Error Reporting with regionalized logs] (https://cloud.google.com/error-reporting/docs/regionalization).'
+      operationId: clouderrorreporting.projects.events.report
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportedErrorEvent'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportErrorEventResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/groupStats:
+    get:
+      description: Lists the specified groups.
+      operationId: clouderrorreporting.projects.groupStats.list
+      parameters:
+      - description: Optional. The alignment of the timed counts to be returned. Default
+          is `ALIGNMENT_EQUAL_AT_END`.
+        in: query
+        name: alignment
+        schema:
+          enum:
+          - ERROR_COUNT_ALIGNMENT_UNSPECIFIED
+          - ALIGNMENT_EQUAL_ROUNDED
+          - ALIGNMENT_EQUAL_AT_END
+          type: string
+      - description: Optional. Time where the timed counts shall be aligned if rounded
+          alignment is chosen. Default is 00:00 UTC.
+        in: query
+        name: alignmentTime
+        schema:
+          type: string
+      - description: Optional. List all ErrorGroupStats with these IDs.
+        explode: true
+        in: query
+        name: groupId
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - description: Optional. The sort order in which the results are returned. Default
+          is `COUNT_DESC`.
+        in: query
+        name: order
+        schema:
+          enum:
+          - GROUP_ORDER_UNSPECIFIED
+          - COUNT_DESC
+          - LAST_SEEN_DESC
+          - CREATED_DESC
+          - AFFECTED_USERS_DESC
+          type: string
+      - description: Optional. The maximum number of results to return per response.
+          Default is 20.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A `next_page_token` provided by a previous response.
+          To view additional results, pass this token along with the identical query
+          parameters as the first request.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: Optional. The exact value to match against [`ServiceContext.resource_type`](/error-reporting/reference/rest/v1beta1/ServiceContext#FIELDS.resource_type).
+        in: query
+        name: serviceFilter.resourceType
+        schema:
+          type: string
+      - description: Optional. The exact value to match against [`ServiceContext.service`](/error-reporting/reference/rest/v1beta1/ServiceContext#FIELDS.service).
+        in: query
+        name: serviceFilter.service
+        schema:
+          type: string
+      - description: Optional. The exact value to match against [`ServiceContext.version`](/error-reporting/reference/rest/v1beta1/ServiceContext#FIELDS.version).
+        in: query
+        name: serviceFilter.version
+        schema:
+          type: string
+      - description: Restricts the query to the specified time range.
+        in: query
+        name: timeRange.period
+        schema:
+          enum:
+          - PERIOD_UNSPECIFIED
+          - PERIOD_1_HOUR
+          - PERIOD_6_HOURS
+          - PERIOD_1_DAY
+          - PERIOD_1_WEEK
+          - PERIOD_30_DAYS
+          type: string
+      - description: Optional. The preferred duration for a single returned `TimedCount`.
+          If not set, no timed counts are returned.
+        in: query
+        name: timedCountDuration
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListGroupStatsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1beta1/projects/{projectsId}/groups/{groupsId}:
+    get:
+      description: Get the specified group.
+      operationId: clouderrorreporting.projects.groups.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: groupsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGroup'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /v1beta1/{groupName}:
     get:
       description: Get the specified group.

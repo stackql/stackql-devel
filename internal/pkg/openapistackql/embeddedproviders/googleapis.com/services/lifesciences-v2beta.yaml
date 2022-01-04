@@ -974,26 +974,14 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.locations:
-      id: google.services.projects.resources.locations
+    projects.locations:
+      id: google.lifesciences.projects.locations
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v2beta/{name}
-          request:
-            mediaType: application/json
+            $ref: /v2beta/projects/{projectsId}/locations/{locationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1001,27 +989,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2beta/{name}/locations
-          request:
-            mediaType: application/json
+            $ref: /v2beta/projects/{projectsId}/locations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations
-      title: projects.resources.locations
-    projects.resources.locations.resources:
-      id: google.services.projects.resources.locations.resources
-      methods: {}
-      name: projects.resources.locations.resources
-      title: projects.resources.locations.resources
-    projects.resources.locations.resources.operations:
-      id: google.services.projects.resources.locations.resources.operations
+      name: projects.locations
+      title: projects.locations
+    projects.locations.operations:
+      id: google.lifesciences.projects.locations.operations
       methods:
         cancel:
           operation:
             $ref: post
           path:
-            $ref: /v2beta/{name}:cancel
+            $ref: /v2beta/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}:cancel
           request:
             mediaType: application/json
           response:
@@ -1031,9 +1012,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2beta/{name}
-          request:
-            mediaType: application/json
+            $ref: /v2beta/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1041,29 +1020,27 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2beta/{name}/operations
-          request:
-            mediaType: application/json
+            $ref: /v2beta/projects/{projectsId}/locations/{locationsId}/operations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.operations
-      title: projects.resources.locations.resources.operations
-    projects.resources.locations.resources.pipelines:
-      id: google.services.projects.resources.locations.resources.pipelines
+      name: projects.locations.operations
+      title: projects.locations.operations
+    projects.locations.pipelines:
+      id: google.lifesciences.projects.locations.pipelines
       methods:
         run:
           operation:
             $ref: post
           path:
-            $ref: /v2beta/{parent}/pipelines:run
+            $ref: /v2beta/projects/{projectsId}/locations/{locationsId}/pipelines:run
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.pipelines
-      title: projects.resources.locations.resources.pipelines
+      name: projects.locations.pipelines
+      title: projects.locations.pipelines
 externalDocs:
   url: https://cloud.google.com/life-sciences
 info:
@@ -1097,6 +1074,331 @@ info:
   x-serviceName: lifesciences
 openapi: 3.0.0
 paths:
+  /v2beta/projects/{projectsId}/locations:
+    get:
+      description: Lists information about the supported locations for this service.
+      operationId: lifesciences.projects.locations.list
+      parameters:
+      - description: A filter to narrow down results to a preferred subset. The filtering
+          language accepts strings like "displayName=tokyo", and is documented in
+          more detail in [AIP-160](https://google.aip.dev/160).
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of results to return. If not set, the service
+          selects a default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token received from the `next_page_token` field in the
+          response. Send that page token to receive the subsequent page.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLocationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta/projects/{projectsId}/locations/{locationsId}:
+    get:
+      description: 'Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service. Authorization requires the following [Google IAM](https://cloud.google.com/iam)
+        permission: * `lifesciences.operations.get`'
+      operationId: lifesciences.projects.locations.operations.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta/projects/{projectsId}/locations/{locationsId}/operations:
+    get:
+      description: 'Lists operations that match the specified filter in the request.
+        Authorization requires the following [Google IAM](https://cloud.google.com/iam)
+        permission: * `lifesciences.operations.list`'
+      operationId: lifesciences.projects.locations.operations.list
+      parameters:
+      - description: 'A string for filtering Operations. The following filter fields
+          are supported: * createTime: The time this job was created * events: The
+          set of event (names) that have occurred while running the pipeline. The
+          : operator can be used to determine if a particular event has occurred.
+          * error: If the pipeline is running, this value is NULL. Once the pipeline
+          finishes, the value is the standard Google error code. * labels.key or labels."key
+          with space" where key is a label key. * done: If the pipeline is running,
+          this value is false. Once the pipeline finishes, the value is true.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of results to return. The maximum value is
+          256.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOperationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}:
+    get:
+      description: 'Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service. Authorization requires the following [Google IAM](https://cloud.google.com/iam)
+        permission: * `lifesciences.operations.get`'
+      operationId: lifesciences.projects.locations.operations.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}:cancel:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Starts asynchronous cancellation on a long-running operation.
+        The server makes a best effort to cancel the operation, but success is not
+        guaranteed. Clients may use Operations.GetOperation or Operations.ListOperations
+        to check whether the cancellation succeeded or the operation completed despite
+        cancellation. Authorization requires the following [Google IAM](https://cloud.google.com/iam)
+        permission: * `lifesciences.operations.cancel`'
+      operationId: lifesciences.projects.locations.operations.cancel
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelOperationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v2beta/projects/{projectsId}/locations/{locationsId}/pipelines:run:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Runs a pipeline. The returned Operation''s metadata field will
+        contain a google.cloud.lifesciences.v2beta.Metadata object describing the
+        status of the pipeline execution. The response field will contain a google.cloud.lifesciences.v2beta.RunPipelineResponse
+        object if the pipeline completes successfully. **Note:** Before you can use
+        this method, the *Life Sciences Service Agent* must have access to your project.
+        This is done automatically when the Cloud Life Sciences API is first enabled,
+        but if you delete this permission you must disable and re-enable the API to
+        grant the Life Sciences Service Agent the required permissions. Authorization
+        requires the following [Google IAM](https://cloud.google.com/iam/) permission:
+        * `lifesciences.workflows.run`'
+      operationId: lifesciences.projects.locations.pipelines.run
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunPipelineRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
   /v2beta/{name}:
     get:
       description: 'Gets the latest state of a long-running operation. Clients can

@@ -1270,7 +1270,7 @@ components:
         side, all characters except `[-_.~/0-9a-zA-Z]` are percent-encoded. The server
         side does the reverse decoding, except "%2F" and "%2f" are left unchanged.
         Such variables show up in the [Discovery Document](https://developers.google.com/discovery/v1/reference/apis)
-        as `{var}`. ## Using gRPC API Service Configuration gRPC API Service Configuration
+        as `{+var}`. ## Using gRPC API Service Configuration gRPC API Service Configuration
         (service config) is a configuration language for configuring a gRPC service
         to become a user-facing product. The service config is simply the YAML representation
         of the `google.api.Service` proto message. As an alternative to annotating
@@ -2610,117 +2610,7 @@ components:
               API service configuration
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
-  x-stackQL-resources:
-    operations:
-      id: google.services.operations
-      methods:
-        cancel:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1/{name}:cancel
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        delete:
-          operation:
-            $ref: delete
-          path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        get:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        list:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1/operations
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: operations
-      title: operations
-    services:
-      id: google.services.services
-      methods:
-        batchEnable:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1/{parent}/services:batchEnable
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        batchGet:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1/{parent}/services:batchGet
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        disable:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1/{name}:disable
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        enable:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1/{name}:enable
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        get:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        list:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1/{parent}/services
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: services
-      title: services
+  x-stackQL-resources: {}
 externalDocs:
   url: https://cloud.google.com/service-usage/
 info:

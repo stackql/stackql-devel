@@ -130,30 +130,26 @@ components:
       type: object
   x-stackQL-resources:
     sites:
-      id: google.services.sites
+      id: google.abusiveexperiencereport.sites
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/sites/{sitesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: sites
       title: sites
     violatingSites:
-      id: google.services.violatingSites
+      id: google.abusiveexperiencereport.violatingSites
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /v1/violatingSites
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -192,6 +188,37 @@ info:
   x-serviceName: abusiveexperiencereport
 openapi: 3.0.0
 paths:
+  /v1/sites/{sitesId}:
+    get:
+      description: Gets a site's Abusive Experience Report summary.
+      operationId: abusiveexperiencereport.sites.get
+      parameters:
+      - in: path
+        name: sitesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteSummaryResponse'
+          description: Successful response
+      tags:
+      - sites
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /v1/violatingSites:
     get:
       description: Lists sites that are failing in the Abusive Experience Report.

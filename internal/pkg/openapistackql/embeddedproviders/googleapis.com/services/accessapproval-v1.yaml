@@ -308,15 +308,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     folders:
-      id: google.services.folders
+      id: google.accessapproval.folders
       methods:
         deleteAccessApprovalSettings:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/folders/{foldersId}/accessApprovalSettings
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -324,9 +322,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/folders/{foldersId}/accessApprovalSettings
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -334,7 +330,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/folders/{foldersId}/accessApprovalSettings
           request:
             mediaType: application/json
           response:
@@ -342,19 +338,14 @@ components:
             openAPIDocKey: '200'
       name: folders
       title: folders
-    folders.resources:
-      id: google.services.folders.resources
-      methods: {}
-      name: folders.resources
-      title: folders.resources
-    folders.resources.approvalRequests:
-      id: google.services.folders.resources.approvalRequests
+    folders.approvalRequests:
+      id: google.accessapproval.folders.approvalRequests
       methods:
         approve:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:approve
+            $ref: /v1/folders/{foldersId}/approvalRequests/{approvalRequestsId}:approve
           request:
             mediaType: application/json
           response:
@@ -364,7 +355,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:dismiss
+            $ref: /v1/folders/{foldersId}/approvalRequests/{approvalRequestsId}:dismiss
           request:
             mediaType: application/json
           response:
@@ -374,9 +365,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/folders/{foldersId}/approvalRequests/{approvalRequestsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -384,24 +373,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/approvalRequests
-          request:
-            mediaType: application/json
+            $ref: /v1/folders/{foldersId}/approvalRequests
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: folders.resources.approvalRequests
-      title: folders.resources.approvalRequests
+      name: folders.approvalRequests
+      title: folders.approvalRequests
     organizations:
-      id: google.services.organizations
+      id: google.accessapproval.organizations
       methods:
         deleteAccessApprovalSettings:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/organizations/{organizationsId}/accessApprovalSettings
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -409,9 +394,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/organizations/{organizationsId}/accessApprovalSettings
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -419,7 +402,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/organizations/{organizationsId}/accessApprovalSettings
           request:
             mediaType: application/json
           response:
@@ -427,19 +410,14 @@ components:
             openAPIDocKey: '200'
       name: organizations
       title: organizations
-    organizations.resources:
-      id: google.services.organizations.resources
-      methods: {}
-      name: organizations.resources
-      title: organizations.resources
-    organizations.resources.approvalRequests:
-      id: google.services.organizations.resources.approvalRequests
+    organizations.approvalRequests:
+      id: google.accessapproval.organizations.approvalRequests
       methods:
         approve:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:approve
+            $ref: /v1/organizations/{organizationsId}/approvalRequests/{approvalRequestsId}:approve
           request:
             mediaType: application/json
           response:
@@ -449,7 +427,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:dismiss
+            $ref: /v1/organizations/{organizationsId}/approvalRequests/{approvalRequestsId}:dismiss
           request:
             mediaType: application/json
           response:
@@ -459,9 +437,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/organizations/{organizationsId}/approvalRequests/{approvalRequestsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -469,24 +445,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/approvalRequests
-          request:
-            mediaType: application/json
+            $ref: /v1/organizations/{organizationsId}/approvalRequests
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: organizations.resources.approvalRequests
-      title: organizations.resources.approvalRequests
+      name: organizations.approvalRequests
+      title: organizations.approvalRequests
     projects:
-      id: google.services.projects
+      id: google.accessapproval.projects
       methods:
         deleteAccessApprovalSettings:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/accessApprovalSettings
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -494,9 +466,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/accessApprovalSettings
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -504,7 +474,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/accessApprovalSettings
           request:
             mediaType: application/json
           response:
@@ -512,19 +482,14 @@ components:
             openAPIDocKey: '200'
       name: projects
       title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.approvalRequests:
-      id: google.services.projects.resources.approvalRequests
+    projects.approvalRequests:
+      id: google.accessapproval.projects.approvalRequests
       methods:
         approve:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:approve
+            $ref: /v1/projects/{projectsId}/approvalRequests/{approvalRequestsId}:approve
           request:
             mediaType: application/json
           response:
@@ -534,7 +499,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:dismiss
+            $ref: /v1/projects/{projectsId}/approvalRequests/{approvalRequestsId}:dismiss
           request:
             mediaType: application/json
           response:
@@ -544,9 +509,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/approvalRequests/{approvalRequestsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -554,14 +517,12 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/approvalRequests
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/approvalRequests
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.approvalRequests
-      title: projects.resources.approvalRequests
+      name: projects.approvalRequests
+      title: projects.approvalRequests
 externalDocs:
   url: https://cloud.google.com/cloud-provider-access-management/access-approval/docs
 info:
@@ -591,6 +552,1146 @@ info:
   x-serviceName: accessapproval
 openapi: 3.0.0
 paths:
+  /v1/folders/{foldersId}/accessApprovalSettings:
+    delete:
+      description: Deletes the settings associated with a project, folder, or organization.
+        This will have the effect of disabling Access Approval for the project, folder,
+        or organization, but only if all ancestors also have Access Approval disabled.
+        If Access Approval is enabled at a higher level of the hierarchy, then Access
+        Approval will still be enabled at this level as the settings are inherited.
+      operationId: accessapproval.projects.deleteAccessApprovalSettings
+      parameters:
+      - in: path
+        name: foldersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets an approval request. Returns NOT_FOUND if the request does
+        not exist.
+      operationId: accessapproval.projects.approvalRequests.get
+      parameters:
+      - in: path
+        name: foldersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalRequest'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the settings associated with a project, folder, or organization.
+        Settings to update are determined by the value of field_mask.
+      operationId: accessapproval.projects.updateAccessApprovalSettings
+      parameters:
+      - description: The update mask applies to the settings. Only the top level fields
+          of AccessApprovalSettings (notification_emails & enrolled_services) are
+          supported. For each field, if it is included, the currently stored value
+          will be entirely overwritten with the value of the field passed in this
+          request. For the `FieldMask` definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+          If this field is left unset, only the notification_emails field will be
+          updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: foldersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessApprovalSettings'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessApprovalSettings'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/folders/{foldersId}/approvalRequests:
+    get:
+      description: Lists approval requests associated with a project, folder, or organization.
+        Approval requests can be filtered by state (pending, active, dismissed). The
+        order is reverse chronological.
+      operationId: accessapproval.projects.approvalRequests.list
+      parameters:
+      - description: 'A filter on the type of approval requests to retrieve. Must
+          be one of the following values: * [not set]: Requests that are pending or
+          have active approvals. * ALL: All requests. * PENDING: Only pending requests.
+          * ACTIVE: Only active (i.e. currently approved) requests. * DISMISSED: Only
+          requests that have been dismissed, or requests that are not approved and
+          past expiration. * EXPIRED: Only requests that have been approved, and the
+          approval has expired. * HISTORY: Active, dismissed and expired requests.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Requested page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying the page of results to return.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: foldersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListApprovalRequestsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/folders/{foldersId}/approvalRequests/{approvalRequestsId}:
+    delete:
+      description: Deletes the settings associated with a project, folder, or organization.
+        This will have the effect of disabling Access Approval for the project, folder,
+        or organization, but only if all ancestors also have Access Approval disabled.
+        If Access Approval is enabled at a higher level of the hierarchy, then Access
+        Approval will still be enabled at this level as the settings are inherited.
+      operationId: accessapproval.projects.deleteAccessApprovalSettings
+      parameters:
+      - in: path
+        name: foldersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: approvalRequestsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets an approval request. Returns NOT_FOUND if the request does
+        not exist.
+      operationId: accessapproval.projects.approvalRequests.get
+      parameters:
+      - in: path
+        name: foldersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: approvalRequestsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalRequest'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the settings associated with a project, folder, or organization.
+        Settings to update are determined by the value of field_mask.
+      operationId: accessapproval.projects.updateAccessApprovalSettings
+      parameters:
+      - description: The update mask applies to the settings. Only the top level fields
+          of AccessApprovalSettings (notification_emails & enrolled_services) are
+          supported. For each field, if it is included, the currently stored value
+          will be entirely overwritten with the value of the field passed in this
+          request. For the `FieldMask` definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+          If this field is left unset, only the notification_emails field will be
+          updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: foldersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: approvalRequestsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessApprovalSettings'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessApprovalSettings'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/folders/{foldersId}/approvalRequests/{approvalRequestsId}:approve:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Approves a request and returns the updated ApprovalRequest. Returns
+        NOT_FOUND if the request does not exist. Returns FAILED_PRECONDITION if the
+        request exists but is not in a pending state.
+      operationId: accessapproval.projects.approvalRequests.approve
+      parameters:
+      - in: path
+        name: foldersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: approvalRequestsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApproveApprovalRequestMessage'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalRequest'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/folders/{foldersId}/approvalRequests/{approvalRequestsId}:dismiss:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Dismisses a request. Returns the updated ApprovalRequest. NOTE:
+        This does not deny access to the resource if another request has been made
+        and approved. It is equivalent in effect to ignoring the request altogether.
+        Returns NOT_FOUND if the request does not exist. Returns FAILED_PRECONDITION
+        if the request exists but is not in a pending state.'
+      operationId: accessapproval.projects.approvalRequests.dismiss
+      parameters:
+      - in: path
+        name: foldersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: approvalRequestsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DismissApprovalRequestMessage'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalRequest'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/organizations/{organizationsId}/accessApprovalSettings:
+    delete:
+      description: Deletes the settings associated with a project, folder, or organization.
+        This will have the effect of disabling Access Approval for the project, folder,
+        or organization, but only if all ancestors also have Access Approval disabled.
+        If Access Approval is enabled at a higher level of the hierarchy, then Access
+        Approval will still be enabled at this level as the settings are inherited.
+      operationId: accessapproval.projects.deleteAccessApprovalSettings
+      parameters:
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets an approval request. Returns NOT_FOUND if the request does
+        not exist.
+      operationId: accessapproval.projects.approvalRequests.get
+      parameters:
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalRequest'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the settings associated with a project, folder, or organization.
+        Settings to update are determined by the value of field_mask.
+      operationId: accessapproval.projects.updateAccessApprovalSettings
+      parameters:
+      - description: The update mask applies to the settings. Only the top level fields
+          of AccessApprovalSettings (notification_emails & enrolled_services) are
+          supported. For each field, if it is included, the currently stored value
+          will be entirely overwritten with the value of the field passed in this
+          request. For the `FieldMask` definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+          If this field is left unset, only the notification_emails field will be
+          updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessApprovalSettings'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessApprovalSettings'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/organizations/{organizationsId}/approvalRequests:
+    get:
+      description: Lists approval requests associated with a project, folder, or organization.
+        Approval requests can be filtered by state (pending, active, dismissed). The
+        order is reverse chronological.
+      operationId: accessapproval.projects.approvalRequests.list
+      parameters:
+      - description: 'A filter on the type of approval requests to retrieve. Must
+          be one of the following values: * [not set]: Requests that are pending or
+          have active approvals. * ALL: All requests. * PENDING: Only pending requests.
+          * ACTIVE: Only active (i.e. currently approved) requests. * DISMISSED: Only
+          requests that have been dismissed, or requests that are not approved and
+          past expiration. * EXPIRED: Only requests that have been approved, and the
+          approval has expired. * HISTORY: Active, dismissed and expired requests.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Requested page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying the page of results to return.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListApprovalRequestsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/organizations/{organizationsId}/approvalRequests/{approvalRequestsId}:
+    delete:
+      description: Deletes the settings associated with a project, folder, or organization.
+        This will have the effect of disabling Access Approval for the project, folder,
+        or organization, but only if all ancestors also have Access Approval disabled.
+        If Access Approval is enabled at a higher level of the hierarchy, then Access
+        Approval will still be enabled at this level as the settings are inherited.
+      operationId: accessapproval.projects.deleteAccessApprovalSettings
+      parameters:
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: approvalRequestsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets an approval request. Returns NOT_FOUND if the request does
+        not exist.
+      operationId: accessapproval.projects.approvalRequests.get
+      parameters:
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: approvalRequestsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalRequest'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the settings associated with a project, folder, or organization.
+        Settings to update are determined by the value of field_mask.
+      operationId: accessapproval.projects.updateAccessApprovalSettings
+      parameters:
+      - description: The update mask applies to the settings. Only the top level fields
+          of AccessApprovalSettings (notification_emails & enrolled_services) are
+          supported. For each field, if it is included, the currently stored value
+          will be entirely overwritten with the value of the field passed in this
+          request. For the `FieldMask` definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+          If this field is left unset, only the notification_emails field will be
+          updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: approvalRequestsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessApprovalSettings'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessApprovalSettings'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/organizations/{organizationsId}/approvalRequests/{approvalRequestsId}:approve:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Approves a request and returns the updated ApprovalRequest. Returns
+        NOT_FOUND if the request does not exist. Returns FAILED_PRECONDITION if the
+        request exists but is not in a pending state.
+      operationId: accessapproval.projects.approvalRequests.approve
+      parameters:
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: approvalRequestsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApproveApprovalRequestMessage'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalRequest'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/organizations/{organizationsId}/approvalRequests/{approvalRequestsId}:dismiss:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Dismisses a request. Returns the updated ApprovalRequest. NOTE:
+        This does not deny access to the resource if another request has been made
+        and approved. It is equivalent in effect to ignoring the request altogether.
+        Returns NOT_FOUND if the request does not exist. Returns FAILED_PRECONDITION
+        if the request exists but is not in a pending state.'
+      operationId: accessapproval.projects.approvalRequests.dismiss
+      parameters:
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: approvalRequestsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DismissApprovalRequestMessage'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalRequest'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/accessApprovalSettings:
+    delete:
+      description: Deletes the settings associated with a project, folder, or organization.
+        This will have the effect of disabling Access Approval for the project, folder,
+        or organization, but only if all ancestors also have Access Approval disabled.
+        If Access Approval is enabled at a higher level of the hierarchy, then Access
+        Approval will still be enabled at this level as the settings are inherited.
+      operationId: accessapproval.projects.deleteAccessApprovalSettings
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets an approval request. Returns NOT_FOUND if the request does
+        not exist.
+      operationId: accessapproval.projects.approvalRequests.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalRequest'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the settings associated with a project, folder, or organization.
+        Settings to update are determined by the value of field_mask.
+      operationId: accessapproval.projects.updateAccessApprovalSettings
+      parameters:
+      - description: The update mask applies to the settings. Only the top level fields
+          of AccessApprovalSettings (notification_emails & enrolled_services) are
+          supported. For each field, if it is included, the currently stored value
+          will be entirely overwritten with the value of the field passed in this
+          request. For the `FieldMask` definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+          If this field is left unset, only the notification_emails field will be
+          updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessApprovalSettings'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessApprovalSettings'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/approvalRequests:
+    get:
+      description: Lists approval requests associated with a project, folder, or organization.
+        Approval requests can be filtered by state (pending, active, dismissed). The
+        order is reverse chronological.
+      operationId: accessapproval.projects.approvalRequests.list
+      parameters:
+      - description: 'A filter on the type of approval requests to retrieve. Must
+          be one of the following values: * [not set]: Requests that are pending or
+          have active approvals. * ALL: All requests. * PENDING: Only pending requests.
+          * ACTIVE: Only active (i.e. currently approved) requests. * DISMISSED: Only
+          requests that have been dismissed, or requests that are not approved and
+          past expiration. * EXPIRED: Only requests that have been approved, and the
+          approval has expired. * HISTORY: Active, dismissed and expired requests.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Requested page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying the page of results to return.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListApprovalRequestsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/approvalRequests/{approvalRequestsId}:
+    delete:
+      description: Deletes the settings associated with a project, folder, or organization.
+        This will have the effect of disabling Access Approval for the project, folder,
+        or organization, but only if all ancestors also have Access Approval disabled.
+        If Access Approval is enabled at a higher level of the hierarchy, then Access
+        Approval will still be enabled at this level as the settings are inherited.
+      operationId: accessapproval.projects.deleteAccessApprovalSettings
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: approvalRequestsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets an approval request. Returns NOT_FOUND if the request does
+        not exist.
+      operationId: accessapproval.projects.approvalRequests.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: approvalRequestsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalRequest'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the settings associated with a project, folder, or organization.
+        Settings to update are determined by the value of field_mask.
+      operationId: accessapproval.projects.updateAccessApprovalSettings
+      parameters:
+      - description: The update mask applies to the settings. Only the top level fields
+          of AccessApprovalSettings (notification_emails & enrolled_services) are
+          supported. For each field, if it is included, the currently stored value
+          will be entirely overwritten with the value of the field passed in this
+          request. For the `FieldMask` definition, see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+          If this field is left unset, only the notification_emails field will be
+          updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: approvalRequestsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessApprovalSettings'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessApprovalSettings'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/approvalRequests/{approvalRequestsId}:approve:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Approves a request and returns the updated ApprovalRequest. Returns
+        NOT_FOUND if the request does not exist. Returns FAILED_PRECONDITION if the
+        request exists but is not in a pending state.
+      operationId: accessapproval.projects.approvalRequests.approve
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: approvalRequestsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApproveApprovalRequestMessage'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalRequest'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/approvalRequests/{approvalRequestsId}:dismiss:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Dismisses a request. Returns the updated ApprovalRequest. NOTE:
+        This does not deny access to the resource if another request has been made
+        and approved. It is equivalent in effect to ignoring the request altogether.
+        Returns NOT_FOUND if the request does not exist. Returns FAILED_PRECONDITION
+        if the request exists but is not in a pending state.'
+      operationId: accessapproval.projects.approvalRequests.dismiss
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: approvalRequestsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DismissApprovalRequestMessage'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalRequest'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
   /v1/{name}:
     delete:
       description: Deletes the settings associated with a project, folder, or organization.

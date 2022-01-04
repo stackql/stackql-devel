@@ -270,41 +270,19 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.androidApps:
-      id: google.services.projects.resources.androidApps
-      methods: {}
-      name: projects.resources.androidApps
-      title: projects.resources.androidApps
-    projects.resources.androidApps.resources:
-      id: google.services.projects.resources.androidApps.resources
-      methods: {}
-      name: projects.resources.androidApps.resources
-      title: projects.resources.androidApps.resources
-    projects.resources.androidApps.resources.deliveryData:
-      id: google.services.projects.resources.androidApps.resources.deliveryData
+    projects.androidApps.deliveryData:
+      id: google.fcmdata.projects.androidApps.deliveryData
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{parent}/deliveryData
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/androidApps/{androidAppsId}/deliveryData
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.androidApps.resources.deliveryData
-      title: projects.resources.androidApps.resources.deliveryData
+      name: projects.androidApps.deliveryData
+      title: projects.androidApps.deliveryData
 externalDocs:
   url: https://firebase.google.com/docs/cloud-messaging
 info:
@@ -333,6 +311,63 @@ info:
   x-serviceName: fcmdata
 openapi: 3.0.0
 paths:
+  /v1beta1/projects/{projectsId}/androidApps/{androidAppsId}/deliveryData:
+    get:
+      description: List aggregate delivery data for the given Android application.
+      operationId: fcmdata.projects.androidApps.deliveryData.list
+      parameters:
+      - description: The maximum number of entries to return. The service may return
+          fewer than this value. If unspecified, at most 1,000 entries will be returned.
+          The maximum value is 10,000; values above 10,000 will be capped to 10,000.
+          This default may change over time.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListAndroidDeliveryDataRequest`
+          call. Provide this to retrieve the subsequent page. When paginating, all
+          other parameters provided to `ListAndroidDeliveryDataRequest` must match
+          the call that provided the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: androidAppsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseFcmDataV1beta1ListAndroidDeliveryDataResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /v1beta1/{parent}/deliveryData:
     get:
       description: List aggregate delivery data for the given Android application.

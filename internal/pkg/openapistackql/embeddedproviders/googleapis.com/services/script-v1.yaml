@@ -830,15 +830,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     processes:
-      id: google.services.processes
+      id: google.script.processes
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /v1/processes
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -847,15 +845,13 @@ components:
             $ref: get
           path:
             $ref: /v1/processes:listScriptProcesses
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: processes
       title: processes
     projects:
-      id: google.services.projects
+      id: google.script.projects
       methods:
         create:
           operation:
@@ -872,8 +868,6 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{scriptId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -882,8 +876,6 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{scriptId}/content
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -892,8 +884,6 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{scriptId}/metrics
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -909,13 +899,8 @@ components:
             openAPIDocKey: '200'
       name: projects
       title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.deployments:
-      id: google.services.projects.resources.deployments
+    projects.deployments:
+      id: google.script.projects.deployments
       methods:
         create:
           operation:
@@ -932,8 +917,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/projects/{scriptId}/deployments/{deploymentId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -942,8 +925,6 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{scriptId}/deployments/{deploymentId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -952,8 +933,6 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{scriptId}/deployments
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -967,10 +946,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.deployments
-      title: projects.resources.deployments
-    projects.resources.versions:
-      id: google.services.projects.resources.versions
+      name: projects.deployments
+      title: projects.deployments
+    projects.versions:
+      id: google.script.projects.versions
       methods:
         create:
           operation:
@@ -987,8 +966,6 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{scriptId}/versions/{versionNumber}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -997,15 +974,13 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{scriptId}/versions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.versions
-      title: projects.resources.versions
+      name: projects.versions
+      title: projects.versions
     scripts:
-      id: google.services.scripts
+      id: google.script.scripts
       methods:
         run:
           operation:

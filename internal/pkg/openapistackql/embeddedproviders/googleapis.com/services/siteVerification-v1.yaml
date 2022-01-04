@@ -143,25 +143,20 @@ components:
       type: oauth2
   x-stackQL-resources:
     webResource:
-      id: google.services.webResource
+      id: google.siteVerification.webResource
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /webResource/{id}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /webResource/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -190,8 +185,6 @@ components:
             $ref: get
           path:
             $ref: /webResource
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

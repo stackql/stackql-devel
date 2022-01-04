@@ -3080,98 +3080,67 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    data:
-      id: google.services.data
-      methods: {}
-      name: data
-      title: data
-    data.resources:
-      id: google.services.data.resources
-      methods: {}
-      name: data.resources
-      title: data.resources
-    data.resources.ga:
-      id: google.services.data.resources.ga
+    data.ga:
+      id: google.analytics.data.ga
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /data/ga
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: data.resources.ga
-      title: data.resources.ga
-    data.resources.mcf:
-      id: google.services.data.resources.mcf
+      name: data.ga
+      title: data.ga
+    data.mcf:
+      id: google.analytics.data.mcf
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /data/mcf
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: data.resources.mcf
-      title: data.resources.mcf
-    data.resources.realtime:
-      id: google.services.data.resources.realtime
+      name: data.mcf
+      title: data.mcf
+    data.realtime:
+      id: google.analytics.data.realtime
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /data/realtime
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: data.resources.realtime
-      title: data.resources.realtime
-    management:
-      id: google.services.management
-      methods: {}
-      name: management
-      title: management
-    management.resources:
-      id: google.services.management.resources
-      methods: {}
-      name: management.resources
-      title: management.resources
-    management.resources.accountSummaries:
-      id: google.services.management.resources.accountSummaries
+      name: data.realtime
+      title: data.realtime
+    management.accountSummaries:
+      id: google.analytics.management.accountSummaries
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /management/accountSummaries
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.accountSummaries
-      title: management.resources.accountSummaries
-    management.resources.accountUserLinks:
-      id: google.services.management.resources.accountUserLinks
+      name: management.accountSummaries
+      title: management.accountSummaries
+    management.accountUserLinks:
+      id: google.analytics.management.accountUserLinks
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /management/accounts/{accountId}/entityUserLinks/{linkId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         insert:
           operation:
@@ -3188,8 +3157,6 @@ components:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/entityUserLinks
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3203,25 +3170,23 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.accountUserLinks
-      title: management.resources.accountUserLinks
-    management.resources.accounts:
-      id: google.services.management.resources.accounts
+      name: management.accountUserLinks
+      title: management.accountUserLinks
+    management.accounts:
+      id: google.analytics.management.accounts
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /management/accounts
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.accounts
-      title: management.resources.accounts
-    management.resources.clientId:
-      id: google.services.management.resources.clientId
+      name: management.accounts
+      title: management.accounts
+    management.clientId:
+      id: google.analytics.management.clientId
       methods:
         hashClientId:
           operation:
@@ -3233,33 +3198,29 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.clientId
-      title: management.resources.clientId
-    management.resources.customDataSources:
-      id: google.services.management.resources.customDataSources
+      name: management.clientId
+      title: management.clientId
+    management.customDataSources:
+      id: google.analytics.management.customDataSources
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/customDataSources
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.customDataSources
-      title: management.resources.customDataSources
-    management.resources.customDimensions:
-      id: google.services.management.resources.customDimensions
+      name: management.customDataSources
+      title: management.customDataSources
+    management.customDimensions:
+      id: google.analytics.management.customDimensions
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/customDimensions/{customDimensionId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3278,8 +3239,6 @@ components:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/customDimensions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3303,18 +3262,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.customDimensions
-      title: management.resources.customDimensions
-    management.resources.customMetrics:
-      id: google.services.management.resources.customMetrics
+      name: management.customDimensions
+      title: management.customDimensions
+    management.customMetrics:
+      id: google.analytics.management.customMetrics
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/customMetrics/{customMetricId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3333,8 +3290,6 @@ components:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/customMetrics
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3358,28 +3313,23 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.customMetrics
-      title: management.resources.customMetrics
-    management.resources.experiments:
-      id: google.services.management.resources.experiments
+      name: management.customMetrics
+      title: management.customMetrics
+    management.experiments:
+      id: google.analytics.management.experiments
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/experiments/{experimentId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/experiments/{experimentId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3398,8 +3348,6 @@ components:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/experiments
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3423,18 +3371,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.experiments
-      title: management.resources.experiments
-    management.resources.filters:
-      id: google.services.management.resources.filters
+      name: management.experiments
+      title: management.experiments
+    management.filters:
+      id: google.analytics.management.filters
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /management/accounts/{accountId}/filters/{filterId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3443,8 +3389,6 @@ components:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/filters/{filterId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3463,8 +3407,6 @@ components:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/filters
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3488,18 +3430,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.filters
-      title: management.resources.filters
-    management.resources.goals:
-      id: google.services.management.resources.goals
+      name: management.filters
+      title: management.filters
+    management.goals:
+      id: google.analytics.management.goals
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/goals/{goalId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3518,8 +3458,6 @@ components:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/goals
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3543,28 +3481,23 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.goals
-      title: management.resources.goals
-    management.resources.profileFilterLinks:
-      id: google.services.management.resources.profileFilterLinks
+      name: management.goals
+      title: management.goals
+    management.profileFilterLinks:
+      id: google.analytics.management.profileFilterLinks
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/profileFilterLinks/{linkId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/profileFilterLinks/{linkId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3583,8 +3516,6 @@ components:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/profileFilterLinks
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3608,20 +3539,17 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.profileFilterLinks
-      title: management.resources.profileFilterLinks
-    management.resources.profileUserLinks:
-      id: google.services.management.resources.profileUserLinks
+      name: management.profileFilterLinks
+      title: management.profileFilterLinks
+    management.profileUserLinks:
+      id: google.analytics.management.profileUserLinks
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/entityUserLinks/{linkId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         insert:
           operation:
@@ -3638,8 +3566,6 @@ components:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/entityUserLinks
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3653,28 +3579,23 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.profileUserLinks
-      title: management.resources.profileUserLinks
-    management.resources.profiles:
-      id: google.services.management.resources.profiles
+      name: management.profileUserLinks
+      title: management.profileUserLinks
+    management.profiles:
+      id: google.analytics.management.profiles
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3693,8 +3614,6 @@ components:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/profiles
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3718,28 +3637,23 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.profiles
-      title: management.resources.profiles
-    management.resources.remarketingAudience:
-      id: google.services.management.resources.remarketingAudience
+      name: management.profiles
+      title: management.profiles
+    management.remarketingAudience:
+      id: google.analytics.management.remarketingAudience
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/remarketingAudiences/{remarketingAudienceId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/remarketingAudiences/{remarketingAudienceId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3758,8 +3672,6 @@ components:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/remarketingAudiences
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3783,43 +3695,36 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.remarketingAudience
-      title: management.resources.remarketingAudience
-    management.resources.segments:
-      id: google.services.management.resources.segments
+      name: management.remarketingAudience
+      title: management.remarketingAudience
+    management.segments:
+      id: google.analytics.management.segments
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /management/segments
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.segments
-      title: management.resources.segments
-    management.resources.unsampledReports:
-      id: google.services.management.resources.unsampledReports
+      name: management.segments
+      title: management.segments
+    management.unsampledReports:
+      id: google.analytics.management.unsampledReports
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/unsampledReports/{unsampledReportId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/unsampledReports/{unsampledReportId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3838,15 +3743,13 @@ components:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/profiles/{profileId}/unsampledReports
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.unsampledReports
-      title: management.resources.unsampledReports
-    management.resources.uploads:
-      id: google.services.management.resources.uploads
+      name: management.unsampledReports
+      title: management.unsampledReports
+    management.uploads:
+      id: google.analytics.management.uploads
       methods:
         deleteUploadData:
           operation:
@@ -3856,15 +3759,12 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/customDataSources/{customDataSourceId}/uploads/{uploadId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3873,8 +3773,6 @@ components:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/customDataSources/{customDataSourceId}/uploads
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3883,33 +3781,26 @@ components:
             $ref: post
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/customDataSources/{customDataSourceId}/uploads
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.uploads
-      title: management.resources.uploads
-    management.resources.webPropertyAdWordsLinks:
-      id: google.services.management.resources.webPropertyAdWordsLinks
+      name: management.uploads
+      title: management.uploads
+    management.webPropertyAdWordsLinks:
+      id: google.analytics.management.webPropertyAdWordsLinks
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/entityAdWordsLinks/{webPropertyAdWordsLinkId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/entityAdWordsLinks/{webPropertyAdWordsLinkId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3928,8 +3819,6 @@ components:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/entityAdWordsLinks
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3953,18 +3842,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.webPropertyAdWordsLinks
-      title: management.resources.webPropertyAdWordsLinks
-    management.resources.webproperties:
-      id: google.services.management.resources.webproperties
+      name: management.webPropertyAdWordsLinks
+      title: management.webPropertyAdWordsLinks
+    management.webproperties:
+      id: google.analytics.management.webproperties
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3983,8 +3870,6 @@ components:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -4008,20 +3893,17 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.webproperties
-      title: management.resources.webproperties
-    management.resources.webpropertyUserLinks:
-      id: google.services.management.resources.webpropertyUserLinks
+      name: management.webproperties
+      title: management.webproperties
+    management.webpropertyUserLinks:
+      id: google.analytics.management.webpropertyUserLinks
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/entityUserLinks/{linkId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         insert:
           operation:
@@ -4038,8 +3920,6 @@ components:
             $ref: get
           path:
             $ref: /management/accounts/{accountId}/webproperties/{webPropertyId}/entityUserLinks
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -4053,35 +3933,23 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: management.resources.webpropertyUserLinks
-      title: management.resources.webpropertyUserLinks
-    metadata:
-      id: google.services.metadata
-      methods: {}
-      name: metadata
-      title: metadata
-    metadata.resources:
-      id: google.services.metadata.resources
-      methods: {}
-      name: metadata.resources
-      title: metadata.resources
-    metadata.resources.columns:
-      id: google.services.metadata.resources.columns
+      name: management.webpropertyUserLinks
+      title: management.webpropertyUserLinks
+    metadata.columns:
+      id: google.analytics.metadata.columns
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /metadata/{reportType}/columns
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: metadata.resources.columns
-      title: metadata.resources.columns
+      name: metadata.columns
+      title: metadata.columns
     provisioning:
-      id: google.services.provisioning
+      id: google.analytics.provisioning
       methods:
         createAccountTicket:
           operation:
@@ -4105,18 +3973,8 @@ components:
             openAPIDocKey: '200'
       name: provisioning
       title: provisioning
-    userDeletion:
-      id: google.services.userDeletion
-      methods: {}
-      name: userDeletion
-      title: userDeletion
-    userDeletion.resources:
-      id: google.services.userDeletion.resources
-      methods: {}
-      name: userDeletion.resources
-      title: userDeletion.resources
-    userDeletion.resources.userDeletionRequest:
-      id: google.services.userDeletion.resources.userDeletionRequest
+    userDeletion.userDeletionRequest:
+      id: google.analytics.userDeletion.userDeletionRequest
       methods:
         upsert:
           operation:
@@ -4128,8 +3986,8 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: userDeletion.resources.userDeletionRequest
-      title: userDeletion.resources.userDeletionRequest
+      name: userDeletion.userDeletionRequest
+      title: userDeletion.userDeletionRequest
 externalDocs:
   url: https://developers.google.com/analytics/
 info:

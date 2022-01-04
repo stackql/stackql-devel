@@ -4013,15 +4013,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     projects:
-      id: google.services.projects
+      id: google.dataflow.projects
       methods:
         deleteSnapshots:
           operation:
             $ref: delete
           path:
             $ref: /v1b3/projects/{projectId}/snapshots
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -4037,21 +4035,14 @@ components:
             openAPIDocKey: '200'
       name: projects
       title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.jobs:
-      id: google.services.projects.resources.jobs
+    projects.jobs:
+      id: google.dataflow.projects.jobs
       methods:
         aggregated:
           operation:
             $ref: get
           path:
             $ref: /v1b3/projects/{projectId}/jobs:aggregated
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -4070,8 +4061,6 @@ components:
             $ref: get
           path:
             $ref: /v1b3/projects/{projectId}/jobs/{jobId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -4080,8 +4069,6 @@ components:
             $ref: get
           path:
             $ref: /v1b3/projects/{projectId}/jobs/{jobId}/metrics
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -4090,8 +4077,6 @@ components:
             $ref: get
           path:
             $ref: /v1b3/projects/{projectId}/jobs
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -4115,15 +4100,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.jobs
-      title: projects.resources.jobs
-    projects.resources.jobs.resources:
-      id: google.services.projects.resources.jobs.resources
-      methods: {}
-      name: projects.resources.jobs.resources
-      title: projects.resources.jobs.resources
-    projects.resources.jobs.resources.debug:
-      id: google.services.projects.resources.jobs.resources.debug
+      name: projects.jobs
+      title: projects.jobs
+    projects.jobs.debug:
+      id: google.dataflow.projects.jobs.debug
       methods:
         getConfig:
           operation:
@@ -4145,25 +4125,23 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.jobs.resources.debug
-      title: projects.resources.jobs.resources.debug
-    projects.resources.jobs.resources.messages:
-      id: google.services.projects.resources.jobs.resources.messages
+      name: projects.jobs.debug
+      title: projects.jobs.debug
+    projects.jobs.messages:
+      id: google.dataflow.projects.jobs.messages
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /v1b3/projects/{projectId}/jobs/{jobId}/messages
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.jobs.resources.messages
-      title: projects.resources.jobs.resources.messages
-    projects.resources.jobs.resources.workItems:
-      id: google.services.projects.resources.jobs.resources.workItems
+      name: projects.jobs.messages
+      title: projects.jobs.messages
+    projects.jobs.workItems:
+      id: google.dataflow.projects.jobs.workItems
       methods:
         lease:
           operation:
@@ -4185,10 +4163,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.jobs.resources.workItems
-      title: projects.resources.jobs.resources.workItems
-    projects.resources.locations:
-      id: google.services.projects.resources.locations
+      name: projects.jobs.workItems
+      title: projects.jobs.workItems
+    projects.locations:
+      id: google.dataflow.projects.locations
       methods:
         workerMessages:
           operation:
@@ -4200,15 +4178,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations
-      title: projects.resources.locations
-    projects.resources.locations.resources:
-      id: google.services.projects.resources.locations.resources
-      methods: {}
-      name: projects.resources.locations.resources
-      title: projects.resources.locations.resources
-    projects.resources.locations.resources.flexTemplates:
-      id: google.services.projects.resources.locations.resources.flexTemplates
+      name: projects.locations
+      title: projects.locations
+    projects.locations.flexTemplates:
+      id: google.dataflow.projects.locations.flexTemplates
       methods:
         launch:
           operation:
@@ -4220,10 +4193,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.flexTemplates
-      title: projects.resources.locations.resources.flexTemplates
-    projects.resources.locations.resources.jobs:
-      id: google.services.projects.resources.locations.resources.jobs
+      name: projects.locations.flexTemplates
+      title: projects.locations.flexTemplates
+    projects.locations.jobs:
+      id: google.dataflow.projects.locations.jobs
       methods:
         create:
           operation:
@@ -4240,8 +4213,6 @@ components:
             $ref: get
           path:
             $ref: /v1b3/projects/{projectId}/locations/{location}/jobs/{jobId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -4250,8 +4221,6 @@ components:
             $ref: get
           path:
             $ref: /v1b3/projects/{projectId}/locations/{location}/jobs/{jobId}/executionDetails
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -4260,8 +4229,6 @@ components:
             $ref: get
           path:
             $ref: /v1b3/projects/{projectId}/locations/{location}/jobs/{jobId}/metrics
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -4270,8 +4237,6 @@ components:
             $ref: get
           path:
             $ref: /v1b3/projects/{projectId}/locations/{location}/jobs
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -4295,15 +4260,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.jobs
-      title: projects.resources.locations.resources.jobs
-    projects.resources.locations.resources.jobs.resources:
-      id: google.services.projects.resources.locations.resources.jobs.resources
-      methods: {}
-      name: projects.resources.locations.resources.jobs.resources
-      title: projects.resources.locations.resources.jobs.resources
-    projects.resources.locations.resources.jobs.resources.debug:
-      id: google.services.projects.resources.locations.resources.jobs.resources.debug
+      name: projects.locations.jobs
+      title: projects.locations.jobs
+    projects.locations.jobs.debug:
+      id: google.dataflow.projects.locations.jobs.debug
       methods:
         getConfig:
           operation:
@@ -4325,55 +4285,49 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.jobs.resources.debug
-      title: projects.resources.locations.resources.jobs.resources.debug
-    projects.resources.locations.resources.jobs.resources.messages:
-      id: google.services.projects.resources.locations.resources.jobs.resources.messages
+      name: projects.locations.jobs.debug
+      title: projects.locations.jobs.debug
+    projects.locations.jobs.messages:
+      id: google.dataflow.projects.locations.jobs.messages
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /v1b3/projects/{projectId}/locations/{location}/jobs/{jobId}/messages
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.jobs.resources.messages
-      title: projects.resources.locations.resources.jobs.resources.messages
-    projects.resources.locations.resources.jobs.resources.snapshots:
-      id: google.services.projects.resources.locations.resources.jobs.resources.snapshots
+      name: projects.locations.jobs.messages
+      title: projects.locations.jobs.messages
+    projects.locations.jobs.snapshots:
+      id: google.dataflow.projects.locations.jobs.snapshots
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /v1b3/projects/{projectId}/locations/{location}/jobs/{jobId}/snapshots
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.jobs.resources.snapshots
-      title: projects.resources.locations.resources.jobs.resources.snapshots
-    projects.resources.locations.resources.jobs.resources.stages:
-      id: google.services.projects.resources.locations.resources.jobs.resources.stages
+      name: projects.locations.jobs.snapshots
+      title: projects.locations.jobs.snapshots
+    projects.locations.jobs.stages:
+      id: google.dataflow.projects.locations.jobs.stages
       methods:
         getExecutionDetails:
           operation:
             $ref: get
           path:
             $ref: /v1b3/projects/{projectId}/locations/{location}/jobs/{jobId}/stages/{stageId}/executionDetails
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.jobs.resources.stages
-      title: projects.resources.locations.resources.jobs.resources.stages
-    projects.resources.locations.resources.jobs.resources.workItems:
-      id: google.services.projects.resources.locations.resources.jobs.resources.workItems
+      name: projects.locations.jobs.stages
+      title: projects.locations.jobs.stages
+    projects.locations.jobs.workItems:
+      id: google.dataflow.projects.locations.jobs.workItems
       methods:
         lease:
           operation:
@@ -4395,18 +4349,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.jobs.resources.workItems
-      title: projects.resources.locations.resources.jobs.resources.workItems
-    projects.resources.locations.resources.snapshots:
-      id: google.services.projects.resources.locations.resources.snapshots
+      name: projects.locations.jobs.workItems
+      title: projects.locations.jobs.workItems
+    projects.locations.snapshots:
+      id: google.dataflow.projects.locations.snapshots
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /v1b3/projects/{projectId}/locations/{location}/snapshots/{snapshotId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -4415,8 +4367,6 @@ components:
             $ref: get
           path:
             $ref: /v1b3/projects/{projectId}/locations/{location}/snapshots/{snapshotId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -4425,30 +4375,26 @@ components:
             $ref: get
           path:
             $ref: /v1b3/projects/{projectId}/locations/{location}/snapshots
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.snapshots
-      title: projects.resources.locations.resources.snapshots
-    projects.resources.locations.resources.sql:
-      id: google.services.projects.resources.locations.resources.sql
+      name: projects.locations.snapshots
+      title: projects.locations.snapshots
+    projects.locations.sql:
+      id: google.dataflow.projects.locations.sql
       methods:
         validate:
           operation:
             $ref: get
           path:
             $ref: /v1b3/projects/{projectId}/locations/{location}/sql:validate
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.sql
-      title: projects.resources.locations.resources.sql
-    projects.resources.locations.resources.templates:
-      id: google.services.projects.resources.locations.resources.templates
+      name: projects.locations.sql
+      title: projects.locations.sql
+    projects.locations.templates:
+      id: google.dataflow.projects.locations.templates
       methods:
         create:
           operation:
@@ -4465,8 +4411,6 @@ components:
             $ref: get
           path:
             $ref: /v1b3/projects/{projectId}/locations/{location}/templates:get
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -4480,18 +4424,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.templates
-      title: projects.resources.locations.resources.templates
-    projects.resources.snapshots:
-      id: google.services.projects.resources.snapshots
+      name: projects.locations.templates
+      title: projects.locations.templates
+    projects.snapshots:
+      id: google.dataflow.projects.snapshots
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v1b3/projects/{projectId}/snapshots/{snapshotId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -4500,15 +4442,13 @@ components:
             $ref: get
           path:
             $ref: /v1b3/projects/{projectId}/snapshots
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.snapshots
-      title: projects.resources.snapshots
-    projects.resources.templates:
-      id: google.services.projects.resources.templates
+      name: projects.snapshots
+      title: projects.snapshots
+    projects.templates:
+      id: google.dataflow.projects.templates
       methods:
         create:
           operation:
@@ -4525,8 +4465,6 @@ components:
             $ref: get
           path:
             $ref: /v1b3/projects/{projectId}/templates:get
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -4540,8 +4478,8 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.templates
-      title: projects.resources.templates
+      name: projects.templates
+      title: projects.templates
 externalDocs:
   url: https://cloud.google.com/dataflow
 info:

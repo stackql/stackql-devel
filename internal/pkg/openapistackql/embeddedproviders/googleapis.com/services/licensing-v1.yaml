@@ -170,15 +170,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     licenseAssignments:
-      id: google.services.licenseAssignments
+      id: google.licensing.licenseAssignments
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /apps/licensing/v1/product/{productId}/sku/{skuId}/user/{userId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -187,8 +185,6 @@ components:
             $ref: get
           path:
             $ref: /apps/licensing/v1/product/{productId}/sku/{skuId}/user/{userId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -207,8 +203,6 @@ components:
             $ref: get
           path:
             $ref: /apps/licensing/v1/product/{productId}/users
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -217,8 +211,6 @@ components:
             $ref: get
           path:
             $ref: /apps/licensing/v1/product/{productId}/sku/{skuId}/users
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

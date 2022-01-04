@@ -316,72 +316,7 @@ components:
               Google Account.
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
-  x-stackQL-resources:
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.locations:
-      id: google.services.projects.resources.locations
-      methods: {}
-      name: projects.resources.locations
-      title: projects.resources.locations
-    projects.resources.locations.resources:
-      id: google.services.projects.resources.locations.resources
-      methods: {}
-      name: projects.resources.locations.resources
-      title: projects.resources.locations.resources
-    projects.resources.locations.resources.datasets:
-      id: google.services.projects.resources.locations.resources.datasets
-      methods:
-        import:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1/{name}:import
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: projects.resources.locations.resources.datasets
-      title: projects.resources.locations.resources.datasets
-    text:
-      id: google.services.text
-      methods:
-        synthesize:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1/text:synthesize
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: text
-      title: text
-    voices:
-      id: google.services.voices
-      methods:
-        list:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1/voices
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: voices
-      title: voices
+  x-stackQL-resources: {}
 externalDocs:
   url: https://cloud.google.com/text-to-speech/
 info:

@@ -134,18 +134,8 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    accounts:
-      id: google.services.accounts
-      methods: {}
-      name: accounts
-      title: accounts
-    accounts.resources:
-      id: google.services.accounts.resources
-      methods: {}
-      name: accounts.resources
-      title: accounts.resources
-    accounts.resources.customApps:
-      id: google.services.accounts.resources.customApps
+    accounts.customApps:
+      id: google.playcustomapp.accounts.customApps
       methods:
         create:
           operation:
@@ -153,12 +143,12 @@ components:
           path:
             $ref: /playcustomapp/v1/accounts/{account}/customApps
           request:
-            mediaType: application/json
+            mediaType: application/octet-stream
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.customApps
-      title: accounts.resources.customApps
+      name: accounts.customApps
+      title: accounts.customApps
 externalDocs:
   url: https://developers.google.com/android/work/play/custom-app-api/
 info:

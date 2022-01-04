@@ -4007,15 +4007,13 @@ components:
       type: object
   x-stackQL-resources:
     locations:
-      id: google.services.locations
+      id: google.mybusinesslodging.locations
       methods:
         getLodging:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/locations/{locationsId}/lodging
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -4023,7 +4021,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/locations/{locationsId}/lodging
           request:
             mediaType: application/json
           response:
@@ -4031,26 +4029,19 @@ components:
             openAPIDocKey: '200'
       name: locations
       title: locations
-    locations.resources:
-      id: google.services.locations.resources
-      methods: {}
-      name: locations.resources
-      title: locations.resources
-    locations.resources.lodging:
-      id: google.services.locations.resources.lodging
+    locations.lodging:
+      id: google.mybusinesslodging.locations.lodging
       methods:
         getGoogleUpdated:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}:getGoogleUpdated
-          request:
-            mediaType: application/json
+            $ref: /v1/locations/{locationsId}/lodging:getGoogleUpdated
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: locations.resources.lodging
-      title: locations.resources.lodging
+      name: locations.lodging
+      title: locations.lodging
 externalDocs:
   url: https://developers.google.com/my-business/
 info:
@@ -4079,6 +4070,110 @@ info:
   x-serviceName: mybusinesslodging
 openapi: 3.0.0
 paths:
+  /v1/locations/{locationsId}/lodging:
+    get:
+      description: Returns the Lodging of a specific location.
+      operationId: mybusinesslodging.locations.getLodging
+      parameters:
+      - description: Required. The specific fields to return. Use "*" to include all
+          fields. Repeated field items cannot be individually specified.
+        in: query
+        name: readMask
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lodging'
+          description: Successful response
+      tags:
+      - locations
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the Lodging of a specific location.
+      operationId: mybusinesslodging.locations.updateLodging
+      parameters:
+      - description: Required. The specific fields to update. Use "*" to update all
+          fields, which may include unsetting empty fields in the request. Repeated
+          field items cannot be individually updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Lodging'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lodging'
+          description: Successful response
+      tags:
+      - locations
+  /v1/locations/{locationsId}/lodging:getGoogleUpdated:
+    get:
+      description: Returns the Google updated Lodging of a specific location.
+      operationId: mybusinesslodging.locations.lodging.getGoogleUpdated
+      parameters:
+      - description: Required. The specific fields to return. Use "*" to include all
+          fields. Repeated field items cannot be individually specified.
+        in: query
+        name: readMask
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGoogleUpdatedLodgingResponse'
+          description: Successful response
+      tags:
+      - locations
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /v1/{name}:
     get:
       description: Returns the Lodging of a specific location.

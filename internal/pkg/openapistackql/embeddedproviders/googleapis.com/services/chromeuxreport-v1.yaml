@@ -242,7 +242,7 @@ components:
       type: object
   x-stackQL-resources:
     records:
-      id: google.services.records
+      id: google.chromeuxreport.records
       methods:
         queryRecord:
           operation:

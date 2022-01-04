@@ -3223,24 +3223,14 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.annotationSpecSets:
-      id: google.services.projects.resources.annotationSpecSets
+    projects.annotationSpecSets:
+      id: google.datalabeling.projects.annotationSpecSets
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{parent}/annotationSpecSets
+            $ref: /v1beta1/projects/{projectsId}/annotationSpecSets
           request:
             mediaType: application/json
           response:
@@ -3250,9 +3240,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/annotationSpecSets/{annotationSpecSetsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3260,9 +3248,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/annotationSpecSets/{annotationSpecSetsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3270,22 +3256,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{parent}/annotationSpecSets
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/annotationSpecSets
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.annotationSpecSets
-      title: projects.resources.annotationSpecSets
-    projects.resources.datasets:
-      id: google.services.projects.resources.datasets
+      name: projects.annotationSpecSets
+      title: projects.annotationSpecSets
+    projects.datasets:
+      id: google.datalabeling.projects.datasets
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{parent}/datasets
+            $ref: /v1beta1/projects/{projectsId}/datasets
           request:
             mediaType: application/json
           response:
@@ -3295,9 +3279,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3305,7 +3287,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{name}:exportData
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}:exportData
           request:
             mediaType: application/json
           response:
@@ -3315,9 +3297,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3325,7 +3305,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{name}:importData
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}:importData
           request:
             mediaType: application/json
           response:
@@ -3335,29 +3315,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{parent}/datasets
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/datasets
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.datasets
-      title: projects.resources.datasets
-    projects.resources.datasets.resources:
-      id: google.services.projects.resources.datasets.resources
-      methods: {}
-      name: projects.resources.datasets.resources
-      title: projects.resources.datasets.resources
-    projects.resources.datasets.resources.annotatedDatasets:
-      id: google.services.projects.resources.datasets.resources.annotatedDatasets
+      name: projects.datasets
+      title: projects.datasets
+    projects.datasets.annotatedDatasets:
+      id: google.datalabeling.projects.datasets.annotatedDatasets
       methods:
         delete:
           operation:
             $ref: delete
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3365,9 +3336,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3375,29 +3344,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{parent}/annotatedDatasets
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.datasets.resources.annotatedDatasets
-      title: projects.resources.datasets.resources.annotatedDatasets
-    projects.resources.datasets.resources.annotatedDatasets.resources:
-      id: google.services.projects.resources.datasets.resources.annotatedDatasets.resources
-      methods: {}
-      name: projects.resources.datasets.resources.annotatedDatasets.resources
-      title: projects.resources.datasets.resources.annotatedDatasets.resources
-    projects.resources.datasets.resources.annotatedDatasets.resources.dataItems:
-      id: google.services.projects.resources.datasets.resources.annotatedDatasets.resources.dataItems
+      name: projects.datasets.annotatedDatasets
+      title: projects.datasets.annotatedDatasets
+    projects.datasets.annotatedDatasets.dataItems:
+      id: google.datalabeling.projects.datasets.annotatedDatasets.dataItems
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}/dataItems/{dataItemsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3405,24 +3365,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{parent}/dataItems
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}/dataItems
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.datasets.resources.annotatedDatasets.resources.dataItems
-      title: projects.resources.datasets.resources.annotatedDatasets.resources.dataItems
-    projects.resources.datasets.resources.annotatedDatasets.resources.examples:
-      id: google.services.projects.resources.datasets.resources.annotatedDatasets.resources.examples
+      name: projects.datasets.annotatedDatasets.dataItems
+      title: projects.datasets.annotatedDatasets.dataItems
+    projects.datasets.annotatedDatasets.examples:
+      id: google.datalabeling.projects.datasets.annotatedDatasets.examples
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}/examples/{examplesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3430,24 +3386,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{parent}/examples
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}/examples
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.datasets.resources.annotatedDatasets.resources.examples
-      title: projects.resources.datasets.resources.annotatedDatasets.resources.examples
-    projects.resources.datasets.resources.annotatedDatasets.resources.feedbackThreads:
-      id: google.services.projects.resources.datasets.resources.annotatedDatasets.resources.feedbackThreads
+      name: projects.datasets.annotatedDatasets.examples
+      title: projects.datasets.annotatedDatasets.examples
+    projects.datasets.annotatedDatasets.feedbackThreads:
+      id: google.datalabeling.projects.datasets.annotatedDatasets.feedbackThreads
       methods:
         delete:
           operation:
             $ref: delete
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}/feedbackThreads/{feedbackThreadsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3455,9 +3407,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}/feedbackThreads/{feedbackThreadsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3465,27 +3415,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{parent}/feedbackThreads
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}/feedbackThreads
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.datasets.resources.annotatedDatasets.resources.feedbackThreads
-      title: projects.resources.datasets.resources.annotatedDatasets.resources.feedbackThreads
-    projects.resources.datasets.resources.annotatedDatasets.resources.feedbackThreads.resources:
-      id: google.services.projects.resources.datasets.resources.annotatedDatasets.resources.feedbackThreads.resources
-      methods: {}
-      name: projects.resources.datasets.resources.annotatedDatasets.resources.feedbackThreads.resources
-      title: projects.resources.datasets.resources.annotatedDatasets.resources.feedbackThreads.resources
-    projects.resources.datasets.resources.annotatedDatasets.resources.feedbackThreads.resources.feedbackMessages:
-      id: google.services.projects.resources.datasets.resources.annotatedDatasets.resources.feedbackThreads.resources.feedbackMessages
+      name: projects.datasets.annotatedDatasets.feedbackThreads
+      title: projects.datasets.annotatedDatasets.feedbackThreads
+    projects.datasets.annotatedDatasets.feedbackThreads.feedbackMessages:
+      id: google.datalabeling.projects.datasets.annotatedDatasets.feedbackThreads.feedbackMessages
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{parent}/feedbackMessages
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}/feedbackThreads/{feedbackThreadsId}/feedbackMessages
           request:
             mediaType: application/json
           response:
@@ -3495,9 +3438,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}/feedbackThreads/{feedbackThreadsId}/feedbackMessages/{feedbackMessagesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3505,9 +3446,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}/feedbackThreads/{feedbackThreadsId}/feedbackMessages/{feedbackMessagesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3515,24 +3454,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{parent}/feedbackMessages
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}/feedbackThreads/{feedbackThreadsId}/feedbackMessages
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.datasets.resources.annotatedDatasets.resources.feedbackThreads.resources.feedbackMessages
-      title: projects.resources.datasets.resources.annotatedDatasets.resources.feedbackThreads.resources.feedbackMessages
-    projects.resources.datasets.resources.dataItems:
-      id: google.services.projects.resources.datasets.resources.dataItems
+      name: projects.datasets.annotatedDatasets.feedbackThreads.feedbackMessages
+      title: projects.datasets.annotatedDatasets.feedbackThreads.feedbackMessages
+    projects.datasets.dataItems:
+      id: google.datalabeling.projects.datasets.dataItems
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/dataItems/{dataItemsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3540,102 +3475,93 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{parent}/dataItems
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/dataItems
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.datasets.resources.dataItems
-      title: projects.resources.datasets.resources.dataItems
-    projects.resources.datasets.resources.evaluations:
-      id: google.services.projects.resources.datasets.resources.evaluations
+      name: projects.datasets.dataItems
+      title: projects.datasets.dataItems
+    projects.datasets.evaluations:
+      id: google.datalabeling.projects.datasets.evaluations
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/evaluations/{evaluationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.datasets.resources.evaluations
-      title: projects.resources.datasets.resources.evaluations
-    projects.resources.datasets.resources.evaluations.resources:
-      id: google.services.projects.resources.datasets.resources.evaluations.resources
-      methods: {}
-      name: projects.resources.datasets.resources.evaluations.resources
-      title: projects.resources.datasets.resources.evaluations.resources
-    projects.resources.datasets.resources.evaluations.resources.exampleComparisons:
-      id: google.services.projects.resources.datasets.resources.evaluations.resources.exampleComparisons
+      name: projects.datasets.evaluations
+      title: projects.datasets.evaluations
+    projects.datasets.evaluations.exampleComparisons:
+      id: google.datalabeling.projects.datasets.evaluations.exampleComparisons
       methods:
         search:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{parent}/exampleComparisons:search
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/evaluations/{evaluationsId}/exampleComparisons:search
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.datasets.resources.evaluations.resources.exampleComparisons
-      title: projects.resources.datasets.resources.evaluations.resources.exampleComparisons
-    projects.resources.datasets.resources.image:
-      id: google.services.projects.resources.datasets.resources.image
+      name: projects.datasets.evaluations.exampleComparisons
+      title: projects.datasets.evaluations.exampleComparisons
+    projects.datasets.image:
+      id: google.datalabeling.projects.datasets.image
       methods:
         label:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{parent}/image:label
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/image:label
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.datasets.resources.image
-      title: projects.resources.datasets.resources.image
-    projects.resources.datasets.resources.text:
-      id: google.services.projects.resources.datasets.resources.text
+      name: projects.datasets.image
+      title: projects.datasets.image
+    projects.datasets.text:
+      id: google.datalabeling.projects.datasets.text
       methods:
         label:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{parent}/text:label
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/text:label
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.datasets.resources.text
-      title: projects.resources.datasets.resources.text
-    projects.resources.datasets.resources.video:
-      id: google.services.projects.resources.datasets.resources.video
+      name: projects.datasets.text
+      title: projects.datasets.text
+    projects.datasets.video:
+      id: google.datalabeling.projects.datasets.video
       methods:
         label:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{parent}/video:label
+            $ref: /v1beta1/projects/{projectsId}/datasets/{datasetsId}/video:label
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.datasets.resources.video
-      title: projects.resources.datasets.resources.video
-    projects.resources.evaluationJobs:
-      id: google.services.projects.resources.evaluationJobs
+      name: projects.datasets.video
+      title: projects.datasets.video
+    projects.evaluationJobs:
+      id: google.datalabeling.projects.evaluationJobs
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{parent}/evaluationJobs
+            $ref: /v1beta1/projects/{projectsId}/evaluationJobs
           request:
             mediaType: application/json
           response:
@@ -3645,9 +3571,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/evaluationJobs/{evaluationJobsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3655,9 +3579,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/evaluationJobs/{evaluationJobsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3665,9 +3587,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{parent}/evaluationJobs
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/evaluationJobs
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3675,7 +3595,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1beta1/{name}
+            $ref: /v1beta1/projects/{projectsId}/evaluationJobs/{evaluationJobsId}
           request:
             mediaType: application/json
           response:
@@ -3685,7 +3605,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{name}:pause
+            $ref: /v1beta1/projects/{projectsId}/evaluationJobs/{evaluationJobsId}:pause
           request:
             mediaType: application/json
           response:
@@ -3695,37 +3615,35 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{name}:resume
+            $ref: /v1beta1/projects/{projectsId}/evaluationJobs/{evaluationJobsId}:resume
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.evaluationJobs
-      title: projects.resources.evaluationJobs
-    projects.resources.evaluations:
-      id: google.services.projects.resources.evaluations
+      name: projects.evaluationJobs
+      title: projects.evaluationJobs
+    projects.evaluations:
+      id: google.datalabeling.projects.evaluations
       methods:
         search:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{parent}/evaluations:search
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/evaluations:search
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.evaluations
-      title: projects.resources.evaluations
-    projects.resources.instructions:
-      id: google.services.projects.resources.instructions
+      name: projects.evaluations
+      title: projects.evaluations
+    projects.instructions:
+      id: google.datalabeling.projects.instructions
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{parent}/instructions
+            $ref: /v1beta1/projects/{projectsId}/instructions
           request:
             mediaType: application/json
           response:
@@ -3735,9 +3653,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/instructions/{instructionsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3745,9 +3661,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/instructions/{instructionsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3755,24 +3669,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{parent}/instructions
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/instructions
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.instructions
-      title: projects.resources.instructions
-    projects.resources.operations:
-      id: google.services.projects.resources.operations
+      name: projects.instructions
+      title: projects.instructions
+    projects.operations:
+      id: google.datalabeling.projects.operations
       methods:
         cancel:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}:cancel
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/operations/{operationsId}:cancel
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3780,9 +3690,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3790,9 +3698,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3800,14 +3706,12 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}/operations
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/operations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.operations
-      title: projects.resources.operations
+      name: projects.operations
+      title: projects.operations
 externalDocs:
   url: https://cloud.google.com/data-labeling/docs/
 info:
@@ -3835,6 +3739,2980 @@ info:
   x-serviceName: datalabeling
 openapi: 3.0.0
 paths:
+  /v1beta1/projects/{projectsId}/annotationSpecSets:
+    get:
+      description: Lists annotation spec sets for a project. Pagination is supported.
+      operationId: datalabeling.projects.annotationSpecSets.list
+      parameters:
+      - description: Optional. Filter is not supported at this moment.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. Requested page size. Server may return fewer results
+          than requested. Default value is 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A token identifying a page of results for the server
+          to return. Typically obtained by ListAnnotationSpecSetsResponse.next_page_token
+          of the previous [DataLabelingService.ListAnnotationSpecSets] call. Return
+          first page if empty.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1ListAnnotationSpecSetsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates an annotation spec set by providing a set of labels.
+      operationId: datalabeling.projects.annotationSpecSets.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1CreateAnnotationSpecSetRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1AnnotationSpecSet'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/annotationSpecSets/{annotationSpecSetsId}:
+    delete:
+      description: Deletes a long-running operation. This method indicates that the
+        client is no longer interested in the operation result. It does not cancel
+        the operation. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+      operationId: datalabeling.projects.operations.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotationSpecSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: datalabeling.projects.operations.get
+      parameters:
+      - description: Optional. An expression for filtering Examples. Filter by annotation_spec.display_name
+          is supported. Format "annotation_spec.display_name = {display_name}"
+        in: query
+        name: filter
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotationSpecSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates an evaluation job. You can only update certain fields
+        of the job''s EvaluationJobConfig: `humanAnnotationConfig.instruction`, `exampleCount`,
+        and `exampleSamplePercentage`. If you want to change any other aspect of the
+        evaluation job, you must delete the job and create a new one.'
+      operationId: datalabeling.projects.evaluationJobs.patch
+      parameters:
+      - description: 'Optional. Mask for which fields to update. You can only provide
+          the following fields: * `evaluationJobConfig.humanAnnotationConfig.instruction`
+          * `evaluationJobConfig.exampleCount` * `evaluationJobConfig.exampleSamplePercentage`
+          You can provide more than one of these fields by separating them with commas.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotationSpecSetsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/datasets:
+    get:
+      description: Lists datasets under a project. Pagination is supported.
+      operationId: datalabeling.projects.datasets.list
+      parameters:
+      - description: Optional. Filter on dataset is not supported at this moment.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. Requested page size. Server may return fewer results
+          than requested. Default value is 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A token identifying a page of results for the server
+          to return. Typically obtained by ListDatasetsResponse.next_page_token of
+          the previous [DataLabelingService.ListDatasets] call. Returns the first
+          page if empty.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1ListDatasetsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates dataset. If success return a Dataset resource.
+      operationId: datalabeling.projects.datasets.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1CreateDatasetRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1Dataset'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/datasets/{datasetsId}:
+    delete:
+      description: Deletes a long-running operation. This method indicates that the
+        client is no longer interested in the operation result. It does not cancel
+        the operation. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+      operationId: datalabeling.projects.operations.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: datalabeling.projects.operations.get
+      parameters:
+      - description: Optional. An expression for filtering Examples. Filter by annotation_spec.display_name
+          is supported. Format "annotation_spec.display_name = {display_name}"
+        in: query
+        name: filter
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates an evaluation job. You can only update certain fields
+        of the job''s EvaluationJobConfig: `humanAnnotationConfig.instruction`, `exampleCount`,
+        and `exampleSamplePercentage`. If you want to change any other aspect of the
+        evaluation job, you must delete the job and create a new one.'
+      operationId: datalabeling.projects.evaluationJobs.patch
+      parameters:
+      - description: 'Optional. Mask for which fields to update. You can only provide
+          the following fields: * `evaluationJobConfig.humanAnnotationConfig.instruction`
+          * `evaluationJobConfig.exampleCount` * `evaluationJobConfig.exampleSamplePercentage`
+          You can provide more than one of these fields by separating them with commas.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets:
+    get:
+      description: Lists annotated datasets for a dataset. Pagination is supported.
+      operationId: datalabeling.projects.datasets.annotatedDatasets.list
+      parameters:
+      - description: Optional. Filter is not supported at this moment.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. Requested page size. Server may return fewer results
+          than requested. Default value is 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A token identifying a page of results for the server
+          to return. Typically obtained by ListAnnotatedDatasetsResponse.next_page_token
+          of the previous [DataLabelingService.ListAnnotatedDatasets] call. Return
+          first page if empty.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1ListAnnotatedDatasetsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}:
+    delete:
+      description: Deletes a long-running operation. This method indicates that the
+        client is no longer interested in the operation result. It does not cancel
+        the operation. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+      operationId: datalabeling.projects.operations.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: datalabeling.projects.operations.get
+      parameters:
+      - description: Optional. An expression for filtering Examples. Filter by annotation_spec.display_name
+          is supported. Format "annotation_spec.display_name = {display_name}"
+        in: query
+        name: filter
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates an evaluation job. You can only update certain fields
+        of the job''s EvaluationJobConfig: `humanAnnotationConfig.instruction`, `exampleCount`,
+        and `exampleSamplePercentage`. If you want to change any other aspect of the
+        evaluation job, you must delete the job and create a new one.'
+      operationId: datalabeling.projects.evaluationJobs.patch
+      parameters:
+      - description: 'Optional. Mask for which fields to update. You can only provide
+          the following fields: * `evaluationJobConfig.humanAnnotationConfig.instruction`
+          * `evaluationJobConfig.exampleCount` * `evaluationJobConfig.exampleSamplePercentage`
+          You can provide more than one of these fields by separating them with commas.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}/dataItems:
+    get:
+      description: Lists data items in a dataset. This API can be called after data
+        are imported into dataset. Pagination is supported.
+      operationId: datalabeling.projects.datasets.dataItems.list
+      parameters:
+      - description: Optional. Filter is not supported at this moment.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. Requested page size. Server may return fewer results
+          than requested. Default value is 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A token identifying a page of results for the server
+          to return. Typically obtained by ListDataItemsResponse.next_page_token of
+          the previous [DataLabelingService.ListDataItems] call. Return first page
+          if empty.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1ListDataItemsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}/dataItems/{dataItemsId}:
+    delete:
+      description: Deletes a long-running operation. This method indicates that the
+        client is no longer interested in the operation result. It does not cancel
+        the operation. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+      operationId: datalabeling.projects.operations.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: dataItemsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: datalabeling.projects.operations.get
+      parameters:
+      - description: Optional. An expression for filtering Examples. Filter by annotation_spec.display_name
+          is supported. Format "annotation_spec.display_name = {display_name}"
+        in: query
+        name: filter
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: dataItemsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates an evaluation job. You can only update certain fields
+        of the job''s EvaluationJobConfig: `humanAnnotationConfig.instruction`, `exampleCount`,
+        and `exampleSamplePercentage`. If you want to change any other aspect of the
+        evaluation job, you must delete the job and create a new one.'
+      operationId: datalabeling.projects.evaluationJobs.patch
+      parameters:
+      - description: 'Optional. Mask for which fields to update. You can only provide
+          the following fields: * `evaluationJobConfig.humanAnnotationConfig.instruction`
+          * `evaluationJobConfig.exampleCount` * `evaluationJobConfig.exampleSamplePercentage`
+          You can provide more than one of these fields by separating them with commas.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: dataItemsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}/examples:
+    get:
+      description: Lists examples in an annotated dataset. Pagination is supported.
+      operationId: datalabeling.projects.datasets.annotatedDatasets.examples.list
+      parameters:
+      - description: Optional. An expression for filtering Examples. For annotated
+          datasets that have annotation spec set, filter by annotation_spec.display_name
+          is supported. Format "annotation_spec.display_name = {display_name}"
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. Requested page size. Server may return fewer results
+          than requested. Default value is 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A token identifying a page of results for the server
+          to return. Typically obtained by ListExamplesResponse.next_page_token of
+          the previous [DataLabelingService.ListExamples] call. Return first page
+          if empty.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1ListExamplesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}/examples/{examplesId}:
+    delete:
+      description: Deletes a long-running operation. This method indicates that the
+        client is no longer interested in the operation result. It does not cancel
+        the operation. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+      operationId: datalabeling.projects.operations.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: examplesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: datalabeling.projects.operations.get
+      parameters:
+      - description: Optional. An expression for filtering Examples. Filter by annotation_spec.display_name
+          is supported. Format "annotation_spec.display_name = {display_name}"
+        in: query
+        name: filter
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: examplesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates an evaluation job. You can only update certain fields
+        of the job''s EvaluationJobConfig: `humanAnnotationConfig.instruction`, `exampleCount`,
+        and `exampleSamplePercentage`. If you want to change any other aspect of the
+        evaluation job, you must delete the job and create a new one.'
+      operationId: datalabeling.projects.evaluationJobs.patch
+      parameters:
+      - description: 'Optional. Mask for which fields to update. You can only provide
+          the following fields: * `evaluationJobConfig.humanAnnotationConfig.instruction`
+          * `evaluationJobConfig.exampleCount` * `evaluationJobConfig.exampleSamplePercentage`
+          You can provide more than one of these fields by separating them with commas.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: examplesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}/feedbackThreads:
+    get:
+      description: List FeedbackThreads with pagination.
+      operationId: datalabeling.projects.datasets.annotatedDatasets.feedbackThreads.list
+      parameters:
+      - description: Optional. Requested page size. Server may return fewer results
+          than requested. Default value is 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A token identifying a page of results for the server
+          to return. Typically obtained by ListFeedbackThreads.next_page_token of
+          the previous [DataLabelingService.ListFeedbackThreads] call. Return first
+          page if empty.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1ListFeedbackThreadsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  ? /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}/feedbackThreads/{feedbackThreadsId}
+  : delete:
+      description: Deletes a long-running operation. This method indicates that the
+        client is no longer interested in the operation result. It does not cancel
+        the operation. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+      operationId: datalabeling.projects.operations.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: feedbackThreadsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: datalabeling.projects.operations.get
+      parameters:
+      - description: Optional. An expression for filtering Examples. Filter by annotation_spec.display_name
+          is supported. Format "annotation_spec.display_name = {display_name}"
+        in: query
+        name: filter
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: feedbackThreadsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates an evaluation job. You can only update certain fields
+        of the job''s EvaluationJobConfig: `humanAnnotationConfig.instruction`, `exampleCount`,
+        and `exampleSamplePercentage`. If you want to change any other aspect of the
+        evaluation job, you must delete the job and create a new one.'
+      operationId: datalabeling.projects.evaluationJobs.patch
+      parameters:
+      - description: 'Optional. Mask for which fields to update. You can only provide
+          the following fields: * `evaluationJobConfig.humanAnnotationConfig.instruction`
+          * `evaluationJobConfig.exampleCount` * `evaluationJobConfig.exampleSamplePercentage`
+          You can provide more than one of these fields by separating them with commas.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: feedbackThreadsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  ? /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}/feedbackThreads/{feedbackThreadsId}/feedbackMessages
+  : get:
+      description: List FeedbackMessages with pagination.
+      operationId: datalabeling.projects.datasets.annotatedDatasets.feedbackThreads.feedbackMessages.list
+      parameters:
+      - description: Optional. Requested page size. Server may return fewer results
+          than requested. Default value is 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A token identifying a page of results for the server
+          to return. Typically obtained by ListFeedbackMessages.next_page_token of
+          the previous [DataLabelingService.ListFeedbackMessages] call. Return first
+          page if empty.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: feedbackThreadsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1ListFeedbackMessagesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Create a FeedbackMessage object.
+      operationId: datalabeling.projects.datasets.annotatedDatasets.feedbackThreads.feedbackMessages.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: feedbackThreadsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1FeedbackMessage'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  ? /v1beta1/projects/{projectsId}/datasets/{datasetsId}/annotatedDatasets/{annotatedDatasetsId}/feedbackThreads/{feedbackThreadsId}/feedbackMessages/{feedbackMessagesId}
+  : delete:
+      description: Deletes a long-running operation. This method indicates that the
+        client is no longer interested in the operation result. It does not cancel
+        the operation. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+      operationId: datalabeling.projects.operations.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: feedbackThreadsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: feedbackMessagesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: datalabeling.projects.operations.get
+      parameters:
+      - description: Optional. An expression for filtering Examples. Filter by annotation_spec.display_name
+          is supported. Format "annotation_spec.display_name = {display_name}"
+        in: query
+        name: filter
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: feedbackThreadsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: feedbackMessagesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates an evaluation job. You can only update certain fields
+        of the job''s EvaluationJobConfig: `humanAnnotationConfig.instruction`, `exampleCount`,
+        and `exampleSamplePercentage`. If you want to change any other aspect of the
+        evaluation job, you must delete the job and create a new one.'
+      operationId: datalabeling.projects.evaluationJobs.patch
+      parameters:
+      - description: 'Optional. Mask for which fields to update. You can only provide
+          the following fields: * `evaluationJobConfig.humanAnnotationConfig.instruction`
+          * `evaluationJobConfig.exampleCount` * `evaluationJobConfig.exampleSamplePercentage`
+          You can provide more than one of these fields by separating them with commas.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: annotatedDatasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: feedbackThreadsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: feedbackMessagesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/datasets/{datasetsId}/dataItems:
+    get:
+      description: Lists data items in a dataset. This API can be called after data
+        are imported into dataset. Pagination is supported.
+      operationId: datalabeling.projects.datasets.dataItems.list
+      parameters:
+      - description: Optional. Filter is not supported at this moment.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. Requested page size. Server may return fewer results
+          than requested. Default value is 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A token identifying a page of results for the server
+          to return. Typically obtained by ListDataItemsResponse.next_page_token of
+          the previous [DataLabelingService.ListDataItems] call. Return first page
+          if empty.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1ListDataItemsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1beta1/projects/{projectsId}/datasets/{datasetsId}/dataItems/{dataItemsId}:
+    delete:
+      description: Deletes a long-running operation. This method indicates that the
+        client is no longer interested in the operation result. It does not cancel
+        the operation. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+      operationId: datalabeling.projects.operations.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: dataItemsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: datalabeling.projects.operations.get
+      parameters:
+      - description: Optional. An expression for filtering Examples. Filter by annotation_spec.display_name
+          is supported. Format "annotation_spec.display_name = {display_name}"
+        in: query
+        name: filter
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: dataItemsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates an evaluation job. You can only update certain fields
+        of the job''s EvaluationJobConfig: `humanAnnotationConfig.instruction`, `exampleCount`,
+        and `exampleSamplePercentage`. If you want to change any other aspect of the
+        evaluation job, you must delete the job and create a new one.'
+      operationId: datalabeling.projects.evaluationJobs.patch
+      parameters:
+      - description: 'Optional. Mask for which fields to update. You can only provide
+          the following fields: * `evaluationJobConfig.humanAnnotationConfig.instruction`
+          * `evaluationJobConfig.exampleCount` * `evaluationJobConfig.exampleSamplePercentage`
+          You can provide more than one of these fields by separating them with commas.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: dataItemsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/datasets/{datasetsId}/evaluations/{evaluationsId}:
+    delete:
+      description: Deletes a long-running operation. This method indicates that the
+        client is no longer interested in the operation result. It does not cancel
+        the operation. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+      operationId: datalabeling.projects.operations.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: evaluationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: datalabeling.projects.operations.get
+      parameters:
+      - description: Optional. An expression for filtering Examples. Filter by annotation_spec.display_name
+          is supported. Format "annotation_spec.display_name = {display_name}"
+        in: query
+        name: filter
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: evaluationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates an evaluation job. You can only update certain fields
+        of the job''s EvaluationJobConfig: `humanAnnotationConfig.instruction`, `exampleCount`,
+        and `exampleSamplePercentage`. If you want to change any other aspect of the
+        evaluation job, you must delete the job and create a new one.'
+      operationId: datalabeling.projects.evaluationJobs.patch
+      parameters:
+      - description: 'Optional. Mask for which fields to update. You can only provide
+          the following fields: * `evaluationJobConfig.humanAnnotationConfig.instruction`
+          * `evaluationJobConfig.exampleCount` * `evaluationJobConfig.exampleSamplePercentage`
+          You can provide more than one of these fields by separating them with commas.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: evaluationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/datasets/{datasetsId}/evaluations/{evaluationsId}/exampleComparisons:search:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Searches example comparisons from an evaluation. The return format
+        is a list of example comparisons that show ground truth and prediction(s)
+        for a single input. Search by providing an evaluation ID.
+      operationId: datalabeling.projects.datasets.evaluations.exampleComparisons.search
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: evaluationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1SearchExampleComparisonsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1SearchExampleComparisonsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/datasets/{datasetsId}/image:label:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Starts a labeling task for image. The type of image labeling task
+        is configured by feature in the request.
+      operationId: datalabeling.projects.datasets.image.label
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1LabelImageRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/datasets/{datasetsId}/text:label:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Starts a labeling task for text. The type of text labeling task
+        is configured by feature in the request.
+      operationId: datalabeling.projects.datasets.text.label
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1LabelTextRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/datasets/{datasetsId}/video:label:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Starts a labeling task for video. The type of video labeling task
+        is configured by feature in the request.
+      operationId: datalabeling.projects.datasets.video.label
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1LabelVideoRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/datasets/{datasetsId}:exportData:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Exports data and annotations from dataset.
+      operationId: datalabeling.projects.datasets.exportData
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1ExportDataRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/datasets/{datasetsId}:importData:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Imports data into dataset based on source locations defined in
+        request. It can be called multiple times for the same dataset. Each dataset
+        can only have one long running operation running on it. For example, no labeling
+        task (also long running operation) can be started while importing is still
+        ongoing. Vice versa.
+      operationId: datalabeling.projects.datasets.importData
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datasetsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1ImportDataRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/evaluationJobs:
+    get:
+      description: Lists all evaluation jobs within a project with possible filters.
+        Pagination is supported.
+      operationId: datalabeling.projects.evaluationJobs.list
+      parameters:
+      - description: 'Optional. You can filter the jobs to list by model_id (also
+          known as model_name, as described in EvaluationJob.modelVersion) or by evaluation
+          job state (as described in EvaluationJob.state). To filter by both criteria,
+          use the `AND` operator or the `OR` operator. For example, you can use the
+          following string for your filter: "evaluation_job.model_id = {model_name}
+          AND evaluation_job.state = {evaluation_job_state}"'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. Requested page size. Server may return fewer results
+          than requested. Default value is 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A token identifying a page of results for the server
+          to return. Typically obtained by the nextPageToken in the response to the
+          previous request. The request returns the first page if this is empty.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1ListEvaluationJobsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates an evaluation job.
+      operationId: datalabeling.projects.evaluationJobs.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1CreateEvaluationJobRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/evaluationJobs/{evaluationJobsId}:
+    delete:
+      description: Deletes a long-running operation. This method indicates that the
+        client is no longer interested in the operation result. It does not cancel
+        the operation. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+      operationId: datalabeling.projects.operations.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: evaluationJobsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: datalabeling.projects.operations.get
+      parameters:
+      - description: Optional. An expression for filtering Examples. Filter by annotation_spec.display_name
+          is supported. Format "annotation_spec.display_name = {display_name}"
+        in: query
+        name: filter
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: evaluationJobsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates an evaluation job. You can only update certain fields
+        of the job''s EvaluationJobConfig: `humanAnnotationConfig.instruction`, `exampleCount`,
+        and `exampleSamplePercentage`. If you want to change any other aspect of the
+        evaluation job, you must delete the job and create a new one.'
+      operationId: datalabeling.projects.evaluationJobs.patch
+      parameters:
+      - description: 'Optional. Mask for which fields to update. You can only provide
+          the following fields: * `evaluationJobConfig.humanAnnotationConfig.instruction`
+          * `evaluationJobConfig.exampleCount` * `evaluationJobConfig.exampleSamplePercentage`
+          You can provide more than one of these fields by separating them with commas.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: evaluationJobsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/evaluationJobs/{evaluationJobsId}:pause:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Pauses an evaluation job. Pausing an evaluation job that is already
+        in a `PAUSED` state is a no-op.
+      operationId: datalabeling.projects.evaluationJobs.pause
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: evaluationJobsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1PauseEvaluationJobRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/evaluationJobs/{evaluationJobsId}:resume:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Resumes a paused evaluation job. A deleted evaluation job can't
+        be resumed. Resuming a running or scheduled evaluation job is a no-op.
+      operationId: datalabeling.projects.evaluationJobs.resume
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: evaluationJobsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1ResumeEvaluationJobRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/evaluations:search:
+    get:
+      description: Searches evaluations within a project.
+      operationId: datalabeling.projects.evaluations.search
+      parameters:
+      - description: 'Optional. To search evaluations, you can filter by the following:
+          * evaluation_job.evaluation_job_id (the last part of EvaluationJob.name)
+          * evaluation_job.model_id (the {model_name} portion of EvaluationJob.modelVersion)
+          * evaluation_job.evaluation_job_run_time_start (Minimum threshold for the
+          evaluationJobRunTime that created the evaluation) * evaluation_job.evaluation_job_run_time_end
+          (Maximum threshold for the evaluationJobRunTime that created the evaluation)
+          * evaluation_job.job_state (EvaluationJob.state) * annotation_spec.display_name
+          (the Evaluation contains a metric for the annotation spec with this displayName)
+          To filter by multiple critiera, use the `AND` operator or the `OR` operator.
+          The following examples shows a string that filters by several critiera:
+          "evaluation_job.evaluation_job_id = {evaluation_job_id} AND evaluation_job.model_id
+          = {model_name} AND evaluation_job.evaluation_job_run_time_start = {timestamp_1}
+          AND evaluation_job.evaluation_job_run_time_end = {timestamp_2} AND annotation_spec.display_name
+          = {display_name}"'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. Requested page size. Server may return fewer results
+          than requested. Default value is 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A token identifying a page of results for the server
+          to return. Typically obtained by the nextPageToken of the response to a
+          previous search request. If you don't specify this field, the API call requests
+          the first page of the search.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1SearchEvaluationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1beta1/projects/{projectsId}/instructions:
+    get:
+      description: Lists instructions for a project. Pagination is supported.
+      operationId: datalabeling.projects.instructions.list
+      parameters:
+      - description: Optional. Filter is not supported at this moment.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. Requested page size. Server may return fewer results
+          than requested. Default value is 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A token identifying a page of results for the server
+          to return. Typically obtained by ListInstructionsResponse.next_page_token
+          of the previous [DataLabelingService.ListInstructions] call. Return first
+          page if empty.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1ListInstructionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates an instruction for how data should be labeled.
+      operationId: datalabeling.projects.instructions.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1CreateInstructionRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/instructions/{instructionsId}:
+    delete:
+      description: Deletes a long-running operation. This method indicates that the
+        client is no longer interested in the operation result. It does not cancel
+        the operation. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+      operationId: datalabeling.projects.operations.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: instructionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: datalabeling.projects.operations.get
+      parameters:
+      - description: Optional. An expression for filtering Examples. Filter by annotation_spec.display_name
+          is supported. Format "annotation_spec.display_name = {display_name}"
+        in: query
+        name: filter
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: instructionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates an evaluation job. You can only update certain fields
+        of the job''s EvaluationJobConfig: `humanAnnotationConfig.instruction`, `exampleCount`,
+        and `exampleSamplePercentage`. If you want to change any other aspect of the
+        evaluation job, you must delete the job and create a new one.'
+      operationId: datalabeling.projects.evaluationJobs.patch
+      parameters:
+      - description: 'Optional. Mask for which fields to update. You can only provide
+          the following fields: * `evaluationJobConfig.humanAnnotationConfig.instruction`
+          * `evaluationJobConfig.exampleCount` * `evaluationJobConfig.exampleSamplePercentage`
+          You can provide more than one of these fields by separating them with commas.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: instructionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/operations:
+    get:
+      description: 'Lists operations that match the specified filter in the request.
+        If the server doesn''t support this method, it returns `UNIMPLEMENTED`. NOTE:
+        the `name` binding allows API services to override the binding to use different
+        resource name schemes, such as `users/*/operations`. To override the binding,
+        API services can add a binding such as `"/v1/{name=users/*}/operations"` to
+        their service configuration. For backwards compatibility, the default name
+        includes the operations collection id, however overriding users must ensure
+        the name binding is the parent resource, without the operations collection
+        id.'
+      operationId: datalabeling.projects.operations.list
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningListOperationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1beta1/projects/{projectsId}/operations/{operationsId}:
+    delete:
+      description: Deletes a long-running operation. This method indicates that the
+        client is no longer interested in the operation result. It does not cancel
+        the operation. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+      operationId: datalabeling.projects.operations.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: datalabeling.projects.operations.get
+      parameters:
+      - description: Optional. An expression for filtering Examples. Filter by annotation_spec.display_name
+          is supported. Format "annotation_spec.display_name = {display_name}"
+        in: query
+        name: filter
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates an evaluation job. You can only update certain fields
+        of the job''s EvaluationJobConfig: `humanAnnotationConfig.instruction`, `exampleCount`,
+        and `exampleSamplePercentage`. If you want to change any other aspect of the
+        evaluation job, you must delete the job and create a new one.'
+      operationId: datalabeling.projects.evaluationJobs.patch
+      parameters:
+      - description: 'Optional. Mask for which fields to update. You can only provide
+          the following fields: * `evaluationJobConfig.humanAnnotationConfig.instruction`
+          * `evaluationJobConfig.exampleCount` * `evaluationJobConfig.exampleSamplePercentage`
+          You can provide more than one of these fields by separating them with commas.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatalabelingV1beta1EvaluationJob'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/operations/{operationsId}:cancel:
+    get:
+      description: Starts asynchronous cancellation on a long-running operation. The
+        server makes a best effort to cancel the operation, but success is not guaranteed.
+        If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+        Clients can use Operations.GetOperation or other methods to check whether
+        the cancellation succeeded or whether the operation completed despite cancellation.
+        On successful cancellation, the operation is not deleted; instead, it becomes
+        an operation with an Operation.error value with a google.rpc.Status.code of
+        1, corresponding to `Code.CANCELLED`.
+      operationId: datalabeling.projects.operations.cancel
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /v1beta1/{name}:
     delete:
       description: Deletes a long-running operation. This method indicates that the

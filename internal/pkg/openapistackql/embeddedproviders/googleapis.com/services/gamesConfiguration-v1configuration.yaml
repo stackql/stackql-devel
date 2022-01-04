@@ -355,25 +355,20 @@ components:
       type: oauth2
   x-stackQL-resources:
     achievementConfigurations:
-      id: google.services.achievementConfigurations
+      id: google.gamesConfiguration.achievementConfigurations
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /games/v1configuration/achievements/{achievementId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /games/v1configuration/achievements/{achievementId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -392,8 +387,6 @@ components:
             $ref: get
           path:
             $ref: /games/v1configuration/applications/{applicationId}/achievements
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -410,40 +403,33 @@ components:
       name: achievementConfigurations
       title: achievementConfigurations
     imageConfigurations:
-      id: google.services.imageConfigurations
+      id: google.gamesConfiguration.imageConfigurations
       methods:
         upload:
           operation:
             $ref: post
           path:
             $ref: /games/v1configuration/images/{resourceId}/imageType/{imageType}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: imageConfigurations
       title: imageConfigurations
     leaderboardConfigurations:
-      id: google.services.leaderboardConfigurations
+      id: google.gamesConfiguration.leaderboardConfigurations
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /games/v1configuration/leaderboards/{leaderboardId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /games/v1configuration/leaderboards/{leaderboardId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -462,8 +448,6 @@ components:
             $ref: get
           path:
             $ref: /games/v1configuration/applications/{applicationId}/leaderboards
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

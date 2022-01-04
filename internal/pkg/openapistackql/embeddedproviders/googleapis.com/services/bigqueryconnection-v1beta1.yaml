@@ -457,34 +457,14 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.locations:
-      id: google.services.projects.resources.locations
-      methods: {}
-      name: projects.resources.locations
-      title: projects.resources.locations
-    projects.resources.locations.resources:
-      id: google.services.projects.resources.locations.resources
-      methods: {}
-      name: projects.resources.locations.resources
-      title: projects.resources.locations.resources
-    projects.resources.locations.resources.connections:
-      id: google.services.projects.resources.locations.resources.connections
+    projects.locations.connections:
+      id: google.bigqueryconnection.projects.locations.connections
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{parent}/connections
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/connections
           request:
             mediaType: application/json
           response:
@@ -494,9 +474,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/connections/{connectionsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -504,9 +482,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/connections/{connectionsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -514,7 +490,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{resource}:getIamPolicy
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/connections/{connectionsId}:getIamPolicy
           request:
             mediaType: application/json
           response:
@@ -524,9 +500,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{parent}/connections
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/connections
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -534,7 +508,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1beta1/{name}
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/connections/{connectionsId}
           request:
             mediaType: application/json
           response:
@@ -544,7 +518,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{resource}:setIamPolicy
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/connections/{connectionsId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -554,7 +528,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{resource}:testIamPermissions
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/connections/{connectionsId}:testIamPermissions
           request:
             mediaType: application/json
           response:
@@ -564,14 +538,14 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1beta1/{name}
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/connections/{connectionsId}/credential
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.connections
-      title: projects.resources.locations.resources.connections
+      name: projects.locations.connections
+      title: projects.locations.connections
 externalDocs:
   url: https://cloud.google.com/bigquery/
 info:
@@ -604,6 +578,534 @@ info:
   x-serviceName: bigqueryconnection
 openapi: 3.0.0
 paths:
+  /v1beta1/projects/{projectsId}/locations/{locationsId}/connections:
+    get:
+      description: Returns a list of connections in the given project.
+      operationId: bigqueryconnection.projects.locations.connections.list
+      parameters:
+      - description: Required. Maximum number of results per page.
+        in: query
+        name: maxResults
+        schema:
+          type: integer
+      - description: Page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListConnectionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/bigquery
+        Oauth2c:
+        - https://www.googleapis.com/auth/bigquery
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new connection.
+      operationId: bigqueryconnection.projects.locations.connections.create
+      parameters:
+      - description: Optional. Connection id that should be assigned to the created
+          connection.
+        in: query
+        name: connectionId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Connection'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Connection'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/bigquery
+        Oauth2c:
+        - https://www.googleapis.com/auth/bigquery
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/locations/{locationsId}/connections/{connectionsId}:
+    delete:
+      description: Deletes connection and associated credential.
+      operationId: bigqueryconnection.projects.locations.connections.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: connectionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/bigquery
+        Oauth2c:
+        - https://www.googleapis.com/auth/bigquery
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Returns specified connection.
+      operationId: bigqueryconnection.projects.locations.connections.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: connectionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Connection'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/bigquery
+        Oauth2c:
+        - https://www.googleapis.com/auth/bigquery
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Sets the credential for the specified connection.
+      operationId: bigqueryconnection.projects.locations.connections.updateCredential
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: connectionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectionCredential'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/bigquery
+        Oauth2c:
+        - https://www.googleapis.com/auth/bigquery
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/locations/{locationsId}/connections/{connectionsId}/credential:
+    delete:
+      description: Deletes connection and associated credential.
+      operationId: bigqueryconnection.projects.locations.connections.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: connectionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/bigquery
+        Oauth2c:
+        - https://www.googleapis.com/auth/bigquery
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Returns specified connection.
+      operationId: bigqueryconnection.projects.locations.connections.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: connectionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Connection'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/bigquery
+        Oauth2c:
+        - https://www.googleapis.com/auth/bigquery
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Sets the credential for the specified connection.
+      operationId: bigqueryconnection.projects.locations.connections.updateCredential
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: connectionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectionCredential'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/bigquery
+        Oauth2c:
+        - https://www.googleapis.com/auth/bigquery
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/locations/{locationsId}/connections/{connectionsId}:getIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: bigqueryconnection.projects.locations.connections.getIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: connectionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/bigquery
+        Oauth2c:
+        - https://www.googleapis.com/auth/bigquery
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/locations/{locationsId}/connections/{connectionsId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy. Can return `NOT_FOUND`, `INVALID_ARGUMENT`, and `PERMISSION_DENIED`
+        errors.
+      operationId: bigqueryconnection.projects.locations.connections.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: connectionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/bigquery
+        Oauth2c:
+        - https://www.googleapis.com/auth/bigquery
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/locations/{locationsId}/connections/{connectionsId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a `NOT_FOUND` error. Note: This operation is designed to be used for building
+        permission-aware UIs and command-line tools, not for authorization checking.
+        This operation may "fail open" without warning.'
+      operationId: bigqueryconnection.projects.locations.connections.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: connectionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/bigquery
+        Oauth2c:
+        - https://www.googleapis.com/auth/bigquery
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
   /v1beta1/{name}:
     delete:
       description: Deletes connection and associated credential.

@@ -353,30 +353,26 @@ components:
       type: oauth2
   x-stackQL-resources:
     accountReports:
-      id: google.services.accountReports
+      id: google.localservices.accountReports
       methods:
         search:
           operation:
             $ref: get
           path:
             $ref: /v1/accountReports:search
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: accountReports
       title: accountReports
     detailedLeadReports:
-      id: google.services.detailedLeadReports
+      id: google.localservices.detailedLeadReports
       methods:
         search:
           operation:
             $ref: get
           path:
             $ref: /v1/detailedLeadReports:search
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

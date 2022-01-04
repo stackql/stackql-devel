@@ -552,91 +552,66 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    customers:
-      id: google.services.customers
-      methods: {}
-      name: customers
-      title: customers
-    customers.resources:
-      id: google.services.customers.resources
-      methods: {}
-      name: customers.resources
-      title: customers.resources
-    customers.resources.apps:
-      id: google.services.customers.resources.apps
+    customers.apps:
+      id: google.chromemanagement.customers.apps
       methods:
         countChromeAppRequests:
           operation:
             $ref: get
           path:
-            $ref: /v1/{customer}/apps:countChromeAppRequests
-          request:
-            mediaType: application/json
+            $ref: /v1/customers/{customersId}/apps:countChromeAppRequests
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: customers.resources.apps
-      title: customers.resources.apps
-    customers.resources.apps.resources:
-      id: google.services.customers.resources.apps.resources
-      methods: {}
-      name: customers.resources.apps.resources
-      title: customers.resources.apps.resources
-    customers.resources.apps.resources.android:
-      id: google.services.customers.resources.apps.resources.android
+      name: customers.apps
+      title: customers.apps
+    customers.apps.android:
+      id: google.chromemanagement.customers.apps.android
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/customers/{customersId}/apps/android/{androidId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: customers.resources.apps.resources.android
-      title: customers.resources.apps.resources.android
-    customers.resources.apps.resources.chrome:
-      id: google.services.customers.resources.apps.resources.chrome
+      name: customers.apps.android
+      title: customers.apps.android
+    customers.apps.chrome:
+      id: google.chromemanagement.customers.apps.chrome
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/customers/{customersId}/apps/chrome/{chromeId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: customers.resources.apps.resources.chrome
-      title: customers.resources.apps.resources.chrome
-    customers.resources.apps.resources.web:
-      id: google.services.customers.resources.apps.resources.web
+      name: customers.apps.chrome
+      title: customers.apps.chrome
+    customers.apps.web:
+      id: google.chromemanagement.customers.apps.web
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/customers/{customersId}/apps/web/{webId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: customers.resources.apps.resources.web
-      title: customers.resources.apps.resources.web
-    customers.resources.reports:
-      id: google.services.customers.resources.reports
+      name: customers.apps.web
+      title: customers.apps.web
+    customers.reports:
+      id: google.chromemanagement.customers.reports
       methods:
         countChromeVersions:
           operation:
             $ref: get
           path:
-            $ref: /v1/{customer}/reports:countChromeVersions
-          request:
-            mediaType: application/json
+            $ref: /v1/customers/{customersId}/reports:countChromeVersions
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -644,9 +619,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{customer}/reports:countInstalledApps
-          request:
-            mediaType: application/json
+            $ref: /v1/customers/{customersId}/reports:countInstalledApps
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -654,39 +627,12 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{customer}/reports:findInstalledAppDevices
-          request:
-            mediaType: application/json
+            $ref: /v1/customers/{customersId}/reports:findInstalledAppDevices
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: customers.resources.reports
-      title: customers.resources.reports
-    customers.resources.telemetry:
-      id: google.services.customers.resources.telemetry
-      methods: {}
-      name: customers.resources.telemetry
-      title: customers.resources.telemetry
-    customers.resources.telemetry.resources:
-      id: google.services.customers.resources.telemetry.resources
-      methods: {}
-      name: customers.resources.telemetry.resources
-      title: customers.resources.telemetry.resources
-    customers.resources.telemetry.resources.devices:
-      id: google.services.customers.resources.telemetry.resources.devices
-      methods:
-        list:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1/{parent}/telemetry/devices
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: customers.resources.telemetry.resources.devices
-      title: customers.resources.telemetry.resources.devices
+      name: customers.reports
+      title: customers.reports
 externalDocs:
   url: http://developers.google.com/chrome/management/
 info:
@@ -716,6 +662,396 @@ info:
   x-serviceName: chromemanagement
 openapi: 3.0.0
 paths:
+  /v1/customers/{customersId}/apps/android/{androidId}:
+    get:
+      description: Get a specific app for a customer by its resource name.
+      operationId: chromemanagement.customers.apps.web.get
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: androidId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleChromeManagementV1AppDetails'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/chrome.management.appdetails.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/chrome.management.appdetails.readonly
+      tags:
+      - customers
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/customers/{customersId}/apps/chrome/{chromeId}:
+    get:
+      description: Get a specific app for a customer by its resource name.
+      operationId: chromemanagement.customers.apps.web.get
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: chromeId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleChromeManagementV1AppDetails'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/chrome.management.appdetails.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/chrome.management.appdetails.readonly
+      tags:
+      - customers
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/customers/{customersId}/apps/web/{webId}:
+    get:
+      description: Get a specific app for a customer by its resource name.
+      operationId: chromemanagement.customers.apps.web.get
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: webId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleChromeManagementV1AppDetails'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/chrome.management.appdetails.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/chrome.management.appdetails.readonly
+      tags:
+      - customers
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/customers/{customersId}/apps:countChromeAppRequests:
+    get:
+      description: Generate summary of app installation requests.
+      operationId: chromemanagement.customers.apps.countChromeAppRequests
+      parameters:
+      - description: 'Field used to order results. Supported fields: * request_count
+          * latest_request_time'
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: The ID of the organizational unit.
+        in: query
+        name: orgUnitId
+        schema:
+          type: string
+      - description: Maximum number of results to return. Maximum and default are
+          50, anything above will be coerced to 50.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Token to specify the page of the request to be returned.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleChromeManagementV1CountChromeAppRequestsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/chrome.management.appdetails.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/chrome.management.appdetails.readonly
+      tags:
+      - customers
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/customers/{customersId}/reports:countChromeVersions:
+    get:
+      description: Generate report of installed Chrome versions.
+      operationId: chromemanagement.customers.reports.countChromeVersions
+      parameters:
+      - description: 'Query string to filter results, AND-separated fields in EBNF
+          syntax. Note: OR operations are not supported in this filter. Supported
+          filter fields: * last_active_date'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The ID of the organizational unit.
+        in: query
+        name: orgUnitId
+        schema:
+          type: string
+      - description: Maximum number of results to return. Maximum and default are
+          100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Token to specify the page of the request to be returned.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleChromeManagementV1CountChromeVersionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/chrome.management.reports.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/chrome.management.reports.readonly
+      tags:
+      - customers
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/customers/{customersId}/reports:countInstalledApps:
+    get:
+      description: Generate report of app installations.
+      operationId: chromemanagement.customers.reports.countInstalledApps
+      parameters:
+      - description: 'Query string to filter results, AND-separated fields in EBNF
+          syntax. Note: OR operations are not supported in this filter. Supported
+          filter fields: * app_name * app_type * install_type * number_of_permissions
+          * total_install_count * latest_profile_active_date * permission_name'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: 'Field used to order results. Supported order by fields: * app_name
+          * app_type * install_type * number_of_permissions * total_install_count'
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: The ID of the organizational unit.
+        in: query
+        name: orgUnitId
+        schema:
+          type: string
+      - description: Maximum number of results to return. Maximum and default are
+          100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Token to specify the page of the request to be returned.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleChromeManagementV1CountInstalledAppsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/chrome.management.reports.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/chrome.management.reports.readonly
+      tags:
+      - customers
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/customers/{customersId}/reports:findInstalledAppDevices:
+    get:
+      description: Generate report of devices that have a specified app installed.
+      operationId: chromemanagement.customers.reports.findInstalledAppDevices
+      parameters:
+      - description: Unique identifier of the app. For Chrome apps and extensions,
+          the 32-character id (e.g. ehoadneljpdggcbbknedodolkkjodefl). For Android
+          apps, the package name (e.g. com.evernote).
+        in: query
+        name: appId
+        schema:
+          type: string
+      - description: Type of the app.
+        in: query
+        name: appType
+        schema:
+          enum:
+          - APP_TYPE_UNSPECIFIED
+          - EXTENSION
+          - APP
+          - THEME
+          - HOSTED_APP
+          - ANDROID_APP
+          type: string
+      - description: 'Query string to filter results, AND-separated fields in EBNF
+          syntax. Note: OR operations are not supported in this filter. Supported
+          filter fields: * last_active_date'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: 'Field used to order results. Supported order by fields: * machine
+          * device_id'
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: The ID of the organizational unit.
+        in: query
+        name: orgUnitId
+        schema:
+          type: string
+      - description: Maximum number of results to return. Maximum and default are
+          100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Token to specify the page of the request to be returned.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleChromeManagementV1FindInstalledAppDevicesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/chrome.management.reports.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/chrome.management.reports.readonly
+      tags:
+      - customers
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /v1/{customer}/apps:countChromeAppRequests:
     get:
       description: Generate summary of app installation requests.

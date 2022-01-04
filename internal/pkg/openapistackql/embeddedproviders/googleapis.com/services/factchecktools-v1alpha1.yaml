@@ -324,22 +324,20 @@ components:
       type: oauth2
   x-stackQL-resources:
     claims:
-      id: google.services.claims
+      id: google.factchecktools.claims
       methods:
         search:
           operation:
             $ref: get
           path:
             $ref: /v1alpha1/claims:search
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: claims
       title: claims
     pages:
-      id: google.services.pages
+      id: google.factchecktools.pages
       methods:
         create:
           operation:
@@ -355,9 +353,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/pages/{pagesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -365,9 +361,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/pages/{pagesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -376,8 +370,6 @@ components:
             $ref: get
           path:
             $ref: /v1alpha1/pages
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -385,7 +377,7 @@ components:
           operation:
             $ref: put
           path:
-            $ref: /v1alpha1/{name}
+            $ref: /v1alpha1/pages/{pagesId}
           request:
             mediaType: application/json
           response:
@@ -567,6 +559,96 @@ paths:
     post:
       description: Create `ClaimReview` markup on a page.
       operationId: factchecktools.pages.create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleFactcheckingFactchecktoolsV1alpha1ClaimReviewMarkupPage'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFactcheckingFactchecktoolsV1alpha1ClaimReviewMarkupPage'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - pages
+  /v1alpha1/pages/{pagesId}:
+    delete:
+      description: Delete all `ClaimReview` markup on a page.
+      operationId: factchecktools.pages.delete
+      parameters:
+      - in: path
+        name: pagesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - pages
+    get:
+      description: Get all `ClaimReview` markup on a page.
+      operationId: factchecktools.pages.get
+      parameters:
+      - in: path
+        name: pagesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFactcheckingFactchecktoolsV1alpha1ClaimReviewMarkupPage'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - pages
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Update for all `ClaimReview` markup on a page Note that this is
+        a full update. To retain the existing `ClaimReview` markup on a page, first
+        perform a Get operation, then modify the returned markup, and finally call
+        Update with the entire `ClaimReview` markup as the body.
+      operationId: factchecktools.pages.update
+      parameters:
+      - in: path
+        name: pagesId
+        required: true
+        schema:
+          type: string
       requestBody:
         content:
           application/json:

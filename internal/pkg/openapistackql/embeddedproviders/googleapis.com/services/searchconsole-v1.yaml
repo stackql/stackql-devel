@@ -483,7 +483,7 @@ components:
       type: oauth2
   x-stackQL-resources:
     searchanalytics:
-      id: google.services.searchanalytics
+      id: google.searchconsole.searchanalytics
       methods:
         query:
           operation:
@@ -498,25 +498,20 @@ components:
       name: searchanalytics
       title: searchanalytics
     sitemaps:
-      id: google.services.sitemaps
+      id: google.searchconsole.sitemaps
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /webmasters/v3/sites/{siteUrl}/sitemaps/{feedpath}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /webmasters/v3/sites/{siteUrl}/sitemaps/{feedpath}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -525,8 +520,6 @@ components:
             $ref: get
           path:
             $ref: /webmasters/v3/sites/{siteUrl}/sitemaps
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -535,43 +528,32 @@ components:
             $ref: put
           path:
             $ref: /webmasters/v3/sites/{siteUrl}/sitemaps/{feedpath}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
       name: sitemaps
       title: sitemaps
     sites:
-      id: google.services.sites
+      id: google.searchconsole.sites
       methods:
         add:
           operation:
             $ref: put
           path:
             $ref: /webmasters/v3/sites/{siteUrl}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         delete:
           operation:
             $ref: delete
           path:
             $ref: /webmasters/v3/sites/{siteUrl}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /webmasters/v3/sites/{siteUrl}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -580,25 +562,13 @@ components:
             $ref: get
           path:
             $ref: /webmasters/v3/sites
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: sites
       title: sites
-    urlTestingTools:
-      id: google.services.urlTestingTools
-      methods: {}
-      name: urlTestingTools
-      title: urlTestingTools
-    urlTestingTools.resources:
-      id: google.services.urlTestingTools.resources
-      methods: {}
-      name: urlTestingTools.resources
-      title: urlTestingTools.resources
-    urlTestingTools.resources.mobileFriendlyTest:
-      id: google.services.urlTestingTools.resources.mobileFriendlyTest
+    urlTestingTools.mobileFriendlyTest:
+      id: google.searchconsole.urlTestingTools.mobileFriendlyTest
       methods:
         run:
           operation:
@@ -610,8 +580,8 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: urlTestingTools.resources.mobileFriendlyTest
-      title: urlTestingTools.resources.mobileFriendlyTest
+      name: urlTestingTools.mobileFriendlyTest
+      title: urlTestingTools.mobileFriendlyTest
 externalDocs:
   url: https://developers.google.com/webmaster-tools/search-console-api/
 info:

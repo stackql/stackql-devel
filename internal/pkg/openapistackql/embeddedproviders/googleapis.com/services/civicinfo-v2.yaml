@@ -810,30 +810,26 @@ components:
       type: object
   x-stackQL-resources:
     divisions:
-      id: google.services.divisions
+      id: google.civicinfo.divisions
       methods:
         search:
           operation:
             $ref: get
           path:
             $ref: /civicinfo/v2/divisions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: divisions
       title: divisions
     elections:
-      id: google.services.elections
+      id: google.civicinfo.elections
       methods:
         electionQuery:
           operation:
             $ref: get
           path:
             $ref: /civicinfo/v2/elections
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -842,23 +838,19 @@ components:
             $ref: get
           path:
             $ref: /civicinfo/v2/voterinfo
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: elections
       title: elections
     representatives:
-      id: google.services.representatives
+      id: google.civicinfo.representatives
       methods:
         representativeInfoByAddress:
           operation:
             $ref: get
           path:
             $ref: /civicinfo/v2/representatives
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -867,8 +859,6 @@ components:
             $ref: get
           path:
             $ref: /civicinfo/v2/representatives/{ocdId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

@@ -1060,15 +1060,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     users:
-      id: google.services.users
+      id: google.gmail.users
       methods:
         getProfile:
           operation:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/profile
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1077,10 +1075,7 @@ components:
             $ref: post
           path:
             $ref: /gmail/v1/users/{userId}/stop
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         watch:
           operation:
@@ -1094,13 +1089,8 @@ components:
             openAPIDocKey: '200'
       name: users
       title: users
-    users.resources:
-      id: google.services.users.resources
-      methods: {}
-      name: users.resources
-      title: users.resources
-    users.resources.drafts:
-      id: google.services.users.resources.drafts
+    users.drafts:
+      id: google.gmail.users.drafts
       methods:
         create:
           operation:
@@ -1108,7 +1098,7 @@ components:
           path:
             $ref: /gmail/v1/users/{userId}/drafts
           request:
-            mediaType: application/json
+            mediaType: message/cpim
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1117,18 +1107,13 @@ components:
             $ref: delete
           path:
             $ref: /gmail/v1/users/{userId}/drafts/{id}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/drafts/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1137,8 +1122,6 @@ components:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/drafts
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1148,7 +1131,7 @@ components:
           path:
             $ref: /gmail/v1/users/{userId}/drafts/send
           request:
-            mediaType: application/json
+            mediaType: message/cpim
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1158,29 +1141,27 @@ components:
           path:
             $ref: /gmail/v1/users/{userId}/drafts/{id}
           request:
-            mediaType: application/json
+            mediaType: message/cpim
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: users.resources.drafts
-      title: users.resources.drafts
-    users.resources.history:
-      id: google.services.users.resources.history
+      name: users.drafts
+      title: users.drafts
+    users.history:
+      id: google.gmail.users.history
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/history
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: users.resources.history
-      title: users.resources.history
-    users.resources.labels:
-      id: google.services.users.resources.labels
+      name: users.history
+      title: users.history
+    users.labels:
+      id: google.gmail.users.labels
       methods:
         create:
           operation:
@@ -1197,18 +1178,13 @@ components:
             $ref: delete
           path:
             $ref: /gmail/v1/users/{userId}/labels/{id}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/labels/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1217,8 +1193,6 @@ components:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/labels
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1242,10 +1216,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: users.resources.labels
-      title: users.resources.labels
-    users.resources.messages:
-      id: google.services.users.resources.messages
+      name: users.labels
+      title: users.labels
+    users.messages:
+      id: google.gmail.users.messages
       methods:
         batchDelete:
           operation:
@@ -1255,7 +1229,6 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         batchModify:
           operation:
@@ -1265,25 +1238,19 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         delete:
           operation:
             $ref: delete
           path:
             $ref: /gmail/v1/users/{userId}/messages/{id}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/messages/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1293,7 +1260,7 @@ components:
           path:
             $ref: /gmail/v1/users/{userId}/messages/import
           request:
-            mediaType: application/json
+            mediaType: message/cpim
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1303,7 +1270,7 @@ components:
           path:
             $ref: /gmail/v1/users/{userId}/messages
           request:
-            mediaType: application/json
+            mediaType: message/cpim
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1312,8 +1279,6 @@ components:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/messages
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1333,7 +1298,7 @@ components:
           path:
             $ref: /gmail/v1/users/{userId}/messages/send
           request:
-            mediaType: application/json
+            mediaType: message/cpim
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1342,8 +1307,6 @@ components:
             $ref: post
           path:
             $ref: /gmail/v1/users/{userId}/messages/{id}/trash
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1352,43 +1315,32 @@ components:
             $ref: post
           path:
             $ref: /gmail/v1/users/{userId}/messages/{id}/untrash
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: users.resources.messages
-      title: users.resources.messages
-    users.resources.messages.resources:
-      id: google.services.users.resources.messages.resources
-      methods: {}
-      name: users.resources.messages.resources
-      title: users.resources.messages.resources
-    users.resources.messages.resources.attachments:
-      id: google.services.users.resources.messages.resources.attachments
+      name: users.messages
+      title: users.messages
+    users.messages.attachments:
+      id: google.gmail.users.messages.attachments
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/messages/{messageId}/attachments/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: users.resources.messages.resources.attachments
-      title: users.resources.messages.resources.attachments
-    users.resources.settings:
-      id: google.services.users.resources.settings
+      name: users.messages.attachments
+      title: users.messages.attachments
+    users.settings:
+      id: google.gmail.users.settings
       methods:
         getAutoForwarding:
           operation:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/settings/autoForwarding
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1397,8 +1349,6 @@ components:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/settings/imap
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1407,8 +1357,6 @@ components:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/settings/language
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1417,8 +1365,6 @@ components:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/settings/pop
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1427,8 +1373,6 @@ components:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/settings/vacation
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1482,15 +1426,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: users.resources.settings
-      title: users.resources.settings
-    users.resources.settings.resources:
-      id: google.services.users.resources.settings.resources
-      methods: {}
-      name: users.resources.settings.resources
-      title: users.resources.settings.resources
-    users.resources.settings.resources.delegates:
-      id: google.services.users.resources.settings.resources.delegates
+      name: users.settings
+      title: users.settings
+    users.settings.delegates:
+      id: google.gmail.users.settings.delegates
       methods:
         create:
           operation:
@@ -1507,18 +1446,13 @@ components:
             $ref: delete
           path:
             $ref: /gmail/v1/users/{userId}/settings/delegates/{delegateEmail}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/settings/delegates/{delegateEmail}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1527,15 +1461,13 @@ components:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/settings/delegates
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: users.resources.settings.resources.delegates
-      title: users.resources.settings.resources.delegates
-    users.resources.settings.resources.filters:
-      id: google.services.users.resources.settings.resources.filters
+      name: users.settings.delegates
+      title: users.settings.delegates
+    users.settings.filters:
+      id: google.gmail.users.settings.filters
       methods:
         create:
           operation:
@@ -1552,18 +1484,13 @@ components:
             $ref: delete
           path:
             $ref: /gmail/v1/users/{userId}/settings/filters/{id}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/settings/filters/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1572,15 +1499,13 @@ components:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/settings/filters
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: users.resources.settings.resources.filters
-      title: users.resources.settings.resources.filters
-    users.resources.settings.resources.forwardingAddresses:
-      id: google.services.users.resources.settings.resources.forwardingAddresses
+      name: users.settings.filters
+      title: users.settings.filters
+    users.settings.forwardingAddresses:
+      id: google.gmail.users.settings.forwardingAddresses
       methods:
         create:
           operation:
@@ -1597,18 +1522,13 @@ components:
             $ref: delete
           path:
             $ref: /gmail/v1/users/{userId}/settings/forwardingAddresses/{forwardingEmail}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/settings/forwardingAddresses/{forwardingEmail}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1617,15 +1537,13 @@ components:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/settings/forwardingAddresses
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: users.resources.settings.resources.forwardingAddresses
-      title: users.resources.settings.resources.forwardingAddresses
-    users.resources.settings.resources.sendAs:
-      id: google.services.users.resources.settings.resources.sendAs
+      name: users.settings.forwardingAddresses
+      title: users.settings.forwardingAddresses
+    users.settings.sendAs:
+      id: google.gmail.users.settings.sendAs
       methods:
         create:
           operation:
@@ -1642,18 +1560,13 @@ components:
             $ref: delete
           path:
             $ref: /gmail/v1/users/{userId}/settings/sendAs/{sendAsEmail}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/settings/sendAs/{sendAsEmail}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1662,8 +1575,6 @@ components:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/settings/sendAs
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1692,38 +1603,25 @@ components:
             $ref: post
           path:
             $ref: /gmail/v1/users/{userId}/settings/sendAs/{sendAsEmail}/verify
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
-      name: users.resources.settings.resources.sendAs
-      title: users.resources.settings.resources.sendAs
-    users.resources.settings.resources.sendAs.resources:
-      id: google.services.users.resources.settings.resources.sendAs.resources
-      methods: {}
-      name: users.resources.settings.resources.sendAs.resources
-      title: users.resources.settings.resources.sendAs.resources
-    users.resources.settings.resources.sendAs.resources.smimeInfo:
-      id: google.services.users.resources.settings.resources.sendAs.resources.smimeInfo
+      name: users.settings.sendAs
+      title: users.settings.sendAs
+    users.settings.sendAs.smimeInfo:
+      id: google.gmail.users.settings.sendAs.smimeInfo
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /gmail/v1/users/{userId}/settings/sendAs/{sendAsEmail}/smimeInfo/{id}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/settings/sendAs/{sendAsEmail}/smimeInfo/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1742,8 +1640,6 @@ components:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/settings/sendAs/{sendAsEmail}/smimeInfo
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1752,33 +1648,25 @@ components:
             $ref: post
           path:
             $ref: /gmail/v1/users/{userId}/settings/sendAs/{sendAsEmail}/smimeInfo/{id}/setDefault
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
-      name: users.resources.settings.resources.sendAs.resources.smimeInfo
-      title: users.resources.settings.resources.sendAs.resources.smimeInfo
-    users.resources.threads:
-      id: google.services.users.resources.threads
+      name: users.settings.sendAs.smimeInfo
+      title: users.settings.sendAs.smimeInfo
+    users.threads:
+      id: google.gmail.users.threads
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /gmail/v1/users/{userId}/threads/{id}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/threads/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1787,8 +1675,6 @@ components:
             $ref: get
           path:
             $ref: /gmail/v1/users/{userId}/threads
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1807,8 +1693,6 @@ components:
             $ref: post
           path:
             $ref: /gmail/v1/users/{userId}/threads/{id}/trash
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1817,13 +1701,11 @@ components:
             $ref: post
           path:
             $ref: /gmail/v1/users/{userId}/threads/{id}/untrash
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: users.resources.threads
-      title: users.resources.threads
+      name: users.threads
+      title: users.threads
 externalDocs:
   url: https://developers.google.com/gmail/api/
 info:

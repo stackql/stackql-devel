@@ -93,15 +93,13 @@ components:
       type: object
   x-stackQL-resources:
     entities:
-      id: google.services.entities
+      id: google.kgsearch.entities
       methods:
         search:
           operation:
             $ref: get
           path:
             $ref: /v1/entities:search
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

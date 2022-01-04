@@ -233,24 +233,14 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    enterprises:
-      id: google.services.enterprises
-      methods: {}
-      name: enterprises
-      title: enterprises
-    enterprises.resources:
-      id: google.services.enterprises.resources
-      methods: {}
-      name: enterprises.resources
-      title: enterprises.resources
-    enterprises.resources.devices:
-      id: google.services.enterprises.resources.devices
+    enterprises.devices:
+      id: google.smartdevicemanagement.enterprises.devices
       methods:
         executeCommand:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:executeCommand
+            $ref: /v1/enterprises/{enterprisesId}/devices/{devicesId}:executeCommand
           request:
             mediaType: application/json
           response:
@@ -260,9 +250,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/devices/{devicesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -270,24 +258,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/devices
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/devices
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: enterprises.resources.devices
-      title: enterprises.resources.devices
-    enterprises.resources.structures:
-      id: google.services.enterprises.resources.structures
+      name: enterprises.devices
+      title: enterprises.devices
+    enterprises.structures:
+      id: google.smartdevicemanagement.enterprises.structures
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/structures/{structuresId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -295,29 +279,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/structures
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/structures
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: enterprises.resources.structures
-      title: enterprises.resources.structures
-    enterprises.resources.structures.resources:
-      id: google.services.enterprises.resources.structures.resources
-      methods: {}
-      name: enterprises.resources.structures.resources
-      title: enterprises.resources.structures.resources
-    enterprises.resources.structures.resources.rooms:
-      id: google.services.enterprises.resources.structures.resources.rooms
+      name: enterprises.structures
+      title: enterprises.structures
+    enterprises.structures.rooms:
+      id: google.smartdevicemanagement.enterprises.structures.rooms
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/structures/{structuresId}/rooms/{roomsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -325,14 +300,12 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/rooms
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/structures/{structuresId}/rooms
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: enterprises.resources.structures.resources.rooms
-      title: enterprises.resources.structures.resources.rooms
+      name: enterprises.structures.rooms
+      title: enterprises.structures.rooms
 externalDocs:
   url: https://developers.google.com/nest/device-access
 info:
@@ -361,6 +334,365 @@ info:
   x-serviceName: smartdevicemanagement
 openapi: 3.0.0
 paths:
+  /v1/enterprises/{enterprisesId}/devices:
+    get:
+      description: Lists devices managed by the enterprise.
+      operationId: smartdevicemanagement.enterprises.devices.list
+      parameters:
+      - description: 'Optional filter to list devices. Filters can be done on: Device
+          custom name (substring match): ''customName=wing'''
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional requested page size. Server may return fewer devices
+          than requested. If unspecified, server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional token of the page to retrieve.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleHomeEnterpriseSdmV1ListDevicesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/sdm.service
+        Oauth2c:
+        - https://www.googleapis.com/auth/sdm.service
+      - Oauth2:
+        - https://www.googleapis.com/auth/sdm.thermostat.service
+        Oauth2c:
+        - https://www.googleapis.com/auth/sdm.thermostat.service
+      tags:
+      - enterprises
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/enterprises/{enterprisesId}/devices/{devicesId}:
+    get:
+      description: Gets a room managed by the enterprise.
+      operationId: smartdevicemanagement.enterprises.structures.rooms.get
+      parameters:
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleHomeEnterpriseSdmV1Room'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/sdm.service
+        Oauth2c:
+        - https://www.googleapis.com/auth/sdm.service
+      - Oauth2:
+        - https://www.googleapis.com/auth/sdm.thermostat.service
+        Oauth2c:
+        - https://www.googleapis.com/auth/sdm.thermostat.service
+      tags:
+      - enterprises
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/enterprises/{enterprisesId}/devices/{devicesId}:executeCommand:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Executes a command to device managed by the enterprise.
+      operationId: smartdevicemanagement.enterprises.devices.executeCommand
+      parameters:
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleHomeEnterpriseSdmV1ExecuteDeviceCommandRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleHomeEnterpriseSdmV1ExecuteDeviceCommandResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/sdm.service
+        Oauth2c:
+        - https://www.googleapis.com/auth/sdm.service
+      - Oauth2:
+        - https://www.googleapis.com/auth/sdm.thermostat.service
+        Oauth2c:
+        - https://www.googleapis.com/auth/sdm.thermostat.service
+      tags:
+      - enterprises
+  /v1/enterprises/{enterprisesId}/structures:
+    get:
+      description: Lists structures managed by the enterprise.
+      operationId: smartdevicemanagement.enterprises.structures.list
+      parameters:
+      - description: Optional filter to list structures.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Requested page size. Server may return fewer structures than
+          requested. If unspecified, server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The token of the page to retrieve.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleHomeEnterpriseSdmV1ListStructuresResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/sdm.service
+        Oauth2c:
+        - https://www.googleapis.com/auth/sdm.service
+      - Oauth2:
+        - https://www.googleapis.com/auth/sdm.thermostat.service
+        Oauth2c:
+        - https://www.googleapis.com/auth/sdm.thermostat.service
+      tags:
+      - enterprises
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/enterprises/{enterprisesId}/structures/{structuresId}:
+    get:
+      description: Gets a room managed by the enterprise.
+      operationId: smartdevicemanagement.enterprises.structures.rooms.get
+      parameters:
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: structuresId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleHomeEnterpriseSdmV1Room'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/sdm.service
+        Oauth2c:
+        - https://www.googleapis.com/auth/sdm.service
+      - Oauth2:
+        - https://www.googleapis.com/auth/sdm.thermostat.service
+        Oauth2c:
+        - https://www.googleapis.com/auth/sdm.thermostat.service
+      tags:
+      - enterprises
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/enterprises/{enterprisesId}/structures/{structuresId}/rooms:
+    get:
+      description: Lists rooms managed by the enterprise.
+      operationId: smartdevicemanagement.enterprises.structures.rooms.list
+      parameters:
+      - description: Requested page size. Server may return fewer rooms than requested.
+          If unspecified, server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The token of the page to retrieve.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: structuresId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleHomeEnterpriseSdmV1ListRoomsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/sdm.service
+        Oauth2c:
+        - https://www.googleapis.com/auth/sdm.service
+      - Oauth2:
+        - https://www.googleapis.com/auth/sdm.thermostat.service
+        Oauth2c:
+        - https://www.googleapis.com/auth/sdm.thermostat.service
+      tags:
+      - enterprises
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/enterprises/{enterprisesId}/structures/{structuresId}/rooms/{roomsId}:
+    get:
+      description: Gets a room managed by the enterprise.
+      operationId: smartdevicemanagement.enterprises.structures.rooms.get
+      parameters:
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: structuresId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: roomsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleHomeEnterpriseSdmV1Room'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/sdm.service
+        Oauth2c:
+        - https://www.googleapis.com/auth/sdm.service
+      - Oauth2:
+        - https://www.googleapis.com/auth/sdm.thermostat.service
+        Oauth2c:
+        - https://www.googleapis.com/auth/sdm.thermostat.service
+      tags:
+      - enterprises
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /v1/{name}:
     get:
       description: Gets a room managed by the enterprise.

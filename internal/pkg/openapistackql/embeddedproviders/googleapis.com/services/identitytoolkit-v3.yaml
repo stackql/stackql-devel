@@ -1413,7 +1413,7 @@ components:
       type: oauth2
   x-stackQL-resources:
     relyingparty:
-      id: google.services.relyingparty
+      id: google.identitytoolkit.relyingparty
       methods:
         createAuthUri:
           operation:
@@ -1480,8 +1480,6 @@ components:
             $ref: get
           path:
             $ref: /getProjectConfig
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1490,8 +1488,6 @@ components:
             $ref: get
           path:
             $ref: /publicKeys
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1500,8 +1496,6 @@ components:
             $ref: get
           path:
             $ref: /getRecaptchaParam
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

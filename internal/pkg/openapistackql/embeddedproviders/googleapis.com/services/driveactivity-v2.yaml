@@ -847,7 +847,7 @@ components:
       type: oauth2
   x-stackQL-resources:
     activity:
-      id: google.services.activity
+      id: google.driveactivity.activity
       methods:
         query:
           operation:

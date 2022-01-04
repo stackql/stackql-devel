@@ -109,15 +109,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     archive:
-      id: google.services.archive
+      id: google.groupsmigration.archive
       methods:
         insert:
           operation:
             $ref: post
           path:
             $ref: /groups/v1/groups/{groupId}/archive
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

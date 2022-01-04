@@ -514,15 +514,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     customers:
-      id: google.services.customers
+      id: google.reseller.customers
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /apps/reseller/v1/customers/{customerId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -559,15 +557,13 @@ components:
       name: customers
       title: customers
     resellernotify:
-      id: google.services.resellernotify
+      id: google.reseller.resellernotify
       methods:
         getwatchdetails:
           operation:
             $ref: get
           path:
             $ref: /apps/reseller/v1/resellernotify/getwatchdetails
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -576,8 +572,6 @@ components:
             $ref: post
           path:
             $ref: /apps/reseller/v1/resellernotify/register
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -586,23 +580,19 @@ components:
             $ref: post
           path:
             $ref: /apps/reseller/v1/resellernotify/unregister
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: resellernotify
       title: resellernotify
     subscriptions:
-      id: google.services.subscriptions
+      id: google.reseller.subscriptions
       methods:
         activate:
           operation:
             $ref: post
           path:
             $ref: /apps/reseller/v1/customers/{customerId}/subscriptions/{subscriptionId}/activate
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -641,18 +631,13 @@ components:
             $ref: delete
           path:
             $ref: /apps/reseller/v1/customers/{customerId}/subscriptions/{subscriptionId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /apps/reseller/v1/customers/{customerId}/subscriptions/{subscriptionId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -671,8 +656,6 @@ components:
             $ref: get
           path:
             $ref: /apps/reseller/v1/subscriptions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -681,8 +664,6 @@ components:
             $ref: post
           path:
             $ref: /apps/reseller/v1/customers/{customerId}/subscriptions/{subscriptionId}/startPaidService
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -691,8 +672,6 @@ components:
             $ref: post
           path:
             $ref: /apps/reseller/v1/customers/{customerId}/subscriptions/{subscriptionId}/suspend
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

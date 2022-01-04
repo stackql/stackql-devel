@@ -146,7 +146,7 @@ components:
       type: object
   x-stackQL-resources:
     ampUrls:
-      id: google.services.ampUrls
+      id: google.acceleratedmobilepageurl.ampUrls
       methods:
         batchGet:
           operation:

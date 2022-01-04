@@ -533,38 +533,26 @@ components:
       type: oauth2
   x-stackQL-resources:
     jwks:
-      id: google.services.jwks
+      id: google.firebaseappcheck.jwks
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1beta/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta/jwks
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: jwks
       title: jwks
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.apps:
-      id: google.services.projects.resources.apps
+    projects.apps:
+      id: google.firebaseappcheck.projects.apps
       methods:
         exchangeAppAttestAssertion:
           operation:
             $ref: post
           path:
-            $ref: /v1beta/{app}:exchangeAppAttestAssertion
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}:exchangeAppAttestAssertion
           request:
             mediaType: application/json
           response:
@@ -574,7 +562,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta/{app}:exchangeAppAttestAttestation
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}:exchangeAppAttestAttestation
           request:
             mediaType: application/json
           response:
@@ -584,7 +572,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta/{app}:exchangeCustomToken
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}:exchangeCustomToken
           request:
             mediaType: application/json
           response:
@@ -594,7 +582,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta/{app}:exchangeDebugToken
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}:exchangeDebugToken
           request:
             mediaType: application/json
           response:
@@ -604,17 +592,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta/{app}:exchangeDeviceCheckToken
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        exchangeRecaptchaEnterpriseToken:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1beta/{app}:exchangeRecaptchaEnterpriseToken
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}:exchangeDeviceCheckToken
           request:
             mediaType: application/json
           response:
@@ -624,7 +602,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta/{app}:exchangeRecaptchaToken
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}:exchangeRecaptchaToken
           request:
             mediaType: application/json
           response:
@@ -634,7 +612,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta/{app}:exchangeSafetyNetToken
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}:exchangeSafetyNetToken
           request:
             mediaType: application/json
           response:
@@ -644,29 +622,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta/{app}:generateAppAttestChallenge
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}:generateAppAttestChallenge
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.apps
-      title: projects.resources.apps
-    projects.resources.apps.resources:
-      id: google.services.projects.resources.apps.resources
-      methods: {}
-      name: projects.resources.apps.resources
-      title: projects.resources.apps.resources
-    projects.resources.apps.resources.appAttestConfig:
-      id: google.services.projects.resources.apps.resources.appAttestConfig
+      name: projects.apps
+      title: projects.apps
+    projects.apps.appAttestConfig:
+      id: google.firebaseappcheck.projects.apps.appAttestConfig
       methods:
         batchGet:
           operation:
             $ref: get
           path:
-            $ref: /v1beta/{parent}/apps/-/appAttestConfig:batchGet
-          request:
-            mediaType: application/json
+            $ref: /v1beta/projects/{projectsId}/apps/-/appAttestConfig:batchGet
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -674,9 +645,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}/appAttestConfig
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -684,22 +653,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1beta/{name}
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}/appAttestConfig
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.apps.resources.appAttestConfig
-      title: projects.resources.apps.resources.appAttestConfig
-    projects.resources.apps.resources.debugTokens:
-      id: google.services.projects.resources.apps.resources.debugTokens
+      name: projects.apps.appAttestConfig
+      title: projects.apps.appAttestConfig
+    projects.apps.debugTokens:
+      id: google.firebaseappcheck.projects.apps.debugTokens
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1beta/{parent}/debugTokens
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}/debugTokens
           request:
             mediaType: application/json
           response:
@@ -709,9 +678,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1beta/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}/debugTokens/{debugTokensId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -719,9 +686,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}/debugTokens/{debugTokensId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -729,9 +694,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta/{parent}/debugTokens
-          request:
-            mediaType: application/json
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}/debugTokens
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -739,24 +702,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1beta/{name}
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}/debugTokens/{debugTokensId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.apps.resources.debugTokens
-      title: projects.resources.apps.resources.debugTokens
-    projects.resources.apps.resources.deviceCheckConfig:
-      id: google.services.projects.resources.apps.resources.deviceCheckConfig
+      name: projects.apps.debugTokens
+      title: projects.apps.debugTokens
+    projects.apps.deviceCheckConfig:
+      id: google.firebaseappcheck.projects.apps.deviceCheckConfig
       methods:
         batchGet:
           operation:
             $ref: get
           path:
-            $ref: /v1beta/{parent}/apps/-/deviceCheckConfig:batchGet
-          request:
-            mediaType: application/json
+            $ref: /v1beta/projects/{projectsId}/apps/-/deviceCheckConfig:batchGet
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -764,9 +725,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}/deviceCheckConfig
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -774,24 +733,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1beta/{name}
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}/deviceCheckConfig
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.apps.resources.deviceCheckConfig
-      title: projects.resources.apps.resources.deviceCheckConfig
-    projects.resources.apps.resources.recaptchaConfig:
-      id: google.services.projects.resources.apps.resources.recaptchaConfig
+      name: projects.apps.deviceCheckConfig
+      title: projects.apps.deviceCheckConfig
+    projects.apps.recaptchaConfig:
+      id: google.firebaseappcheck.projects.apps.recaptchaConfig
       methods:
         batchGet:
           operation:
             $ref: get
           path:
-            $ref: /v1beta/{parent}/apps/-/recaptchaConfig:batchGet
-          request:
-            mediaType: application/json
+            $ref: /v1beta/projects/{projectsId}/apps/-/recaptchaConfig:batchGet
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -799,9 +756,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}/recaptchaConfig
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -809,24 +764,45 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1beta/{name}
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}/recaptchaConfig
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.apps.resources.recaptchaConfig
-      title: projects.resources.apps.resources.recaptchaConfig
-    projects.resources.apps.resources.recaptchaEnterpriseConfig:
-      id: google.services.projects.resources.apps.resources.recaptchaEnterpriseConfig
+      name: projects.apps.recaptchaConfig
+      title: projects.apps.recaptchaConfig
+    projects.apps.recaptchaEnterpriseConfig:
+      id: google.firebaseappcheck.projects.apps.recaptchaEnterpriseConfig
+      methods:
+        get:
+          operation:
+            $ref: get
+          path:
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}/recaptchaEnterpriseConfig
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        patch:
+          operation:
+            $ref: patch
+          path:
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}/recaptchaEnterpriseConfig
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: projects.apps.recaptchaEnterpriseConfig
+      title: projects.apps.recaptchaEnterpriseConfig
+    projects.apps.safetyNetConfig:
+      id: google.firebaseappcheck.projects.apps.safetyNetConfig
       methods:
         batchGet:
           operation:
             $ref: get
           path:
-            $ref: /v1beta/{parent}/apps/-/recaptchaEnterpriseConfig:batchGet
-          request:
-            mediaType: application/json
+            $ref: /v1beta/projects/{projectsId}/apps/-/safetyNetConfig:batchGet
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -834,9 +810,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}/safetyNetConfig
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -844,57 +818,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1beta/{name}
+            $ref: /v1beta/projects/{projectsId}/apps/{appsId}/safetyNetConfig
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.apps.resources.recaptchaEnterpriseConfig
-      title: projects.resources.apps.resources.recaptchaEnterpriseConfig
-    projects.resources.apps.resources.safetyNetConfig:
-      id: google.services.projects.resources.apps.resources.safetyNetConfig
-      methods:
-        batchGet:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1beta/{parent}/apps/-/safetyNetConfig:batchGet
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        get:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1beta/{name}
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        patch:
-          operation:
-            $ref: patch
-          path:
-            $ref: /v1beta/{name}
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: projects.resources.apps.resources.safetyNetConfig
-      title: projects.resources.apps.resources.safetyNetConfig
-    projects.resources.services:
-      id: google.services.projects.resources.services
+      name: projects.apps.safetyNetConfig
+      title: projects.apps.safetyNetConfig
+    projects.services:
+      id: google.firebaseappcheck.projects.services
       methods:
         batchUpdate:
           operation:
             $ref: post
           path:
-            $ref: /v1beta/{parent}/services:batchUpdate
+            $ref: /v1beta/projects/{projectsId}/services:batchUpdate
           request:
             mediaType: application/json
           response:
@@ -904,9 +843,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta/projects/{projectsId}/services/{servicesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -914,9 +851,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta/{parent}/services
-          request:
-            mediaType: application/json
+            $ref: /v1beta/projects/{projectsId}/services
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -924,14 +859,14 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1beta/{name}
+            $ref: /v1beta/projects/{projectsId}/services/{servicesId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.services
-      title: projects.resources.services
+      name: projects.services
+      title: projects.services
 externalDocs:
   url: https://firebase.google.com/docs/app-check
 info:
@@ -960,6 +895,1806 @@ info:
   x-serviceName: firebaseappcheck
 openapi: 3.0.0
 paths:
+  /v1beta/jwks:
+    delete:
+      description: Deletes the specified DebugToken. A deleted debug token cannot
+        be used to exchange for an App Check token. Use this method when you suspect
+        the secret `token` has been compromised or when you no longer need the debug
+        token.
+      operationId: firebaseappcheck.projects.apps.debugTokens.delete
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    get:
+      description: Gets the Service configuration for the specified service name.
+      operationId: firebaseappcheck.projects.services.get
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the specified Service configuration.
+      operationId: firebaseappcheck.projects.services.patch
+      parameters:
+      - description: 'Required. A comma-separated list of names of fields in the Service
+          to update. Example: `enforcement_mode`.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1beta/projects/{projectsId}/apps/-/appAttestConfig:batchGet:
+    get:
+      description: Gets the AppAttestConfigs for the specified list of apps atomically.
+      operationId: firebaseappcheck.projects.apps.appAttestConfig.batchGet
+      parameters:
+      - description: Required. The relative resource names of the AppAttestConfigs
+          to retrieve, in the format ``` projects/{project_number}/apps/{app_id}/appAttestConfig
+          ``` A maximum of 100 objects can be retrieved in a batch.
+        explode: true
+        in: query
+        name: names
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaBatchGetAppAttestConfigsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1beta/projects/{projectsId}/apps/-/deviceCheckConfig:batchGet:
+    get:
+      description: Gets the DeviceCheckConfigs for the specified list of apps atomically.
+        For security reasons, the `private_key` field is never populated in the response.
+      operationId: firebaseappcheck.projects.apps.deviceCheckConfig.batchGet
+      parameters:
+      - description: Required. The relative resource names of the DeviceCheckConfigs
+          to retrieve, in the format ``` projects/{project_number}/apps/{app_id}/deviceCheckConfig
+          ``` A maximum of 100 objects can be retrieved in a batch.
+        explode: true
+        in: query
+        name: names
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaBatchGetDeviceCheckConfigsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1beta/projects/{projectsId}/apps/-/recaptchaConfig:batchGet:
+    get:
+      description: Gets the RecaptchaConfigs for the specified list of apps atomically.
+        For security reasons, the `site_secret` field is never populated in the response.
+      operationId: firebaseappcheck.projects.apps.recaptchaConfig.batchGet
+      parameters:
+      - description: 'Required. The relative resource names of the RecaptchaConfigs
+          to retrieve, in the format: ``` projects/{project_number}/apps/{app_id}/recaptchaConfig
+          ``` A maximum of 100 objects can be retrieved in a batch.'
+        explode: true
+        in: query
+        name: names
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaBatchGetRecaptchaConfigsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1beta/projects/{projectsId}/apps/-/safetyNetConfig:batchGet:
+    get:
+      description: Gets the SafetyNetConfigs for the specified list of apps atomically.
+      operationId: firebaseappcheck.projects.apps.safetyNetConfig.batchGet
+      parameters:
+      - description: Required. The relative resource names of the SafetyNetConfigs
+          to retrieve, in the format ``` projects/{project_number}/apps/{app_id}/safetyNetConfig
+          ``` A maximum of 100 objects can be retrieved in a batch.
+        explode: true
+        in: query
+        name: names
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaBatchGetSafetyNetConfigsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1beta/projects/{projectsId}/apps/{appsId}/appAttestConfig:
+    delete:
+      description: Deletes the specified DebugToken. A deleted debug token cannot
+        be used to exchange for an App Check token. Use this method when you suspect
+        the secret `token` has been compromised or when you no longer need the debug
+        token.
+      operationId: firebaseappcheck.projects.apps.debugTokens.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    get:
+      description: Gets the Service configuration for the specified service name.
+      operationId: firebaseappcheck.projects.services.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the specified Service configuration.
+      operationId: firebaseappcheck.projects.services.patch
+      parameters:
+      - description: 'Required. A comma-separated list of names of fields in the Service
+          to update. Example: `enforcement_mode`.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1beta/projects/{projectsId}/apps/{appsId}/debugTokens:
+    get:
+      description: Lists all DebugTokens for the specified app. For security reasons,
+        the `token` field is never populated in the response.
+      operationId: firebaseappcheck.projects.apps.debugTokens.list
+      parameters:
+      - description: The maximum number of DebugTokens to return in the response.
+          Note that an app can have at most 20 debug tokens. The server may return
+          fewer than this at its own discretion. If no value is specified (or too
+          large a value is specified), the server will impose its own limit.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Token returned from a previous call to ListDebugTokens indicating
+          where in the set of DebugTokens to resume listing. Provide this to retrieve
+          the subsequent page. When paginating, all other parameters provided to ListDebugTokens
+          must match the call that provided the page token; if they do not match,
+          the result is undefined.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaListDebugTokensResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new DebugToken for the specified app. For security reasons,
+        after the creation operation completes, the `token` field cannot be updated
+        or retrieved, but you can revoke the debug token using DeleteDebugToken. Each
+        app can have a maximum of 20 debug tokens.
+      operationId: firebaseappcheck.projects.apps.debugTokens.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaDebugToken'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaDebugToken'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1beta/projects/{projectsId}/apps/{appsId}/debugTokens/{debugTokensId}:
+    delete:
+      description: Deletes the specified DebugToken. A deleted debug token cannot
+        be used to exchange for an App Check token. Use this method when you suspect
+        the secret `token` has been compromised or when you no longer need the debug
+        token.
+      operationId: firebaseappcheck.projects.apps.debugTokens.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: debugTokensId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    get:
+      description: Gets the Service configuration for the specified service name.
+      operationId: firebaseappcheck.projects.services.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: debugTokensId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the specified Service configuration.
+      operationId: firebaseappcheck.projects.services.patch
+      parameters:
+      - description: 'Required. A comma-separated list of names of fields in the Service
+          to update. Example: `enforcement_mode`.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: debugTokensId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1beta/projects/{projectsId}/apps/{appsId}/deviceCheckConfig:
+    delete:
+      description: Deletes the specified DebugToken. A deleted debug token cannot
+        be used to exchange for an App Check token. Use this method when you suspect
+        the secret `token` has been compromised or when you no longer need the debug
+        token.
+      operationId: firebaseappcheck.projects.apps.debugTokens.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    get:
+      description: Gets the Service configuration for the specified service name.
+      operationId: firebaseappcheck.projects.services.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the specified Service configuration.
+      operationId: firebaseappcheck.projects.services.patch
+      parameters:
+      - description: 'Required. A comma-separated list of names of fields in the Service
+          to update. Example: `enforcement_mode`.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1beta/projects/{projectsId}/apps/{appsId}/recaptchaConfig:
+    delete:
+      description: Deletes the specified DebugToken. A deleted debug token cannot
+        be used to exchange for an App Check token. Use this method when you suspect
+        the secret `token` has been compromised or when you no longer need the debug
+        token.
+      operationId: firebaseappcheck.projects.apps.debugTokens.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    get:
+      description: Gets the Service configuration for the specified service name.
+      operationId: firebaseappcheck.projects.services.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the specified Service configuration.
+      operationId: firebaseappcheck.projects.services.patch
+      parameters:
+      - description: 'Required. A comma-separated list of names of fields in the Service
+          to update. Example: `enforcement_mode`.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1beta/projects/{projectsId}/apps/{appsId}/recaptchaEnterpriseConfig:
+    delete:
+      description: Deletes the specified DebugToken. A deleted debug token cannot
+        be used to exchange for an App Check token. Use this method when you suspect
+        the secret `token` has been compromised or when you no longer need the debug
+        token.
+      operationId: firebaseappcheck.projects.apps.debugTokens.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    get:
+      description: Gets the Service configuration for the specified service name.
+      operationId: firebaseappcheck.projects.services.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the specified Service configuration.
+      operationId: firebaseappcheck.projects.services.patch
+      parameters:
+      - description: 'Required. A comma-separated list of names of fields in the Service
+          to update. Example: `enforcement_mode`.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1beta/projects/{projectsId}/apps/{appsId}/safetyNetConfig:
+    delete:
+      description: Deletes the specified DebugToken. A deleted debug token cannot
+        be used to exchange for an App Check token. Use this method when you suspect
+        the secret `token` has been compromised or when you no longer need the debug
+        token.
+      operationId: firebaseappcheck.projects.apps.debugTokens.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    get:
+      description: Gets the Service configuration for the specified service name.
+      operationId: firebaseappcheck.projects.services.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the specified Service configuration.
+      operationId: firebaseappcheck.projects.services.patch
+      parameters:
+      - description: 'Required. A comma-separated list of names of fields in the Service
+          to update. Example: `enforcement_mode`.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1beta/projects/{projectsId}/apps/{appsId}:exchangeAppAttestAssertion:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Accepts an App Attest assertion and an artifact previously obtained
+        from ExchangeAppAttestAttestation and verifies those with Apple. If valid,
+        returns an App Check token encapsulated in an AttestationTokenResponse.
+      operationId: firebaseappcheck.projects.apps.exchangeAppAttestAssertion
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaExchangeAppAttestAssertionRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaAttestationTokenResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1beta/projects/{projectsId}/apps/{appsId}:exchangeAppAttestAttestation:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Accepts an App Attest CBOR attestation and verifies it with Apple
+        using the developer's preconfigured team and bundle IDs. If valid, returns
+        an attestation artifact that can later be exchanged for an AttestationTokenResponse
+        using ExchangeAppAttestAssertion. For convenience and performance, this method's
+        response object will also contain an App Check token encapsulated in an AttestationTokenResponse
+        (if the verification is successful).
+      operationId: firebaseappcheck.projects.apps.exchangeAppAttestAttestation
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaExchangeAppAttestAttestationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaExchangeAppAttestAttestationResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1beta/projects/{projectsId}/apps/{appsId}:exchangeCustomToken:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Validates a custom token signed using your project's Admin SDK
+        service account credentials. If valid, returns an App Check token encapsulated
+        in an AttestationTokenResponse.
+      operationId: firebaseappcheck.projects.apps.exchangeCustomToken
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaExchangeCustomTokenRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaAttestationTokenResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1beta/projects/{projectsId}/apps/{appsId}:exchangeDebugToken:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Validates a debug token secret that you have previously created
+        using CreateDebugToken. If valid, returns an App Check token encapsulated
+        in an AttestationTokenResponse. Note that a restrictive quota is enforced
+        on this method to prevent accidental exposure of the app to abuse.
+      operationId: firebaseappcheck.projects.apps.exchangeDebugToken
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaExchangeDebugTokenRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaAttestationTokenResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1beta/projects/{projectsId}/apps/{appsId}:exchangeDeviceCheckToken:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Accepts a [`device_token`](https://developer.apple.com/documentation/devicecheck/dcdevice)
+        issued by DeviceCheck, and attempts to validate it with Apple. If valid, returns
+        an App Check token encapsulated in an AttestationTokenResponse.
+      operationId: firebaseappcheck.projects.apps.exchangeDeviceCheckToken
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaExchangeDeviceCheckTokenRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaAttestationTokenResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1beta/projects/{projectsId}/apps/{appsId}:exchangeRecaptchaToken:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Validates a [reCAPTCHA v3 response token](https://developers.google.com/recaptcha/docs/v3).
+        If valid, returns an App Check token encapsulated in an AttestationTokenResponse.
+      operationId: firebaseappcheck.projects.apps.exchangeRecaptchaToken
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaExchangeRecaptchaTokenRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaAttestationTokenResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1beta/projects/{projectsId}/apps/{appsId}:exchangeSafetyNetToken:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Validates a [SafetyNet token](https://developer.android.com/training/safetynet/attestation#request-attestation-step).
+        If valid, returns an App Check token encapsulated in an AttestationTokenResponse.
+      operationId: firebaseappcheck.projects.apps.exchangeSafetyNetToken
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaExchangeSafetyNetTokenRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaAttestationTokenResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1beta/projects/{projectsId}/apps/{appsId}:generateAppAttestChallenge:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Generates a challenge that protects the integrity of an immediately
+        following call to ExchangeAppAttestAttestation or ExchangeAppAttestAssertion.
+        A challenge should not be reused for multiple calls.
+      operationId: firebaseappcheck.projects.apps.generateAppAttestChallenge
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: appsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaGenerateAppAttestChallengeRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaAppAttestChallengeResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1beta/projects/{projectsId}/services:
+    get:
+      description: Lists all Service configurations for the specified project. Only
+        Services which were explicitly configured using UpdateService or BatchUpdateServices
+        will be returned.
+      operationId: firebaseappcheck.projects.services.list
+      parameters:
+      - description: The maximum number of Services to return in the response. Only
+          explicitly configured services are returned. The server may return fewer
+          than this at its own discretion. If no value is specified (or too large
+          a value is specified), the server will impose its own limit.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Token returned from a previous call to ListServices indicating
+          where in the set of Services to resume listing. Provide this to retrieve
+          the subsequent page. When paginating, all other parameters provided to ListServices
+          must match the call that provided the page token; if they do not match,
+          the result is undefined.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaListServicesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1beta/projects/{projectsId}/services/{servicesId}:
+    delete:
+      description: Deletes the specified DebugToken. A deleted debug token cannot
+        be used to exchange for an App Check token. Use this method when you suspect
+        the secret `token` has been compromised or when you no longer need the debug
+        token.
+      operationId: firebaseappcheck.projects.apps.debugTokens.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: servicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    get:
+      description: Gets the Service configuration for the specified service name.
+      operationId: firebaseappcheck.projects.services.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: servicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the specified Service configuration.
+      operationId: firebaseappcheck.projects.services.patch
+      parameters:
+      - description: 'Required. A comma-separated list of names of fields in the Service
+          to update. Example: `enforcement_mode`.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: servicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaService'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1beta/projects/{projectsId}/services:batchUpdate:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Updates the specified Service configurations atomically.
+      operationId: firebaseappcheck.projects.services.batchUpdate
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaBatchUpdateServicesRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleFirebaseAppcheckV1betaBatchUpdateServicesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
   /v1beta/{app}:exchangeAppAttestAssertion:
     parameters:
     - $ref: '#/components/parameters/_.xgafv'

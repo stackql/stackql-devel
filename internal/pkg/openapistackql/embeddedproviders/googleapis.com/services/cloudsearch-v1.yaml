@@ -2861,34 +2861,14 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    debug:
-      id: google.services.debug
-      methods: {}
-      name: debug
-      title: debug
-    debug.resources:
-      id: google.services.debug.resources
-      methods: {}
-      name: debug.resources
-      title: debug.resources
-    debug.resources.datasources:
-      id: google.services.debug.resources.datasources
-      methods: {}
-      name: debug.resources.datasources
-      title: debug.resources.datasources
-    debug.resources.datasources.resources:
-      id: google.services.debug.resources.datasources.resources
-      methods: {}
-      name: debug.resources.datasources.resources
-      title: debug.resources.datasources.resources
-    debug.resources.datasources.resources.items:
-      id: google.services.debug.resources.datasources.resources.items
+    debug.datasources.items:
+      id: google.cloudsearch.debug.datasources.items
       methods:
         checkAccess:
           operation:
             $ref: post
           path:
-            $ref: /v1/debug/{name}:checkAccess
+            $ref: /v1/debug/datasources/{datasourcesId}/items/{itemsId}:checkAccess
           request:
             mediaType: application/json
           response:
@@ -2898,94 +2878,61 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/debug/{name}/items:searchByViewUrl
+            $ref: /v1/debug/datasources/{datasourcesId}/items:searchByViewUrl
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: debug.resources.datasources.resources.items
-      title: debug.resources.datasources.resources.items
-    debug.resources.datasources.resources.items.resources:
-      id: google.services.debug.resources.datasources.resources.items.resources
-      methods: {}
-      name: debug.resources.datasources.resources.items.resources
-      title: debug.resources.datasources.resources.items.resources
-    debug.resources.datasources.resources.items.resources.unmappedids:
-      id: google.services.debug.resources.datasources.resources.items.resources.unmappedids
+      name: debug.datasources.items
+      title: debug.datasources.items
+    debug.datasources.items.unmappedids:
+      id: google.cloudsearch.debug.datasources.items.unmappedids
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/debug/{parent}/unmappedids
-          request:
-            mediaType: application/json
+            $ref: /v1/debug/datasources/{datasourcesId}/items/{itemsId}/unmappedids
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: debug.resources.datasources.resources.items.resources.unmappedids
-      title: debug.resources.datasources.resources.items.resources.unmappedids
-    debug.resources.identitysources:
-      id: google.services.debug.resources.identitysources
-      methods: {}
-      name: debug.resources.identitysources
-      title: debug.resources.identitysources
-    debug.resources.identitysources.resources:
-      id: google.services.debug.resources.identitysources.resources
-      methods: {}
-      name: debug.resources.identitysources.resources
-      title: debug.resources.identitysources.resources
-    debug.resources.identitysources.resources.items:
-      id: google.services.debug.resources.identitysources.resources.items
+      name: debug.datasources.items.unmappedids
+      title: debug.datasources.items.unmappedids
+    debug.identitysources.items:
+      id: google.cloudsearch.debug.identitysources.items
       methods:
         listForunmappedidentity:
           operation:
             $ref: get
           path:
-            $ref: /v1/debug/{parent}/items:forunmappedidentity
-          request:
-            mediaType: application/json
+            $ref: /v1/debug/identitysources/{identitysourcesId}/items:forunmappedidentity
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: debug.resources.identitysources.resources.items
-      title: debug.resources.identitysources.resources.items
-    debug.resources.identitysources.resources.unmappedids:
-      id: google.services.debug.resources.identitysources.resources.unmappedids
+      name: debug.identitysources.items
+      title: debug.identitysources.items
+    debug.identitysources.unmappedids:
+      id: google.cloudsearch.debug.identitysources.unmappedids
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/debug/{parent}/unmappedids
-          request:
-            mediaType: application/json
+            $ref: /v1/debug/identitysources/{identitysourcesId}/unmappedids
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: debug.resources.identitysources.resources.unmappedids
-      title: debug.resources.identitysources.resources.unmappedids
-    indexing:
-      id: google.services.indexing
-      methods: {}
-      name: indexing
-      title: indexing
-    indexing.resources:
-      id: google.services.indexing.resources
-      methods: {}
-      name: indexing.resources
-      title: indexing.resources
-    indexing.resources.datasources:
-      id: google.services.indexing.resources.datasources
+      name: debug.identitysources.unmappedids
+      title: debug.identitysources.unmappedids
+    indexing.datasources:
+      id: google.cloudsearch.indexing.datasources
       methods:
         deleteSchema:
           operation:
             $ref: delete
           path:
-            $ref: /v1/indexing/{name}/schema
-          request:
-            mediaType: application/json
+            $ref: /v1/indexing/datasources/{datasourcesId}/schema
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2993,9 +2940,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/indexing/{name}/schema
-          request:
-            mediaType: application/json
+            $ref: /v1/indexing/datasources/{datasourcesId}/schema
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3003,29 +2948,22 @@ components:
           operation:
             $ref: put
           path:
-            $ref: /v1/indexing/{name}/schema
+            $ref: /v1/indexing/datasources/{datasourcesId}/schema
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: indexing.resources.datasources
-      title: indexing.resources.datasources
-    indexing.resources.datasources.resources:
-      id: google.services.indexing.resources.datasources.resources
-      methods: {}
-      name: indexing.resources.datasources.resources
-      title: indexing.resources.datasources.resources
-    indexing.resources.datasources.resources.items:
-      id: google.services.indexing.resources.datasources.resources.items
+      name: indexing.datasources
+      title: indexing.datasources
+    indexing.datasources.items:
+      id: google.cloudsearch.indexing.datasources.items
       methods:
         delete:
           operation:
             $ref: delete
           path:
-            $ref: /v1/indexing/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/indexing/datasources/{datasourcesId}/items/{itemsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3033,7 +2971,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/indexing/{name}/items:deleteQueueItems
+            $ref: /v1/indexing/datasources/{datasourcesId}/items:deleteQueueItems
           request:
             mediaType: application/json
           response:
@@ -3043,9 +2981,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/indexing/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/indexing/datasources/{datasourcesId}/items/{itemsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3053,7 +2989,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/indexing/{name}:index
+            $ref: /v1/indexing/datasources/{datasourcesId}/items/{itemsId}:index
           request:
             mediaType: application/json
           response:
@@ -3063,9 +2999,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/indexing/{name}/items
-          request:
-            mediaType: application/json
+            $ref: /v1/indexing/datasources/{datasourcesId}/items
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3073,7 +3007,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/indexing/{name}/items:poll
+            $ref: /v1/indexing/datasources/{datasourcesId}/items:poll
           request:
             mediaType: application/json
           response:
@@ -3083,7 +3017,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/indexing/{name}:push
+            $ref: /v1/indexing/datasources/{datasourcesId}/items/{itemsId}:push
           request:
             mediaType: application/json
           response:
@@ -3093,7 +3027,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/indexing/{name}/items:unreserve
+            $ref: /v1/indexing/datasources/{datasourcesId}/items:unreserve
           request:
             mediaType: application/json
           response:
@@ -3103,66 +3037,57 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/indexing/{name}:upload
+            $ref: /v1/indexing/datasources/{datasourcesId}/items/{itemsId}:upload
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: indexing.resources.datasources.resources.items
-      title: indexing.resources.datasources.resources.items
+      name: indexing.datasources.items
+      title: indexing.datasources.items
     media:
-      id: google.services.media
+      id: google.cloudsearch.media
       methods:
         upload:
           operation:
             $ref: post
           path:
-            $ref: /v1/media/{resourceName}
+            $ref: /v1/media/{mediaId}
           request:
-            mediaType: application/json
+            mediaType: application/octet-stream
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: media
       title: media
     operations:
-      id: google.services.operations
+      id: google.cloudsearch.operations
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: operations
       title: operations
-    operations.resources:
-      id: google.services.operations.resources
-      methods: {}
-      name: operations.resources
-      title: operations.resources
-    operations.resources.lro:
-      id: google.services.operations.resources.lro
+    operations.lro:
+      id: google.cloudsearch.operations.lro
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/lro
-          request:
-            mediaType: application/json
+            $ref: /v1/operations/{operationsId}/lro
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: operations.resources.lro
-      title: operations.resources.lro
+      name: operations.lro
+      title: operations.lro
     query:
-      id: google.services.query
+      id: google.cloudsearch.query
       methods:
         search:
           operation:
@@ -3186,36 +3111,27 @@ components:
             openAPIDocKey: '200'
       name: query
       title: query
-    query.resources:
-      id: google.services.query.resources
-      methods: {}
-      name: query.resources
-      title: query.resources
-    query.resources.sources:
-      id: google.services.query.resources.sources
+    query.sources:
+      id: google.cloudsearch.query.sources
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /v1/query/sources
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: query.resources.sources
-      title: query.resources.sources
+      name: query.sources
+      title: query.sources
     settings:
-      id: google.services.settings
+      id: google.cloudsearch.settings
       methods:
         getCustomer:
           operation:
             $ref: get
           path:
             $ref: /v1/settings/customer
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3231,13 +3147,8 @@ components:
             openAPIDocKey: '200'
       name: settings
       title: settings
-    settings.resources:
-      id: google.services.settings.resources
-      methods: {}
-      name: settings.resources
-      title: settings.resources
-    settings.resources.datasources:
-      id: google.services.settings.resources.datasources
+    settings.datasources:
+      id: google.cloudsearch.settings.datasources
       methods:
         create:
           operation:
@@ -3253,9 +3164,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/settings/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/settings/datasources/{datasourcesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3263,9 +3172,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/settings/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/settings/datasources/{datasourcesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3274,8 +3181,6 @@ components:
             $ref: get
           path:
             $ref: /v1/settings/datasources
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3283,16 +3188,16 @@ components:
           operation:
             $ref: put
           path:
-            $ref: /v1/settings/{name}
+            $ref: /v1/settings/datasources/{datasourcesId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: settings.resources.datasources
-      title: settings.resources.datasources
-    settings.resources.searchapplications:
-      id: google.services.settings.resources.searchapplications
+      name: settings.datasources
+      title: settings.datasources
+    settings.searchapplications:
+      id: google.cloudsearch.settings.searchapplications
       methods:
         create:
           operation:
@@ -3308,9 +3213,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/settings/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/settings/searchapplications/{searchapplicationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3318,9 +3221,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/settings/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/settings/searchapplications/{searchapplicationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3329,8 +3230,6 @@ components:
             $ref: get
           path:
             $ref: /v1/settings/searchapplications
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3338,7 +3237,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/settings/{name}:reset
+            $ref: /v1/settings/searchapplications/{searchapplicationsId}:reset
           request:
             mediaType: application/json
           response:
@@ -3348,24 +3247,22 @@ components:
           operation:
             $ref: put
           path:
-            $ref: /v1/settings/{name}
+            $ref: /v1/settings/searchapplications/{searchapplicationsId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: settings.resources.searchapplications
-      title: settings.resources.searchapplications
+      name: settings.searchapplications
+      title: settings.searchapplications
     stats:
-      id: google.services.stats
+      id: google.cloudsearch.stats
       methods:
         getIndex:
           operation:
             $ref: get
           path:
             $ref: /v1/stats/index
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3374,18 +3271,6 @@ components:
             $ref: get
           path:
             $ref: /v1/stats/query
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        getSearchapplication:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1/stats/searchapplication
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3394,8 +3279,6 @@ components:
             $ref: get
           path:
             $ref: /v1/stats/session
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3404,120 +3287,65 @@ components:
             $ref: get
           path:
             $ref: /v1/stats/user
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: stats
       title: stats
-    stats.resources:
-      id: google.services.stats.resources
-      methods: {}
-      name: stats.resources
-      title: stats.resources
-    stats.resources.index:
-      id: google.services.stats.resources.index
-      methods: {}
-      name: stats.resources.index
-      title: stats.resources.index
-    stats.resources.index.resources:
-      id: google.services.stats.resources.index.resources
-      methods: {}
-      name: stats.resources.index.resources
-      title: stats.resources.index.resources
-    stats.resources.index.resources.datasources:
-      id: google.services.stats.resources.index.resources.datasources
+    stats.index.datasources:
+      id: google.cloudsearch.stats.index.datasources
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/stats/index/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/stats/index/datasources/{datasourcesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: stats.resources.index.resources.datasources
-      title: stats.resources.index.resources.datasources
-    stats.resources.query:
-      id: google.services.stats.resources.query
-      methods: {}
-      name: stats.resources.query
-      title: stats.resources.query
-    stats.resources.query.resources:
-      id: google.services.stats.resources.query.resources
-      methods: {}
-      name: stats.resources.query.resources
-      title: stats.resources.query.resources
-    stats.resources.query.resources.searchapplications:
-      id: google.services.stats.resources.query.resources.searchapplications
+      name: stats.index.datasources
+      title: stats.index.datasources
+    stats.query.searchapplications:
+      id: google.cloudsearch.stats.query.searchapplications
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/stats/query/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/stats/query/searchapplications/{searchapplicationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: stats.resources.query.resources.searchapplications
-      title: stats.resources.query.resources.searchapplications
-    stats.resources.session:
-      id: google.services.stats.resources.session
-      methods: {}
-      name: stats.resources.session
-      title: stats.resources.session
-    stats.resources.session.resources:
-      id: google.services.stats.resources.session.resources
-      methods: {}
-      name: stats.resources.session.resources
-      title: stats.resources.session.resources
-    stats.resources.session.resources.searchapplications:
-      id: google.services.stats.resources.session.resources.searchapplications
+      name: stats.query.searchapplications
+      title: stats.query.searchapplications
+    stats.session.searchapplications:
+      id: google.cloudsearch.stats.session.searchapplications
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/stats/session/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/stats/session/searchapplications/{searchapplicationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: stats.resources.session.resources.searchapplications
-      title: stats.resources.session.resources.searchapplications
-    stats.resources.user:
-      id: google.services.stats.resources.user
-      methods: {}
-      name: stats.resources.user
-      title: stats.resources.user
-    stats.resources.user.resources:
-      id: google.services.stats.resources.user.resources
-      methods: {}
-      name: stats.resources.user.resources
-      title: stats.resources.user.resources
-    stats.resources.user.resources.searchapplications:
-      id: google.services.stats.resources.user.resources.searchapplications
+      name: stats.session.searchapplications
+      title: stats.session.searchapplications
+    stats.user.searchapplications:
+      id: google.cloudsearch.stats.user.searchapplications
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/stats/user/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/stats/user/searchapplications/{searchapplicationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: stats.resources.user.resources.searchapplications
-      title: stats.resources.user.resources.searchapplications
+      name: stats.user.searchapplications
+      title: stats.user.searchapplications
     v1:
-      id: google.services.v1
+      id: google.cloudsearch.v1
       methods:
         initializeCustomer:
           operation:
@@ -3565,6 +3393,320 @@ info:
   x-serviceName: cloudsearch
 openapi: 3.0.0
 paths:
+  /v1/debug/datasources/{datasourcesId}/items/{itemsId}/unmappedids:
+    get:
+      description: Lists unmapped user identities for an identity source. **Note:**
+        This API requires an admin account to execute.
+      operationId: cloudsearch.debug.identitysources.unmappedids.list
+      parameters:
+      - description: If you are asked by Google to help with debugging, set this field.
+          Otherwise, ignore this field.
+        in: query
+        name: debugOptions.enableDebugging
+        schema:
+          type: boolean
+      - description: Maximum number of items to fetch in a request. Defaults to 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The next_page_token value returned from a previous List request,
+          if any.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: Limit users selection to this status.
+        in: query
+        name: resolutionStatusCode
+        schema:
+          enum:
+          - CODE_UNSPECIFIED
+          - NOT_FOUND
+          - IDENTITY_SOURCE_NOT_FOUND
+          - IDENTITY_SOURCE_MISCONFIGURED
+          - TOO_MANY_MAPPINGS_FOUND
+          - INTERNAL_ERROR
+          type: string
+      - in: path
+        name: datasourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: itemsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUnmappedIdentitiesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.debug
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.debug
+      tags:
+      - debug
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/debug/datasources/{datasourcesId}/items/{itemsId}:checkAccess:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Checks whether an item is accessible by specified principal. **Note:**
+        This API requires an admin account to execute.
+      operationId: cloudsearch.debug.datasources.items.checkAccess
+      parameters:
+      - description: If you are asked by Google to help with debugging, set this field.
+          Otherwise, ignore this field.
+        in: query
+        name: debugOptions.enableDebugging
+        schema:
+          type: boolean
+      - in: path
+        name: datasourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: itemsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Principal'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckAccessResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.debug
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.debug
+      tags:
+      - debug
+  /v1/debug/datasources/{datasourcesId}/items:searchByViewUrl:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Fetches the item whose viewUrl exactly matches that of the URL
+        provided in the request. **Note:** This API requires an admin account to execute.
+      operationId: cloudsearch.debug.datasources.items.searchByViewUrl
+      parameters:
+      - in: path
+        name: datasourcesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchItemsByViewUrlRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchItemsByViewUrlResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.debug
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.debug
+      tags:
+      - debug
+  /v1/debug/identitysources/{identitysourcesId}/items:forunmappedidentity:
+    get:
+      description: Lists names of items associated with an unmapped identity. **Note:**
+        This API requires an admin account to execute.
+      operationId: cloudsearch.debug.identitysources.items.listForunmappedidentity
+      parameters:
+      - description: If you are asked by Google to help with debugging, set this field.
+          Otherwise, ignore this field.
+        in: query
+        name: debugOptions.enableDebugging
+        schema:
+          type: boolean
+      - in: query
+        name: groupResourceName
+        schema:
+          type: string
+      - description: Maximum number of items to fetch in a request. Defaults to 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The next_page_token value returned from a previous List request,
+          if any.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: query
+        name: userResourceName
+        schema:
+          type: string
+      - in: path
+        name: identitysourcesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListItemNamesForUnmappedIdentityResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.debug
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.debug
+      tags:
+      - debug
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/debug/identitysources/{identitysourcesId}/unmappedids:
+    get:
+      description: Lists unmapped user identities for an identity source. **Note:**
+        This API requires an admin account to execute.
+      operationId: cloudsearch.debug.identitysources.unmappedids.list
+      parameters:
+      - description: If you are asked by Google to help with debugging, set this field.
+          Otherwise, ignore this field.
+        in: query
+        name: debugOptions.enableDebugging
+        schema:
+          type: boolean
+      - description: Maximum number of items to fetch in a request. Defaults to 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The next_page_token value returned from a previous List request,
+          if any.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: Limit users selection to this status.
+        in: query
+        name: resolutionStatusCode
+        schema:
+          enum:
+          - CODE_UNSPECIFIED
+          - NOT_FOUND
+          - IDENTITY_SOURCE_NOT_FOUND
+          - IDENTITY_SOURCE_MISCONFIGURED
+          - TOO_MANY_MAPPINGS_FOUND
+          - INTERNAL_ERROR
+          type: string
+      - in: path
+        name: identitysourcesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUnmappedIdentitiesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.debug
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.debug
+      tags:
+      - debug
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /v1/debug/{name}/items:searchByViewUrl:
     parameters:
     - $ref: '#/components/parameters/_.xgafv'
@@ -3803,6 +3945,642 @@ paths:
     - $ref: '#/components/parameters/quotaUser'
     - $ref: '#/components/parameters/upload_protocol'
     - $ref: '#/components/parameters/uploadType'
+  /v1/indexing/datasources/{datasourcesId}/items:
+    get:
+      description: Lists all or a subset of Item resources. This API requires an admin
+        or service account to execute. The service account used is the one whitelisted
+        in the corresponding data source.
+      operationId: cloudsearch.indexing.datasources.items.list
+      parameters:
+      - description: 'When set to true, the indexing system only populates the following
+          fields: name, version, queue. metadata.hash, metadata.title, metadata.sourceRepositoryURL,
+          metadata.objectType, metadata.createTime, metadata.updateTime, metadata.contentLanguage,
+          metadata.mimeType, structured_data.hash, content.hash, itemType, itemStatus.code,
+          itemStatus.processingError.code, itemStatus.repositoryError.type, If this
+          value is false, then all the fields are populated in Item.'
+        in: query
+        name: brief
+        schema:
+          type: boolean
+      - description: 'Name of connector making this call. Format: datasources/{source_id}/connectors/{ID}'
+        in: query
+        name: connectorName
+        schema:
+          type: string
+      - description: If you are asked by Google to help with debugging, set this field.
+          Otherwise, ignore this field.
+        in: query
+        name: debugOptions.enableDebugging
+        schema:
+          type: boolean
+      - description: Maximum number of items to fetch in a request. The max value
+          is 1000 when brief is true. The max value is 10 if brief is false. The default
+          value is 10
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The next_page_token value returned from a previous List request,
+          if any.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: datasourcesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListItemsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+      tags:
+      - indexing
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/indexing/datasources/{datasourcesId}/items/{itemsId}:
+    delete:
+      description: Deletes Item resource for the specified resource name. This API
+        requires an admin or service account to execute. The service account used
+        is the one whitelisted in the corresponding data source.
+      operationId: cloudsearch.indexing.datasources.items.delete
+      parameters:
+      - description: 'Name of connector making this call. Format: datasources/{source_id}/connectors/{ID}'
+        in: query
+        name: connectorName
+        schema:
+          type: string
+      - description: If you are asked by Google to help with debugging, set this field.
+          Otherwise, ignore this field.
+        in: query
+        name: debugOptions.enableDebugging
+        schema:
+          type: boolean
+      - description: Required. The RequestMode for this request.
+        in: query
+        name: mode
+        schema:
+          enum:
+          - UNSPECIFIED
+          - SYNCHRONOUS
+          - ASYNCHRONOUS
+          type: string
+      - description: Required. The incremented version of the item to delete from
+          the index. The indexing system stores the version from the datasource as
+          a byte string and compares the Item version in the index to the version
+          of the queued Item using lexical ordering. Cloud Search Indexing won't delete
+          any queued item with a version value that is less than or equal to the version
+          of the currently indexed item. The maximum length for this field is 1024
+          bytes.
+        in: query
+        name: version
+        schema:
+          type: string
+      - in: path
+        name: datasourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: itemsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+      tags:
+      - indexing
+    get:
+      description: Gets Item resource by item name. This API requires an admin or
+        service account to execute. The service account used is the one whitelisted
+        in the corresponding data source.
+      operationId: cloudsearch.indexing.datasources.items.get
+      parameters:
+      - description: 'Name of connector making this call. Format: datasources/{source_id}/connectors/{ID}'
+        in: query
+        name: connectorName
+        schema:
+          type: string
+      - description: If you are asked by Google to help with debugging, set this field.
+          Otherwise, ignore this field.
+        in: query
+        name: debugOptions.enableDebugging
+        schema:
+          type: boolean
+      - in: path
+        name: datasourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: itemsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+      tags:
+      - indexing
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/indexing/datasources/{datasourcesId}/items/{itemsId}:index:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Updates Item ACL, metadata, and content. It will insert the Item
+        if it does not exist. This method does not support partial updates. Fields
+        with no provided values are cleared out in the Cloud Search index. This API
+        requires an admin or service account to execute. The service account used
+        is the one whitelisted in the corresponding data source.
+      operationId: cloudsearch.indexing.datasources.items.index
+      parameters:
+      - in: path
+        name: datasourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: itemsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IndexItemRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+      tags:
+      - indexing
+  /v1/indexing/datasources/{datasourcesId}/items/{itemsId}:push:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Pushes an item onto a queue for later polling and updating. This
+        API requires an admin or service account to execute. The service account used
+        is the one whitelisted in the corresponding data source.
+      operationId: cloudsearch.indexing.datasources.items.push
+      parameters:
+      - in: path
+        name: datasourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: itemsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PushItemRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+      tags:
+      - indexing
+  /v1/indexing/datasources/{datasourcesId}/items/{itemsId}:upload:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates an upload session for uploading item content. For items
+        smaller than 100 KB, it's easier to embed the content inline within an index
+        request. This API requires an admin or service account to execute. The service
+        account used is the one whitelisted in the corresponding data source.
+      operationId: cloudsearch.indexing.datasources.items.upload
+      parameters:
+      - in: path
+        name: datasourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: itemsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartUploadItemRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadItemRef'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+      tags:
+      - indexing
+  /v1/indexing/datasources/{datasourcesId}/items:deleteQueueItems:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Deletes all items in a queue. This method is useful for deleting
+        stale items. This API requires an admin or service account to execute. The
+        service account used is the one whitelisted in the corresponding data source.
+      operationId: cloudsearch.indexing.datasources.items.deleteQueueItems
+      parameters:
+      - in: path
+        name: datasourcesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteQueueItemsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+      tags:
+      - indexing
+  /v1/indexing/datasources/{datasourcesId}/items:poll:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Polls for unreserved items from the indexing queue and marks a
+        set as reserved, starting with items that have the oldest timestamp from the
+        highest priority ItemStatus. The priority order is as follows: ERROR MODIFIED
+        NEW_ITEM ACCEPTED Reserving items ensures that polling from other threads
+        cannot create overlapping sets. After handling the reserved items, the client
+        should put items back into the unreserved state, either by calling index,
+        or by calling push with the type REQUEUE. Items automatically become available
+        (unreserved) after 4 hours even if no update or push method is called. This
+        API requires an admin or service account to execute. The service account used
+        is the one whitelisted in the corresponding data source.'
+      operationId: cloudsearch.indexing.datasources.items.poll
+      parameters:
+      - in: path
+        name: datasourcesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PollItemsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PollItemsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+      tags:
+      - indexing
+  /v1/indexing/datasources/{datasourcesId}/items:unreserve:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Unreserves all items from a queue, making them all eligible to
+        be polled. This method is useful for resetting the indexing queue after a
+        connector has been restarted. This API requires an admin or service account
+        to execute. The service account used is the one whitelisted in the corresponding
+        data source.
+      operationId: cloudsearch.indexing.datasources.items.unreserve
+      parameters:
+      - in: path
+        name: datasourcesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnreserveItemsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+      tags:
+      - indexing
+  /v1/indexing/datasources/{datasourcesId}/schema:
+    delete:
+      description: Deletes the schema of a data source. **Note:** This API requires
+        an admin or service account to execute.
+      operationId: cloudsearch.indexing.datasources.deleteSchema
+      parameters:
+      - description: If you are asked by Google to help with debugging, set this field.
+          Otherwise, ignore this field.
+        in: query
+        name: debugOptions.enableDebugging
+        schema:
+          type: boolean
+      - in: path
+        name: datasourcesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings.indexing
+      tags:
+      - indexing
+    get:
+      description: Gets the schema of a data source. **Note:** This API requires an
+        admin or service account to execute.
+      operationId: cloudsearch.indexing.datasources.getSchema
+      parameters:
+      - description: If you are asked by Google to help with debugging, set this field.
+          Otherwise, ignore this field.
+        in: query
+        name: debugOptions.enableDebugging
+        schema:
+          type: boolean
+      - in: path
+        name: datasourcesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schema'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings.indexing
+      tags:
+      - indexing
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Updates the schema of a data source. This method does not perform
+        incremental updates to the schema. Instead, this method updates the schema
+        by overwriting the entire schema. **Note:** This API requires an admin or
+        service account to execute.
+      operationId: cloudsearch.indexing.datasources.updateSchema
+      parameters:
+      - in: path
+        name: datasourcesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSchemaRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings.indexing
+      tags:
+      - indexing
   /v1/indexing/{name}:
     delete:
       description: Deletes Item resource for the specified resource name. This API
@@ -4430,6 +5208,61 @@ paths:
         - https://www.googleapis.com/auth/cloud_search.indexing
       tags:
       - indexing
+  /v1/media/{mediaId}:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Uploads media for indexing. The upload endpoint supports direct
+        and resumable upload protocols and is intended for large items that can not
+        be [inlined during index requests](https://developers.google.com/cloud-search/docs/reference/rest/v1/indexing.datasources.items#itemcontent).
+        To index large content: 1. Call indexing.datasources.items.upload with the
+        item name to begin an upload session and retrieve the UploadItemRef. 1. Call
+        media.upload to upload the content, as a streaming request, using the same
+        resource name from the UploadItemRef from step 1. 1. Call indexing.datasources.items.index
+        to index the item. Populate the [ItemContent](/cloud-search/docs/reference/rest/v1/indexing.datasources.items#ItemContent)
+        with the UploadItemRef from step 1. For additional information, see [Create
+        a content connector using the REST API](https://developers.google.com/cloud-search/docs/guides/content-connector#rest).
+        **Note:** This API requires a service account to execute.'
+      operationId: cloudsearch.media.upload
+      parameters:
+      - in: path
+        name: mediaId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              $ref: '#/components/schemas/Media'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+      tags:
+      - media
   /v1/media/{resourceName}:
     parameters:
     - $ref: '#/components/parameters/_.xgafv'
@@ -4486,6 +5319,143 @@ paths:
         - https://www.googleapis.com/auth/cloud_search.indexing
       tags:
       - media
+  /v1/operations/{operationsId}:
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: cloudsearch.operations.get
+      parameters:
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.debug
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.debug
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings.indexing
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings.query
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings.query
+      tags:
+      - operations
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/operations/{operationsId}/lro:
+    get:
+      description: 'Lists operations that match the specified filter in the request.
+        If the server doesn''t support this method, it returns `UNIMPLEMENTED`. NOTE:
+        the `name` binding allows API services to override the binding to use different
+        resource name schemes, such as `users/*/operations`. To override the binding,
+        API services can add a binding such as `"/v1/{name=users/*}/operations"` to
+        their service configuration. For backwards compatibility, the default name
+        includes the operations collection id, however overriding users must ensure
+        the name binding is the parent resource, without the operations collection
+        id.'
+      operationId: cloudsearch.operations.lro.list
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOperationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.debug
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.debug
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.indexing
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings.indexing
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings.query
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings.query
+      tags:
+      - operations
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /v1/query/search:
     parameters:
     - $ref: '#/components/parameters/_.xgafv'
@@ -4818,6 +5788,132 @@ paths:
         - https://www.googleapis.com/auth/cloud_search.settings.indexing
       tags:
       - settings
+  /v1/settings/datasources/{datasourcesId}:
+    delete:
+      description: Deletes a search application. **Note:** This API requires an admin
+        account to execute.
+      operationId: cloudsearch.settings.searchapplications.delete
+      parameters:
+      - description: If you are asked by Google to help with debugging, set this field.
+          Otherwise, ignore this field.
+        in: query
+        name: debugOptions.enableDebugging
+        schema:
+          type: boolean
+      - in: path
+        name: datasourcesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings.query
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings.query
+      tags:
+      - settings
+    get:
+      description: Gets the specified search application. **Note:** This API requires
+        an admin account to execute.
+      operationId: cloudsearch.settings.searchapplications.get
+      parameters:
+      - description: If you are asked by Google to help with debugging, set this field.
+          Otherwise, ignore this field.
+        in: query
+        name: debugOptions.enableDebugging
+        schema:
+          type: boolean
+      - in: path
+        name: datasourcesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchApplication'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings.query
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings.query
+      tags:
+      - settings
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Updates a search application. **Note:** This API requires an admin
+        account to execute.
+      operationId: cloudsearch.settings.searchapplications.update
+      parameters:
+      - in: path
+        name: datasourcesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchApplication'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings.query
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings.query
+      tags:
+      - settings
   /v1/settings/searchapplications:
     get:
       description: Lists all search applications. **Note:** This API requires an admin
@@ -4884,6 +5980,182 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/SearchApplication'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings.query
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings.query
+      tags:
+      - settings
+  /v1/settings/searchapplications/{searchapplicationsId}:
+    delete:
+      description: Deletes a search application. **Note:** This API requires an admin
+        account to execute.
+      operationId: cloudsearch.settings.searchapplications.delete
+      parameters:
+      - description: If you are asked by Google to help with debugging, set this field.
+          Otherwise, ignore this field.
+        in: query
+        name: debugOptions.enableDebugging
+        schema:
+          type: boolean
+      - in: path
+        name: searchapplicationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings.query
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings.query
+      tags:
+      - settings
+    get:
+      description: Gets the specified search application. **Note:** This API requires
+        an admin account to execute.
+      operationId: cloudsearch.settings.searchapplications.get
+      parameters:
+      - description: If you are asked by Google to help with debugging, set this field.
+          Otherwise, ignore this field.
+        in: query
+        name: debugOptions.enableDebugging
+        schema:
+          type: boolean
+      - in: path
+        name: searchapplicationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchApplication'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings.query
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings.query
+      tags:
+      - settings
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Updates a search application. **Note:** This API requires an admin
+        account to execute.
+      operationId: cloudsearch.settings.searchapplications.update
+      parameters:
+      - in: path
+        name: searchapplicationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchApplication'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.settings.query
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.settings.query
+      tags:
+      - settings
+  /v1/settings/searchapplications/{searchapplicationsId}:reset:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Resets a search application to default settings. This will return
+        an empty response. **Note:** This API requires an admin account to execute.
+      operationId: cloudsearch.settings.searchapplications.reset
+      parameters:
+      - in: path
+        name: searchapplicationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetSearchApplicationRequest'
       responses:
         '200':
           content:
@@ -5160,6 +6432,83 @@ paths:
     - $ref: '#/components/parameters/quotaUser'
     - $ref: '#/components/parameters/upload_protocol'
     - $ref: '#/components/parameters/uploadType'
+  /v1/stats/index/datasources/{datasourcesId}:
+    get:
+      description: Gets indexed item statistics for a single data source. **Note:**
+        This API requires a standard end user account to execute.
+      operationId: cloudsearch.stats.index.datasources.get
+      parameters:
+      - description: Day of month. Must be from 1 to 31 and valid for the year and
+          month.
+        in: query
+        name: fromDate.day
+        schema:
+          type: integer
+      - description: Month of date. Must be from 1 to 12.
+        in: query
+        name: fromDate.month
+        schema:
+          type: integer
+      - description: Year of date. Must be from 1 to 9999.
+        in: query
+        name: fromDate.year
+        schema:
+          type: integer
+      - description: Day of month. Must be from 1 to 31 and valid for the year and
+          month.
+        in: query
+        name: toDate.day
+        schema:
+          type: integer
+      - description: Month of date. Must be from 1 to 12.
+        in: query
+        name: toDate.month
+        schema:
+          type: integer
+      - description: Year of date. Must be from 1 to 9999.
+        in: query
+        name: toDate.year
+        schema:
+          type: integer
+      - in: path
+        name: datasourcesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetDataSourceIndexStatsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.stats
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.stats
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.stats.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.stats.indexing
+      tags:
+      - stats
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /v1/stats/index/{name}:
     get:
       description: Gets indexed item statistics for a single data source. **Note:**
@@ -5283,6 +6632,83 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetCustomerQueryStatsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.stats
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.stats
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.stats.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.stats.indexing
+      tags:
+      - stats
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/stats/query/searchapplications/{searchapplicationsId}:
+    get:
+      description: Get the query statistics for search application. **Note:** This
+        API requires a standard end user account to execute.
+      operationId: cloudsearch.stats.query.searchapplications.get
+      parameters:
+      - description: Day of month. Must be from 1 to 31 and valid for the year and
+          month.
+        in: query
+        name: fromDate.day
+        schema:
+          type: integer
+      - description: Month of date. Must be from 1 to 12.
+        in: query
+        name: fromDate.month
+        schema:
+          type: integer
+      - description: Year of date. Must be from 1 to 9999.
+        in: query
+        name: fromDate.year
+        schema:
+          type: integer
+      - description: Day of month. Must be from 1 to 31 and valid for the year and
+          month.
+        in: query
+        name: toDate.day
+        schema:
+          type: integer
+      - description: Month of date. Must be from 1 to 12.
+        in: query
+        name: toDate.month
+        schema:
+          type: integer
+      - description: Year of date. Must be from 1 to 9999.
+        in: query
+        name: toDate.year
+        schema:
+          type: integer
+      - in: path
+        name: searchapplicationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSearchApplicationQueryStatsResponse'
           description: Successful response
       security:
       - Oauth2:
@@ -5463,6 +6889,84 @@ paths:
     - $ref: '#/components/parameters/quotaUser'
     - $ref: '#/components/parameters/upload_protocol'
     - $ref: '#/components/parameters/uploadType'
+  /v1/stats/session/searchapplications/{searchapplicationsId}:
+    get:
+      description: 'Get the # of search sessions, % of successful sessions with a
+        click query statistics for search application. **Note:** This API requires
+        a standard end user account to execute.'
+      operationId: cloudsearch.stats.session.searchapplications.get
+      parameters:
+      - description: Day of month. Must be from 1 to 31 and valid for the year and
+          month.
+        in: query
+        name: fromDate.day
+        schema:
+          type: integer
+      - description: Month of date. Must be from 1 to 12.
+        in: query
+        name: fromDate.month
+        schema:
+          type: integer
+      - description: Year of date. Must be from 1 to 9999.
+        in: query
+        name: fromDate.year
+        schema:
+          type: integer
+      - description: Day of month. Must be from 1 to 31 and valid for the year and
+          month.
+        in: query
+        name: toDate.day
+        schema:
+          type: integer
+      - description: Month of date. Must be from 1 to 12.
+        in: query
+        name: toDate.month
+        schema:
+          type: integer
+      - description: Year of date. Must be from 1 to 9999.
+        in: query
+        name: toDate.year
+        schema:
+          type: integer
+      - in: path
+        name: searchapplicationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSearchApplicationSessionStatsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.stats
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.stats
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.stats.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.stats.indexing
+      tags:
+      - stats
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /v1/stats/session/{name}:
     get:
       description: 'Get the # of search sessions, % of successful sessions with a
@@ -5587,6 +7091,83 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetCustomerUserStatsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.stats
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.stats
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud_search.stats.indexing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud_search.stats.indexing
+      tags:
+      - stats
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/stats/user/searchapplications/{searchapplicationsId}:
+    get:
+      description: Get the users statistics for search application. **Note:** This
+        API requires a standard end user account to execute.
+      operationId: cloudsearch.stats.user.searchapplications.get
+      parameters:
+      - description: Day of month. Must be from 1 to 31 and valid for the year and
+          month.
+        in: query
+        name: fromDate.day
+        schema:
+          type: integer
+      - description: Month of date. Must be from 1 to 12.
+        in: query
+        name: fromDate.month
+        schema:
+          type: integer
+      - description: Year of date. Must be from 1 to 9999.
+        in: query
+        name: fromDate.year
+        schema:
+          type: integer
+      - description: Day of month. Must be from 1 to 31 and valid for the year and
+          month.
+        in: query
+        name: toDate.day
+        schema:
+          type: integer
+      - description: Month of date. Must be from 1 to 12.
+        in: query
+        name: toDate.month
+        schema:
+          type: integer
+      - description: Year of date. Must be from 1 to 9999.
+        in: query
+        name: toDate.year
+        schema:
+          type: integer
+      - in: path
+        name: searchapplicationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSearchApplicationUserStatsResponse'
           description: Successful response
       security:
       - Oauth2:

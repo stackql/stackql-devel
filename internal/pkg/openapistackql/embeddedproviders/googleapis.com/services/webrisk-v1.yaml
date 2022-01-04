@@ -437,38 +437,26 @@ components:
       type: oauth2
   x-stackQL-resources:
     hashes:
-      id: google.services.hashes
+      id: google.webrisk.hashes
       methods:
         search:
           operation:
             $ref: get
           path:
             $ref: /v1/hashes:search
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: hashes
       title: hashes
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.operations:
-      id: google.services.projects.resources.operations
+    projects.operations:
+      id: google.webrisk.projects.operations
       methods:
         cancel:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:cancel
+            $ref: /v1/projects/{projectsId}/operations/{operationsId}:cancel
           request:
             mediaType: application/json
           response:
@@ -478,9 +466,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -488,9 +474,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -498,69 +482,63 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/operations
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/operations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.operations
-      title: projects.resources.operations
-    projects.resources.submissions:
-      id: google.services.projects.resources.submissions
+      name: projects.operations
+      title: projects.operations
+    projects.submissions:
+      id: google.webrisk.projects.submissions
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/submissions
+            $ref: /v1/projects/{projectsId}/submissions
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.submissions
-      title: projects.resources.submissions
-    projects.resources.uris:
-      id: google.services.projects.resources.uris
+      name: projects.submissions
+      title: projects.submissions
+    projects.uris:
+      id: google.webrisk.projects.uris
       methods:
         submit:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/uris:submit
+            $ref: /v1/projects/{projectsId}/uris:submit
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.uris
-      title: projects.resources.uris
+      name: projects.uris
+      title: projects.uris
     threatLists:
-      id: google.services.threatLists
+      id: google.webrisk.threatLists
       methods:
         computeDiff:
           operation:
             $ref: get
           path:
             $ref: /v1/threatLists:computeDiff
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: threatLists
       title: threatLists
     uris:
-      id: google.services.uris
+      id: google.webrisk.uris
       methods:
         search:
           operation:
             $ref: get
           path:
             $ref: /v1/uris:search
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -650,6 +628,272 @@ paths:
     - $ref: '#/components/parameters/quotaUser'
     - $ref: '#/components/parameters/upload_protocol'
     - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/operations:
+    get:
+      description: 'Lists operations that match the specified filter in the request.
+        If the server doesn''t support this method, it returns `UNIMPLEMENTED`. NOTE:
+        the `name` binding allows API services to override the binding to use different
+        resource name schemes, such as `users/*/operations`. To override the binding,
+        API services can add a binding such as `"/v1/{name=users/*}/operations"` to
+        their service configuration. For backwards compatibility, the default name
+        includes the operations collection id, however overriding users must ensure
+        the name binding is the parent resource, without the operations collection
+        id.'
+      operationId: webrisk.projects.operations.list
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningListOperationsResponse'
+          description: Successful response
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/operations/{operationsId}:
+    delete:
+      description: Deletes a long-running operation. This method indicates that the
+        client is no longer interested in the operation result. It does not cancel
+        the operation. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+      operationId: webrisk.projects.operations.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: webrisk.projects.operations.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/operations/{operationsId}:cancel:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Starts asynchronous cancellation on a long-running operation. The
+        server makes a best effort to cancel the operation, but success is not guaranteed.
+        If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+        Clients can use Operations.GetOperation or other methods to check whether
+        the cancellation succeeded or whether the operation completed despite cancellation.
+        On successful cancellation, the operation is not deleted; instead, it becomes
+        an operation with an Operation.error value with a google.rpc.Status.code of
+        1, corresponding to `Code.CANCELLED`.
+      operationId: webrisk.projects.operations.cancel
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleLongrunningCancelOperationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      tags:
+      - projects
+  /v1/projects/{projectsId}/submissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a Submission of a URI suspected of containing phishing
+        content to be reviewed. If the result verifies the existence of malicious
+        phishing content, the site will be added to the [Google's Social Engineering
+        lists](https://support.google.com/webmasters/answer/6350487/) in order to
+        protect users that could get exposed to this threat in the future. Only allowlisted
+        projects can use this method during Early Access. Please reach out to Sales
+        or your customer engineer to obtain access.
+      operationId: webrisk.projects.submissions.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudWebriskV1Submission'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudWebriskV1Submission'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/uris:submit:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Submits a URI suspected of containing malicious content to be reviewed.
+        Returns a google.longrunning.Operation which, once the review is complete,
+        is updated with its result. You can use the [Pub/Sub API] (https://cloud.google.com/pubsub)
+        to receive notifications for the returned Operation. If the result verifies
+        the existence of malicious content, the site will be added to the [Google's
+        Social Engineering lists] (https://support.google.com/webmasters/answer/6350487/)
+        in order to protect users that could get exposed to this threat in the future.
+        Only allowlisted projects can use this method during Early Access. Please
+        reach out to Sales or your customer engineer to obtain access.
+      operationId: webrisk.projects.uris.submit
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudWebriskV1SubmitUriRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
   /v1/threatLists:computeDiff:
     get:
       description: Gets the most recent threat list diffs. These diffs should be applied

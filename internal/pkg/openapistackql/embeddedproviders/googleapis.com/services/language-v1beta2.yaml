@@ -769,72 +769,7 @@ components:
               Google Account.
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
-  x-stackQL-resources:
-    documents:
-      id: google.services.documents
-      methods:
-        analyzeEntities:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1/documents:analyzeEntities
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        analyzeEntitySentiment:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1/documents:analyzeEntitySentiment
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        analyzeSentiment:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1/documents:analyzeSentiment
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        analyzeSyntax:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1/documents:analyzeSyntax
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        annotateText:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1/documents:annotateText
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        classifyText:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1/documents:classifyText
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: documents
-      title: documents
+  x-stackQL-resources: {}
 externalDocs:
   url: https://cloud.google.com/natural-language/
 info:

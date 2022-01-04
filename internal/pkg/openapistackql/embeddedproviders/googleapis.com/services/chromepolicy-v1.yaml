@@ -615,44 +615,29 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    customers:
-      id: google.services.customers
-      methods: {}
-      name: customers
-      title: customers
-    customers.resources:
-      id: google.services.customers.resources
-      methods: {}
-      name: customers.resources
-      title: customers.resources
-    customers.resources.policies:
-      id: google.services.customers.resources.policies
+    customers.policies:
+      id: google.chromepolicy.customers.policies
       methods:
         resolve:
           operation:
             $ref: post
           path:
-            $ref: /v1/{customer}/policies:resolve
+            $ref: /v1/customers/{customersId}/policies:resolve
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: customers.resources.policies
-      title: customers.resources.policies
-    customers.resources.policies.resources:
-      id: google.services.customers.resources.policies.resources
-      methods: {}
-      name: customers.resources.policies.resources
-      title: customers.resources.policies.resources
-    customers.resources.policies.resources.orgunits:
-      id: google.services.customers.resources.policies.resources.orgunits
+      name: customers.policies
+      title: customers.policies
+    customers.policies.orgunits:
+      id: google.chromepolicy.customers.policies.orgunits
       methods:
         batchInherit:
           operation:
             $ref: post
           path:
-            $ref: /v1/{customer}/policies/orgunits:batchInherit
+            $ref: /v1/customers/{customersId}/policies/orgunits:batchInherit
           request:
             mediaType: application/json
           response:
@@ -662,24 +647,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{customer}/policies/orgunits:batchModify
+            $ref: /v1/customers/{customersId}/policies/orgunits:batchModify
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: customers.resources.policies.resources.orgunits
-      title: customers.resources.policies.resources.orgunits
-    customers.resources.policySchemas:
-      id: google.services.customers.resources.policySchemas
+      name: customers.policies.orgunits
+      title: customers.policies.orgunits
+    customers.policySchemas:
+      id: google.chromepolicy.customers.policySchemas
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/customers/{customersId}/policySchemas/{policySchemasId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -687,24 +670,22 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/policySchemas
-          request:
-            mediaType: application/json
+            $ref: /v1/customers/{customersId}/policySchemas
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: customers.resources.policySchemas
-      title: customers.resources.policySchemas
+      name: customers.policySchemas
+      title: customers.policySchemas
     media:
-      id: google.services.media
+      id: google.chromepolicy.media
       methods:
         upload:
           operation:
             $ref: post
           path:
-            $ref: /v1/{customer}/policies/files:uploadPolicyFile
+            $ref: /v1/customers/{customersId}/policies/files:uploadPolicyFile
           request:
-            mediaType: application/json
+            mediaType: application/octet-stream
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -739,6 +720,288 @@ info:
   x-serviceName: chromepolicy
 openapi: 3.0.0
 paths:
+  /v1/customers/{customersId}/policies/files:uploadPolicyFile:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates an enterprise file from the content provided by user. Returns
+        a public download url for end user.
+      operationId: chromepolicy.media.upload
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              $ref: '#/components/schemas/GoogleChromePolicyV1UploadPolicyFileRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleChromePolicyV1UploadPolicyFileResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/chrome.management.policy
+        Oauth2c:
+        - https://www.googleapis.com/auth/chrome.management.policy
+      tags:
+      - media
+  /v1/customers/{customersId}/policies/orgunits:batchInherit:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Modify multiple policy values that are applied to a specific org
+        unit so that they now inherit the value from a parent (if applicable). All
+        targets must have the same target format. That is to say that they must point
+        to the same target resource and must have the same keys specified in `additionalTargetKeyNames`,
+        though the values for those keys may be different. On failure the request
+        will return the error details as part of the google.rpc.Status.
+      operationId: chromepolicy.customers.policies.orgunits.batchInherit
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleChromePolicyV1BatchInheritOrgUnitPoliciesRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/chrome.management.policy
+        Oauth2c:
+        - https://www.googleapis.com/auth/chrome.management.policy
+      tags:
+      - customers
+  /v1/customers/{customersId}/policies/orgunits:batchModify:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Modify multiple policy values that are applied to a specific org
+        unit. All targets must have the same target format. That is to say that they
+        must point to the same target resource and must have the same keys specified
+        in `additionalTargetKeyNames`, though the values for those keys may be different.
+        On failure the request will return the error details as part of the google.rpc.Status.
+      operationId: chromepolicy.customers.policies.orgunits.batchModify
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleChromePolicyV1BatchModifyOrgUnitPoliciesRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/chrome.management.policy
+        Oauth2c:
+        - https://www.googleapis.com/auth/chrome.management.policy
+      tags:
+      - customers
+  /v1/customers/{customersId}/policies:resolve:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Gets the resolved policy values for a list of policies that match
+        a search query.
+      operationId: chromepolicy.customers.policies.resolve
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleChromePolicyV1ResolveRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleChromePolicyV1ResolveResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/chrome.management.policy
+        Oauth2c:
+        - https://www.googleapis.com/auth/chrome.management.policy
+      - Oauth2:
+        - https://www.googleapis.com/auth/chrome.management.policy.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/chrome.management.policy.readonly
+      tags:
+      - customers
+  /v1/customers/{customersId}/policySchemas:
+    get:
+      description: Gets a list of policy schemas that match a specified filter value
+        for a given customer.
+      operationId: chromepolicy.customers.policySchemas.list
+      parameters:
+      - description: The schema filter used to find a particular schema based on fields
+          like its resource name, description and `additionalTargetKeyNames`.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of policy schemas to return.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The page token used to retrieve a specific page of the listing
+          request.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleChromePolicyV1ListPolicySchemasResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/chrome.management.policy
+        Oauth2c:
+        - https://www.googleapis.com/auth/chrome.management.policy
+      - Oauth2:
+        - https://www.googleapis.com/auth/chrome.management.policy.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/chrome.management.policy.readonly
+      tags:
+      - customers
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/customers/{customersId}/policySchemas/{policySchemasId}:
+    get:
+      description: Get a specific policy schema for a customer by its resource name.
+      operationId: chromepolicy.customers.policySchemas.get
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: policySchemasId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleChromePolicyV1PolicySchema'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/chrome.management.policy
+        Oauth2c:
+        - https://www.googleapis.com/auth/chrome.management.policy
+      - Oauth2:
+        - https://www.googleapis.com/auth/chrome.management.policy.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/chrome.management.policy.readonly
+      tags:
+      - customers
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /v1/{customer}/policies/files:uploadPolicyFile:
     parameters:
     - $ref: '#/components/parameters/_.xgafv'

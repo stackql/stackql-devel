@@ -232,26 +232,14 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    folders:
-      id: google.services.folders
-      methods: {}
-      name: folders
-      title: folders
-    folders.resources:
-      id: google.services.folders.resources
-      methods: {}
-      name: folders.resources
-      title: folders.resources
-    folders.resources.settings:
-      id: google.services.folders.resources.settings
+    folders.settings:
+      id: google.resourcesettings.folders.settings
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/folders/{foldersId}/settings/{settingsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -259,9 +247,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/settings
-          request:
-            mediaType: application/json
+            $ref: /v1/folders/{foldersId}/settings
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -269,34 +255,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/folders/{foldersId}/settings/{settingsId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: folders.resources.settings
-      title: folders.resources.settings
-    organizations:
-      id: google.services.organizations
-      methods: {}
-      name: organizations
-      title: organizations
-    organizations.resources:
-      id: google.services.organizations.resources
-      methods: {}
-      name: organizations.resources
-      title: organizations.resources
-    organizations.resources.settings:
-      id: google.services.organizations.resources.settings
+      name: folders.settings
+      title: folders.settings
+    organizations.settings:
+      id: google.resourcesettings.organizations.settings
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/organizations/{organizationsId}/settings/{settingsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -304,9 +278,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/settings
-          request:
-            mediaType: application/json
+            $ref: /v1/organizations/{organizationsId}/settings
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -314,34 +286,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/organizations/{organizationsId}/settings/{settingsId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: organizations.resources.settings
-      title: organizations.resources.settings
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.settings:
-      id: google.services.projects.resources.settings
+      name: organizations.settings
+      title: organizations.settings
+    projects.settings:
+      id: google.resourcesettings.projects.settings
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/settings/{settingsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -349,9 +309,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/settings
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/settings
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -359,14 +317,14 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/settings/{settingsId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.settings
-      title: projects.resources.settings
+      name: projects.settings
+      title: projects.settings
 externalDocs:
   url: https://cloud.google.com/resource-manager/docs/resource-settings/overview
 info:
@@ -396,6 +354,456 @@ info:
   x-serviceName: resourcesettings
 openapi: 3.0.0
 paths:
+  /v1/folders/{foldersId}/settings:
+    get:
+      description: Lists all the settings that are available on the Cloud resource
+        `parent`.
+      operationId: resourcesettings.projects.settings.list
+      parameters:
+      - description: Unused. The size of the page to be returned.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Unused. A page token used to retrieve the next page.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: The SettingView for this request.
+        in: query
+        name: view
+        schema:
+          enum:
+          - SETTING_VIEW_UNSPECIFIED
+          - SETTING_VIEW_BASIC
+          - SETTING_VIEW_EFFECTIVE_VALUE
+          - SETTING_VIEW_LOCAL_VALUE
+          type: string
+      - in: path
+        name: foldersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudResourcesettingsV1ListSettingsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/folders/{foldersId}/settings/{settingsId}:
+    get:
+      description: Returns a specified setting. Returns a `google.rpc.Status` with
+        `google.rpc.Code.NOT_FOUND` if the setting does not exist.
+      operationId: resourcesettings.projects.settings.get
+      parameters:
+      - description: The SettingView for this request.
+        in: query
+        name: view
+        schema:
+          enum:
+          - SETTING_VIEW_UNSPECIFIED
+          - SETTING_VIEW_BASIC
+          - SETTING_VIEW_EFFECTIVE_VALUE
+          - SETTING_VIEW_LOCAL_VALUE
+          type: string
+      - in: path
+        name: foldersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: settingsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudResourcesettingsV1Setting'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates a specified setting. Returns a `google.rpc.Status` with
+        `google.rpc.Code.NOT_FOUND` if the setting does not exist. Returns a `google.rpc.Status`
+        with `google.rpc.Code.FAILED_PRECONDITION` if the setting is flagged as read
+        only. Returns a `google.rpc.Status` with `google.rpc.Code.ABORTED` if the
+        etag supplied in the request does not match the persisted etag of the setting
+        value. On success, the response will contain only `name`, `local_value` and
+        `etag`. The `metadata` and `effective_value` cannot be updated through this
+        API. Note: the supplied setting will perform a full overwrite of the `local_value`
+        field.'
+      operationId: resourcesettings.projects.settings.patch
+      parameters:
+      - in: path
+        name: foldersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: settingsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudResourcesettingsV1Setting'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudResourcesettingsV1Setting'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/organizations/{organizationsId}/settings:
+    get:
+      description: Lists all the settings that are available on the Cloud resource
+        `parent`.
+      operationId: resourcesettings.projects.settings.list
+      parameters:
+      - description: Unused. The size of the page to be returned.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Unused. A page token used to retrieve the next page.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: The SettingView for this request.
+        in: query
+        name: view
+        schema:
+          enum:
+          - SETTING_VIEW_UNSPECIFIED
+          - SETTING_VIEW_BASIC
+          - SETTING_VIEW_EFFECTIVE_VALUE
+          - SETTING_VIEW_LOCAL_VALUE
+          type: string
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudResourcesettingsV1ListSettingsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/organizations/{organizationsId}/settings/{settingsId}:
+    get:
+      description: Returns a specified setting. Returns a `google.rpc.Status` with
+        `google.rpc.Code.NOT_FOUND` if the setting does not exist.
+      operationId: resourcesettings.projects.settings.get
+      parameters:
+      - description: The SettingView for this request.
+        in: query
+        name: view
+        schema:
+          enum:
+          - SETTING_VIEW_UNSPECIFIED
+          - SETTING_VIEW_BASIC
+          - SETTING_VIEW_EFFECTIVE_VALUE
+          - SETTING_VIEW_LOCAL_VALUE
+          type: string
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: settingsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudResourcesettingsV1Setting'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates a specified setting. Returns a `google.rpc.Status` with
+        `google.rpc.Code.NOT_FOUND` if the setting does not exist. Returns a `google.rpc.Status`
+        with `google.rpc.Code.FAILED_PRECONDITION` if the setting is flagged as read
+        only. Returns a `google.rpc.Status` with `google.rpc.Code.ABORTED` if the
+        etag supplied in the request does not match the persisted etag of the setting
+        value. On success, the response will contain only `name`, `local_value` and
+        `etag`. The `metadata` and `effective_value` cannot be updated through this
+        API. Note: the supplied setting will perform a full overwrite of the `local_value`
+        field.'
+      operationId: resourcesettings.projects.settings.patch
+      parameters:
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: settingsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudResourcesettingsV1Setting'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudResourcesettingsV1Setting'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/settings:
+    get:
+      description: Lists all the settings that are available on the Cloud resource
+        `parent`.
+      operationId: resourcesettings.projects.settings.list
+      parameters:
+      - description: Unused. The size of the page to be returned.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Unused. A page token used to retrieve the next page.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: The SettingView for this request.
+        in: query
+        name: view
+        schema:
+          enum:
+          - SETTING_VIEW_UNSPECIFIED
+          - SETTING_VIEW_BASIC
+          - SETTING_VIEW_EFFECTIVE_VALUE
+          - SETTING_VIEW_LOCAL_VALUE
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudResourcesettingsV1ListSettingsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/settings/{settingsId}:
+    get:
+      description: Returns a specified setting. Returns a `google.rpc.Status` with
+        `google.rpc.Code.NOT_FOUND` if the setting does not exist.
+      operationId: resourcesettings.projects.settings.get
+      parameters:
+      - description: The SettingView for this request.
+        in: query
+        name: view
+        schema:
+          enum:
+          - SETTING_VIEW_UNSPECIFIED
+          - SETTING_VIEW_BASIC
+          - SETTING_VIEW_EFFECTIVE_VALUE
+          - SETTING_VIEW_LOCAL_VALUE
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: settingsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudResourcesettingsV1Setting'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates a specified setting. Returns a `google.rpc.Status` with
+        `google.rpc.Code.NOT_FOUND` if the setting does not exist. Returns a `google.rpc.Status`
+        with `google.rpc.Code.FAILED_PRECONDITION` if the setting is flagged as read
+        only. Returns a `google.rpc.Status` with `google.rpc.Code.ABORTED` if the
+        etag supplied in the request does not match the persisted etag of the setting
+        value. On success, the response will contain only `name`, `local_value` and
+        `etag`. The `metadata` and `effective_value` cannot be updated through this
+        API. Note: the supplied setting will perform a full overwrite of the `local_value`
+        field.'
+      operationId: resourcesettings.projects.settings.patch
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: settingsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudResourcesettingsV1Setting'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudResourcesettingsV1Setting'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
   /v1/{name}:
     get:
       description: Returns a specified setting. Returns a `google.rpc.Status` with

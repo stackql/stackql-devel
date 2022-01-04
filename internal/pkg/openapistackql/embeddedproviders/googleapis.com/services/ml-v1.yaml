@@ -2531,13 +2531,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     projects:
-      id: google.services.projects
+      id: google.ml.projects
       methods:
         explain:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:explain
+            $ref: /v1/projects/{projectsId}:explain
           request:
             mediaType: application/json
           response:
@@ -2547,9 +2547,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}:getConfig
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}:getConfig
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2557,7 +2555,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:predict
+            $ref: /v1/projects/{projectsId}:predict
           request:
             mediaType: application/json
           response:
@@ -2565,19 +2563,14 @@ components:
             openAPIDocKey: '200'
       name: projects
       title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.jobs:
-      id: google.services.projects.resources.jobs
+    projects.jobs:
+      id: google.ml.projects.jobs
       methods:
         cancel:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:cancel
+            $ref: /v1/projects/{projectsId}/jobs/{jobsId}:cancel
           request:
             mediaType: application/json
           response:
@@ -2587,7 +2580,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/jobs
+            $ref: /v1/projects/{projectsId}/jobs
           request:
             mediaType: application/json
           response:
@@ -2597,9 +2590,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/jobs/{jobsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2607,9 +2598,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{resource}:getIamPolicy
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/jobs/{jobsId}:getIamPolicy
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2617,9 +2606,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/jobs
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/jobs
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2627,7 +2614,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/jobs/{jobsId}
           request:
             mediaType: application/json
           response:
@@ -2637,7 +2624,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/jobs/{jobsId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -2647,24 +2634,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/jobs/{jobsId}:testIamPermissions
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.jobs
-      title: projects.resources.jobs
-    projects.resources.locations:
-      id: google.services.projects.resources.locations
+      name: projects.jobs
+      title: projects.jobs
+    projects.locations:
+      id: google.ml.projects.locations
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2672,27 +2657,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/locations
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations
-      title: projects.resources.locations
-    projects.resources.locations.resources:
-      id: google.services.projects.resources.locations.resources
-      methods: {}
-      name: projects.resources.locations.resources
-      title: projects.resources.locations.resources
-    projects.resources.locations.resources.operations:
-      id: google.services.projects.resources.locations.resources.operations
+      name: projects.locations
+      title: projects.locations
+    projects.locations.operations:
+      id: google.ml.projects.locations.operations
       methods:
         cancel:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:cancel
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}:cancel
           request:
             mediaType: application/json
           response:
@@ -2702,22 +2680,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.operations
-      title: projects.resources.locations.resources.operations
-    projects.resources.locations.resources.studies:
-      id: google.services.projects.resources.locations.resources.studies
+      name: projects.locations.operations
+      title: projects.locations.operations
+    projects.locations.studies:
+      id: google.ml.projects.locations.studies
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/studies
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/studies
           request:
             mediaType: application/json
           response:
@@ -2727,9 +2703,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2737,9 +2711,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2747,27 +2719,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/studies
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/studies
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.studies
-      title: projects.resources.locations.resources.studies
-    projects.resources.locations.resources.studies.resources:
-      id: google.services.projects.resources.locations.resources.studies.resources
-      methods: {}
-      name: projects.resources.locations.resources.studies.resources
-      title: projects.resources.locations.resources.studies.resources
-    projects.resources.locations.resources.studies.resources.trials:
-      id: google.services.projects.resources.locations.resources.studies.resources.trials
+      name: projects.locations.studies
+      title: projects.locations.studies
+    projects.locations.studies.trials:
+      id: google.ml.projects.locations.studies.trials
       methods:
         addMeasurement:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:addMeasurement
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}/trials/{trialsId}:addMeasurement
           request:
             mediaType: application/json
           response:
@@ -2777,7 +2742,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:checkEarlyStoppingState
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}/trials/{trialsId}:checkEarlyStoppingState
           request:
             mediaType: application/json
           response:
@@ -2787,7 +2752,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:complete
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}/trials/{trialsId}:complete
           request:
             mediaType: application/json
           response:
@@ -2797,7 +2762,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/trials
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}/trials
           request:
             mediaType: application/json
           response:
@@ -2807,9 +2772,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}/trials/{trialsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2817,9 +2780,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}/trials/{trialsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2827,9 +2788,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/trials
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}/trials
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2837,7 +2796,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/trials:listOptimalTrials
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}/trials:listOptimalTrials
           request:
             mediaType: application/json
           response:
@@ -2847,7 +2806,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:stop
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}/trials/{trialsId}:stop
           request:
             mediaType: application/json
           response:
@@ -2857,22 +2816,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/trials:suggest
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}/trials:suggest
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.studies.resources.trials
-      title: projects.resources.locations.resources.studies.resources.trials
-    projects.resources.models:
-      id: google.services.projects.resources.models
+      name: projects.locations.studies.trials
+      title: projects.locations.studies.trials
+    projects.models:
+      id: google.ml.projects.models
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/models
+            $ref: /v1/projects/{projectsId}/models
           request:
             mediaType: application/json
           response:
@@ -2882,9 +2841,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/models/{modelsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2892,9 +2849,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/models/{modelsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2902,9 +2857,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{resource}:getIamPolicy
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/models/{modelsId}:getIamPolicy
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2912,9 +2865,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/models
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/models
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2922,7 +2873,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/models/{modelsId}
           request:
             mediaType: application/json
           response:
@@ -2932,7 +2883,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/models/{modelsId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -2942,27 +2893,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/models/{modelsId}:testIamPermissions
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.models
-      title: projects.resources.models
-    projects.resources.models.resources:
-      id: google.services.projects.resources.models.resources
-      methods: {}
-      name: projects.resources.models.resources
-      title: projects.resources.models.resources
-    projects.resources.models.resources.versions:
-      id: google.services.projects.resources.models.resources.versions
+      name: projects.models
+      title: projects.models
+    projects.models.versions:
+      id: google.ml.projects.models.versions
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/versions
+            $ref: /v1/projects/{projectsId}/models/{modelsId}/versions
           request:
             mediaType: application/json
           response:
@@ -2972,9 +2918,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/models/{modelsId}/versions/{versionsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2982,9 +2926,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/models/{modelsId}/versions/{versionsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2992,9 +2934,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/versions
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/models/{modelsId}/versions
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3002,7 +2942,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/models/{modelsId}/versions/{versionsId}
           request:
             mediaType: application/json
           response:
@@ -3012,22 +2952,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:setDefault
+            $ref: /v1/projects/{projectsId}/models/{modelsId}/versions/{versionsId}:setDefault
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.models.resources.versions
-      title: projects.resources.models.resources.versions
-    projects.resources.operations:
-      id: google.services.projects.resources.operations
+      name: projects.models.versions
+      title: projects.models.versions
+    projects.operations:
+      id: google.ml.projects.operations
       methods:
         cancel:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:cancel
+            $ref: /v1/projects/{projectsId}/operations/{operationsId}:cancel
           request:
             mediaType: application/json
           response:
@@ -3037,9 +2977,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3047,14 +2985,12 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/operations
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/operations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.operations
-      title: projects.resources.operations
+      name: projects.operations
+      title: projects.operations
 externalDocs:
   url: https://cloud.google.com/ml/
 info:
@@ -3087,6 +3023,2636 @@ info:
   x-serviceName: ml
 openapi: 3.0.0
 paths:
+  /v1/projects/{projectsId}/jobs:
+    get:
+      description: 'Lists the jobs in the project. If there are no jobs that match
+        the request parameters, the list request returns an empty response body: {}.'
+      operationId: ml.projects.jobs.list
+      parameters:
+      - description: 'Optional. Specifies the subset of jobs to retrieve. You can
+          filter on the value of one or more attributes of the job object. For example,
+          retrieve jobs with a job identifier that starts with ''census'': gcloud
+          ai-platform jobs list --filter=''jobId:census*'' List all failed jobs with
+          names that start with ''rnn'': gcloud ai-platform jobs list --filter=''jobId:rnn*
+          AND state:FAILED'' For more examples, see the guide to monitoring jobs.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. The number of jobs to retrieve per "page" of results.
+          If there are more remaining results than this number, the response message
+          will contain a valid value in the `next_page_token` field. The default value
+          is 20, and the maximum page size is 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A page token to request the next page of results. You
+          get the token from the `next_page_token` field of the response from the
+          previous call.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudMlV1__ListJobsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a training or a batch prediction job.
+      operationId: ml.projects.jobs.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__Job'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudMlV1__Job'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/jobs/{jobsId}:
+    delete:
+      description: 'Deletes a model version. Each model can have multiple versions
+        deployed and in use at any given time. Use this method to remove a single
+        version. Note: You cannot delete the version that is set as the default version
+        of the model unless it is the only remaining version.'
+      operationId: ml.projects.models.versions.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: jobsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: ml.projects.operations.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: jobsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the specified Version resource. Currently the only update-able
+        fields are `description`, `requestLoggingConfig`, `autoScaling.minNodes`,
+        and `manualScaling.nodes`.
+      operationId: ml.projects.models.versions.patch
+      parameters:
+      - description: 'Required. Specifies the path, relative to `Version`, of the
+          field to update. Must be present and non-empty. For example, to change the
+          description of a version to "foo", the `update_mask` parameter would be
+          specified as `description`, and the `PATCH` request body would specify the
+          new value, as follows: ``` { "description": "foo" } ``` Currently the only
+          supported update mask fields are `description`, `requestLoggingConfig`,
+          `autoScaling.minNodes`, and `manualScaling.nodes`. However, you can only
+          update `manualScaling.nodes` if the version uses a [Compute Engine (N1)
+          machine type](/ml-engine/docs/machine-types-online-prediction).'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: jobsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__Version'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/jobs/{jobsId}:cancel:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Starts asynchronous cancellation on a long-running operation. The
+        server makes a best effort to cancel the operation, but success is not guaranteed.
+        If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+        Clients can use Operations.GetOperation or other methods to check whether
+        the cancellation succeeded or whether the operation completed despite cancellation.
+        On successful cancellation, the operation is not deleted; instead, it becomes
+        an operation with an Operation.error value with a google.rpc.Status.code of
+        1, corresponding to `Code.CANCELLED`.
+      operationId: ml.projects.operations.cancel
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: jobsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__CancelJobRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobuf__Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/jobs/{jobsId}:getIamPolicy:
+    get:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: ml.projects.models.getIamPolicy
+      parameters:
+      - description: Optional. The policy format version to be returned. Valid values
+          are 0, 1, and 3. Requests specifying an invalid value will be rejected.
+          Requests for policies with any conditional bindings must specify version
+          3. Policies without any conditional bindings may specify any valid value
+          or leave the field unset. To learn which resources support conditions in
+          their IAM policies, see the [IAM documentation](https://cloud.google.com/iam/help/conditions/resource-policies).
+        in: query
+        name: options.requestedPolicyVersion
+        schema:
+          type: integer
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: jobsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleIamV1__Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/jobs/{jobsId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy. Can return `NOT_FOUND`, `INVALID_ARGUMENT`, and `PERMISSION_DENIED`
+        errors.
+      operationId: ml.projects.models.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: jobsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleIamV1__SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleIamV1__Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/jobs/{jobsId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a `NOT_FOUND` error. Note: This operation is designed to be used for building
+        permission-aware UIs and command-line tools, not for authorization checking.
+        This operation may "fail open" without warning.'
+      operationId: ml.projects.models.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: jobsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleIamV1__TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleIamV1__TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations:
+    get:
+      description: List all locations that provides at least one type of CMLE capability.
+      operationId: ml.projects.locations.list
+      parameters:
+      - description: Optional. The number of locations to retrieve per "page" of results.
+          If there are more remaining results than this number, the response message
+          will contain a valid value in the `next_page_token` field. The default value
+          is 20, and the maximum page size is 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A page token to request the next page of results. You
+          get the token from the `next_page_token` field of the response from the
+          previous call.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudMlV1__ListLocationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}:
+    delete:
+      description: 'Deletes a model version. Each model can have multiple versions
+        deployed and in use at any given time. Use this method to remove a single
+        version. Note: You cannot delete the version that is set as the default version
+        of the model unless it is the only remaining version.'
+      operationId: ml.projects.models.versions.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: ml.projects.operations.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the specified Version resource. Currently the only update-able
+        fields are `description`, `requestLoggingConfig`, `autoScaling.minNodes`,
+        and `manualScaling.nodes`.
+      operationId: ml.projects.models.versions.patch
+      parameters:
+      - description: 'Required. Specifies the path, relative to `Version`, of the
+          field to update. Must be present and non-empty. For example, to change the
+          description of a version to "foo", the `update_mask` parameter would be
+          specified as `description`, and the `PATCH` request body would specify the
+          new value, as follows: ``` { "description": "foo" } ``` Currently the only
+          supported update mask fields are `description`, `requestLoggingConfig`,
+          `autoScaling.minNodes`, and `manualScaling.nodes`. However, you can only
+          update `manualScaling.nodes` if the version uses a [Compute Engine (N1)
+          machine type](/ml-engine/docs/machine-types-online-prediction).'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__Version'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}:
+    delete:
+      description: 'Deletes a model version. Each model can have multiple versions
+        deployed and in use at any given time. Use this method to remove a single
+        version. Note: You cannot delete the version that is set as the default version
+        of the model unless it is the only remaining version.'
+      operationId: ml.projects.models.versions.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: ml.projects.operations.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the specified Version resource. Currently the only update-able
+        fields are `description`, `requestLoggingConfig`, `autoScaling.minNodes`,
+        and `manualScaling.nodes`.
+      operationId: ml.projects.models.versions.patch
+      parameters:
+      - description: 'Required. Specifies the path, relative to `Version`, of the
+          field to update. Must be present and non-empty. For example, to change the
+          description of a version to "foo", the `update_mask` parameter would be
+          specified as `description`, and the `PATCH` request body would specify the
+          new value, as follows: ``` { "description": "foo" } ``` Currently the only
+          supported update mask fields are `description`, `requestLoggingConfig`,
+          `autoScaling.minNodes`, and `manualScaling.nodes`. However, you can only
+          update `manualScaling.nodes` if the version uses a [Compute Engine (N1)
+          machine type](/ml-engine/docs/machine-types-online-prediction).'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__Version'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}:cancel:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Starts asynchronous cancellation on a long-running operation. The
+        server makes a best effort to cancel the operation, but success is not guaranteed.
+        If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+        Clients can use Operations.GetOperation or other methods to check whether
+        the cancellation succeeded or whether the operation completed despite cancellation.
+        On successful cancellation, the operation is not deleted; instead, it becomes
+        an operation with an Operation.error value with a google.rpc.Status.code of
+        1, corresponding to `Code.CANCELLED`.
+      operationId: ml.projects.operations.cancel
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__CancelJobRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobuf__Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/studies:
+    get:
+      description: Lists all the studies in a region for an associated project.
+      operationId: ml.projects.locations.studies.list
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudMlV1__ListStudiesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a study.
+      operationId: ml.projects.locations.studies.create
+      parameters:
+      - description: Required. The ID to use for the study, which will become the
+          final component of the study's resource name.
+        in: query
+        name: studyId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__Study'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudMlV1__Study'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}:
+    delete:
+      description: 'Deletes a model version. Each model can have multiple versions
+        deployed and in use at any given time. Use this method to remove a single
+        version. Note: You cannot delete the version that is set as the default version
+        of the model unless it is the only remaining version.'
+      operationId: ml.projects.models.versions.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: studiesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: ml.projects.operations.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: studiesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the specified Version resource. Currently the only update-able
+        fields are `description`, `requestLoggingConfig`, `autoScaling.minNodes`,
+        and `manualScaling.nodes`.
+      operationId: ml.projects.models.versions.patch
+      parameters:
+      - description: 'Required. Specifies the path, relative to `Version`, of the
+          field to update. Must be present and non-empty. For example, to change the
+          description of a version to "foo", the `update_mask` parameter would be
+          specified as `description`, and the `PATCH` request body would specify the
+          new value, as follows: ``` { "description": "foo" } ``` Currently the only
+          supported update mask fields are `description`, `requestLoggingConfig`,
+          `autoScaling.minNodes`, and `manualScaling.nodes`. However, you can only
+          update `manualScaling.nodes` if the version uses a [Compute Engine (N1)
+          machine type](/ml-engine/docs/machine-types-online-prediction).'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: studiesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__Version'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}/trials:
+    get:
+      description: Lists the trials associated with a study.
+      operationId: ml.projects.locations.studies.trials.list
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: studiesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudMlV1__ListTrialsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Adds a user provided trial to a study.
+      operationId: ml.projects.locations.studies.trials.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: studiesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__Trial'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudMlV1__Trial'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}/trials/{trialsId}:
+    delete:
+      description: 'Deletes a model version. Each model can have multiple versions
+        deployed and in use at any given time. Use this method to remove a single
+        version. Note: You cannot delete the version that is set as the default version
+        of the model unless it is the only remaining version.'
+      operationId: ml.projects.models.versions.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: studiesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: trialsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: ml.projects.operations.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: studiesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: trialsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the specified Version resource. Currently the only update-able
+        fields are `description`, `requestLoggingConfig`, `autoScaling.minNodes`,
+        and `manualScaling.nodes`.
+      operationId: ml.projects.models.versions.patch
+      parameters:
+      - description: 'Required. Specifies the path, relative to `Version`, of the
+          field to update. Must be present and non-empty. For example, to change the
+          description of a version to "foo", the `update_mask` parameter would be
+          specified as `description`, and the `PATCH` request body would specify the
+          new value, as follows: ``` { "description": "foo" } ``` Currently the only
+          supported update mask fields are `description`, `requestLoggingConfig`,
+          `autoScaling.minNodes`, and `manualScaling.nodes`. However, you can only
+          update `manualScaling.nodes` if the version uses a [Compute Engine (N1)
+          machine type](/ml-engine/docs/machine-types-online-prediction).'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: studiesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: trialsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__Version'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}/trials/{trialsId}:addMeasurement:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Adds a measurement of the objective metrics to a trial. This measurement
+        is assumed to have been taken before the trial is complete.
+      operationId: ml.projects.locations.studies.trials.addMeasurement
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: studiesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: trialsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__AddTrialMeasurementRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudMlV1__Trial'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}/trials/{trialsId}:checkEarlyStoppingState:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Checks whether a trial should stop or not. Returns a long-running
+        operation. When the operation is successful, it will contain a CheckTrialEarlyStoppingStateResponse.
+      operationId: ml.projects.locations.studies.trials.checkEarlyStoppingState
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: studiesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: trialsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__CheckTrialEarlyStoppingStateRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}/trials/{trialsId}:complete:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Marks a trial as complete.
+      operationId: ml.projects.locations.studies.trials.complete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: studiesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: trialsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__CompleteTrialRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudMlV1__Trial'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}/trials/{trialsId}:stop:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Stops a trial.
+      operationId: ml.projects.locations.studies.trials.stop
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: studiesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: trialsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__StopTrialRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudMlV1__Trial'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}/trials:listOptimalTrials:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Lists the pareto-optimal trials for multi-objective study or the
+        optimal trials for single-objective study. The definition of pareto-optimal
+        can be checked in wiki page. https://en.wikipedia.org/wiki/Pareto_efficiency
+      operationId: ml.projects.locations.studies.trials.listOptimalTrials
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: studiesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__ListOptimalTrialsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudMlV1__ListOptimalTrialsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/studies/{studiesId}/trials:suggest:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Adds one or more trials to a study, with parameter values suggested
+        by AI Platform Vizier. Returns a long-running operation associated with the
+        generation of trial suggestions. When this long-running operation succeeds,
+        it will contain a SuggestTrialsResponse.
+      operationId: ml.projects.locations.studies.trials.suggest
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: studiesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__SuggestTrialsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/models:
+    get:
+      description: 'Lists the models in a project. Each project can contain multiple
+        models, and each model can have multiple versions. If there are no models
+        that match the request parameters, the list request returns an empty response
+        body: {}.'
+      operationId: ml.projects.models.list
+      parameters:
+      - description: Optional. Specifies the subset of models to retrieve.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. The number of models to retrieve per "page" of results.
+          If there are more remaining results than this number, the response message
+          will contain a valid value in the `next_page_token` field. The default value
+          is 20, and the maximum page size is 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A page token to request the next page of results. You
+          get the token from the `next_page_token` field of the response from the
+          previous call.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudMlV1__ListModelsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a model which will later contain one or more versions.
+        You must add at least one version before you can request predictions from
+        the model. Add versions by calling projects.models.versions.create.
+      operationId: ml.projects.models.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__Model'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudMlV1__Model'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/models/{modelsId}:
+    delete:
+      description: 'Deletes a model version. Each model can have multiple versions
+        deployed and in use at any given time. Use this method to remove a single
+        version. Note: You cannot delete the version that is set as the default version
+        of the model unless it is the only remaining version.'
+      operationId: ml.projects.models.versions.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: modelsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: ml.projects.operations.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: modelsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the specified Version resource. Currently the only update-able
+        fields are `description`, `requestLoggingConfig`, `autoScaling.minNodes`,
+        and `manualScaling.nodes`.
+      operationId: ml.projects.models.versions.patch
+      parameters:
+      - description: 'Required. Specifies the path, relative to `Version`, of the
+          field to update. Must be present and non-empty. For example, to change the
+          description of a version to "foo", the `update_mask` parameter would be
+          specified as `description`, and the `PATCH` request body would specify the
+          new value, as follows: ``` { "description": "foo" } ``` Currently the only
+          supported update mask fields are `description`, `requestLoggingConfig`,
+          `autoScaling.minNodes`, and `manualScaling.nodes`. However, you can only
+          update `manualScaling.nodes` if the version uses a [Compute Engine (N1)
+          machine type](/ml-engine/docs/machine-types-online-prediction).'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: modelsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__Version'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/models/{modelsId}/versions:
+    get:
+      description: 'Gets basic information about all the versions of a model. If you
+        expect that a model has many versions, or if you need to handle only a limited
+        number of results at a time, you can request that the list be retrieved in
+        batches (called pages). If there are no versions that match the request parameters,
+        the list request returns an empty response body: {}.'
+      operationId: ml.projects.models.versions.list
+      parameters:
+      - description: Optional. Specifies the subset of versions to retrieve.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. The number of versions to retrieve per "page" of results.
+          If there are more remaining results than this number, the response message
+          will contain a valid value in the `next_page_token` field. The default value
+          is 20, and the maximum page size is 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A page token to request the next page of results. You
+          get the token from the `next_page_token` field of the response from the
+          previous call.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: modelsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudMlV1__ListVersionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new version of a model from a trained TensorFlow model.
+        If the version created in the cloud by this call is the first deployed version
+        of the specified model, it will be made the default version of the model.
+        When you add a version to a model that already has one or more versions, the
+        default version does not automatically change. If you want a new version to
+        be the default, you must call projects.models.versions.setDefault.
+      operationId: ml.projects.models.versions.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: modelsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__Version'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/models/{modelsId}/versions/{versionsId}:
+    delete:
+      description: 'Deletes a model version. Each model can have multiple versions
+        deployed and in use at any given time. Use this method to remove a single
+        version. Note: You cannot delete the version that is set as the default version
+        of the model unless it is the only remaining version.'
+      operationId: ml.projects.models.versions.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: modelsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: versionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: ml.projects.operations.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: modelsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: versionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the specified Version resource. Currently the only update-able
+        fields are `description`, `requestLoggingConfig`, `autoScaling.minNodes`,
+        and `manualScaling.nodes`.
+      operationId: ml.projects.models.versions.patch
+      parameters:
+      - description: 'Required. Specifies the path, relative to `Version`, of the
+          field to update. Must be present and non-empty. For example, to change the
+          description of a version to "foo", the `update_mask` parameter would be
+          specified as `description`, and the `PATCH` request body would specify the
+          new value, as follows: ``` { "description": "foo" } ``` Currently the only
+          supported update mask fields are `description`, `requestLoggingConfig`,
+          `autoScaling.minNodes`, and `manualScaling.nodes`. However, you can only
+          update `manualScaling.nodes` if the version uses a [Compute Engine (N1)
+          machine type](/ml-engine/docs/machine-types-online-prediction).'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: modelsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: versionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__Version'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/models/{modelsId}/versions/{versionsId}:setDefault:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Designates a version to be the default for the model. The default
+        version is used for prediction requests made against the model that don't
+        specify a version. The first version to be created for a model is automatically
+        set as the default. You must make any subsequent changes to the default version
+        setting manually using this method.
+      operationId: ml.projects.models.versions.setDefault
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: modelsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: versionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__SetDefaultVersionRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudMlV1__Version'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/models/{modelsId}:getIamPolicy:
+    get:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: ml.projects.models.getIamPolicy
+      parameters:
+      - description: Optional. The policy format version to be returned. Valid values
+          are 0, 1, and 3. Requests specifying an invalid value will be rejected.
+          Requests for policies with any conditional bindings must specify version
+          3. Policies without any conditional bindings may specify any valid value
+          or leave the field unset. To learn which resources support conditions in
+          their IAM policies, see the [IAM documentation](https://cloud.google.com/iam/help/conditions/resource-policies).
+        in: query
+        name: options.requestedPolicyVersion
+        schema:
+          type: integer
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: modelsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleIamV1__Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/models/{modelsId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy. Can return `NOT_FOUND`, `INVALID_ARGUMENT`, and `PERMISSION_DENIED`
+        errors.
+      operationId: ml.projects.models.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: modelsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleIamV1__SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleIamV1__Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/models/{modelsId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a `NOT_FOUND` error. Note: This operation is designed to be used for building
+        permission-aware UIs and command-line tools, not for authorization checking.
+        This operation may "fail open" without warning.'
+      operationId: ml.projects.models.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: modelsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleIamV1__TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleIamV1__TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/operations:
+    get:
+      description: 'Lists operations that match the specified filter in the request.
+        If the server doesn''t support this method, it returns `UNIMPLEMENTED`. NOTE:
+        the `name` binding allows API services to override the binding to use different
+        resource name schemes, such as `users/*/operations`. To override the binding,
+        API services can add a binding such as `"/v1/{name=users/*}/operations"` to
+        their service configuration. For backwards compatibility, the default name
+        includes the operations collection id, however overriding users must ensure
+        the name binding is the parent resource, without the operations collection
+        id.'
+      operationId: ml.projects.operations.list
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__ListOperationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/operations/{operationsId}:
+    delete:
+      description: 'Deletes a model version. Each model can have multiple versions
+        deployed and in use at any given time. Use this method to remove a single
+        version. Note: You cannot delete the version that is set as the default version
+        of the model unless it is the only remaining version.'
+      operationId: ml.projects.models.versions.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: ml.projects.operations.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the specified Version resource. Currently the only update-able
+        fields are `description`, `requestLoggingConfig`, `autoScaling.minNodes`,
+        and `manualScaling.nodes`.
+      operationId: ml.projects.models.versions.patch
+      parameters:
+      - description: 'Required. Specifies the path, relative to `Version`, of the
+          field to update. Must be present and non-empty. For example, to change the
+          description of a version to "foo", the `update_mask` parameter would be
+          specified as `description`, and the `PATCH` request body would specify the
+          new value, as follows: ``` { "description": "foo" } ``` Currently the only
+          supported update mask fields are `description`, `requestLoggingConfig`,
+          `autoScaling.minNodes`, and `manualScaling.nodes`. However, you can only
+          update `manualScaling.nodes` if the version uses a [Compute Engine (N1)
+          machine type](/ml-engine/docs/machine-types-online-prediction).'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__Version'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunning__Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/operations/{operationsId}:cancel:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Starts asynchronous cancellation on a long-running operation. The
+        server makes a best effort to cancel the operation, but success is not guaranteed.
+        If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+        Clients can use Operations.GetOperation or other methods to check whether
+        the cancellation succeeded or whether the operation completed despite cancellation.
+        On successful cancellation, the operation is not deleted; instead, it becomes
+        an operation with an Operation.error value with a google.rpc.Status.code of
+        1, corresponding to `Code.CANCELLED`.
+      operationId: ml.projects.operations.cancel
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__CancelJobRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobuf__Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}:explain:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Performs explanation on the data in the request. {% dynamic include
+        "/ai-platform/includes/___explain-request" %} '
+      operationId: ml.projects.explain
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__ExplainRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleApi__HttpBody'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}:getConfig:
+    get:
+      description: Get the service account information associated with your project.
+        You need this information in order to grant the service account permissions
+        for the Google Cloud Storage location where you put your model training code
+        for training the model with Google Cloud Machine Learning.
+      operationId: ml.projects.getConfig
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudMlV1__GetConfigResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}:predict:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Performs online prediction on the data in the request. {% dynamic
+        include "/ai-platform/includes/___predict-request" %} '
+      operationId: ml.projects.predict
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudMlV1__PredictRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleApi__HttpBody'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
   /v1/{name}:
     delete:
       description: 'Deletes a model version. Each model can have multiple versions

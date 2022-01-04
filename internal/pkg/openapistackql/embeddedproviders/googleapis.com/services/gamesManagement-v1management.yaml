@@ -333,15 +333,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     achievements:
-      id: google.services.achievements
+      id: google.gamesManagement.achievements
       methods:
         reset:
           operation:
             $ref: post
           path:
             $ref: /games/v1management/achievements/{achievementId}/reset
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -350,8 +348,6 @@ components:
             $ref: post
           path:
             $ref: /games/v1management/achievements/reset
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -360,20 +356,14 @@ components:
             $ref: post
           path:
             $ref: /games/v1management/achievements/resetAllForAllPlayers
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         resetForAllPlayers:
           operation:
             $ref: post
           path:
             $ref: /games/v1management/achievements/{achievementId}/resetForAllPlayers
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         resetMultipleForAllPlayers:
           operation:
@@ -383,67 +373,52 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
       name: achievements
       title: achievements
     applications:
-      id: google.services.applications
+      id: google.gamesManagement.applications
       methods:
         listHidden:
           operation:
             $ref: get
           path:
             $ref: /games/v1management/applications/{applicationId}/players/hidden
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: applications
       title: applications
     events:
-      id: google.services.events
+      id: google.gamesManagement.events
       methods:
         reset:
           operation:
             $ref: post
           path:
             $ref: /games/v1management/events/{eventId}/reset
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         resetAll:
           operation:
             $ref: post
           path:
             $ref: /games/v1management/events/reset
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         resetAllForAllPlayers:
           operation:
             $ref: post
           path:
             $ref: /games/v1management/events/resetAllForAllPlayers
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         resetForAllPlayers:
           operation:
             $ref: post
           path:
             $ref: /games/v1management/events/{eventId}/resetForAllPlayers
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         resetMultipleForAllPlayers:
           operation:
@@ -453,45 +428,36 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
       name: events
       title: events
     players:
-      id: google.services.players
+      id: google.gamesManagement.players
       methods:
         hide:
           operation:
             $ref: post
           path:
             $ref: /games/v1management/applications/{applicationId}/players/hidden/{playerId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         unhide:
           operation:
             $ref: delete
           path:
             $ref: /games/v1management/applications/{applicationId}/players/hidden/{playerId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
       name: players
       title: players
     scores:
-      id: google.services.scores
+      id: google.gamesManagement.scores
       methods:
         reset:
           operation:
             $ref: post
           path:
             $ref: /games/v1management/leaderboards/{leaderboardId}/scores/reset
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -500,8 +466,6 @@ components:
             $ref: post
           path:
             $ref: /games/v1management/scores/reset
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -510,20 +474,14 @@ components:
             $ref: post
           path:
             $ref: /games/v1management/scores/resetAllForAllPlayers
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         resetForAllPlayers:
           operation:
             $ref: post
           path:
             $ref: /games/v1management/leaderboards/{leaderboardId}/scores/resetForAllPlayers
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         resetMultipleForAllPlayers:
           operation:
@@ -533,7 +491,6 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
       name: scores
       title: scores

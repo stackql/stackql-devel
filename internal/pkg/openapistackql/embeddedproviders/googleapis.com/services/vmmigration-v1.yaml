@@ -1373,26 +1373,14 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.locations:
-      id: google.services.projects.resources.locations
+    projects.locations:
+      id: google.vmmigration.projects.locations
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1400,27 +1388,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/locations
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations
-      title: projects.resources.locations
-    projects.resources.locations.resources:
-      id: google.services.projects.resources.locations.resources
-      methods: {}
-      name: projects.resources.locations.resources
-      title: projects.resources.locations.resources
-    projects.resources.locations.resources.groups:
-      id: google.services.projects.resources.locations.resources.groups
+      name: projects.locations
+      title: projects.locations
+    projects.locations.groups:
+      id: google.vmmigration.projects.locations.groups
       methods:
         addGroupMigration:
           operation:
             $ref: post
           path:
-            $ref: /v1/{group}:addGroupMigration
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/groups/{groupsId}:addGroupMigration
           request:
             mediaType: application/json
           response:
@@ -1430,7 +1411,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/groups
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/groups
           request:
             mediaType: application/json
           response:
@@ -1440,9 +1421,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/groups/{groupsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1450,9 +1429,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/groups/{groupsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1460,9 +1437,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/groups
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/groups
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1470,7 +1445,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/groups/{groupsId}
           request:
             mediaType: application/json
           response:
@@ -1480,22 +1455,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{group}:removeGroupMigration
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/groups/{groupsId}:removeGroupMigration
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.groups
-      title: projects.resources.locations.resources.groups
-    projects.resources.locations.resources.operations:
-      id: google.services.projects.resources.locations.resources.operations
+      name: projects.locations.groups
+      title: projects.locations.groups
+    projects.locations.operations:
+      id: google.vmmigration.projects.locations.operations
       methods:
         cancel:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:cancel
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}:cancel
           request:
             mediaType: application/json
           response:
@@ -1505,9 +1480,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1515,9 +1488,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1525,22 +1496,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/operations
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/operations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.operations
-      title: projects.resources.locations.resources.operations
-    projects.resources.locations.resources.sources:
-      id: google.services.projects.resources.locations.resources.sources
+      name: projects.locations.operations
+      title: projects.locations.operations
+    projects.locations.sources:
+      id: google.vmmigration.projects.locations.sources
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/sources
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources
           request:
             mediaType: application/json
           response:
@@ -1550,9 +1519,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1560,9 +1527,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{source}:fetchInventory
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}:fetchInventory
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1570,9 +1535,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1580,9 +1543,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/sources
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1590,27 +1551,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.sources
-      title: projects.resources.locations.resources.sources
-    projects.resources.locations.resources.sources.resources:
-      id: google.services.projects.resources.locations.resources.sources.resources
-      methods: {}
-      name: projects.resources.locations.resources.sources.resources
-      title: projects.resources.locations.resources.sources.resources
-    projects.resources.locations.resources.sources.resources.datacenterConnectors:
-      id: google.services.projects.resources.locations.resources.sources.resources.datacenterConnectors
+      name: projects.locations.sources
+      title: projects.locations.sources
+    projects.locations.sources.datacenterConnectors:
+      id: google.vmmigration.projects.locations.sources.datacenterConnectors
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/datacenterConnectors
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/datacenterConnectors
           request:
             mediaType: application/json
           response:
@@ -1620,9 +1576,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/datacenterConnectors/{datacenterConnectorsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1630,9 +1584,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/datacenterConnectors/{datacenterConnectorsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1640,22 +1592,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/datacenterConnectors
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/datacenterConnectors
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.sources.resources.datacenterConnectors
-      title: projects.resources.locations.resources.sources.resources.datacenterConnectors
-    projects.resources.locations.resources.sources.resources.migratingVms:
-      id: google.services.projects.resources.locations.resources.sources.resources.migratingVms
+      name: projects.locations.sources.datacenterConnectors
+      title: projects.locations.sources.datacenterConnectors
+    projects.locations.sources.migratingVms:
+      id: google.vmmigration.projects.locations.sources.migratingVms
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/migratingVms
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms
           request:
             mediaType: application/json
           response:
@@ -1665,9 +1615,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1675,7 +1623,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{migratingVm}:finalizeMigration
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}:finalizeMigration
           request:
             mediaType: application/json
           response:
@@ -1685,9 +1633,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1695,9 +1641,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/migratingVms
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1705,7 +1649,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}
           request:
             mediaType: application/json
           response:
@@ -1715,7 +1659,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{migratingVm}:pauseMigration
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}:pauseMigration
           request:
             mediaType: application/json
           response:
@@ -1725,7 +1669,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{migratingVm}:resumeMigration
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}:resumeMigration
           request:
             mediaType: application/json
           response:
@@ -1735,27 +1679,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{migratingVm}:startMigration
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}:startMigration
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.sources.resources.migratingVms
-      title: projects.resources.locations.resources.sources.resources.migratingVms
-    projects.resources.locations.resources.sources.resources.migratingVms.resources:
-      id: google.services.projects.resources.locations.resources.sources.resources.migratingVms.resources
-      methods: {}
-      name: projects.resources.locations.resources.sources.resources.migratingVms.resources
-      title: projects.resources.locations.resources.sources.resources.migratingVms.resources
-    projects.resources.locations.resources.sources.resources.migratingVms.resources.cloneJobs:
-      id: google.services.projects.resources.locations.resources.sources.resources.migratingVms.resources.cloneJobs
+      name: projects.locations.sources.migratingVms
+      title: projects.locations.sources.migratingVms
+    projects.locations.sources.migratingVms.cloneJobs:
+      id: google.vmmigration.projects.locations.sources.migratingVms.cloneJobs
       methods:
         cancel:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:cancel
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}/cloneJobs/{cloneJobsId}:cancel
           request:
             mediaType: application/json
           response:
@@ -1765,7 +1704,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/cloneJobs
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}/cloneJobs
           request:
             mediaType: application/json
           response:
@@ -1775,9 +1714,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}/cloneJobs/{cloneJobsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1785,22 +1722,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/cloneJobs
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}/cloneJobs
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.sources.resources.migratingVms.resources.cloneJobs
-      title: projects.resources.locations.resources.sources.resources.migratingVms.resources.cloneJobs
-    projects.resources.locations.resources.sources.resources.migratingVms.resources.cutoverJobs:
-      id: google.services.projects.resources.locations.resources.sources.resources.migratingVms.resources.cutoverJobs
+      name: projects.locations.sources.migratingVms.cloneJobs
+      title: projects.locations.sources.migratingVms.cloneJobs
+    projects.locations.sources.migratingVms.cutoverJobs:
+      id: google.vmmigration.projects.locations.sources.migratingVms.cutoverJobs
       methods:
         cancel:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:cancel
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}/cutoverJobs/{cutoverJobsId}:cancel
           request:
             mediaType: application/json
           response:
@@ -1810,7 +1745,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/cutoverJobs
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}/cutoverJobs
           request:
             mediaType: application/json
           response:
@@ -1820,9 +1755,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}/cutoverJobs/{cutoverJobsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1830,22 +1763,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/cutoverJobs
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}/cutoverJobs
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.sources.resources.migratingVms.resources.cutoverJobs
-      title: projects.resources.locations.resources.sources.resources.migratingVms.resources.cutoverJobs
-    projects.resources.locations.resources.sources.resources.utilizationReports:
-      id: google.services.projects.resources.locations.resources.sources.resources.utilizationReports
+      name: projects.locations.sources.migratingVms.cutoverJobs
+      title: projects.locations.sources.migratingVms.cutoverJobs
+    projects.locations.sources.utilizationReports:
+      id: google.vmmigration.projects.locations.sources.utilizationReports
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/utilizationReports
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/utilizationReports
           request:
             mediaType: application/json
           response:
@@ -1855,9 +1786,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/utilizationReports/{utilizationReportsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1865,9 +1794,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/utilizationReports/{utilizationReportsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1875,22 +1802,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/utilizationReports
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/utilizationReports
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.sources.resources.utilizationReports
-      title: projects.resources.locations.resources.sources.resources.utilizationReports
-    projects.resources.locations.resources.targetProjects:
-      id: google.services.projects.resources.locations.resources.targetProjects
+      name: projects.locations.sources.utilizationReports
+      title: projects.locations.sources.utilizationReports
+    projects.locations.targetProjects:
+      id: google.vmmigration.projects.locations.targetProjects
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/targetProjects
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/targetProjects
           request:
             mediaType: application/json
           response:
@@ -1900,9 +1825,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/targetProjects/{targetProjectsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1910,9 +1833,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/targetProjects/{targetProjectsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1920,9 +1841,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/targetProjects
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/targetProjects
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1930,14 +1849,14 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/targetProjects/{targetProjectsId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.targetProjects
-      title: projects.resources.locations.resources.targetProjects
+      name: projects.locations.targetProjects
+      title: projects.locations.targetProjects
 externalDocs:
   url: https://cloud.google.com/migrate/compute-engine
 info:
@@ -1967,6 +1886,3474 @@ info:
   x-serviceName: vmmigration
 openapi: 3.0.0
 paths:
+  /v1/projects/{projectsId}/locations:
+    get:
+      description: Lists information about the supported locations for this service.
+      operationId: vmmigration.projects.locations.list
+      parameters:
+      - description: A filter to narrow down results to a preferred subset. The filtering
+          language accepts strings like "displayName=tokyo", and is documented in
+          more detail in [AIP-160](https://google.aip.dev/160).
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of results to return. If not set, the service
+          selects a default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token received from the `next_page_token` field in the
+          response. Send that page token to receive the subsequent page.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLocationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}:
+    delete:
+      description: 'Deletes a single TargetProject. NOTE: TargetProject is a global
+        resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.delete
+      parameters:
+      - description: Optional. A request ID to identify requests. Specify a unique
+          request ID so that if you must retry your request, the server will know
+          to ignore the request if it has already been completed. The server will
+          guarantee that for at least 60 minutes after the first request. For example,
+          consider a situation where you make an initial request and t he request
+          times out. If you make the request again with the same request ID, the server
+          can check if original operation with the same request ID was received, and
+          if so, will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: 'Gets details of a single TargetProject. NOTE: TargetProject is
+        a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.get
+      parameters:
+      - description: Optional. The level of details of the report. Defaults to FULL
+        in: query
+        name: view
+        schema:
+          enum:
+          - UTILIZATION_REPORT_VIEW_UNSPECIFIED
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TargetProject'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates the parameters of a single TargetProject. NOTE: TargetProject
+        is a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.patch
+      parameters:
+      - description: A request ID to identify requests. Specify a unique request ID
+          so that if you must retry your request, the server will know to ignore the
+          request if it has already been completed. The server will guarantee that
+          for at least 60 minutes since the first request. For example, consider a
+          situation where you make an initial request and t he request times out.
+          If you make the request again with the same request ID, the server can check
+          if original operation with the same request ID was received, and if so,
+          will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Field mask is used to specify the fields to be overwritten in
+          the TargetProject resource by the update. The fields specified in the update_mask
+          are relative to the resource, not the full request. A field will be overwritten
+          if it is in the mask. If the user does not provide a mask then all fields
+          will be overwritten.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TargetProject'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/groups:
+    get:
+      description: Lists Groups in a given project and location.
+      operationId: vmmigration.projects.locations.groups.list
+      parameters:
+      - description: Optional. The filter request.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. the order by fields for the result.
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: Optional. The maximum number of groups to return. The service
+          may return fewer than this value. If unspecified, at most 500 groups will
+          be returned. The maximum value is 1000; values above 1000 will be coerced
+          to 1000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Required. A page token, received from a previous `ListGroups`
+          call. Provide this to retrieve the subsequent page. When paginating, all
+          other parameters provided to `ListGroups` must match the call that provided
+          the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListGroupsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new Group in a given project and location.
+      operationId: vmmigration.projects.locations.groups.create
+      parameters:
+      - description: Required. The group identifier.
+        in: query
+        name: groupId
+        schema:
+          type: string
+      - description: A request ID to identify requests. Specify a unique request ID
+          so that if you must retry your request, the server will know to ignore the
+          request if it has already been completed. The server will guarantee that
+          for at least 60 minutes since the first request. For example, consider a
+          situation where you make an initial request and t he request times out.
+          If you make the request again with the same request ID, the server can check
+          if original operation with the same request ID was received, and if so,
+          will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/groups/{groupsId}:
+    delete:
+      description: 'Deletes a single TargetProject. NOTE: TargetProject is a global
+        resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.delete
+      parameters:
+      - description: Optional. A request ID to identify requests. Specify a unique
+          request ID so that if you must retry your request, the server will know
+          to ignore the request if it has already been completed. The server will
+          guarantee that for at least 60 minutes after the first request. For example,
+          consider a situation where you make an initial request and t he request
+          times out. If you make the request again with the same request ID, the server
+          can check if original operation with the same request ID was received, and
+          if so, will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: groupsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: 'Gets details of a single TargetProject. NOTE: TargetProject is
+        a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.get
+      parameters:
+      - description: Optional. The level of details of the report. Defaults to FULL
+        in: query
+        name: view
+        schema:
+          enum:
+          - UTILIZATION_REPORT_VIEW_UNSPECIFIED
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: groupsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TargetProject'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates the parameters of a single TargetProject. NOTE: TargetProject
+        is a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.patch
+      parameters:
+      - description: A request ID to identify requests. Specify a unique request ID
+          so that if you must retry your request, the server will know to ignore the
+          request if it has already been completed. The server will guarantee that
+          for at least 60 minutes since the first request. For example, consider a
+          situation where you make an initial request and t he request times out.
+          If you make the request again with the same request ID, the server can check
+          if original operation with the same request ID was received, and if so,
+          will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Field mask is used to specify the fields to be overwritten in
+          the TargetProject resource by the update. The fields specified in the update_mask
+          are relative to the resource, not the full request. A field will be overwritten
+          if it is in the mask. If the user does not provide a mask then all fields
+          will be overwritten.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: groupsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TargetProject'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/groups/{groupsId}:addGroupMigration:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Adds a MigratingVm to a Group.
+      operationId: vmmigration.projects.locations.groups.addGroupMigration
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: groupsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddGroupMigrationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/groups/{groupsId}:removeGroupMigration:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Removes a MigratingVm from a Group.
+      operationId: vmmigration.projects.locations.groups.removeGroupMigration
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: groupsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RemoveGroupMigrationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/operations:
+    get:
+      description: 'Lists operations that match the specified filter in the request.
+        If the server doesn''t support this method, it returns `UNIMPLEMENTED`. NOTE:
+        the `name` binding allows API services to override the binding to use different
+        resource name schemes, such as `users/*/operations`. To override the binding,
+        API services can add a binding such as `"/v1/{name=users/*}/operations"` to
+        their service configuration. For backwards compatibility, the default name
+        includes the operations collection id, however overriding users must ensure
+        the name binding is the parent resource, without the operations collection
+        id.'
+      operationId: vmmigration.projects.locations.operations.list
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOperationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}:
+    delete:
+      description: 'Deletes a single TargetProject. NOTE: TargetProject is a global
+        resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.delete
+      parameters:
+      - description: Optional. A request ID to identify requests. Specify a unique
+          request ID so that if you must retry your request, the server will know
+          to ignore the request if it has already been completed. The server will
+          guarantee that for at least 60 minutes after the first request. For example,
+          consider a situation where you make an initial request and t he request
+          times out. If you make the request again with the same request ID, the server
+          can check if original operation with the same request ID was received, and
+          if so, will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: 'Gets details of a single TargetProject. NOTE: TargetProject is
+        a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.get
+      parameters:
+      - description: Optional. The level of details of the report. Defaults to FULL
+        in: query
+        name: view
+        schema:
+          enum:
+          - UTILIZATION_REPORT_VIEW_UNSPECIFIED
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TargetProject'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates the parameters of a single TargetProject. NOTE: TargetProject
+        is a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.patch
+      parameters:
+      - description: A request ID to identify requests. Specify a unique request ID
+          so that if you must retry your request, the server will know to ignore the
+          request if it has already been completed. The server will guarantee that
+          for at least 60 minutes since the first request. For example, consider a
+          situation where you make an initial request and t he request times out.
+          If you make the request again with the same request ID, the server can check
+          if original operation with the same request ID was received, and if so,
+          will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Field mask is used to specify the fields to be overwritten in
+          the TargetProject resource by the update. The fields specified in the update_mask
+          are relative to the resource, not the full request. A field will be overwritten
+          if it is in the mask. If the user does not provide a mask then all fields
+          will be overwritten.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TargetProject'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}:cancel:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Initiates the cancellation of a running cutover job.
+      operationId: vmmigration.projects.locations.sources.migratingVms.cutoverJobs.cancel
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelCutoverJobRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/sources:
+    get:
+      description: Lists Sources in a given project and location.
+      operationId: vmmigration.projects.locations.sources.list
+      parameters:
+      - description: Optional. The filter request.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. the order by fields for the result.
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: Optional. The maximum number of sources to return. The service
+          may return fewer than this value. If unspecified, at most 500 sources will
+          be returned. The maximum value is 1000; values above 1000 will be coerced
+          to 1000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Required. A page token, received from a previous `ListSources`
+          call. Provide this to retrieve the subsequent page. When paginating, all
+          other parameters provided to `ListSources` must match the call that provided
+          the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSourcesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new Source in a given project and location.
+      operationId: vmmigration.projects.locations.sources.create
+      parameters:
+      - description: A request ID to identify requests. Specify a unique request ID
+          so that if you must retry your request, the server will know to ignore the
+          request if it has already been completed. The server will guarantee that
+          for at least 60 minutes since the first request. For example, consider a
+          situation where you make an initial request and t he request times out.
+          If you make the request again with the same request ID, the server can check
+          if original operation with the same request ID was received, and if so,
+          will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Required. The source identifier.
+        in: query
+        name: sourceId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Source'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}:
+    delete:
+      description: 'Deletes a single TargetProject. NOTE: TargetProject is a global
+        resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.delete
+      parameters:
+      - description: Optional. A request ID to identify requests. Specify a unique
+          request ID so that if you must retry your request, the server will know
+          to ignore the request if it has already been completed. The server will
+          guarantee that for at least 60 minutes after the first request. For example,
+          consider a situation where you make an initial request and t he request
+          times out. If you make the request again with the same request ID, the server
+          can check if original operation with the same request ID was received, and
+          if so, will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: 'Gets details of a single TargetProject. NOTE: TargetProject is
+        a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.get
+      parameters:
+      - description: Optional. The level of details of the report. Defaults to FULL
+        in: query
+        name: view
+        schema:
+          enum:
+          - UTILIZATION_REPORT_VIEW_UNSPECIFIED
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TargetProject'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates the parameters of a single TargetProject. NOTE: TargetProject
+        is a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.patch
+      parameters:
+      - description: A request ID to identify requests. Specify a unique request ID
+          so that if you must retry your request, the server will know to ignore the
+          request if it has already been completed. The server will guarantee that
+          for at least 60 minutes since the first request. For example, consider a
+          situation where you make an initial request and t he request times out.
+          If you make the request again with the same request ID, the server can check
+          if original operation with the same request ID was received, and if so,
+          will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Field mask is used to specify the fields to be overwritten in
+          the TargetProject resource by the update. The fields specified in the update_mask
+          are relative to the resource, not the full request. A field will be overwritten
+          if it is in the mask. If the user does not provide a mask then all fields
+          will be overwritten.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TargetProject'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/datacenterConnectors:
+    get:
+      description: Lists DatacenterConnectors in a given Source.
+      operationId: vmmigration.projects.locations.sources.datacenterConnectors.list
+      parameters:
+      - description: Optional. The filter request.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. the order by fields for the result.
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: Optional. The maximum number of connectors to return. The service
+          may return fewer than this value. If unspecified, at most 500 sources will
+          be returned. The maximum value is 1000; values above 1000 will be coerced
+          to 1000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Required. A page token, received from a previous `ListDatacenterConnectors`
+          call. Provide this to retrieve the subsequent page. When paginating, all
+          other parameters provided to `ListDatacenterConnectors` must match the call
+          that provided the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDatacenterConnectorsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new DatacenterConnector in a given Source.
+      operationId: vmmigration.projects.locations.sources.datacenterConnectors.create
+      parameters:
+      - description: Required. The datacenterConnector identifier.
+        in: query
+        name: datacenterConnectorId
+        schema:
+          type: string
+      - description: A request ID to identify requests. Specify a unique request ID
+          so that if you must retry your request, the server will know to ignore the
+          request if it has already been completed. The server will guarantee that
+          for at least 60 minutes since the first request. For example, consider a
+          situation where you make an initial request and t he request times out.
+          If you make the request again with the same request ID, the server can check
+          if original operation with the same request ID was received, and if so,
+          will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatacenterConnector'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/datacenterConnectors/{datacenterConnectorsId}:
+    delete:
+      description: 'Deletes a single TargetProject. NOTE: TargetProject is a global
+        resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.delete
+      parameters:
+      - description: Optional. A request ID to identify requests. Specify a unique
+          request ID so that if you must retry your request, the server will know
+          to ignore the request if it has already been completed. The server will
+          guarantee that for at least 60 minutes after the first request. For example,
+          consider a situation where you make an initial request and t he request
+          times out. If you make the request again with the same request ID, the server
+          can check if original operation with the same request ID was received, and
+          if so, will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datacenterConnectorsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: 'Gets details of a single TargetProject. NOTE: TargetProject is
+        a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.get
+      parameters:
+      - description: Optional. The level of details of the report. Defaults to FULL
+        in: query
+        name: view
+        schema:
+          enum:
+          - UTILIZATION_REPORT_VIEW_UNSPECIFIED
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datacenterConnectorsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TargetProject'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates the parameters of a single TargetProject. NOTE: TargetProject
+        is a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.patch
+      parameters:
+      - description: A request ID to identify requests. Specify a unique request ID
+          so that if you must retry your request, the server will know to ignore the
+          request if it has already been completed. The server will guarantee that
+          for at least 60 minutes since the first request. For example, consider a
+          situation where you make an initial request and t he request times out.
+          If you make the request again with the same request ID, the server can check
+          if original operation with the same request ID was received, and if so,
+          will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Field mask is used to specify the fields to be overwritten in
+          the TargetProject resource by the update. The fields specified in the update_mask
+          are relative to the resource, not the full request. A field will be overwritten
+          if it is in the mask. If the user does not provide a mask then all fields
+          will be overwritten.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: datacenterConnectorsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TargetProject'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms:
+    get:
+      description: Lists MigratingVms in a given Source.
+      operationId: vmmigration.projects.locations.sources.migratingVms.list
+      parameters:
+      - description: Optional. The filter request.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. the order by fields for the result.
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: Optional. The maximum number of migrating VMs to return. The
+          service may return fewer than this value. If unspecified, at most 500 migrating
+          VMs will be returned. The maximum value is 1000; values above 1000 will
+          be coerced to 1000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Required. A page token, received from a previous `ListMigratingVms`
+          call. Provide this to retrieve the subsequent page. When paginating, all
+          other parameters provided to `ListMigratingVms` must match the call that
+          provided the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListMigratingVmsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new MigratingVm in a given Source.
+      operationId: vmmigration.projects.locations.sources.migratingVms.create
+      parameters:
+      - description: Required. The migratingVm identifier.
+        in: query
+        name: migratingVmId
+        schema:
+          type: string
+      - description: A request ID to identify requests. Specify a unique request ID
+          so that if you must retry your request, the server will know to ignore the
+          request if it has already been completed. The server will guarantee that
+          for at least 60 minutes since the first request. For example, consider a
+          situation where you make an initial request and t he request times out.
+          If you make the request again with the same request ID, the server can check
+          if original operation with the same request ID was received, and if so,
+          will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MigratingVm'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}:
+    delete:
+      description: 'Deletes a single TargetProject. NOTE: TargetProject is a global
+        resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.delete
+      parameters:
+      - description: Optional. A request ID to identify requests. Specify a unique
+          request ID so that if you must retry your request, the server will know
+          to ignore the request if it has already been completed. The server will
+          guarantee that for at least 60 minutes after the first request. For example,
+          consider a situation where you make an initial request and t he request
+          times out. If you make the request again with the same request ID, the server
+          can check if original operation with the same request ID was received, and
+          if so, will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: migratingVmsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: 'Gets details of a single TargetProject. NOTE: TargetProject is
+        a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.get
+      parameters:
+      - description: Optional. The level of details of the report. Defaults to FULL
+        in: query
+        name: view
+        schema:
+          enum:
+          - UTILIZATION_REPORT_VIEW_UNSPECIFIED
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: migratingVmsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TargetProject'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates the parameters of a single TargetProject. NOTE: TargetProject
+        is a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.patch
+      parameters:
+      - description: A request ID to identify requests. Specify a unique request ID
+          so that if you must retry your request, the server will know to ignore the
+          request if it has already been completed. The server will guarantee that
+          for at least 60 minutes since the first request. For example, consider a
+          situation where you make an initial request and t he request times out.
+          If you make the request again with the same request ID, the server can check
+          if original operation with the same request ID was received, and if so,
+          will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Field mask is used to specify the fields to be overwritten in
+          the TargetProject resource by the update. The fields specified in the update_mask
+          are relative to the resource, not the full request. A field will be overwritten
+          if it is in the mask. If the user does not provide a mask then all fields
+          will be overwritten.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: migratingVmsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TargetProject'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}/cloneJobs:
+    get:
+      description: Lists CloneJobs of a given migrating VM.
+      operationId: vmmigration.projects.locations.sources.migratingVms.cloneJobs.list
+      parameters:
+      - description: Optional. The filter request.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. the order by fields for the result.
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: Optional. The maximum number of clone jobs to return. The service
+          may return fewer than this value. If unspecified, at most 500 clone jobs
+          will be returned. The maximum value is 1000; values above 1000 will be coerced
+          to 1000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Required. A page token, received from a previous `ListCloneJobs`
+          call. Provide this to retrieve the subsequent page. When paginating, all
+          other parameters provided to `ListCloneJobs` must match the call that provided
+          the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: migratingVmsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCloneJobsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Initiates a Clone of a specific migrating VM.
+      operationId: vmmigration.projects.locations.sources.migratingVms.cloneJobs.create
+      parameters:
+      - description: Required. The clone job identifier.
+        in: query
+        name: cloneJobId
+        schema:
+          type: string
+      - description: A request ID to identify requests. Specify a unique request ID
+          so that if you must retry your request, the server will know to ignore the
+          request if it has already been completed. The server will guarantee that
+          for at least 60 minutes since the first request. For example, consider a
+          situation where you make an initial request and t he request times out.
+          If you make the request again with the same request ID, the server can check
+          if original operation with the same request ID was received, and if so,
+          will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: migratingVmsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloneJob'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  ? /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}/cloneJobs/{cloneJobsId}
+  : delete:
+      description: 'Deletes a single TargetProject. NOTE: TargetProject is a global
+        resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.delete
+      parameters:
+      - description: Optional. A request ID to identify requests. Specify a unique
+          request ID so that if you must retry your request, the server will know
+          to ignore the request if it has already been completed. The server will
+          guarantee that for at least 60 minutes after the first request. For example,
+          consider a situation where you make an initial request and t he request
+          times out. If you make the request again with the same request ID, the server
+          can check if original operation with the same request ID was received, and
+          if so, will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: migratingVmsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cloneJobsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: 'Gets details of a single TargetProject. NOTE: TargetProject is
+        a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.get
+      parameters:
+      - description: Optional. The level of details of the report. Defaults to FULL
+        in: query
+        name: view
+        schema:
+          enum:
+          - UTILIZATION_REPORT_VIEW_UNSPECIFIED
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: migratingVmsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cloneJobsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TargetProject'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates the parameters of a single TargetProject. NOTE: TargetProject
+        is a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.patch
+      parameters:
+      - description: A request ID to identify requests. Specify a unique request ID
+          so that if you must retry your request, the server will know to ignore the
+          request if it has already been completed. The server will guarantee that
+          for at least 60 minutes since the first request. For example, consider a
+          situation where you make an initial request and t he request times out.
+          If you make the request again with the same request ID, the server can check
+          if original operation with the same request ID was received, and if so,
+          will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Field mask is used to specify the fields to be overwritten in
+          the TargetProject resource by the update. The fields specified in the update_mask
+          are relative to the resource, not the full request. A field will be overwritten
+          if it is in the mask. If the user does not provide a mask then all fields
+          will be overwritten.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: migratingVmsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cloneJobsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TargetProject'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  ? /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}/cloneJobs/{cloneJobsId}:cancel
+  : parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Initiates the cancellation of a running cutover job.
+      operationId: vmmigration.projects.locations.sources.migratingVms.cutoverJobs.cancel
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: migratingVmsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cloneJobsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelCutoverJobRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}/cutoverJobs:
+    get:
+      description: Lists CutoverJobs of a given migrating VM.
+      operationId: vmmigration.projects.locations.sources.migratingVms.cutoverJobs.list
+      parameters:
+      - description: Optional. The filter request.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. the order by fields for the result.
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: Optional. The maximum number of cutover jobs to return. The service
+          may return fewer than this value. If unspecified, at most 500 cutover jobs
+          will be returned. The maximum value is 1000; values above 1000 will be coerced
+          to 1000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Required. A page token, received from a previous `ListCutoverJobs`
+          call. Provide this to retrieve the subsequent page. When paginating, all
+          other parameters provided to `ListCutoverJobs` must match the call that
+          provided the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: migratingVmsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCutoverJobsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Initiates a Cutover of a specific migrating VM. The returned LRO
+        is completed when the cutover job resource is created and the job is initiated.
+      operationId: vmmigration.projects.locations.sources.migratingVms.cutoverJobs.create
+      parameters:
+      - description: Required. The cutover job identifier.
+        in: query
+        name: cutoverJobId
+        schema:
+          type: string
+      - description: A request ID to identify requests. Specify a unique request ID
+          so that if you must retry your request, the server will know to ignore the
+          request if it has already been completed. The server will guarantee that
+          for at least 60 minutes since the first request. For example, consider a
+          situation where you make an initial request and t he request times out.
+          If you make the request again with the same request ID, the server can check
+          if original operation with the same request ID was received, and if so,
+          will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: migratingVmsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CutoverJob'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  ? /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}/cutoverJobs/{cutoverJobsId}
+  : delete:
+      description: 'Deletes a single TargetProject. NOTE: TargetProject is a global
+        resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.delete
+      parameters:
+      - description: Optional. A request ID to identify requests. Specify a unique
+          request ID so that if you must retry your request, the server will know
+          to ignore the request if it has already been completed. The server will
+          guarantee that for at least 60 minutes after the first request. For example,
+          consider a situation where you make an initial request and t he request
+          times out. If you make the request again with the same request ID, the server
+          can check if original operation with the same request ID was received, and
+          if so, will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: migratingVmsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cutoverJobsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: 'Gets details of a single TargetProject. NOTE: TargetProject is
+        a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.get
+      parameters:
+      - description: Optional. The level of details of the report. Defaults to FULL
+        in: query
+        name: view
+        schema:
+          enum:
+          - UTILIZATION_REPORT_VIEW_UNSPECIFIED
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: migratingVmsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cutoverJobsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TargetProject'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates the parameters of a single TargetProject. NOTE: TargetProject
+        is a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.patch
+      parameters:
+      - description: A request ID to identify requests. Specify a unique request ID
+          so that if you must retry your request, the server will know to ignore the
+          request if it has already been completed. The server will guarantee that
+          for at least 60 minutes since the first request. For example, consider a
+          situation where you make an initial request and t he request times out.
+          If you make the request again with the same request ID, the server can check
+          if original operation with the same request ID was received, and if so,
+          will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Field mask is used to specify the fields to be overwritten in
+          the TargetProject resource by the update. The fields specified in the update_mask
+          are relative to the resource, not the full request. A field will be overwritten
+          if it is in the mask. If the user does not provide a mask then all fields
+          will be overwritten.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: migratingVmsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cutoverJobsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TargetProject'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  ? /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}/cutoverJobs/{cutoverJobsId}:cancel
+  : parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Initiates the cancellation of a running cutover job.
+      operationId: vmmigration.projects.locations.sources.migratingVms.cutoverJobs.cancel
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: migratingVmsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cutoverJobsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelCutoverJobRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}:finalizeMigration:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Marks a migration as completed, deleting migration resources that
+        are no longer being used. Only applicable after cutover is done.
+      operationId: vmmigration.projects.locations.sources.migratingVms.finalizeMigration
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: migratingVmsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinalizeMigrationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}:pauseMigration:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Pauses a migration for a VM. If cycle tasks are running they will
+        be cancelled, preserving source task data. Further replication cycles will
+        not be triggered while the VM is paused.
+      operationId: vmmigration.projects.locations.sources.migratingVms.pauseMigration
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: migratingVmsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PauseMigrationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}:resumeMigration:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Resumes a migration for a VM. When called on a paused migration,
+        will start the process of uploading data and creating snapshots; when called
+        on a completed cut-over migration, will update the migration to active state
+        and start the process of uploading data and creating snapshots.
+      operationId: vmmigration.projects.locations.sources.migratingVms.resumeMigration
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: migratingVmsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResumeMigrationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/migratingVms/{migratingVmsId}:startMigration:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Starts migration for a VM. Starts the process of uploading data
+        and creating snapshots, in replication cycles scheduled by the policy.
+      operationId: vmmigration.projects.locations.sources.migratingVms.startMigration
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: migratingVmsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartMigrationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/utilizationReports:
+    get:
+      description: Lists Utilization Reports of the given Source.
+      operationId: vmmigration.projects.locations.sources.utilizationReports.list
+      parameters:
+      - description: Optional. The filter request.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. the order by fields for the result.
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: Optional. The maximum number of reports to return. The service
+          may return fewer than this value. If unspecified, at most 500 reports will
+          be returned. The maximum value is 1000; values above 1000 will be coerced
+          to 1000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Required. A page token, received from a previous `ListUtilizationReports`
+          call. Provide this to retrieve the subsequent page. When paginating, all
+          other parameters provided to `ListUtilizationReports` must match the call
+          that provided the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: Optional. The level of details of each report. Defaults to BASIC.
+        in: query
+        name: view
+        schema:
+          enum:
+          - UTILIZATION_REPORT_VIEW_UNSPECIFIED
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUtilizationReportsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new UtilizationReport.
+      operationId: vmmigration.projects.locations.sources.utilizationReports.create
+      parameters:
+      - description: A request ID to identify requests. Specify a unique request ID
+          so that if you must retry your request, the server will know to ignore the
+          request if it has already been completed. The server will guarantee that
+          for at least 60 minutes since the first request. For example, consider a
+          situation where you make an initial request and t he request times out.
+          If you make the request again with the same request ID, the server can check
+          if original operation with the same request ID was received, and if so,
+          will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Required. The ID to use for the report, which will become the
+          final component of the reports's resource name. This value maximum length
+          is 63 characters, and valid characters are /a-z-/. It must start with an
+          english letter and must not end with a hyphen.
+        in: query
+        name: utilizationReportId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UtilizationReport'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}/utilizationReports/{utilizationReportsId}:
+    delete:
+      description: 'Deletes a single TargetProject. NOTE: TargetProject is a global
+        resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.delete
+      parameters:
+      - description: Optional. A request ID to identify requests. Specify a unique
+          request ID so that if you must retry your request, the server will know
+          to ignore the request if it has already been completed. The server will
+          guarantee that for at least 60 minutes after the first request. For example,
+          consider a situation where you make an initial request and t he request
+          times out. If you make the request again with the same request ID, the server
+          can check if original operation with the same request ID was received, and
+          if so, will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: utilizationReportsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: 'Gets details of a single TargetProject. NOTE: TargetProject is
+        a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.get
+      parameters:
+      - description: Optional. The level of details of the report. Defaults to FULL
+        in: query
+        name: view
+        schema:
+          enum:
+          - UTILIZATION_REPORT_VIEW_UNSPECIFIED
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: utilizationReportsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TargetProject'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates the parameters of a single TargetProject. NOTE: TargetProject
+        is a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.patch
+      parameters:
+      - description: A request ID to identify requests. Specify a unique request ID
+          so that if you must retry your request, the server will know to ignore the
+          request if it has already been completed. The server will guarantee that
+          for at least 60 minutes since the first request. For example, consider a
+          situation where you make an initial request and t he request times out.
+          If you make the request again with the same request ID, the server can check
+          if original operation with the same request ID was received, and if so,
+          will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Field mask is used to specify the fields to be overwritten in
+          the TargetProject resource by the update. The fields specified in the update_mask
+          are relative to the resource, not the full request. A field will be overwritten
+          if it is in the mask. If the user does not provide a mask then all fields
+          will be overwritten.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: utilizationReportsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TargetProject'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/sources/{sourcesId}:fetchInventory:
+    get:
+      description: List remote source's inventory of VMs. The remote source is the
+        onprem vCenter (remote in the sense it's not in Compute Engine). The inventory
+        describes the list of existing VMs in that source. Note that this operation
+        lists the VMs on the remote source, as opposed to listing the MigratingVms
+        resources in the vmmigration service.
+      operationId: vmmigration.projects.locations.sources.fetchInventory
+      parameters:
+      - description: If this flag is set to true, the source will be queried instead
+          of using cached results. Using this flag will make the call slower.
+        in: query
+        name: forceRefresh
+        schema:
+          type: boolean
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sourcesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FetchInventoryResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/targetProjects:
+    get:
+      description: 'Lists TargetProjects in a given project. NOTE: TargetProject is
+        a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.list
+      parameters:
+      - description: Optional. The filter request.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. the order by fields for the result.
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: Optional. The maximum number of targets to return. The service
+          may return fewer than this value. If unspecified, at most 500 targets will
+          be returned. The maximum value is 1000; values above 1000 will be coerced
+          to 1000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Required. A page token, received from a previous `ListTargets`
+          call. Provide this to retrieve the subsequent page. When paginating, all
+          other parameters provided to `ListTargets` must match the call that provided
+          the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTargetProjectsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Creates a new TargetProject in a given project. NOTE: TargetProject
+        is a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.create
+      parameters:
+      - description: A request ID to identify requests. Specify a unique request ID
+          so that if you must retry your request, the server will know to ignore the
+          request if it has already been completed. The server will guarantee that
+          for at least 60 minutes since the first request. For example, consider a
+          situation where you make an initial request and t he request times out.
+          If you make the request again with the same request ID, the server can check
+          if original operation with the same request ID was received, and if so,
+          will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Required. The target_project identifier.
+        in: query
+        name: targetProjectId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TargetProject'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/targetProjects/{targetProjectsId}:
+    delete:
+      description: 'Deletes a single TargetProject. NOTE: TargetProject is a global
+        resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.delete
+      parameters:
+      - description: Optional. A request ID to identify requests. Specify a unique
+          request ID so that if you must retry your request, the server will know
+          to ignore the request if it has already been completed. The server will
+          guarantee that for at least 60 minutes after the first request. For example,
+          consider a situation where you make an initial request and t he request
+          times out. If you make the request again with the same request ID, the server
+          can check if original operation with the same request ID was received, and
+          if so, will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: targetProjectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: 'Gets details of a single TargetProject. NOTE: TargetProject is
+        a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.get
+      parameters:
+      - description: Optional. The level of details of the report. Defaults to FULL
+        in: query
+        name: view
+        schema:
+          enum:
+          - UTILIZATION_REPORT_VIEW_UNSPECIFIED
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: targetProjectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TargetProject'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Updates the parameters of a single TargetProject. NOTE: TargetProject
+        is a global resource; hence the only supported value for location is `global`.'
+      operationId: vmmigration.projects.locations.targetProjects.patch
+      parameters:
+      - description: A request ID to identify requests. Specify a unique request ID
+          so that if you must retry your request, the server will know to ignore the
+          request if it has already been completed. The server will guarantee that
+          for at least 60 minutes since the first request. For example, consider a
+          situation where you make an initial request and t he request times out.
+          If you make the request again with the same request ID, the server can check
+          if original operation with the same request ID was received, and if so,
+          will ignore the second request. This prevents clients from accidentally
+          creating duplicate commitments. The request ID must be a valid UUID with
+          the exception that zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Field mask is used to specify the fields to be overwritten in
+          the TargetProject resource by the update. The fields specified in the update_mask
+          are relative to the resource, not the full request. A field will be overwritten
+          if it is in the mask. If the user does not provide a mask then all fields
+          will be overwritten.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: targetProjectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TargetProject'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
   /v1/{group}:addGroupMigration:
     parameters:
     - $ref: '#/components/parameters/_.xgafv'

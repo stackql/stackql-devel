@@ -1204,25 +1204,20 @@ components:
       type: oauth2
   x-stackQL-resources:
     bucketAccessControls:
-      id: google.services.bucketAccessControls
+      id: google.storage.bucketAccessControls
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /b/{bucket}/acl/{entity}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /b/{bucket}/acl/{entity}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1241,8 +1236,6 @@ components:
             $ref: get
           path:
             $ref: /b/{bucket}/acl
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1269,25 +1262,20 @@ components:
       name: bucketAccessControls
       title: bucketAccessControls
     buckets:
-      id: google.services.buckets
+      id: google.storage.buckets
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /b/{bucket}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /b/{bucket}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1296,8 +1284,6 @@ components:
             $ref: get
           path:
             $ref: /b/{bucket}/iam
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1318,8 +1304,6 @@ components:
             $ref: get
           path:
             $ref: /b
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1328,8 +1312,6 @@ components:
             $ref: post
           path:
             $ref: /b/{bucket}/lockRetentionPolicy
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1360,8 +1342,6 @@ components:
             $ref: get
           path:
             $ref: /b/{bucket}/iam/testPermissions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1380,7 +1360,7 @@ components:
       name: buckets
       title: buckets
     channels:
-      id: google.services.channels
+      id: google.storage.channels
       methods:
         stop:
           operation:
@@ -1390,30 +1370,24 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
       name: channels
       title: channels
     defaultObjectAccessControls:
-      id: google.services.defaultObjectAccessControls
+      id: google.storage.defaultObjectAccessControls
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /b/{bucket}/defaultObjectAcl/{entity}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /b/{bucket}/defaultObjectAcl/{entity}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1432,8 +1406,6 @@ components:
             $ref: get
           path:
             $ref: /b/{bucket}/defaultObjectAcl
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1460,25 +1432,20 @@ components:
       name: defaultObjectAccessControls
       title: defaultObjectAccessControls
     notifications:
-      id: google.services.notifications
+      id: google.storage.notifications
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /b/{bucket}/notificationConfigs/{notification}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /b/{bucket}/notificationConfigs/{notification}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1497,33 +1464,26 @@ components:
             $ref: get
           path:
             $ref: /b/{bucket}/notificationConfigs
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: notifications
       title: notifications
     objectAccessControls:
-      id: google.services.objectAccessControls
+      id: google.storage.objectAccessControls
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /b/{bucket}/o/{object}/acl/{entity}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /b/{bucket}/o/{object}/acl/{entity}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1542,8 +1502,6 @@ components:
             $ref: get
           path:
             $ref: /b/{bucket}/o/{object}/acl
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1570,7 +1528,7 @@ components:
       name: objectAccessControls
       title: objectAccessControls
     objects:
-      id: google.services.objects
+      id: google.storage.objects
       methods:
         compose:
           operation:
@@ -1597,18 +1555,13 @@ components:
             $ref: delete
           path:
             $ref: /b/{bucket}/o/{object}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /b/{bucket}/o/{object}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1617,8 +1570,6 @@ components:
             $ref: get
           path:
             $ref: /b/{bucket}/o/{object}/iam
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1637,8 +1588,6 @@ components:
             $ref: get
           path:
             $ref: /b/{bucket}/o
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1677,8 +1626,6 @@ components:
             $ref: get
           path:
             $ref: /b/{bucket}/o/{object}/iam/testPermissions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1704,26 +1651,14 @@ components:
             openAPIDocKey: '200'
       name: objects
       title: objects
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.hmacKeys:
-      id: google.services.projects.resources.hmacKeys
+    projects.hmacKeys:
+      id: google.storage.projects.hmacKeys
       methods:
         create:
           operation:
             $ref: post
           path:
             $ref: /projects/{projectId}/hmacKeys
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1732,18 +1667,13 @@ components:
             $ref: delete
           path:
             $ref: /projects/{projectId}/hmacKeys/{accessId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /projects/{projectId}/hmacKeys/{accessId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1752,8 +1682,6 @@ components:
             $ref: get
           path:
             $ref: /projects/{projectId}/hmacKeys
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1767,23 +1695,21 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.hmacKeys
-      title: projects.resources.hmacKeys
-    projects.resources.serviceAccount:
-      id: google.services.projects.resources.serviceAccount
+      name: projects.hmacKeys
+      title: projects.hmacKeys
+    projects.serviceAccount:
+      id: google.storage.projects.serviceAccount
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /projects/{projectId}/serviceAccount
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.serviceAccount
-      title: projects.resources.serviceAccount
+      name: projects.serviceAccount
+      title: projects.serviceAccount
 externalDocs:
   url: https://developers.google.com/storage/docs/json_api/
 info:

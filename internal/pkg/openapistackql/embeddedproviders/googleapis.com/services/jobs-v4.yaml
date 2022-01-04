@@ -2099,41 +2099,27 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.operations:
-      id: google.services.projects.resources.operations
+    projects.operations:
+      id: google.jobs.projects.operations
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v4/{name}
-          request:
-            mediaType: application/json
+            $ref: /v4/projects/{projectsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.operations
-      title: projects.resources.operations
-    projects.resources.tenants:
-      id: google.services.projects.resources.tenants
+      name: projects.operations
+      title: projects.operations
+    projects.tenants:
+      id: google.jobs.projects.tenants
       methods:
         completeQuery:
           operation:
             $ref: get
           path:
-            $ref: /v4/{tenant}:completeQuery
-          request:
-            mediaType: application/json
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}:completeQuery
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2141,7 +2127,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v4/{parent}/tenants
+            $ref: /v4/projects/{projectsId}/tenants
           request:
             mediaType: application/json
           response:
@@ -2151,9 +2137,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v4/{name}
-          request:
-            mediaType: application/json
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2161,9 +2145,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v4/{name}
-          request:
-            mediaType: application/json
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2171,9 +2153,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v4/{parent}/tenants
-          request:
-            mediaType: application/json
+            $ref: /v4/projects/{projectsId}/tenants
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2181,42 +2161,37 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v4/{name}
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.tenants
-      title: projects.resources.tenants
-    projects.resources.tenants.resources:
-      id: google.services.projects.resources.tenants.resources
-      methods: {}
-      name: projects.resources.tenants.resources
-      title: projects.resources.tenants.resources
-    projects.resources.tenants.resources.clientEvents:
-      id: google.services.projects.resources.tenants.resources.clientEvents
+      name: projects.tenants
+      title: projects.tenants
+    projects.tenants.clientEvents:
+      id: google.jobs.projects.tenants.clientEvents
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v4/{parent}/clientEvents
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}/clientEvents
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.tenants.resources.clientEvents
-      title: projects.resources.tenants.resources.clientEvents
-    projects.resources.tenants.resources.companies:
-      id: google.services.projects.resources.tenants.resources.companies
+      name: projects.tenants.clientEvents
+      title: projects.tenants.clientEvents
+    projects.tenants.companies:
+      id: google.jobs.projects.tenants.companies
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v4/{parent}/companies
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}/companies
           request:
             mediaType: application/json
           response:
@@ -2226,9 +2201,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v4/{name}
-          request:
-            mediaType: application/json
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}/companies/{companiesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2236,9 +2209,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v4/{name}
-          request:
-            mediaType: application/json
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}/companies/{companiesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2246,9 +2217,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v4/{parent}/companies
-          request:
-            mediaType: application/json
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}/companies
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2256,22 +2225,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v4/{name}
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}/companies/{companiesId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.tenants.resources.companies
-      title: projects.resources.tenants.resources.companies
-    projects.resources.tenants.resources.jobs:
-      id: google.services.projects.resources.tenants.resources.jobs
+      name: projects.tenants.companies
+      title: projects.tenants.companies
+    projects.tenants.jobs:
+      id: google.jobs.projects.tenants.jobs
       methods:
         batchCreate:
           operation:
             $ref: post
           path:
-            $ref: /v4/{parent}/jobs:batchCreate
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}/jobs:batchCreate
           request:
             mediaType: application/json
           response:
@@ -2281,7 +2250,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v4/{parent}/jobs:batchDelete
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}/jobs:batchDelete
           request:
             mediaType: application/json
           response:
@@ -2291,7 +2260,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v4/{parent}/jobs:batchUpdate
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}/jobs:batchUpdate
           request:
             mediaType: application/json
           response:
@@ -2301,7 +2270,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v4/{parent}/jobs
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}/jobs
           request:
             mediaType: application/json
           response:
@@ -2311,9 +2280,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v4/{name}
-          request:
-            mediaType: application/json
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}/jobs/{jobsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2321,9 +2288,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v4/{name}
-          request:
-            mediaType: application/json
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}/jobs/{jobsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2331,9 +2296,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v4/{parent}/jobs
-          request:
-            mediaType: application/json
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}/jobs
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2341,7 +2304,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v4/{name}
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}/jobs/{jobsId}
           request:
             mediaType: application/json
           response:
@@ -2351,7 +2314,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v4/{parent}/jobs:search
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}/jobs:search
           request:
             mediaType: application/json
           response:
@@ -2361,14 +2324,14 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v4/{parent}/jobs:searchForAlert
+            $ref: /v4/projects/{projectsId}/tenants/{tenantsId}/jobs:searchForAlert
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.tenants.resources.jobs
-      title: projects.resources.tenants.resources.jobs
+      name: projects.tenants.jobs
+      title: projects.tenants.jobs
 externalDocs:
   url: https://cloud.google.com/talent-solution/job-search/docs/
 info:
@@ -2400,6 +2363,1248 @@ info:
   x-serviceName: jobs
 openapi: 3.0.0
 paths:
+  /v4/projects/{projectsId}/operations/{operationsId}:
+    delete:
+      description: Deletes the specified job. Typically, the job becomes unsearchable
+        within 10 seconds, but it may take up to 5 minutes.
+      operationId: jobs.projects.tenants.jobs.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+    get:
+      description: Retrieves the specified job, whose status is OPEN or recently EXPIRED
+        within the last 90 days.
+      operationId: jobs.projects.tenants.jobs.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates specified job. Typically, updated contents become visible
+        in search results within 10 seconds, but it may take up to 5 minutes.
+      operationId: jobs.projects.tenants.jobs.patch
+      parameters:
+      - description: Strongly recommended for the best service experience. If update_mask
+          is provided, only the specified fields in job are updated. Otherwise all
+          the fields are updated. A field mask to restrict the fields that are updated.
+          Only top level fields of Job are supported.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Job'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+  /v4/projects/{projectsId}/tenants:
+    get:
+      description: Lists all tenants associated with the project.
+      operationId: jobs.projects.tenants.list
+      parameters:
+      - description: The maximum number of tenants to be returned, at most 100. Default
+          is 100 if a non-positive number is provided.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The starting indicator from which to return results.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTenantsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new tenant entity.
+      operationId: jobs.projects.tenants.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tenant'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+  /v4/projects/{projectsId}/tenants/{tenantsId}:
+    delete:
+      description: Deletes the specified job. Typically, the job becomes unsearchable
+        within 10 seconds, but it may take up to 5 minutes.
+      operationId: jobs.projects.tenants.jobs.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+    get:
+      description: Retrieves the specified job, whose status is OPEN or recently EXPIRED
+        within the last 90 days.
+      operationId: jobs.projects.tenants.jobs.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates specified job. Typically, updated contents become visible
+        in search results within 10 seconds, but it may take up to 5 minutes.
+      operationId: jobs.projects.tenants.jobs.patch
+      parameters:
+      - description: Strongly recommended for the best service experience. If update_mask
+          is provided, only the specified fields in job are updated. Otherwise all
+          the fields are updated. A field mask to restrict the fields that are updated.
+          Only top level fields of Job are supported.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Job'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+  /v4/projects/{projectsId}/tenants/{tenantsId}/clientEvents:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Report events issued when end user interacts with customer's application
+        that uses Cloud Talent Solution. You may inspect the created events in [self
+        service tools](https://console.cloud.google.com/talent-solution/overview).
+        [Learn more](https://cloud.google.com/talent-solution/docs/management-tools)
+        about self service tools.
+      operationId: jobs.projects.tenants.clientEvents.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientEvent'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientEvent'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+  /v4/projects/{projectsId}/tenants/{tenantsId}/companies:
+    get:
+      description: Lists all companies associated with the project.
+      operationId: jobs.projects.tenants.companies.list
+      parameters:
+      - description: The maximum number of companies to be returned, at most 100.
+          Default is 100 if a non-positive number is provided.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The starting indicator from which to return results.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: Set to true if the companies requested must have open jobs. Defaults
+          to false. If true, at most page_size of companies are fetched, among which
+          only those with open jobs are returned.
+        in: query
+        name: requireOpenJobs
+        schema:
+          type: boolean
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCompaniesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new company entity.
+      operationId: jobs.projects.tenants.companies.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Company'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+  /v4/projects/{projectsId}/tenants/{tenantsId}/companies/{companiesId}:
+    delete:
+      description: Deletes the specified job. Typically, the job becomes unsearchable
+        within 10 seconds, but it may take up to 5 minutes.
+      operationId: jobs.projects.tenants.jobs.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: companiesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+    get:
+      description: Retrieves the specified job, whose status is OPEN or recently EXPIRED
+        within the last 90 days.
+      operationId: jobs.projects.tenants.jobs.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: companiesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates specified job. Typically, updated contents become visible
+        in search results within 10 seconds, but it may take up to 5 minutes.
+      operationId: jobs.projects.tenants.jobs.patch
+      parameters:
+      - description: Strongly recommended for the best service experience. If update_mask
+          is provided, only the specified fields in job are updated. Otherwise all
+          the fields are updated. A field mask to restrict the fields that are updated.
+          Only top level fields of Job are supported.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: companiesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Job'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+  /v4/projects/{projectsId}/tenants/{tenantsId}/jobs:
+    get:
+      description: Lists jobs by filter.
+      operationId: jobs.projects.tenants.jobs.list
+      parameters:
+      - description: 'Required. The filter string specifies the jobs to be enumerated.
+          Supported operator: =, AND The fields eligible for filtering are: * `companyName`
+          * `requisitionId` * `status` Available values: OPEN, EXPIRED, ALL. Defaults
+          to OPEN if no value is specified. At least one of `companyName` and `requisitionId`
+          must present or an INVALID_ARGUMENT error is thrown. Sample Query: * companyName
+          = "projects/foo/tenants/bar/companies/baz" * companyName = "projects/foo/tenants/bar/companies/baz"
+          AND requisitionId = "req-1" * companyName = "projects/foo/tenants/bar/companies/baz"
+          AND status = "EXPIRED" * requisitionId = "req-1" * requisitionId = "req-1"
+          AND status = "EXPIRED"'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The desired job attributes returned for jobs in the search response.
+          Defaults to JobView.JOB_VIEW_FULL if no value is specified.
+        in: query
+        name: jobView
+        schema:
+          enum:
+          - JOB_VIEW_UNSPECIFIED
+          - JOB_VIEW_ID_ONLY
+          - JOB_VIEW_MINIMAL
+          - JOB_VIEW_SMALL
+          - JOB_VIEW_FULL
+          type: string
+      - description: The maximum number of jobs to be returned per page of results.
+          If job_view is set to JobView.JOB_VIEW_ID_ONLY, the maximum allowed page
+          size is 1000. Otherwise, the maximum allowed page size is 100. Default is
+          100 if empty or a number < 1 is specified.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The starting point of a query result.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListJobsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new job. Typically, the job becomes searchable within
+        10 seconds, but it may take up to 5 minutes.
+      operationId: jobs.projects.tenants.jobs.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Job'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+  /v4/projects/{projectsId}/tenants/{tenantsId}/jobs/{jobsId}:
+    delete:
+      description: Deletes the specified job. Typically, the job becomes unsearchable
+        within 10 seconds, but it may take up to 5 minutes.
+      operationId: jobs.projects.tenants.jobs.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: jobsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+    get:
+      description: Retrieves the specified job, whose status is OPEN or recently EXPIRED
+        within the last 90 days.
+      operationId: jobs.projects.tenants.jobs.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: jobsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates specified job. Typically, updated contents become visible
+        in search results within 10 seconds, but it may take up to 5 minutes.
+      operationId: jobs.projects.tenants.jobs.patch
+      parameters:
+      - description: Strongly recommended for the best service experience. If update_mask
+          is provided, only the specified fields in job are updated. Otherwise all
+          the fields are updated. A field mask to restrict the fields that are updated.
+          Only top level fields of Job are supported.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: jobsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Job'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+  /v4/projects/{projectsId}/tenants/{tenantsId}/jobs:batchCreate:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Begins executing a batch create jobs operation.
+      operationId: jobs.projects.tenants.jobs.batchCreate
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchCreateJobsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+  /v4/projects/{projectsId}/tenants/{tenantsId}/jobs:batchDelete:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Begins executing a batch delete jobs operation.
+      operationId: jobs.projects.tenants.jobs.batchDelete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchDeleteJobsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+  /v4/projects/{projectsId}/tenants/{tenantsId}/jobs:batchUpdate:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Begins executing a batch update jobs operation.
+      operationId: jobs.projects.tenants.jobs.batchUpdate
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchUpdateJobsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+  /v4/projects/{projectsId}/tenants/{tenantsId}/jobs:search:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Searches for jobs using the provided SearchJobsRequest. This call
+        constrains the visibility of jobs present in the database, and only returns
+        jobs that the caller has permission to search against.
+      operationId: jobs.projects.tenants.jobs.search
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchJobsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchJobsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+  /v4/projects/{projectsId}/tenants/{tenantsId}/jobs:searchForAlert:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Searches for jobs using the provided SearchJobsRequest. This API
+        call is intended for the use case of targeting passive job seekers (for example,
+        job seekers who have signed up to receive email alerts about potential job
+        opportunities), it has different algorithmic adjustments that are designed
+        to specifically target passive job seekers. This call constrains the visibility
+        of jobs present in the database, and only returns jobs the caller has permission
+        to search against.
+      operationId: jobs.projects.tenants.jobs.searchForAlert
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchJobsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchJobsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+  /v4/projects/{projectsId}/tenants/{tenantsId}:completeQuery:
+    get:
+      description: Completes the specified prefix with keyword suggestions. Intended
+        for use by a job search auto-complete search box.
+      operationId: jobs.projects.tenants.completeQuery
+      parameters:
+      - description: If provided, restricts completion to specified company. The format
+          is "projects/{project_id}/tenants/{tenant_id}/companies/{company_id}", for
+          example, "projects/foo/tenants/bar/companies/baz".
+        in: query
+        name: company
+        schema:
+          type: string
+      - description: The list of languages of the query. This is the BCP-47 language
+          code, such as "en-US" or "sr-Latn". For more information, see [Tags for
+          Identifying Languages](https://tools.ietf.org/html/bcp47). The maximum number
+          of allowed characters is 255.
+        explode: true
+        in: query
+        name: languageCodes
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - description: Required. Completion result count. The maximum allowed page size
+          is 10.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Required. The query used to generate suggestions. The maximum
+          number of allowed characters is 255.
+        in: query
+        name: query
+        schema:
+          type: string
+      - description: The scope of the completion. The defaults is CompletionScope.PUBLIC.
+        in: query
+        name: scope
+        schema:
+          enum:
+          - COMPLETION_SCOPE_UNSPECIFIED
+          - TENANT
+          - PUBLIC
+          type: string
+      - description: The completion topic. The default is CompletionType.COMBINED.
+        in: query
+        name: type
+        schema:
+          enum:
+          - COMPLETION_TYPE_UNSPECIFIED
+          - JOB_TITLE
+          - COMPANY_NAME
+          - COMBINED
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: tenantsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompleteQueryResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/jobs
+        Oauth2c:
+        - https://www.googleapis.com/auth/jobs
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /v4/{name}:
     delete:
       description: Deletes the specified job. Typically, the job becomes unsearchable

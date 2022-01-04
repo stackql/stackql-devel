@@ -909,40 +909,31 @@ components:
       type: object
   x-stackQL-resources:
     cse:
-      id: google.services.cse
+      id: google.customsearch.cse
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /customsearch/v1
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: cse
       title: cse
-    cse.resources:
-      id: google.services.cse.resources
-      methods: {}
-      name: cse.resources
-      title: cse.resources
-    cse.resources.siterestrict:
-      id: google.services.cse.resources.siterestrict
+    cse.siterestrict:
+      id: google.customsearch.cse.siterestrict
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /customsearch/v1/siterestrict
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: cse.resources.siterestrict
-      title: cse.resources.siterestrict
+      name: cse.siterestrict
+      title: cse.siterestrict
 externalDocs:
   url: https://developers.google.com/custom-search/v1/introduction
 info:

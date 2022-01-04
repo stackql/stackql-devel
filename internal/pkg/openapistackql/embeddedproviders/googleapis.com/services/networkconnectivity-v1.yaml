@@ -731,26 +731,14 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.locations:
-      id: google.services.projects.resources.locations
+    projects.locations:
+      id: google.networkconnectivity.projects.locations
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -758,37 +746,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/locations
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations
-      title: projects.resources.locations
-    projects.resources.locations.resources:
-      id: google.services.projects.resources.locations.resources
-      methods: {}
-      name: projects.resources.locations.resources
-      title: projects.resources.locations.resources
-    projects.resources.locations.resources.global:
-      id: google.services.projects.resources.locations.resources.global
-      methods: {}
-      name: projects.resources.locations.resources.global
-      title: projects.resources.locations.resources.global
-    projects.resources.locations.resources.global.resources:
-      id: google.services.projects.resources.locations.resources.global.resources
-      methods: {}
-      name: projects.resources.locations.resources.global.resources
-      title: projects.resources.locations.resources.global.resources
-    projects.resources.locations.resources.global.resources.hubs:
-      id: google.services.projects.resources.locations.resources.global.resources.hubs
+      name: projects.locations
+      title: projects.locations
+    projects.locations.global.hubs:
+      id: google.networkconnectivity.projects.locations.global.hubs
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/hubs
+            $ref: /v1/projects/{projectsId}/locations/global/hubs
           request:
             mediaType: application/json
           response:
@@ -798,9 +769,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/global/hubs/{hubsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -808,9 +777,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/global/hubs/{hubsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -818,9 +785,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{resource}:getIamPolicy
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/global/hubs/{hubsId}:getIamPolicy
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -828,9 +793,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/hubs
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/global/hubs
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -838,7 +801,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/global/hubs/{hubsId}
           request:
             mediaType: application/json
           response:
@@ -848,7 +811,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/locations/global/hubs/{hubsId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -858,24 +821,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/locations/global/hubs/{hubsId}:testIamPermissions
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.global.resources.hubs
-      title: projects.resources.locations.resources.global.resources.hubs
-    projects.resources.locations.resources.global.resources.policyBasedRoutes:
-      id: google.services.projects.resources.locations.resources.global.resources.policyBasedRoutes
+      name: projects.locations.global.hubs
+      title: projects.locations.global.hubs
+    projects.locations.global.policyBasedRoutes:
+      id: google.networkconnectivity.projects.locations.global.policyBasedRoutes
       methods:
         getIamPolicy:
           operation:
             $ref: get
           path:
-            $ref: /v1/{resource}:getIamPolicy
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/global/policyBasedRoutes/{policyBasedRoutesId}:getIamPolicy
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -883,7 +844,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/locations/global/policyBasedRoutes/{policyBasedRoutesId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -893,22 +854,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/locations/global/policyBasedRoutes/{policyBasedRoutesId}:testIamPermissions
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.global.resources.policyBasedRoutes
-      title: projects.resources.locations.resources.global.resources.policyBasedRoutes
-    projects.resources.locations.resources.operations:
-      id: google.services.projects.resources.locations.resources.operations
+      name: projects.locations.global.policyBasedRoutes
+      title: projects.locations.global.policyBasedRoutes
+    projects.locations.operations:
+      id: google.networkconnectivity.projects.locations.operations
       methods:
         cancel:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:cancel
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}:cancel
           request:
             mediaType: application/json
           response:
@@ -918,9 +879,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -928,9 +887,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -938,22 +895,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/operations
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/operations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.operations
-      title: projects.resources.locations.resources.operations
-    projects.resources.locations.resources.spokes:
-      id: google.services.projects.resources.locations.resources.spokes
+      name: projects.locations.operations
+      title: projects.locations.operations
+    projects.locations.spokes:
+      id: google.networkconnectivity.projects.locations.spokes
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/spokes
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/spokes
           request:
             mediaType: application/json
           response:
@@ -963,9 +918,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/spokes/{spokesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -973,9 +926,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/spokes/{spokesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -983,9 +934,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{resource}:getIamPolicy
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/spokes/{spokesId}:getIamPolicy
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -993,9 +942,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/spokes
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/spokes
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1003,7 +950,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/spokes/{spokesId}
           request:
             mediaType: application/json
           response:
@@ -1013,7 +960,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/spokes/{spokesId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -1023,14 +970,14 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/spokes/{spokesId}:testIamPermissions
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.spokes
-      title: projects.resources.locations.resources.spokes
+      name: projects.locations.spokes
+      title: projects.locations.spokes
 externalDocs:
   url: https://cloud.google.com/network-connectivity/docs/reference/networkconnectivity/rest
 info:
@@ -1060,6 +1007,1460 @@ info:
   x-serviceName: networkconnectivity
 openapi: 3.0.0
 paths:
+  /v1/projects/{projectsId}/locations:
+    get:
+      description: Lists information about the supported locations for this service.
+      operationId: networkconnectivity.projects.locations.list
+      parameters:
+      - description: A filter to narrow down results to a preferred subset. The filtering
+          language accepts strings like "displayName=tokyo", and is documented in
+          more detail in [AIP-160](https://google.aip.dev/160).
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of results to return. If not set, the service
+          selects a default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token received from the `next_page_token` field in the
+          response. Send that page token to receive the subsequent page.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLocationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/global/hubs:
+    get:
+      description: Lists hubs in a given project.
+      operationId: networkconnectivity.projects.locations.global.hubs.list
+      parameters:
+      - description: An expression that filters the results listed in the response.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Sort the results by a certain order.
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: The maximum number of results per page that should be returned.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListHubsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new hub in the specified project.
+      operationId: networkconnectivity.projects.locations.global.hubs.create
+      parameters:
+      - description: Optional. A unique identifier for the hub.
+        in: query
+        name: hubId
+        schema:
+          type: string
+      - description: Optional. A unique request ID (optional). If you specify this
+          ID, you can use it in cases when you need to retry your request. When you
+          need to retry, this ID lets the server know that it can ignore the request
+          if it has already been completed. The server guarantees that for at least
+          60 minutes after the first request. For example, consider a situation where
+          you make an initial request and the request times out. If you make the request
+          again with the same request ID, the server can check to see whether the
+          original operation was received. If it was, the server ignores the second
+          request. This behavior prevents clients from mistakenly creating duplicate
+          commitments. The request ID must be a valid UUID, with the exception that
+          zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Hub'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/global/hubs/{hubsId}:
+    delete:
+      description: Deletes the specified spoke.
+      operationId: networkconnectivity.projects.locations.spokes.delete
+      parameters:
+      - description: Optional. A unique request ID (optional). If you specify this
+          ID, you can use it in cases when you need to retry your request. When you
+          need to retry, this ID lets the server know that it can ignore the request
+          if it has already been completed. The server guarantees that for at least
+          60 minutes after the first request. For example, consider a situation where
+          you make an initial request and the request times out. If you make the request
+          again with the same request ID, the server can check to see whether the
+          original operation was received. If it was, the server ignores the second
+          request. This behavior prevents clients from mistakenly creating duplicate
+          commitments. The request ID must be a valid UUID, with the exception that
+          zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: hubsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets details about the specified spoke.
+      operationId: networkconnectivity.projects.locations.spokes.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: hubsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Spoke'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the parameters of the specified spoke.
+      operationId: networkconnectivity.projects.locations.spokes.patch
+      parameters:
+      - description: Optional. A unique request ID (optional). If you specify this
+          ID, you can use it in cases when you need to retry your request. When you
+          need to retry, this ID lets the server know that it can ignore the request
+          if it has already been completed. The server guarantees that for at least
+          60 minutes after the first request. For example, consider a situation where
+          you make an initial request and the request times out. If you make the request
+          again with the same request ID, the server can check to see whether the
+          original operation was received. If it was, the server ignores the second
+          request. This behavior prevents clients from mistakenly creating duplicate
+          commitments. The request ID must be a valid UUID, with the exception that
+          zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Optional. In the case of an update to an existing spoke, field
+          mask is used to specify the fields to be overwritten. The fields specified
+          in the update_mask are relative to the resource, not the full request. A
+          field is overwritten if it is in the mask. If the user does not provide
+          a mask, then all fields are overwritten.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: hubsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Spoke'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/global/hubs/{hubsId}:getIamPolicy:
+    get:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: networkconnectivity.projects.locations.spokes.getIamPolicy
+      parameters:
+      - description: Optional. The policy format version to be returned. Valid values
+          are 0, 1, and 3. Requests specifying an invalid value will be rejected.
+          Requests for policies with any conditional bindings must specify version
+          3. Policies without any conditional bindings may specify any valid value
+          or leave the field unset. To learn which resources support conditions in
+          their IAM policies, see the [IAM documentation](https://cloud.google.com/iam/help/conditions/resource-policies).
+        in: query
+        name: options.requestedPolicyVersion
+        schema:
+          type: integer
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: hubsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/global/hubs/{hubsId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy. Can return `NOT_FOUND`, `INVALID_ARGUMENT`, and `PERMISSION_DENIED`
+        errors.
+      operationId: networkconnectivity.projects.locations.spokes.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: hubsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/global/hubs/{hubsId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a `NOT_FOUND` error. Note: This operation is designed to be used for building
+        permission-aware UIs and command-line tools, not for authorization checking.
+        This operation may "fail open" without warning.'
+      operationId: networkconnectivity.projects.locations.spokes.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: hubsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/global/policyBasedRoutes/{policyBasedRoutesId}:getIamPolicy:
+    get:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: networkconnectivity.projects.locations.spokes.getIamPolicy
+      parameters:
+      - description: Optional. The policy format version to be returned. Valid values
+          are 0, 1, and 3. Requests specifying an invalid value will be rejected.
+          Requests for policies with any conditional bindings must specify version
+          3. Policies without any conditional bindings may specify any valid value
+          or leave the field unset. To learn which resources support conditions in
+          their IAM policies, see the [IAM documentation](https://cloud.google.com/iam/help/conditions/resource-policies).
+        in: query
+        name: options.requestedPolicyVersion
+        schema:
+          type: integer
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: policyBasedRoutesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/global/policyBasedRoutes/{policyBasedRoutesId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy. Can return `NOT_FOUND`, `INVALID_ARGUMENT`, and `PERMISSION_DENIED`
+        errors.
+      operationId: networkconnectivity.projects.locations.spokes.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: policyBasedRoutesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/global/policyBasedRoutes/{policyBasedRoutesId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a `NOT_FOUND` error. Note: This operation is designed to be used for building
+        permission-aware UIs and command-line tools, not for authorization checking.
+        This operation may "fail open" without warning.'
+      operationId: networkconnectivity.projects.locations.spokes.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: policyBasedRoutesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}:
+    delete:
+      description: Deletes the specified spoke.
+      operationId: networkconnectivity.projects.locations.spokes.delete
+      parameters:
+      - description: Optional. A unique request ID (optional). If you specify this
+          ID, you can use it in cases when you need to retry your request. When you
+          need to retry, this ID lets the server know that it can ignore the request
+          if it has already been completed. The server guarantees that for at least
+          60 minutes after the first request. For example, consider a situation where
+          you make an initial request and the request times out. If you make the request
+          again with the same request ID, the server can check to see whether the
+          original operation was received. If it was, the server ignores the second
+          request. This behavior prevents clients from mistakenly creating duplicate
+          commitments. The request ID must be a valid UUID, with the exception that
+          zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets details about the specified spoke.
+      operationId: networkconnectivity.projects.locations.spokes.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Spoke'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the parameters of the specified spoke.
+      operationId: networkconnectivity.projects.locations.spokes.patch
+      parameters:
+      - description: Optional. A unique request ID (optional). If you specify this
+          ID, you can use it in cases when you need to retry your request. When you
+          need to retry, this ID lets the server know that it can ignore the request
+          if it has already been completed. The server guarantees that for at least
+          60 minutes after the first request. For example, consider a situation where
+          you make an initial request and the request times out. If you make the request
+          again with the same request ID, the server can check to see whether the
+          original operation was received. If it was, the server ignores the second
+          request. This behavior prevents clients from mistakenly creating duplicate
+          commitments. The request ID must be a valid UUID, with the exception that
+          zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Optional. In the case of an update to an existing spoke, field
+          mask is used to specify the fields to be overwritten. The fields specified
+          in the update_mask are relative to the resource, not the full request. A
+          field is overwritten if it is in the mask. If the user does not provide
+          a mask, then all fields are overwritten.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Spoke'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/operations:
+    get:
+      description: 'Lists operations that match the specified filter in the request.
+        If the server doesn''t support this method, it returns `UNIMPLEMENTED`. NOTE:
+        the `name` binding allows API services to override the binding to use different
+        resource name schemes, such as `users/*/operations`. To override the binding,
+        API services can add a binding such as `"/v1/{name=users/*}/operations"` to
+        their service configuration. For backwards compatibility, the default name
+        includes the operations collection id, however overriding users must ensure
+        the name binding is the parent resource, without the operations collection
+        id.'
+      operationId: networkconnectivity.projects.locations.operations.list
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningListOperationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}:
+    delete:
+      description: Deletes the specified spoke.
+      operationId: networkconnectivity.projects.locations.spokes.delete
+      parameters:
+      - description: Optional. A unique request ID (optional). If you specify this
+          ID, you can use it in cases when you need to retry your request. When you
+          need to retry, this ID lets the server know that it can ignore the request
+          if it has already been completed. The server guarantees that for at least
+          60 minutes after the first request. For example, consider a situation where
+          you make an initial request and the request times out. If you make the request
+          again with the same request ID, the server can check to see whether the
+          original operation was received. If it was, the server ignores the second
+          request. This behavior prevents clients from mistakenly creating duplicate
+          commitments. The request ID must be a valid UUID, with the exception that
+          zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets details about the specified spoke.
+      operationId: networkconnectivity.projects.locations.spokes.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Spoke'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the parameters of the specified spoke.
+      operationId: networkconnectivity.projects.locations.spokes.patch
+      parameters:
+      - description: Optional. A unique request ID (optional). If you specify this
+          ID, you can use it in cases when you need to retry your request. When you
+          need to retry, this ID lets the server know that it can ignore the request
+          if it has already been completed. The server guarantees that for at least
+          60 minutes after the first request. For example, consider a situation where
+          you make an initial request and the request times out. If you make the request
+          again with the same request ID, the server can check to see whether the
+          original operation was received. If it was, the server ignores the second
+          request. This behavior prevents clients from mistakenly creating duplicate
+          commitments. The request ID must be a valid UUID, with the exception that
+          zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Optional. In the case of an update to an existing spoke, field
+          mask is used to specify the fields to be overwritten. The fields specified
+          in the update_mask are relative to the resource, not the full request. A
+          field is overwritten if it is in the mask. If the user does not provide
+          a mask, then all fields are overwritten.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Spoke'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}:cancel:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Starts asynchronous cancellation on a long-running operation. The
+        server makes a best effort to cancel the operation, but success is not guaranteed.
+        If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+        Clients can use Operations.GetOperation or other methods to check whether
+        the cancellation succeeded or whether the operation completed despite cancellation.
+        On successful cancellation, the operation is not deleted; instead, it becomes
+        an operation with an Operation.error value with a google.rpc.Status.code of
+        1, corresponding to `Code.CANCELLED`.
+      operationId: networkconnectivity.projects.locations.operations.cancel
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleLongrunningCancelOperationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/spokes:
+    get:
+      description: Lists the spokes in the specified project and location.
+      operationId: networkconnectivity.projects.locations.spokes.list
+      parameters:
+      - description: An expression that filters the results listed in the response.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Sort the results by a certain order.
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: The maximum number of results per page that should be returned.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSpokesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a spoke in the specified project and location.
+      operationId: networkconnectivity.projects.locations.spokes.create
+      parameters:
+      - description: Optional. A unique request ID (optional). If you specify this
+          ID, you can use it in cases when you need to retry your request. When you
+          need to retry, this ID lets the server know that it can ignore the request
+          if it has already been completed. The server guarantees that for at least
+          60 minutes after the first request. For example, consider a situation where
+          you make an initial request and the request times out. If you make the request
+          again with the same request ID, the server can check to see whether the
+          original operation was received. If it was, the server ignores the second
+          request. This behavior prevents clients from mistakenly creating duplicate
+          commitments. The request ID must be a valid UUID, with the exception that
+          zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Optional. Unique id for the spoke to create.
+        in: query
+        name: spokeId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Spoke'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/spokes/{spokesId}:
+    delete:
+      description: Deletes the specified spoke.
+      operationId: networkconnectivity.projects.locations.spokes.delete
+      parameters:
+      - description: Optional. A unique request ID (optional). If you specify this
+          ID, you can use it in cases when you need to retry your request. When you
+          need to retry, this ID lets the server know that it can ignore the request
+          if it has already been completed. The server guarantees that for at least
+          60 minutes after the first request. For example, consider a situation where
+          you make an initial request and the request times out. If you make the request
+          again with the same request ID, the server can check to see whether the
+          original operation was received. If it was, the server ignores the second
+          request. This behavior prevents clients from mistakenly creating duplicate
+          commitments. The request ID must be a valid UUID, with the exception that
+          zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: spokesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets details about the specified spoke.
+      operationId: networkconnectivity.projects.locations.spokes.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: spokesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Spoke'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the parameters of the specified spoke.
+      operationId: networkconnectivity.projects.locations.spokes.patch
+      parameters:
+      - description: Optional. A unique request ID (optional). If you specify this
+          ID, you can use it in cases when you need to retry your request. When you
+          need to retry, this ID lets the server know that it can ignore the request
+          if it has already been completed. The server guarantees that for at least
+          60 minutes after the first request. For example, consider a situation where
+          you make an initial request and the request times out. If you make the request
+          again with the same request ID, the server can check to see whether the
+          original operation was received. If it was, the server ignores the second
+          request. This behavior prevents clients from mistakenly creating duplicate
+          commitments. The request ID must be a valid UUID, with the exception that
+          zero UUID is not supported (00000000-0000-0000-0000-000000000000).
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Optional. In the case of an update to an existing spoke, field
+          mask is used to specify the fields to be overwritten. The fields specified
+          in the update_mask are relative to the resource, not the full request. A
+          field is overwritten if it is in the mask. If the user does not provide
+          a mask, then all fields are overwritten.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: spokesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Spoke'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/spokes/{spokesId}:getIamPolicy:
+    get:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: networkconnectivity.projects.locations.spokes.getIamPolicy
+      parameters:
+      - description: Optional. The policy format version to be returned. Valid values
+          are 0, 1, and 3. Requests specifying an invalid value will be rejected.
+          Requests for policies with any conditional bindings must specify version
+          3. Policies without any conditional bindings may specify any valid value
+          or leave the field unset. To learn which resources support conditions in
+          their IAM policies, see the [IAM documentation](https://cloud.google.com/iam/help/conditions/resource-policies).
+        in: query
+        name: options.requestedPolicyVersion
+        schema:
+          type: integer
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: spokesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/spokes/{spokesId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy. Can return `NOT_FOUND`, `INVALID_ARGUMENT`, and `PERMISSION_DENIED`
+        errors.
+      operationId: networkconnectivity.projects.locations.spokes.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: spokesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/spokes/{spokesId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a `NOT_FOUND` error. Note: This operation is designed to be used for building
+        permission-aware UIs and command-line tools, not for authorization checking.
+        This operation may "fail open" without warning.'
+      operationId: networkconnectivity.projects.locations.spokes.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: spokesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
   /v1/{name}:
     delete:
       description: Deletes the specified spoke.

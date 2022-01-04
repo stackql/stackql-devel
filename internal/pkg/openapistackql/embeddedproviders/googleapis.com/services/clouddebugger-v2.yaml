@@ -702,18 +702,8 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    controller:
-      id: google.services.controller
-      methods: {}
-      name: controller
-      title: controller
-    controller.resources:
-      id: google.services.controller.resources
-      methods: {}
-      name: controller.resources
-      title: controller.resources
-    controller.resources.debuggees:
-      id: google.services.controller.resources.debuggees
+    controller.debuggees:
+      id: google.clouddebugger.controller.debuggees
       methods:
         register:
           operation:
@@ -725,23 +715,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: controller.resources.debuggees
-      title: controller.resources.debuggees
-    controller.resources.debuggees.resources:
-      id: google.services.controller.resources.debuggees.resources
-      methods: {}
-      name: controller.resources.debuggees.resources
-      title: controller.resources.debuggees.resources
-    controller.resources.debuggees.resources.breakpoints:
-      id: google.services.controller.resources.debuggees.resources.breakpoints
+      name: controller.debuggees
+      title: controller.debuggees
+    controller.debuggees.breakpoints:
+      id: google.clouddebugger.controller.debuggees.breakpoints
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /v2/controller/debuggees/{debuggeeId}/breakpoints
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -755,48 +738,29 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: controller.resources.debuggees.resources.breakpoints
-      title: controller.resources.debuggees.resources.breakpoints
-    debugger:
-      id: google.services.debugger
-      methods: {}
-      name: debugger
-      title: debugger
-    debugger.resources:
-      id: google.services.debugger.resources
-      methods: {}
-      name: debugger.resources
-      title: debugger.resources
-    debugger.resources.debuggees:
-      id: google.services.debugger.resources.debuggees
+      name: controller.debuggees.breakpoints
+      title: controller.debuggees.breakpoints
+    debugger.debuggees:
+      id: google.clouddebugger.debugger.debuggees
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /v2/debugger/debuggees
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: debugger.resources.debuggees
-      title: debugger.resources.debuggees
-    debugger.resources.debuggees.resources:
-      id: google.services.debugger.resources.debuggees.resources
-      methods: {}
-      name: debugger.resources.debuggees.resources
-      title: debugger.resources.debuggees.resources
-    debugger.resources.debuggees.resources.breakpoints:
-      id: google.services.debugger.resources.debuggees.resources.breakpoints
+      name: debugger.debuggees
+      title: debugger.debuggees
+    debugger.debuggees.breakpoints:
+      id: google.clouddebugger.debugger.debuggees.breakpoints
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /v2/debugger/debuggees/{debuggeeId}/breakpoints/{breakpointId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -805,8 +769,6 @@ components:
             $ref: get
           path:
             $ref: /v2/debugger/debuggees/{debuggeeId}/breakpoints/{breakpointId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -815,8 +777,6 @@ components:
             $ref: get
           path:
             $ref: /v2/debugger/debuggees/{debuggeeId}/breakpoints
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -830,8 +790,8 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: debugger.resources.debuggees.resources.breakpoints
-      title: debugger.resources.debuggees.resources.breakpoints
+      name: debugger.debuggees.breakpoints
+      title: debugger.debuggees.breakpoints
 externalDocs:
   url: https://cloud.google.com/debugger
 info:

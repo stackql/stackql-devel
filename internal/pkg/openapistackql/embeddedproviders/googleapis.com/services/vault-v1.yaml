@@ -1113,7 +1113,7 @@ components:
       type: oauth2
   x-stackQL-resources:
     matters:
-      id: google.services.matters
+      id: google.vault.matters
       methods:
         addPermissions:
           operation:
@@ -1160,8 +1160,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/matters/{matterId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1170,8 +1168,6 @@ components:
             $ref: get
           path:
             $ref: /v1/matters/{matterId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1180,8 +1176,6 @@ components:
             $ref: get
           path:
             $ref: /v1/matters
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1227,13 +1221,8 @@ components:
             openAPIDocKey: '200'
       name: matters
       title: matters
-    matters.resources:
-      id: google.services.matters.resources
-      methods: {}
-      name: matters.resources
-      title: matters.resources
-    matters.resources.exports:
-      id: google.services.matters.resources.exports
+    matters.exports:
+      id: google.vault.matters.exports
       methods:
         create:
           operation:
@@ -1250,8 +1239,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/matters/{matterId}/exports/{exportId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1260,8 +1247,6 @@ components:
             $ref: get
           path:
             $ref: /v1/matters/{matterId}/exports/{exportId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1270,15 +1255,13 @@ components:
             $ref: get
           path:
             $ref: /v1/matters/{matterId}/exports
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: matters.resources.exports
-      title: matters.resources.exports
-    matters.resources.holds:
-      id: google.services.matters.resources.holds
+      name: matters.exports
+      title: matters.exports
+    matters.holds:
+      id: google.vault.matters.holds
       methods:
         addHeldAccounts:
           operation:
@@ -1305,8 +1288,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/matters/{matterId}/holds/{holdId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1315,8 +1296,6 @@ components:
             $ref: get
           path:
             $ref: /v1/matters/{matterId}/holds/{holdId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1325,8 +1304,6 @@ components:
             $ref: get
           path:
             $ref: /v1/matters/{matterId}/holds
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1350,15 +1327,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: matters.resources.holds
-      title: matters.resources.holds
-    matters.resources.holds.resources:
-      id: google.services.matters.resources.holds.resources
-      methods: {}
-      name: matters.resources.holds.resources
-      title: matters.resources.holds.resources
-    matters.resources.holds.resources.accounts:
-      id: google.services.matters.resources.holds.resources.accounts
+      name: matters.holds
+      title: matters.holds
+    matters.holds.accounts:
+      id: google.vault.matters.holds.accounts
       methods:
         create:
           operation:
@@ -1375,8 +1347,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/matters/{matterId}/holds/{holdId}/accounts/{accountId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1385,15 +1355,13 @@ components:
             $ref: get
           path:
             $ref: /v1/matters/{matterId}/holds/{holdId}/accounts
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: matters.resources.holds.resources.accounts
-      title: matters.resources.holds.resources.accounts
-    matters.resources.savedQueries:
-      id: google.services.matters.resources.savedQueries
+      name: matters.holds.accounts
+      title: matters.holds.accounts
+    matters.savedQueries:
+      id: google.vault.matters.savedQueries
       methods:
         create:
           operation:
@@ -1410,8 +1378,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/matters/{matterId}/savedQueries/{savedQueryId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1420,8 +1386,6 @@ components:
             $ref: get
           path:
             $ref: /v1/matters/{matterId}/savedQueries/{savedQueryId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1430,21 +1394,19 @@ components:
             $ref: get
           path:
             $ref: /v1/matters/{matterId}/savedQueries
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: matters.resources.savedQueries
-      title: matters.resources.savedQueries
+      name: matters.savedQueries
+      title: matters.savedQueries
     operations:
-      id: google.services.operations
+      id: google.vault.operations
       methods:
         cancel:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:cancel
+            $ref: /v1/operations/{operationsId}:cancel
           request:
             mediaType: application/json
           response:
@@ -1454,9 +1416,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1464,9 +1424,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1474,9 +1432,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/operations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2737,6 +2693,187 @@ paths:
         - https://www.googleapis.com/auth/ediscovery
       tags:
       - matters
+  /v1/operations:
+    delete:
+      description: Deletes a long-running operation. This method indicates that the
+        client is no longer interested in the operation result. It does not cancel
+        the operation. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+      operationId: vault.operations.delete
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - operations
+    get:
+      description: 'Lists operations that match the specified filter in the request.
+        If the server doesn''t support this method, it returns `UNIMPLEMENTED`. NOTE:
+        the `name` binding allows API services to override the binding to use different
+        resource name schemes, such as `users/*/operations`. To override the binding,
+        API services can add a binding such as `"/v1/{name=users/*}/operations"` to
+        their service configuration. For backwards compatibility, the default name
+        includes the operations collection id, however overriding users must ensure
+        the name binding is the parent resource, without the operations collection
+        id.'
+      operationId: vault.operations.list
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOperationsResponse'
+          description: Successful response
+      tags:
+      - operations
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/operations/{operationsId}:
+    delete:
+      description: Deletes a long-running operation. This method indicates that the
+        client is no longer interested in the operation result. It does not cancel
+        the operation. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+      operationId: vault.operations.delete
+      parameters:
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - operations
+    get:
+      description: 'Lists operations that match the specified filter in the request.
+        If the server doesn''t support this method, it returns `UNIMPLEMENTED`. NOTE:
+        the `name` binding allows API services to override the binding to use different
+        resource name schemes, such as `users/*/operations`. To override the binding,
+        API services can add a binding such as `"/v1/{name=users/*}/operations"` to
+        their service configuration. For backwards compatibility, the default name
+        includes the operations collection id, however overriding users must ensure
+        the name binding is the parent resource, without the operations collection
+        id.'
+      operationId: vault.operations.list
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOperationsResponse'
+          description: Successful response
+      tags:
+      - operations
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/operations/{operationsId}:cancel:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Starts asynchronous cancellation on a long-running operation. The
+        server makes a best effort to cancel the operation, but success is not guaranteed.
+        If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+        Clients can use Operations.GetOperation or other methods to check whether
+        the cancellation succeeded or whether the operation completed despite cancellation.
+        On successful cancellation, the operation is not deleted; instead, it becomes
+        an operation with an Operation.error value with a google.rpc.Status.code of
+        1, corresponding to `Code.CANCELLED`.
+      operationId: vault.operations.cancel
+      parameters:
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelOperationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - operations
   /v1/{name}:
     delete:
       description: Deletes a long-running operation. This method indicates that the

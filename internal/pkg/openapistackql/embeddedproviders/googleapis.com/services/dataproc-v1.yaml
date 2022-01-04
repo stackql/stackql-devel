@@ -2619,34 +2619,14 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.locations:
-      id: google.services.projects.resources.locations
-      methods: {}
-      name: projects.resources.locations
-      title: projects.resources.locations
-    projects.resources.locations.resources:
-      id: google.services.projects.resources.locations.resources
-      methods: {}
-      name: projects.resources.locations.resources
-      title: projects.resources.locations.resources
-    projects.resources.locations.resources.autoscalingPolicies:
-      id: google.services.projects.resources.locations.resources.autoscalingPolicies
+    projects.locations.autoscalingPolicies:
+      id: google.dataproc.projects.locations.autoscalingPolicies
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/autoscalingPolicies
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/autoscalingPolicies
           request:
             mediaType: application/json
           response:
@@ -2656,9 +2636,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/autoscalingPolicies/{autoscalingPoliciesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2666,9 +2644,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/autoscalingPolicies/{autoscalingPoliciesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2676,7 +2652,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:getIamPolicy
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/autoscalingPolicies/{autoscalingPoliciesId}:getIamPolicy
           request:
             mediaType: application/json
           response:
@@ -2686,9 +2662,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/autoscalingPolicies
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/autoscalingPolicies
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2696,7 +2670,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/autoscalingPolicies/{autoscalingPoliciesId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -2706,7 +2680,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/autoscalingPolicies/{autoscalingPoliciesId}:testIamPermissions
           request:
             mediaType: application/json
           response:
@@ -2716,22 +2690,22 @@ components:
           operation:
             $ref: put
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/autoscalingPolicies/{autoscalingPoliciesId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.autoscalingPolicies
-      title: projects.resources.locations.resources.autoscalingPolicies
-    projects.resources.locations.resources.workflowTemplates:
-      id: google.services.projects.resources.locations.resources.workflowTemplates
+      name: projects.locations.autoscalingPolicies
+      title: projects.locations.autoscalingPolicies
+    projects.locations.workflowTemplates:
+      id: google.dataproc.projects.locations.workflowTemplates
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/workflowTemplates
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workflowTemplates
           request:
             mediaType: application/json
           response:
@@ -2741,9 +2715,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workflowTemplates/{workflowTemplatesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2751,9 +2723,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workflowTemplates/{workflowTemplatesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2761,7 +2731,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:getIamPolicy
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workflowTemplates/{workflowTemplatesId}:getIamPolicy
           request:
             mediaType: application/json
           response:
@@ -2771,7 +2741,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:instantiate
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workflowTemplates/{workflowTemplatesId}:instantiate
           request:
             mediaType: application/json
           response:
@@ -2781,7 +2751,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/workflowTemplates:instantiateInline
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workflowTemplates:instantiateInline
           request:
             mediaType: application/json
           response:
@@ -2791,9 +2761,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/workflowTemplates
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workflowTemplates
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2801,7 +2769,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workflowTemplates/{workflowTemplatesId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -2811,7 +2779,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workflowTemplates/{workflowTemplatesId}:testIamPermissions
           request:
             mediaType: application/json
           response:
@@ -2821,32 +2789,22 @@ components:
           operation:
             $ref: put
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workflowTemplates/{workflowTemplatesId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.workflowTemplates
-      title: projects.resources.locations.resources.workflowTemplates
-    projects.resources.regions:
-      id: google.services.projects.resources.regions
-      methods: {}
-      name: projects.resources.regions
-      title: projects.resources.regions
-    projects.resources.regions.resources:
-      id: google.services.projects.resources.regions.resources
-      methods: {}
-      name: projects.resources.regions.resources
-      title: projects.resources.regions.resources
-    projects.resources.regions.resources.autoscalingPolicies:
-      id: google.services.projects.resources.regions.resources.autoscalingPolicies
+      name: projects.locations.workflowTemplates
+      title: projects.locations.workflowTemplates
+    projects.regions.autoscalingPolicies:
+      id: google.dataproc.projects.regions.autoscalingPolicies
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/autoscalingPolicies
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/autoscalingPolicies
           request:
             mediaType: application/json
           response:
@@ -2856,9 +2814,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/autoscalingPolicies/{autoscalingPoliciesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2866,9 +2822,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/autoscalingPolicies/{autoscalingPoliciesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2876,7 +2830,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:getIamPolicy
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/autoscalingPolicies/{autoscalingPoliciesId}:getIamPolicy
           request:
             mediaType: application/json
           response:
@@ -2886,9 +2840,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/autoscalingPolicies
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/autoscalingPolicies
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2896,7 +2848,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/autoscalingPolicies/{autoscalingPoliciesId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -2906,7 +2858,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/autoscalingPolicies/{autoscalingPoliciesId}:testIamPermissions
           request:
             mediaType: application/json
           response:
@@ -2916,16 +2868,16 @@ components:
           operation:
             $ref: put
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/autoscalingPolicies/{autoscalingPoliciesId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.regions.resources.autoscalingPolicies
-      title: projects.resources.regions.resources.autoscalingPolicies
-    projects.resources.regions.resources.clusters:
-      id: google.services.projects.resources.regions.resources.clusters
+      name: projects.regions.autoscalingPolicies
+      title: projects.regions.autoscalingPolicies
+    projects.regions.clusters:
+      id: google.dataproc.projects.regions.clusters
       methods:
         create:
           operation:
@@ -2942,8 +2894,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/projects/{projectId}/regions/{region}/clusters/{clusterName}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2962,8 +2912,6 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{projectId}/regions/{region}/clusters/{clusterName}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2971,7 +2919,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:getIamPolicy
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/clusters/{clustersId}:getIamPolicy
           request:
             mediaType: application/json
           response:
@@ -2981,7 +2929,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{project}/{region}/{cluster}:injectCredentials
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/clusters/{clustersId}:injectCredentials
           request:
             mediaType: application/json
           response:
@@ -2992,8 +2940,6 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{projectId}/regions/{region}/clusters
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3021,7 +2967,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/clusters/{clustersId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -3051,16 +2997,16 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/clusters/{clustersId}:testIamPermissions
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.regions.resources.clusters
-      title: projects.resources.regions.resources.clusters
-    projects.resources.regions.resources.jobs:
-      id: google.services.projects.resources.regions.resources.jobs
+      name: projects.regions.clusters
+      title: projects.regions.clusters
+    projects.regions.jobs:
+      id: google.dataproc.projects.regions.jobs
       methods:
         cancel:
           operation:
@@ -3077,8 +3023,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/projects/{projectId}/regions/{region}/jobs/{jobId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3087,8 +3031,6 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{projectId}/regions/{region}/jobs/{jobId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3096,7 +3038,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:getIamPolicy
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/jobs/{jobsId}:getIamPolicy
           request:
             mediaType: application/json
           response:
@@ -3107,8 +3049,6 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{projectId}/regions/{region}/jobs
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3126,7 +3066,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/jobs/{jobsId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -3156,24 +3096,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/jobs/{jobsId}:testIamPermissions
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.regions.resources.jobs
-      title: projects.resources.regions.resources.jobs
-    projects.resources.regions.resources.operations:
-      id: google.services.projects.resources.regions.resources.operations
+      name: projects.regions.jobs
+      title: projects.regions.jobs
+    projects.regions.operations:
+      id: google.dataproc.projects.regions.operations
       methods:
         cancel:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:cancel
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/operations/{operationsId}:cancel
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3181,9 +3119,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3191,9 +3127,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3201,7 +3135,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:getIamPolicy
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/operations/{operationsId}:getIamPolicy
           request:
             mediaType: application/json
           response:
@@ -3211,9 +3145,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/operations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3221,7 +3153,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/operations/{operationsId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -3231,22 +3163,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/operations/{operationsId}:testIamPermissions
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.regions.resources.operations
-      title: projects.resources.regions.resources.operations
-    projects.resources.regions.resources.workflowTemplates:
-      id: google.services.projects.resources.regions.resources.workflowTemplates
+      name: projects.regions.operations
+      title: projects.regions.operations
+    projects.regions.workflowTemplates:
+      id: google.dataproc.projects.regions.workflowTemplates
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/workflowTemplates
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/workflowTemplates
           request:
             mediaType: application/json
           response:
@@ -3256,9 +3188,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/workflowTemplates/{workflowTemplatesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3266,9 +3196,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/workflowTemplates/{workflowTemplatesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3276,7 +3204,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:getIamPolicy
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/workflowTemplates/{workflowTemplatesId}:getIamPolicy
           request:
             mediaType: application/json
           response:
@@ -3286,7 +3214,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:instantiate
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/workflowTemplates/{workflowTemplatesId}:instantiate
           request:
             mediaType: application/json
           response:
@@ -3296,7 +3224,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/workflowTemplates:instantiateInline
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/workflowTemplates:instantiateInline
           request:
             mediaType: application/json
           response:
@@ -3306,9 +3234,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/workflowTemplates
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/workflowTemplates
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3316,7 +3242,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/workflowTemplates/{workflowTemplatesId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -3326,7 +3252,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/workflowTemplates/{workflowTemplatesId}:testIamPermissions
           request:
             mediaType: application/json
           response:
@@ -3336,14 +3262,14 @@ components:
           operation:
             $ref: put
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/regions/{regionsId}/workflowTemplates/{workflowTemplatesId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.regions.resources.workflowTemplates
-      title: projects.resources.regions.resources.workflowTemplates
+      name: projects.regions.workflowTemplates
+      title: projects.regions.workflowTemplates
 externalDocs:
   url: https://cloud.google.com/dataproc/
 info:
@@ -4274,6 +4200,2661 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/SubmitJobRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/autoscalingPolicies:
+    get:
+      description: Lists autoscaling policies in the project.
+      operationId: dataproc.projects.regions.autoscalingPolicies.list
+      parameters:
+      - description: Optional. The maximum number of results to return in each response.
+          Must be less than or equal to 1000. Defaults to 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. The page token, returned by a previous call, to request
+          the next page of results.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAutoscalingPoliciesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates new autoscaling policy.
+      operationId: dataproc.projects.regions.autoscalingPolicies.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutoscalingPolicy'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutoscalingPolicy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/autoscalingPolicies/{autoscalingPoliciesId}:
+    delete:
+      description: Deletes a workflow template. It does not cancel in-progress workflows.
+      operationId: dataproc.projects.regions.workflowTemplates.delete
+      parameters:
+      - description: Optional. The version of workflow template to delete. If specified,
+          will only delete the template if the current server version matches specified
+          version.
+        in: query
+        name: version
+        schema:
+          type: integer
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: autoscalingPoliciesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Retrieves the latest workflow template.Can retrieve previously
+        instantiated template by specifying optional version parameter.
+      operationId: dataproc.projects.regions.workflowTemplates.get
+      parameters:
+      - description: Optional. The version of workflow template to retrieve. Only
+          previously instantiated versions can be retrieved.If unspecified, retrieves
+          the current version.
+        in: query
+        name: version
+        schema:
+          type: integer
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: autoscalingPoliciesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowTemplate'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Updates (replaces) workflow template. The updated template must
+        contain version that matches the current server version.
+      operationId: dataproc.projects.regions.workflowTemplates.update
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: autoscalingPoliciesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowTemplate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowTemplate'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/autoscalingPolicies/{autoscalingPoliciesId}:getIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: dataproc.projects.regions.workflowTemplates.getIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: autoscalingPoliciesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/autoscalingPolicies/{autoscalingPoliciesId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy.Can return NOT_FOUND, INVALID_ARGUMENT, and PERMISSION_DENIED
+        errors.
+      operationId: dataproc.projects.regions.workflowTemplates.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: autoscalingPoliciesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/autoscalingPolicies/{autoscalingPoliciesId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a NOT_FOUND error.Note: This operation is designed to be used for building
+        permission-aware UIs and command-line tools, not for authorization checking.
+        This operation may "fail open" without warning.'
+      operationId: dataproc.projects.regions.workflowTemplates.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: autoscalingPoliciesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/workflowTemplates:
+    get:
+      description: Lists workflows that match the specified filter in the request.
+      operationId: dataproc.projects.regions.workflowTemplates.list
+      parameters:
+      - description: Optional. The maximum number of results to return in each response.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. The page token, returned by a previous call, to request
+          the next page of results.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListWorkflowTemplatesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates new workflow template.
+      operationId: dataproc.projects.regions.workflowTemplates.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowTemplate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowTemplate'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/workflowTemplates/{workflowTemplatesId}:
+    delete:
+      description: Deletes a workflow template. It does not cancel in-progress workflows.
+      operationId: dataproc.projects.regions.workflowTemplates.delete
+      parameters:
+      - description: Optional. The version of workflow template to delete. If specified,
+          will only delete the template if the current server version matches specified
+          version.
+        in: query
+        name: version
+        schema:
+          type: integer
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workflowTemplatesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Retrieves the latest workflow template.Can retrieve previously
+        instantiated template by specifying optional version parameter.
+      operationId: dataproc.projects.regions.workflowTemplates.get
+      parameters:
+      - description: Optional. The version of workflow template to retrieve. Only
+          previously instantiated versions can be retrieved.If unspecified, retrieves
+          the current version.
+        in: query
+        name: version
+        schema:
+          type: integer
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workflowTemplatesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowTemplate'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Updates (replaces) workflow template. The updated template must
+        contain version that matches the current server version.
+      operationId: dataproc.projects.regions.workflowTemplates.update
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workflowTemplatesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowTemplate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowTemplate'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/workflowTemplates/{workflowTemplatesId}:getIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: dataproc.projects.regions.workflowTemplates.getIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workflowTemplatesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/workflowTemplates/{workflowTemplatesId}:instantiate:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Instantiates a template and begins execution.The returned Operation
+        can be used to track execution of workflow by polling operations.get. The
+        Operation will complete when entire workflow is finished.The running workflow
+        can be aborted via operations.cancel. This will cause any inflight jobs to
+        be cancelled and workflow-owned clusters to be deleted.The Operation.metadata
+        will be WorkflowMetadata (https://cloud.google.com/dataproc/docs/reference/rpc/google.cloud.dataproc.v1#workflowmetadata).
+        Also see Using WorkflowMetadata (https://cloud.google.com/dataproc/docs/concepts/workflows/debugging#using_workflowmetadata).On
+        successful completion, Operation.response will be Empty.
+      operationId: dataproc.projects.regions.workflowTemplates.instantiate
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workflowTemplatesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstantiateWorkflowTemplateRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/workflowTemplates/{workflowTemplatesId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy.Can return NOT_FOUND, INVALID_ARGUMENT, and PERMISSION_DENIED
+        errors.
+      operationId: dataproc.projects.regions.workflowTemplates.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workflowTemplatesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/workflowTemplates/{workflowTemplatesId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a NOT_FOUND error.Note: This operation is designed to be used for building
+        permission-aware UIs and command-line tools, not for authorization checking.
+        This operation may "fail open" without warning.'
+      operationId: dataproc.projects.regions.workflowTemplates.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workflowTemplatesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/workflowTemplates:instantiateInline:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Instantiates a template and begins execution.This method is equivalent
+        to executing the sequence CreateWorkflowTemplate, InstantiateWorkflowTemplate,
+        DeleteWorkflowTemplate.The returned Operation can be used to track execution
+        of workflow by polling operations.get. The Operation will complete when entire
+        workflow is finished.The running workflow can be aborted via operations.cancel.
+        This will cause any inflight jobs to be cancelled and workflow-owned clusters
+        to be deleted.The Operation.metadata will be WorkflowMetadata (https://cloud.google.com/dataproc/docs/reference/rpc/google.cloud.dataproc.v1#workflowmetadata).
+        Also see Using WorkflowMetadata (https://cloud.google.com/dataproc/docs/concepts/workflows/debugging#using_workflowmetadata).On
+        successful completion, Operation.response will be Empty.
+      operationId: dataproc.projects.regions.workflowTemplates.instantiateInline
+      parameters:
+      - description: Optional. A tag that prevents multiple concurrent workflow instances
+          with the same tag from running. This mitigates risk of concurrent instances
+          started due to retries.It is recommended to always set this value to a UUID
+          (https://en.wikipedia.org/wiki/Universally_unique_identifier).The tag must
+          contain only letters (a-z, A-Z), numbers (0-9), underscores (_), and hyphens
+          (-). The maximum length is 40 characters.
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowTemplate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/autoscalingPolicies:
+    get:
+      description: Lists autoscaling policies in the project.
+      operationId: dataproc.projects.regions.autoscalingPolicies.list
+      parameters:
+      - description: Optional. The maximum number of results to return in each response.
+          Must be less than or equal to 1000. Defaults to 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. The page token, returned by a previous call, to request
+          the next page of results.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAutoscalingPoliciesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates new autoscaling policy.
+      operationId: dataproc.projects.regions.autoscalingPolicies.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutoscalingPolicy'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutoscalingPolicy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/autoscalingPolicies/{autoscalingPoliciesId}:
+    delete:
+      description: Deletes a workflow template. It does not cancel in-progress workflows.
+      operationId: dataproc.projects.regions.workflowTemplates.delete
+      parameters:
+      - description: Optional. The version of workflow template to delete. If specified,
+          will only delete the template if the current server version matches specified
+          version.
+        in: query
+        name: version
+        schema:
+          type: integer
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: autoscalingPoliciesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Retrieves the latest workflow template.Can retrieve previously
+        instantiated template by specifying optional version parameter.
+      operationId: dataproc.projects.regions.workflowTemplates.get
+      parameters:
+      - description: Optional. The version of workflow template to retrieve. Only
+          previously instantiated versions can be retrieved.If unspecified, retrieves
+          the current version.
+        in: query
+        name: version
+        schema:
+          type: integer
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: autoscalingPoliciesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowTemplate'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Updates (replaces) workflow template. The updated template must
+        contain version that matches the current server version.
+      operationId: dataproc.projects.regions.workflowTemplates.update
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: autoscalingPoliciesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowTemplate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowTemplate'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/autoscalingPolicies/{autoscalingPoliciesId}:getIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: dataproc.projects.regions.workflowTemplates.getIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: autoscalingPoliciesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/autoscalingPolicies/{autoscalingPoliciesId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy.Can return NOT_FOUND, INVALID_ARGUMENT, and PERMISSION_DENIED
+        errors.
+      operationId: dataproc.projects.regions.workflowTemplates.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: autoscalingPoliciesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/autoscalingPolicies/{autoscalingPoliciesId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a NOT_FOUND error.Note: This operation is designed to be used for building
+        permission-aware UIs and command-line tools, not for authorization checking.
+        This operation may "fail open" without warning.'
+      operationId: dataproc.projects.regions.workflowTemplates.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: autoscalingPoliciesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/clusters/{clustersId}:getIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: dataproc.projects.regions.workflowTemplates.getIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: clustersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/clusters/{clustersId}:injectCredentials:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Inject encrypted credentials into all of the VMs in a cluster.The
+        target cluster must be a personal auth cluster assigned to the user who is
+        issuing the RPC.
+      operationId: dataproc.projects.regions.clusters.injectCredentials
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: clustersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InjectCredentialsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/clusters/{clustersId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy.Can return NOT_FOUND, INVALID_ARGUMENT, and PERMISSION_DENIED
+        errors.
+      operationId: dataproc.projects.regions.workflowTemplates.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: clustersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/clusters/{clustersId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a NOT_FOUND error.Note: This operation is designed to be used for building
+        permission-aware UIs and command-line tools, not for authorization checking.
+        This operation may "fail open" without warning.'
+      operationId: dataproc.projects.regions.workflowTemplates.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: clustersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/jobs/{jobsId}:getIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: dataproc.projects.regions.workflowTemplates.getIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: jobsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/jobs/{jobsId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy.Can return NOT_FOUND, INVALID_ARGUMENT, and PERMISSION_DENIED
+        errors.
+      operationId: dataproc.projects.regions.workflowTemplates.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: jobsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/jobs/{jobsId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a NOT_FOUND error.Note: This operation is designed to be used for building
+        permission-aware UIs and command-line tools, not for authorization checking.
+        This operation may "fail open" without warning.'
+      operationId: dataproc.projects.regions.workflowTemplates.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: jobsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/operations:
+    delete:
+      description: Deletes a workflow template. It does not cancel in-progress workflows.
+      operationId: dataproc.projects.regions.workflowTemplates.delete
+      parameters:
+      - description: Optional. The version of workflow template to delete. If specified,
+          will only delete the template if the current server version matches specified
+          version.
+        in: query
+        name: version
+        schema:
+          type: integer
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Retrieves the latest workflow template.Can retrieve previously
+        instantiated template by specifying optional version parameter.
+      operationId: dataproc.projects.regions.workflowTemplates.get
+      parameters:
+      - description: Optional. The version of workflow template to retrieve. Only
+          previously instantiated versions can be retrieved.If unspecified, retrieves
+          the current version.
+        in: query
+        name: version
+        schema:
+          type: integer
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowTemplate'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Updates (replaces) workflow template. The updated template must
+        contain version that matches the current server version.
+      operationId: dataproc.projects.regions.workflowTemplates.update
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowTemplate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowTemplate'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/operations/{operationsId}:
+    delete:
+      description: Deletes a workflow template. It does not cancel in-progress workflows.
+      operationId: dataproc.projects.regions.workflowTemplates.delete
+      parameters:
+      - description: Optional. The version of workflow template to delete. If specified,
+          will only delete the template if the current server version matches specified
+          version.
+        in: query
+        name: version
+        schema:
+          type: integer
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Retrieves the latest workflow template.Can retrieve previously
+        instantiated template by specifying optional version parameter.
+      operationId: dataproc.projects.regions.workflowTemplates.get
+      parameters:
+      - description: Optional. The version of workflow template to retrieve. Only
+          previously instantiated versions can be retrieved.If unspecified, retrieves
+          the current version.
+        in: query
+        name: version
+        schema:
+          type: integer
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowTemplate'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Updates (replaces) workflow template. The updated template must
+        contain version that matches the current server version.
+      operationId: dataproc.projects.regions.workflowTemplates.update
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowTemplate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowTemplate'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/operations/{operationsId}:cancel:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Starts asynchronous cancellation on a long-running operation. The
+        server makes a best effort to cancel the operation, but success is not guaranteed.
+        If the server doesn't support this method, it returns google.rpc.Code.UNIMPLEMENTED.
+        Clients can use Operations.GetOperation or other methods to check whether
+        the cancellation succeeded or whether the operation completed despite cancellation.
+        On successful cancellation, the operation is not deleted; instead, it becomes
+        an operation with an Operation.error value with a google.rpc.Status.code of
+        1, corresponding to Code.CANCELLED.
+      operationId: dataproc.projects.regions.operations.cancel
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/operations/{operationsId}:getIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: dataproc.projects.regions.workflowTemplates.getIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/operations/{operationsId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy.Can return NOT_FOUND, INVALID_ARGUMENT, and PERMISSION_DENIED
+        errors.
+      operationId: dataproc.projects.regions.workflowTemplates.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/operations/{operationsId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a NOT_FOUND error.Note: This operation is designed to be used for building
+        permission-aware UIs and command-line tools, not for authorization checking.
+        This operation may "fail open" without warning.'
+      operationId: dataproc.projects.regions.workflowTemplates.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/workflowTemplates:
+    get:
+      description: Lists workflows that match the specified filter in the request.
+      operationId: dataproc.projects.regions.workflowTemplates.list
+      parameters:
+      - description: Optional. The maximum number of results to return in each response.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. The page token, returned by a previous call, to request
+          the next page of results.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListWorkflowTemplatesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates new workflow template.
+      operationId: dataproc.projects.regions.workflowTemplates.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowTemplate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowTemplate'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/workflowTemplates/{workflowTemplatesId}:
+    delete:
+      description: Deletes a workflow template. It does not cancel in-progress workflows.
+      operationId: dataproc.projects.regions.workflowTemplates.delete
+      parameters:
+      - description: Optional. The version of workflow template to delete. If specified,
+          will only delete the template if the current server version matches specified
+          version.
+        in: query
+        name: version
+        schema:
+          type: integer
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workflowTemplatesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Retrieves the latest workflow template.Can retrieve previously
+        instantiated template by specifying optional version parameter.
+      operationId: dataproc.projects.regions.workflowTemplates.get
+      parameters:
+      - description: Optional. The version of workflow template to retrieve. Only
+          previously instantiated versions can be retrieved.If unspecified, retrieves
+          the current version.
+        in: query
+        name: version
+        schema:
+          type: integer
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workflowTemplatesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowTemplate'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Updates (replaces) workflow template. The updated template must
+        contain version that matches the current server version.
+      operationId: dataproc.projects.regions.workflowTemplates.update
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workflowTemplatesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowTemplate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowTemplate'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/workflowTemplates/{workflowTemplatesId}:getIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: dataproc.projects.regions.workflowTemplates.getIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workflowTemplatesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/workflowTemplates/{workflowTemplatesId}:instantiate:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Instantiates a template and begins execution.The returned Operation
+        can be used to track execution of workflow by polling operations.get. The
+        Operation will complete when entire workflow is finished.The running workflow
+        can be aborted via operations.cancel. This will cause any inflight jobs to
+        be cancelled and workflow-owned clusters to be deleted.The Operation.metadata
+        will be WorkflowMetadata (https://cloud.google.com/dataproc/docs/reference/rpc/google.cloud.dataproc.v1#workflowmetadata).
+        Also see Using WorkflowMetadata (https://cloud.google.com/dataproc/docs/concepts/workflows/debugging#using_workflowmetadata).On
+        successful completion, Operation.response will be Empty.
+      operationId: dataproc.projects.regions.workflowTemplates.instantiate
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workflowTemplatesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstantiateWorkflowTemplateRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/workflowTemplates/{workflowTemplatesId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy.Can return NOT_FOUND, INVALID_ARGUMENT, and PERMISSION_DENIED
+        errors.
+      operationId: dataproc.projects.regions.workflowTemplates.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workflowTemplatesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/workflowTemplates/{workflowTemplatesId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a NOT_FOUND error.Note: This operation is designed to be used for building
+        permission-aware UIs and command-line tools, not for authorization checking.
+        This operation may "fail open" without warning.'
+      operationId: dataproc.projects.regions.workflowTemplates.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workflowTemplatesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/regions/{regionsId}/workflowTemplates:instantiateInline:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Instantiates a template and begins execution.This method is equivalent
+        to executing the sequence CreateWorkflowTemplate, InstantiateWorkflowTemplate,
+        DeleteWorkflowTemplate.The returned Operation can be used to track execution
+        of workflow by polling operations.get. The Operation will complete when entire
+        workflow is finished.The running workflow can be aborted via operations.cancel.
+        This will cause any inflight jobs to be cancelled and workflow-owned clusters
+        to be deleted.The Operation.metadata will be WorkflowMetadata (https://cloud.google.com/dataproc/docs/reference/rpc/google.cloud.dataproc.v1#workflowmetadata).
+        Also see Using WorkflowMetadata (https://cloud.google.com/dataproc/docs/concepts/workflows/debugging#using_workflowmetadata).On
+        successful completion, Operation.response will be Empty.
+      operationId: dataproc.projects.regions.workflowTemplates.instantiateInline
+      parameters:
+      - description: Optional. A tag that prevents multiple concurrent workflow instances
+          with the same tag from running. This mitigates risk of concurrent instances
+          started due to retries.It is recommended to always set this value to a UUID
+          (https://en.wikipedia.org/wiki/Universally_unique_identifier).The tag must
+          contain only letters (a-z, A-Z), numbers (0-9), underscores (_), and hyphens
+          (-). The maximum length is 40 characters.
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: regionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowTemplate'
       responses:
         '200':
           content:

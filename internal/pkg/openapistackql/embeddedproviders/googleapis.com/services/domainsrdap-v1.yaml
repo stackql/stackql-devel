@@ -195,90 +195,78 @@ components:
       type: object
   x-stackQL-resources:
     autnum:
-      id: google.services.autnum
+      id: google.domainsrdap.autnum
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v1/autnum/{autnumId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: autnum
       title: autnum
     domain:
-      id: google.services.domain
+      id: google.domainsrdap.domain
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/domain/{domainName}
-          request:
-            mediaType: application/json
+            $ref: /v1/domain/{domainId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: domain
       title: domain
     entity:
-      id: google.services.entity
+      id: google.domainsrdap.entity
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v1/entity/{entityId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: entity
       title: entity
     ip:
-      id: google.services.ip
+      id: google.domainsrdap.ip
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v1/ip/{ipId}/{ipId1}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: ip
       title: ip
     nameserver:
-      id: google.services.nameserver
+      id: google.domainsrdap.nameserver
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v1/nameserver/{nameserverId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: nameserver
       title: nameserver
     v1:
-      id: google.services.v1
+      id: google.domainsrdap.v1
       methods:
         getDomains:
           operation:
             $ref: get
           path:
             $ref: /v1/domains
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -287,8 +275,6 @@ components:
             $ref: get
           path:
             $ref: /v1/entities
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -297,8 +283,6 @@ components:
             $ref: get
           path:
             $ref: /v1/help
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -307,8 +291,6 @@ components:
             $ref: get
           path:
             $ref: /v1/ip
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -317,8 +299,6 @@ components:
             $ref: get
           path:
             $ref: /v1/nameservers
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -377,6 +357,37 @@ paths:
           description: Successful response
       tags:
       - autnum
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/domain/{domainId}:
+    get:
+      description: Look up RDAP information for a domain by name.
+      operationId: domainsrdap.domain.get
+      parameters:
+      - in: path
+        name: domainId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBody'
+          description: Successful response
+      tags:
+      - domain
     parameters:
     - $ref: '#/components/parameters/_.xgafv'
     - $ref: '#/components/parameters/access_token'

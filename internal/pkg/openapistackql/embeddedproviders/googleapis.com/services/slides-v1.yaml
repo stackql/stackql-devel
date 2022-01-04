@@ -3544,7 +3544,7 @@ components:
       type: oauth2
   x-stackQL-resources:
     presentations:
-      id: google.services.presentations
+      id: google.slides.presentations
       methods:
         batchUpdate:
           operation:
@@ -3570,29 +3570,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/presentations/{presentationId}
-          request:
-            mediaType: application/json
+            $ref: /v1/presentations/{presentationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: presentations
       title: presentations
-    presentations.resources:
-      id: google.services.presentations.resources
-      methods: {}
-      name: presentations.resources
-      title: presentations.resources
-    presentations.resources.pages:
-      id: google.services.presentations.resources.pages
+    presentations.pages:
+      id: google.slides.presentations.pages
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v1/presentations/{presentationId}/pages/{pageObjectId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3601,13 +3592,11 @@ components:
             $ref: get
           path:
             $ref: /v1/presentations/{presentationId}/pages/{pageObjectId}/thumbnail
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: presentations.resources.pages
-      title: presentations.resources.pages
+      name: presentations.pages
+      title: presentations.pages
 externalDocs:
   url: https://developers.google.com/slides/
 info:
@@ -3952,6 +3941,58 @@ paths:
         - https://www.googleapis.com/auth/spreadsheets.readonly
       tags:
       - presentations
+  /v1/presentations/{presentationsId}:
+    get:
+      description: Gets the latest version of the specified presentation.
+      operationId: slides.presentations.get
+      parameters:
+      - in: path
+        name: presentationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Presentation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.file
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.file
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/presentations
+        Oauth2c:
+        - https://www.googleapis.com/auth/presentations
+      - Oauth2:
+        - https://www.googleapis.com/auth/presentations.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/presentations.readonly
+      tags:
+      - presentations
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
 servers:
 - url: https://slides.googleapis.com/
 tags:

@@ -207,24 +207,14 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.buckets:
-      id: google.services.projects.resources.buckets
+    projects.buckets:
+      id: google.firebasestorage.projects.buckets
       methods:
         addFirebase:
           operation:
             $ref: post
           path:
-            $ref: /v1beta/{bucket}:addFirebase
+            $ref: /v1beta/projects/{projectsId}/buckets/{bucketsId}:addFirebase
           request:
             mediaType: application/json
           response:
@@ -234,9 +224,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta/projects/{projectsId}/buckets/{bucketsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -244,9 +232,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta/{parent}/buckets
-          request:
-            mediaType: application/json
+            $ref: /v1beta/projects/{projectsId}/buckets
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -254,14 +240,14 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta/{bucket}:removeFirebase
+            $ref: /v1beta/projects/{projectsId}/buckets/{bucketsId}:removeFirebase
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.buckets
-      title: projects.resources.buckets
+      name: projects.buckets
+      title: projects.buckets
 externalDocs:
   url: https://firebase.google.com/docs/storage
 info:
@@ -290,6 +276,204 @@ info:
   x-serviceName: firebasestorage
 openapi: 3.0.0
 paths:
+  /v1beta/projects/{projectsId}/buckets:
+    get:
+      description: Lists the linked storage buckets for a project.
+      operationId: firebasestorage.projects.buckets.list
+      parameters:
+      - description: The maximum number of buckets to return. If not set, the server
+          will use a reasonable default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListBuckets` call. Provide
+          this to retrieve the subsequent page. When paginating, all other parameters
+          provided to `ListBuckets` must match the call that provided the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListBucketsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1beta/projects/{projectsId}/buckets/{bucketsId}:
+    get:
+      description: Gets a single linked storage bucket.
+      operationId: firebasestorage.projects.buckets.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: bucketsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bucket'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1beta/projects/{projectsId}/buckets/{bucketsId}:addFirebase:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Links a Google Cloud Storage bucket to a Firebase project.
+      operationId: firebasestorage.projects.buckets.addFirebase
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: bucketsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddFirebaseRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bucket'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1beta/projects/{projectsId}/buckets/{bucketsId}:removeFirebase:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Unlinks a linked Google Cloud Storage bucket from a Firebase project.
+      operationId: firebasestorage.projects.buckets.removeFirebase
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: bucketsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RemoveFirebaseRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
   /v1beta/{bucket}:addFirebase:
     parameters:
     - $ref: '#/components/parameters/_.xgafv'

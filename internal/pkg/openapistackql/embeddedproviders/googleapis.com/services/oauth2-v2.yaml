@@ -142,50 +142,31 @@ components:
       type: oauth2
   x-stackQL-resources:
     userinfo:
-      id: google.services.userinfo
+      id: google.oauth2.userinfo
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /oauth2/v2/userinfo
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: userinfo
       title: userinfo
-    userinfo.resources:
-      id: google.services.userinfo.resources
-      methods: {}
-      name: userinfo.resources
-      title: userinfo.resources
-    userinfo.resources.v2:
-      id: google.services.userinfo.resources.v2
-      methods: {}
-      name: userinfo.resources.v2
-      title: userinfo.resources.v2
-    userinfo.resources.v2.resources:
-      id: google.services.userinfo.resources.v2.resources
-      methods: {}
-      name: userinfo.resources.v2.resources
-      title: userinfo.resources.v2.resources
-    userinfo.resources.v2.resources.me:
-      id: google.services.userinfo.resources.v2.resources.me
+    userinfo.v2.me:
+      id: google.oauth2.userinfo.v2.me
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /userinfo/v2/me
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: userinfo.resources.v2.resources.me
-      title: userinfo.resources.v2.resources.me
+      name: userinfo.v2.me
+      title: userinfo.v2.me
 externalDocs:
   url: https://developers.google.com/identity/protocols/oauth2/
 info:

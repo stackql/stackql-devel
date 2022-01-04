@@ -696,7 +696,7 @@ components:
       type: oauth2
   x-stackQL-resources:
     billingAccounts:
-      id: google.services.billingAccounts
+      id: google.cloudbilling.billingAccounts
       methods:
         create:
           operation:
@@ -712,9 +712,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/billingAccounts/{billingAccountsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -722,9 +720,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{resource}:getIamPolicy
-          request:
-            mediaType: application/json
+            $ref: /v1/billingAccounts/{billingAccountsId}:getIamPolicy
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -733,8 +729,6 @@ components:
             $ref: get
           path:
             $ref: /v1/billingAccounts
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -742,7 +736,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/billingAccounts/{billingAccountsId}
           request:
             mediaType: application/json
           response:
@@ -752,7 +746,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/billingAccounts/{billingAccountsId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -762,7 +756,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/billingAccounts/{billingAccountsId}:testIamPermissions
           request:
             mediaType: application/json
           response:
@@ -770,36 +764,27 @@ components:
             openAPIDocKey: '200'
       name: billingAccounts
       title: billingAccounts
-    billingAccounts.resources:
-      id: google.services.billingAccounts.resources
-      methods: {}
-      name: billingAccounts.resources
-      title: billingAccounts.resources
-    billingAccounts.resources.projects:
-      id: google.services.billingAccounts.resources.projects
+    billingAccounts.projects:
+      id: google.cloudbilling.billingAccounts.projects
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/projects
-          request:
-            mediaType: application/json
+            $ref: /v1/billingAccounts/{billingAccountsId}/projects
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: billingAccounts.resources.projects
-      title: billingAccounts.resources.projects
+      name: billingAccounts.projects
+      title: billingAccounts.projects
     projects:
-      id: google.services.projects
+      id: google.cloudbilling.projects
       methods:
         getBillingInfo:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/billingInfo
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/billingInfo
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -807,7 +792,7 @@ components:
           operation:
             $ref: put
           path:
-            $ref: /v1/{name}/billingInfo
+            $ref: /v1/projects/{projectsId}/billingInfo
           request:
             mediaType: application/json
           response:
@@ -816,40 +801,31 @@ components:
       name: projects
       title: projects
     services:
-      id: google.services.services
+      id: google.cloudbilling.services
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /v1/services
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: services
       title: services
-    services.resources:
-      id: google.services.services.resources
-      methods: {}
-      name: services.resources
-      title: services.resources
-    services.resources.skus:
-      id: google.services.services.resources.skus
+    services.skus:
+      id: google.cloudbilling.services.skus
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/skus
-          request:
-            mediaType: application/json
+            $ref: /v1/services/{servicesId}/skus
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: services.resources.skus
-      title: services.resources.skus
+      name: services.skus
+      title: services.skus
 externalDocs:
   url: https://cloud.google.com/billing/
 info:
@@ -977,6 +953,406 @@ paths:
         - https://www.googleapis.com/auth/cloud-platform
       tags:
       - billingAccounts
+  /v1/billingAccounts/{billingAccountsId}:
+    get:
+      description: Gets information about a billing account. The current authenticated
+        user must be a [viewer of the billing account](https://cloud.google.com/billing/docs/how-to/billing-access).
+      operationId: cloudbilling.billingAccounts.get
+      parameters:
+      - in: path
+        name: billingAccountsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-billing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-billing
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-billing.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-billing.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - billingAccounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a billing account's fields. Currently the only field that
+        can be edited is `display_name`. The current authenticated user must have
+        the `billing.accounts.update` IAM permission, which is typically given to
+        the [administrator](https://cloud.google.com/billing/docs/how-to/billing-access)
+        of the billing account.
+      operationId: cloudbilling.billingAccounts.patch
+      parameters:
+      - description: The update mask applied to the resource. Only "display_name"
+          is currently supported.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: billingAccountsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BillingAccount'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillingAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-billing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-billing
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - billingAccounts
+  /v1/billingAccounts/{billingAccountsId}/projects:
+    get:
+      description: Lists the projects associated with a billing account. The current
+        authenticated user must have the `billing.resourceAssociations.list` IAM permission,
+        which is often given to billing account [viewers](https://cloud.google.com/billing/docs/how-to/billing-access).
+      operationId: cloudbilling.billingAccounts.projects.list
+      parameters:
+      - description: Requested page size. The maximum page size is 100; this is also
+          the default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results to be returned. This should
+          be a `next_page_token` value returned from a previous `ListProjectBillingInfo`
+          call. If unspecified, the first page of results is returned.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: billingAccountsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListProjectBillingInfoResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-billing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-billing
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-billing.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-billing.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - billingAccounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/billingAccounts/{billingAccountsId}:getIamPolicy:
+    get:
+      description: Gets the access control policy for a billing account. The caller
+        must have the `billing.accounts.getIamPolicy` permission on the account, which
+        is often given to billing account [viewers](https://cloud.google.com/billing/docs/how-to/billing-access).
+      operationId: cloudbilling.billingAccounts.getIamPolicy
+      parameters:
+      - description: Optional. The policy format version to be returned. Valid values
+          are 0, 1, and 3. Requests specifying an invalid value will be rejected.
+          Requests for policies with any conditional bindings must specify version
+          3. Policies without any conditional bindings may specify any valid value
+          or leave the field unset. To learn which resources support conditions in
+          their IAM policies, see the [IAM documentation](https://cloud.google.com/iam/help/conditions/resource-policies).
+        in: query
+        name: options.requestedPolicyVersion
+        schema:
+          type: integer
+      - in: path
+        name: billingAccountsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-billing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-billing
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-billing.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-billing.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - billingAccounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/billingAccounts/{billingAccountsId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy for a billing account. Replaces
+        any existing policy. The caller must have the `billing.accounts.setIamPolicy`
+        permission on the account, which is often given to billing account [administrators](https://cloud.google.com/billing/docs/how-to/billing-access).
+      operationId: cloudbilling.billingAccounts.setIamPolicy
+      parameters:
+      - in: path
+        name: billingAccountsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-billing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-billing
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - billingAccounts
+  /v1/billingAccounts/{billingAccountsId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Tests the access control policy for a billing account. This method
+        takes the resource and a set of permissions as input and returns the subset
+        of the input permissions that the caller is allowed for that resource.
+      operationId: cloudbilling.billingAccounts.testIamPermissions
+      parameters:
+      - in: path
+        name: billingAccountsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-billing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-billing
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-billing.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-billing.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - billingAccounts
+  /v1/projects/{projectsId}/billingInfo:
+    get:
+      description: Gets the billing information for a project. The current authenticated
+        user must have [permission to view the project](https://cloud.google.com/docs/permissions-overview#h.bgs0oxofvnoo
+        ).
+      operationId: cloudbilling.projects.getBillingInfo
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectBillingInfo'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-billing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-billing
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-billing.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-billing.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: 'Sets or updates the billing account associated with a project.
+        You specify the new billing account by setting the `billing_account_name`
+        in the `ProjectBillingInfo` resource to the resource name of a billing account.
+        Associating a project with an open billing account enables billing on the
+        project and allows charges for resource usage. If the project already had
+        a billing account, this method changes the billing account used for resource
+        usage charges. *Note:* Incurred charges that have not yet been reported in
+        the transaction history of the Google Cloud Console might be billed to the
+        new billing account, even if the charge occurred before the new billing account
+        was assigned to the project. The current authenticated user must have ownership
+        privileges for both the [project](https://cloud.google.com/docs/permissions-overview#h.bgs0oxofvnoo
+        ) and the [billing account](https://cloud.google.com/billing/docs/how-to/billing-access).
+        You can disable billing on the project by setting the `billing_account_name`
+        field to empty. This action disassociates the current billing account from
+        the project. Any billable activity of your in-use services will stop, and
+        your application could stop functioning as expected. Any unbilled charges
+        to date will be billed to the previously associated account. The current authenticated
+        user must be either an owner of the project or an owner of the billing account
+        for the project. Note that associating a project with a *closed* billing account
+        will have much the same effect as disabling billing on the project: any paid
+        resources used by the project will be shut down. Thus, unless you wish to
+        disable billing, you should always call this method with the name of an *open*
+        billing account.'
+      operationId: cloudbilling.projects.updateBillingInfo
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectBillingInfo'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectBillingInfo'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-billing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-billing
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
   /v1/services:
     get:
       description: Lists all public cloud services.
@@ -1000,6 +1376,87 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListServicesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-billing
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-billing
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-billing.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-billing.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - services
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/services/{servicesId}/skus:
+    get:
+      description: Lists all publicly available SKUs for a given cloud service.
+      operationId: cloudbilling.services.skus.list
+      parameters:
+      - description: The ISO 4217 currency code for the pricing info in the response
+          proto. Will use the conversion rate as of start_time. Optional. If not specified
+          USD will be used.
+        in: query
+        name: currencyCode
+        schema:
+          type: string
+      - description: Optional exclusive end time of the time range for which the pricing
+          versions will be returned. Timestamps in the future are not allowed. The
+          time range has to be within a single calendar month in America/Los_Angeles
+          timezone. Time range as a whole is optional. If not specified, the latest
+          pricing will be returned (up to 12 hours old at most).
+        in: query
+        name: endTime
+        schema:
+          type: string
+      - description: Requested page size. Defaults to 5000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results to return. This should
+          be a `next_page_token` value returned from a previous `ListSkus` call. If
+          unspecified, the first page of results is returned.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: Optional inclusive start time of the time range for which the
+          pricing versions will be returned. Timestamps in the future are not allowed.
+          The time range has to be within a single calendar month in America/Los_Angeles
+          timezone. Time range as a whole is optional. If not specified, the latest
+          pricing will be returned (up to 12 hours old at most).
+        in: query
+        name: startTime
+        schema:
+          type: string
+      - in: path
+        name: servicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSkusResponse'
           description: Successful response
       security:
       - Oauth2:

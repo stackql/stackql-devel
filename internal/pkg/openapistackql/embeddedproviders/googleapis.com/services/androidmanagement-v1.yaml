@@ -2802,7 +2802,7 @@ components:
       type: oauth2
   x-stackQL-resources:
     enterprises:
-      id: google.services.enterprises
+      id: google.androidmanagement.enterprises
       methods:
         create:
           operation:
@@ -2818,9 +2818,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2828,9 +2826,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2839,8 +2835,6 @@ components:
             $ref: get
           path:
             $ref: /v1/enterprises
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2848,7 +2842,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/enterprises/{enterprisesId}
           request:
             mediaType: application/json
           response:
@@ -2856,36 +2850,27 @@ components:
             openAPIDocKey: '200'
       name: enterprises
       title: enterprises
-    enterprises.resources:
-      id: google.services.enterprises.resources
-      methods: {}
-      name: enterprises.resources
-      title: enterprises.resources
-    enterprises.resources.applications:
-      id: google.services.enterprises.resources.applications
+    enterprises.applications:
+      id: google.androidmanagement.enterprises.applications
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/applications/{applicationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: enterprises.resources.applications
-      title: enterprises.resources.applications
-    enterprises.resources.devices:
-      id: google.services.enterprises.resources.devices
+      name: enterprises.applications
+      title: enterprises.applications
+    enterprises.devices:
+      id: google.androidmanagement.enterprises.devices
       methods:
         delete:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/devices/{devicesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2893,9 +2878,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/devices/{devicesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2903,7 +2886,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:issueCommand
+            $ref: /v1/enterprises/{enterprisesId}/devices/{devicesId}:issueCommand
           request:
             mediaType: application/json
           response:
@@ -2913,9 +2896,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/devices
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/devices
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2923,29 +2904,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/enterprises/{enterprisesId}/devices/{devicesId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: enterprises.resources.devices
-      title: enterprises.resources.devices
-    enterprises.resources.devices.resources:
-      id: google.services.enterprises.resources.devices.resources
-      methods: {}
-      name: enterprises.resources.devices.resources
-      title: enterprises.resources.devices.resources
-    enterprises.resources.devices.resources.operations:
-      id: google.services.enterprises.resources.devices.resources.operations
+      name: enterprises.devices
+      title: enterprises.devices
+    enterprises.devices.operations:
+      id: google.androidmanagement.enterprises.devices.operations
       methods:
         cancel:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:cancel
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/devices/{devicesId}/operations/{operationsId}:cancel
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2953,9 +2927,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/devices/{devicesId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2963,9 +2935,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/devices/{devicesId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2973,22 +2943,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/devices/{devicesId}/operations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: enterprises.resources.devices.resources.operations
-      title: enterprises.resources.devices.resources.operations
-    enterprises.resources.enrollmentTokens:
-      id: google.services.enterprises.resources.enrollmentTokens
+      name: enterprises.devices.operations
+      title: enterprises.devices.operations
+    enterprises.enrollmentTokens:
+      id: google.androidmanagement.enterprises.enrollmentTokens
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/enrollmentTokens
+            $ref: /v1/enterprises/{enterprisesId}/enrollmentTokens
           request:
             mediaType: application/json
           response:
@@ -2998,24 +2966,20 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/enrollmentTokens/{enrollmentTokensId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: enterprises.resources.enrollmentTokens
-      title: enterprises.resources.enrollmentTokens
-    enterprises.resources.policies:
-      id: google.services.enterprises.resources.policies
+      name: enterprises.enrollmentTokens
+      title: enterprises.enrollmentTokens
+    enterprises.policies:
+      id: google.androidmanagement.enterprises.policies
       methods:
         delete:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/policies/{policiesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3023,9 +2987,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/policies/{policiesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3033,9 +2995,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/policies
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/policies
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3043,22 +3003,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/enterprises/{enterprisesId}/policies/{policiesId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: enterprises.resources.policies
-      title: enterprises.resources.policies
-    enterprises.resources.webApps:
-      id: google.services.enterprises.resources.webApps
+      name: enterprises.policies
+      title: enterprises.policies
+    enterprises.webApps:
+      id: google.androidmanagement.enterprises.webApps
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/webApps
+            $ref: /v1/enterprises/{enterprisesId}/webApps
           request:
             mediaType: application/json
           response:
@@ -3068,9 +3028,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/webApps/{webAppsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3078,9 +3036,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/webApps/{webAppsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3088,9 +3044,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/webApps
-          request:
-            mediaType: application/json
+            $ref: /v1/enterprises/{enterprisesId}/webApps
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3098,39 +3052,37 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/enterprises/{enterprisesId}/webApps/{webAppsId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: enterprises.resources.webApps
-      title: enterprises.resources.webApps
-    enterprises.resources.webTokens:
-      id: google.services.enterprises.resources.webTokens
+      name: enterprises.webApps
+      title: enterprises.webApps
+    enterprises.webTokens:
+      id: google.androidmanagement.enterprises.webTokens
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/webTokens
+            $ref: /v1/enterprises/{enterprisesId}/webTokens
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: enterprises.resources.webTokens
-      title: enterprises.resources.webTokens
+      name: enterprises.webTokens
+      title: enterprises.webTokens
     signupUrls:
-      id: google.services.signupUrls
+      id: google.androidmanagement.signupUrls
       methods:
         create:
           operation:
             $ref: post
           path:
             $ref: /v1/signupUrls
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3267,6 +3219,1503 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Enterprise'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+  /v1/enterprises/{enterprisesId}:
+    delete:
+      description: Deletes a web app.
+      operationId: androidmanagement.enterprises.webApps.delete
+      parameters:
+      - description: Optional flags that control the device wiping behavior.
+        explode: true
+        in: query
+        name: wipeDataFlags
+        schema:
+          items:
+            enum:
+            - WIPE_DATA_FLAG_UNSPECIFIED
+            - PRESERVE_RESET_PROTECTION_DATA
+            - WIPE_EXTERNAL_STORAGE
+            type: string
+          type: array
+        style: form
+      - description: Optional. A short message displayed to the user before wiping
+          the work profile on personal devices. This has no effect on company owned
+          devices. The maximum message length is 200 characters.
+        in: query
+        name: wipeReasonMessage
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+    get:
+      description: Gets a web app.
+      operationId: androidmanagement.enterprises.webApps.get
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebApp'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a web app.
+      operationId: androidmanagement.enterprises.webApps.patch
+      parameters:
+      - description: The field mask indicating the fields to update. If not set, all
+          modifiable fields will be modified.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebApp'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebApp'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+  /v1/enterprises/{enterprisesId}/applications/{applicationsId}:
+    delete:
+      description: Deletes a web app.
+      operationId: androidmanagement.enterprises.webApps.delete
+      parameters:
+      - description: Optional flags that control the device wiping behavior.
+        explode: true
+        in: query
+        name: wipeDataFlags
+        schema:
+          items:
+            enum:
+            - WIPE_DATA_FLAG_UNSPECIFIED
+            - PRESERVE_RESET_PROTECTION_DATA
+            - WIPE_EXTERNAL_STORAGE
+            type: string
+          type: array
+        style: form
+      - description: Optional. A short message displayed to the user before wiping
+          the work profile on personal devices. This has no effect on company owned
+          devices. The maximum message length is 200 characters.
+        in: query
+        name: wipeReasonMessage
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: applicationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+    get:
+      description: Gets a web app.
+      operationId: androidmanagement.enterprises.webApps.get
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: applicationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebApp'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a web app.
+      operationId: androidmanagement.enterprises.webApps.patch
+      parameters:
+      - description: The field mask indicating the fields to update. If not set, all
+          modifiable fields will be modified.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: applicationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebApp'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebApp'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+  /v1/enterprises/{enterprisesId}/devices:
+    get:
+      description: Lists devices for a given enterprise.
+      operationId: androidmanagement.enterprises.devices.list
+      parameters:
+      - description: The requested page size. The actual page size may be fixed to
+          a min or max value.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results returned by the server.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDevicesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/enterprises/{enterprisesId}/devices/{devicesId}:
+    delete:
+      description: Deletes a web app.
+      operationId: androidmanagement.enterprises.webApps.delete
+      parameters:
+      - description: Optional flags that control the device wiping behavior.
+        explode: true
+        in: query
+        name: wipeDataFlags
+        schema:
+          items:
+            enum:
+            - WIPE_DATA_FLAG_UNSPECIFIED
+            - PRESERVE_RESET_PROTECTION_DATA
+            - WIPE_EXTERNAL_STORAGE
+            type: string
+          type: array
+        style: form
+      - description: Optional. A short message displayed to the user before wiping
+          the work profile on personal devices. This has no effect on company owned
+          devices. The maximum message length is 200 characters.
+        in: query
+        name: wipeReasonMessage
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+    get:
+      description: Gets a web app.
+      operationId: androidmanagement.enterprises.webApps.get
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebApp'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a web app.
+      operationId: androidmanagement.enterprises.webApps.patch
+      parameters:
+      - description: The field mask indicating the fields to update. If not set, all
+          modifiable fields will be modified.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebApp'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebApp'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+  /v1/enterprises/{enterprisesId}/devices/{devicesId}/operations:
+    delete:
+      description: Deletes a web app.
+      operationId: androidmanagement.enterprises.webApps.delete
+      parameters:
+      - description: Optional flags that control the device wiping behavior.
+        explode: true
+        in: query
+        name: wipeDataFlags
+        schema:
+          items:
+            enum:
+            - WIPE_DATA_FLAG_UNSPECIFIED
+            - PRESERVE_RESET_PROTECTION_DATA
+            - WIPE_EXTERNAL_STORAGE
+            type: string
+          type: array
+        style: form
+      - description: Optional. A short message displayed to the user before wiping
+          the work profile on personal devices. This has no effect on company owned
+          devices. The maximum message length is 200 characters.
+        in: query
+        name: wipeReasonMessage
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+    get:
+      description: Gets a web app.
+      operationId: androidmanagement.enterprises.webApps.get
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebApp'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a web app.
+      operationId: androidmanagement.enterprises.webApps.patch
+      parameters:
+      - description: The field mask indicating the fields to update. If not set, all
+          modifiable fields will be modified.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebApp'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebApp'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+  /v1/enterprises/{enterprisesId}/devices/{devicesId}/operations/{operationsId}:
+    delete:
+      description: Deletes a web app.
+      operationId: androidmanagement.enterprises.webApps.delete
+      parameters:
+      - description: Optional flags that control the device wiping behavior.
+        explode: true
+        in: query
+        name: wipeDataFlags
+        schema:
+          items:
+            enum:
+            - WIPE_DATA_FLAG_UNSPECIFIED
+            - PRESERVE_RESET_PROTECTION_DATA
+            - WIPE_EXTERNAL_STORAGE
+            type: string
+          type: array
+        style: form
+      - description: Optional. A short message displayed to the user before wiping
+          the work profile on personal devices. This has no effect on company owned
+          devices. The maximum message length is 200 characters.
+        in: query
+        name: wipeReasonMessage
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+    get:
+      description: Gets a web app.
+      operationId: androidmanagement.enterprises.webApps.get
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebApp'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a web app.
+      operationId: androidmanagement.enterprises.webApps.patch
+      parameters:
+      - description: The field mask indicating the fields to update. If not set, all
+          modifiable fields will be modified.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebApp'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebApp'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+  /v1/enterprises/{enterprisesId}/devices/{devicesId}/operations/{operationsId}:cancel:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Starts asynchronous cancellation on a long-running operation. The
+        server makes a best effort to cancel the operation, but success is not guaranteed.
+        If the server doesn't support this method, it returns google.rpc.Code.UNIMPLEMENTED.
+        Clients can use Operations.GetOperation or other methods to check whether
+        the cancellation succeeded or whether the operation completed despite cancellation.
+        On successful cancellation, the operation is not deleted; instead, it becomes
+        an operation with an Operation.error value with a google.rpc.Status.code of
+        1, corresponding to Code.CANCELLED.
+      operationId: androidmanagement.enterprises.devices.operations.cancel
+      parameters:
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+  /v1/enterprises/{enterprisesId}/devices/{devicesId}:issueCommand:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Issues a command to a device. The Operation resource returned contains
+        a Command in its metadata field. Use the get operation method to get the status
+        of the command.
+      operationId: androidmanagement.enterprises.devices.issueCommand
+      parameters:
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Command'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+  /v1/enterprises/{enterprisesId}/enrollmentTokens:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates an enrollment token for a given enterprise.
+      operationId: androidmanagement.enterprises.enrollmentTokens.create
+      parameters:
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrollmentToken'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrollmentToken'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+  /v1/enterprises/{enterprisesId}/enrollmentTokens/{enrollmentTokensId}:
+    delete:
+      description: Deletes a web app.
+      operationId: androidmanagement.enterprises.webApps.delete
+      parameters:
+      - description: Optional flags that control the device wiping behavior.
+        explode: true
+        in: query
+        name: wipeDataFlags
+        schema:
+          items:
+            enum:
+            - WIPE_DATA_FLAG_UNSPECIFIED
+            - PRESERVE_RESET_PROTECTION_DATA
+            - WIPE_EXTERNAL_STORAGE
+            type: string
+          type: array
+        style: form
+      - description: Optional. A short message displayed to the user before wiping
+          the work profile on personal devices. This has no effect on company owned
+          devices. The maximum message length is 200 characters.
+        in: query
+        name: wipeReasonMessage
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: enrollmentTokensId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+    get:
+      description: Gets a web app.
+      operationId: androidmanagement.enterprises.webApps.get
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: enrollmentTokensId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebApp'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a web app.
+      operationId: androidmanagement.enterprises.webApps.patch
+      parameters:
+      - description: The field mask indicating the fields to update. If not set, all
+          modifiable fields will be modified.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: enrollmentTokensId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebApp'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebApp'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+  /v1/enterprises/{enterprisesId}/policies:
+    get:
+      description: Lists policies for a given enterprise.
+      operationId: androidmanagement.enterprises.policies.list
+      parameters:
+      - description: The requested page size. The actual page size may be fixed to
+          a min or max value.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results returned by the server.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListPoliciesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/enterprises/{enterprisesId}/policies/{policiesId}:
+    delete:
+      description: Deletes a web app.
+      operationId: androidmanagement.enterprises.webApps.delete
+      parameters:
+      - description: Optional flags that control the device wiping behavior.
+        explode: true
+        in: query
+        name: wipeDataFlags
+        schema:
+          items:
+            enum:
+            - WIPE_DATA_FLAG_UNSPECIFIED
+            - PRESERVE_RESET_PROTECTION_DATA
+            - WIPE_EXTERNAL_STORAGE
+            type: string
+          type: array
+        style: form
+      - description: Optional. A short message displayed to the user before wiping
+          the work profile on personal devices. This has no effect on company owned
+          devices. The maximum message length is 200 characters.
+        in: query
+        name: wipeReasonMessage
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: policiesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+    get:
+      description: Gets a web app.
+      operationId: androidmanagement.enterprises.webApps.get
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: policiesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebApp'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a web app.
+      operationId: androidmanagement.enterprises.webApps.patch
+      parameters:
+      - description: The field mask indicating the fields to update. If not set, all
+          modifiable fields will be modified.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: policiesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebApp'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebApp'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+  /v1/enterprises/{enterprisesId}/webApps:
+    get:
+      description: Lists web apps for a given enterprise.
+      operationId: androidmanagement.enterprises.webApps.list
+      parameters:
+      - description: The requested page size. The actual page size may be fixed to
+          a min or max value.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results returned by the server.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListWebAppsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a web app.
+      operationId: androidmanagement.enterprises.webApps.create
+      parameters:
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebApp'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebApp'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+  /v1/enterprises/{enterprisesId}/webApps/{webAppsId}:
+    delete:
+      description: Deletes a web app.
+      operationId: androidmanagement.enterprises.webApps.delete
+      parameters:
+      - description: Optional flags that control the device wiping behavior.
+        explode: true
+        in: query
+        name: wipeDataFlags
+        schema:
+          items:
+            enum:
+            - WIPE_DATA_FLAG_UNSPECIFIED
+            - PRESERVE_RESET_PROTECTION_DATA
+            - WIPE_EXTERNAL_STORAGE
+            type: string
+          type: array
+        style: form
+      - description: Optional. A short message displayed to the user before wiping
+          the work profile on personal devices. This has no effect on company owned
+          devices. The maximum message length is 200 characters.
+        in: query
+        name: wipeReasonMessage
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: webAppsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+    get:
+      description: Gets a web app.
+      operationId: androidmanagement.enterprises.webApps.get
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: webAppsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebApp'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a web app.
+      operationId: androidmanagement.enterprises.webApps.patch
+      parameters:
+      - description: The field mask indicating the fields to update. If not set, all
+          modifiable fields will be modified.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: webAppsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebApp'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebApp'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidmanagement
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidmanagement
+      tags:
+      - enterprises
+  /v1/enterprises/{enterprisesId}/webTokens:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a web token to access an embeddable managed Google Play
+        web UI for a given enterprise.
+      operationId: androidmanagement.enterprises.webTokens.create
+      parameters:
+      - in: path
+        name: enterprisesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebToken'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebToken'
           description: Successful response
       security:
       - Oauth2:

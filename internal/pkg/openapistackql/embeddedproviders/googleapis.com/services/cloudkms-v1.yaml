@@ -1549,24 +1549,14 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.locations:
-      id: google.services.projects.resources.locations
+    projects.locations:
+      id: google.cloudkms.projects.locations
       methods:
         generateRandomBytes:
           operation:
             $ref: post
           path:
-            $ref: /v1/{location}:generateRandomBytes
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}:generateRandomBytes
           request:
             mediaType: application/json
           response:
@@ -1576,9 +1566,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1586,29 +1574,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/locations
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations
-      title: projects.resources.locations
-    projects.resources.locations.resources:
-      id: google.services.projects.resources.locations.resources
-      methods: {}
-      name: projects.resources.locations.resources
-      title: projects.resources.locations.resources
-    projects.resources.locations.resources.ekmConnections:
-      id: google.services.projects.resources.locations.resources.ekmConnections
+      name: projects.locations
+      title: projects.locations
+    projects.locations.ekmConnections:
+      id: google.cloudkms.projects.locations.ekmConnections
       methods:
         getIamPolicy:
           operation:
             $ref: get
           path:
-            $ref: /v1/{resource}:getIamPolicy
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/ekmConnections/{ekmConnectionsId}:getIamPolicy
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1616,7 +1595,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/ekmConnections/{ekmConnectionsId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -1626,22 +1605,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/ekmConnections/{ekmConnectionsId}:testIamPermissions
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.ekmConnections
-      title: projects.resources.locations.resources.ekmConnections
-    projects.resources.locations.resources.keyRings:
-      id: google.services.projects.resources.locations.resources.keyRings
+      name: projects.locations.ekmConnections
+      title: projects.locations.ekmConnections
+    projects.locations.keyRings:
+      id: google.cloudkms.projects.locations.keyRings
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/keyRings
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings
           request:
             mediaType: application/json
           response:
@@ -1651,9 +1630,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1661,9 +1638,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{resource}:getIamPolicy
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}:getIamPolicy
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1671,9 +1646,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/keyRings
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1681,7 +1654,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -1691,27 +1664,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}:testIamPermissions
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.keyRings
-      title: projects.resources.locations.resources.keyRings
-    projects.resources.locations.resources.keyRings.resources:
-      id: google.services.projects.resources.locations.resources.keyRings.resources
-      methods: {}
-      name: projects.resources.locations.resources.keyRings.resources
-      title: projects.resources.locations.resources.keyRings.resources
-    projects.resources.locations.resources.keyRings.resources.cryptoKeys:
-      id: google.services.projects.resources.locations.resources.keyRings.resources.cryptoKeys
+      name: projects.locations.keyRings
+      title: projects.locations.keyRings
+    projects.locations.keyRings.cryptoKeys:
+      id: google.cloudkms.projects.locations.keyRings.cryptoKeys
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/cryptoKeys
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys
           request:
             mediaType: application/json
           response:
@@ -1721,7 +1689,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:decrypt
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}:decrypt
           request:
             mediaType: application/json
           response:
@@ -1731,7 +1699,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:encrypt
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}:encrypt
           request:
             mediaType: application/json
           response:
@@ -1741,9 +1709,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1751,9 +1717,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{resource}:getIamPolicy
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}:getIamPolicy
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1761,9 +1725,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/cryptoKeys
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1771,7 +1733,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}
           request:
             mediaType: application/json
           response:
@@ -1781,7 +1743,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -1791,7 +1753,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}:testIamPermissions
           request:
             mediaType: application/json
           response:
@@ -1801,27 +1763,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:updatePrimaryVersion
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}:updatePrimaryVersion
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.keyRings.resources.cryptoKeys
-      title: projects.resources.locations.resources.keyRings.resources.cryptoKeys
-    projects.resources.locations.resources.keyRings.resources.cryptoKeys.resources:
-      id: google.services.projects.resources.locations.resources.keyRings.resources.cryptoKeys.resources
-      methods: {}
-      name: projects.resources.locations.resources.keyRings.resources.cryptoKeys.resources
-      title: projects.resources.locations.resources.keyRings.resources.cryptoKeys.resources
-    projects.resources.locations.resources.keyRings.resources.cryptoKeys.resources.cryptoKeyVersions:
-      id: google.services.projects.resources.locations.resources.keyRings.resources.cryptoKeys.resources.cryptoKeyVersions
+      name: projects.locations.keyRings.cryptoKeys
+      title: projects.locations.keyRings.cryptoKeys
+    projects.locations.keyRings.cryptoKeys.cryptoKeyVersions:
+      id: google.cloudkms.projects.locations.keyRings.cryptoKeys.cryptoKeyVersions
       methods:
         asymmetricDecrypt:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:asymmetricDecrypt
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions/{cryptoKeyVersionsId}:asymmetricDecrypt
           request:
             mediaType: application/json
           response:
@@ -1831,7 +1788,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:asymmetricSign
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions/{cryptoKeyVersionsId}:asymmetricSign
           request:
             mediaType: application/json
           response:
@@ -1841,7 +1798,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/cryptoKeyVersions
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions
           request:
             mediaType: application/json
           response:
@@ -1851,7 +1808,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:destroy
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions/{cryptoKeyVersionsId}:destroy
           request:
             mediaType: application/json
           response:
@@ -1861,9 +1818,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions/{cryptoKeyVersionsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1871,9 +1826,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/publicKey
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions/{cryptoKeyVersionsId}/publicKey
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1881,7 +1834,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/cryptoKeyVersions:import
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions:import
           request:
             mediaType: application/json
           response:
@@ -1891,9 +1844,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/cryptoKeyVersions
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1901,7 +1852,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:macSign
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions/{cryptoKeyVersionsId}:macSign
           request:
             mediaType: application/json
           response:
@@ -1911,7 +1862,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:macVerify
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions/{cryptoKeyVersionsId}:macVerify
           request:
             mediaType: application/json
           response:
@@ -1921,7 +1872,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions/{cryptoKeyVersionsId}
           request:
             mediaType: application/json
           response:
@@ -1931,22 +1882,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:restore
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions/{cryptoKeyVersionsId}:restore
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.keyRings.resources.cryptoKeys.resources.cryptoKeyVersions
-      title: projects.resources.locations.resources.keyRings.resources.cryptoKeys.resources.cryptoKeyVersions
-    projects.resources.locations.resources.keyRings.resources.importJobs:
-      id: google.services.projects.resources.locations.resources.keyRings.resources.importJobs
+      name: projects.locations.keyRings.cryptoKeys.cryptoKeyVersions
+      title: projects.locations.keyRings.cryptoKeys.cryptoKeyVersions
+    projects.locations.keyRings.importJobs:
+      id: google.cloudkms.projects.locations.keyRings.importJobs
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/importJobs
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/importJobs
           request:
             mediaType: application/json
           response:
@@ -1956,9 +1907,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/importJobs/{importJobsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1966,9 +1915,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{resource}:getIamPolicy
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/importJobs/{importJobsId}:getIamPolicy
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1976,9 +1923,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/importJobs
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/importJobs
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1986,7 +1931,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/importJobs/{importJobsId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -1996,14 +1941,14 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/importJobs/{importJobsId}:testIamPermissions
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.keyRings.resources.importJobs
-      title: projects.resources.locations.resources.keyRings.resources.importJobs
+      name: projects.locations.keyRings.importJobs
+      title: projects.locations.keyRings.importJobs
 externalDocs:
   url: https://cloud.google.com/kms/
 info:
@@ -2037,6 +1982,2606 @@ info:
   x-serviceName: cloudkms
 openapi: 3.0.0
 paths:
+  /v1/projects/{projectsId}/locations:
+    get:
+      description: Lists information about the supported locations for this service.
+      operationId: cloudkms.projects.locations.list
+      parameters:
+      - description: A filter to narrow down results to a preferred subset. The filtering
+          language accepts strings like "displayName=tokyo", and is documented in
+          more detail in [AIP-160](https://google.aip.dev/160).
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of results to return. If not set, the service
+          selects a default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token received from the `next_page_token` field in the
+          response. Send that page token to receive the subsequent page.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLocationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}:
+    get:
+      description: Returns metadata for a given ImportJob.
+      operationId: cloudkms.projects.locations.keyRings.importJobs.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportJob'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Update a CryptoKeyVersion's metadata. state may be changed between
+        ENABLED and DISABLED using this method. See DestroyCryptoKeyVersion and RestoreCryptoKeyVersion
+        to move between other states.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.cryptoKeyVersions.patch
+      parameters:
+      - description: Required. List of fields to be updated in this request.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CryptoKeyVersion'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CryptoKeyVersion'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/ekmConnections/{ekmConnectionsId}:getIamPolicy:
+    get:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: cloudkms.projects.locations.keyRings.importJobs.getIamPolicy
+      parameters:
+      - description: Optional. The policy format version to be returned. Valid values
+          are 0, 1, and 3. Requests specifying an invalid value will be rejected.
+          Requests for policies with any conditional bindings must specify version
+          3. Policies without any conditional bindings may specify any valid value
+          or leave the field unset. To learn which resources support conditions in
+          their IAM policies, see the [IAM documentation](https://cloud.google.com/iam/help/conditions/resource-policies).
+        in: query
+        name: options.requestedPolicyVersion
+        schema:
+          type: integer
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: ekmConnectionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/ekmConnections/{ekmConnectionsId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy. Can return `NOT_FOUND`, `INVALID_ARGUMENT`, and `PERMISSION_DENIED`
+        errors.
+      operationId: cloudkms.projects.locations.keyRings.importJobs.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: ekmConnectionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/ekmConnections/{ekmConnectionsId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a `NOT_FOUND` error. Note: This operation is designed to be used for building
+        permission-aware UIs and command-line tools, not for authorization checking.
+        This operation may "fail open" without warning.'
+      operationId: cloudkms.projects.locations.keyRings.importJobs.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: ekmConnectionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings:
+    get:
+      description: Lists KeyRings.
+      operationId: cloudkms.projects.locations.keyRings.list
+      parameters:
+      - description: Optional. Only include resources that match the filter in the
+          response. For more information, see [Sorting and filtering list results](https://cloud.google.com/kms/docs/sorting-and-filtering).
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. Specify how the results should be sorted. If not specified,
+          the results will be sorted in the default order. For more information, see
+          [Sorting and filtering list results](https://cloud.google.com/kms/docs/sorting-and-filtering).
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: Optional. Optional limit on the number of KeyRings to include
+          in the response. Further KeyRings can subsequently be obtained by including
+          the ListKeyRingsResponse.next_page_token in a subsequent request. If unspecified,
+          the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. Optional pagination token, returned earlier via ListKeyRingsResponse.next_page_token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListKeyRingsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Create a new KeyRing in a given Project and Location.
+      operationId: cloudkms.projects.locations.keyRings.create
+      parameters:
+      - description: Required. It must be unique within a location and match the regular
+          expression `[a-zA-Z0-9_-]{1,63}`
+        in: query
+        name: keyRingId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KeyRing'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeyRing'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}:
+    get:
+      description: Returns metadata for a given ImportJob.
+      operationId: cloudkms.projects.locations.keyRings.importJobs.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportJob'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Update a CryptoKeyVersion's metadata. state may be changed between
+        ENABLED and DISABLED using this method. See DestroyCryptoKeyVersion and RestoreCryptoKeyVersion
+        to move between other states.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.cryptoKeyVersions.patch
+      parameters:
+      - description: Required. List of fields to be updated in this request.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CryptoKeyVersion'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CryptoKeyVersion'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys:
+    get:
+      description: Lists CryptoKeys.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.list
+      parameters:
+      - description: Optional. Only include resources that match the filter in the
+          response. For more information, see [Sorting and filtering list results](https://cloud.google.com/kms/docs/sorting-and-filtering).
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. Specify how the results should be sorted. If not specified,
+          the results will be sorted in the default order. For more information, see
+          [Sorting and filtering list results](https://cloud.google.com/kms/docs/sorting-and-filtering).
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: Optional. Optional limit on the number of CryptoKeys to include
+          in the response. Further CryptoKeys can subsequently be obtained by including
+          the ListCryptoKeysResponse.next_page_token in a subsequent request. If unspecified,
+          the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. Optional pagination token, returned earlier via ListCryptoKeysResponse.next_page_token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: The fields of the primary version to include in the response.
+        in: query
+        name: versionView
+        schema:
+          enum:
+          - CRYPTO_KEY_VERSION_VIEW_UNSPECIFIED
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCryptoKeysResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Create a new CryptoKey within a KeyRing. CryptoKey.purpose and
+        CryptoKey.version_template.algorithm are required.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.create
+      parameters:
+      - description: Required. It must be unique within a KeyRing and match the regular
+          expression `[a-zA-Z0-9_-]{1,63}`
+        in: query
+        name: cryptoKeyId
+        schema:
+          type: string
+      - description: If set to true, the request will create a CryptoKey without any
+          CryptoKeyVersions. You must manually call CreateCryptoKeyVersion or ImportCryptoKeyVersion
+          before you can use this CryptoKey.
+        in: query
+        name: skipInitialVersionCreation
+        schema:
+          type: boolean
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CryptoKey'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CryptoKey'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}:
+    get:
+      description: Returns metadata for a given ImportJob.
+      operationId: cloudkms.projects.locations.keyRings.importJobs.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportJob'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Update a CryptoKeyVersion's metadata. state may be changed between
+        ENABLED and DISABLED using this method. See DestroyCryptoKeyVersion and RestoreCryptoKeyVersion
+        to move between other states.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.cryptoKeyVersions.patch
+      parameters:
+      - description: Required. List of fields to be updated in this request.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CryptoKeyVersion'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CryptoKeyVersion'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions:
+    get:
+      description: Lists CryptoKeyVersions.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.cryptoKeyVersions.list
+      parameters:
+      - description: Optional. Only include resources that match the filter in the
+          response. For more information, see [Sorting and filtering list results](https://cloud.google.com/kms/docs/sorting-and-filtering).
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. Specify how the results should be sorted. If not specified,
+          the results will be sorted in the default order. For more information, see
+          [Sorting and filtering list results](https://cloud.google.com/kms/docs/sorting-and-filtering).
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: Optional. Optional limit on the number of CryptoKeyVersions to
+          include in the response. Further CryptoKeyVersions can subsequently be obtained
+          by including the ListCryptoKeyVersionsResponse.next_page_token in a subsequent
+          request. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. Optional pagination token, returned earlier via ListCryptoKeyVersionsResponse.next_page_token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: The fields to include in the response.
+        in: query
+        name: view
+        schema:
+          enum:
+          - CRYPTO_KEY_VERSION_VIEW_UNSPECIFIED
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCryptoKeyVersionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Create a new CryptoKeyVersion in a CryptoKey. The server will assign
+        the next sequential id. If unset, state will be set to ENABLED.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.cryptoKeyVersions.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CryptoKeyVersion'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CryptoKeyVersion'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  ? /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions/{cryptoKeyVersionsId}
+  : get:
+      description: Returns metadata for a given ImportJob.
+      operationId: cloudkms.projects.locations.keyRings.importJobs.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeyVersionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportJob'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Update a CryptoKeyVersion's metadata. state may be changed between
+        ENABLED and DISABLED using this method. See DestroyCryptoKeyVersion and RestoreCryptoKeyVersion
+        to move between other states.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.cryptoKeyVersions.patch
+      parameters:
+      - description: Required. List of fields to be updated in this request.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeyVersionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CryptoKeyVersion'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CryptoKeyVersion'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  ? /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions/{cryptoKeyVersionsId}/publicKey
+  : get:
+      description: Returns the public key for the given CryptoKeyVersion. The CryptoKey.purpose
+        must be ASYMMETRIC_SIGN or ASYMMETRIC_DECRYPT.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.cryptoKeyVersions.getPublicKey
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeyVersionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicKey'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  ? /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions/{cryptoKeyVersionsId}:asymmetricDecrypt
+  : parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Decrypts data that was encrypted with a public key retrieved from
+        GetPublicKey corresponding to a CryptoKeyVersion with CryptoKey.purpose ASYMMETRIC_DECRYPT.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.cryptoKeyVersions.asymmetricDecrypt
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeyVersionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AsymmetricDecryptRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsymmetricDecryptResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  ? /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions/{cryptoKeyVersionsId}:asymmetricSign
+  : parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Signs data using a CryptoKeyVersion with CryptoKey.purpose ASYMMETRIC_SIGN,
+        producing a signature that can be verified with the public key retrieved from
+        GetPublicKey.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.cryptoKeyVersions.asymmetricSign
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeyVersionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AsymmetricSignRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsymmetricSignResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  ? /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions/{cryptoKeyVersionsId}:destroy
+  : parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Schedule a CryptoKeyVersion for destruction. Upon calling this
+        method, CryptoKeyVersion.state will be set to DESTROY_SCHEDULED, and destroy_time
+        will be set to the time destroy_scheduled_duration in the future. At that
+        time, the state will automatically change to DESTROYED, and the key material
+        will be irrevocably destroyed. Before the destroy_time is reached, RestoreCryptoKeyVersion
+        may be called to reverse the process.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.cryptoKeyVersions.destroy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeyVersionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DestroyCryptoKeyVersionRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CryptoKeyVersion'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  ? /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions/{cryptoKeyVersionsId}:macSign
+  : parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Signs data using a CryptoKeyVersion with CryptoKey.purpose MAC,
+        producing a tag that can be verified by another source with the same key.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.cryptoKeyVersions.macSign
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeyVersionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MacSignRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MacSignResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  ? /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions/{cryptoKeyVersionsId}:macVerify
+  : parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Verifies MAC tag using a CryptoKeyVersion with CryptoKey.purpose
+        MAC, and returns a response that indicates whether or not the verification
+        was successful.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.cryptoKeyVersions.macVerify
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeyVersionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MacVerifyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MacVerifyResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  ? /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions/{cryptoKeyVersionsId}:restore
+  : parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Restore a CryptoKeyVersion in the DESTROY_SCHEDULED state. Upon
+        restoration of the CryptoKeyVersion, state will be set to DISABLED, and destroy_time
+        will be cleared.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.cryptoKeyVersions.restore
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeyVersionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestoreCryptoKeyVersionRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CryptoKeyVersion'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}/cryptoKeyVersions:import:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Import wrapped key material into a CryptoKeyVersion. All requests
+        must specify a CryptoKey. If a CryptoKeyVersion is additionally specified
+        in the request, key material will be reimported into that version. Otherwise,
+        a new version will be created, and will be assigned the next sequential id
+        within the CryptoKey.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.cryptoKeyVersions.import
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportCryptoKeyVersionRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CryptoKeyVersion'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}:decrypt:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Decrypts data that was protected by Encrypt. The CryptoKey.purpose
+        must be ENCRYPT_DECRYPT.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.decrypt
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecryptRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecryptResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}:encrypt:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Encrypts data, so that it can only be recovered by a call to Decrypt.
+        The CryptoKey.purpose must be ENCRYPT_DECRYPT.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.encrypt
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EncryptRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EncryptResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}:getIamPolicy:
+    get:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: cloudkms.projects.locations.keyRings.importJobs.getIamPolicy
+      parameters:
+      - description: Optional. The policy format version to be returned. Valid values
+          are 0, 1, and 3. Requests specifying an invalid value will be rejected.
+          Requests for policies with any conditional bindings must specify version
+          3. Policies without any conditional bindings may specify any valid value
+          or leave the field unset. To learn which resources support conditions in
+          their IAM policies, see the [IAM documentation](https://cloud.google.com/iam/help/conditions/resource-policies).
+        in: query
+        name: options.requestedPolicyVersion
+        schema:
+          type: integer
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy. Can return `NOT_FOUND`, `INVALID_ARGUMENT`, and `PERMISSION_DENIED`
+        errors.
+      operationId: cloudkms.projects.locations.keyRings.importJobs.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a `NOT_FOUND` error. Note: This operation is designed to be used for building
+        permission-aware UIs and command-line tools, not for authorization checking.
+        This operation may "fail open" without warning.'
+      operationId: cloudkms.projects.locations.keyRings.importJobs.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/cryptoKeys/{cryptoKeysId}:updatePrimaryVersion:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Update the version of a CryptoKey that will be used in Encrypt.
+        Returns an error if called on a key whose purpose is not ENCRYPT_DECRYPT.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.updatePrimaryVersion
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: cryptoKeysId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCryptoKeyPrimaryVersionRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CryptoKey'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/importJobs:
+    get:
+      description: Lists ImportJobs.
+      operationId: cloudkms.projects.locations.keyRings.importJobs.list
+      parameters:
+      - description: Optional. Only include resources that match the filter in the
+          response. For more information, see [Sorting and filtering list results](https://cloud.google.com/kms/docs/sorting-and-filtering).
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. Specify how the results should be sorted. If not specified,
+          the results will be sorted in the default order. For more information, see
+          [Sorting and filtering list results](https://cloud.google.com/kms/docs/sorting-and-filtering).
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: Optional. Optional limit on the number of ImportJobs to include
+          in the response. Further ImportJobs can subsequently be obtained by including
+          the ListImportJobsResponse.next_page_token in a subsequent request. If unspecified,
+          the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. Optional pagination token, returned earlier via ListImportJobsResponse.next_page_token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListImportJobsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Create a new ImportJob within a KeyRing. ImportJob.import_method
+        is required.
+      operationId: cloudkms.projects.locations.keyRings.importJobs.create
+      parameters:
+      - description: Required. It must be unique within a KeyRing and match the regular
+          expression `[a-zA-Z0-9_-]{1,63}`
+        in: query
+        name: importJobId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportJob'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportJob'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/importJobs/{importJobsId}:
+    get:
+      description: Returns metadata for a given ImportJob.
+      operationId: cloudkms.projects.locations.keyRings.importJobs.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: importJobsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportJob'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Update a CryptoKeyVersion's metadata. state may be changed between
+        ENABLED and DISABLED using this method. See DestroyCryptoKeyVersion and RestoreCryptoKeyVersion
+        to move between other states.
+      operationId: cloudkms.projects.locations.keyRings.cryptoKeys.cryptoKeyVersions.patch
+      parameters:
+      - description: Required. List of fields to be updated in this request.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: importJobsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CryptoKeyVersion'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CryptoKeyVersion'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/importJobs/{importJobsId}:getIamPolicy:
+    get:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: cloudkms.projects.locations.keyRings.importJobs.getIamPolicy
+      parameters:
+      - description: Optional. The policy format version to be returned. Valid values
+          are 0, 1, and 3. Requests specifying an invalid value will be rejected.
+          Requests for policies with any conditional bindings must specify version
+          3. Policies without any conditional bindings may specify any valid value
+          or leave the field unset. To learn which resources support conditions in
+          their IAM policies, see the [IAM documentation](https://cloud.google.com/iam/help/conditions/resource-policies).
+        in: query
+        name: options.requestedPolicyVersion
+        schema:
+          type: integer
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: importJobsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/importJobs/{importJobsId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy. Can return `NOT_FOUND`, `INVALID_ARGUMENT`, and `PERMISSION_DENIED`
+        errors.
+      operationId: cloudkms.projects.locations.keyRings.importJobs.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: importJobsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}/importJobs/{importJobsId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a `NOT_FOUND` error. Note: This operation is designed to be used for building
+        permission-aware UIs and command-line tools, not for authorization checking.
+        This operation may "fail open" without warning.'
+      operationId: cloudkms.projects.locations.keyRings.importJobs.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: importJobsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}:getIamPolicy:
+    get:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: cloudkms.projects.locations.keyRings.importJobs.getIamPolicy
+      parameters:
+      - description: Optional. The policy format version to be returned. Valid values
+          are 0, 1, and 3. Requests specifying an invalid value will be rejected.
+          Requests for policies with any conditional bindings must specify version
+          3. Policies without any conditional bindings may specify any valid value
+          or leave the field unset. To learn which resources support conditions in
+          their IAM policies, see the [IAM documentation](https://cloud.google.com/iam/help/conditions/resource-policies).
+        in: query
+        name: options.requestedPolicyVersion
+        schema:
+          type: integer
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy. Can return `NOT_FOUND`, `INVALID_ARGUMENT`, and `PERMISSION_DENIED`
+        errors.
+      operationId: cloudkms.projects.locations.keyRings.importJobs.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/keyRings/{keyRingsId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a `NOT_FOUND` error. Note: This operation is designed to be used for building
+        permission-aware UIs and command-line tools, not for authorization checking.
+        This operation may "fail open" without warning.'
+      operationId: cloudkms.projects.locations.keyRings.importJobs.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keyRingsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}:generateRandomBytes:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Generate random bytes using the Cloud KMS randomness source in
+        the provided location.
+      operationId: cloudkms.projects.locations.generateRandomBytes
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateRandomBytesRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateRandomBytesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudkms
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudkms
+      tags:
+      - projects
   /v1/{location}:generateRandomBytes:
     parameters:
     - $ref: '#/components/parameters/_.xgafv'

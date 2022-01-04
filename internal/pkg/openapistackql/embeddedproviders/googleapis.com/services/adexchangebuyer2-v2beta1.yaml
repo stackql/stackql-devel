@@ -2806,18 +2806,8 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    accounts:
-      id: google.services.accounts
-      methods: {}
-      name: accounts
-      title: accounts
-    accounts.resources:
-      id: google.services.accounts.resources
-      methods: {}
-      name: accounts.resources
-      title: accounts.resources
-    accounts.resources.clients:
-      id: google.services.accounts.resources.clients
+    accounts.clients:
+      id: google.adexchangebuyer2.accounts.clients
       methods:
         create:
           operation:
@@ -2834,8 +2824,6 @@ components:
             $ref: get
           path:
             $ref: /v2beta1/accounts/{accountId}/clients/{clientAccountId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2844,8 +2832,6 @@ components:
             $ref: get
           path:
             $ref: /v2beta1/accounts/{accountId}/clients
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2859,15 +2845,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.clients
-      title: accounts.resources.clients
-    accounts.resources.clients.resources:
-      id: google.services.accounts.resources.clients.resources
-      methods: {}
-      name: accounts.resources.clients.resources
-      title: accounts.resources.clients.resources
-    accounts.resources.clients.resources.invitations:
-      id: google.services.accounts.resources.clients.resources.invitations
+      name: accounts.clients
+      title: accounts.clients
+    accounts.clients.invitations:
+      id: google.adexchangebuyer2.accounts.clients.invitations
       methods:
         create:
           operation:
@@ -2884,8 +2865,6 @@ components:
             $ref: get
           path:
             $ref: /v2beta1/accounts/{accountId}/clients/{clientAccountId}/invitations/{invitationId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2894,23 +2873,19 @@ components:
             $ref: get
           path:
             $ref: /v2beta1/accounts/{accountId}/clients/{clientAccountId}/invitations
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.clients.resources.invitations
-      title: accounts.resources.clients.resources.invitations
-    accounts.resources.clients.resources.users:
-      id: google.services.accounts.resources.clients.resources.users
+      name: accounts.clients.invitations
+      title: accounts.clients.invitations
+    accounts.clients.users:
+      id: google.adexchangebuyer2.accounts.clients.users
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v2beta1/accounts/{accountId}/clients/{clientAccountId}/users/{userId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2919,8 +2894,6 @@ components:
             $ref: get
           path:
             $ref: /v2beta1/accounts/{accountId}/clients/{clientAccountId}/users
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2934,10 +2907,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.clients.resources.users
-      title: accounts.resources.clients.resources.users
-    accounts.resources.creatives:
-      id: google.services.accounts.resources.creatives
+      name: accounts.clients.users
+      title: accounts.clients.users
+    accounts.creatives:
+      id: google.adexchangebuyer2.accounts.creatives
       methods:
         create:
           operation:
@@ -2954,8 +2927,6 @@ components:
             $ref: get
           path:
             $ref: /v2beta1/accounts/{accountId}/creatives/{creativeId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2964,8 +2935,6 @@ components:
             $ref: get
           path:
             $ref: /v2beta1/accounts/{accountId}/creatives
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2999,15 +2968,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.creatives
-      title: accounts.resources.creatives
-    accounts.resources.creatives.resources:
-      id: google.services.accounts.resources.creatives.resources
-      methods: {}
-      name: accounts.resources.creatives.resources
-      title: accounts.resources.creatives.resources
-    accounts.resources.creatives.resources.dealAssociations:
-      id: google.services.accounts.resources.creatives.resources.dealAssociations
+      name: accounts.creatives
+      title: accounts.creatives
+    accounts.creatives.dealAssociations:
+      id: google.adexchangebuyer2.accounts.creatives.dealAssociations
       methods:
         add:
           operation:
@@ -3024,8 +2988,6 @@ components:
             $ref: get
           path:
             $ref: /v2beta1/accounts/{accountId}/creatives/{creativeId}/dealAssociations
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3039,18 +3001,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.creatives.resources.dealAssociations
-      title: accounts.resources.creatives.resources.dealAssociations
-    accounts.resources.finalizedProposals:
-      id: google.services.accounts.resources.finalizedProposals
+      name: accounts.creatives.dealAssociations
+      title: accounts.creatives.dealAssociations
+    accounts.finalizedProposals:
+      id: google.adexchangebuyer2.accounts.finalizedProposals
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /v2beta1/accounts/{accountId}/finalizedProposals
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3074,18 +3034,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.finalizedProposals
-      title: accounts.resources.finalizedProposals
-    accounts.resources.products:
-      id: google.services.accounts.resources.products
+      name: accounts.finalizedProposals
+      title: accounts.finalizedProposals
+    accounts.products:
+      id: google.adexchangebuyer2.accounts.products
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v2beta1/accounts/{accountId}/products/{productId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3094,15 +3052,13 @@ components:
             $ref: get
           path:
             $ref: /v2beta1/accounts/{accountId}/products
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.products
-      title: accounts.resources.products
-    accounts.resources.proposals:
-      id: google.services.accounts.resources.proposals
+      name: accounts.products
+      title: accounts.products
+    accounts.proposals:
+      id: google.adexchangebuyer2.accounts.proposals
       methods:
         accept:
           operation:
@@ -3159,8 +3115,6 @@ components:
             $ref: get
           path:
             $ref: /v2beta1/accounts/{accountId}/proposals/{proposalId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3169,8 +3123,6 @@ components:
             $ref: get
           path:
             $ref: /v2beta1/accounts/{accountId}/proposals
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3204,18 +3156,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.proposals
-      title: accounts.resources.proposals
-    accounts.resources.publisherProfiles:
-      id: google.services.accounts.resources.publisherProfiles
+      name: accounts.proposals
+      title: accounts.proposals
+    accounts.publisherProfiles:
+      id: google.adexchangebuyer2.accounts.publisherProfiles
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v2beta1/accounts/{accountId}/publisherProfiles/{publisherProfileId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3224,41 +3174,19 @@ components:
             $ref: get
           path:
             $ref: /v2beta1/accounts/{accountId}/publisherProfiles
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.publisherProfiles
-      title: accounts.resources.publisherProfiles
-    bidders:
-      id: google.services.bidders
-      methods: {}
-      name: bidders
-      title: bidders
-    bidders.resources:
-      id: google.services.bidders.resources
-      methods: {}
-      name: bidders.resources
-      title: bidders.resources
-    bidders.resources.accounts:
-      id: google.services.bidders.resources.accounts
-      methods: {}
-      name: bidders.resources.accounts
-      title: bidders.resources.accounts
-    bidders.resources.accounts.resources:
-      id: google.services.bidders.resources.accounts.resources
-      methods: {}
-      name: bidders.resources.accounts.resources
-      title: bidders.resources.accounts.resources
-    bidders.resources.accounts.resources.filterSets:
-      id: google.services.bidders.resources.accounts.resources.filterSets
+      name: accounts.publisherProfiles
+      title: accounts.publisherProfiles
+    bidders.accounts.filterSets:
+      id: google.adexchangebuyer2.bidders.accounts.filterSets
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v2beta1/{ownerName}/filterSets
+            $ref: /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets
           request:
             mediaType: application/json
           response:
@@ -3268,9 +3196,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v2beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3278,9 +3204,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3288,182 +3212,150 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{ownerName}/filterSets
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.accounts.resources.filterSets
-      title: bidders.resources.accounts.resources.filterSets
-    bidders.resources.accounts.resources.filterSets.resources:
-      id: google.services.bidders.resources.accounts.resources.filterSets.resources
-      methods: {}
-      name: bidders.resources.accounts.resources.filterSets.resources
-      title: bidders.resources.accounts.resources.filterSets.resources
-    bidders.resources.accounts.resources.filterSets.resources.bidMetrics:
-      id: google.services.bidders.resources.accounts.resources.filterSets.resources.bidMetrics
+      name: bidders.accounts.filterSets
+      title: bidders.accounts.filterSets
+    bidders.accounts.filterSets.bidMetrics:
+      id: google.adexchangebuyer2.bidders.accounts.filterSets.bidMetrics
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/bidMetrics
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/bidMetrics
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.accounts.resources.filterSets.resources.bidMetrics
-      title: bidders.resources.accounts.resources.filterSets.resources.bidMetrics
-    bidders.resources.accounts.resources.filterSets.resources.bidResponseErrors:
-      id: google.services.bidders.resources.accounts.resources.filterSets.resources.bidResponseErrors
+      name: bidders.accounts.filterSets.bidMetrics
+      title: bidders.accounts.filterSets.bidMetrics
+    bidders.accounts.filterSets.bidResponseErrors:
+      id: google.adexchangebuyer2.bidders.accounts.filterSets.bidResponseErrors
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/bidResponseErrors
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/bidResponseErrors
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.accounts.resources.filterSets.resources.bidResponseErrors
-      title: bidders.resources.accounts.resources.filterSets.resources.bidResponseErrors
-    bidders.resources.accounts.resources.filterSets.resources.bidResponsesWithoutBids:
-      id: google.services.bidders.resources.accounts.resources.filterSets.resources.bidResponsesWithoutBids
+      name: bidders.accounts.filterSets.bidResponseErrors
+      title: bidders.accounts.filterSets.bidResponseErrors
+    bidders.accounts.filterSets.bidResponsesWithoutBids:
+      id: google.adexchangebuyer2.bidders.accounts.filterSets.bidResponsesWithoutBids
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/bidResponsesWithoutBids
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/bidResponsesWithoutBids
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.accounts.resources.filterSets.resources.bidResponsesWithoutBids
-      title: bidders.resources.accounts.resources.filterSets.resources.bidResponsesWithoutBids
-    bidders.resources.accounts.resources.filterSets.resources.filteredBidRequests:
-      id: google.services.bidders.resources.accounts.resources.filterSets.resources.filteredBidRequests
+      name: bidders.accounts.filterSets.bidResponsesWithoutBids
+      title: bidders.accounts.filterSets.bidResponsesWithoutBids
+    bidders.accounts.filterSets.filteredBidRequests:
+      id: google.adexchangebuyer2.bidders.accounts.filterSets.filteredBidRequests
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/filteredBidRequests
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/filteredBidRequests
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.accounts.resources.filterSets.resources.filteredBidRequests
-      title: bidders.resources.accounts.resources.filterSets.resources.filteredBidRequests
-    bidders.resources.accounts.resources.filterSets.resources.filteredBids:
-      id: google.services.bidders.resources.accounts.resources.filterSets.resources.filteredBids
+      name: bidders.accounts.filterSets.filteredBidRequests
+      title: bidders.accounts.filterSets.filteredBidRequests
+    bidders.accounts.filterSets.filteredBids:
+      id: google.adexchangebuyer2.bidders.accounts.filterSets.filteredBids
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/filteredBids
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/filteredBids
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.accounts.resources.filterSets.resources.filteredBids
-      title: bidders.resources.accounts.resources.filterSets.resources.filteredBids
-    bidders.resources.accounts.resources.filterSets.resources.filteredBids.resources:
-      id: google.services.bidders.resources.accounts.resources.filterSets.resources.filteredBids.resources
-      methods: {}
-      name: bidders.resources.accounts.resources.filterSets.resources.filteredBids.resources
-      title: bidders.resources.accounts.resources.filterSets.resources.filteredBids.resources
-    bidders.resources.accounts.resources.filterSets.resources.filteredBids.resources.creatives:
-      id: google.services.bidders.resources.accounts.resources.filterSets.resources.filteredBids.resources.creatives
+      name: bidders.accounts.filterSets.filteredBids
+      title: bidders.accounts.filterSets.filteredBids
+    bidders.accounts.filterSets.filteredBids.creatives:
+      id: google.adexchangebuyer2.bidders.accounts.filterSets.filteredBids.creatives
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/filteredBids/{creativeStatusId}/creatives
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/filteredBids/{creativeStatusId}/creatives
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.accounts.resources.filterSets.resources.filteredBids.resources.creatives
-      title: bidders.resources.accounts.resources.filterSets.resources.filteredBids.resources.creatives
-    bidders.resources.accounts.resources.filterSets.resources.filteredBids.resources.details:
-      id: google.services.bidders.resources.accounts.resources.filterSets.resources.filteredBids.resources.details
+      name: bidders.accounts.filterSets.filteredBids.creatives
+      title: bidders.accounts.filterSets.filteredBids.creatives
+    bidders.accounts.filterSets.filteredBids.details:
+      id: google.adexchangebuyer2.bidders.accounts.filterSets.filteredBids.details
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/filteredBids/{creativeStatusId}/details
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/filteredBids/{creativeStatusId}/details
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.accounts.resources.filterSets.resources.filteredBids.resources.details
-      title: bidders.resources.accounts.resources.filterSets.resources.filteredBids.resources.details
-    bidders.resources.accounts.resources.filterSets.resources.impressionMetrics:
-      id: google.services.bidders.resources.accounts.resources.filterSets.resources.impressionMetrics
+      name: bidders.accounts.filterSets.filteredBids.details
+      title: bidders.accounts.filterSets.filteredBids.details
+    bidders.accounts.filterSets.impressionMetrics:
+      id: google.adexchangebuyer2.bidders.accounts.filterSets.impressionMetrics
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/impressionMetrics
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/impressionMetrics
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.accounts.resources.filterSets.resources.impressionMetrics
-      title: bidders.resources.accounts.resources.filterSets.resources.impressionMetrics
-    bidders.resources.accounts.resources.filterSets.resources.losingBids:
-      id: google.services.bidders.resources.accounts.resources.filterSets.resources.losingBids
+      name: bidders.accounts.filterSets.impressionMetrics
+      title: bidders.accounts.filterSets.impressionMetrics
+    bidders.accounts.filterSets.losingBids:
+      id: google.adexchangebuyer2.bidders.accounts.filterSets.losingBids
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/losingBids
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/losingBids
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.accounts.resources.filterSets.resources.losingBids
-      title: bidders.resources.accounts.resources.filterSets.resources.losingBids
-    bidders.resources.accounts.resources.filterSets.resources.nonBillableWinningBids:
-      id: google.services.bidders.resources.accounts.resources.filterSets.resources.nonBillableWinningBids
+      name: bidders.accounts.filterSets.losingBids
+      title: bidders.accounts.filterSets.losingBids
+    bidders.accounts.filterSets.nonBillableWinningBids:
+      id: google.adexchangebuyer2.bidders.accounts.filterSets.nonBillableWinningBids
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/nonBillableWinningBids
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/nonBillableWinningBids
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.accounts.resources.filterSets.resources.nonBillableWinningBids
-      title: bidders.resources.accounts.resources.filterSets.resources.nonBillableWinningBids
-    bidders.resources.filterSets:
-      id: google.services.bidders.resources.filterSets
+      name: bidders.accounts.filterSets.nonBillableWinningBids
+      title: bidders.accounts.filterSets.nonBillableWinningBids
+    bidders.filterSets:
+      id: google.adexchangebuyer2.bidders.filterSets
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v2beta1/{ownerName}/filterSets
+            $ref: /v2beta1/bidders/{biddersId}/filterSets
           request:
             mediaType: application/json
           response:
@@ -3473,9 +3365,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v2beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3483,9 +3373,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3493,174 +3381,142 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{ownerName}/filterSets
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/filterSets
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.filterSets
-      title: bidders.resources.filterSets
-    bidders.resources.filterSets.resources:
-      id: google.services.bidders.resources.filterSets.resources
-      methods: {}
-      name: bidders.resources.filterSets.resources
-      title: bidders.resources.filterSets.resources
-    bidders.resources.filterSets.resources.bidMetrics:
-      id: google.services.bidders.resources.filterSets.resources.bidMetrics
+      name: bidders.filterSets
+      title: bidders.filterSets
+    bidders.filterSets.bidMetrics:
+      id: google.adexchangebuyer2.bidders.filterSets.bidMetrics
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/bidMetrics
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/bidMetrics
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.filterSets.resources.bidMetrics
-      title: bidders.resources.filterSets.resources.bidMetrics
-    bidders.resources.filterSets.resources.bidResponseErrors:
-      id: google.services.bidders.resources.filterSets.resources.bidResponseErrors
+      name: bidders.filterSets.bidMetrics
+      title: bidders.filterSets.bidMetrics
+    bidders.filterSets.bidResponseErrors:
+      id: google.adexchangebuyer2.bidders.filterSets.bidResponseErrors
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/bidResponseErrors
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/bidResponseErrors
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.filterSets.resources.bidResponseErrors
-      title: bidders.resources.filterSets.resources.bidResponseErrors
-    bidders.resources.filterSets.resources.bidResponsesWithoutBids:
-      id: google.services.bidders.resources.filterSets.resources.bidResponsesWithoutBids
+      name: bidders.filterSets.bidResponseErrors
+      title: bidders.filterSets.bidResponseErrors
+    bidders.filterSets.bidResponsesWithoutBids:
+      id: google.adexchangebuyer2.bidders.filterSets.bidResponsesWithoutBids
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/bidResponsesWithoutBids
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/bidResponsesWithoutBids
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.filterSets.resources.bidResponsesWithoutBids
-      title: bidders.resources.filterSets.resources.bidResponsesWithoutBids
-    bidders.resources.filterSets.resources.filteredBidRequests:
-      id: google.services.bidders.resources.filterSets.resources.filteredBidRequests
+      name: bidders.filterSets.bidResponsesWithoutBids
+      title: bidders.filterSets.bidResponsesWithoutBids
+    bidders.filterSets.filteredBidRequests:
+      id: google.adexchangebuyer2.bidders.filterSets.filteredBidRequests
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/filteredBidRequests
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/filteredBidRequests
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.filterSets.resources.filteredBidRequests
-      title: bidders.resources.filterSets.resources.filteredBidRequests
-    bidders.resources.filterSets.resources.filteredBids:
-      id: google.services.bidders.resources.filterSets.resources.filteredBids
+      name: bidders.filterSets.filteredBidRequests
+      title: bidders.filterSets.filteredBidRequests
+    bidders.filterSets.filteredBids:
+      id: google.adexchangebuyer2.bidders.filterSets.filteredBids
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/filteredBids
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/filteredBids
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.filterSets.resources.filteredBids
-      title: bidders.resources.filterSets.resources.filteredBids
-    bidders.resources.filterSets.resources.filteredBids.resources:
-      id: google.services.bidders.resources.filterSets.resources.filteredBids.resources
-      methods: {}
-      name: bidders.resources.filterSets.resources.filteredBids.resources
-      title: bidders.resources.filterSets.resources.filteredBids.resources
-    bidders.resources.filterSets.resources.filteredBids.resources.creatives:
-      id: google.services.bidders.resources.filterSets.resources.filteredBids.resources.creatives
+      name: bidders.filterSets.filteredBids
+      title: bidders.filterSets.filteredBids
+    bidders.filterSets.filteredBids.creatives:
+      id: google.adexchangebuyer2.bidders.filterSets.filteredBids.creatives
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/filteredBids/{creativeStatusId}/creatives
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/filteredBids/{creativeStatusId}/creatives
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.filterSets.resources.filteredBids.resources.creatives
-      title: bidders.resources.filterSets.resources.filteredBids.resources.creatives
-    bidders.resources.filterSets.resources.filteredBids.resources.details:
-      id: google.services.bidders.resources.filterSets.resources.filteredBids.resources.details
+      name: bidders.filterSets.filteredBids.creatives
+      title: bidders.filterSets.filteredBids.creatives
+    bidders.filterSets.filteredBids.details:
+      id: google.adexchangebuyer2.bidders.filterSets.filteredBids.details
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/filteredBids/{creativeStatusId}/details
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/filteredBids/{creativeStatusId}/details
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.filterSets.resources.filteredBids.resources.details
-      title: bidders.resources.filterSets.resources.filteredBids.resources.details
-    bidders.resources.filterSets.resources.impressionMetrics:
-      id: google.services.bidders.resources.filterSets.resources.impressionMetrics
+      name: bidders.filterSets.filteredBids.details
+      title: bidders.filterSets.filteredBids.details
+    bidders.filterSets.impressionMetrics:
+      id: google.adexchangebuyer2.bidders.filterSets.impressionMetrics
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/impressionMetrics
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/impressionMetrics
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.filterSets.resources.impressionMetrics
-      title: bidders.resources.filterSets.resources.impressionMetrics
-    bidders.resources.filterSets.resources.losingBids:
-      id: google.services.bidders.resources.filterSets.resources.losingBids
+      name: bidders.filterSets.impressionMetrics
+      title: bidders.filterSets.impressionMetrics
+    bidders.filterSets.losingBids:
+      id: google.adexchangebuyer2.bidders.filterSets.losingBids
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/losingBids
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/losingBids
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.filterSets.resources.losingBids
-      title: bidders.resources.filterSets.resources.losingBids
-    bidders.resources.filterSets.resources.nonBillableWinningBids:
-      id: google.services.bidders.resources.filterSets.resources.nonBillableWinningBids
+      name: bidders.filterSets.losingBids
+      title: bidders.filterSets.losingBids
+    bidders.filterSets.nonBillableWinningBids:
+      id: google.adexchangebuyer2.bidders.filterSets.nonBillableWinningBids
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2beta1/{filterSetName}/nonBillableWinningBids
-          request:
-            mediaType: application/json
+            $ref: /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/nonBillableWinningBids
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bidders.resources.filterSets.resources.nonBillableWinningBids
-      title: bidders.resources.filterSets.resources.nonBillableWinningBids
+      name: bidders.filterSets.nonBillableWinningBids
+      title: bidders.filterSets.nonBillableWinningBids
 externalDocs:
   url: https://developers.google.com/authorized-buyers/apis/reference/rest/
 info:
@@ -5455,6 +5311,1536 @@ paths:
         - https://www.googleapis.com/auth/adexchange.buyer
       tags:
       - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets:
+    get:
+      description: Lists all filter sets for the account with the given account ID.
+      operationId: adexchangebuyer2.bidders.filterSets.list
+      parameters:
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListFilterSetsResponse.nextPageToken returned
+          from the previous call to the accounts.filterSets.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFilterSetsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates the specified filter set for the account with the given
+        account ID.
+      operationId: adexchangebuyer2.bidders.filterSets.create
+      parameters:
+      - description: Whether the filter set is transient, or should be persisted indefinitely.
+          By default, filter sets are not transient. If transient, it will be available
+          for at least 1 hour after creation.
+        in: query
+        name: isTransient
+        schema:
+          type: boolean
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FilterSet'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterSet'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+  /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}:
+    delete:
+      description: Deletes the requested filter set from the account with the given
+        account ID.
+      operationId: adexchangebuyer2.bidders.filterSets.delete
+      parameters:
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    get:
+      description: Retrieves the requested filter set for the account with the given
+        account ID.
+      operationId: adexchangebuyer2.bidders.filterSets.get
+      parameters:
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterSet'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/bidMetrics:
+    get:
+      description: Lists all metrics that are measured in terms of number of bids.
+      operationId: adexchangebuyer2.bidders.filterSets.bidMetrics.list
+      parameters:
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListBidMetricsResponse.nextPageToken returned
+          from the previous call to the bidMetrics.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListBidMetricsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/bidResponseErrors:
+    get:
+      description: List all errors that occurred in bid responses, with the number
+        of bid responses affected for each reason.
+      operationId: adexchangebuyer2.bidders.filterSets.bidResponseErrors.list
+      parameters:
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListBidResponseErrorsResponse.nextPageToken
+          returned from the previous call to the bidResponseErrors.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListBidResponseErrorsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/bidResponsesWithoutBids:
+    get:
+      description: List all reasons for which bid responses were considered to have
+        no applicable bids, with the number of bid responses affected for each reason.
+      operationId: adexchangebuyer2.bidders.filterSets.bidResponsesWithoutBids.list
+      parameters:
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListBidResponsesWithoutBidsResponse.nextPageToken
+          returned from the previous call to the bidResponsesWithoutBids.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListBidResponsesWithoutBidsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/filteredBidRequests:
+    get:
+      description: List all reasons that caused a bid request not to be sent for an
+        impression, with the number of bid requests not sent for each reason.
+      operationId: adexchangebuyer2.bidders.filterSets.filteredBidRequests.list
+      parameters:
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListFilteredBidRequestsResponse.nextPageToken
+          returned from the previous call to the filteredBidRequests.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFilteredBidRequestsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/filteredBids:
+    get:
+      description: List all reasons for which bids were filtered, with the number
+        of bids filtered for each reason.
+      operationId: adexchangebuyer2.bidders.filterSets.filteredBids.list
+      parameters:
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListFilteredBidsResponse.nextPageToken returned
+          from the previous call to the filteredBids.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFilteredBidsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/filteredBids/{creativeStatusId}/creatives:
+    get:
+      description: List all creatives associated with a specific reason for which
+        bids were filtered, with the number of bids filtered for each creative.
+      operationId: adexchangebuyer2.bidders.filterSets.filteredBids.creatives.list
+      parameters:
+      - description: The ID of the creative status for which to retrieve a breakdown
+          by creative. See [creative-status-codes](https://developers.google.com/authorized-buyers/rtb/downloads/creative-status-codes).
+        in: path
+        name: creativeStatusId
+        required: true
+        schema:
+          type: integer
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListCreativeStatusBreakdownByCreativeResponse.nextPageToken
+          returned from the previous call to the filteredBids.creatives.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: creativeStatusId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCreativeStatusBreakdownByCreativeResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/filteredBids/{creativeStatusId}/details:
+    get:
+      description: List all details associated with a specific reason for which bids
+        were filtered, with the number of bids filtered for each detail.
+      operationId: adexchangebuyer2.bidders.filterSets.filteredBids.details.list
+      parameters:
+      - description: The ID of the creative status for which to retrieve a breakdown
+          by detail. See [creative-status-codes](https://developers.google.com/authorized-buyers/rtb/downloads/creative-status-codes).
+          Details are only available for statuses 10, 14, 15, 17, 18, 19, 86, and
+          87.
+        in: path
+        name: creativeStatusId
+        required: true
+        schema:
+          type: integer
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListCreativeStatusBreakdownByDetailResponse.nextPageToken
+          returned from the previous call to the filteredBids.details.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: creativeStatusId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCreativeStatusBreakdownByDetailResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/impressionMetrics:
+    get:
+      description: Lists all metrics that are measured in terms of number of impressions.
+      operationId: adexchangebuyer2.bidders.filterSets.impressionMetrics.list
+      parameters:
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListImpressionMetricsResponse.nextPageToken
+          returned from the previous call to the impressionMetrics.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListImpressionMetricsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/losingBids:
+    get:
+      description: List all reasons for which bids lost in the auction, with the number
+        of bids that lost for each reason.
+      operationId: adexchangebuyer2.bidders.filterSets.losingBids.list
+      parameters:
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListLosingBidsResponse.nextPageToken returned
+          from the previous call to the losingBids.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLosingBidsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/accounts/{accountsId}/filterSets/{filterSetsId}/nonBillableWinningBids:
+    get:
+      description: List all reasons for which winning bids were not billable, with
+        the number of bids not billed for each reason.
+      operationId: adexchangebuyer2.bidders.filterSets.nonBillableWinningBids.list
+      parameters:
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListNonBillableWinningBidsResponse.nextPageToken
+          returned from the previous call to the nonBillableWinningBids.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListNonBillableWinningBidsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/filterSets:
+    get:
+      description: Lists all filter sets for the account with the given account ID.
+      operationId: adexchangebuyer2.bidders.filterSets.list
+      parameters:
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListFilterSetsResponse.nextPageToken returned
+          from the previous call to the accounts.filterSets.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFilterSetsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates the specified filter set for the account with the given
+        account ID.
+      operationId: adexchangebuyer2.bidders.filterSets.create
+      parameters:
+      - description: Whether the filter set is transient, or should be persisted indefinitely.
+          By default, filter sets are not transient. If transient, it will be available
+          for at least 1 hour after creation.
+        in: query
+        name: isTransient
+        schema:
+          type: boolean
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FilterSet'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterSet'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+  /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}:
+    delete:
+      description: Deletes the requested filter set from the account with the given
+        account ID.
+      operationId: adexchangebuyer2.bidders.filterSets.delete
+      parameters:
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    get:
+      description: Retrieves the requested filter set for the account with the given
+        account ID.
+      operationId: adexchangebuyer2.bidders.filterSets.get
+      parameters:
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilterSet'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/bidMetrics:
+    get:
+      description: Lists all metrics that are measured in terms of number of bids.
+      operationId: adexchangebuyer2.bidders.filterSets.bidMetrics.list
+      parameters:
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListBidMetricsResponse.nextPageToken returned
+          from the previous call to the bidMetrics.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListBidMetricsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/bidResponseErrors:
+    get:
+      description: List all errors that occurred in bid responses, with the number
+        of bid responses affected for each reason.
+      operationId: adexchangebuyer2.bidders.filterSets.bidResponseErrors.list
+      parameters:
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListBidResponseErrorsResponse.nextPageToken
+          returned from the previous call to the bidResponseErrors.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListBidResponseErrorsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/bidResponsesWithoutBids:
+    get:
+      description: List all reasons for which bid responses were considered to have
+        no applicable bids, with the number of bid responses affected for each reason.
+      operationId: adexchangebuyer2.bidders.filterSets.bidResponsesWithoutBids.list
+      parameters:
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListBidResponsesWithoutBidsResponse.nextPageToken
+          returned from the previous call to the bidResponsesWithoutBids.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListBidResponsesWithoutBidsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/filteredBidRequests:
+    get:
+      description: List all reasons that caused a bid request not to be sent for an
+        impression, with the number of bid requests not sent for each reason.
+      operationId: adexchangebuyer2.bidders.filterSets.filteredBidRequests.list
+      parameters:
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListFilteredBidRequestsResponse.nextPageToken
+          returned from the previous call to the filteredBidRequests.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFilteredBidRequestsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/filteredBids:
+    get:
+      description: List all reasons for which bids were filtered, with the number
+        of bids filtered for each reason.
+      operationId: adexchangebuyer2.bidders.filterSets.filteredBids.list
+      parameters:
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListFilteredBidsResponse.nextPageToken returned
+          from the previous call to the filteredBids.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFilteredBidsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/filteredBids/{creativeStatusId}/creatives:
+    get:
+      description: List all creatives associated with a specific reason for which
+        bids were filtered, with the number of bids filtered for each creative.
+      operationId: adexchangebuyer2.bidders.filterSets.filteredBids.creatives.list
+      parameters:
+      - description: The ID of the creative status for which to retrieve a breakdown
+          by creative. See [creative-status-codes](https://developers.google.com/authorized-buyers/rtb/downloads/creative-status-codes).
+        in: path
+        name: creativeStatusId
+        required: true
+        schema:
+          type: integer
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListCreativeStatusBreakdownByCreativeResponse.nextPageToken
+          returned from the previous call to the filteredBids.creatives.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: creativeStatusId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCreativeStatusBreakdownByCreativeResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/filteredBids/{creativeStatusId}/details:
+    get:
+      description: List all details associated with a specific reason for which bids
+        were filtered, with the number of bids filtered for each detail.
+      operationId: adexchangebuyer2.bidders.filterSets.filteredBids.details.list
+      parameters:
+      - description: The ID of the creative status for which to retrieve a breakdown
+          by detail. See [creative-status-codes](https://developers.google.com/authorized-buyers/rtb/downloads/creative-status-codes).
+          Details are only available for statuses 10, 14, 15, 17, 18, 19, 86, and
+          87.
+        in: path
+        name: creativeStatusId
+        required: true
+        schema:
+          type: integer
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListCreativeStatusBreakdownByDetailResponse.nextPageToken
+          returned from the previous call to the filteredBids.details.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: creativeStatusId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCreativeStatusBreakdownByDetailResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/impressionMetrics:
+    get:
+      description: Lists all metrics that are measured in terms of number of impressions.
+      operationId: adexchangebuyer2.bidders.filterSets.impressionMetrics.list
+      parameters:
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListImpressionMetricsResponse.nextPageToken
+          returned from the previous call to the impressionMetrics.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListImpressionMetricsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/losingBids:
+    get:
+      description: List all reasons for which bids lost in the auction, with the number
+        of bids that lost for each reason.
+      operationId: adexchangebuyer2.bidders.filterSets.losingBids.list
+      parameters:
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListLosingBidsResponse.nextPageToken returned
+          from the previous call to the losingBids.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLosingBidsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2beta1/bidders/{biddersId}/filterSets/{filterSetsId}/nonBillableWinningBids:
+    get:
+      description: List all reasons for which winning bids were not billable, with
+        the number of bids not billed for each reason.
+      operationId: adexchangebuyer2.bidders.filterSets.nonBillableWinningBids.list
+      parameters:
+      - description: Requested page size. The server may return fewer results than
+          requested. If unspecified, the server will pick an appropriate default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+          Typically, this is the value of ListNonBillableWinningBidsResponse.nextPageToken
+          returned from the previous call to the nonBillableWinningBids.list method.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: biddersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: filterSetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListNonBillableWinningBidsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adexchange.buyer
+        Oauth2c:
+        - https://www.googleapis.com/auth/adexchange.buyer
+      tags:
+      - bidders
     parameters:
     - $ref: '#/components/parameters/_.xgafv'
     - $ref: '#/components/parameters/access_token'

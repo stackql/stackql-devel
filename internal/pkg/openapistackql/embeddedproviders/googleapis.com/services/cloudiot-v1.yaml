@@ -840,34 +840,14 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.locations:
-      id: google.services.projects.resources.locations
-      methods: {}
-      name: projects.resources.locations
-      title: projects.resources.locations
-    projects.resources.locations.resources:
-      id: google.services.projects.resources.locations.resources
-      methods: {}
-      name: projects.resources.locations.resources
-      title: projects.resources.locations.resources
-    projects.resources.locations.resources.registries:
-      id: google.services.projects.resources.locations.resources.registries
+    projects.locations.registries:
+      id: google.cloudiot.projects.locations.registries
       methods:
         bindDeviceToGateway:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}:bindDeviceToGateway
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}:bindDeviceToGateway
           request:
             mediaType: application/json
           response:
@@ -877,7 +857,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/registries
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries
           request:
             mediaType: application/json
           response:
@@ -887,9 +867,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -897,9 +875,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -907,7 +883,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:getIamPolicy
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}:getIamPolicy
           request:
             mediaType: application/json
           response:
@@ -917,9 +893,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/registries
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -927,7 +901,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}
           request:
             mediaType: application/json
           response:
@@ -937,7 +911,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -947,7 +921,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}:testIamPermissions
           request:
             mediaType: application/json
           response:
@@ -957,27 +931,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}:unbindDeviceFromGateway
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}:unbindDeviceFromGateway
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.registries
-      title: projects.resources.locations.resources.registries
-    projects.resources.locations.resources.registries.resources:
-      id: google.services.projects.resources.locations.resources.registries.resources
-      methods: {}
-      name: projects.resources.locations.resources.registries.resources
-      title: projects.resources.locations.resources.registries.resources
-    projects.resources.locations.resources.registries.resources.devices:
-      id: google.services.projects.resources.locations.resources.registries.resources.devices
+      name: projects.locations.registries
+      title: projects.locations.registries
+    projects.locations.registries.devices:
+      id: google.cloudiot.projects.locations.registries.devices
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/devices
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/devices
           request:
             mediaType: application/json
           response:
@@ -987,9 +956,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/devices/{devicesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -997,9 +964,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/devices/{devicesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1007,9 +972,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/devices
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/devices
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1017,7 +980,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:modifyCloudToDeviceConfig
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/devices/{devicesId}:modifyCloudToDeviceConfig
           request:
             mediaType: application/json
           response:
@@ -1027,7 +990,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/devices/{devicesId}
           request:
             mediaType: application/json
           response:
@@ -1037,57 +1000,48 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:sendCommandToDevice
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/devices/{devicesId}:sendCommandToDevice
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.registries.resources.devices
-      title: projects.resources.locations.resources.registries.resources.devices
-    projects.resources.locations.resources.registries.resources.devices.resources:
-      id: google.services.projects.resources.locations.resources.registries.resources.devices.resources
-      methods: {}
-      name: projects.resources.locations.resources.registries.resources.devices.resources
-      title: projects.resources.locations.resources.registries.resources.devices.resources
-    projects.resources.locations.resources.registries.resources.devices.resources.configVersions:
-      id: google.services.projects.resources.locations.resources.registries.resources.devices.resources.configVersions
+      name: projects.locations.registries.devices
+      title: projects.locations.registries.devices
+    projects.locations.registries.devices.configVersions:
+      id: google.cloudiot.projects.locations.registries.devices.configVersions
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/configVersions
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/devices/{devicesId}/configVersions
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.registries.resources.devices.resources.configVersions
-      title: projects.resources.locations.resources.registries.resources.devices.resources.configVersions
-    projects.resources.locations.resources.registries.resources.devices.resources.states:
-      id: google.services.projects.resources.locations.resources.registries.resources.devices.resources.states
+      name: projects.locations.registries.devices.configVersions
+      title: projects.locations.registries.devices.configVersions
+    projects.locations.registries.devices.states:
+      id: google.cloudiot.projects.locations.registries.devices.states
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/states
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/devices/{devicesId}/states
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.registries.resources.devices.resources.states
-      title: projects.resources.locations.resources.registries.resources.devices.resources.states
-    projects.resources.locations.resources.registries.resources.groups:
-      id: google.services.projects.resources.locations.resources.registries.resources.groups
+      name: projects.locations.registries.devices.states
+      title: projects.locations.registries.devices.states
+    projects.locations.registries.groups:
+      id: google.cloudiot.projects.locations.registries.groups
       methods:
         getIamPolicy:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:getIamPolicy
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/groups/{groupsId}:getIamPolicy
           request:
             mediaType: application/json
           response:
@@ -1097,7 +1051,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/groups/{groupsId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -1107,34 +1061,27 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/groups/{groupsId}:testIamPermissions
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.registries.resources.groups
-      title: projects.resources.locations.resources.registries.resources.groups
-    projects.resources.locations.resources.registries.resources.groups.resources:
-      id: google.services.projects.resources.locations.resources.registries.resources.groups.resources
-      methods: {}
-      name: projects.resources.locations.resources.registries.resources.groups.resources
-      title: projects.resources.locations.resources.registries.resources.groups.resources
-    projects.resources.locations.resources.registries.resources.groups.resources.devices:
-      id: google.services.projects.resources.locations.resources.registries.resources.groups.resources.devices
+      name: projects.locations.registries.groups
+      title: projects.locations.registries.groups
+    projects.locations.registries.groups.devices:
+      id: google.cloudiot.projects.locations.registries.groups.devices
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/devices
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/groups/{groupsId}/devices
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.registries.resources.groups.resources.devices
-      title: projects.resources.locations.resources.registries.resources.groups.resources.devices
+      name: projects.locations.registries.groups.devices
+      title: projects.locations.registries.groups.devices
 externalDocs:
   url: https://cloud.google.com/iot
 info:
@@ -1168,6 +1115,1460 @@ info:
   x-serviceName: cloudiot
 openapi: 3.0.0
 paths:
+  /v1/projects/{projectsId}/locations/{locationsId}/registries:
+    get:
+      description: Lists device registries.
+      operationId: cloudiot.projects.locations.registries.list
+      parameters:
+      - description: The maximum number of registries to return in the response. If
+          this value is zero, the service will select a default size. A call may return
+          fewer objects than requested. A non-empty `next_page_token` in the response
+          indicates that more data is available.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The value returned by the last `ListDeviceRegistriesResponse`;
+          indicates that this is a continuation of a prior `ListDeviceRegistries`
+          call and the system should return the next page of data.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDeviceRegistriesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a device registry that contains devices.
+      operationId: cloudiot.projects.locations.registries.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceRegistry'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceRegistry'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}:
+    delete:
+      description: Deletes a device.
+      operationId: cloudiot.projects.locations.registries.devices.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+    get:
+      description: Gets details about a device.
+      operationId: cloudiot.projects.locations.registries.devices.get
+      parameters:
+      - description: 'The fields of the `Device` resource to be returned in the response.
+          If the field mask is unset or empty, all fields are returned. Fields have
+          to be provided in snake_case format, for example: `last_heartbeat_time`.'
+        in: query
+        name: fieldMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a device.
+      operationId: cloudiot.projects.locations.registries.devices.patch
+      parameters:
+      - description: 'Required. Only updates the `device` fields indicated by this
+          mask. The field mask must not be empty, and it must not contain fields that
+          are immutable or only set by the server. Mutable top-level fields: `credentials`,
+          `blocked`, and `metadata`'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Device'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/devices:
+    get:
+      description: List devices in a device registry.
+      operationId: cloudiot.projects.locations.registries.groups.devices.list
+      parameters:
+      - description: 'A list of device string IDs. For example, `[''device0'', ''device12'']`.
+          If empty, this field is ignored. Maximum IDs: 10,000'
+        explode: true
+        in: query
+        name: deviceIds
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - description: 'A list of device numeric IDs. If empty, this field is ignored.
+          Maximum IDs: 10,000.'
+        explode: true
+        in: query
+        name: deviceNumIds
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - description: 'The fields of the `Device` resource to be returned in the response.
+          The fields `id` and `num_id` are always returned, along with any other fields
+          specified in snake_case format, for example: `last_heartbeat_time`.'
+        in: query
+        name: fieldMask
+        schema:
+          type: string
+      - description: If set, returns only the gateways with which the specified device
+          is associated. The device ID can be numeric (`num_id`) or the user-defined
+          string (`id`). For example, if `456` is specified, returns only the gateways
+          to which the device with `num_id` 456 is bound.
+        in: query
+        name: gatewayListOptions.associationsDeviceId
+        schema:
+          type: string
+      - description: If set, only devices associated with the specified gateway are
+          returned. The gateway ID can be numeric (`num_id`) or the user-defined string
+          (`id`). For example, if `123` is specified, only devices bound to the gateway
+          with `num_id` 123 are returned.
+        in: query
+        name: gatewayListOptions.associationsGatewayId
+        schema:
+          type: string
+      - description: If `GATEWAY` is specified, only gateways are returned. If `NON_GATEWAY`
+          is specified, only non-gateway devices are returned. If `GATEWAY_TYPE_UNSPECIFIED`
+          is specified, all devices are returned.
+        in: query
+        name: gatewayListOptions.gatewayType
+        schema:
+          enum:
+          - GATEWAY_TYPE_UNSPECIFIED
+          - GATEWAY
+          - NON_GATEWAY
+          type: string
+      - description: The maximum number of devices to return in the response. If this
+          value is zero, the service will select a default size. A call may return
+          fewer objects than requested. A non-empty `next_page_token` in the response
+          indicates that more data is available.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The value returned by the last `ListDevicesResponse`; indicates
+          that this is a continuation of a prior `ListDevices` call and the system
+          should return the next page of data.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDevicesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a device in a device registry.
+      operationId: cloudiot.projects.locations.registries.devices.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Device'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/devices/{devicesId}:
+    delete:
+      description: Deletes a device.
+      operationId: cloudiot.projects.locations.registries.devices.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+    get:
+      description: Gets details about a device.
+      operationId: cloudiot.projects.locations.registries.devices.get
+      parameters:
+      - description: 'The fields of the `Device` resource to be returned in the response.
+          If the field mask is unset or empty, all fields are returned. Fields have
+          to be provided in snake_case format, for example: `last_heartbeat_time`.'
+        in: query
+        name: fieldMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a device.
+      operationId: cloudiot.projects.locations.registries.devices.patch
+      parameters:
+      - description: 'Required. Only updates the `device` fields indicated by this
+          mask. The field mask must not be empty, and it must not contain fields that
+          are immutable or only set by the server. Mutable top-level fields: `credentials`,
+          `blocked`, and `metadata`'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Device'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/devices/{devicesId}/configVersions:
+    get:
+      description: 'Lists the last few versions of the device configuration in descending
+        order (i.e.: newest first).'
+      operationId: cloudiot.projects.locations.registries.devices.configVersions.list
+      parameters:
+      - description: The number of versions to list. Versions are listed in decreasing
+          order of the version number. The maximum number of versions retained is
+          10. If this value is zero, it will return all the versions available.
+        in: query
+        name: numVersions
+        schema:
+          type: integer
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDeviceConfigVersionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/devices/{devicesId}/states:
+    get:
+      description: 'Lists the last few versions of the device state in descending
+        order (i.e.: newest first).'
+      operationId: cloudiot.projects.locations.registries.devices.states.list
+      parameters:
+      - description: The number of states to list. States are listed in descending
+          order of update time. The maximum number of states retained is 10. If this
+          value is zero, it will return all the states available.
+        in: query
+        name: numStates
+        schema:
+          type: integer
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDeviceStatesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/devices/{devicesId}:modifyCloudToDeviceConfig:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Modifies the configuration for the device, which is eventually
+        sent from the Cloud IoT Core servers. Returns the modified configuration version
+        and its metadata.
+      operationId: cloudiot.projects.locations.registries.devices.modifyCloudToDeviceConfig
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModifyCloudToDeviceConfigRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceConfig'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/devices/{devicesId}:sendCommandToDevice:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Sends a command to the specified device. In order for a device
+        to be able to receive commands, it must: 1) be connected to Cloud IoT Core
+        using the MQTT protocol, and 2) be subscribed to the group of MQTT topics
+        specified by /devices/{device-id}/commands/#. This subscription will receive
+        commands at the top-level topic /devices/{device-id}/commands as well as commands
+        for subfolders, like /devices/{device-id}/commands/subfolder. Note that subscribing
+        to specific subfolders is not supported. If the command could not be delivered
+        to the device, this method will return an error; in particular, if the device
+        is not subscribed, this method will return FAILED_PRECONDITION. Otherwise,
+        this method will return OK. If the subscription is QoS 1, at least once delivery
+        will be guaranteed; for QoS 0, no acknowledgment will be expected from the
+        device.'
+      operationId: cloudiot.projects.locations.registries.devices.sendCommandToDevice
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendCommandToDeviceRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendCommandToDeviceResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/groups/{groupsId}/devices:
+    get:
+      description: List devices in a device registry.
+      operationId: cloudiot.projects.locations.registries.groups.devices.list
+      parameters:
+      - description: 'A list of device string IDs. For example, `[''device0'', ''device12'']`.
+          If empty, this field is ignored. Maximum IDs: 10,000'
+        explode: true
+        in: query
+        name: deviceIds
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - description: 'A list of device numeric IDs. If empty, this field is ignored.
+          Maximum IDs: 10,000.'
+        explode: true
+        in: query
+        name: deviceNumIds
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - description: 'The fields of the `Device` resource to be returned in the response.
+          The fields `id` and `num_id` are always returned, along with any other fields
+          specified in snake_case format, for example: `last_heartbeat_time`.'
+        in: query
+        name: fieldMask
+        schema:
+          type: string
+      - description: If set, returns only the gateways with which the specified device
+          is associated. The device ID can be numeric (`num_id`) or the user-defined
+          string (`id`). For example, if `456` is specified, returns only the gateways
+          to which the device with `num_id` 456 is bound.
+        in: query
+        name: gatewayListOptions.associationsDeviceId
+        schema:
+          type: string
+      - description: If set, only devices associated with the specified gateway are
+          returned. The gateway ID can be numeric (`num_id`) or the user-defined string
+          (`id`). For example, if `123` is specified, only devices bound to the gateway
+          with `num_id` 123 are returned.
+        in: query
+        name: gatewayListOptions.associationsGatewayId
+        schema:
+          type: string
+      - description: If `GATEWAY` is specified, only gateways are returned. If `NON_GATEWAY`
+          is specified, only non-gateway devices are returned. If `GATEWAY_TYPE_UNSPECIFIED`
+          is specified, all devices are returned.
+        in: query
+        name: gatewayListOptions.gatewayType
+        schema:
+          enum:
+          - GATEWAY_TYPE_UNSPECIFIED
+          - GATEWAY
+          - NON_GATEWAY
+          type: string
+      - description: The maximum number of devices to return in the response. If this
+          value is zero, the service will select a default size. A call may return
+          fewer objects than requested. A non-empty `next_page_token` in the response
+          indicates that more data is available.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The value returned by the last `ListDevicesResponse`; indicates
+          that this is a continuation of a prior `ListDevices` call and the system
+          should return the next page of data.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: groupsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDevicesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a device in a device registry.
+      operationId: cloudiot.projects.locations.registries.devices.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: groupsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Device'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/groups/{groupsId}:getIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: cloudiot.projects.locations.registries.groups.getIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: groupsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/groups/{groupsId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy.
+      operationId: cloudiot.projects.locations.registries.groups.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: groupsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}/groups/{groupsId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a NOT_FOUND error.
+      operationId: cloudiot.projects.locations.registries.groups.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: groupsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}:bindDeviceToGateway:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Associates the device with the gateway.
+      operationId: cloudiot.projects.locations.registries.bindDeviceToGateway
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BindDeviceToGatewayRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BindDeviceToGatewayResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}:getIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: cloudiot.projects.locations.registries.groups.getIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy.
+      operationId: cloudiot.projects.locations.registries.groups.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a NOT_FOUND error.
+      operationId: cloudiot.projects.locations.registries.groups.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/registries/{registriesId}:unbindDeviceFromGateway:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Deletes the association between the device and the gateway.
+      operationId: cloudiot.projects.locations.registries.unbindDeviceFromGateway
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: registriesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnbindDeviceFromGatewayRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnbindDeviceFromGatewayResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloudiot
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloudiot
+      tags:
+      - projects
   /v1/{name}:
     delete:
       description: Deletes a device.

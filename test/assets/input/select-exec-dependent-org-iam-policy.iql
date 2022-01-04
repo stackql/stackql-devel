@@ -5,7 +5,7 @@ from
   ( 
     exec /*+ SHOWRESULTS */ 
     google.cloudresourcemanager.organizations.getIamPolicy 
-    @resource = '123456789012' 
+    @organizationsId = '123456789012' 
   ) 
 GROUP BY members
 ;

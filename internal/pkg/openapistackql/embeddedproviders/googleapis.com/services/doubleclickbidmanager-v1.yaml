@@ -1946,7 +1946,7 @@ components:
       type: oauth2
   x-stackQL-resources:
     queries:
-      id: google.services.queries
+      id: google.doubleclickbidmanager.queries
       methods:
         createquery:
           operation:
@@ -1963,18 +1963,13 @@ components:
             $ref: delete
           path:
             $ref: /query/{queryId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         getquery:
           operation:
             $ref: get
           path:
             $ref: /query/{queryId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1983,8 +1978,6 @@ components:
             $ref: get
           path:
             $ref: /queries
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1996,20 +1989,17 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
       name: queries
       title: queries
     reports:
-      id: google.services.reports
+      id: google.doubleclickbidmanager.reports
       methods:
         listreports:
           operation:
             $ref: get
           path:
             $ref: /queries/{queryId}/reports
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

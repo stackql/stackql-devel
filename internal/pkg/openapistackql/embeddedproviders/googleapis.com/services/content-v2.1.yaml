@@ -8447,15 +8447,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     accounts:
-      id: google.services.accounts
+      id: google.content.accounts
       methods:
         authinfo:
           operation:
             $ref: get
           path:
             $ref: /accounts/authinfo
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8464,8 +8462,6 @@ components:
             $ref: post
           path:
             $ref: /{merchantId}/accounts/{accountId}/claimwebsite
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8484,18 +8480,13 @@ components:
             $ref: delete
           path:
             $ref: /{merchantId}/accounts/{accountId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /{merchantId}/accounts/{accountId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8524,8 +8515,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/accounts
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8534,8 +8523,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/accounts/{accountId}/listlinks
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8581,13 +8568,8 @@ components:
             openAPIDocKey: '200'
       name: accounts
       title: accounts
-    accounts.resources:
-      id: google.services.accounts.resources
-      methods: {}
-      name: accounts.resources
-      title: accounts.resources
-    accounts.resources.credentials:
-      id: google.services.accounts.resources.credentials
+    accounts.credentials:
+      id: google.content.accounts.credentials
       methods:
         create:
           operation:
@@ -8599,10 +8581,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.credentials
-      title: accounts.resources.credentials
-    accounts.resources.labels:
-      id: google.services.accounts.resources.labels
+      name: accounts.credentials
+      title: accounts.credentials
+    accounts.labels:
+      id: google.content.accounts.labels
       methods:
         create:
           operation:
@@ -8619,18 +8601,13 @@ components:
             $ref: delete
           path:
             $ref: /accounts/{accountId}/labels/{labelId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         list:
           operation:
             $ref: get
           path:
             $ref: /accounts/{accountId}/labels
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8644,10 +8621,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.labels
-      title: accounts.resources.labels
-    accounts.resources.returncarrier:
-      id: google.services.accounts.resources.returncarrier
+      name: accounts.labels
+      title: accounts.labels
+    accounts.returncarrier:
+      id: google.content.accounts.returncarrier
       methods:
         create:
           operation:
@@ -8664,18 +8641,13 @@ components:
             $ref: delete
           path:
             $ref: /accounts/{accountId}/returncarrier/{carrierAccountId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         list:
           operation:
             $ref: get
           path:
             $ref: /accounts/{accountId}/returncarrier
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8689,10 +8661,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.returncarrier
-      title: accounts.resources.returncarrier
+      name: accounts.returncarrier
+      title: accounts.returncarrier
     accountstatuses:
-      id: google.services.accountstatuses
+      id: google.content.accountstatuses
       methods:
         custombatch:
           operation:
@@ -8709,8 +8681,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/accountstatuses/{accountId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8719,15 +8689,13 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/accountstatuses
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: accountstatuses
       title: accountstatuses
     accounttax:
-      id: google.services.accounttax
+      id: google.content.accounttax
       methods:
         custombatch:
           operation:
@@ -8744,8 +8712,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/accounttax/{accountId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8754,8 +8720,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/accounttax
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8772,7 +8736,7 @@ components:
       name: accounttax
       title: accounttax
     buyongoogleprograms:
-      id: google.services.buyongoogleprograms
+      id: google.content.buyongoogleprograms
       methods:
         activate:
           operation:
@@ -8782,15 +8746,12 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /{merchantId}/buyongoogleprograms/{regionCode}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8802,7 +8763,6 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         patch:
           operation:
@@ -8822,7 +8782,6 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         requestreview:
           operation:
@@ -8832,12 +8791,11 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
       name: buyongoogleprograms
       title: buyongoogleprograms
     collections:
-      id: google.services.collections
+      id: google.content.collections
       methods:
         create:
           operation:
@@ -8854,18 +8812,13 @@ components:
             $ref: delete
           path:
             $ref: /{merchantId}/collections/{collectionId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /{merchantId}/collections/{collectionId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8874,23 +8827,19 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/collections
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: collections
       title: collections
     collectionstatuses:
-      id: google.services.collectionstatuses
+      id: google.content.collectionstatuses
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /{merchantId}/collectionstatuses/{collectionId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8899,23 +8848,19 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/collectionstatuses
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: collectionstatuses
       title: collectionstatuses
     csses:
-      id: google.services.csses
+      id: google.content.csses
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /{cssGroupId}/csses/{cssDomainId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8924,8 +8869,6 @@ components:
             $ref: get
           path:
             $ref: /{cssGroupId}/csses
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8942,7 +8885,7 @@ components:
       name: csses
       title: csses
     datafeeds:
-      id: google.services.datafeeds
+      id: google.content.datafeeds
       methods:
         custombatch:
           operation:
@@ -8959,18 +8902,13 @@ components:
             $ref: delete
           path:
             $ref: /{merchantId}/datafeeds/{datafeedId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         fetchnow:
           operation:
             $ref: post
           path:
             $ref: /{merchantId}/datafeeds/{datafeedId}/fetchNow
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8979,8 +8917,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/datafeeds/{datafeedId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8999,8 +8935,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/datafeeds
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9017,7 +8951,7 @@ components:
       name: datafeeds
       title: datafeeds
     datafeedstatuses:
-      id: google.services.datafeedstatuses
+      id: google.content.datafeedstatuses
       methods:
         custombatch:
           operation:
@@ -9034,8 +8968,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/datafeedstatuses/{datafeedId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9044,23 +8976,19 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/datafeedstatuses
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: datafeedstatuses
       title: datafeedstatuses
     freelistingsprogram:
-      id: google.services.freelistingsprogram
+      id: google.content.freelistingsprogram
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /{merchantId}/freelistingsprogram
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9072,12 +9000,11 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
       name: freelistingsprogram
       title: freelistingsprogram
     liasettings:
-      id: google.services.liasettings
+      id: google.content.liasettings
       methods:
         custombatch:
           operation:
@@ -9094,8 +9021,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/liasettings/{accountId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9104,8 +9029,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/liasettings/{accountId}/accessiblegmbaccounts
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9114,8 +9037,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/liasettings
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9124,8 +9045,6 @@ components:
             $ref: get
           path:
             $ref: /liasettings/posdataproviders
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9134,8 +9053,6 @@ components:
             $ref: post
           path:
             $ref: /{merchantId}/liasettings/{accountId}/requestgmbaccess
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9144,8 +9061,6 @@ components:
             $ref: post
           path:
             $ref: /{merchantId}/liasettings/{accountId}/requestinventoryverification/{country}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9154,8 +9069,6 @@ components:
             $ref: post
           path:
             $ref: /{merchantId}/liasettings/{accountId}/setinventoryverificationcontact
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9164,8 +9077,6 @@ components:
             $ref: post
           path:
             $ref: /{merchantId}/liasettings/{accountId}/setposdataprovider
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9182,7 +9093,7 @@ components:
       name: liasettings
       title: liasettings
     localinventory:
-      id: google.services.localinventory
+      id: google.content.localinventory
       methods:
         custombatch:
           operation:
@@ -9207,7 +9118,7 @@ components:
       name: localinventory
       title: localinventory
     orderinvoices:
-      id: google.services.orderinvoices
+      id: google.content.orderinvoices
       methods:
         createchargeinvoice:
           operation:
@@ -9232,15 +9143,13 @@ components:
       name: orderinvoices
       title: orderinvoices
     orderreports:
-      id: google.services.orderreports
+      id: google.content.orderreports
       methods:
         listdisbursements:
           operation:
             $ref: get
           path:
             $ref: /{merchantId}/orderreports/disbursements
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9249,15 +9158,13 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/orderreports/disbursements/{disbursementId}/transactions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: orderreports
       title: orderreports
     orderreturns:
-      id: google.services.orderreturns
+      id: google.content.orderreturns
       methods:
         acknowledge:
           operation:
@@ -9284,8 +9191,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/orderreturns/{returnId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9294,8 +9199,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/orderreturns
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9311,13 +9214,8 @@ components:
             openAPIDocKey: '200'
       name: orderreturns
       title: orderreturns
-    orderreturns.resources:
-      id: google.services.orderreturns.resources
-      methods: {}
-      name: orderreturns.resources
-      title: orderreturns.resources
-    orderreturns.resources.labels:
-      id: google.services.orderreturns.resources.labels
+    orderreturns.labels:
+      id: google.content.orderreturns.labels
       methods:
         create:
           operation:
@@ -9329,10 +9227,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: orderreturns.resources.labels
-      title: orderreturns.resources.labels
+      name: orderreturns.labels
+      title: orderreturns.labels
     orders:
-      id: google.services.orders
+      id: google.content.orders
       methods:
         acknowledge:
           operation:
@@ -9349,8 +9247,6 @@ components:
             $ref: post
           path:
             $ref: /{merchantId}/testorders/{orderId}/advance
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9419,8 +9315,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/orders/{orderId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9429,8 +9323,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/ordersbymerchantid/{merchantOrderId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9439,8 +9331,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/testordertemplates/{templateName}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9459,8 +9349,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/orders
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9557,7 +9445,7 @@ components:
       name: orders
       title: orders
     ordertrackingsignals:
-      id: google.services.ordertrackingsignals
+      id: google.content.ordertrackingsignals
       methods:
         create:
           operation:
@@ -9572,7 +9460,7 @@ components:
       name: ordertrackingsignals
       title: ordertrackingsignals
     pos:
-      id: google.services.pos
+      id: google.content.pos
       methods:
         custombatch:
           operation:
@@ -9589,18 +9477,13 @@ components:
             $ref: delete
           path:
             $ref: /{merchantId}/pos/{targetMerchantId}/store/{storeCode}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /{merchantId}/pos/{targetMerchantId}/store/{storeCode}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9629,8 +9512,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/pos/{targetMerchantId}/store
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9647,7 +9528,7 @@ components:
       name: pos
       title: pos
     products:
-      id: google.services.products
+      id: google.content.products
       methods:
         custombatch:
           operation:
@@ -9664,18 +9545,13 @@ components:
             $ref: delete
           path:
             $ref: /{merchantId}/products/{productId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /{merchantId}/products/{productId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9694,8 +9570,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/products
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9712,7 +9586,7 @@ components:
       name: products
       title: products
     productstatuses:
-      id: google.services.productstatuses
+      id: google.content.productstatuses
       methods:
         custombatch:
           operation:
@@ -9729,8 +9603,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/productstatuses/{productId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9739,35 +9611,26 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/productstatuses
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: productstatuses
       title: productstatuses
-    productstatuses.resources:
-      id: google.services.productstatuses.resources
-      methods: {}
-      name: productstatuses.resources
-      title: productstatuses.resources
-    productstatuses.resources.repricingreports:
-      id: google.services.productstatuses.resources.repricingreports
+    productstatuses.repricingreports:
+      id: google.content.productstatuses.repricingreports
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /{merchantId}/productstatuses/{productId}/repricingreports
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: productstatuses.resources.repricingreports
-      title: productstatuses.resources.repricingreports
+      name: productstatuses.repricingreports
+      title: productstatuses.repricingreports
     promotions:
-      id: google.services.promotions
+      id: google.content.promotions
       methods:
         create:
           operation:
@@ -9784,23 +9647,19 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/promotions/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: promotions
       title: promotions
     pubsubnotificationsettings:
-      id: google.services.pubsubnotificationsettings
+      id: google.content.pubsubnotificationsettings
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /{merchantId}/pubsubnotificationsettings
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9817,7 +9676,7 @@ components:
       name: pubsubnotificationsettings
       title: pubsubnotificationsettings
     regionalinventory:
-      id: google.services.regionalinventory
+      id: google.content.regionalinventory
       methods:
         custombatch:
           operation:
@@ -9842,7 +9701,7 @@ components:
       name: regionalinventory
       title: regionalinventory
     regions:
-      id: google.services.regions
+      id: google.content.regions
       methods:
         create:
           operation:
@@ -9859,18 +9718,13 @@ components:
             $ref: delete
           path:
             $ref: /{merchantId}/regions/{regionId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /{merchantId}/regions/{regionId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9879,8 +9733,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/regions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9897,7 +9749,7 @@ components:
       name: regions
       title: regions
     reports:
-      id: google.services.reports
+      id: google.content.reports
       methods:
         search:
           operation:
@@ -9912,7 +9764,7 @@ components:
       name: reports
       title: reports
     repricingrules:
-      id: google.services.repricingrules
+      id: google.content.repricingrules
       methods:
         create:
           operation:
@@ -9929,18 +9781,13 @@ components:
             $ref: delete
           path:
             $ref: /{merchantId}/repricingrules/{ruleId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /{merchantId}/repricingrules/{ruleId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9949,8 +9796,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/repricingrules
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9966,28 +9811,21 @@ components:
             openAPIDocKey: '200'
       name: repricingrules
       title: repricingrules
-    repricingrules.resources:
-      id: google.services.repricingrules.resources
-      methods: {}
-      name: repricingrules.resources
-      title: repricingrules.resources
-    repricingrules.resources.repricingreports:
-      id: google.services.repricingrules.resources.repricingreports
+    repricingrules.repricingreports:
+      id: google.content.repricingrules.repricingreports
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /{merchantId}/repricingrules/{ruleId}/repricingreports
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: repricingrules.resources.repricingreports
-      title: repricingrules.resources.repricingreports
+      name: repricingrules.repricingreports
+      title: repricingrules.repricingreports
     returnaddress:
-      id: google.services.returnaddress
+      id: google.content.returnaddress
       methods:
         custombatch:
           operation:
@@ -10004,18 +9842,13 @@ components:
             $ref: delete
           path:
             $ref: /{merchantId}/returnaddress/{returnAddressId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /{merchantId}/returnaddress/{returnAddressId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10034,15 +9867,13 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/returnaddress
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: returnaddress
       title: returnaddress
     returnpolicy:
-      id: google.services.returnpolicy
+      id: google.content.returnpolicy
       methods:
         custombatch:
           operation:
@@ -10059,18 +9890,13 @@ components:
             $ref: delete
           path:
             $ref: /{merchantId}/returnpolicy/{returnPolicyId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /{merchantId}/returnpolicy/{returnPolicyId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10089,15 +9915,13 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/returnpolicy
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: returnpolicy
       title: returnpolicy
     returnpolicyonline:
-      id: google.services.returnpolicyonline
+      id: google.content.returnpolicyonline
       methods:
         create:
           operation:
@@ -10114,18 +9938,13 @@ components:
             $ref: delete
           path:
             $ref: /{merchantId}/returnpolicyonline/{returnPolicyId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /{merchantId}/returnpolicyonline/{returnPolicyId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10134,8 +9953,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/returnpolicyonline
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10152,15 +9969,13 @@ components:
       name: returnpolicyonline
       title: returnpolicyonline
     settlementreports:
-      id: google.services.settlementreports
+      id: google.content.settlementreports
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /{merchantId}/settlementreports/{settlementId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10169,30 +9984,26 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/settlementreports
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: settlementreports
       title: settlementreports
     settlementtransactions:
-      id: google.services.settlementtransactions
+      id: google.content.settlementtransactions
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /{merchantId}/settlementreports/{settlementId}/transactions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: settlementtransactions
       title: settlementtransactions
     shippingsettings:
-      id: google.services.shippingsettings
+      id: google.content.shippingsettings
       methods:
         custombatch:
           operation:
@@ -10209,8 +10020,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/shippingsettings/{accountId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10219,8 +10028,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/supportedCarriers
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10229,8 +10036,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/supportedHolidays
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10239,8 +10044,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/supportedPickupServices
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10249,8 +10052,6 @@ components:
             $ref: get
           path:
             $ref: /{merchantId}/shippingsettings
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10267,15 +10068,13 @@ components:
       name: shippingsettings
       title: shippingsettings
     shoppingadsprogram:
-      id: google.services.shoppingadsprogram
+      id: google.content.shoppingadsprogram
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /{merchantId}/shoppingadsprogram
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10287,7 +10086,6 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
       name: shoppingadsprogram
       title: shoppingadsprogram

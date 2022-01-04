@@ -1172,24 +1172,14 @@ components:
           type: string
       type: object
   x-stackQL-resources:
-    accounts:
-      id: google.services.accounts
-      methods: {}
-      name: accounts
-      title: accounts
-    accounts.resources:
-      id: google.services.accounts.resources
-      methods: {}
-      name: accounts.resources
-      title: accounts.resources
-    accounts.resources.locations:
-      id: google.services.accounts.resources.locations
+    accounts.locations:
+      id: google.mybusinessbusinessinformation.accounts.locations
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/locations
+            $ref: /v1/accounts/{accountsId}/locations
           request:
             mediaType: application/json
           response:
@@ -1199,39 +1189,33 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/locations
-          request:
-            mediaType: application/json
+            $ref: /v1/accounts/{accountsId}/locations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.locations
-      title: accounts.resources.locations
+      name: accounts.locations
+      title: accounts.locations
     attributes:
-      id: google.services.attributes
+      id: google.mybusinessbusinessinformation.attributes
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /v1/attributes
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: attributes
       title: attributes
     categories:
-      id: google.services.categories
+      id: google.mybusinessbusinessinformation.categories
       methods:
         batchGet:
           operation:
             $ref: get
           path:
             $ref: /v1/categories:batchGet
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1240,23 +1224,19 @@ components:
             $ref: get
           path:
             $ref: /v1/categories
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: categories
       title: categories
     chains:
-      id: google.services.chains
+      id: google.mybusinessbusinessinformation.chains
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/chains/{chainsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1265,15 +1245,13 @@ components:
             $ref: get
           path:
             $ref: /v1/chains:search
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: chains
       title: chains
     googleLocations:
-      id: google.services.googleLocations
+      id: google.mybusinessbusinessinformation.googleLocations
       methods:
         search:
           operation:
@@ -1288,13 +1266,13 @@ components:
       name: googleLocations
       title: googleLocations
     locations:
-      id: google.services.locations
+      id: google.mybusinessbusinessinformation.locations
       methods:
         associate:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:associate
+            $ref: /v1/locations/{locationsId}:associate
           request:
             mediaType: application/json
           response:
@@ -1304,7 +1282,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:clearLocationAssociation
+            $ref: /v1/locations/{locationsId}:clearLocationAssociation
           request:
             mediaType: application/json
           response:
@@ -1314,9 +1292,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/locations/{locationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1324,9 +1300,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/locations/{locationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1334,9 +1308,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/locations/{locationsId}/attributes
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1344,9 +1316,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}:getGoogleUpdated
-          request:
-            mediaType: application/json
+            $ref: /v1/locations/{locationsId}:getGoogleUpdated
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1354,7 +1324,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/locations/{locationsId}
           request:
             mediaType: application/json
           response:
@@ -1364,7 +1334,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/locations/{locationsId}/attributes
           request:
             mediaType: application/json
           response:
@@ -1372,26 +1342,19 @@ components:
             openAPIDocKey: '200'
       name: locations
       title: locations
-    locations.resources:
-      id: google.services.locations.resources
-      methods: {}
-      name: locations.resources
-      title: locations.resources
-    locations.resources.attributes:
-      id: google.services.locations.resources.attributes
+    locations.attributes:
+      id: google.mybusinessbusinessinformation.locations.attributes
       methods:
         getGoogleUpdated:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}:getGoogleUpdated
-          request:
-            mediaType: application/json
+            $ref: /v1/locations/{locationsId}/attributes:getGoogleUpdated
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: locations.resources.attributes
-      title: locations.resources.attributes
+      name: locations.attributes
+      title: locations.attributes
 externalDocs:
   url: https://developers.google.com/my-business/
 info:
@@ -1420,6 +1383,109 @@ info:
   x-serviceName: mybusinessbusinessinformation
 openapi: 3.0.0
 paths:
+  /v1/accounts/{accountsId}/locations:
+    get:
+      description: Lists the locations for the specified account.
+      operationId: mybusinessbusinessinformation.accounts.locations.list
+      parameters:
+      - description: Optional. A filter constraining the locations to return. The
+          response includes only entries that match the filter. If `filter` is empty,
+          then constraints are applied and all locations (paginated) are retrieved
+          for the requested account. For more information about valid fields and example
+          usage, see [Work with Location Data Guide](https://developers.google.com/my-business/content/location-data#filter_results_when_you_list_locations).
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: 'Optional. Sorting order for the request. Multiple fields should
+          be comma-separated, following SQL syntax. The default sorting order is ascending.
+          To specify descending order, a suffix " desc" should be added. Valid fields
+          to order_by are title and store_code. For example: "title, store_code desc"
+          or "title" or "store_code desc"'
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: Optional. How many locations to fetch per page. Default value
+          is 10 if not set. Minimum is 1, and maximum page size is 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. If specified, it fetches the next `page` of locations.
+          The page token is returned by previous calls to `ListLocations` when there
+          were more locations than could fit in the requested page size.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: Required. Read mask to specify what fields will be returned in
+          the response.
+        in: query
+        name: readMask
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLocationsResponse'
+          description: Successful response
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new Location that will be owned by the logged in user.
+      operationId: mybusinessbusinessinformation.accounts.locations.create
+      parameters:
+      - description: Optional. A unique request ID for the server to detect duplicated
+          requests. We recommend using UUIDs. Max length is 50 characters.
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Optional. If true, the request is validated without actually
+          creating the location.
+        in: query
+        name: validateOnly
+        schema:
+          type: boolean
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+          description: Successful response
+      tags:
+      - accounts
   /v1/attributes:
     get:
       description: Returns the list of attributes that would be available for a location
@@ -1614,6 +1680,93 @@ paths:
     - $ref: '#/components/parameters/quotaUser'
     - $ref: '#/components/parameters/upload_protocol'
     - $ref: '#/components/parameters/uploadType'
+  /v1/chains/{chainsId}:
+    delete:
+      description: Deletes a location. If this location cannot be deleted using the
+        API and it is marked so in the `google.mybusiness.businessinformation.v1.LocationState`,
+        use the [Google My Business](https://business.google.com/manage/) website.
+      operationId: mybusinessbusinessinformation.locations.delete
+      parameters:
+      - in: path
+        name: chainsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - locations
+    get:
+      description: Looks up all the attributes set for a given location.
+      operationId: mybusinessbusinessinformation.locations.getAttributes
+      parameters:
+      - in: path
+        name: chainsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attributes'
+          description: Successful response
+      tags:
+      - locations
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Update attributes for a given location.
+      operationId: mybusinessbusinessinformation.locations.updateAttributes
+      parameters:
+      - description: 'Required. Attribute name of attributes that you''d like to update.
+          Represented by `attributes/{attribute}`. Updates: All attributes provided
+          in the attributes field that you would like to update must be set in the
+          `attribute_mask`. Attributes set in the above list but not in the `attribute_mask`
+          will be ignored. Deletes: If you''d like to delete certain attributes, they
+          must be specified in the `attribute_mask` with no matching entry in the
+          attributes list. If you''d like to delete all attributes set on a location,
+          you should look up all the applicable attributes for the location and then
+          add them to the `attribute_mask` with an empty attributes field.'
+        in: query
+        name: attributeMask
+        schema:
+          type: string
+      - in: path
+        name: chainsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Attributes'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attributes'
+          description: Successful response
+      tags:
+      - locations
   /v1/chains:search:
     get:
       description: Searches the chain based on chain name.
@@ -1684,6 +1837,329 @@ paths:
           description: Successful response
       tags:
       - googleLocations
+  /v1/locations/{locationsId}:
+    delete:
+      description: Deletes a location. If this location cannot be deleted using the
+        API and it is marked so in the `google.mybusiness.businessinformation.v1.LocationState`,
+        use the [Google My Business](https://business.google.com/manage/) website.
+      operationId: mybusinessbusinessinformation.locations.delete
+      parameters:
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - locations
+    get:
+      description: Looks up all the attributes set for a given location.
+      operationId: mybusinessbusinessinformation.locations.getAttributes
+      parameters:
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attributes'
+          description: Successful response
+      tags:
+      - locations
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Update attributes for a given location.
+      operationId: mybusinessbusinessinformation.locations.updateAttributes
+      parameters:
+      - description: 'Required. Attribute name of attributes that you''d like to update.
+          Represented by `attributes/{attribute}`. Updates: All attributes provided
+          in the attributes field that you would like to update must be set in the
+          `attribute_mask`. Attributes set in the above list but not in the `attribute_mask`
+          will be ignored. Deletes: If you''d like to delete certain attributes, they
+          must be specified in the `attribute_mask` with no matching entry in the
+          attributes list. If you''d like to delete all attributes set on a location,
+          you should look up all the applicable attributes for the location and then
+          add them to the `attribute_mask` with an empty attributes field.'
+        in: query
+        name: attributeMask
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Attributes'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attributes'
+          description: Successful response
+      tags:
+      - locations
+  /v1/locations/{locationsId}/attributes:
+    delete:
+      description: Deletes a location. If this location cannot be deleted using the
+        API and it is marked so in the `google.mybusiness.businessinformation.v1.LocationState`,
+        use the [Google My Business](https://business.google.com/manage/) website.
+      operationId: mybusinessbusinessinformation.locations.delete
+      parameters:
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - locations
+    get:
+      description: Looks up all the attributes set for a given location.
+      operationId: mybusinessbusinessinformation.locations.getAttributes
+      parameters:
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attributes'
+          description: Successful response
+      tags:
+      - locations
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Update attributes for a given location.
+      operationId: mybusinessbusinessinformation.locations.updateAttributes
+      parameters:
+      - description: 'Required. Attribute name of attributes that you''d like to update.
+          Represented by `attributes/{attribute}`. Updates: All attributes provided
+          in the attributes field that you would like to update must be set in the
+          `attribute_mask`. Attributes set in the above list but not in the `attribute_mask`
+          will be ignored. Deletes: If you''d like to delete certain attributes, they
+          must be specified in the `attribute_mask` with no matching entry in the
+          attributes list. If you''d like to delete all attributes set on a location,
+          you should look up all the applicable attributes for the location and then
+          add them to the `attribute_mask` with an empty attributes field.'
+        in: query
+        name: attributeMask
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Attributes'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attributes'
+          description: Successful response
+      tags:
+      - locations
+  /v1/locations/{locationsId}/attributes:getGoogleUpdated:
+    get:
+      description: Gets the Google-updated version of the specified location.
+      operationId: mybusinessbusinessinformation.locations.attributes.getGoogleUpdated
+      parameters:
+      - description: Required. Read mask to specify what fields will be returned in
+          the response.
+        in: query
+        name: readMask
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attributes'
+          description: Successful response
+      tags:
+      - locations
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/locations/{locationsId}:associate:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Associates a location to a place ID. Any previous association is
+        overwritten. This operation is only valid if the location is unverified. The
+        association must be valid, that is, it appears in the list of `SearchGoogleLocations`.
+      operationId: mybusinessbusinessinformation.locations.associate
+      parameters:
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssociateLocationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - locations
+  /v1/locations/{locationsId}:clearLocationAssociation:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Clears an association between a location and its place ID. This
+        operation is only valid if the location is unverified.
+      operationId: mybusinessbusinessinformation.locations.clearLocationAssociation
+      parameters:
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClearLocationAssociationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - locations
+  /v1/locations/{locationsId}:getGoogleUpdated:
+    get:
+      description: Gets the Google-updated version of the specified location.
+      operationId: mybusinessbusinessinformation.locations.attributes.getGoogleUpdated
+      parameters:
+      - description: Required. Read mask to specify what fields will be returned in
+          the response.
+        in: query
+        name: readMask
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attributes'
+          description: Successful response
+      tags:
+      - locations
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /v1/{name}:
     delete:
       description: Deletes a location. If this location cannot be deleted using the

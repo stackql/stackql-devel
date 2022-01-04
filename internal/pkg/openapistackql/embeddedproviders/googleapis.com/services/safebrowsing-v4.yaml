@@ -774,37 +774,33 @@ components:
       type: object
   x-stackQL-resources:
     encodedFullHashes:
-      id: google.services.encodedFullHashes
+      id: google.safebrowsing.encodedFullHashes
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v4/encodedFullHashes/{encodedRequest}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: encodedFullHashes
       title: encodedFullHashes
     encodedUpdates:
-      id: google.services.encodedUpdates
+      id: google.safebrowsing.encodedUpdates
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v4/encodedUpdates/{encodedRequest}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: encodedUpdates
       title: encodedUpdates
     fullHashes:
-      id: google.services.fullHashes
+      id: google.safebrowsing.fullHashes
       methods:
         find:
           operation:
@@ -819,7 +815,7 @@ components:
       name: fullHashes
       title: fullHashes
     threatHits:
-      id: google.services.threatHits
+      id: google.safebrowsing.threatHits
       methods:
         create:
           operation:
@@ -834,7 +830,7 @@ components:
       name: threatHits
       title: threatHits
     threatListUpdates:
-      id: google.services.threatListUpdates
+      id: google.safebrowsing.threatListUpdates
       methods:
         fetch:
           operation:
@@ -849,22 +845,20 @@ components:
       name: threatListUpdates
       title: threatListUpdates
     threatLists:
-      id: google.services.threatLists
+      id: google.safebrowsing.threatLists
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /v4/threatLists
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: threatLists
       title: threatLists
     threatMatches:
-      id: google.services.threatMatches
+      id: google.safebrowsing.threatMatches
       methods:
         find:
           operation:

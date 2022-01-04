@@ -445,54 +445,40 @@ components:
           type: string
       type: object
   x-stackQL-resources:
-    partners:
-      id: google.services.partners
-      methods: {}
-      name: partners
-      title: partners
-    partners.resources:
-      id: google.services.partners.resources
-      methods: {}
-      name: partners.resources
-      title: partners.resources
-    partners.resources.products:
-      id: google.services.partners.resources.products
+    partners.products:
+      id: google.paymentsresellersubscription.partners.products
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/products
-          request:
-            mediaType: application/json
+            $ref: /v1/partners/{partnersId}/products
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: partners.resources.products
-      title: partners.resources.products
-    partners.resources.promotions:
-      id: google.services.partners.resources.promotions
+      name: partners.products
+      title: partners.products
+    partners.promotions:
+      id: google.paymentsresellersubscription.partners.promotions
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/promotions
-          request:
-            mediaType: application/json
+            $ref: /v1/partners/{partnersId}/promotions
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: partners.resources.promotions
-      title: partners.resources.promotions
-    partners.resources.subscriptions:
-      id: google.services.partners.resources.subscriptions
+      name: partners.promotions
+      title: partners.promotions
+    partners.subscriptions:
+      id: google.paymentsresellersubscription.partners.subscriptions
       methods:
         cancel:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:cancel
+            $ref: /v1/partners/{partnersId}/subscriptions/{subscriptionsId}:cancel
           request:
             mediaType: application/json
           response:
@@ -502,7 +488,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/subscriptions
+            $ref: /v1/partners/{partnersId}/subscriptions
           request:
             mediaType: application/json
           response:
@@ -512,7 +498,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:entitle
+            $ref: /v1/partners/{partnersId}/subscriptions/{subscriptionsId}:entitle
           request:
             mediaType: application/json
           response:
@@ -522,7 +508,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:extend
+            $ref: /v1/partners/{partnersId}/subscriptions/{subscriptionsId}:extend
           request:
             mediaType: application/json
           response:
@@ -532,9 +518,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/partners/{partnersId}/subscriptions/{subscriptionsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -542,7 +526,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/subscriptions:provision
+            $ref: /v1/partners/{partnersId}/subscriptions:provision
           request:
             mediaType: application/json
           response:
@@ -552,14 +536,14 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:undoCancel
+            $ref: /v1/partners/{partnersId}/subscriptions/{subscriptionsId}:undoCancel
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: partners.resources.subscriptions
-      title: partners.resources.subscriptions
+      name: partners.subscriptions
+      title: partners.subscriptions
 externalDocs:
   url: https://developers.google.com/payments/reseller/subscription/
 info:
@@ -587,6 +571,416 @@ info:
   x-serviceName: paymentsresellersubscription
 openapi: 3.0.0
 paths:
+  /v1/partners/{partnersId}/products:
+    get:
+      description: Used by partners to list products that can be resold to their customers.
+        It should be called directly by the partner using service accounts.
+      operationId: paymentsresellersubscription.partners.products.list
+      parameters:
+      - description: Optional. The maximum number of products to return. The service
+          may return fewer than this value. If unspecified, at most 50 products will
+          be returned. The maximum value is 1000; values above 1000 will be coerced
+          to 1000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A page token, received from a previous `ListProducts`
+          call. Provide this to retrieve the subsequent page. When paginating, all
+          other parameters provided to `ListProducts` must match the call that provided
+          the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudPaymentsResellerSubscriptionV1ListProductsResponse'
+          description: Successful response
+      tags:
+      - partners
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/partners/{partnersId}/promotions:
+    get:
+      description: Used by partners to list promotions, such as free trial, that can
+        be applied on subscriptions. It should be called directly by the partner using
+        service accounts.
+      operationId: paymentsresellersubscription.partners.promotions.list
+      parameters:
+      - description: 'Optional. Specifies the filters for the promotion results. The
+          syntax defined in the EBNF grammar: https://google.aip.dev/assets/misc/ebnf-filtering.txt.
+          Examples: - applicable_products: "sku1" - region_codes: "US" - applicable_products:
+          "sku1" AND region_codes: "US"'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. The maximum number of promotions to return. The service
+          may return fewer than this value. If unspecified, at most 50 products will
+          be returned. The maximum value is 1000; values above 1000 will be coerced
+          to 1000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A page token, received from a previous `ListPromotions`
+          call. Provide this to retrieve the subsequent page. When paginating, all
+          other parameters provided to `ListPromotions` must match the call that provided
+          the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudPaymentsResellerSubscriptionV1ListPromotionsResponse'
+          description: Successful response
+      tags:
+      - partners
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/partners/{partnersId}/subscriptions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Used by partners to create a subscription for their customers.
+        The created subscription is associated with the end user inferred from the
+        end user credentials. This API must be authorized by the end user using OAuth.
+      operationId: paymentsresellersubscription.partners.subscriptions.create
+      parameters:
+      - description: Required. Identifies the subscription resource on the Partner
+          side. The value is restricted to 63 ASCII characters at the maximum. If
+          a subscription was previously created with the same subscription_id, we
+          will directly return that one.
+        in: query
+        name: subscriptionId
+        schema:
+          type: string
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudPaymentsResellerSubscriptionV1Subscription'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudPaymentsResellerSubscriptionV1Subscription'
+          description: Successful response
+      tags:
+      - partners
+  /v1/partners/{partnersId}/subscriptions/{subscriptionsId}:
+    get:
+      description: Used by partners to get a subscription by id. It should be called
+        directly by the partner using service accounts.
+      operationId: paymentsresellersubscription.partners.subscriptions.get
+      parameters:
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: subscriptionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudPaymentsResellerSubscriptionV1Subscription'
+          description: Successful response
+      tags:
+      - partners
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/partners/{partnersId}/subscriptions/{subscriptionsId}:cancel:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Used by partners to cancel a subscription service either immediately
+        or by the end of the current billing cycle for their customers. It should
+        be called directly by the partner using service accounts.
+      operationId: paymentsresellersubscription.partners.subscriptions.cancel
+      parameters:
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: subscriptionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudPaymentsResellerSubscriptionV1CancelSubscriptionRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudPaymentsResellerSubscriptionV1CancelSubscriptionResponse'
+          description: Successful response
+      tags:
+      - partners
+  /v1/partners/{partnersId}/subscriptions/{subscriptionsId}:entitle:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Used by partners to entitle a previously provisioned subscription
+        to the current end user. The end user identity is inferred from the authorized
+        credential of the request. This API must be authorized by the end user using
+        OAuth.
+      operationId: paymentsresellersubscription.partners.subscriptions.entitle
+      parameters:
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: subscriptionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudPaymentsResellerSubscriptionV1EntitleSubscriptionRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudPaymentsResellerSubscriptionV1EntitleSubscriptionResponse'
+          description: Successful response
+      tags:
+      - partners
+  /v1/partners/{partnersId}/subscriptions/{subscriptionsId}:extend:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Used by partners to extend a subscription service for their customers
+        on an ongoing basis for the subscription to remain active and renewable. It
+        should be called directly by the partner using service accounts.
+      operationId: paymentsresellersubscription.partners.subscriptions.extend
+      parameters:
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: subscriptionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudPaymentsResellerSubscriptionV1ExtendSubscriptionRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudPaymentsResellerSubscriptionV1ExtendSubscriptionResponse'
+          description: Successful response
+      tags:
+      - partners
+  /v1/partners/{partnersId}/subscriptions/{subscriptionsId}:undoCancel:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Used by partners to revoke the pending cancellation of a subscription,
+        which is currently in `STATE_CANCEL_AT_END_OF_CYCLE` state. If the subscription
+        is already cancelled, the request will fail. It should be called directly
+        by the partner using service accounts.
+      operationId: paymentsresellersubscription.partners.subscriptions.undoCancel
+      parameters:
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: subscriptionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudPaymentsResellerSubscriptionV1UndoCancelSubscriptionRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudPaymentsResellerSubscriptionV1UndoCancelSubscriptionResponse'
+          description: Successful response
+      tags:
+      - partners
+  /v1/partners/{partnersId}/subscriptions:provision:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Used by partners to provision a subscription for their customers.
+        This creates a subscription without associating it with the end user account.
+        EntitleSubscription must be called separately using OAuth in order for the
+        end user account to be associated with the subscription. It should be called
+        directly by the partner using service accounts.
+      operationId: paymentsresellersubscription.partners.subscriptions.provision
+      parameters:
+      - description: Required. Identifies the subscription resource on the Partner
+          side. The value is restricted to 63 ASCII characters at the maximum. If
+          a subscription was previously created with the same subscription_id, we
+          will directly return that one.
+        in: query
+        name: subscriptionId
+        schema:
+          type: string
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudPaymentsResellerSubscriptionV1Subscription'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudPaymentsResellerSubscriptionV1Subscription'
+          description: Successful response
+      tags:
+      - partners
   /v1/{name}:
     get:
       description: Used by partners to get a subscription by id. It should be called

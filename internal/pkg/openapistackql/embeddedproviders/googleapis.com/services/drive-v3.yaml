@@ -1759,30 +1759,26 @@ components:
       type: oauth2
   x-stackQL-resources:
     about:
-      id: google.services.about
+      id: google.drive.about
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /about
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: about
       title: about
     changes:
-      id: google.services.changes
+      id: google.drive.changes
       methods:
         getStartPageToken:
           operation:
             $ref: get
           path:
             $ref: /changes/startPageToken
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1791,8 +1787,6 @@ components:
             $ref: get
           path:
             $ref: /changes
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1809,7 +1803,7 @@ components:
       name: changes
       title: changes
     channels:
-      id: google.services.channels
+      id: google.drive.channels
       methods:
         stop:
           operation:
@@ -1819,12 +1813,11 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
       name: channels
       title: channels
     comments:
-      id: google.services.comments
+      id: google.drive.comments
       methods:
         create:
           operation:
@@ -1841,18 +1834,13 @@ components:
             $ref: delete
           path:
             $ref: /files/{fileId}/comments/{commentId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /files/{fileId}/comments/{commentId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1861,8 +1849,6 @@ components:
             $ref: get
           path:
             $ref: /files/{fileId}/comments
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1879,7 +1865,7 @@ components:
       name: comments
       title: comments
     drives:
-      id: google.services.drives
+      id: google.drive.drives
       methods:
         create:
           operation:
@@ -1896,18 +1882,13 @@ components:
             $ref: delete
           path:
             $ref: /drives/{driveId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /drives/{driveId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1916,8 +1897,6 @@ components:
             $ref: post
           path:
             $ref: /drives/{driveId}/hide
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1926,8 +1905,6 @@ components:
             $ref: get
           path:
             $ref: /drives
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1936,8 +1913,6 @@ components:
             $ref: post
           path:
             $ref: /drives/{driveId}/unhide
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1954,7 +1929,7 @@ components:
       name: drives
       title: drives
     files:
-      id: google.services.files
+      id: google.drive.files
       methods:
         copy:
           operation:
@@ -1972,7 +1947,7 @@ components:
           path:
             $ref: /files
           request:
-            mediaType: application/json
+            mediaType: application/octet-stream
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1981,38 +1956,27 @@ components:
             $ref: delete
           path:
             $ref: /files/{fileId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         emptyTrash:
           operation:
             $ref: delete
           path:
             $ref: /files/trash
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         export:
           operation:
             $ref: get
           path:
             $ref: /files/{fileId}/export
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         generateIds:
           operation:
             $ref: get
           path:
             $ref: /files/generateIds
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2021,8 +1985,6 @@ components:
             $ref: get
           path:
             $ref: /files/{fileId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2031,8 +1993,6 @@ components:
             $ref: get
           path:
             $ref: /files
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2042,7 +2002,7 @@ components:
           path:
             $ref: /files/{fileId}
           request:
-            mediaType: application/json
+            mediaType: application/octet-stream
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2059,7 +2019,7 @@ components:
       name: files
       title: files
     permissions:
-      id: google.services.permissions
+      id: google.drive.permissions
       methods:
         create:
           operation:
@@ -2076,18 +2036,13 @@ components:
             $ref: delete
           path:
             $ref: /files/{fileId}/permissions/{permissionId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /files/{fileId}/permissions/{permissionId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2096,8 +2051,6 @@ components:
             $ref: get
           path:
             $ref: /files/{fileId}/permissions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2114,7 +2067,7 @@ components:
       name: permissions
       title: permissions
     replies:
-      id: google.services.replies
+      id: google.drive.replies
       methods:
         create:
           operation:
@@ -2131,18 +2084,13 @@ components:
             $ref: delete
           path:
             $ref: /files/{fileId}/comments/{commentId}/replies/{replyId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /files/{fileId}/comments/{commentId}/replies/{replyId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2151,8 +2099,6 @@ components:
             $ref: get
           path:
             $ref: /files/{fileId}/comments/{commentId}/replies
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2169,25 +2115,20 @@ components:
       name: replies
       title: replies
     revisions:
-      id: google.services.revisions
+      id: google.drive.revisions
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /files/{fileId}/revisions/{revisionId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /files/{fileId}/revisions/{revisionId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2196,8 +2137,6 @@ components:
             $ref: get
           path:
             $ref: /files/{fileId}/revisions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2214,7 +2153,7 @@ components:
       name: revisions
       title: revisions
     teamdrives:
-      id: google.services.teamdrives
+      id: google.drive.teamdrives
       methods:
         create:
           operation:
@@ -2231,18 +2170,13 @@ components:
             $ref: delete
           path:
             $ref: /teamdrives/{teamDriveId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /teamdrives/{teamDriveId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2251,8 +2185,6 @@ components:
             $ref: get
           path:
             $ref: /teamdrives
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

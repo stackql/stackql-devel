@@ -365,63 +365,39 @@ components:
       type: oauth2
   x-stackQL-resources:
     keys:
-      id: google.services.keys
+      id: google.apikeys.keys
       methods:
         lookupKey:
           operation:
             $ref: get
           path:
             $ref: /v2/keys:lookupKey
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: keys
       title: keys
     operations:
-      id: google.services.operations
+      id: google.apikeys.operations
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v2/{name}
-          request:
-            mediaType: application/json
+            $ref: /v2/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: operations
       title: operations
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.locations:
-      id: google.services.projects.resources.locations
-      methods: {}
-      name: projects.resources.locations
-      title: projects.resources.locations
-    projects.resources.locations.resources:
-      id: google.services.projects.resources.locations.resources
-      methods: {}
-      name: projects.resources.locations.resources
-      title: projects.resources.locations.resources
-    projects.resources.locations.resources.keys:
-      id: google.services.projects.resources.locations.resources.keys
+    projects.locations.keys:
+      id: google.apikeys.projects.locations.keys
       methods:
         clone:
           operation:
             $ref: post
           path:
-            $ref: /v2/{name}:clone
+            $ref: /v2/projects/{projectsId}/locations/{locationsId}/keys/{keysId}:clone
           request:
             mediaType: application/json
           response:
@@ -431,7 +407,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v2/{parent}/keys
+            $ref: /v2/projects/{projectsId}/locations/{locationsId}/keys
           request:
             mediaType: application/json
           response:
@@ -441,9 +417,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v2/{name}
-          request:
-            mediaType: application/json
+            $ref: /v2/projects/{projectsId}/locations/{locationsId}/keys/{keysId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -451,9 +425,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2/{name}
-          request:
-            mediaType: application/json
+            $ref: /v2/projects/{projectsId}/locations/{locationsId}/keys/{keysId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -461,9 +433,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2/{name}/keyString
-          request:
-            mediaType: application/json
+            $ref: /v2/projects/{projectsId}/locations/{locationsId}/keys/{keysId}/keyString
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -471,9 +441,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2/{parent}/keys
-          request:
-            mediaType: application/json
+            $ref: /v2/projects/{projectsId}/locations/{locationsId}/keys
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -481,7 +449,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v2/{name}
+            $ref: /v2/projects/{projectsId}/locations/{locationsId}/keys/{keysId}
           request:
             mediaType: application/json
           response:
@@ -491,14 +459,14 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v2/{name}:undelete
+            $ref: /v2/projects/{projectsId}/locations/{locationsId}/keys/{keysId}:undelete
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.keys
-      title: projects.resources.locations.resources.keys
+      name: projects.locations.keys
+      title: projects.locations.keys
 externalDocs:
   url: https://cloud.google.com/api-keys/docs
 info:
@@ -569,6 +537,528 @@ paths:
     - $ref: '#/components/parameters/quotaUser'
     - $ref: '#/components/parameters/upload_protocol'
     - $ref: '#/components/parameters/uploadType'
+  /v2/operations/{operationsId}:
+    delete:
+      description: 'Deletes an API key. Deleted key can be retrieved within 30 days
+        of deletion. Afterward, key will be purged from the project. NOTE: Key is
+        a global resource; hence the only supported value for location is `global`.'
+      operationId: apikeys.projects.locations.keys.delete
+      parameters:
+      - description: Optional. The etag known to the client for the expected state
+          of the key. This is to be used for optimistic concurrency.
+        in: query
+        name: etag
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: 'Gets the metadata for an API key. The key string of the API key
+        isn''t included in the response. NOTE: Key is a global resource; hence the
+        only supported value for location is `global`.'
+      operationId: apikeys.projects.locations.keys.get
+      parameters:
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V2Key'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Patches the modifiable fields of an API key. The key string of
+        the API key isn''t included in the response. NOTE: Key is a global resource;
+        hence the only supported value for location is `global`.'
+      operationId: apikeys.projects.locations.keys.patch
+      parameters:
+      - description: 'The field mask specifies which fields to be updated as part
+          of this request. All other fields are ignored. Mutable fields are: `display_name`
+          and `restrictions`. If an update mask is not provided, the service treats
+          it as an implied mask equivalent to all allowed fields that are set on the
+          wire. If the field mask has a special value "*", the service treats it equivalent
+          to replace all allowed mutable fields.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/V2Key'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v2/projects/{projectsId}/locations/{locationsId}/keys:
+    get:
+      description: 'Lists the API keys owned by a project. The key string of the API
+        key isn''t included in the response. NOTE: Key is a global resource; hence
+        the only supported value for location is `global`.'
+      operationId: apikeys.projects.locations.keys.list
+      parameters:
+      - description: Optional. Only list keys that conform to the specified filter.
+          The allowed filter strings are `state:ACTIVE` and `state:DELETED`. By default,
+          ListKeys returns only active keys.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. Specifies the maximum number of results to be returned
+          at a time.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. Requests a specific page of results.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V2ListKeysResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Creates a new API key. NOTE: Key is a global resource; hence the
+        only supported value for location is `global`.'
+      operationId: apikeys.projects.locations.keys.create
+      parameters:
+      - description: 'User specified key id (optional). If specified, it will become
+          the final component of the key resource name. The id must be unique within
+          the project, must conform with RFC-1034, is restricted to lower-cased letters,
+          and has a maximum length of 63 characters. In another word, the id must
+          match the regular expression: `[a-z]([a-z0-9-]{0,61}[a-z0-9])?`. The id
+          must NOT be a UUID-like string.'
+        in: query
+        name: keyId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/V2Key'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v2/projects/{projectsId}/locations/{locationsId}/keys/{keysId}:
+    delete:
+      description: 'Deletes an API key. Deleted key can be retrieved within 30 days
+        of deletion. Afterward, key will be purged from the project. NOTE: Key is
+        a global resource; hence the only supported value for location is `global`.'
+      operationId: apikeys.projects.locations.keys.delete
+      parameters:
+      - description: Optional. The etag known to the client for the expected state
+          of the key. This is to be used for optimistic concurrency.
+        in: query
+        name: etag
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keysId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: 'Gets the metadata for an API key. The key string of the API key
+        isn''t included in the response. NOTE: Key is a global resource; hence the
+        only supported value for location is `global`.'
+      operationId: apikeys.projects.locations.keys.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keysId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V2Key'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: 'Patches the modifiable fields of an API key. The key string of
+        the API key isn''t included in the response. NOTE: Key is a global resource;
+        hence the only supported value for location is `global`.'
+      operationId: apikeys.projects.locations.keys.patch
+      parameters:
+      - description: 'The field mask specifies which fields to be updated as part
+          of this request. All other fields are ignored. Mutable fields are: `display_name`
+          and `restrictions`. If an update mask is not provided, the service treats
+          it as an implied mask equivalent to all allowed fields that are set on the
+          wire. If the field mask has a special value "*", the service treats it equivalent
+          to replace all allowed mutable fields.'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keysId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/V2Key'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v2/projects/{projectsId}/locations/{locationsId}/keys/{keysId}/keyString:
+    get:
+      description: 'Get the key string for an API key. NOTE: Key is a global resource;
+        hence the only supported value for location is `global`.'
+      operationId: apikeys.projects.locations.keys.getKeyString
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keysId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V2GetKeyStringResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/projects/{projectsId}/locations/{locationsId}/keys/{keysId}:clone:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Clones the existing key''s restriction and display name to a new
+        API key. The service account must have the `apikeys.keys.get` and `apikeys.keys.create`
+        permissions in the project. NOTE: Key is a global resource; hence the only
+        supported value for location is `global`.'
+      operationId: apikeys.projects.locations.keys.clone
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keysId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/V2CloneKeyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v2/projects/{projectsId}/locations/{locationsId}/keys/{keysId}:undelete:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Undeletes an API key which was deleted within 30 days. NOTE: Key
+        is a global resource; hence the only supported value for location is `global`.'
+      operationId: apikeys.projects.locations.keys.undelete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keysId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/V2UndeleteKeyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
   /v2/{name}:
     delete:
       description: 'Deletes an API key. Deleted key can be retrieved within 30 days

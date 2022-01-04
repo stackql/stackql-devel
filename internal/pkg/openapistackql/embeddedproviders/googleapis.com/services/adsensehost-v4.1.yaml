@@ -471,15 +471,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     accounts:
-      id: google.services.accounts
+      id: google.adsensehost.accounts
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /accounts/{accountId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -488,28 +486,19 @@ components:
             $ref: get
           path:
             $ref: /accounts
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: accounts
       title: accounts
-    accounts.resources:
-      id: google.services.accounts.resources
-      methods: {}
-      name: accounts.resources
-      title: accounts.resources
-    accounts.resources.adclients:
-      id: google.services.accounts.resources.adclients
+    accounts.adclients:
+      id: google.adsensehost.accounts.adclients
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /accounts/{accountId}/adclients/{adClientId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -518,23 +507,19 @@ components:
             $ref: get
           path:
             $ref: /accounts/{accountId}/adclients
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.adclients
-      title: accounts.resources.adclients
-    accounts.resources.adunits:
-      id: google.services.accounts.resources.adunits
+      name: accounts.adclients
+      title: accounts.adclients
+    accounts.adunits:
+      id: google.adsensehost.accounts.adunits
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /accounts/{accountId}/adclients/{adClientId}/adunits/{adUnitId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -543,8 +528,6 @@ components:
             $ref: get
           path:
             $ref: /accounts/{accountId}/adclients/{adClientId}/adunits/{adUnitId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -553,8 +536,6 @@ components:
             $ref: get
           path:
             $ref: /accounts/{accountId}/adclients/{adClientId}/adunits/{adUnitId}/adcode
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -573,8 +554,6 @@ components:
             $ref: get
           path:
             $ref: /accounts/{accountId}/adclients/{adClientId}/adunits
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -598,33 +577,29 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.adunits
-      title: accounts.resources.adunits
-    accounts.resources.reports:
-      id: google.services.accounts.resources.reports
+      name: accounts.adunits
+      title: accounts.adunits
+    accounts.reports:
+      id: google.adsensehost.accounts.reports
       methods:
         generate:
           operation:
             $ref: get
           path:
             $ref: /accounts/{accountId}/reports
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.reports
-      title: accounts.resources.reports
+      name: accounts.reports
+      title: accounts.reports
     adclients:
-      id: google.services.adclients
+      id: google.adsensehost.adclients
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /adclients/{adClientId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -633,23 +608,19 @@ components:
             $ref: get
           path:
             $ref: /adclients
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: adclients
       title: adclients
     associationsessions:
-      id: google.services.associationsessions
+      id: google.adsensehost.associationsessions
       methods:
         start:
           operation:
             $ref: get
           path:
             $ref: /associationsessions/start
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -658,23 +629,19 @@ components:
             $ref: get
           path:
             $ref: /associationsessions/verify
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: associationsessions
       title: associationsessions
     customchannels:
-      id: google.services.customchannels
+      id: google.adsensehost.customchannels
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /adclients/{adClientId}/customchannels/{customChannelId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -683,8 +650,6 @@ components:
             $ref: get
           path:
             $ref: /adclients/{adClientId}/customchannels/{customChannelId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -703,8 +668,6 @@ components:
             $ref: get
           path:
             $ref: /adclients/{adClientId}/customchannels
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -731,30 +694,26 @@ components:
       name: customchannels
       title: customchannels
     reports:
-      id: google.services.reports
+      id: google.adsensehost.reports
       methods:
         generate:
           operation:
             $ref: get
           path:
             $ref: /reports
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: reports
       title: reports
     urlchannels:
-      id: google.services.urlchannels
+      id: google.adsensehost.urlchannels
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /adclients/{adClientId}/urlchannels/{urlChannelId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -773,8 +732,6 @@ components:
             $ref: get
           path:
             $ref: /adclients/{adClientId}/urlchannels
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

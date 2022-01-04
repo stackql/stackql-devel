@@ -422,15 +422,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     tables:
-      id: google.services.tables
+      id: google.area120tables.tables
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/tables/{tablesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -439,26 +437,19 @@ components:
             $ref: get
           path:
             $ref: /v1alpha1/tables
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: tables
       title: tables
-    tables.resources:
-      id: google.services.tables.resources
-      methods: {}
-      name: tables.resources
-      title: tables.resources
-    tables.resources.rows:
-      id: google.services.tables.resources.rows
+    tables.rows:
+      id: google.area120tables.tables.rows
       methods:
         batchCreate:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/rows:batchCreate
+            $ref: /v1alpha1/tables/{tablesId}/rows:batchCreate
           request:
             mediaType: application/json
           response:
@@ -468,7 +459,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/rows:batchDelete
+            $ref: /v1alpha1/tables/{tablesId}/rows:batchDelete
           request:
             mediaType: application/json
           response:
@@ -478,7 +469,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/rows:batchUpdate
+            $ref: /v1alpha1/tables/{tablesId}/rows:batchUpdate
           request:
             mediaType: application/json
           response:
@@ -488,7 +479,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/rows
+            $ref: /v1alpha1/tables/{tablesId}/rows
           request:
             mediaType: application/json
           response:
@@ -498,9 +489,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/tables/{tablesId}/rows/{rowsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -508,9 +497,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/tables/{tablesId}/rows/{rowsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -518,9 +505,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{parent}/rows
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/tables/{tablesId}/rows
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -528,24 +513,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1alpha1/{name}
+            $ref: /v1alpha1/tables/{tablesId}/rows/{rowsId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: tables.resources.rows
-      title: tables.resources.rows
+      name: tables.rows
+      title: tables.rows
     workspaces:
-      id: google.services.workspaces
+      id: google.area120tables.workspaces
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/workspaces/{workspacesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -554,8 +537,6 @@ components:
             $ref: get
           path:
             $ref: /v1alpha1/workspaces
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -658,6 +639,628 @@ paths:
     - $ref: '#/components/parameters/quotaUser'
     - $ref: '#/components/parameters/upload_protocol'
     - $ref: '#/components/parameters/uploadType'
+  /v1alpha1/tables/{tablesId}:
+    delete:
+      description: Deletes a row.
+      operationId: area120tables.tables.rows.delete
+      parameters:
+      - in: path
+        name: tablesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.file
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.file
+      - Oauth2:
+        - https://www.googleapis.com/auth/spreadsheets
+        Oauth2c:
+        - https://www.googleapis.com/auth/spreadsheets
+      - Oauth2:
+        - https://www.googleapis.com/auth/tables
+        Oauth2c:
+        - https://www.googleapis.com/auth/tables
+      tags:
+      - tables
+    get:
+      description: Gets a workspace. Returns NOT_FOUND if the workspace does not exist.
+      operationId: area120tables.workspaces.get
+      parameters:
+      - description: Optional. Column key to use for values in the row. Defaults to
+          user entered name.
+        in: query
+        name: view
+        schema:
+          enum:
+          - VIEW_UNSPECIFIED
+          - COLUMN_ID_VIEW
+          type: string
+      - in: path
+        name: tablesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.file
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.file
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/spreadsheets
+        Oauth2c:
+        - https://www.googleapis.com/auth/spreadsheets
+      - Oauth2:
+        - https://www.googleapis.com/auth/spreadsheets.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/spreadsheets.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/tables
+        Oauth2c:
+        - https://www.googleapis.com/auth/tables
+      tags:
+      - workspaces
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a row.
+      operationId: area120tables.tables.rows.patch
+      parameters:
+      - description: The list of fields to update.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - description: Optional. Column key to use for values in the row. Defaults to
+          user entered name.
+        in: query
+        name: view
+        schema:
+          enum:
+          - VIEW_UNSPECIFIED
+          - COLUMN_ID_VIEW
+          type: string
+      - in: path
+        name: tablesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Row'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Row'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.file
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.file
+      - Oauth2:
+        - https://www.googleapis.com/auth/spreadsheets
+        Oauth2c:
+        - https://www.googleapis.com/auth/spreadsheets
+      - Oauth2:
+        - https://www.googleapis.com/auth/tables
+        Oauth2c:
+        - https://www.googleapis.com/auth/tables
+      tags:
+      - tables
+  /v1alpha1/tables/{tablesId}/rows:
+    get:
+      description: Lists rows in a table. Returns NOT_FOUND if the table does not
+        exist.
+      operationId: area120tables.tables.rows.list
+      parameters:
+      - description: Optional. Filter to only include resources matching the requirements.
+          For more information, see [Filtering list results](https://support.google.com/area120-tables/answer/10503371).
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. Sorting order for the list of rows on createTime/updateTime.
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: The maximum number of rows to return. The service may return
+          fewer than this value. If unspecified, at most 50 rows are returned. The
+          maximum value is 1,000; values above 1,000 are coerced to 1,000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListRows` call. Provide
+          this to retrieve the subsequent page. When paginating, all other parameters
+          provided to `ListRows` must match the call that provided the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: Optional. Column key to use for values in the row. Defaults to
+          user entered name.
+        in: query
+        name: view
+        schema:
+          enum:
+          - VIEW_UNSPECIFIED
+          - COLUMN_ID_VIEW
+          type: string
+      - in: path
+        name: tablesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRowsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.file
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.file
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/spreadsheets
+        Oauth2c:
+        - https://www.googleapis.com/auth/spreadsheets
+      - Oauth2:
+        - https://www.googleapis.com/auth/spreadsheets.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/spreadsheets.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/tables
+        Oauth2c:
+        - https://www.googleapis.com/auth/tables
+      tags:
+      - tables
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a row.
+      operationId: area120tables.tables.rows.create
+      parameters:
+      - description: Optional. Column key to use for values in the row. Defaults to
+          user entered name.
+        in: query
+        name: view
+        schema:
+          enum:
+          - VIEW_UNSPECIFIED
+          - COLUMN_ID_VIEW
+          type: string
+      - in: path
+        name: tablesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Row'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Row'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.file
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.file
+      - Oauth2:
+        - https://www.googleapis.com/auth/spreadsheets
+        Oauth2c:
+        - https://www.googleapis.com/auth/spreadsheets
+      - Oauth2:
+        - https://www.googleapis.com/auth/tables
+        Oauth2c:
+        - https://www.googleapis.com/auth/tables
+      tags:
+      - tables
+  /v1alpha1/tables/{tablesId}/rows/{rowsId}:
+    delete:
+      description: Deletes a row.
+      operationId: area120tables.tables.rows.delete
+      parameters:
+      - in: path
+        name: tablesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: rowsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.file
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.file
+      - Oauth2:
+        - https://www.googleapis.com/auth/spreadsheets
+        Oauth2c:
+        - https://www.googleapis.com/auth/spreadsheets
+      - Oauth2:
+        - https://www.googleapis.com/auth/tables
+        Oauth2c:
+        - https://www.googleapis.com/auth/tables
+      tags:
+      - tables
+    get:
+      description: Gets a workspace. Returns NOT_FOUND if the workspace does not exist.
+      operationId: area120tables.workspaces.get
+      parameters:
+      - description: Optional. Column key to use for values in the row. Defaults to
+          user entered name.
+        in: query
+        name: view
+        schema:
+          enum:
+          - VIEW_UNSPECIFIED
+          - COLUMN_ID_VIEW
+          type: string
+      - in: path
+        name: tablesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: rowsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.file
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.file
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/spreadsheets
+        Oauth2c:
+        - https://www.googleapis.com/auth/spreadsheets
+      - Oauth2:
+        - https://www.googleapis.com/auth/spreadsheets.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/spreadsheets.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/tables
+        Oauth2c:
+        - https://www.googleapis.com/auth/tables
+      tags:
+      - workspaces
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a row.
+      operationId: area120tables.tables.rows.patch
+      parameters:
+      - description: The list of fields to update.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - description: Optional. Column key to use for values in the row. Defaults to
+          user entered name.
+        in: query
+        name: view
+        schema:
+          enum:
+          - VIEW_UNSPECIFIED
+          - COLUMN_ID_VIEW
+          type: string
+      - in: path
+        name: tablesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: rowsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Row'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Row'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.file
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.file
+      - Oauth2:
+        - https://www.googleapis.com/auth/spreadsheets
+        Oauth2c:
+        - https://www.googleapis.com/auth/spreadsheets
+      - Oauth2:
+        - https://www.googleapis.com/auth/tables
+        Oauth2c:
+        - https://www.googleapis.com/auth/tables
+      tags:
+      - tables
+  /v1alpha1/tables/{tablesId}/rows:batchCreate:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates multiple rows.
+      operationId: area120tables.tables.rows.batchCreate
+      parameters:
+      - in: path
+        name: tablesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchCreateRowsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchCreateRowsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.file
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.file
+      - Oauth2:
+        - https://www.googleapis.com/auth/spreadsheets
+        Oauth2c:
+        - https://www.googleapis.com/auth/spreadsheets
+      - Oauth2:
+        - https://www.googleapis.com/auth/tables
+        Oauth2c:
+        - https://www.googleapis.com/auth/tables
+      tags:
+      - tables
+  /v1alpha1/tables/{tablesId}/rows:batchDelete:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Deletes multiple rows.
+      operationId: area120tables.tables.rows.batchDelete
+      parameters:
+      - in: path
+        name: tablesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchDeleteRowsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.file
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.file
+      - Oauth2:
+        - https://www.googleapis.com/auth/spreadsheets
+        Oauth2c:
+        - https://www.googleapis.com/auth/spreadsheets
+      - Oauth2:
+        - https://www.googleapis.com/auth/tables
+        Oauth2c:
+        - https://www.googleapis.com/auth/tables
+      tags:
+      - tables
+  /v1alpha1/tables/{tablesId}/rows:batchUpdate:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Updates multiple rows.
+      operationId: area120tables.tables.rows.batchUpdate
+      parameters:
+      - in: path
+        name: tablesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchUpdateRowsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchUpdateRowsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.file
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.file
+      - Oauth2:
+        - https://www.googleapis.com/auth/spreadsheets
+        Oauth2c:
+        - https://www.googleapis.com/auth/spreadsheets
+      - Oauth2:
+        - https://www.googleapis.com/auth/tables
+        Oauth2c:
+        - https://www.googleapis.com/auth/tables
+      tags:
+      - tables
   /v1alpha1/workspaces:
     get:
       description: Lists workspaces for the user.
@@ -724,6 +1327,160 @@ paths:
     - $ref: '#/components/parameters/quotaUser'
     - $ref: '#/components/parameters/upload_protocol'
     - $ref: '#/components/parameters/uploadType'
+  /v1alpha1/workspaces/{workspacesId}:
+    delete:
+      description: Deletes a row.
+      operationId: area120tables.tables.rows.delete
+      parameters:
+      - in: path
+        name: workspacesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.file
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.file
+      - Oauth2:
+        - https://www.googleapis.com/auth/spreadsheets
+        Oauth2c:
+        - https://www.googleapis.com/auth/spreadsheets
+      - Oauth2:
+        - https://www.googleapis.com/auth/tables
+        Oauth2c:
+        - https://www.googleapis.com/auth/tables
+      tags:
+      - tables
+    get:
+      description: Gets a workspace. Returns NOT_FOUND if the workspace does not exist.
+      operationId: area120tables.workspaces.get
+      parameters:
+      - description: Optional. Column key to use for values in the row. Defaults to
+          user entered name.
+        in: query
+        name: view
+        schema:
+          enum:
+          - VIEW_UNSPECIFIED
+          - COLUMN_ID_VIEW
+          type: string
+      - in: path
+        name: workspacesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.file
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.file
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/spreadsheets
+        Oauth2c:
+        - https://www.googleapis.com/auth/spreadsheets
+      - Oauth2:
+        - https://www.googleapis.com/auth/spreadsheets.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/spreadsheets.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/tables
+        Oauth2c:
+        - https://www.googleapis.com/auth/tables
+      tags:
+      - workspaces
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a row.
+      operationId: area120tables.tables.rows.patch
+      parameters:
+      - description: The list of fields to update.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - description: Optional. Column key to use for values in the row. Defaults to
+          user entered name.
+        in: query
+        name: view
+        schema:
+          enum:
+          - VIEW_UNSPECIFIED
+          - COLUMN_ID_VIEW
+          type: string
+      - in: path
+        name: workspacesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Row'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Row'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive
+      - Oauth2:
+        - https://www.googleapis.com/auth/drive.file
+        Oauth2c:
+        - https://www.googleapis.com/auth/drive.file
+      - Oauth2:
+        - https://www.googleapis.com/auth/spreadsheets
+        Oauth2c:
+        - https://www.googleapis.com/auth/spreadsheets
+      - Oauth2:
+        - https://www.googleapis.com/auth/tables
+        Oauth2c:
+        - https://www.googleapis.com/auth/tables
+      tags:
+      - tables
   /v1alpha1/{name}:
     delete:
       description: Deletes a row.

@@ -1896,41 +1896,27 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    namespaces:
-      id: google.services.namespaces
-      methods: {}
-      name: namespaces
-      title: namespaces
-    namespaces.resources:
-      id: google.services.namespaces.resources
-      methods: {}
-      name: namespaces.resources
-      title: namespaces.resources
-    namespaces.resources.authorizeddomains:
-      id: google.services.namespaces.resources.authorizeddomains
+    namespaces.authorizeddomains:
+      id: google.run.namespaces.authorizeddomains
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /apis/domains.cloudrun.com/v1/{parent}/authorizeddomains
-          request:
-            mediaType: application/json
+            $ref: /apis/domains.cloudrun.com/v1/namespaces/{namespacesId}/authorizeddomains
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: namespaces.resources.authorizeddomains
-      title: namespaces.resources.authorizeddomains
-    namespaces.resources.configurations:
-      id: google.services.namespaces.resources.configurations
+      name: namespaces.authorizeddomains
+      title: namespaces.authorizeddomains
+    namespaces.configurations:
+      id: google.run.namespaces.configurations
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /apis/serving.knative.dev/v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /apis/serving.knative.dev/v1/namespaces/{namespacesId}/configurations/{configurationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1938,22 +1924,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /apis/serving.knative.dev/v1/{parent}/configurations
-          request:
-            mediaType: application/json
+            $ref: /apis/serving.knative.dev/v1/namespaces/{namespacesId}/configurations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: namespaces.resources.configurations
-      title: namespaces.resources.configurations
-    namespaces.resources.domainmappings:
-      id: google.services.namespaces.resources.domainmappings
+      name: namespaces.configurations
+      title: namespaces.configurations
+    namespaces.domainmappings:
+      id: google.run.namespaces.domainmappings
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /apis/domains.cloudrun.com/v1/{parent}/domainmappings
+            $ref: /apis/domains.cloudrun.com/v1/namespaces/{namespacesId}/domainmappings
           request:
             mediaType: application/json
           response:
@@ -1963,9 +1947,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /apis/domains.cloudrun.com/v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /apis/domains.cloudrun.com/v1/namespaces/{namespacesId}/domainmappings/{domainmappingsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1973,9 +1955,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /apis/domains.cloudrun.com/v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /apis/domains.cloudrun.com/v1/namespaces/{namespacesId}/domainmappings/{domainmappingsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1983,24 +1963,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /apis/domains.cloudrun.com/v1/{parent}/domainmappings
-          request:
-            mediaType: application/json
+            $ref: /apis/domains.cloudrun.com/v1/namespaces/{namespacesId}/domainmappings
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: namespaces.resources.domainmappings
-      title: namespaces.resources.domainmappings
-    namespaces.resources.revisions:
-      id: google.services.namespaces.resources.revisions
+      name: namespaces.domainmappings
+      title: namespaces.domainmappings
+    namespaces.revisions:
+      id: google.run.namespaces.revisions
       methods:
         delete:
           operation:
             $ref: delete
           path:
-            $ref: /apis/serving.knative.dev/v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /apis/serving.knative.dev/v1/namespaces/{namespacesId}/revisions/{revisionsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2008,9 +1984,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /apis/serving.knative.dev/v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /apis/serving.knative.dev/v1/namespaces/{namespacesId}/revisions/{revisionsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2018,24 +1992,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /apis/serving.knative.dev/v1/{parent}/revisions
-          request:
-            mediaType: application/json
+            $ref: /apis/serving.knative.dev/v1/namespaces/{namespacesId}/revisions
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: namespaces.resources.revisions
-      title: namespaces.resources.revisions
-    namespaces.resources.routes:
-      id: google.services.namespaces.resources.routes
+      name: namespaces.revisions
+      title: namespaces.revisions
+    namespaces.routes:
+      id: google.run.namespaces.routes
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /apis/serving.knative.dev/v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /apis/serving.knative.dev/v1/namespaces/{namespacesId}/routes/{routesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2043,22 +2013,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /apis/serving.knative.dev/v1/{parent}/routes
-          request:
-            mediaType: application/json
+            $ref: /apis/serving.knative.dev/v1/namespaces/{namespacesId}/routes
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: namespaces.resources.routes
-      title: namespaces.resources.routes
-    namespaces.resources.services:
-      id: google.services.namespaces.resources.services
+      name: namespaces.routes
+      title: namespaces.routes
+    namespaces.services:
+      id: google.run.namespaces.services
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /apis/serving.knative.dev/v1/{parent}/services
+            $ref: /apis/serving.knative.dev/v1/namespaces/{namespacesId}/services
           request:
             mediaType: application/json
           response:
@@ -2068,9 +2036,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /apis/serving.knative.dev/v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /apis/serving.knative.dev/v1/namespaces/{namespacesId}/services/{servicesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2078,9 +2044,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /apis/serving.knative.dev/v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /apis/serving.knative.dev/v1/namespaces/{namespacesId}/services/{servicesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2088,9 +2052,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /apis/serving.knative.dev/v1/{parent}/services
-          request:
-            mediaType: application/json
+            $ref: /apis/serving.knative.dev/v1/namespaces/{namespacesId}/services
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2098,22 +2060,22 @@ components:
           operation:
             $ref: put
           path:
-            $ref: /apis/serving.knative.dev/v1/{name}
+            $ref: /apis/serving.knative.dev/v1/namespaces/{namespacesId}/services/{servicesId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: namespaces.resources.services
-      title: namespaces.resources.services
+      name: namespaces.services
+      title: namespaces.services
     operations:
-      id: google.services.operations
+      id: google.run.operations
       methods:
         cancel:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:cancel
+            $ref: /v1/operations/{operationsId}:cancel
           request:
             mediaType: application/json
           response:
@@ -2121,76 +2083,53 @@ components:
             openAPIDocKey: '200'
       name: operations
       title: operations
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.authorizeddomains:
-      id: google.services.projects.resources.authorizeddomains
+    projects.authorizeddomains:
+      id: google.run.projects.authorizeddomains
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/authorizeddomains
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/authorizeddomains
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.authorizeddomains
-      title: projects.resources.authorizeddomains
-    projects.resources.locations:
-      id: google.services.projects.resources.locations
+      name: projects.authorizeddomains
+      title: projects.authorizeddomains
+    projects.locations:
+      id: google.run.projects.locations
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/locations
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations
-      title: projects.resources.locations
-    projects.resources.locations.resources:
-      id: google.services.projects.resources.locations.resources
-      methods: {}
-      name: projects.resources.locations.resources
-      title: projects.resources.locations.resources
-    projects.resources.locations.resources.authorizeddomains:
-      id: google.services.projects.resources.locations.resources.authorizeddomains
+      name: projects.locations
+      title: projects.locations
+    projects.locations.authorizeddomains:
+      id: google.run.projects.locations.authorizeddomains
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/authorizeddomains
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/authorizeddomains
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.authorizeddomains
-      title: projects.resources.locations.resources.authorizeddomains
-    projects.resources.locations.resources.configurations:
-      id: google.services.projects.resources.locations.resources.configurations
+      name: projects.locations.authorizeddomains
+      title: projects.locations.authorizeddomains
+    projects.locations.configurations:
+      id: google.run.projects.locations.configurations
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/configurations/{configurationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2198,22 +2137,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/configurations
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/configurations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.configurations
-      title: projects.resources.locations.resources.configurations
-    projects.resources.locations.resources.domainmappings:
-      id: google.services.projects.resources.locations.resources.domainmappings
+      name: projects.locations.configurations
+      title: projects.locations.configurations
+    projects.locations.domainmappings:
+      id: google.run.projects.locations.domainmappings
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/domainmappings
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/domainmappings
           request:
             mediaType: application/json
           response:
@@ -2223,9 +2160,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/domainmappings/{domainmappingsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2233,9 +2168,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/domainmappings/{domainmappingsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2243,24 +2176,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/domainmappings
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/domainmappings
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.domainmappings
-      title: projects.resources.locations.resources.domainmappings
-    projects.resources.locations.resources.revisions:
-      id: google.services.projects.resources.locations.resources.revisions
+      name: projects.locations.domainmappings
+      title: projects.locations.domainmappings
+    projects.locations.revisions:
+      id: google.run.projects.locations.revisions
       methods:
         delete:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/revisions/{revisionsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2268,9 +2197,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/revisions/{revisionsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2278,24 +2205,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/revisions
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/revisions
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.revisions
-      title: projects.resources.locations.resources.revisions
-    projects.resources.locations.resources.routes:
-      id: google.services.projects.resources.locations.resources.routes
+      name: projects.locations.revisions
+      title: projects.locations.revisions
+    projects.locations.routes:
+      id: google.run.projects.locations.routes
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/routes/{routesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2303,22 +2226,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/routes
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/routes
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.routes
-      title: projects.resources.locations.resources.routes
-    projects.resources.locations.resources.services:
-      id: google.services.projects.resources.locations.resources.services
+      name: projects.locations.routes
+      title: projects.locations.routes
+    projects.locations.services:
+      id: google.run.projects.locations.services
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/services
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/services
           request:
             mediaType: application/json
           response:
@@ -2328,9 +2249,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/services/{servicesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2338,9 +2257,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/services/{servicesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2348,9 +2265,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{resource}:getIamPolicy
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/services/{servicesId}:getIamPolicy
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2358,9 +2273,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/services
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/services
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2368,7 +2281,7 @@ components:
           operation:
             $ref: put
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/services/{servicesId}
           request:
             mediaType: application/json
           response:
@@ -2378,7 +2291,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/services/{servicesId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -2388,14 +2301,14 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/services/{servicesId}:testIamPermissions
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.services
-      title: projects.resources.locations.resources.services
+      name: projects.locations.services
+      title: projects.locations.services
 externalDocs:
   url: https://cloud.google.com/run/
 info:
@@ -2428,6 +2341,254 @@ info:
   x-serviceName: run
 openapi: 3.0.0
 paths:
+  /apis/domains.cloudrun.com/v1/namespaces/{namespacesId}/authorizeddomains:
+    get:
+      description: List authorized domains.
+      operationId: run.namespaces.authorizeddomains.list
+      parameters:
+      - description: Maximum results to return per page.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Continuation token for fetching the next page of results.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAuthorizedDomainsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /apis/domains.cloudrun.com/v1/namespaces/{namespacesId}/domainmappings:
+    get:
+      description: List domain mappings.
+      operationId: run.namespaces.domainmappings.list
+      parameters:
+      - description: Optional. Encoded string to continue paging.
+        in: query
+        name: continue
+        schema:
+          type: string
+      - description: Allows to filter resources based on a specific value for a field
+          name. Send this in a query string format. i.e. 'metadata.name%3Dlorem'.
+          Not currently used by Cloud Run.
+        in: query
+        name: fieldSelector
+        schema:
+          type: string
+      - description: Not currently used by Cloud Run.
+        in: query
+        name: includeUninitialized
+        schema:
+          type: boolean
+      - description: Allows to filter resources based on a label. Supported operations
+          are =, !=, exists, in, and notIn.
+        in: query
+        name: labelSelector
+        schema:
+          type: string
+      - description: Optional. The maximum number of records that should be returned.
+        in: query
+        name: limit
+        schema:
+          type: integer
+      - description: The baseline resource version from which the list or watch operation
+          should start. Not currently used by Cloud Run.
+        in: query
+        name: resourceVersion
+        schema:
+          type: string
+      - description: Flag that indicates that the client expects to watch this resource
+          as well. Not currently used by Cloud Run.
+        in: query
+        name: watch
+        schema:
+          type: boolean
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDomainMappingsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Create a new domain mapping.
+      operationId: run.namespaces.domainmappings.create
+      parameters:
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainMapping'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainMapping'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+  /apis/domains.cloudrun.com/v1/namespaces/{namespacesId}/domainmappings/{domainmappingsId}:
+    delete:
+      description: Delete a domain mapping.
+      operationId: run.namespaces.domainmappings.delete
+      parameters:
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: apiVersion
+        schema:
+          type: string
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: kind
+        schema:
+          type: string
+      - description: Specifies the propagation policy of delete. Cloud Run currently
+          ignores this setting, and deletes in the background. Please see kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/
+          for more information.
+        in: query
+        name: propagationPolicy
+        schema:
+          type: string
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: domainmappingsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+    get:
+      description: Get information about a domain mapping.
+      operationId: run.namespaces.domainmappings.get
+      parameters:
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: domainmappingsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainMapping'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /apis/domains.cloudrun.com/v1/{name}:
     delete:
       description: Delete a domain mapping.
@@ -2669,6 +2830,884 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DomainMapping'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+  /apis/serving.knative.dev/v1/namespaces/{namespacesId}/configurations:
+    get:
+      description: List configurations.
+      operationId: run.namespaces.configurations.list
+      parameters:
+      - description: Optional. Encoded string to continue paging.
+        in: query
+        name: continue
+        schema:
+          type: string
+      - description: Allows to filter resources based on a specific value for a field
+          name. Send this in a query string format. i.e. 'metadata.name%3Dlorem'.
+          Not currently used by Cloud Run.
+        in: query
+        name: fieldSelector
+        schema:
+          type: string
+      - description: Not currently used by Cloud Run.
+        in: query
+        name: includeUninitialized
+        schema:
+          type: boolean
+      - description: Allows to filter resources based on a label. Supported operations
+          are =, !=, exists, in, and notIn.
+        in: query
+        name: labelSelector
+        schema:
+          type: string
+      - description: Optional. The maximum number of records that should be returned.
+        in: query
+        name: limit
+        schema:
+          type: integer
+      - description: The baseline resource version from which the list or watch operation
+          should start. Not currently used by Cloud Run.
+        in: query
+        name: resourceVersion
+        schema:
+          type: string
+      - description: Flag that indicates that the client expects to watch this resource
+          as well. Not currently used by Cloud Run.
+        in: query
+        name: watch
+        schema:
+          type: boolean
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListConfigurationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /apis/serving.knative.dev/v1/namespaces/{namespacesId}/configurations/{configurationsId}:
+    delete:
+      description: Delete a service. This will cause the Service to stop serving traffic
+        and will delete the child entities like Routes, Configurations and Revisions.
+      operationId: run.namespaces.services.delete
+      parameters:
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: apiVersion
+        schema:
+          type: string
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: kind
+        schema:
+          type: string
+      - description: Specifies the propagation policy of delete. Cloud Run currently
+          ignores this setting, and deletes in the background. Please see kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/
+          for more information.
+        in: query
+        name: propagationPolicy
+        schema:
+          type: string
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: configurationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+    get:
+      description: Get information about a service.
+      operationId: run.namespaces.services.get
+      parameters:
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: configurationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Replace a service. Only the spec and metadata labels and annotations
+        are modifiable. After the Update request, Cloud Run will work to make the
+        'status' match the requested 'spec'. May provide metadata.resourceVersion
+        to enforce update from last read for optimistic concurrency control.
+      operationId: run.namespaces.services.replaceService
+      parameters:
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: configurationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+  /apis/serving.knative.dev/v1/namespaces/{namespacesId}/revisions:
+    get:
+      description: List revisions.
+      operationId: run.namespaces.revisions.list
+      parameters:
+      - description: Optional. Encoded string to continue paging.
+        in: query
+        name: continue
+        schema:
+          type: string
+      - description: Allows to filter resources based on a specific value for a field
+          name. Send this in a query string format. i.e. 'metadata.name%3Dlorem'.
+          Not currently used by Cloud Run.
+        in: query
+        name: fieldSelector
+        schema:
+          type: string
+      - description: Not currently used by Cloud Run.
+        in: query
+        name: includeUninitialized
+        schema:
+          type: boolean
+      - description: Allows to filter resources based on a label. Supported operations
+          are =, !=, exists, in, and notIn.
+        in: query
+        name: labelSelector
+        schema:
+          type: string
+      - description: Optional. The maximum number of records that should be returned.
+        in: query
+        name: limit
+        schema:
+          type: integer
+      - description: The baseline resource version from which the list or watch operation
+          should start. Not currently used by Cloud Run.
+        in: query
+        name: resourceVersion
+        schema:
+          type: string
+      - description: Flag that indicates that the client expects to watch this resource
+          as well. Not currently used by Cloud Run.
+        in: query
+        name: watch
+        schema:
+          type: boolean
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRevisionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /apis/serving.knative.dev/v1/namespaces/{namespacesId}/revisions/{revisionsId}:
+    delete:
+      description: Delete a service. This will cause the Service to stop serving traffic
+        and will delete the child entities like Routes, Configurations and Revisions.
+      operationId: run.namespaces.services.delete
+      parameters:
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: apiVersion
+        schema:
+          type: string
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: kind
+        schema:
+          type: string
+      - description: Specifies the propagation policy of delete. Cloud Run currently
+          ignores this setting, and deletes in the background. Please see kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/
+          for more information.
+        in: query
+        name: propagationPolicy
+        schema:
+          type: string
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: revisionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+    get:
+      description: Get information about a service.
+      operationId: run.namespaces.services.get
+      parameters:
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: revisionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Replace a service. Only the spec and metadata labels and annotations
+        are modifiable. After the Update request, Cloud Run will work to make the
+        'status' match the requested 'spec'. May provide metadata.resourceVersion
+        to enforce update from last read for optimistic concurrency control.
+      operationId: run.namespaces.services.replaceService
+      parameters:
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: revisionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+  /apis/serving.knative.dev/v1/namespaces/{namespacesId}/routes:
+    get:
+      description: List routes.
+      operationId: run.namespaces.routes.list
+      parameters:
+      - description: Optional. Encoded string to continue paging.
+        in: query
+        name: continue
+        schema:
+          type: string
+      - description: Allows to filter resources based on a specific value for a field
+          name. Send this in a query string format. i.e. 'metadata.name%3Dlorem'.
+          Not currently used by Cloud Run.
+        in: query
+        name: fieldSelector
+        schema:
+          type: string
+      - description: Not currently used by Cloud Run.
+        in: query
+        name: includeUninitialized
+        schema:
+          type: boolean
+      - description: Allows to filter resources based on a label. Supported operations
+          are =, !=, exists, in, and notIn.
+        in: query
+        name: labelSelector
+        schema:
+          type: string
+      - description: Optional. The maximum number of records that should be returned.
+        in: query
+        name: limit
+        schema:
+          type: integer
+      - description: The baseline resource version from which the list or watch operation
+          should start. Not currently used by Cloud Run.
+        in: query
+        name: resourceVersion
+        schema:
+          type: string
+      - description: Flag that indicates that the client expects to watch this resource
+          as well. Not currently used by Cloud Run.
+        in: query
+        name: watch
+        schema:
+          type: boolean
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRoutesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /apis/serving.knative.dev/v1/namespaces/{namespacesId}/routes/{routesId}:
+    delete:
+      description: Delete a service. This will cause the Service to stop serving traffic
+        and will delete the child entities like Routes, Configurations and Revisions.
+      operationId: run.namespaces.services.delete
+      parameters:
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: apiVersion
+        schema:
+          type: string
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: kind
+        schema:
+          type: string
+      - description: Specifies the propagation policy of delete. Cloud Run currently
+          ignores this setting, and deletes in the background. Please see kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/
+          for more information.
+        in: query
+        name: propagationPolicy
+        schema:
+          type: string
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: routesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+    get:
+      description: Get information about a service.
+      operationId: run.namespaces.services.get
+      parameters:
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: routesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Replace a service. Only the spec and metadata labels and annotations
+        are modifiable. After the Update request, Cloud Run will work to make the
+        'status' match the requested 'spec'. May provide metadata.resourceVersion
+        to enforce update from last read for optimistic concurrency control.
+      operationId: run.namespaces.services.replaceService
+      parameters:
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: routesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+  /apis/serving.knative.dev/v1/namespaces/{namespacesId}/services:
+    get:
+      description: List services.
+      operationId: run.namespaces.services.list
+      parameters:
+      - description: Optional. Encoded string to continue paging.
+        in: query
+        name: continue
+        schema:
+          type: string
+      - description: Allows to filter resources based on a specific value for a field
+          name. Send this in a query string format. i.e. 'metadata.name%3Dlorem'.
+          Not currently used by Cloud Run.
+        in: query
+        name: fieldSelector
+        schema:
+          type: string
+      - description: Not currently used by Cloud Run.
+        in: query
+        name: includeUninitialized
+        schema:
+          type: boolean
+      - description: Allows to filter resources based on a label. Supported operations
+          are =, !=, exists, in, and notIn.
+        in: query
+        name: labelSelector
+        schema:
+          type: string
+      - description: Optional. The maximum number of records that should be returned.
+        in: query
+        name: limit
+        schema:
+          type: integer
+      - description: The baseline resource version from which the list or watch operation
+          should start. Not currently used by Cloud Run.
+        in: query
+        name: resourceVersion
+        schema:
+          type: string
+      - description: Flag that indicates that the client expects to watch this resource
+          as well. Not currently used by Cloud Run.
+        in: query
+        name: watch
+        schema:
+          type: boolean
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListServicesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Create a service.
+      operationId: run.namespaces.services.create
+      parameters:
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+  /apis/serving.knative.dev/v1/namespaces/{namespacesId}/services/{servicesId}:
+    delete:
+      description: Delete a service. This will cause the Service to stop serving traffic
+        and will delete the child entities like Routes, Configurations and Revisions.
+      operationId: run.namespaces.services.delete
+      parameters:
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: apiVersion
+        schema:
+          type: string
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: kind
+        schema:
+          type: string
+      - description: Specifies the propagation policy of delete. Cloud Run currently
+          ignores this setting, and deletes in the background. Please see kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/
+          for more information.
+        in: query
+        name: propagationPolicy
+        schema:
+          type: string
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: servicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+    get:
+      description: Get information about a service.
+      operationId: run.namespaces.services.get
+      parameters:
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: servicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - namespaces
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Replace a service. Only the spec and metadata labels and annotations
+        are modifiable. After the Update request, Cloud Run will work to make the
+        'status' match the requested 'spec'. May provide metadata.resourceVersion
+        to enforce update from last read for optimistic concurrency control.
+      operationId: run.namespaces.services.replaceService
+      parameters:
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - in: path
+        name: namespacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: servicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
           description: Successful response
       security:
       - Oauth2:
@@ -3153,6 +4192,1600 @@ paths:
         - https://www.googleapis.com/auth/cloud-platform
       tags:
       - namespaces
+  /v1/operations/{operationsId}:cancel:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Starts asynchronous cancellation on a long-running operation. The
+        server makes a best effort to cancel the operation, but success is not guaranteed.
+        If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+        Clients can use Operations.GetOperation or other methods to check whether
+        the cancellation succeeded or whether the operation completed despite cancellation.
+        On successful cancellation, the operation is not deleted; instead, it becomes
+        an operation with an Operation.error value with a google.rpc.Status.code of
+        1, corresponding to `Code.CANCELLED`.
+      operationId: run.operations.cancel
+      parameters:
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleLongrunningCancelOperationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - operations
+  /v1/projects/{projectsId}/authorizeddomains:
+    get:
+      description: List authorized domains.
+      operationId: run.projects.locations.authorizeddomains.list
+      parameters:
+      - description: Maximum results to return per page.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Continuation token for fetching the next page of results.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAuthorizedDomainsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations:
+    get:
+      description: Lists information about the supported locations for this service.
+      operationId: run.projects.locations.list
+      parameters:
+      - description: A filter to narrow down results to a preferred subset. The filtering
+          language accepts strings like "displayName=tokyo", and is documented in
+          more detail in [AIP-160](https://google.aip.dev/160).
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of results to return. If not set, the service
+          selects a default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token received from the `next_page_token` field in the
+          response. Send that page token to receive the subsequent page.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLocationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/authorizeddomains:
+    get:
+      description: List authorized domains.
+      operationId: run.projects.locations.authorizeddomains.list
+      parameters:
+      - description: Maximum results to return per page.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Continuation token for fetching the next page of results.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAuthorizedDomainsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/configurations:
+    get:
+      description: List configurations.
+      operationId: run.projects.locations.configurations.list
+      parameters:
+      - description: Optional. Encoded string to continue paging.
+        in: query
+        name: continue
+        schema:
+          type: string
+      - description: Allows to filter resources based on a specific value for a field
+          name. Send this in a query string format. i.e. 'metadata.name%3Dlorem'.
+          Not currently used by Cloud Run.
+        in: query
+        name: fieldSelector
+        schema:
+          type: string
+      - description: Not currently used by Cloud Run.
+        in: query
+        name: includeUninitialized
+        schema:
+          type: boolean
+      - description: Allows to filter resources based on a label. Supported operations
+          are =, !=, exists, in, and notIn.
+        in: query
+        name: labelSelector
+        schema:
+          type: string
+      - description: Optional. The maximum number of records that should be returned.
+        in: query
+        name: limit
+        schema:
+          type: integer
+      - description: The baseline resource version from which the list or watch operation
+          should start. Not currently used by Cloud Run.
+        in: query
+        name: resourceVersion
+        schema:
+          type: string
+      - description: Flag that indicates that the client expects to watch this resource
+          as well. Not currently used by Cloud Run.
+        in: query
+        name: watch
+        schema:
+          type: boolean
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListConfigurationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/configurations/{configurationsId}:
+    delete:
+      description: Delete a service. This will cause the Service to stop serving traffic
+        and will delete the child entities like Routes, Configurations and Revisions.
+      operationId: run.projects.locations.services.delete
+      parameters:
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: apiVersion
+        schema:
+          type: string
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: kind
+        schema:
+          type: string
+      - description: Specifies the propagation policy of delete. Cloud Run currently
+          ignores this setting, and deletes in the background. Please see kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/
+          for more information.
+        in: query
+        name: propagationPolicy
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: configurationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Get information about a service.
+      operationId: run.projects.locations.services.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: configurationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Replace a service. Only the spec and metadata labels and annotations
+        are modifiable. After the Update request, Cloud Run will work to make the
+        'status' match the requested 'spec'. May provide metadata.resourceVersion
+        to enforce update from last read for optimistic concurrency control.
+      operationId: run.projects.locations.services.replaceService
+      parameters:
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: configurationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/domainmappings:
+    get:
+      description: List domain mappings.
+      operationId: run.projects.locations.domainmappings.list
+      parameters:
+      - description: Optional. Encoded string to continue paging.
+        in: query
+        name: continue
+        schema:
+          type: string
+      - description: Allows to filter resources based on a specific value for a field
+          name. Send this in a query string format. i.e. 'metadata.name%3Dlorem'.
+          Not currently used by Cloud Run.
+        in: query
+        name: fieldSelector
+        schema:
+          type: string
+      - description: Not currently used by Cloud Run.
+        in: query
+        name: includeUninitialized
+        schema:
+          type: boolean
+      - description: Allows to filter resources based on a label. Supported operations
+          are =, !=, exists, in, and notIn.
+        in: query
+        name: labelSelector
+        schema:
+          type: string
+      - description: Optional. The maximum number of records that should be returned.
+        in: query
+        name: limit
+        schema:
+          type: integer
+      - description: The baseline resource version from which the list or watch operation
+          should start. Not currently used by Cloud Run.
+        in: query
+        name: resourceVersion
+        schema:
+          type: string
+      - description: Flag that indicates that the client expects to watch this resource
+          as well. Not currently used by Cloud Run.
+        in: query
+        name: watch
+        schema:
+          type: boolean
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDomainMappingsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Create a new domain mapping.
+      operationId: run.projects.locations.domainmappings.create
+      parameters:
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DomainMapping'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainMapping'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/domainmappings/{domainmappingsId}:
+    delete:
+      description: Delete a service. This will cause the Service to stop serving traffic
+        and will delete the child entities like Routes, Configurations and Revisions.
+      operationId: run.projects.locations.services.delete
+      parameters:
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: apiVersion
+        schema:
+          type: string
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: kind
+        schema:
+          type: string
+      - description: Specifies the propagation policy of delete. Cloud Run currently
+          ignores this setting, and deletes in the background. Please see kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/
+          for more information.
+        in: query
+        name: propagationPolicy
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: domainmappingsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Get information about a service.
+      operationId: run.projects.locations.services.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: domainmappingsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Replace a service. Only the spec and metadata labels and annotations
+        are modifiable. After the Update request, Cloud Run will work to make the
+        'status' match the requested 'spec'. May provide metadata.resourceVersion
+        to enforce update from last read for optimistic concurrency control.
+      operationId: run.projects.locations.services.replaceService
+      parameters:
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: domainmappingsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/revisions:
+    get:
+      description: List revisions.
+      operationId: run.projects.locations.revisions.list
+      parameters:
+      - description: Optional. Encoded string to continue paging.
+        in: query
+        name: continue
+        schema:
+          type: string
+      - description: Allows to filter resources based on a specific value for a field
+          name. Send this in a query string format. i.e. 'metadata.name%3Dlorem'.
+          Not currently used by Cloud Run.
+        in: query
+        name: fieldSelector
+        schema:
+          type: string
+      - description: Not currently used by Cloud Run.
+        in: query
+        name: includeUninitialized
+        schema:
+          type: boolean
+      - description: Allows to filter resources based on a label. Supported operations
+          are =, !=, exists, in, and notIn.
+        in: query
+        name: labelSelector
+        schema:
+          type: string
+      - description: Optional. The maximum number of records that should be returned.
+        in: query
+        name: limit
+        schema:
+          type: integer
+      - description: The baseline resource version from which the list or watch operation
+          should start. Not currently used by Cloud Run.
+        in: query
+        name: resourceVersion
+        schema:
+          type: string
+      - description: Flag that indicates that the client expects to watch this resource
+          as well. Not currently used by Cloud Run.
+        in: query
+        name: watch
+        schema:
+          type: boolean
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRevisionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/revisions/{revisionsId}:
+    delete:
+      description: Delete a service. This will cause the Service to stop serving traffic
+        and will delete the child entities like Routes, Configurations and Revisions.
+      operationId: run.projects.locations.services.delete
+      parameters:
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: apiVersion
+        schema:
+          type: string
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: kind
+        schema:
+          type: string
+      - description: Specifies the propagation policy of delete. Cloud Run currently
+          ignores this setting, and deletes in the background. Please see kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/
+          for more information.
+        in: query
+        name: propagationPolicy
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: revisionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Get information about a service.
+      operationId: run.projects.locations.services.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: revisionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Replace a service. Only the spec and metadata labels and annotations
+        are modifiable. After the Update request, Cloud Run will work to make the
+        'status' match the requested 'spec'. May provide metadata.resourceVersion
+        to enforce update from last read for optimistic concurrency control.
+      operationId: run.projects.locations.services.replaceService
+      parameters:
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: revisionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/routes:
+    get:
+      description: List routes.
+      operationId: run.projects.locations.routes.list
+      parameters:
+      - description: Optional. Encoded string to continue paging.
+        in: query
+        name: continue
+        schema:
+          type: string
+      - description: Allows to filter resources based on a specific value for a field
+          name. Send this in a query string format. i.e. 'metadata.name%3Dlorem'.
+          Not currently used by Cloud Run.
+        in: query
+        name: fieldSelector
+        schema:
+          type: string
+      - description: Not currently used by Cloud Run.
+        in: query
+        name: includeUninitialized
+        schema:
+          type: boolean
+      - description: Allows to filter resources based on a label. Supported operations
+          are =, !=, exists, in, and notIn.
+        in: query
+        name: labelSelector
+        schema:
+          type: string
+      - description: Optional. The maximum number of records that should be returned.
+        in: query
+        name: limit
+        schema:
+          type: integer
+      - description: The baseline resource version from which the list or watch operation
+          should start. Not currently used by Cloud Run.
+        in: query
+        name: resourceVersion
+        schema:
+          type: string
+      - description: Flag that indicates that the client expects to watch this resource
+          as well. Not currently used by Cloud Run.
+        in: query
+        name: watch
+        schema:
+          type: boolean
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRoutesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/routes/{routesId}:
+    delete:
+      description: Delete a service. This will cause the Service to stop serving traffic
+        and will delete the child entities like Routes, Configurations and Revisions.
+      operationId: run.projects.locations.services.delete
+      parameters:
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: apiVersion
+        schema:
+          type: string
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: kind
+        schema:
+          type: string
+      - description: Specifies the propagation policy of delete. Cloud Run currently
+          ignores this setting, and deletes in the background. Please see kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/
+          for more information.
+        in: query
+        name: propagationPolicy
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: routesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Get information about a service.
+      operationId: run.projects.locations.services.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: routesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Replace a service. Only the spec and metadata labels and annotations
+        are modifiable. After the Update request, Cloud Run will work to make the
+        'status' match the requested 'spec'. May provide metadata.resourceVersion
+        to enforce update from last read for optimistic concurrency control.
+      operationId: run.projects.locations.services.replaceService
+      parameters:
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: routesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/services:
+    get:
+      description: List services.
+      operationId: run.projects.locations.services.list
+      parameters:
+      - description: Optional. Encoded string to continue paging.
+        in: query
+        name: continue
+        schema:
+          type: string
+      - description: Allows to filter resources based on a specific value for a field
+          name. Send this in a query string format. i.e. 'metadata.name%3Dlorem'.
+          Not currently used by Cloud Run.
+        in: query
+        name: fieldSelector
+        schema:
+          type: string
+      - description: Not currently used by Cloud Run.
+        in: query
+        name: includeUninitialized
+        schema:
+          type: boolean
+      - description: Allows to filter resources based on a label. Supported operations
+          are =, !=, exists, in, and notIn.
+        in: query
+        name: labelSelector
+        schema:
+          type: string
+      - description: Optional. The maximum number of records that should be returned.
+        in: query
+        name: limit
+        schema:
+          type: integer
+      - description: The baseline resource version from which the list or watch operation
+          should start. Not currently used by Cloud Run.
+        in: query
+        name: resourceVersion
+        schema:
+          type: string
+      - description: Flag that indicates that the client expects to watch this resource
+          as well. Not currently used by Cloud Run.
+        in: query
+        name: watch
+        schema:
+          type: boolean
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListServicesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Create a service.
+      operationId: run.projects.locations.services.create
+      parameters:
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/services/{servicesId}:
+    delete:
+      description: Delete a service. This will cause the Service to stop serving traffic
+        and will delete the child entities like Routes, Configurations and Revisions.
+      operationId: run.projects.locations.services.delete
+      parameters:
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: apiVersion
+        schema:
+          type: string
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - description: Cloud Run currently ignores this parameter.
+        in: query
+        name: kind
+        schema:
+          type: string
+      - description: Specifies the propagation policy of delete. Cloud Run currently
+          ignores this setting, and deletes in the background. Please see kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/
+          for more information.
+        in: query
+        name: propagationPolicy
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: servicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Get information about a service.
+      operationId: run.projects.locations.services.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: servicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Replace a service. Only the spec and metadata labels and annotations
+        are modifiable. After the Update request, Cloud Run will work to make the
+        'status' match the requested 'spec'. May provide metadata.resourceVersion
+        to enforce update from last read for optimistic concurrency control.
+      operationId: run.projects.locations.services.replaceService
+      parameters:
+      - description: 'Indicates that the server should validate the request and populate
+          default values without persisting the request. Supported values: `all`'
+        in: query
+        name: dryRun
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: servicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/services/{servicesId}:getIamPolicy:
+    get:
+      description: Get the IAM Access Control policy currently in effect for the given
+        Cloud Run service. This result does not include any inherited policies.
+      operationId: run.projects.locations.services.getIamPolicy
+      parameters:
+      - description: Optional. The policy format version to be returned. Valid values
+          are 0, 1, and 3. Requests specifying an invalid value will be rejected.
+          Requests for policies with any conditional bindings must specify version
+          3. Policies without any conditional bindings may specify any valid value
+          or leave the field unset. To learn which resources support conditions in
+          their IAM policies, see the [IAM documentation](https://cloud.google.com/iam/help/conditions/resource-policies).
+        in: query
+        name: options.requestedPolicyVersion
+        schema:
+          type: integer
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: servicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/services/{servicesId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the IAM Access control policy for the specified Service. Overwrites
+        any existing policy.
+      operationId: run.projects.locations.services.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: servicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/services/{servicesId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Returns permissions that a caller has on the specified Project.
+        There are no permissions required for making this API call.
+      operationId: run.projects.locations.services.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: servicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
   /v1/{name}:
     delete:
       description: Delete a service. This will cause the Service to stop serving traffic

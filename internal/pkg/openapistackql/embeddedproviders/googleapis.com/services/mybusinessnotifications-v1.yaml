@@ -114,15 +114,13 @@ components:
       type: object
   x-stackQL-resources:
     accounts:
-      id: google.services.accounts
+      id: google.mybusinessnotifications.accounts
       methods:
         getNotificationSetting:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/accounts/{accountsId}/notificationSetting
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -130,7 +128,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/accounts/{accountsId}/notificationSetting
           request:
             mediaType: application/json
           response:
@@ -166,6 +164,71 @@ info:
   x-serviceName: mybusinessnotifications
 openapi: 3.0.0
 paths:
+  /v1/accounts/{accountsId}/notificationSetting:
+    get:
+      description: Returns the pubsub notification settings for the account.
+      operationId: mybusinessnotifications.accounts.getNotificationSetting
+      parameters:
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSetting'
+          description: Successful response
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Sets the pubsub notification setting for the account informing
+        Google which topic to send pubsub notifications for. Use the notification_types
+        field within notification_setting to manipulate the events an account wants
+        to subscribe to. An account will only have one notification setting resource,
+        and only one pubsub topic can be set. To delete the setting, update with an
+        empty notification_types
+      operationId: mybusinessnotifications.accounts.updateNotificationSetting
+      parameters:
+      - description: Required. The specific fields that should be updated. The only
+          editable field is notification_setting.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationSetting'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSetting'
+          description: Successful response
+      tags:
+      - accounts
   /v1/{name}:
     get:
       description: Returns the pubsub notification settings for the account.

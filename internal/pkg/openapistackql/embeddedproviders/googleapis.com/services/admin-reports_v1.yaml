@@ -487,15 +487,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     activities:
-      id: google.services.activities
+      id: google.admin.activities
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /admin/reports/v1/activity/users/{userKey}/applications/{applicationName}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -512,7 +510,7 @@ components:
       name: activities
       title: activities
     channels:
-      id: google.services.channels
+      id: google.admin.channels
       methods:
         stop:
           operation:
@@ -522,50 +520,43 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
       name: channels
       title: channels
     customerUsageReports:
-      id: google.services.customerUsageReports
+      id: google.admin.customerUsageReports
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /admin/reports/v1/usage/dates/{date}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: customerUsageReports
       title: customerUsageReports
     entityUsageReports:
-      id: google.services.entityUsageReports
+      id: google.admin.entityUsageReports
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /admin/reports/v1/usage/{entityType}/{entityKey}/dates/{date}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: entityUsageReports
       title: entityUsageReports
     userUsageReport:
-      id: google.services.userUsageReport
+      id: google.admin.userUsageReport
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /admin/reports/v1/usage/users/{userKey}/dates/{date}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

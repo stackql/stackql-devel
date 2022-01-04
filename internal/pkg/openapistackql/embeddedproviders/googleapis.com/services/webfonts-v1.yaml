@@ -129,15 +129,13 @@ components:
       type: object
   x-stackQL-resources:
     webfonts:
-      id: google.services.webfonts
+      id: google.webfonts.webfonts
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /v1/webfonts
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

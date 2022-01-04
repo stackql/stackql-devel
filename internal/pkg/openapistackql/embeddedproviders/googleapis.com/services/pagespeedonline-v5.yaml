@@ -664,15 +664,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     pagespeedapi:
-      id: google.services.pagespeedapi
+      id: google.pagespeedonline.pagespeedapi
       methods:
         runpagespeed:
           operation:
             $ref: get
           path:
             $ref: /pagespeedonline/v5/runPagespeed
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

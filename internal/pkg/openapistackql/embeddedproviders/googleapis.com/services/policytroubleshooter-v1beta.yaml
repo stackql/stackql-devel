@@ -497,22 +497,7 @@ components:
               Google Account.
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
-  x-stackQL-resources:
-    iam:
-      id: google.services.iam
-      methods:
-        troubleshoot:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1/iam:troubleshoot
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: iam
-      title: iam
+  x-stackQL-resources: {}
 externalDocs:
   url: https://cloud.google.com/iam/
 info:

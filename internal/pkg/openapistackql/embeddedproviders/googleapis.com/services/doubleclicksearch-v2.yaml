@@ -626,15 +626,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     conversion:
-      id: google.services.conversion
+      id: google.doubleclicksearch.conversion
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /doubleclicksearch/v2/agency/{agencyId}/advertiser/{advertiserId}/engine/{engineAccountId}/conversion
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -671,7 +669,7 @@ components:
       name: conversion
       title: conversion
     reports:
-      id: google.services.reports
+      id: google.doubleclicksearch.reports
       methods:
         generate:
           operation:
@@ -688,8 +686,6 @@ components:
             $ref: get
           path:
             $ref: /doubleclicksearch/v2/reports/{reportId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -698,10 +694,7 @@ components:
             $ref: get
           path:
             $ref: /doubleclicksearch/v2/reports/{reportId}/files/{reportFragment}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         request:
           operation:
@@ -716,15 +709,13 @@ components:
       name: reports
       title: reports
     savedColumns:
-      id: google.services.savedColumns
+      id: google.doubleclicksearch.savedColumns
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /doubleclicksearch/v2/agency/{agencyId}/advertiser/{advertiserId}/savedcolumns
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

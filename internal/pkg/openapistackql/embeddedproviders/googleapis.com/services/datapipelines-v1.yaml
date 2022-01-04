@@ -627,44 +627,27 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.locations:
-      id: google.services.projects.resources.locations
+    projects.locations:
+      id: google.datapipelines.projects.locations
       methods:
         listPipelines:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations
-      title: projects.resources.locations
-    projects.resources.locations.resources:
-      id: google.services.projects.resources.locations.resources
-      methods: {}
-      name: projects.resources.locations.resources
-      title: projects.resources.locations.resources
-    projects.resources.locations.resources.pipelines:
-      id: google.services.projects.resources.locations.resources.pipelines
+      name: projects.locations
+      title: projects.locations
+    projects.locations.pipelines:
+      id: google.datapipelines.projects.locations.pipelines
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/pipelines
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/pipelines
           request:
             mediaType: application/json
           response:
@@ -674,9 +657,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/pipelines/{pipelinesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -684,9 +665,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/pipelines/{pipelinesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -694,7 +673,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/pipelines/{pipelinesId}
           request:
             mediaType: application/json
           response:
@@ -704,7 +683,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:run
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/pipelines/{pipelinesId}:run
           request:
             mediaType: application/json
           response:
@@ -714,14 +693,14 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:stop
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/pipelines/{pipelinesId}:stop
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.pipelines
-      title: projects.resources.locations.resources.pipelines
+      name: projects.locations.pipelines
+      title: projects.locations.pipelines
 externalDocs:
   url: https://developers.google.com/apis-explorer/#search/dataflow
 info:
@@ -749,6 +728,363 @@ info:
   x-serviceName: datapipelines
 openapi: 3.0.0
 paths:
+  /v1/projects/{projectsId}/locations/{locationsId}:
+    get:
+      description: Lists pipelines. Returns a "NOT_FOUND" error if the list is empty.
+        Returns a "FORBIDDEN" error if the caller doesn't have permission to access
+        it.
+      operationId: datapipelines.projects.locations.listPipelines
+      parameters:
+      - description: 'An expression for filtering the results of the request. If unspecified,
+          all pipelines will be returned. Multiple filters can be applied and must
+          be comma separated. Fields eligible for filtering are: + `type`: The type
+          of the pipeline (streaming or batch). Allowed values are `ALL`, `BATCH`,
+          and `STREAMING`. + `executor_type`: The type of pipeline execution layer.
+          This is always Dataflow for now, but more executors may be added later.
+          Allowed values are `ALL` and `DATAFLOW`. + `status`: The activity status
+          of the pipeline. Allowed values are `ALL`, `ACTIVE`, `ARCHIVED`, and `PAUSED`.
+          For example, to limit results to active batch processing pipelines: type:BATCH,status:ACTIVE'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of entities to return. The service may return
+          fewer than this value, even if there are additional pages. If unspecified,
+          the max limit is yet to be determined by the backend implementation.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListPipelines` call.
+          Provide this to retrieve the subsequent page. When paginating, all other
+          parameters provided to `ListPipelines` must match the call that provided
+          the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatapipelinesV1ListPipelinesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/pipelines:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a pipeline. For a batch pipeline, you can pass scheduler
+        information. Data Pipelines uses the scheduler information to create an internal
+        scheduler that runs jobs periodically. If the internal scheduler is not configured,
+        you can use RunPipeline to run jobs.
+      operationId: datapipelines.projects.locations.pipelines.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatapipelinesV1Pipeline'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatapipelinesV1Pipeline'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/pipelines/{pipelinesId}:
+    delete:
+      description: Deletes a pipeline. If a scheduler job is attached to the pipeline,
+        it will be deleted.
+      operationId: datapipelines.projects.locations.pipelines.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: pipelinesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Looks up a single pipeline. Returns a "NOT_FOUND" error if no such
+        pipeline exists. Returns a "FORBIDDEN" error if the caller doesn't have permission
+        to access it.
+      operationId: datapipelines.projects.locations.pipelines.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: pipelinesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatapipelinesV1Pipeline'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a pipeline. If successful, the updated [Pipeline] is returned.
+        Returns `NOT_FOUND` if the pipeline doesn't exist. If UpdatePipeline does
+        not return successfully, you can retry the UpdatePipeline request until you
+        receive a successful response.
+      operationId: datapipelines.projects.locations.pipelines.patch
+      parameters:
+      - description: The list of fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: pipelinesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatapipelinesV1Pipeline'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatapipelinesV1Pipeline'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/pipelines/{pipelinesId}:run:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a job for the specified pipeline directly. You can use
+        this method when the internal scheduler is not configured and you want to
+        trigger the job directly or through an external system. Returns a "NOT_FOUND"
+        error if the pipeline doesn't exist. Returns a "FOBIDDEN" error if the user
+        doesn't have permission to access the pipeline or run jobs for the pipeline.
+      operationId: datapipelines.projects.locations.pipelines.run
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: pipelinesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatapipelinesV1RunPipelineRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatapipelinesV1RunPipelineResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/pipelines/{pipelinesId}:stop:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Freezes pipeline execution permanently. If there's a corresponding
+        scheduler entry, it's deleted, and the pipeline state is changed to "ARCHIVED".
+        However, pipeline metadata is retained. Upon success, the pipeline state is
+        updated to ARCHIVED.
+      operationId: datapipelines.projects.locations.pipelines.stop
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: pipelinesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudDatapipelinesV1StopPipelineRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudDatapipelinesV1Pipeline'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
   /v1/{name}:
     delete:
       description: Deletes a pipeline. If a scheduler job is attached to the pipeline,

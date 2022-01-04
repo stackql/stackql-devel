@@ -255,30 +255,26 @@ components:
       type: object
   x-stackQL-resources:
     assetlinks:
-      id: google.services.assetlinks
+      id: google.digitalassetlinks.assetlinks
       methods:
         check:
           operation:
             $ref: get
           path:
             $ref: /v1/assetlinks:check
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: assetlinks
       title: assetlinks
     statements:
-      id: google.services.statements
+      id: google.digitalassetlinks.statements
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /v1/statements:list
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

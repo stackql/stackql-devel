@@ -530,7 +530,7 @@ components:
       type: oauth2
   x-stackQL-resources:
     jobs:
-      id: google.services.jobs
+      id: google.youtubereporting.jobs
       methods:
         create:
           operation:
@@ -547,8 +547,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/jobs/{jobId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -557,8 +555,6 @@ components:
             $ref: get
           path:
             $ref: /v1/jobs/{jobId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -567,28 +563,19 @@ components:
             $ref: get
           path:
             $ref: /v1/jobs
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: jobs
       title: jobs
-    jobs.resources:
-      id: google.services.jobs.resources
-      methods: {}
-      name: jobs.resources
-      title: jobs.resources
-    jobs.resources.reports:
-      id: google.services.jobs.resources.reports
+    jobs.reports:
+      id: google.youtubereporting.jobs.reports
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v1/jobs/{jobId}/reports/{reportId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -597,38 +584,32 @@ components:
             $ref: get
           path:
             $ref: /v1/jobs/{jobId}/reports
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: jobs.resources.reports
-      title: jobs.resources.reports
+      name: jobs.reports
+      title: jobs.reports
     media:
-      id: google.services.media
+      id: google.youtubereporting.media
       methods:
         download:
           operation:
             $ref: get
           path:
-            $ref: /v1/media/{resourceName}
-          request:
-            mediaType: application/json
+            $ref: /v1/media/{mediaId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: media
       title: media
     reportTypes:
-      id: google.services.reportTypes
+      id: google.youtubereporting.reportTypes
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /v1/reportTypes
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -974,9 +955,49 @@ paths:
     - $ref: '#/components/parameters/quotaUser'
     - $ref: '#/components/parameters/upload_protocol'
     - $ref: '#/components/parameters/uploadType'
+  /v1/media/{mediaId}:
+    get:
+      description: Method for media download. Download is supported on the URI `/v1/media/{+name}?alt=media`.
+      operationId: youtubereporting.media.download
+      parameters:
+      - in: path
+        name: mediaId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GdataMedia'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/yt-analytics-monetary.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/yt-analytics-monetary.readonly
+      - Oauth2:
+        - https://www.googleapis.com/auth/yt-analytics.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/yt-analytics.readonly
+      tags:
+      - media
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /v1/media/{resourceName}:
     get:
-      description: Method for media download. Download is supported on the URI `/v1/media/{name}?alt=media`.
+      description: Method for media download. Download is supported on the URI `/v1/media/{+name}?alt=media`.
       operationId: youtubereporting.media.download
       parameters:
       - description: Name of the media that is being downloaded.

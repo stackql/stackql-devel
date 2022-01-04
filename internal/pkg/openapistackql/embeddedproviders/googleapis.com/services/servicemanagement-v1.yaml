@@ -1124,7 +1124,7 @@ components:
         side, all characters except `[-_.~/0-9a-zA-Z]` are percent-encoded. The server
         side does the reverse decoding, except "%2F" and "%2f" are left unchanged.
         Such variables show up in the [Discovery Document](https://developers.google.com/discovery/v1/reference/apis)
-        as `{var}`. ## Using gRPC API Service Configuration gRPC API Service Configuration
+        as `{+var}`. ## Using gRPC API Service Configuration gRPC API Service Configuration
         (service config) is a configuration language for configuring a gRPC service
         to become a user-facing product. The service config is simply the YAML representation
         of the `google.api.Service` proto message. As an alternative to annotating
@@ -2604,15 +2604,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     operations:
-      id: google.services.operations
+      id: google.servicemanagement.operations
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2621,15 +2619,13 @@ components:
             $ref: get
           path:
             $ref: /v1/operations
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: operations
       title: operations
     services:
-      id: google.services.services
+      id: google.servicemanagement.services
       methods:
         create:
           operation:
@@ -2646,8 +2642,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/services/{serviceName}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2666,8 +2660,6 @@ components:
             $ref: get
           path:
             $ref: /v1/services/{serviceName}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2676,8 +2668,6 @@ components:
             $ref: get
           path:
             $ref: /v1/services/{serviceName}/config
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2685,7 +2675,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:getIamPolicy
+            $ref: /v1/services/{servicesId}:getIamPolicy
           request:
             mediaType: application/json
           response:
@@ -2696,8 +2686,6 @@ components:
             $ref: get
           path:
             $ref: /v1/services
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2705,7 +2693,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/services/{servicesId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -2715,7 +2703,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/services/{servicesId}:testIamPermissions
           request:
             mediaType: application/json
           response:
@@ -2726,20 +2714,13 @@ components:
             $ref: post
           path:
             $ref: /v1/services/{serviceName}:undelete
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: services
       title: services
-    services.resources:
-      id: google.services.services.resources
-      methods: {}
-      name: services.resources
-      title: services.resources
-    services.resources.configs:
-      id: google.services.services.resources.configs
+    services.configs:
+      id: google.servicemanagement.services.configs
       methods:
         create:
           operation:
@@ -2756,8 +2737,6 @@ components:
             $ref: get
           path:
             $ref: /v1/services/{serviceName}/configs/{configId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2766,8 +2745,6 @@ components:
             $ref: get
           path:
             $ref: /v1/services/{serviceName}/configs
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2781,16 +2758,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: services.resources.configs
-      title: services.resources.configs
-    services.resources.consumers:
-      id: google.services.services.resources.consumers
+      name: services.configs
+      title: services.configs
+    services.consumers:
+      id: google.servicemanagement.services.consumers
       methods:
         getIamPolicy:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:getIamPolicy
+            $ref: /v1/services/{servicesId}/consumers/{consumersId}:getIamPolicy
           request:
             mediaType: application/json
           response:
@@ -2800,7 +2777,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/services/{servicesId}/consumers/{consumersId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -2810,16 +2787,16 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/services/{servicesId}/consumers/{consumersId}:testIamPermissions
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: services.resources.consumers
-      title: services.resources.consumers
-    services.resources.rollouts:
-      id: google.services.services.resources.rollouts
+      name: services.consumers
+      title: services.consumers
+    services.rollouts:
+      id: google.servicemanagement.services.rollouts
       methods:
         create:
           operation:
@@ -2836,8 +2813,6 @@ components:
             $ref: get
           path:
             $ref: /v1/services/{serviceName}/rollouts/{rolloutId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2846,13 +2821,11 @@ components:
             $ref: get
           path:
             $ref: /v1/services/{serviceName}/rollouts
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: services.resources.rollouts
-      title: services.resources.rollouts
+      name: services.rollouts
+      title: services.rollouts
 externalDocs:
   url: https://cloud.google.com/service-management/
 info:
@@ -2930,6 +2903,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListOperationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/service.management
+        Oauth2c:
+        - https://www.googleapis.com/auth/service.management
+      tags:
+      - operations
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/operations/{operationsId}:
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: servicemanagement.operations.get
+      parameters:
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
           description: Successful response
       security:
       - Oauth2:
@@ -3631,6 +3646,337 @@ paths:
         - https://www.googleapis.com/auth/service.management
         Oauth2c:
         - https://www.googleapis.com/auth/service.management
+      tags:
+      - services
+  /v1/services/{servicesId}/consumers/{consumersId}:getIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: servicemanagement.services.consumers.getIamPolicy
+      parameters:
+      - in: path
+        name: servicesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: consumersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      - Oauth2:
+        - https://www.googleapis.com/auth/service.management
+        Oauth2c:
+        - https://www.googleapis.com/auth/service.management
+      - Oauth2:
+        - https://www.googleapis.com/auth/service.management.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/service.management.readonly
+      tags:
+      - services
+  /v1/services/{servicesId}/consumers/{consumersId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy. Can return `NOT_FOUND`, `INVALID_ARGUMENT`, and `PERMISSION_DENIED`
+        errors.
+      operationId: servicemanagement.services.consumers.setIamPolicy
+      parameters:
+      - in: path
+        name: servicesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: consumersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/service.management
+        Oauth2c:
+        - https://www.googleapis.com/auth/service.management
+      tags:
+      - services
+  /v1/services/{servicesId}/consumers/{consumersId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a `NOT_FOUND` error. Note: This operation is designed to be used for building
+        permission-aware UIs and command-line tools, not for authorization checking.
+        This operation may "fail open" without warning.'
+      operationId: servicemanagement.services.consumers.testIamPermissions
+      parameters:
+      - in: path
+        name: servicesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: consumersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      - Oauth2:
+        - https://www.googleapis.com/auth/service.management
+        Oauth2c:
+        - https://www.googleapis.com/auth/service.management
+      - Oauth2:
+        - https://www.googleapis.com/auth/service.management.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/service.management.readonly
+      tags:
+      - services
+  /v1/services/{servicesId}:getIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Gets the access control policy for a resource. Returns an empty
+        policy if the resource exists and does not have a policy set.
+      operationId: servicemanagement.services.consumers.getIamPolicy
+      parameters:
+      - in: path
+        name: servicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      - Oauth2:
+        - https://www.googleapis.com/auth/service.management
+        Oauth2c:
+        - https://www.googleapis.com/auth/service.management
+      - Oauth2:
+        - https://www.googleapis.com/auth/service.management.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/service.management.readonly
+      tags:
+      - services
+  /v1/services/{servicesId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Sets the access control policy on the specified resource. Replaces
+        any existing policy. Can return `NOT_FOUND`, `INVALID_ARGUMENT`, and `PERMISSION_DENIED`
+        errors.
+      operationId: servicemanagement.services.consumers.setIamPolicy
+      parameters:
+      - in: path
+        name: servicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/service.management
+        Oauth2c:
+        - https://www.googleapis.com/auth/service.management
+      tags:
+      - services
+  /v1/services/{servicesId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Returns permissions that a caller has on the specified resource.
+        If the resource does not exist, this will return an empty set of permissions,
+        not a `NOT_FOUND` error. Note: This operation is designed to be used for building
+        permission-aware UIs and command-line tools, not for authorization checking.
+        This operation may "fail open" without warning.'
+      operationId: servicemanagement.services.consumers.testIamPermissions
+      parameters:
+      - in: path
+        name: servicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform.read-only
+      - Oauth2:
+        - https://www.googleapis.com/auth/service.management
+        Oauth2c:
+        - https://www.googleapis.com/auth/service.management
+      - Oauth2:
+        - https://www.googleapis.com/auth/service.management.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/service.management.readonly
       tags:
       - services
   /v1/services:generateConfigReport:

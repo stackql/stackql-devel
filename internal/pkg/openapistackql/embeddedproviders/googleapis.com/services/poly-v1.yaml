@@ -458,15 +458,13 @@ components:
       type: object
   x-stackQL-resources:
     assets:
-      id: google.services.assets
+      id: google.poly.assets
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/assets/{assetsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -475,53 +473,37 @@ components:
             $ref: get
           path:
             $ref: /v1/assets
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: assets
       title: assets
-    users:
-      id: google.services.users
-      methods: {}
-      name: users
-      title: users
-    users.resources:
-      id: google.services.users.resources
-      methods: {}
-      name: users.resources
-      title: users.resources
-    users.resources.assets:
-      id: google.services.users.resources.assets
+    users.assets:
+      id: google.poly.users.assets
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/assets
-          request:
-            mediaType: application/json
+            $ref: /v1/users/{usersId}/assets
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: users.resources.assets
-      title: users.resources.assets
-    users.resources.likedassets:
-      id: google.services.users.resources.likedassets
+      name: users.assets
+      title: users.assets
+    users.likedassets:
+      id: google.poly.users.likedassets
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/likedassets
-          request:
-            mediaType: application/json
+            $ref: /v1/users/{usersId}/likedassets
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: users.resources.likedassets
-      title: users.resources.likedassets
+      name: users.likedassets
+      title: users.likedassets
 externalDocs:
   url: https://developers.google.com/poly/
 info:
@@ -627,6 +609,168 @@ paths:
           description: Successful response
       tags:
       - assets
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/assets/{assetsId}:
+    get:
+      description: Returns detailed information about an asset given its name. PRIVATE
+        assets are returned only if the currently authenticated user (via OAuth token)
+        is the author of the asset.
+      operationId: poly.assets.get
+      parameters:
+      - in: path
+        name: assetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+          description: Successful response
+      tags:
+      - assets
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/users/{usersId}/assets:
+    get:
+      description: Lists assets authored by the given user. Only the value 'me', representing
+        the currently-authenticated user, is supported. May include assets with an
+        access level of PRIVATE or UNLISTED and assets which are All Rights Reserved
+        for the currently-authenticated user.
+      operationId: poly.users.assets.list
+      parameters:
+      - description: 'Return only assets with the matching format. Acceptable values
+          are: `BLOCKS`, `FBX`, `GLTF`, `GLTF2`, `OBJ`, and `TILT`.'
+        in: query
+        name: format
+        schema:
+          type: string
+      - description: 'Specifies an ordering for assets. Acceptable values are: `BEST`,
+          `NEWEST`, `OLDEST`. Defaults to `BEST`, which ranks assets based on a combination
+          of popularity and other features.'
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: The maximum number of assets to be returned. This value must
+          be between `1` and `100`. Defaults to `20`.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Specifies a continuation token from a previous search whose results
+          were split into multiple pages. To get the next page, submit the same request
+          specifying the value from next_page_token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: The visibility of the assets to be returned. Defaults to VISIBILITY_UNSPECIFIED
+          which returns all assets.
+        in: query
+        name: visibility
+        schema:
+          enum:
+          - VISIBILITY_UNSPECIFIED
+          - PUBLISHED
+          - PRIVATE
+          type: string
+      - in: path
+        name: usersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUserAssetsResponse'
+          description: Successful response
+      tags:
+      - users
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/users/{usersId}/likedassets:
+    get:
+      description: Lists assets that the user has liked. Only the value 'me', representing
+        the currently-authenticated user, is supported. May include assets with an
+        access level of UNLISTED.
+      operationId: poly.users.likedassets.list
+      parameters:
+      - description: 'Return only assets with the matching format. Acceptable values
+          are: `BLOCKS`, `FBX`, `GLTF`, `GLTF2`, `OBJ`, `TILT`.'
+        in: query
+        name: format
+        schema:
+          type: string
+      - description: 'Specifies an ordering for assets. Acceptable values are: `BEST`,
+          `NEWEST`, `OLDEST`, ''LIKED_TIME''. Defaults to `LIKED_TIME`, which ranks
+          assets based on how recently they were liked.'
+        in: query
+        name: orderBy
+        schema:
+          type: string
+      - description: The maximum number of assets to be returned. This value must
+          be between `1` and `100`. Defaults to `20`.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Specifies a continuation token from a previous search whose results
+          were split into multiple pages. To get the next page, submit the same request
+          specifying the value from next_page_token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: usersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLikedAssetsResponse'
+          description: Successful response
+      tags:
+      - users
     parameters:
     - $ref: '#/components/parameters/_.xgafv'
     - $ref: '#/components/parameters/access_token'

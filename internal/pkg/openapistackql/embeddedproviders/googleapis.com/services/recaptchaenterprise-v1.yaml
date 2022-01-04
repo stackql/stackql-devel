@@ -442,24 +442,14 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.assessments:
-      id: google.services.projects.resources.assessments
+    projects.assessments:
+      id: google.recaptchaenterprise.projects.assessments
       methods:
         annotate:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:annotate
+            $ref: /v1/projects/{projectsId}/assessments/{assessmentsId}:annotate
           request:
             mediaType: application/json
           response:
@@ -469,22 +459,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/assessments
+            $ref: /v1/projects/{projectsId}/assessments
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.assessments
-      title: projects.resources.assessments
-    projects.resources.keys:
-      id: google.services.projects.resources.keys
+      name: projects.assessments
+      title: projects.assessments
+    projects.keys:
+      id: google.recaptchaenterprise.projects.keys
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/keys
+            $ref: /v1/projects/{projectsId}/keys
           request:
             mediaType: application/json
           response:
@@ -494,9 +484,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/keys/{keysId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -504,9 +492,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/keys/{keysId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -514,9 +500,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/keys/{keysId}/metrics
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -524,9 +508,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/keys
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/keys
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -534,7 +516,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:migrate
+            $ref: /v1/projects/{projectsId}/keys/{keysId}:migrate
           request:
             mediaType: application/json
           response:
@@ -544,64 +526,14 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/keys/{keysId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.keys
-      title: projects.resources.keys
-    projects.resources.relatedaccountgroupmemberships:
-      id: google.services.projects.resources.relatedaccountgroupmemberships
-      methods:
-        search:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1/{project}/relatedaccountgroupmemberships:search
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: projects.resources.relatedaccountgroupmemberships
-      title: projects.resources.relatedaccountgroupmemberships
-    projects.resources.relatedaccountgroups:
-      id: google.services.projects.resources.relatedaccountgroups
-      methods:
-        list:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1/{parent}/relatedaccountgroups
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: projects.resources.relatedaccountgroups
-      title: projects.resources.relatedaccountgroups
-    projects.resources.relatedaccountgroups.resources:
-      id: google.services.projects.resources.relatedaccountgroups.resources
-      methods: {}
-      name: projects.resources.relatedaccountgroups.resources
-      title: projects.resources.relatedaccountgroups.resources
-    projects.resources.relatedaccountgroups.resources.memberships:
-      id: google.services.projects.resources.relatedaccountgroups.resources.memberships
-      methods:
-        list:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1/{parent}/memberships
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: projects.resources.relatedaccountgroups.resources.memberships
-      title: projects.resources.relatedaccountgroups.resources.memberships
+      name: projects.keys
+      title: projects.keys
 externalDocs:
   url: https://cloud.google.com/recaptcha-enterprise/
 info:
@@ -629,6 +561,438 @@ info:
   x-serviceName: recaptchaenterprise
 openapi: 3.0.0
 paths:
+  /v1/projects/{projectsId}/assessments:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates an Assessment of the likelihood an event is legitimate.
+      operationId: recaptchaenterprise.projects.assessments.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudRecaptchaenterpriseV1Assessment'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecaptchaenterpriseV1Assessment'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/assessments/{assessmentsId}:annotate:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Annotates a previously created Assessment to provide additional
+        information on whether the event turned out to be authentic or fraudulent.
+      operationId: recaptchaenterprise.projects.assessments.annotate
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: assessmentsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudRecaptchaenterpriseV1AnnotateAssessmentRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecaptchaenterpriseV1AnnotateAssessmentResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/keys:
+    get:
+      description: Returns the list of all keys that belong to a project.
+      operationId: recaptchaenterprise.projects.keys.list
+      parameters:
+      - description: Optional. The maximum number of keys to return. Default is 10.
+          Max limit is 1000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. The next_page_token value returned from a previous.
+          ListKeysRequest, if any.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecaptchaenterpriseV1ListKeysResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new reCAPTCHA Enterprise key.
+      operationId: recaptchaenterprise.projects.keys.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudRecaptchaenterpriseV1Key'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecaptchaenterpriseV1Key'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/keys/{keysId}:
+    delete:
+      description: Deletes the specified key.
+      operationId: recaptchaenterprise.projects.keys.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keysId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Get some aggregated metrics for a Key. This data can be used to
+        build dashboards.
+      operationId: recaptchaenterprise.projects.keys.getMetrics
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keysId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecaptchaenterpriseV1Metrics'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the specified key.
+      operationId: recaptchaenterprise.projects.keys.patch
+      parameters:
+      - description: Optional. The mask to control which fields of the key get updated.
+          If the mask is not present, all fields will be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keysId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudRecaptchaenterpriseV1Key'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecaptchaenterpriseV1Key'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/keys/{keysId}/metrics:
+    delete:
+      description: Deletes the specified key.
+      operationId: recaptchaenterprise.projects.keys.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keysId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Get some aggregated metrics for a Key. This data can be used to
+        build dashboards.
+      operationId: recaptchaenterprise.projects.keys.getMetrics
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keysId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecaptchaenterpriseV1Metrics'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates the specified key.
+      operationId: recaptchaenterprise.projects.keys.patch
+      parameters:
+      - description: Optional. The mask to control which fields of the key get updated.
+          If the mask is not present, all fields will be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keysId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudRecaptchaenterpriseV1Key'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecaptchaenterpriseV1Key'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/keys/{keysId}:migrate:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Migrates an existing key from reCAPTCHA to reCAPTCHA Enterprise.
+        Once a key is migrated, it can be used from either product. SiteVerify requests
+        are billed as CreateAssessment calls. You must be authenticated as one of
+        the current owners of the reCAPTCHA Site Key, and your user must have the
+        reCAPTCHA Enterprise Admin IAM role in the destination project.
+      operationId: recaptchaenterprise.projects.keys.migrate
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keysId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudRecaptchaenterpriseV1MigrateKeyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecaptchaenterpriseV1Key'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
   /v1/{name}:
     delete:
       description: Deletes the specified key.

@@ -575,36 +575,14 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    organizations:
-      id: google.services.organizations
-      methods: {}
-      name: organizations
-      title: organizations
-    organizations.resources:
-      id: google.services.organizations.resources
-      methods: {}
-      name: organizations.resources
-      title: organizations.resources
-    organizations.resources.locations:
-      id: google.services.organizations.resources.locations
-      methods: {}
-      name: organizations.resources.locations
-      title: organizations.resources.locations
-    organizations.resources.locations.resources:
-      id: google.services.organizations.resources.locations.resources
-      methods: {}
-      name: organizations.resources.locations.resources
-      title: organizations.resources.locations.resources
-    organizations.resources.locations.resources.operations:
-      id: google.services.organizations.resources.locations.resources.operations
+    organizations.locations.operations:
+      id: google.assuredworkloads.organizations.locations.operations
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/organizations/{organizationsId}/locations/{locationsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -612,22 +590,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/operations
-          request:
-            mediaType: application/json
+            $ref: /v1/organizations/{organizationsId}/locations/{locationsId}/operations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: organizations.resources.locations.resources.operations
-      title: organizations.resources.locations.resources.operations
-    organizations.resources.locations.resources.workloads:
-      id: google.services.organizations.resources.locations.resources.workloads
+      name: organizations.locations.operations
+      title: organizations.locations.operations
+    organizations.locations.workloads:
+      id: google.assuredworkloads.organizations.locations.workloads
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/workloads
+            $ref: /v1/organizations/{organizationsId}/locations/{locationsId}/workloads
           request:
             mediaType: application/json
           response:
@@ -637,9 +613,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/organizations/{organizationsId}/locations/{locationsId}/workloads/{workloadsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -647,9 +621,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/organizations/{organizationsId}/locations/{locationsId}/workloads/{workloadsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -657,9 +629,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/workloads
-          request:
-            mediaType: application/json
+            $ref: /v1/organizations/{organizationsId}/locations/{locationsId}/workloads
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -667,14 +637,14 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/organizations/{organizationsId}/locations/{locationsId}/workloads/{workloadsId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: organizations.resources.locations.resources.workloads
-      title: organizations.resources.locations.resources.workloads
+      name: organizations.locations.workloads
+      title: organizations.locations.workloads
 externalDocs:
   url: https://cloud.google.com
 info:
@@ -702,6 +672,434 @@ info:
   x-serviceName: assuredworkloads
 openapi: 3.0.0
 paths:
+  /v1/organizations/{organizationsId}/locations/{locationsId}/operations:
+    get:
+      description: 'Lists operations that match the specified filter in the request.
+        If the server doesn''t support this method, it returns `UNIMPLEMENTED`. NOTE:
+        the `name` binding allows API services to override the binding to use different
+        resource name schemes, such as `users/*/operations`. To override the binding,
+        API services can add a binding such as `"/v1/{name=users/*}/operations"` to
+        their service configuration. For backwards compatibility, the default name
+        includes the operations collection id, however overriding users must ensure
+        the name binding is the parent resource, without the operations collection
+        id.'
+      operationId: assuredworkloads.organizations.locations.operations.list
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningListOperationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - organizations
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/organizations/{organizationsId}/locations/{locationsId}/operations/{operationsId}:
+    delete:
+      description: Deletes the workload. Make sure that workload's direct children
+        are already in a deleted state, otherwise the request will fail with a FAILED_PRECONDITION
+        error.
+      operationId: assuredworkloads.organizations.locations.workloads.delete
+      parameters:
+      - description: Optional. The etag of the workload. If this is provided, it must
+          match the server's etag.
+        in: query
+        name: etag
+        schema:
+          type: string
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - organizations
+    get:
+      description: Gets Assured Workload associated with a CRM Node
+      operationId: assuredworkloads.organizations.locations.workloads.get
+      parameters:
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudAssuredworkloadsV1Workload'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - organizations
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates an existing workload. Currently allows updating of workload
+        display_name and labels. For force updates don't set etag field in the Workload.
+        Only one update operation per workload can be in progress.
+      operationId: assuredworkloads.organizations.locations.workloads.patch
+      parameters:
+      - description: Required. The list of fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudAssuredworkloadsV1Workload'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudAssuredworkloadsV1Workload'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - organizations
+  /v1/organizations/{organizationsId}/locations/{locationsId}/workloads:
+    get:
+      description: Lists Assured Workloads under a CRM Node.
+      operationId: assuredworkloads.organizations.locations.workloads.list
+      parameters:
+      - description: A custom filter for filtering by properties of a workload. At
+          this time, only filtering by labels is supported.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Page token returned from previous request. Page token contains
+          context from previous request. Page token needs to be passed in the second
+          and following requests.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudAssuredworkloadsV1ListWorkloadsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - organizations
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates Assured Workload.
+      operationId: assuredworkloads.organizations.locations.workloads.create
+      parameters:
+      - description: Optional. A identifier associated with the workload and underlying
+          projects which allows for the break down of billing costs for a workload.
+          The value provided for the identifier will add a label to the workload and
+          contained projects with the identifier as the value.
+        in: query
+        name: externalId
+        schema:
+          type: string
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudAssuredworkloadsV1Workload'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - organizations
+  /v1/organizations/{organizationsId}/locations/{locationsId}/workloads/{workloadsId}:
+    delete:
+      description: Deletes the workload. Make sure that workload's direct children
+        are already in a deleted state, otherwise the request will fail with a FAILED_PRECONDITION
+        error.
+      operationId: assuredworkloads.organizations.locations.workloads.delete
+      parameters:
+      - description: Optional. The etag of the workload. If this is provided, it must
+          match the server's etag.
+        in: query
+        name: etag
+        schema:
+          type: string
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - organizations
+    get:
+      description: Gets Assured Workload associated with a CRM Node
+      operationId: assuredworkloads.organizations.locations.workloads.get
+      parameters:
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudAssuredworkloadsV1Workload'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - organizations
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates an existing workload. Currently allows updating of workload
+        display_name and labels. For force updates don't set etag field in the Workload.
+        Only one update operation per workload can be in progress.
+      operationId: assuredworkloads.organizations.locations.workloads.patch
+      parameters:
+      - description: Required. The list of fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudAssuredworkloadsV1Workload'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudAssuredworkloadsV1Workload'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - organizations
   /v1/{name}:
     delete:
       description: Deletes the workload. Make sure that workload's direct children

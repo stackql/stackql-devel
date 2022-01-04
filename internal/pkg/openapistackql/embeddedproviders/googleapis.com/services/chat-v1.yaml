@@ -1695,13 +1695,13 @@ components:
       type: object
   x-stackQL-resources:
     dms:
-      id: google.services.dms
+      id: google.chat.dms
       methods:
         messages:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/messages
+            $ref: /v1/dms/{dmsId}/messages
           request:
             mediaType: application/json
           response:
@@ -1711,7 +1711,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/webhooks
+            $ref: /v1/dms/{dmsId}/webhooks
           request:
             mediaType: application/json
           response:
@@ -1719,49 +1719,42 @@ components:
             openAPIDocKey: '200'
       name: dms
       title: dms
-    dms.resources:
-      id: google.services.dms.resources
-      methods: {}
-      name: dms.resources
-      title: dms.resources
-    dms.resources.conversations:
-      id: google.services.dms.resources.conversations
+    dms.conversations:
+      id: google.chat.dms.conversations
       methods:
         messages:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/messages
+            $ref: /v1/dms/{dmsId}/conversations/{conversationsId}/messages
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: dms.resources.conversations
-      title: dms.resources.conversations
+      name: dms.conversations
+      title: dms.conversations
     media:
-      id: google.services.media
+      id: google.chat.media
       methods:
         download:
           operation:
             $ref: get
           path:
-            $ref: /v1/media/{resourceName}
-          request:
-            mediaType: application/json
+            $ref: /v1/media/{mediaId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: media
       title: media
     rooms:
-      id: google.services.rooms
+      id: google.chat.rooms
       methods:
         messages:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/messages
+            $ref: /v1/rooms/{roomsId}/messages
           request:
             mediaType: application/json
           response:
@@ -1771,7 +1764,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/webhooks
+            $ref: /v1/rooms/{roomsId}/webhooks
           request:
             mediaType: application/json
           response:
@@ -1779,36 +1772,29 @@ components:
             openAPIDocKey: '200'
       name: rooms
       title: rooms
-    rooms.resources:
-      id: google.services.rooms.resources
-      methods: {}
-      name: rooms.resources
-      title: rooms.resources
-    rooms.resources.conversations:
-      id: google.services.rooms.resources.conversations
+    rooms.conversations:
+      id: google.chat.rooms.conversations
       methods:
         messages:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/messages
+            $ref: /v1/rooms/{roomsId}/conversations/{conversationsId}/messages
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: rooms.resources.conversations
-      title: rooms.resources.conversations
+      name: rooms.conversations
+      title: rooms.conversations
     spaces:
-      id: google.services.spaces
+      id: google.chat.spaces
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/spaces/{spacesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1817,8 +1803,6 @@ components:
             $ref: get
           path:
             $ref: /v1/spaces
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1826,7 +1810,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/webhooks
+            $ref: /v1/spaces/{spacesId}/webhooks
           request:
             mediaType: application/json
           response:
@@ -1834,21 +1818,14 @@ components:
             openAPIDocKey: '200'
       name: spaces
       title: spaces
-    spaces.resources:
-      id: google.services.spaces.resources
-      methods: {}
-      name: spaces.resources
-      title: spaces.resources
-    spaces.resources.members:
-      id: google.services.spaces.resources.members
+    spaces.members:
+      id: google.chat.spaces.members
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/spaces/{spacesId}/members/{membersId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1856,22 +1833,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/members
-          request:
-            mediaType: application/json
+            $ref: /v1/spaces/{spacesId}/members
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: spaces.resources.members
-      title: spaces.resources.members
-    spaces.resources.messages:
-      id: google.services.spaces.resources.messages
+      name: spaces.members
+      title: spaces.members
+    spaces.messages:
+      id: google.chat.spaces.messages
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/messages
+            $ref: /v1/spaces/{spacesId}/messages
           request:
             mediaType: application/json
           response:
@@ -1881,9 +1856,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/spaces/{spacesId}/messages/{messagesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1891,9 +1864,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/spaces/{spacesId}/messages/{messagesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1901,34 +1872,27 @@ components:
           operation:
             $ref: put
           path:
-            $ref: /v1/{name}
+            $ref: /v1/spaces/{spacesId}/messages/{messagesId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: spaces.resources.messages
-      title: spaces.resources.messages
-    spaces.resources.messages.resources:
-      id: google.services.spaces.resources.messages.resources
-      methods: {}
-      name: spaces.resources.messages.resources
-      title: spaces.resources.messages.resources
-    spaces.resources.messages.resources.attachments:
-      id: google.services.spaces.resources.messages.resources.attachments
+      name: spaces.messages
+      title: spaces.messages
+    spaces.messages.attachments:
+      id: google.chat.spaces.messages.attachments
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/spaces/{spacesId}/messages/{messagesId}/attachments/{attachmentsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: spaces.resources.messages.resources.attachments
-      title: spaces.resources.messages.resources.attachments
+      name: spaces.messages.attachments
+      title: spaces.messages.attachments
 externalDocs:
   url: https://developers.google.com/hangouts/chat
 info:
@@ -1963,9 +1927,211 @@ info:
   x-serviceName: chat
 openapi: 3.0.0
 paths:
+  /v1/dms/{dmsId}/conversations/{conversationsId}/messages:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a message.
+      operationId: chat.spaces.messages.create
+      parameters:
+      - description: Optional. A unique request ID for this message. If a message
+          has already been created in the space with this request ID, the subsequent
+          request will return the existing message and no new message will be created.
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Optional. Opaque thread identifier string that can be specified
+          to group messages into a single thread. If this is the first message with
+          a given thread identifier, a new thread is created. Subsequent messages
+          with the same thread identifier will be posted into the same thread. This
+          relieves bots and webhooks from having to store the Google Chat thread ID
+          of a thread (created earlier by them) to post further updates to it. Has
+          no effect if thread field, corresponding to an existing thread, is set in
+          message.
+        in: query
+        name: threadKey
+        schema:
+          type: string
+      - in: path
+        name: dmsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: conversationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: Successful response
+      tags:
+      - spaces
+  /v1/dms/{dmsId}/messages:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a message.
+      operationId: chat.spaces.messages.create
+      parameters:
+      - description: Optional. A unique request ID for this message. If a message
+          has already been created in the space with this request ID, the subsequent
+          request will return the existing message and no new message will be created.
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Optional. Opaque thread identifier string that can be specified
+          to group messages into a single thread. If this is the first message with
+          a given thread identifier, a new thread is created. Subsequent messages
+          with the same thread identifier will be posted into the same thread. This
+          relieves bots and webhooks from having to store the Google Chat thread ID
+          of a thread (created earlier by them) to post further updates to it. Has
+          no effect if thread field, corresponding to an existing thread, is set in
+          message.
+        in: query
+        name: threadKey
+        schema:
+          type: string
+      - in: path
+        name: dmsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: Successful response
+      tags:
+      - spaces
+  /v1/dms/{dmsId}/webhooks:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Legacy path for creating message. Calling these will result in
+        a BadRequest response.
+      operationId: chat.spaces.webhooks
+      parameters:
+      - description: Optional. A unique request ID for this message. If a message
+          has already been created in the space with this request ID, the subsequent
+          request will return the existing message and no new message will be created.
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Optional. Opaque thread identifier string that can be specified
+          to group messages into a single thread. If this is the first message with
+          a given thread identifier, a new thread is created. Subsequent messages
+          with the same thread identifier will be posted into the same thread. This
+          relieves bots and webhooks from having to store the Google Chat thread ID
+          of a thread (created earlier by them) to post further updates to it. Has
+          no effect if thread field, corresponding to an existing thread, is set in
+          message.
+        in: query
+        name: threadKey
+        schema:
+          type: string
+      - in: path
+        name: dmsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: Successful response
+      tags:
+      - spaces
+  /v1/media/{mediaId}:
+    get:
+      description: Downloads media. Download is supported on the URI `/v1/media/{+name}?alt=media`.
+      operationId: chat.media.download
+      parameters:
+      - in: path
+        name: mediaId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
+          description: Successful response
+      tags:
+      - media
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /v1/media/{resourceName}:
     get:
-      description: Downloads media. Download is supported on the URI `/v1/media/{name}?alt=media`.
+      description: Downloads media. Download is supported on the URI `/v1/media/{+name}?alt=media`.
       operationId: chat.media.download
       parameters:
       - description: Name of the media that is being downloaded. See ReadRequest.resource_name.
@@ -1995,6 +2161,177 @@ paths:
     - $ref: '#/components/parameters/quotaUser'
     - $ref: '#/components/parameters/upload_protocol'
     - $ref: '#/components/parameters/uploadType'
+  /v1/rooms/{roomsId}/conversations/{conversationsId}/messages:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a message.
+      operationId: chat.spaces.messages.create
+      parameters:
+      - description: Optional. A unique request ID for this message. If a message
+          has already been created in the space with this request ID, the subsequent
+          request will return the existing message and no new message will be created.
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Optional. Opaque thread identifier string that can be specified
+          to group messages into a single thread. If this is the first message with
+          a given thread identifier, a new thread is created. Subsequent messages
+          with the same thread identifier will be posted into the same thread. This
+          relieves bots and webhooks from having to store the Google Chat thread ID
+          of a thread (created earlier by them) to post further updates to it. Has
+          no effect if thread field, corresponding to an existing thread, is set in
+          message.
+        in: query
+        name: threadKey
+        schema:
+          type: string
+      - in: path
+        name: roomsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: conversationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: Successful response
+      tags:
+      - spaces
+  /v1/rooms/{roomsId}/messages:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a message.
+      operationId: chat.spaces.messages.create
+      parameters:
+      - description: Optional. A unique request ID for this message. If a message
+          has already been created in the space with this request ID, the subsequent
+          request will return the existing message and no new message will be created.
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Optional. Opaque thread identifier string that can be specified
+          to group messages into a single thread. If this is the first message with
+          a given thread identifier, a new thread is created. Subsequent messages
+          with the same thread identifier will be posted into the same thread. This
+          relieves bots and webhooks from having to store the Google Chat thread ID
+          of a thread (created earlier by them) to post further updates to it. Has
+          no effect if thread field, corresponding to an existing thread, is set in
+          message.
+        in: query
+        name: threadKey
+        schema:
+          type: string
+      - in: path
+        name: roomsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: Successful response
+      tags:
+      - spaces
+  /v1/rooms/{roomsId}/webhooks:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Legacy path for creating message. Calling these will result in
+        a BadRequest response.
+      operationId: chat.spaces.webhooks
+      parameters:
+      - description: Optional. A unique request ID for this message. If a message
+          has already been created in the space with this request ID, the subsequent
+          request will return the existing message and no new message will be created.
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Optional. Opaque thread identifier string that can be specified
+          to group messages into a single thread. If this is the first message with
+          a given thread identifier, a new thread is created. Subsequent messages
+          with the same thread identifier will be posted into the same thread. This
+          relieves bots and webhooks from having to store the Google Chat thread ID
+          of a thread (created earlier by them) to post further updates to it. Has
+          no effect if thread field, corresponding to an existing thread, is set in
+          message.
+        in: query
+        name: threadKey
+        schema:
+          type: string
+      - in: path
+        name: roomsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: Successful response
+      tags:
+      - spaces
   /v1/spaces:
     get:
       description: Lists spaces the caller is a member of.
@@ -2033,6 +2370,540 @@ paths:
     - $ref: '#/components/parameters/quotaUser'
     - $ref: '#/components/parameters/upload_protocol'
     - $ref: '#/components/parameters/uploadType'
+  /v1/spaces/{spacesId}:
+    delete:
+      description: Deletes a message.
+      operationId: chat.spaces.messages.delete
+      parameters:
+      - in: path
+        name: spacesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - spaces
+    get:
+      description: Gets the metadata of a message attachment. The attachment data
+        is fetched using the media API.
+      operationId: chat.spaces.messages.attachments.get
+      parameters:
+      - in: path
+        name: spacesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attachment'
+          description: Successful response
+      tags:
+      - spaces
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Updates a message.
+      operationId: chat.spaces.messages.update
+      parameters:
+      - description: 'Required. The field paths to be updated, comma separated if
+          there are multiple. Currently supported field paths: * text * cards * gsuite_message_integration_render_data
+          * attachment'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: spacesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: Successful response
+      tags:
+      - spaces
+  /v1/spaces/{spacesId}/members:
+    get:
+      description: Lists human memberships in a space.
+      operationId: chat.spaces.members.list
+      parameters:
+      - description: Requested page size. The value is capped at 1000. Server may
+          return fewer results than requested. If unspecified, server will default
+          to 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results the server should return.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: spacesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListMembershipsResponse'
+          description: Successful response
+      tags:
+      - spaces
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/spaces/{spacesId}/members/{membersId}:
+    delete:
+      description: Deletes a message.
+      operationId: chat.spaces.messages.delete
+      parameters:
+      - in: path
+        name: spacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: membersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - spaces
+    get:
+      description: Gets the metadata of a message attachment. The attachment data
+        is fetched using the media API.
+      operationId: chat.spaces.messages.attachments.get
+      parameters:
+      - in: path
+        name: spacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: membersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attachment'
+          description: Successful response
+      tags:
+      - spaces
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Updates a message.
+      operationId: chat.spaces.messages.update
+      parameters:
+      - description: 'Required. The field paths to be updated, comma separated if
+          there are multiple. Currently supported field paths: * text * cards * gsuite_message_integration_render_data
+          * attachment'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: spacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: membersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: Successful response
+      tags:
+      - spaces
+  /v1/spaces/{spacesId}/messages:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a message.
+      operationId: chat.spaces.messages.create
+      parameters:
+      - description: Optional. A unique request ID for this message. If a message
+          has already been created in the space with this request ID, the subsequent
+          request will return the existing message and no new message will be created.
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Optional. Opaque thread identifier string that can be specified
+          to group messages into a single thread. If this is the first message with
+          a given thread identifier, a new thread is created. Subsequent messages
+          with the same thread identifier will be posted into the same thread. This
+          relieves bots and webhooks from having to store the Google Chat thread ID
+          of a thread (created earlier by them) to post further updates to it. Has
+          no effect if thread field, corresponding to an existing thread, is set in
+          message.
+        in: query
+        name: threadKey
+        schema:
+          type: string
+      - in: path
+        name: spacesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: Successful response
+      tags:
+      - spaces
+  /v1/spaces/{spacesId}/messages/{messagesId}:
+    delete:
+      description: Deletes a message.
+      operationId: chat.spaces.messages.delete
+      parameters:
+      - in: path
+        name: spacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: messagesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - spaces
+    get:
+      description: Gets the metadata of a message attachment. The attachment data
+        is fetched using the media API.
+      operationId: chat.spaces.messages.attachments.get
+      parameters:
+      - in: path
+        name: spacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: messagesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attachment'
+          description: Successful response
+      tags:
+      - spaces
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Updates a message.
+      operationId: chat.spaces.messages.update
+      parameters:
+      - description: 'Required. The field paths to be updated, comma separated if
+          there are multiple. Currently supported field paths: * text * cards * gsuite_message_integration_render_data
+          * attachment'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: spacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: messagesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: Successful response
+      tags:
+      - spaces
+  /v1/spaces/{spacesId}/messages/{messagesId}/attachments/{attachmentsId}:
+    delete:
+      description: Deletes a message.
+      operationId: chat.spaces.messages.delete
+      parameters:
+      - in: path
+        name: spacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: messagesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: attachmentsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - spaces
+    get:
+      description: Gets the metadata of a message attachment. The attachment data
+        is fetched using the media API.
+      operationId: chat.spaces.messages.attachments.get
+      parameters:
+      - in: path
+        name: spacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: messagesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: attachmentsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attachment'
+          description: Successful response
+      tags:
+      - spaces
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    put:
+      description: Updates a message.
+      operationId: chat.spaces.messages.update
+      parameters:
+      - description: 'Required. The field paths to be updated, comma separated if
+          there are multiple. Currently supported field paths: * text * cards * gsuite_message_integration_render_data
+          * attachment'
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: spacesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: messagesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: attachmentsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: Successful response
+      tags:
+      - spaces
+  /v1/spaces/{spacesId}/webhooks:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Legacy path for creating message. Calling these will result in
+        a BadRequest response.
+      operationId: chat.spaces.webhooks
+      parameters:
+      - description: Optional. A unique request ID for this message. If a message
+          has already been created in the space with this request ID, the subsequent
+          request will return the existing message and no new message will be created.
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - description: Optional. Opaque thread identifier string that can be specified
+          to group messages into a single thread. If this is the first message with
+          a given thread identifier, a new thread is created. Subsequent messages
+          with the same thread identifier will be posted into the same thread. This
+          relieves bots and webhooks from having to store the Google Chat thread ID
+          of a thread (created earlier by them) to post further updates to it. Has
+          no effect if thread field, corresponding to an existing thread, is set in
+          message.
+        in: query
+        name: threadKey
+        schema:
+          type: string
+      - in: path
+        name: spacesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: Successful response
+      tags:
+      - spaces
   /v1/{name}:
     delete:
       description: Deletes a message.

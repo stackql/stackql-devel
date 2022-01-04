@@ -575,31 +575,21 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.messages:
-      id: google.services.projects.resources.messages
+    projects.messages:
+      id: google.fcm.projects.messages
       methods:
         send:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/messages:send
+            $ref: /v1/projects/{projectsId}/messages:send
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.messages
-      title: projects.resources.messages
+      name: projects.messages
+      title: projects.messages
 externalDocs:
   url: https://firebase.google.com/docs/cloud-messaging
 info:
@@ -633,6 +623,52 @@ info:
   x-serviceName: fcm
 openapi: 3.0.0
 paths:
+  /v1/projects/{projectsId}/messages:send:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Send a message to specified target (a registration token, topic
+        or condition).
+      operationId: fcm.projects.messages.send
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase.messaging
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase.messaging
+      tags:
+      - projects
   /v1/{parent}/messages:send:
     parameters:
     - $ref: '#/components/parameters/_.xgafv'

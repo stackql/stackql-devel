@@ -1520,15 +1520,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     edits:
-      id: google.services.edits
+      id: google.androidpublisher.edits
       methods:
         commit:
           operation:
             $ref: post
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}:commit
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1537,18 +1535,13 @@ components:
             $ref: delete
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1567,20 +1560,13 @@ components:
             $ref: post
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}:validate
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: edits
       title: edits
-    edits.resources:
-      id: google.services.edits.resources
-      methods: {}
-      name: edits.resources
-      title: edits.resources
-    edits.resources.apks:
-      id: google.services.edits.resources.apks
+    edits.apks:
+      id: google.androidpublisher.edits.apks
       methods:
         addexternallyhosted:
           operation:
@@ -1597,8 +1583,6 @@ components:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/apks
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1607,23 +1591,19 @@ components:
             $ref: post
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/apks
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: edits.resources.apks
-      title: edits.resources.apks
-    edits.resources.bundles:
-      id: google.services.edits.resources.bundles
+      name: edits.apks
+      title: edits.apks
+    edits.bundles:
+      id: google.androidpublisher.edits.bundles
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/bundles
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1632,53 +1612,32 @@ components:
             $ref: post
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/bundles
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: edits.resources.bundles
-      title: edits.resources.bundles
-    edits.resources.countryavailability:
-      id: google.services.edits.resources.countryavailability
-      methods:
-        get:
-          operation:
-            $ref: get
-          path:
-            $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/countryAvailability/{track}
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: edits.resources.countryavailability
-      title: edits.resources.countryavailability
-    edits.resources.deobfuscationfiles:
-      id: google.services.edits.resources.deobfuscationfiles
+      name: edits.bundles
+      title: edits.bundles
+    edits.deobfuscationfiles:
+      id: google.androidpublisher.edits.deobfuscationfiles
       methods:
         upload:
           operation:
             $ref: post
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/apks/{apkVersionCode}/deobfuscationFiles/{deobfuscationFileType}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: edits.resources.deobfuscationfiles
-      title: edits.resources.deobfuscationfiles
-    edits.resources.details:
-      id: google.services.edits.resources.details
+      name: edits.deobfuscationfiles
+      title: edits.deobfuscationfiles
+    edits.details:
+      id: google.androidpublisher.edits.details
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/details
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1702,18 +1661,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: edits.resources.details
-      title: edits.resources.details
-    edits.resources.expansionfiles:
-      id: google.services.edits.resources.expansionfiles
+      name: edits.details
+      title: edits.details
+    edits.expansionfiles:
+      id: google.androidpublisher.edits.expansionfiles
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/apks/{apkVersionCode}/expansionFiles/{expansionFileType}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1742,33 +1699,26 @@ components:
             $ref: post
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/apks/{apkVersionCode}/expansionFiles/{expansionFileType}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: edits.resources.expansionfiles
-      title: edits.resources.expansionfiles
-    edits.resources.images:
-      id: google.services.edits.resources.images
+      name: edits.expansionfiles
+      title: edits.expansionfiles
+    edits.images:
+      id: google.androidpublisher.edits.images
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/listings/{language}/{imageType}/{imageId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         deleteall:
           operation:
             $ref: delete
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/listings/{language}/{imageType}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1777,8 +1727,6 @@ components:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/listings/{language}/{imageType}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1787,43 +1735,33 @@ components:
             $ref: post
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/listings/{language}/{imageType}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: edits.resources.images
-      title: edits.resources.images
-    edits.resources.listings:
-      id: google.services.edits.resources.listings
+      name: edits.images
+      title: edits.images
+    edits.listings:
+      id: google.androidpublisher.edits.listings
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/listings/{language}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         deleteall:
           operation:
             $ref: delete
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/listings
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/listings/{language}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1832,8 +1770,6 @@ components:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/listings
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1857,18 +1793,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: edits.resources.listings
-      title: edits.resources.listings
-    edits.resources.testers:
-      id: google.services.edits.resources.testers
+      name: edits.listings
+      title: edits.listings
+    edits.testers:
+      id: google.androidpublisher.edits.testers
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/testers/{track}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1892,18 +1826,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: edits.resources.testers
-      title: edits.resources.testers
-    edits.resources.tracks:
-      id: google.services.edits.resources.tracks
+      name: edits.testers
+      title: edits.testers
+    edits.tracks:
+      id: google.androidpublisher.edits.tracks
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/tracks/{track}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1912,8 +1844,6 @@ components:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/edits/{editId}/tracks
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1937,41 +1867,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: edits.resources.tracks
-      title: edits.resources.tracks
-    generatedapks:
-      id: google.services.generatedapks
-      methods:
-        download:
-          operation:
-            $ref: get
-          path:
-            $ref: /androidpublisher/v3/applications/{packageName}/generatedApks/{versionCode}/downloads/{downloadId}:download
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        list:
-          operation:
-            $ref: get
-          path:
-            $ref: /androidpublisher/v3/applications/{packageName}/generatedApks/{versionCode}
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: generatedapks
-      title: generatedapks
+      name: edits.tracks
+      title: edits.tracks
     grants:
-      id: google.services.grants
+      id: google.androidpublisher.grants
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /androidpublisher/v3/{parent}/grants
+            $ref: /androidpublisher/v3/developers/{developersId}/users/{usersId}/grants
           request:
             mediaType: application/json
           response:
@@ -1981,17 +1886,14 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /androidpublisher/v3/{name}
-          request:
-            mediaType: application/json
+            $ref: /androidpublisher/v3/developers/{developersId}/users/{usersId}/grants/{grantsId}
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         patch:
           operation:
             $ref: patch
           path:
-            $ref: /androidpublisher/v3/{name}
+            $ref: /androidpublisher/v3/developers/{developersId}/users/{usersId}/grants/{grantsId}
           request:
             mediaType: application/json
           response:
@@ -2000,25 +1902,20 @@ components:
       name: grants
       title: grants
     inappproducts:
-      id: google.services.inappproducts
+      id: google.androidpublisher.inappproducts
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/inappproducts/{sku}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/inappproducts/{sku}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2037,8 +1934,6 @@ components:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/inappproducts
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2065,15 +1960,13 @@ components:
       name: inappproducts
       title: inappproducts
     internalappsharingartifacts:
-      id: google.services.internalappsharingartifacts
+      id: google.androidpublisher.internalappsharingartifacts
       methods:
         uploadapk:
           operation:
             $ref: post
           path:
             $ref: /androidpublisher/v3/applications/internalappsharing/{packageName}/artifacts/apk
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2082,15 +1975,13 @@ components:
             $ref: post
           path:
             $ref: /androidpublisher/v3/applications/internalappsharing/{packageName}/artifacts/bundle
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: internalappsharingartifacts
       title: internalappsharingartifacts
     monetization:
-      id: google.services.monetization
+      id: google.androidpublisher.monetization
       methods:
         convertRegionPrices:
           operation:
@@ -2105,32 +1996,19 @@ components:
       name: monetization
       title: monetization
     orders:
-      id: google.services.orders
+      id: google.androidpublisher.orders
       methods:
         refund:
           operation:
             $ref: post
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/orders/{orderId}:refund
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
       name: orders
       title: orders
-    purchases:
-      id: google.services.purchases
-      methods: {}
-      name: purchases
-      title: purchases
-    purchases.resources:
-      id: google.services.purchases.resources
-      methods: {}
-      name: purchases.resources
-      title: purchases.resources
-    purchases.resources.products:
-      id: google.services.purchases.resources.products
+    purchases.products:
+      id: google.androidpublisher.purchases.products
       methods:
         acknowledge:
           operation:
@@ -2140,22 +2018,19 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/purchases/products/{productId}/tokens/{token}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: purchases.resources.products
-      title: purchases.resources.products
-    purchases.resources.subscriptions:
-      id: google.services.purchases.resources.subscriptions
+      name: purchases.products
+      title: purchases.products
+    purchases.subscriptions:
+      id: google.androidpublisher.purchases.subscriptions
       methods:
         acknowledge:
           operation:
@@ -2165,17 +2040,13 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         cancel:
           operation:
             $ref: post
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/purchases/subscriptions/{subscriptionId}/tokens/{token}:cancel
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         defer:
           operation:
@@ -2192,8 +2063,6 @@ components:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/purchases/subscriptions/{subscriptionId}/tokens/{token}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2202,48 +2071,38 @@ components:
             $ref: post
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/purchases/subscriptions/{subscriptionId}/tokens/{token}:refund
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         revoke:
           operation:
             $ref: post
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/purchases/subscriptions/{subscriptionId}/tokens/{token}:revoke
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
-      name: purchases.resources.subscriptions
-      title: purchases.resources.subscriptions
-    purchases.resources.voidedpurchases:
-      id: google.services.purchases.resources.voidedpurchases
+      name: purchases.subscriptions
+      title: purchases.subscriptions
+    purchases.voidedpurchases:
+      id: google.androidpublisher.purchases.voidedpurchases
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/purchases/voidedpurchases
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: purchases.resources.voidedpurchases
-      title: purchases.resources.voidedpurchases
+      name: purchases.voidedpurchases
+      title: purchases.voidedpurchases
     reviews:
-      id: google.services.reviews
+      id: google.androidpublisher.reviews
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/reviews/{reviewId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2252,8 +2111,6 @@ components:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/reviews
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2269,18 +2126,8 @@ components:
             openAPIDocKey: '200'
       name: reviews
       title: reviews
-    systemapks:
-      id: google.services.systemapks
-      methods: {}
-      name: systemapks
-      title: systemapks
-    systemapks.resources:
-      id: google.services.systemapks.resources
-      methods: {}
-      name: systemapks.resources
-      title: systemapks.resources
-    systemapks.resources.variants:
-      id: google.services.systemapks.resources.variants
+    systemapks.variants:
+      id: google.androidpublisher.systemapks.variants
       methods:
         create:
           operation:
@@ -2297,18 +2144,13 @@ components:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/systemApks/{versionCode}/variants/{variantId}:download
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/systemApks/{versionCode}/variants/{variantId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2317,21 +2159,19 @@ components:
             $ref: get
           path:
             $ref: /androidpublisher/v3/applications/{packageName}/systemApks/{versionCode}/variants
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: systemapks.resources.variants
-      title: systemapks.resources.variants
+      name: systemapks.variants
+      title: systemapks.variants
     users:
-      id: google.services.users
+      id: google.androidpublisher.users
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /androidpublisher/v3/{parent}/users
+            $ref: /androidpublisher/v3/developers/{developersId}/users
           request:
             mediaType: application/json
           response:
@@ -2341,19 +2181,14 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /androidpublisher/v3/{name}
-          request:
-            mediaType: application/json
+            $ref: /androidpublisher/v3/developers/{developersId}/users/{usersId}
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         list:
           operation:
             $ref: get
           path:
-            $ref: /androidpublisher/v3/{parent}/users
-          request:
-            mediaType: application/json
+            $ref: /androidpublisher/v3/developers/{developersId}/users
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2361,7 +2196,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /androidpublisher/v3/{name}
+            $ref: /androidpublisher/v3/developers/{developersId}/users/{usersId}
           request:
             mediaType: application/json
           response:
@@ -5244,6 +5079,288 @@ paths:
     - $ref: '#/components/parameters/quotaUser'
     - $ref: '#/components/parameters/upload_protocol'
     - $ref: '#/components/parameters/uploadType'
+  /androidpublisher/v3/developers/{developersId}/users:
+    get:
+      description: Lists all users with access to a developer account.
+      operationId: androidpublisher.users.list
+      parameters:
+      - description: The maximum number of results to return. This must be set to
+          -1 to disable pagination.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token received from a previous call to this method, in order
+          to retrieve further results.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: developersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUsersResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidpublisher
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidpublisher
+      tags:
+      - users
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Grant access for a user to the given developer account.
+      operationId: androidpublisher.users.create
+      parameters:
+      - in: path
+        name: developersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidpublisher
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidpublisher
+      tags:
+      - users
+  /androidpublisher/v3/developers/{developersId}/users/{usersId}:
+    delete:
+      description: Removes all access for the user to the given developer account.
+      operationId: androidpublisher.users.delete
+      parameters:
+      - in: path
+        name: developersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: usersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidpublisher
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidpublisher
+      tags:
+      - users
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates access for the user to the developer account.
+      operationId: androidpublisher.users.patch
+      parameters:
+      - description: Optional. The list of fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: developersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: usersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidpublisher
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidpublisher
+      tags:
+      - users
+  /androidpublisher/v3/developers/{developersId}/users/{usersId}/grants:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Grant access for a user to the given package.
+      operationId: androidpublisher.grants.create
+      parameters:
+      - in: path
+        name: developersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: usersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Grant'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grant'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidpublisher
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidpublisher
+      tags:
+      - grants
+  /androidpublisher/v3/developers/{developersId}/users/{usersId}/grants/{grantsId}:
+    delete:
+      description: Removes all access for the user to the given developer account.
+      operationId: androidpublisher.users.delete
+      parameters:
+      - in: path
+        name: developersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: usersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: grantsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidpublisher
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidpublisher
+      tags:
+      - users
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates access for the user to the developer account.
+      operationId: androidpublisher.users.patch
+      parameters:
+      - description: Optional. The list of fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: developersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: usersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: grantsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/androidpublisher
+        Oauth2c:
+        - https://www.googleapis.com/auth/androidpublisher
+      tags:
+      - users
   /androidpublisher/v3/{name}:
     delete:
       description: Removes all access for the user to the given developer account.

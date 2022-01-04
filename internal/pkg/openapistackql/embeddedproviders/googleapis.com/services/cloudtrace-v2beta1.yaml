@@ -163,52 +163,7 @@ components:
               project or application
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
-  x-stackQL-resources:
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.traces:
-      id: google.services.projects.resources.traces
-      methods:
-        batchWrite:
-          operation:
-            $ref: post
-          path:
-            $ref: /v2/{name}/traces:batchWrite
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: projects.resources.traces
-      title: projects.resources.traces
-    projects.resources.traces.resources:
-      id: google.services.projects.resources.traces.resources
-      methods: {}
-      name: projects.resources.traces.resources
-      title: projects.resources.traces.resources
-    projects.resources.traces.resources.spans:
-      id: google.services.projects.resources.traces.resources.spans
-      methods:
-        createSpan:
-          operation:
-            $ref: post
-          path:
-            $ref: /v2/{name}
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: projects.resources.traces.resources.spans
-      title: projects.resources.traces.resources.spans
+  x-stackQL-resources: {}
 externalDocs:
   url: https://cloud.google.com/trace
 info:

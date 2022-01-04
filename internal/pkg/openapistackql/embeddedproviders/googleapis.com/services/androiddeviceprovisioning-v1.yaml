@@ -881,33 +881,26 @@ components:
       type: object
   x-stackQL-resources:
     customers:
-      id: google.services.customers
+      id: google.androiddeviceprovisioning.customers
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /v1/customers
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: customers
       title: customers
-    customers.resources:
-      id: google.services.customers.resources
-      methods: {}
-      name: customers.resources
-      title: customers.resources
-    customers.resources.configurations:
-      id: google.services.customers.resources.configurations
+    customers.configurations:
+      id: google.androiddeviceprovisioning.customers.configurations
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/configurations
+            $ref: /v1/customers/{customersId}/configurations
           request:
             mediaType: application/json
           response:
@@ -917,9 +910,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/customers/{customersId}/configurations/{configurationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -927,9 +918,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/customers/{customersId}/configurations/{configurationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -937,9 +926,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/configurations
-          request:
-            mediaType: application/json
+            $ref: /v1/customers/{customersId}/configurations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -947,22 +934,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/customers/{customersId}/configurations/{configurationsId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: customers.resources.configurations
-      title: customers.resources.configurations
-    customers.resources.devices:
-      id: google.services.customers.resources.devices
+      name: customers.configurations
+      title: customers.configurations
+    customers.devices:
+      id: google.androiddeviceprovisioning.customers.devices
       methods:
         applyConfiguration:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/devices:applyConfiguration
+            $ref: /v1/customers/{customersId}/devices:applyConfiguration
           request:
             mediaType: application/json
           response:
@@ -972,9 +959,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/customers/{customersId}/devices/{devicesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -982,9 +967,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/devices
-          request:
-            mediaType: application/json
+            $ref: /v1/customers/{customersId}/devices
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -992,7 +975,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/devices:removeConfiguration
+            $ref: /v1/customers/{customersId}/devices:removeConfiguration
           request:
             mediaType: application/json
           response:
@@ -1002,62 +985,48 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/devices:unclaim
+            $ref: /v1/customers/{customersId}/devices:unclaim
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: customers.resources.devices
-      title: customers.resources.devices
-    customers.resources.dpcs:
-      id: google.services.customers.resources.dpcs
+      name: customers.devices
+      title: customers.devices
+    customers.dpcs:
+      id: google.androiddeviceprovisioning.customers.dpcs
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/dpcs
-          request:
-            mediaType: application/json
+            $ref: /v1/customers/{customersId}/dpcs
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: customers.resources.dpcs
-      title: customers.resources.dpcs
+      name: customers.dpcs
+      title: customers.dpcs
     operations:
-      id: google.services.operations
+      id: google.androiddeviceprovisioning.operations
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: operations
       title: operations
-    partners:
-      id: google.services.partners
-      methods: {}
-      name: partners
-      title: partners
-    partners.resources:
-      id: google.services.partners.resources
-      methods: {}
-      name: partners.resources
-      title: partners.resources
-    partners.resources.customers:
-      id: google.services.partners.resources.customers
+    partners.customers:
+      id: google.androiddeviceprovisioning.partners.customers
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/customers
+            $ref: /v1/partners/{partnersId}/customers
           request:
             mediaType: application/json
           response:
@@ -1067,22 +1036,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/partners/{partnerId}/customers
-          request:
-            mediaType: application/json
+            $ref: /v1/partners/{partnersId}/customers
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: partners.resources.customers
-      title: partners.resources.customers
-    partners.resources.devices:
-      id: google.services.partners.resources.devices
+      name: partners.customers
+      title: partners.customers
+    partners.devices:
+      id: google.androiddeviceprovisioning.partners.devices
       methods:
         claim:
           operation:
             $ref: post
           path:
-            $ref: /v1/partners/{partnerId}/devices:claim
+            $ref: /v1/partners/{partnersId}/devices:claim
           request:
             mediaType: application/json
           response:
@@ -1092,7 +1059,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/partners/{partnerId}/devices:claimAsync
+            $ref: /v1/partners/{partnersId}/devices:claimAsync
           request:
             mediaType: application/json
           response:
@@ -1102,7 +1069,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/partners/{partnerId}/devices:findByIdentifier
+            $ref: /v1/partners/{partnersId}/devices:findByIdentifier
           request:
             mediaType: application/json
           response:
@@ -1112,7 +1079,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/partners/{partnerId}/devices:findByOwner
+            $ref: /v1/partners/{partnersId}/devices:findByOwner
           request:
             mediaType: application/json
           response:
@@ -1122,9 +1089,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/partners/{partnersId}/devices/{devicesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1132,7 +1097,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/partners/{metadataOwnerId}/devices/{deviceId}/metadata
+            $ref: /v1/partners/{partnersId}/devices/{devicesId}/metadata
           request:
             mediaType: application/json
           response:
@@ -1142,7 +1107,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/partners/{partnerId}/devices:unclaim
+            $ref: /v1/partners/{partnersId}/devices:unclaim
           request:
             mediaType: application/json
           response:
@@ -1152,7 +1117,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/partners/{partnerId}/devices:unclaimAsync
+            $ref: /v1/partners/{partnersId}/devices:unclaimAsync
           request:
             mediaType: application/json
           response:
@@ -1162,49 +1127,40 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/partners/{partnerId}/devices:updateMetadataAsync
+            $ref: /v1/partners/{partnersId}/devices:updateMetadataAsync
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: partners.resources.devices
-      title: partners.resources.devices
-    partners.resources.vendors:
-      id: google.services.partners.resources.vendors
+      name: partners.devices
+      title: partners.devices
+    partners.vendors:
+      id: google.androiddeviceprovisioning.partners.vendors
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/vendors
-          request:
-            mediaType: application/json
+            $ref: /v1/partners/{partnersId}/vendors
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: partners.resources.vendors
-      title: partners.resources.vendors
-    partners.resources.vendors.resources:
-      id: google.services.partners.resources.vendors.resources
-      methods: {}
-      name: partners.resources.vendors.resources
-      title: partners.resources.vendors.resources
-    partners.resources.vendors.resources.customers:
-      id: google.services.partners.resources.vendors.resources.customers
+      name: partners.vendors
+      title: partners.vendors
+    partners.vendors.customers:
+      id: google.androiddeviceprovisioning.partners.vendors.customers
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/customers
-          request:
-            mediaType: application/json
+            $ref: /v1/partners/{partnersId}/vendors/{vendorsId}/customers
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: partners.resources.vendors.resources.customers
-      title: partners.resources.vendors.resources.customers
+      name: partners.vendors.customers
+      title: partners.vendors.customers
 externalDocs:
   url: https://developers.google.com/zero-touch/
 info:
@@ -1275,6 +1231,520 @@ paths:
     - $ref: '#/components/parameters/quotaUser'
     - $ref: '#/components/parameters/upload_protocol'
     - $ref: '#/components/parameters/uploadType'
+  /v1/customers/{customersId}/configurations:
+    get:
+      description: Lists a customer's configurations.
+      operationId: androiddeviceprovisioning.customers.configurations.list
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerListConfigurationsResponse'
+          description: Successful response
+      tags:
+      - customers
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new configuration. Once created, a customer can apply
+        the configuration to devices.
+      operationId: androiddeviceprovisioning.customers.configurations.create
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Configuration'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration'
+          description: Successful response
+      tags:
+      - customers
+  /v1/customers/{customersId}/configurations/{configurationsId}:
+    delete:
+      description: Deletes an unused configuration. The API call fails if the customer
+        has devices with the configuration applied.
+      operationId: androiddeviceprovisioning.customers.configurations.delete
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: configurationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - customers
+    get:
+      description: Gets a device.
+      operationId: androiddeviceprovisioning.partners.devices.get
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: configurationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+          description: Successful response
+      tags:
+      - partners
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a configuration's field values.
+      operationId: androiddeviceprovisioning.customers.configurations.patch
+      parameters:
+      - description: Required. The field mask applied to the target `Configuration`
+          before updating the fields. To learn more about using field masks, read
+          [FieldMask](/protocol-buffers/docs/reference/google.protobuf#fieldmask)
+          in the Protocol Buffers documentation.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: configurationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Configuration'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration'
+          description: Successful response
+      tags:
+      - customers
+  /v1/customers/{customersId}/devices:
+    get:
+      description: Lists a customer's devices.
+      operationId: androiddeviceprovisioning.customers.devices.list
+      parameters:
+      - description: The maximum number of devices to show in a page of results. Must
+          be between 1 and 100 inclusive.
+        in: query
+        name: pageSize
+        schema:
+          type: string
+      - description: A token specifying which result page to return.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerListDevicesResponse'
+          description: Successful response
+      tags:
+      - customers
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/customers/{customersId}/devices/{devicesId}:
+    delete:
+      description: Deletes an unused configuration. The API call fails if the customer
+        has devices with the configuration applied.
+      operationId: androiddeviceprovisioning.customers.configurations.delete
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - customers
+    get:
+      description: Gets a device.
+      operationId: androiddeviceprovisioning.partners.devices.get
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+          description: Successful response
+      tags:
+      - partners
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a configuration's field values.
+      operationId: androiddeviceprovisioning.customers.configurations.patch
+      parameters:
+      - description: Required. The field mask applied to the target `Configuration`
+          before updating the fields. To learn more about using field masks, read
+          [FieldMask](/protocol-buffers/docs/reference/google.protobuf#fieldmask)
+          in the Protocol Buffers documentation.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Configuration'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration'
+          description: Successful response
+      tags:
+      - customers
+  /v1/customers/{customersId}/devices:applyConfiguration:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Applies a Configuration to the device to register the device for
+        zero-touch enrollment. After applying a configuration to a device, the device
+        automatically provisions itself on first boot, or next factory reset.
+      operationId: androiddeviceprovisioning.customers.devices.applyConfiguration
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerApplyConfigurationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - customers
+  /v1/customers/{customersId}/devices:removeConfiguration:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Removes a configuration from device.
+      operationId: androiddeviceprovisioning.customers.devices.removeConfiguration
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRemoveConfigurationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - customers
+  /v1/customers/{customersId}/devices:unclaim:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Unclaims a device from a customer and removes it from zero-touch
+        enrollment. After removing a device, a customer must contact their reseller
+        to register the device into zero-touch enrollment again.
+      operationId: androiddeviceprovisioning.customers.devices.unclaim
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerUnclaimDeviceRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - customers
+  /v1/customers/{customersId}/dpcs:
+    get:
+      description: Lists the DPCs (device policy controllers) that support zero-touch
+        enrollment.
+      operationId: androiddeviceprovisioning.customers.dpcs.list
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerListDpcsResponse'
+          description: Successful response
+      tags:
+      - customers
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/operations/{operationsId}:
+    delete:
+      description: Deletes an unused configuration. The API call fails if the customer
+        has devices with the configuration applied.
+      operationId: androiddeviceprovisioning.customers.configurations.delete
+      parameters:
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - customers
+    get:
+      description: Gets a device.
+      operationId: androiddeviceprovisioning.partners.devices.get
+      parameters:
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+          description: Successful response
+      tags:
+      - partners
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a configuration's field values.
+      operationId: androiddeviceprovisioning.customers.configurations.patch
+      parameters:
+      - description: Required. The field mask applied to the target `Configuration`
+          before updating the fields. To learn more about using field masks, read
+          [FieldMask](/protocol-buffers/docs/reference/google.protobuf#fieldmask)
+          in the Protocol Buffers documentation.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Configuration'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration'
+          description: Successful response
+      tags:
+      - customers
   /v1/partners/{metadataOwnerId}/devices/{deviceId}/metadata:
     parameters:
     - $ref: '#/components/parameters/_.xgafv'
@@ -1632,6 +2102,594 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Operation'
+          description: Successful response
+      tags:
+      - partners
+  /v1/partners/{partnersId}/customers:
+    get:
+      description: Lists the customers of the vendor.
+      operationId: androiddeviceprovisioning.partners.vendors.customers.list
+      parameters:
+      - description: The maximum number of results to be returned.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results returned by the server.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListVendorCustomersResponse'
+          description: Successful response
+      tags:
+      - partners
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a customer for zero-touch enrollment. After the method
+        returns successfully, admin and owner roles can manage devices and EMM configs
+        by calling API methods or using their zero-touch enrollment portal. The customer
+        receives an email that welcomes them to zero-touch enrollment and explains
+        how to sign into the portal.
+      operationId: androiddeviceprovisioning.partners.customers.create
+      parameters:
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomerRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+          description: Successful response
+      tags:
+      - partners
+  /v1/partners/{partnersId}/devices/{devicesId}:
+    delete:
+      description: Deletes an unused configuration. The API call fails if the customer
+        has devices with the configuration applied.
+      operationId: androiddeviceprovisioning.customers.configurations.delete
+      parameters:
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - customers
+    get:
+      description: Gets a device.
+      operationId: androiddeviceprovisioning.partners.devices.get
+      parameters:
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+          description: Successful response
+      tags:
+      - partners
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a configuration's field values.
+      operationId: androiddeviceprovisioning.customers.configurations.patch
+      parameters:
+      - description: Required. The field mask applied to the target `Configuration`
+          before updating the fields. To learn more about using field masks, read
+          [FieldMask](/protocol-buffers/docs/reference/google.protobuf#fieldmask)
+          in the Protocol Buffers documentation.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Configuration'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration'
+          description: Successful response
+      tags:
+      - customers
+  /v1/partners/{partnersId}/devices/{devicesId}/metadata:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Updates reseller metadata associated with the device.
+      operationId: androiddeviceprovisioning.partners.devices.metadata
+      parameters:
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDeviceMetadataRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceMetadata'
+          description: Successful response
+      tags:
+      - partners
+  /v1/partners/{partnersId}/devices:claim:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Claims a device for a customer and adds it to zero-touch enrollment.
+        If the device is already claimed by another customer, the call returns an
+        error.
+      operationId: androiddeviceprovisioning.partners.devices.claim
+      parameters:
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimDeviceRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimDeviceResponse'
+          description: Successful response
+      tags:
+      - partners
+  /v1/partners/{partnersId}/devices:claimAsync:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: "Claims a batch of devices for a customer asynchronously. Adds\
+        \ the devices to zero-touch enrollment. To learn more, read [Long\u2011running\
+        \ batch operations](/zero-touch/guides/how-it-works#operations)."
+      operationId: androiddeviceprovisioning.partners.devices.claimAsync
+      parameters:
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimDevicesRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      tags:
+      - partners
+  /v1/partners/{partnersId}/devices:findByIdentifier:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Finds devices by hardware identifiers, such as IMEI.
+      operationId: androiddeviceprovisioning.partners.devices.findByIdentifier
+      parameters:
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FindDevicesByDeviceIdentifierRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindDevicesByDeviceIdentifierResponse'
+          description: Successful response
+      tags:
+      - partners
+  /v1/partners/{partnersId}/devices:findByOwner:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Finds devices claimed for customers. The results only contain devices
+        registered to the reseller that's identified by the `partnerId` argument.
+        The customer's devices purchased from other resellers don't appear in the
+        results.
+      operationId: androiddeviceprovisioning.partners.devices.findByOwner
+      parameters:
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FindDevicesByOwnerRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindDevicesByOwnerResponse'
+          description: Successful response
+      tags:
+      - partners
+  /v1/partners/{partnersId}/devices:unclaim:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Unclaims a device from a customer and removes it from zero-touch
+        enrollment.
+      operationId: androiddeviceprovisioning.partners.devices.unclaim
+      parameters:
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnclaimDeviceRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      tags:
+      - partners
+  /v1/partners/{partnersId}/devices:unclaimAsync:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: "Unclaims a batch of devices for a customer asynchronously. Removes\
+        \ the devices from zero-touch enrollment. To learn more, read [Long\u2011\
+        running batch operations](/zero-touch/guides/how-it-works#operations)."
+      operationId: androiddeviceprovisioning.partners.devices.unclaimAsync
+      parameters:
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnclaimDevicesRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      tags:
+      - partners
+  /v1/partners/{partnersId}/devices:updateMetadataAsync:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: "Updates the reseller metadata attached to a batch of devices.\
+        \ This method updates devices asynchronously and returns an `Operation` that\
+        \ can be used to track progress. Read [Long\u2011running batch operations](/zero-touch/guides/how-it-works#operations)."
+      operationId: androiddeviceprovisioning.partners.devices.updateMetadataAsync
+      parameters:
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDeviceMetadataInBatchRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      tags:
+      - partners
+  /v1/partners/{partnersId}/vendors:
+    get:
+      description: Lists the vendors of the partner.
+      operationId: androiddeviceprovisioning.partners.vendors.list
+      parameters:
+      - description: The maximum number of results to be returned.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results returned by the server.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListVendorsResponse'
+          description: Successful response
+      tags:
+      - partners
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/partners/{partnersId}/vendors/{vendorsId}/customers:
+    get:
+      description: Lists the customers of the vendor.
+      operationId: androiddeviceprovisioning.partners.vendors.customers.list
+      parameters:
+      - description: The maximum number of results to be returned.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A token identifying a page of results returned by the server.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: vendorsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListVendorCustomersResponse'
+          description: Successful response
+      tags:
+      - partners
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a customer for zero-touch enrollment. After the method
+        returns successfully, admin and owner roles can manage devices and EMM configs
+        by calling API methods or using their zero-touch enrollment portal. The customer
+        receives an email that welcomes them to zero-touch enrollment and explains
+        how to sign into the portal.
+      operationId: androiddeviceprovisioning.partners.customers.create
+      parameters:
+      - in: path
+        name: partnersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: vendorsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomerRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
           description: Successful response
       tags:
       - partners

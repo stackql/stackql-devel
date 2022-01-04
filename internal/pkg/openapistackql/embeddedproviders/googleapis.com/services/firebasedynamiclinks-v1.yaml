@@ -689,7 +689,7 @@ components:
       type: oauth2
   x-stackQL-resources:
     managedShortLinks:
-      id: google.services.managedShortLinks
+      id: google.firebasedynamiclinks.managedShortLinks
       methods:
         create:
           operation:
@@ -704,7 +704,7 @@ components:
       name: managedShortLinks
       title: managedShortLinks
     shortLinks:
-      id: google.services.shortLinks
+      id: google.firebasedynamiclinks.shortLinks
       methods:
         create:
           operation:
@@ -719,15 +719,13 @@ components:
       name: shortLinks
       title: shortLinks
     v1:
-      id: google.services.v1
+      id: google.firebasedynamiclinks.v1
       methods:
         getLinkStats:
           operation:
             $ref: get
           path:
             $ref: /v1/{dynamicLink}/linkStats
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

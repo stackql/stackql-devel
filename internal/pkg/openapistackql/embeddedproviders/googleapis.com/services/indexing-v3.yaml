@@ -140,15 +140,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     urlNotifications:
-      id: google.services.urlNotifications
+      id: google.indexing.urlNotifications
       methods:
         getMetadata:
           operation:
             $ref: get
           path:
             $ref: /v3/urlNotifications/metadata
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

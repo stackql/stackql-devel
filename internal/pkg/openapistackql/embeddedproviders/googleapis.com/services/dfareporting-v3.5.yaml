@@ -8545,30 +8545,26 @@ components:
       type: oauth2
   x-stackQL-resources:
     accountActiveAdSummaries:
-      id: google.services.accountActiveAdSummaries
+      id: google.dfareporting.accountActiveAdSummaries
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/accountActiveAdSummaries/{summaryAccountId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: accountActiveAdSummaries
       title: accountActiveAdSummaries
     accountPermissionGroups:
-      id: google.services.accountPermissionGroups
+      id: google.dfareporting.accountPermissionGroups
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/accountPermissionGroups/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8577,23 +8573,19 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/accountPermissionGroups
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: accountPermissionGroups
       title: accountPermissionGroups
     accountPermissions:
-      id: google.services.accountPermissions
+      id: google.dfareporting.accountPermissions
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/accountPermissions/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8602,23 +8594,19 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/accountPermissions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: accountPermissions
       title: accountPermissions
     accountUserProfiles:
-      id: google.services.accountUserProfiles
+      id: google.dfareporting.accountUserProfiles
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/accountUserProfiles/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8637,8 +8625,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/accountUserProfiles
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8665,15 +8651,13 @@ components:
       name: accountUserProfiles
       title: accountUserProfiles
     accounts:
-      id: google.services.accounts
+      id: google.dfareporting.accounts
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/accounts/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8682,8 +8666,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/accounts
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8710,15 +8692,13 @@ components:
       name: accounts
       title: accounts
     ads:
-      id: google.services.ads
+      id: google.dfareporting.ads
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/ads/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8737,8 +8717,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/ads
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8765,25 +8743,20 @@ components:
       name: ads
       title: ads
     advertiserGroups:
-      id: google.services.advertiserGroups
+      id: google.dfareporting.advertiserGroups
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/advertiserGroups/{id}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/advertiserGroups/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8802,8 +8775,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/advertiserGroups
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8830,15 +8801,13 @@ components:
       name: advertiserGroups
       title: advertiserGroups
     advertiserLandingPages:
-      id: google.services.advertiserLandingPages
+      id: google.dfareporting.advertiserLandingPages
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/advertiserLandingPages/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8857,8 +8826,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/advertiserLandingPages
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8885,15 +8852,13 @@ components:
       name: advertiserLandingPages
       title: advertiserLandingPages
     advertisers:
-      id: google.services.advertisers
+      id: google.dfareporting.advertisers
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/advertisers/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8912,8 +8877,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/advertisers
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -8940,22 +8903,20 @@ components:
       name: advertisers
       title: advertisers
     browsers:
-      id: google.services.browsers
+      id: google.dfareporting.browsers
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/browsers
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: browsers
       title: browsers
     campaignCreativeAssociations:
-      id: google.services.campaignCreativeAssociations
+      id: google.dfareporting.campaignCreativeAssociations
       methods:
         insert:
           operation:
@@ -8972,23 +8933,19 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/campaigns/{campaignId}/campaignCreativeAssociations
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: campaignCreativeAssociations
       title: campaignCreativeAssociations
     campaigns:
-      id: google.services.campaigns
+      id: google.dfareporting.campaigns
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/campaigns/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9007,8 +8964,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/campaigns
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9035,15 +8990,13 @@ components:
       name: campaigns
       title: campaigns
     changeLogs:
-      id: google.services.changeLogs
+      id: google.dfareporting.changeLogs
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/changeLogs/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9052,38 +9005,32 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/changeLogs
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: changeLogs
       title: changeLogs
     cities:
-      id: google.services.cities
+      id: google.dfareporting.cities
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/cities
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: cities
       title: cities
     connectionTypes:
-      id: google.services.connectionTypes
+      id: google.dfareporting.connectionTypes
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/connectionTypes/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9092,33 +9039,26 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/connectionTypes
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: connectionTypes
       title: connectionTypes
     contentCategories:
-      id: google.services.contentCategories
+      id: google.dfareporting.contentCategories
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/contentCategories/{id}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/contentCategories/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9137,8 +9077,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/contentCategories
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9165,7 +9103,7 @@ components:
       name: contentCategories
       title: contentCategories
     conversions:
-      id: google.services.conversions
+      id: google.dfareporting.conversions
       methods:
         batchinsert:
           operation:
@@ -9190,15 +9128,13 @@ components:
       name: conversions
       title: conversions
     countries:
-      id: google.services.countries
+      id: google.dfareporting.countries
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/countries/{dartId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9207,15 +9143,13 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/countries
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: countries
       title: countries
     creativeAssets:
-      id: google.services.creativeAssets
+      id: google.dfareporting.creativeAssets
       methods:
         insert:
           operation:
@@ -9223,32 +9157,27 @@ components:
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/creativeAssets/{advertiserId}/creativeAssets
           request:
-            mediaType: application/json
+            mediaType: application/octet-stream
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: creativeAssets
       title: creativeAssets
     creativeFieldValues:
-      id: google.services.creativeFieldValues
+      id: google.dfareporting.creativeFieldValues
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/creativeFields/{creativeFieldId}/creativeFieldValues/{id}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/creativeFields/{creativeFieldId}/creativeFieldValues/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9267,8 +9196,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/creativeFields/{creativeFieldId}/creativeFieldValues
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9295,25 +9222,20 @@ components:
       name: creativeFieldValues
       title: creativeFieldValues
     creativeFields:
-      id: google.services.creativeFields
+      id: google.dfareporting.creativeFields
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/creativeFields/{id}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/creativeFields/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9332,8 +9254,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/creativeFields
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9360,15 +9280,13 @@ components:
       name: creativeFields
       title: creativeFields
     creativeGroups:
-      id: google.services.creativeGroups
+      id: google.dfareporting.creativeGroups
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/creativeGroups/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9387,8 +9305,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/creativeGroups
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9415,15 +9331,13 @@ components:
       name: creativeGroups
       title: creativeGroups
     creatives:
-      id: google.services.creatives
+      id: google.dfareporting.creatives
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/creatives/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9442,8 +9356,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/creatives
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9470,7 +9382,7 @@ components:
       name: creatives
       title: creatives
     dimensionValues:
-      id: google.services.dimensionValues
+      id: google.dfareporting.dimensionValues
       methods:
         query:
           operation:
@@ -9485,15 +9397,13 @@ components:
       name: dimensionValues
       title: dimensionValues
     directorySites:
-      id: google.services.directorySites
+      id: google.dfareporting.directorySites
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/directorySites/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9512,25 +9422,20 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/directorySites
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: directorySites
       title: directorySites
     dynamicTargetingKeys:
-      id: google.services.dynamicTargetingKeys
+      id: google.dfareporting.dynamicTargetingKeys
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/dynamicTargetingKeys/{objectId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         insert:
           operation:
@@ -9547,33 +9452,26 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/dynamicTargetingKeys
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: dynamicTargetingKeys
       title: dynamicTargetingKeys
     eventTags:
-      id: google.services.eventTags
+      id: google.dfareporting.eventTags
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/eventTags/{id}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/eventTags/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9592,8 +9490,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/eventTags
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9620,15 +9516,13 @@ components:
       name: eventTags
       title: eventTags
     files:
-      id: google.services.files
+      id: google.dfareporting.files
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/reports/{reportId}/files/{fileId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9637,33 +9531,26 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/files
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: files
       title: files
     floodlightActivities:
-      id: google.services.floodlightActivities
+      id: google.dfareporting.floodlightActivities
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/floodlightActivities/{id}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         generatetag:
           operation:
             $ref: post
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/floodlightActivities/generatetag
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9672,8 +9559,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/floodlightActivities/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9692,8 +9577,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/floodlightActivities
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9720,15 +9603,13 @@ components:
       name: floodlightActivities
       title: floodlightActivities
     floodlightActivityGroups:
-      id: google.services.floodlightActivityGroups
+      id: google.dfareporting.floodlightActivityGroups
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/floodlightActivityGroups/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9747,8 +9628,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/floodlightActivityGroups
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9775,15 +9654,13 @@ components:
       name: floodlightActivityGroups
       title: floodlightActivityGroups
     floodlightConfigurations:
-      id: google.services.floodlightConfigurations
+      id: google.dfareporting.floodlightConfigurations
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/floodlightConfigurations/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9792,8 +9669,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/floodlightConfigurations
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9820,15 +9695,13 @@ components:
       name: floodlightConfigurations
       title: floodlightConfigurations
     inventoryItems:
-      id: google.services.inventoryItems
+      id: google.dfareporting.inventoryItems
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/projects/{projectId}/inventoryItems/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9837,53 +9710,45 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/projects/{projectId}/inventoryItems
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: inventoryItems
       title: inventoryItems
     languages:
-      id: google.services.languages
+      id: google.dfareporting.languages
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/languages
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: languages
       title: languages
     metros:
-      id: google.services.metros
+      id: google.dfareporting.metros
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/metros
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: metros
       title: metros
     mobileApps:
-      id: google.services.mobileApps
+      id: google.dfareporting.mobileApps
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/mobileApps/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9892,23 +9757,19 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/mobileApps
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: mobileApps
       title: mobileApps
     mobileCarriers:
-      id: google.services.mobileCarriers
+      id: google.dfareporting.mobileCarriers
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/mobileCarriers/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9917,23 +9778,19 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/mobileCarriers
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: mobileCarriers
       title: mobileCarriers
     operatingSystemVersions:
-      id: google.services.operatingSystemVersions
+      id: google.dfareporting.operatingSystemVersions
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/operatingSystemVersions/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9942,23 +9799,19 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/operatingSystemVersions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: operatingSystemVersions
       title: operatingSystemVersions
     operatingSystems:
-      id: google.services.operatingSystems
+      id: google.dfareporting.operatingSystems
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/operatingSystems/{dartId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9967,23 +9820,19 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/operatingSystems
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: operatingSystems
       title: operatingSystems
     orderDocuments:
-      id: google.services.orderDocuments
+      id: google.dfareporting.orderDocuments
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/projects/{projectId}/orderDocuments/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -9992,23 +9841,19 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/projects/{projectId}/orderDocuments
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: orderDocuments
       title: orderDocuments
     orders:
-      id: google.services.orders
+      id: google.dfareporting.orders
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/projects/{projectId}/orders/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10017,23 +9862,19 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/projects/{projectId}/orders
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: orders
       title: orders
     placementGroups:
-      id: google.services.placementGroups
+      id: google.dfareporting.placementGroups
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/placementGroups/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10052,8 +9893,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/placementGroups
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10080,25 +9919,20 @@ components:
       name: placementGroups
       title: placementGroups
     placementStrategies:
-      id: google.services.placementStrategies
+      id: google.dfareporting.placementStrategies
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/placementStrategies/{id}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/placementStrategies/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10117,8 +9951,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/placementStrategies
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10145,15 +9977,13 @@ components:
       name: placementStrategies
       title: placementStrategies
     placements:
-      id: google.services.placements
+      id: google.dfareporting.placements
       methods:
         generatetags:
           operation:
             $ref: post
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/placements/generatetags
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10162,8 +9992,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/placements/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10182,8 +10010,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/placements
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10210,15 +10036,13 @@ components:
       name: placements
       title: placements
     platformTypes:
-      id: google.services.platformTypes
+      id: google.dfareporting.platformTypes
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/platformTypes/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10227,23 +10051,19 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/platformTypes
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: platformTypes
       title: platformTypes
     postalCodes:
-      id: google.services.postalCodes
+      id: google.dfareporting.postalCodes
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/postalCodes/{code}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10252,23 +10072,19 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/postalCodes
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: postalCodes
       title: postalCodes
     projects:
-      id: google.services.projects
+      id: google.dfareporting.projects
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/projects/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10277,38 +10093,32 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/projects
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: projects
       title: projects
     regions:
-      id: google.services.regions
+      id: google.dfareporting.regions
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/regions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: regions
       title: regions
     remarketingListShares:
-      id: google.services.remarketingListShares
+      id: google.dfareporting.remarketingListShares
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/remarketingListShares/{remarketingListId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10335,15 +10145,13 @@ components:
       name: remarketingListShares
       title: remarketingListShares
     remarketingLists:
-      id: google.services.remarketingLists
+      id: google.dfareporting.remarketingLists
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/remarketingLists/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10362,8 +10170,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/remarketingLists
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10390,25 +10196,20 @@ components:
       name: remarketingLists
       title: remarketingLists
     reports:
-      id: google.services.reports
+      id: google.dfareporting.reports
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/reports/{reportId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/reports/{reportId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10427,8 +10228,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/reports
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10447,8 +10246,6 @@ components:
             $ref: post
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/reports/{reportId}/run
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10464,13 +10261,8 @@ components:
             openAPIDocKey: '200'
       name: reports
       title: reports
-    reports.resources:
-      id: google.services.reports.resources
-      methods: {}
-      name: reports.resources
-      title: reports.resources
-    reports.resources.compatibleFields:
-      id: google.services.reports.resources.compatibleFields
+    reports.compatibleFields:
+      id: google.dfareporting.reports.compatibleFields
       methods:
         query:
           operation:
@@ -10482,18 +10274,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: reports.resources.compatibleFields
-      title: reports.resources.compatibleFields
-    reports.resources.files:
-      id: google.services.reports.resources.files
+      name: reports.compatibleFields
+      title: reports.compatibleFields
+    reports.files:
+      id: google.dfareporting.reports.files
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/reports/{reportId}/files/{fileId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10502,23 +10292,19 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/reports/{reportId}/files
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: reports.resources.files
-      title: reports.resources.files
+      name: reports.files
+      title: reports.files
     sites:
-      id: google.services.sites
+      id: google.dfareporting.sites
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/sites/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10537,8 +10323,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/sites
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10565,15 +10349,13 @@ components:
       name: sites
       title: sites
     sizes:
-      id: google.services.sizes
+      id: google.dfareporting.sizes
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/sizes/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10592,23 +10374,19 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/sizes
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: sizes
       title: sizes
     subaccounts:
-      id: google.services.subaccounts
+      id: google.dfareporting.subaccounts
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/subaccounts/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10627,8 +10405,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/subaccounts
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10655,15 +10431,13 @@ components:
       name: subaccounts
       title: subaccounts
     targetableRemarketingLists:
-      id: google.services.targetableRemarketingLists
+      id: google.dfareporting.targetableRemarketingLists
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/targetableRemarketingLists/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10672,23 +10446,19 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/targetableRemarketingLists
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: targetableRemarketingLists
       title: targetableRemarketingLists
     targetingTemplates:
-      id: google.services.targetingTemplates
+      id: google.dfareporting.targetingTemplates
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/targetingTemplates/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10707,8 +10477,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/targetingTemplates
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10735,15 +10503,13 @@ components:
       name: targetingTemplates
       title: targetingTemplates
     userProfiles:
-      id: google.services.userProfiles
+      id: google.dfareporting.userProfiles
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10752,23 +10518,19 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: userProfiles
       title: userProfiles
     userRolePermissionGroups:
-      id: google.services.userRolePermissionGroups
+      id: google.dfareporting.userRolePermissionGroups
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/userRolePermissionGroups/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10777,23 +10539,19 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/userRolePermissionGroups
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: userRolePermissionGroups
       title: userRolePermissionGroups
     userRolePermissions:
-      id: google.services.userRolePermissions
+      id: google.dfareporting.userRolePermissions
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/userRolePermissions/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10802,33 +10560,26 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/userRolePermissions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: userRolePermissions
       title: userRolePermissions
     userRoles:
-      id: google.services.userRoles
+      id: google.dfareporting.userRoles
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/userRoles/{id}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/userRoles/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10847,8 +10598,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/userRoles
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10875,15 +10624,13 @@ components:
       name: userRoles
       title: userRoles
     videoFormats:
-      id: google.services.videoFormats
+      id: google.dfareporting.videoFormats
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/videoFormats/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -10892,8 +10639,6 @@ components:
             $ref: get
           path:
             $ref: /dfareporting/v3.5/userprofiles/{profileId}/videoFormats
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

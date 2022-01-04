@@ -296,62 +296,7 @@ components:
               metrics for the domains you have registered in Gmail Postmaster Tools
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
-  x-stackQL-resources:
-    domains:
-      id: google.services.domains
-      methods:
-        get:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        list:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1/domains
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: domains
-      title: domains
-    domains.resources:
-      id: google.services.domains.resources
-      methods: {}
-      name: domains.resources
-      title: domains.resources
-    domains.resources.trafficStats:
-      id: google.services.domains.resources.trafficStats
-      methods:
-        get:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        list:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1/{parent}/trafficStats
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: domains.resources.trafficStats
-      title: domains.resources.trafficStats
+  x-stackQL-resources: {}
 externalDocs:
   url: https://developers.google.com/gmail/postmaster
 info:

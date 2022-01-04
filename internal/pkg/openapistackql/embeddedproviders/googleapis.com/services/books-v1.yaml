@@ -1839,15 +1839,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     bookshelves:
-      id: google.services.bookshelves
+      id: google.books.bookshelves
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /books/v1/users/{userId}/bookshelves/{shelf}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1856,43 +1854,32 @@ components:
             $ref: get
           path:
             $ref: /books/v1/users/{userId}/bookshelves
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: bookshelves
       title: bookshelves
-    bookshelves.resources:
-      id: google.services.bookshelves.resources
-      methods: {}
-      name: bookshelves.resources
-      title: bookshelves.resources
-    bookshelves.resources.volumes:
-      id: google.services.bookshelves.resources.volumes
+    bookshelves.volumes:
+      id: google.books.bookshelves.volumes
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /books/v1/users/{userId}/bookshelves/{shelf}/volumes
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: bookshelves.resources.volumes
-      title: bookshelves.resources.volumes
+      name: bookshelves.volumes
+      title: bookshelves.volumes
     cloudloading:
-      id: google.services.cloudloading
+      id: google.books.cloudloading
       methods:
         addBook:
           operation:
             $ref: post
           path:
             $ref: /books/v1/cloudloading/addBook
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1901,8 +1888,6 @@ components:
             $ref: post
           path:
             $ref: /books/v1/cloudloading/deleteBook
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1919,30 +1904,26 @@ components:
       name: cloudloading
       title: cloudloading
     dictionary:
-      id: google.services.dictionary
+      id: google.books.dictionary
       methods:
         listOfflineMetadata:
           operation:
             $ref: get
           path:
             $ref: /books/v1/dictionary/listOfflineMetadata
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: dictionary
       title: dictionary
     familysharing:
-      id: google.services.familysharing
+      id: google.books.familysharing
       methods:
         getFamilyInfo:
           operation:
             $ref: get
           path:
             $ref: /books/v1/familysharing/getFamilyInfo
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1951,8 +1932,6 @@ components:
             $ref: post
           path:
             $ref: /books/v1/familysharing/share
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1961,23 +1940,19 @@ components:
             $ref: post
           path:
             $ref: /books/v1/familysharing/unshare
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: familysharing
       title: familysharing
     layers:
-      id: google.services.layers
+      id: google.books.layers
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /books/v1/volumes/{volumeId}/layersummary/{summaryId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1986,28 +1961,19 @@ components:
             $ref: get
           path:
             $ref: /books/v1/volumes/{volumeId}/layersummary
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: layers
       title: layers
-    layers.resources:
-      id: google.services.layers.resources
-      methods: {}
-      name: layers.resources
-      title: layers.resources
-    layers.resources.annotationData:
-      id: google.services.layers.resources.annotationData
+    layers.annotationData:
+      id: google.books.layers.annotationData
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /books/v1/volumes/{volumeId}/layers/{layerId}/data/{annotationDataId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2016,23 +1982,19 @@ components:
             $ref: get
           path:
             $ref: /books/v1/volumes/{volumeId}/layers/{layerId}/data
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: layers.resources.annotationData
-      title: layers.resources.annotationData
-    layers.resources.volumeAnnotations:
-      id: google.services.layers.resources.volumeAnnotations
+      name: layers.annotationData
+      title: layers.annotationData
+    layers.volumeAnnotations:
+      id: google.books.layers.volumeAnnotations
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /books/v1/volumes/{volumeId}/layers/{layerId}/annotations/{annotationId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2041,23 +2003,19 @@ components:
             $ref: get
           path:
             $ref: /books/v1/volumes/{volumeId}/layers/{layerId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: layers.resources.volumeAnnotations
-      title: layers.resources.volumeAnnotations
+      name: layers.volumeAnnotations
+      title: layers.volumeAnnotations
     myconfig:
-      id: google.services.myconfig
+      id: google.books.myconfig
       methods:
         getUserSettings:
           operation:
             $ref: get
           path:
             $ref: /books/v1/myconfig/getUserSettings
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2066,8 +2024,6 @@ components:
             $ref: post
           path:
             $ref: /books/v1/myconfig/releaseDownloadAccess
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2076,8 +2032,6 @@ components:
             $ref: post
           path:
             $ref: /books/v1/myconfig/requestAccess
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2086,8 +2040,6 @@ components:
             $ref: post
           path:
             $ref: /books/v1/myconfig/syncVolumeLicenses
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2103,26 +2055,14 @@ components:
             openAPIDocKey: '200'
       name: myconfig
       title: myconfig
-    mylibrary:
-      id: google.services.mylibrary
-      methods: {}
-      name: mylibrary
-      title: mylibrary
-    mylibrary.resources:
-      id: google.services.mylibrary.resources
-      methods: {}
-      name: mylibrary.resources
-      title: mylibrary.resources
-    mylibrary.resources.annotations:
-      id: google.services.mylibrary.resources.annotations
+    mylibrary.annotations:
+      id: google.books.mylibrary.annotations
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /books/v1/mylibrary/annotations/{annotationId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2141,8 +2081,6 @@ components:
             $ref: get
           path:
             $ref: /books/v1/mylibrary/annotations
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2151,8 +2089,6 @@ components:
             $ref: post
           path:
             $ref: /books/v1/mylibrary/annotations/summary
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2166,18 +2102,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: mylibrary.resources.annotations
-      title: mylibrary.resources.annotations
-    mylibrary.resources.bookshelves:
-      id: google.services.mylibrary.resources.bookshelves
+      name: mylibrary.annotations
+      title: mylibrary.annotations
+    mylibrary.bookshelves:
+      id: google.books.mylibrary.bookshelves
       methods:
         addVolume:
           operation:
             $ref: post
           path:
             $ref: /books/v1/mylibrary/bookshelves/{shelf}/addVolume
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2186,8 +2120,6 @@ components:
             $ref: post
           path:
             $ref: /books/v1/mylibrary/bookshelves/{shelf}/clearVolumes
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2196,8 +2128,6 @@ components:
             $ref: get
           path:
             $ref: /books/v1/mylibrary/bookshelves/{shelf}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2206,8 +2136,6 @@ components:
             $ref: get
           path:
             $ref: /books/v1/mylibrary/bookshelves
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2216,8 +2144,6 @@ components:
             $ref: post
           path:
             $ref: /books/v1/mylibrary/bookshelves/{shelf}/moveVolume
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2226,43 +2152,32 @@ components:
             $ref: post
           path:
             $ref: /books/v1/mylibrary/bookshelves/{shelf}/removeVolume
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: mylibrary.resources.bookshelves
-      title: mylibrary.resources.bookshelves
-    mylibrary.resources.bookshelves.resources:
-      id: google.services.mylibrary.resources.bookshelves.resources
-      methods: {}
-      name: mylibrary.resources.bookshelves.resources
-      title: mylibrary.resources.bookshelves.resources
-    mylibrary.resources.bookshelves.resources.volumes:
-      id: google.services.mylibrary.resources.bookshelves.resources.volumes
+      name: mylibrary.bookshelves
+      title: mylibrary.bookshelves
+    mylibrary.bookshelves.volumes:
+      id: google.books.mylibrary.bookshelves.volumes
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /books/v1/mylibrary/bookshelves/{shelf}/volumes
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: mylibrary.resources.bookshelves.resources.volumes
-      title: mylibrary.resources.bookshelves.resources.volumes
-    mylibrary.resources.readingpositions:
-      id: google.services.mylibrary.resources.readingpositions
+      name: mylibrary.bookshelves.volumes
+      title: mylibrary.bookshelves.volumes
+    mylibrary.readingpositions:
+      id: google.books.mylibrary.readingpositions
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /books/v1/mylibrary/readingpositions/{volumeId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2271,38 +2186,32 @@ components:
             $ref: post
           path:
             $ref: /books/v1/mylibrary/readingpositions/{volumeId}/setPosition
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: mylibrary.resources.readingpositions
-      title: mylibrary.resources.readingpositions
+      name: mylibrary.readingpositions
+      title: mylibrary.readingpositions
     notification:
-      id: google.services.notification
+      id: google.books.notification
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /books/v1/notification/get
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: notification
       title: notification
     onboarding:
-      id: google.services.onboarding
+      id: google.books.onboarding
       methods:
         listCategories:
           operation:
             $ref: get
           path:
             $ref: /books/v1/onboarding/listCategories
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2311,38 +2220,32 @@ components:
             $ref: get
           path:
             $ref: /books/v1/onboarding/listCategoryVolumes
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: onboarding
       title: onboarding
     personalizedstream:
-      id: google.services.personalizedstream
+      id: google.books.personalizedstream
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /books/v1/personalizedstream/get
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: personalizedstream
       title: personalizedstream
     promooffer:
-      id: google.services.promooffer
+      id: google.books.promooffer
       methods:
         accept:
           operation:
             $ref: post
           path:
             $ref: /books/v1/promooffer/accept
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2351,8 +2254,6 @@ components:
             $ref: post
           path:
             $ref: /books/v1/promooffer/dismiss
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2361,58 +2262,45 @@ components:
             $ref: get
           path:
             $ref: /books/v1/promooffer/get
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: promooffer
       title: promooffer
     series:
-      id: google.services.series
+      id: google.books.series
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /books/v1/series/get
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: series
       title: series
-    series.resources:
-      id: google.services.series.resources
-      methods: {}
-      name: series.resources
-      title: series.resources
-    series.resources.membership:
-      id: google.services.series.resources.membership
+    series.membership:
+      id: google.books.series.membership
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /books/v1/series/membership/get
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: series.resources.membership
-      title: series.resources.membership
+      name: series.membership
+      title: series.membership
     volumes:
-      id: google.services.volumes
+      id: google.books.volumes
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /books/v1/volumes/{volumeId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2421,58 +2309,45 @@ components:
             $ref: get
           path:
             $ref: /books/v1/volumes
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: volumes
       title: volumes
-    volumes.resources:
-      id: google.services.volumes.resources
-      methods: {}
-      name: volumes.resources
-      title: volumes.resources
-    volumes.resources.associated:
-      id: google.services.volumes.resources.associated
+    volumes.associated:
+      id: google.books.volumes.associated
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /books/v1/volumes/{volumeId}/associated
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: volumes.resources.associated
-      title: volumes.resources.associated
-    volumes.resources.mybooks:
-      id: google.services.volumes.resources.mybooks
+      name: volumes.associated
+      title: volumes.associated
+    volumes.mybooks:
+      id: google.books.volumes.mybooks
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /books/v1/volumes/mybooks
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: volumes.resources.mybooks
-      title: volumes.resources.mybooks
-    volumes.resources.recommended:
-      id: google.services.volumes.resources.recommended
+      name: volumes.mybooks
+      title: volumes.mybooks
+    volumes.recommended:
+      id: google.books.volumes.recommended
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /books/v1/volumes/recommended
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2481,28 +2356,24 @@ components:
             $ref: post
           path:
             $ref: /books/v1/volumes/recommended/rate
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: volumes.resources.recommended
-      title: volumes.resources.recommended
-    volumes.resources.useruploaded:
-      id: google.services.volumes.resources.useruploaded
+      name: volumes.recommended
+      title: volumes.recommended
+    volumes.useruploaded:
+      id: google.books.volumes.useruploaded
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /books/v1/volumes/useruploaded
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: volumes.resources.useruploaded
-      title: volumes.resources.useruploaded
+      name: volumes.useruploaded
+      title: volumes.useruploaded
 externalDocs:
   url: https://code.google.com/apis/books/docs/v1/getting_started.html
 info:

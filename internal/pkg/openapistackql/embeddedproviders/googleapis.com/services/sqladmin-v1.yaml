@@ -2172,15 +2172,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     backupRuns:
-      id: google.services.backupRuns
+      id: google.sqladmin.backupRuns
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /v1/projects/{project}/instances/{instance}/backupRuns/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2189,8 +2187,6 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{project}/instances/{instance}/backupRuns/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2209,15 +2205,13 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{project}/instances/{instance}/backupRuns
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: backupRuns
       title: backupRuns
     connect:
-      id: google.services.connect
+      id: google.sqladmin.connect
       methods:
         generateEphemeralCert:
           operation:
@@ -2234,23 +2228,19 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{project}/instances/{instance}/connectSettings
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: connect
       title: connect
     databases:
-      id: google.services.databases
+      id: google.sqladmin.databases
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /v1/projects/{project}/instances/{instance}/databases/{database}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2259,8 +2249,6 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{project}/instances/{instance}/databases/{database}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2279,8 +2267,6 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{project}/instances/{instance}/databases
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2307,30 +2293,26 @@ components:
       name: databases
       title: databases
     flags:
-      id: google.services.flags
+      id: google.sqladmin.flags
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /v1/flags
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: flags
       title: flags
     instances:
-      id: google.services.instances
+      id: google.sqladmin.instances
       methods:
         addServerCa:
           operation:
             $ref: post
           path:
             $ref: /v1/projects/{project}/instances/{instance}/addServerCa
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2349,8 +2331,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/projects/{project}/instances/{instance}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2389,8 +2369,6 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{project}/instances/{instance}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2419,8 +2397,6 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{project}/instances
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2429,8 +2405,6 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{project}/instances/{instance}/listServerCas
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2449,8 +2423,6 @@ components:
             $ref: post
           path:
             $ref: /v1/projects/{project}/instances/{instance}/promoteReplica
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2459,8 +2431,6 @@ components:
             $ref: post
           path:
             $ref: /v1/projects/{project}/instances/{instance}/resetSslConfig
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2469,8 +2439,6 @@ components:
             $ref: post
           path:
             $ref: /v1/projects/{project}/instances/{instance}/restart
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2499,8 +2467,6 @@ components:
             $ref: post
           path:
             $ref: /v1/projects/{project}/instances/{instance}/startReplica
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2509,8 +2475,6 @@ components:
             $ref: post
           path:
             $ref: /v1/projects/{project}/instances/{instance}/stopReplica
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2537,15 +2501,13 @@ components:
       name: instances
       title: instances
     operations:
-      id: google.services.operations
+      id: google.sqladmin.operations
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v1/projects/{project}/operations/{operation}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2554,25 +2516,13 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{project}/operations
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: operations
       title: operations
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.instances:
-      id: google.services.projects.resources.instances
+    projects.instances:
+      id: google.sqladmin.projects.instances
       methods:
         rescheduleMaintenance:
           operation:
@@ -2604,10 +2554,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.instances
-      title: projects.resources.instances
+      name: projects.instances
+      title: projects.instances
     sslCerts:
-      id: google.services.sslCerts
+      id: google.sqladmin.sslCerts
       methods:
         createEphemeral:
           operation:
@@ -2624,8 +2574,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/projects/{project}/instances/{instance}/sslCerts/{sha1Fingerprint}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2634,8 +2582,6 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{project}/instances/{instance}/sslCerts/{sha1Fingerprint}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2654,38 +2600,32 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{project}/instances/{instance}/sslCerts
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: sslCerts
       title: sslCerts
     tiers:
-      id: google.services.tiers
+      id: google.sqladmin.tiers
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /v1/projects/{project}/tiers
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: tiers
       title: tiers
     users:
-      id: google.services.users
+      id: google.sqladmin.users
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /v1/projects/{project}/instances/{instance}/users
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2704,8 +2644,6 @@ components:
             $ref: get
           path:
             $ref: /v1/projects/{project}/instances/{instance}/users
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

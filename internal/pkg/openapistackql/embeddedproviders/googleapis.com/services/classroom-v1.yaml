@@ -1460,7 +1460,7 @@ components:
       type: oauth2
   x-stackQL-resources:
     courses:
-      id: google.services.courses
+      id: google.classroom.courses
       methods:
         create:
           operation:
@@ -1477,8 +1477,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/courses/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1487,8 +1485,6 @@ components:
             $ref: get
           path:
             $ref: /v1/courses/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1497,8 +1493,6 @@ components:
             $ref: get
           path:
             $ref: /v1/courses
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1524,13 +1518,8 @@ components:
             openAPIDocKey: '200'
       name: courses
       title: courses
-    courses.resources:
-      id: google.services.courses.resources
-      methods: {}
-      name: courses.resources
-      title: courses.resources
-    courses.resources.aliases:
-      id: google.services.courses.resources.aliases
+    courses.aliases:
+      id: google.classroom.courses.aliases
       methods:
         create:
           operation:
@@ -1547,8 +1536,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/courses/{courseId}/aliases/{alias}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1557,15 +1544,13 @@ components:
             $ref: get
           path:
             $ref: /v1/courses/{courseId}/aliases
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: courses.resources.aliases
-      title: courses.resources.aliases
-    courses.resources.announcements:
-      id: google.services.courses.resources.announcements
+      name: courses.aliases
+      title: courses.aliases
+    courses.announcements:
+      id: google.classroom.courses.announcements
       methods:
         create:
           operation:
@@ -1582,8 +1567,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/courses/{courseId}/announcements/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1592,8 +1575,6 @@ components:
             $ref: get
           path:
             $ref: /v1/courses/{courseId}/announcements/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1602,8 +1583,6 @@ components:
             $ref: get
           path:
             $ref: /v1/courses/{courseId}/announcements
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1627,10 +1606,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: courses.resources.announcements
-      title: courses.resources.announcements
-    courses.resources.courseWork:
-      id: google.services.courses.resources.courseWork
+      name: courses.announcements
+      title: courses.announcements
+    courses.courseWork:
+      id: google.classroom.courses.courseWork
       methods:
         create:
           operation:
@@ -1647,8 +1626,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/courses/{courseId}/courseWork/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1657,8 +1634,6 @@ components:
             $ref: get
           path:
             $ref: /v1/courses/{courseId}/courseWork/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1667,8 +1642,6 @@ components:
             $ref: get
           path:
             $ref: /v1/courses/{courseId}/courseWork
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1692,23 +1665,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: courses.resources.courseWork
-      title: courses.resources.courseWork
-    courses.resources.courseWork.resources:
-      id: google.services.courses.resources.courseWork.resources
-      methods: {}
-      name: courses.resources.courseWork.resources
-      title: courses.resources.courseWork.resources
-    courses.resources.courseWork.resources.studentSubmissions:
-      id: google.services.courses.resources.courseWork.resources.studentSubmissions
+      name: courses.courseWork
+      title: courses.courseWork
+    courses.courseWork.studentSubmissions:
+      id: google.classroom.courses.courseWork.studentSubmissions
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v1/courses/{courseId}/courseWork/{courseWorkId}/studentSubmissions/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1717,8 +1683,6 @@ components:
             $ref: get
           path:
             $ref: /v1/courses/{courseId}/courseWork/{courseWorkId}/studentSubmissions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1772,10 +1736,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: courses.resources.courseWork.resources.studentSubmissions
-      title: courses.resources.courseWork.resources.studentSubmissions
-    courses.resources.courseWorkMaterials:
-      id: google.services.courses.resources.courseWorkMaterials
+      name: courses.courseWork.studentSubmissions
+      title: courses.courseWork.studentSubmissions
+    courses.courseWorkMaterials:
+      id: google.classroom.courses.courseWorkMaterials
       methods:
         create:
           operation:
@@ -1792,8 +1756,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/courses/{courseId}/courseWorkMaterials/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1802,8 +1764,6 @@ components:
             $ref: get
           path:
             $ref: /v1/courses/{courseId}/courseWorkMaterials/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1812,8 +1772,6 @@ components:
             $ref: get
           path:
             $ref: /v1/courses/{courseId}/courseWorkMaterials
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1827,10 +1785,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: courses.resources.courseWorkMaterials
-      title: courses.resources.courseWorkMaterials
-    courses.resources.students:
-      id: google.services.courses.resources.students
+      name: courses.courseWorkMaterials
+      title: courses.courseWorkMaterials
+    courses.students:
+      id: google.classroom.courses.students
       methods:
         create:
           operation:
@@ -1847,8 +1805,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/courses/{courseId}/students/{userId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1857,8 +1813,6 @@ components:
             $ref: get
           path:
             $ref: /v1/courses/{courseId}/students/{userId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1867,15 +1821,13 @@ components:
             $ref: get
           path:
             $ref: /v1/courses/{courseId}/students
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: courses.resources.students
-      title: courses.resources.students
-    courses.resources.teachers:
-      id: google.services.courses.resources.teachers
+      name: courses.students
+      title: courses.students
+    courses.teachers:
+      id: google.classroom.courses.teachers
       methods:
         create:
           operation:
@@ -1892,8 +1844,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/courses/{courseId}/teachers/{userId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1902,8 +1852,6 @@ components:
             $ref: get
           path:
             $ref: /v1/courses/{courseId}/teachers/{userId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1912,15 +1860,13 @@ components:
             $ref: get
           path:
             $ref: /v1/courses/{courseId}/teachers
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: courses.resources.teachers
-      title: courses.resources.teachers
-    courses.resources.topics:
-      id: google.services.courses.resources.topics
+      name: courses.teachers
+      title: courses.teachers
+    courses.topics:
+      id: google.classroom.courses.topics
       methods:
         create:
           operation:
@@ -1937,8 +1883,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/courses/{courseId}/topics/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1947,8 +1891,6 @@ components:
             $ref: get
           path:
             $ref: /v1/courses/{courseId}/topics/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1957,8 +1899,6 @@ components:
             $ref: get
           path:
             $ref: /v1/courses/{courseId}/topics
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1972,18 +1912,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: courses.resources.topics
-      title: courses.resources.topics
+      name: courses.topics
+      title: courses.topics
     invitations:
-      id: google.services.invitations
+      id: google.classroom.invitations
       methods:
         accept:
           operation:
             $ref: post
           path:
             $ref: /v1/invitations/{id}:accept
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2002,8 +1940,6 @@ components:
             $ref: delete
           path:
             $ref: /v1/invitations/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2012,8 +1948,6 @@ components:
             $ref: get
           path:
             $ref: /v1/invitations/{id}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2022,15 +1956,13 @@ components:
             $ref: get
           path:
             $ref: /v1/invitations
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: invitations
       title: invitations
     registrations:
-      id: google.services.registrations
+      id: google.classroom.registrations
       methods:
         create:
           operation:
@@ -2047,35 +1979,26 @@ components:
             $ref: delete
           path:
             $ref: /v1/registrations/{registrationId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: registrations
       title: registrations
     userProfiles:
-      id: google.services.userProfiles
+      id: google.classroom.userProfiles
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v1/userProfiles/{userId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: userProfiles
       title: userProfiles
-    userProfiles.resources:
-      id: google.services.userProfiles.resources
-      methods: {}
-      name: userProfiles.resources
-      title: userProfiles.resources
-    userProfiles.resources.guardianInvitations:
-      id: google.services.userProfiles.resources.guardianInvitations
+    userProfiles.guardianInvitations:
+      id: google.classroom.userProfiles.guardianInvitations
       methods:
         create:
           operation:
@@ -2092,8 +2015,6 @@ components:
             $ref: get
           path:
             $ref: /v1/userProfiles/{studentId}/guardianInvitations/{invitationId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2102,8 +2023,6 @@ components:
             $ref: get
           path:
             $ref: /v1/userProfiles/{studentId}/guardianInvitations
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2117,18 +2036,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: userProfiles.resources.guardianInvitations
-      title: userProfiles.resources.guardianInvitations
-    userProfiles.resources.guardians:
-      id: google.services.userProfiles.resources.guardians
+      name: userProfiles.guardianInvitations
+      title: userProfiles.guardianInvitations
+    userProfiles.guardians:
+      id: google.classroom.userProfiles.guardians
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /v1/userProfiles/{studentId}/guardians/{guardianId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2137,8 +2054,6 @@ components:
             $ref: get
           path:
             $ref: /v1/userProfiles/{studentId}/guardians/{guardianId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2147,13 +2062,11 @@ components:
             $ref: get
           path:
             $ref: /v1/userProfiles/{studentId}/guardians
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: userProfiles.resources.guardians
-      title: userProfiles.resources.guardians
+      name: userProfiles.guardians
+      title: userProfiles.guardians
 externalDocs:
   url: https://developers.google.com/classroom/
 info:

@@ -579,44 +579,14 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    admin:
-      id: google.services.admin
-      methods: {}
-      name: admin
-      title: admin
-    admin.resources:
-      id: google.services.admin.resources
-      methods: {}
-      name: admin.resources
-      title: admin.resources
-    admin.resources.projects:
-      id: google.services.admin.resources.projects
-      methods: {}
-      name: admin.resources.projects
-      title: admin.resources.projects
-    admin.resources.projects.resources:
-      id: google.services.admin.resources.projects.resources
-      methods: {}
-      name: admin.resources.projects.resources
-      title: admin.resources.projects.resources
-    admin.resources.projects.resources.locations:
-      id: google.services.admin.resources.projects.resources.locations
-      methods: {}
-      name: admin.resources.projects.resources.locations
-      title: admin.resources.projects.resources.locations
-    admin.resources.projects.resources.locations.resources:
-      id: google.services.admin.resources.projects.resources.locations.resources
-      methods: {}
-      name: admin.resources.projects.resources.locations.resources
-      title: admin.resources.projects.resources.locations.resources
-    admin.resources.projects.resources.locations.resources.operations:
-      id: google.services.admin.resources.projects.resources.locations.resources.operations
+    admin.projects.locations.operations:
+      id: google.pubsublite.admin.projects.locations.operations
       methods:
         cancel:
           operation:
             $ref: post
           path:
-            $ref: /v1/admin/{name}:cancel
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}:cancel
           request:
             mediaType: application/json
           response:
@@ -626,9 +596,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/admin/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -636,9 +604,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/admin/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -646,22 +612,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/admin/{name}/operations
-          request:
-            mediaType: application/json
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/operations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: admin.resources.projects.resources.locations.resources.operations
-      title: admin.resources.projects.resources.locations.resources.operations
-    admin.resources.projects.resources.locations.resources.reservations:
-      id: google.services.admin.resources.projects.resources.locations.resources.reservations
+      name: admin.projects.locations.operations
+      title: admin.projects.locations.operations
+    admin.projects.locations.reservations:
+      id: google.pubsublite.admin.projects.locations.reservations
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/admin/{parent}/reservations
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/reservations
           request:
             mediaType: application/json
           response:
@@ -671,9 +635,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/admin/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/reservations/{reservationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -681,9 +643,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/admin/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/reservations/{reservationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -691,9 +651,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/admin/{parent}/reservations
-          request:
-            mediaType: application/json
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/reservations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -701,42 +659,35 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/admin/{name}
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/reservations/{reservationsId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: admin.resources.projects.resources.locations.resources.reservations
-      title: admin.resources.projects.resources.locations.resources.reservations
-    admin.resources.projects.resources.locations.resources.reservations.resources:
-      id: google.services.admin.resources.projects.resources.locations.resources.reservations.resources
-      methods: {}
-      name: admin.resources.projects.resources.locations.resources.reservations.resources
-      title: admin.resources.projects.resources.locations.resources.reservations.resources
-    admin.resources.projects.resources.locations.resources.reservations.resources.topics:
-      id: google.services.admin.resources.projects.resources.locations.resources.reservations.resources.topics
+      name: admin.projects.locations.reservations
+      title: admin.projects.locations.reservations
+    admin.projects.locations.reservations.topics:
+      id: google.pubsublite.admin.projects.locations.reservations.topics
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/admin/{name}/topics
-          request:
-            mediaType: application/json
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/reservations/{reservationsId}/topics
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: admin.resources.projects.resources.locations.resources.reservations.resources.topics
-      title: admin.resources.projects.resources.locations.resources.reservations.resources.topics
-    admin.resources.projects.resources.locations.resources.subscriptions:
-      id: google.services.admin.resources.projects.resources.locations.resources.subscriptions
+      name: admin.projects.locations.reservations.topics
+      title: admin.projects.locations.reservations.topics
+    admin.projects.locations.subscriptions:
+      id: google.pubsublite.admin.projects.locations.subscriptions
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/admin/{parent}/subscriptions
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/subscriptions
           request:
             mediaType: application/json
           response:
@@ -746,9 +697,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/admin/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/subscriptions/{subscriptionsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -756,9 +705,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/admin/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/subscriptions/{subscriptionsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -766,9 +713,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/admin/{parent}/subscriptions
-          request:
-            mediaType: application/json
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/subscriptions
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -776,7 +721,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/admin/{name}
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/subscriptions/{subscriptionsId}
           request:
             mediaType: application/json
           response:
@@ -786,22 +731,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/admin/{name}:seek
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/subscriptions/{subscriptionsId}:seek
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: admin.resources.projects.resources.locations.resources.subscriptions
-      title: admin.resources.projects.resources.locations.resources.subscriptions
-    admin.resources.projects.resources.locations.resources.topics:
-      id: google.services.admin.resources.projects.resources.locations.resources.topics
+      name: admin.projects.locations.subscriptions
+      title: admin.projects.locations.subscriptions
+    admin.projects.locations.topics:
+      id: google.pubsublite.admin.projects.locations.topics
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/admin/{parent}/topics
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/topics
           request:
             mediaType: application/json
           response:
@@ -811,9 +756,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/admin/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/topics/{topicsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -821,9 +764,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/admin/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/topics/{topicsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -831,9 +772,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/admin/{name}/partitions
-          request:
-            mediaType: application/json
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/topics/{topicsId}/partitions
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -841,9 +780,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/admin/{parent}/topics
-          request:
-            mediaType: application/json
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/topics
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -851,137 +788,63 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/admin/{name}
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/topics/{topicsId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: admin.resources.projects.resources.locations.resources.topics
-      title: admin.resources.projects.resources.locations.resources.topics
-    admin.resources.projects.resources.locations.resources.topics.resources:
-      id: google.services.admin.resources.projects.resources.locations.resources.topics.resources
-      methods: {}
-      name: admin.resources.projects.resources.locations.resources.topics.resources
-      title: admin.resources.projects.resources.locations.resources.topics.resources
-    admin.resources.projects.resources.locations.resources.topics.resources.subscriptions:
-      id: google.services.admin.resources.projects.resources.locations.resources.topics.resources.subscriptions
+      name: admin.projects.locations.topics
+      title: admin.projects.locations.topics
+    admin.projects.locations.topics.subscriptions:
+      id: google.pubsublite.admin.projects.locations.topics.subscriptions
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/admin/{name}/subscriptions
-          request:
-            mediaType: application/json
+            $ref: /v1/admin/projects/{projectsId}/locations/{locationsId}/topics/{topicsId}/subscriptions
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: admin.resources.projects.resources.locations.resources.topics.resources.subscriptions
-      title: admin.resources.projects.resources.locations.resources.topics.resources.subscriptions
-    cursor:
-      id: google.services.cursor
-      methods: {}
-      name: cursor
-      title: cursor
-    cursor.resources:
-      id: google.services.cursor.resources
-      methods: {}
-      name: cursor.resources
-      title: cursor.resources
-    cursor.resources.projects:
-      id: google.services.cursor.resources.projects
-      methods: {}
-      name: cursor.resources.projects
-      title: cursor.resources.projects
-    cursor.resources.projects.resources:
-      id: google.services.cursor.resources.projects.resources
-      methods: {}
-      name: cursor.resources.projects.resources
-      title: cursor.resources.projects.resources
-    cursor.resources.projects.resources.locations:
-      id: google.services.cursor.resources.projects.resources.locations
-      methods: {}
-      name: cursor.resources.projects.resources.locations
-      title: cursor.resources.projects.resources.locations
-    cursor.resources.projects.resources.locations.resources:
-      id: google.services.cursor.resources.projects.resources.locations.resources
-      methods: {}
-      name: cursor.resources.projects.resources.locations.resources
-      title: cursor.resources.projects.resources.locations.resources
-    cursor.resources.projects.resources.locations.resources.subscriptions:
-      id: google.services.cursor.resources.projects.resources.locations.resources.subscriptions
+      name: admin.projects.locations.topics.subscriptions
+      title: admin.projects.locations.topics.subscriptions
+    cursor.projects.locations.subscriptions:
+      id: google.pubsublite.cursor.projects.locations.subscriptions
       methods:
         commitCursor:
           operation:
             $ref: post
           path:
-            $ref: /v1/cursor/{subscription}:commitCursor
+            $ref: /v1/cursor/projects/{projectsId}/locations/{locationsId}/subscriptions/{subscriptionsId}:commitCursor
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: cursor.resources.projects.resources.locations.resources.subscriptions
-      title: cursor.resources.projects.resources.locations.resources.subscriptions
-    cursor.resources.projects.resources.locations.resources.subscriptions.resources:
-      id: google.services.cursor.resources.projects.resources.locations.resources.subscriptions.resources
-      methods: {}
-      name: cursor.resources.projects.resources.locations.resources.subscriptions.resources
-      title: cursor.resources.projects.resources.locations.resources.subscriptions.resources
-    cursor.resources.projects.resources.locations.resources.subscriptions.resources.cursors:
-      id: google.services.cursor.resources.projects.resources.locations.resources.subscriptions.resources.cursors
+      name: cursor.projects.locations.subscriptions
+      title: cursor.projects.locations.subscriptions
+    cursor.projects.locations.subscriptions.cursors:
+      id: google.pubsublite.cursor.projects.locations.subscriptions.cursors
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1/cursor/{parent}/cursors
-          request:
-            mediaType: application/json
+            $ref: /v1/cursor/projects/{projectsId}/locations/{locationsId}/subscriptions/{subscriptionsId}/cursors
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: cursor.resources.projects.resources.locations.resources.subscriptions.resources.cursors
-      title: cursor.resources.projects.resources.locations.resources.subscriptions.resources.cursors
-    topicStats:
-      id: google.services.topicStats
-      methods: {}
-      name: topicStats
-      title: topicStats
-    topicStats.resources:
-      id: google.services.topicStats.resources
-      methods: {}
-      name: topicStats.resources
-      title: topicStats.resources
-    topicStats.resources.projects:
-      id: google.services.topicStats.resources.projects
-      methods: {}
-      name: topicStats.resources.projects
-      title: topicStats.resources.projects
-    topicStats.resources.projects.resources:
-      id: google.services.topicStats.resources.projects.resources
-      methods: {}
-      name: topicStats.resources.projects.resources
-      title: topicStats.resources.projects.resources
-    topicStats.resources.projects.resources.locations:
-      id: google.services.topicStats.resources.projects.resources.locations
-      methods: {}
-      name: topicStats.resources.projects.resources.locations
-      title: topicStats.resources.projects.resources.locations
-    topicStats.resources.projects.resources.locations.resources:
-      id: google.services.topicStats.resources.projects.resources.locations.resources
-      methods: {}
-      name: topicStats.resources.projects.resources.locations.resources
-      title: topicStats.resources.projects.resources.locations.resources
-    topicStats.resources.projects.resources.locations.resources.topics:
-      id: google.services.topicStats.resources.projects.resources.locations.resources.topics
+      name: cursor.projects.locations.subscriptions.cursors
+      title: cursor.projects.locations.subscriptions.cursors
+    topicStats.projects.locations.topics:
+      id: google.pubsublite.topicStats.projects.locations.topics
       methods:
         computeHeadCursor:
           operation:
             $ref: post
           path:
-            $ref: /v1/topicStats/{topic}:computeHeadCursor
+            $ref: /v1/topicStats/projects/{projectsId}/locations/{locationsId}/topics/{topicsId}:computeHeadCursor
           request:
             mediaType: application/json
           response:
@@ -991,7 +854,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/topicStats/{topic}:computeMessageStats
+            $ref: /v1/topicStats/projects/{projectsId}/locations/{locationsId}/topics/{topicsId}:computeMessageStats
           request:
             mediaType: application/json
           response:
@@ -1001,14 +864,14 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/topicStats/{topic}:computeTimeCursor
+            $ref: /v1/topicStats/projects/{projectsId}/locations/{locationsId}/topics/{topicsId}:computeTimeCursor
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: topicStats.resources.projects.resources.locations.resources.topics
-      title: topicStats.resources.projects.resources.locations.resources.topics
+      name: topicStats.projects.locations.topics
+      title: topicStats.projects.locations.topics
 externalDocs:
   url: https://cloud.google.com/pubsub/lite/docs
 info:
@@ -1036,6 +899,1142 @@ info:
   x-serviceName: pubsublite
 openapi: 3.0.0
 paths:
+  /v1/admin/projects/{projectsId}/locations/{locationsId}/operations:
+    get:
+      description: 'Lists operations that match the specified filter in the request.
+        If the server doesn''t support this method, it returns `UNIMPLEMENTED`. NOTE:
+        the `name` binding allows API services to override the binding to use different
+        resource name schemes, such as `users/*/operations`. To override the binding,
+        API services can add a binding such as `"/v1/{name=users/*}/operations"` to
+        their service configuration. For backwards compatibility, the default name
+        includes the operations collection id, however overriding users must ensure
+        the name binding is the parent resource, without the operations collection
+        id.'
+      operationId: pubsublite.admin.projects.locations.operations.list
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOperationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/admin/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}:
+    delete:
+      description: Deletes the specified topic.
+      operationId: pubsublite.admin.projects.locations.topics.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+    get:
+      description: Returns the topic configuration.
+      operationId: pubsublite.admin.projects.locations.topics.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates properties of the specified topic.
+      operationId: pubsublite.admin.projects.locations.topics.patch
+      parameters:
+      - description: Required. A mask specifying the topic fields to change.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Topic'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+  /v1/admin/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}:cancel:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Starts asynchronous cancellation on a long-running operation. The
+        server makes a best effort to cancel the operation, but success is not guaranteed.
+        If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+        Clients can use Operations.GetOperation or other methods to check whether
+        the cancellation succeeded or whether the operation completed despite cancellation.
+        On successful cancellation, the operation is not deleted; instead, it becomes
+        an operation with an Operation.error value with a google.rpc.Status.code of
+        1, corresponding to `Code.CANCELLED`.
+      operationId: pubsublite.admin.projects.locations.operations.cancel
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelOperationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+  /v1/admin/projects/{projectsId}/locations/{locationsId}/reservations:
+    get:
+      description: Returns the list of reservations for the given project.
+      operationId: pubsublite.admin.projects.locations.reservations.list
+      parameters:
+      - description: The maximum number of reservations to return. The service may
+          return fewer than this value. If unset or zero, all reservations for the
+          parent will be returned.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListReservations` call.
+          Provide this to retrieve the subsequent page. When paginating, all other
+          parameters provided to `ListReservations` must match the call that provided
+          the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListReservationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new reservation.
+      operationId: pubsublite.admin.projects.locations.reservations.create
+      parameters:
+      - description: 'Required. The ID to use for the reservation, which will become
+          the final component of the reservation''s name. This value is structured
+          like: `my-reservation-name`.'
+        in: query
+        name: reservationId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+  /v1/admin/projects/{projectsId}/locations/{locationsId}/reservations/{reservationsId}:
+    delete:
+      description: Deletes the specified topic.
+      operationId: pubsublite.admin.projects.locations.topics.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: reservationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+    get:
+      description: Returns the topic configuration.
+      operationId: pubsublite.admin.projects.locations.topics.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: reservationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates properties of the specified topic.
+      operationId: pubsublite.admin.projects.locations.topics.patch
+      parameters:
+      - description: Required. A mask specifying the topic fields to change.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: reservationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Topic'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+  /v1/admin/projects/{projectsId}/locations/{locationsId}/reservations/{reservationsId}/topics:
+    get:
+      description: Lists the topics attached to the specified reservation.
+      operationId: pubsublite.admin.projects.locations.reservations.topics.list
+      parameters:
+      - description: The maximum number of topics to return. The service may return
+          fewer than this value. If unset or zero, all topics for the given reservation
+          will be returned.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListReservationTopics`
+          call. Provide this to retrieve the subsequent page. When paginating, all
+          other parameters provided to `ListReservationTopics` must match the call
+          that provided the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: reservationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListReservationTopicsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/admin/projects/{projectsId}/locations/{locationsId}/subscriptions:
+    get:
+      description: Returns the list of subscriptions for the given project.
+      operationId: pubsublite.admin.projects.locations.subscriptions.list
+      parameters:
+      - description: The maximum number of subscriptions to return. The service may
+          return fewer than this value. If unset or zero, all subscriptions for the
+          parent will be returned.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListSubscriptions` call.
+          Provide this to retrieve the subsequent page. When paginating, all other
+          parameters provided to `ListSubscriptions` must match the call that provided
+          the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSubscriptionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new subscription.
+      operationId: pubsublite.admin.projects.locations.subscriptions.create
+      parameters:
+      - description: If true, the newly created subscription will only receive messages
+          published after the subscription was created. Otherwise, the entire message
+          backlog will be received on the subscription. Defaults to false.
+        in: query
+        name: skipBacklog
+        schema:
+          type: boolean
+      - description: 'Required. The ID to use for the subscription, which will become
+          the final component of the subscription''s name. This value is structured
+          like: `my-sub-name`.'
+        in: query
+        name: subscriptionId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+  /v1/admin/projects/{projectsId}/locations/{locationsId}/subscriptions/{subscriptionsId}:
+    delete:
+      description: Deletes the specified topic.
+      operationId: pubsublite.admin.projects.locations.topics.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: subscriptionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+    get:
+      description: Returns the topic configuration.
+      operationId: pubsublite.admin.projects.locations.topics.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: subscriptionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates properties of the specified topic.
+      operationId: pubsublite.admin.projects.locations.topics.patch
+      parameters:
+      - description: Required. A mask specifying the topic fields to change.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: subscriptionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Topic'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+  /v1/admin/projects/{projectsId}/locations/{locationsId}/subscriptions/{subscriptionsId}:seek:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Performs an out-of-band seek for a subscription to a specified
+        target, which may be timestamps or named positions within the message backlog.
+        Seek translates these targets to cursors for each partition and orchestrates
+        subscribers to start consuming messages from these seek cursors. If an operation
+        is returned, the seek has been registered and subscribers will eventually
+        receive messages from the seek cursors (i.e. eventual consistency), as long
+        as they are using a minimum supported client library version and not a system
+        that tracks cursors independently of Pub/Sub Lite (e.g. Apache Beam, Dataflow,
+        Spark). The seek operation will fail for unsupported clients. If clients would
+        like to know when subscribers react to the seek (or not), they can poll the
+        operation. The seek operation will succeed and complete once subscribers are
+        ready to receive messages from the seek cursors for all partitions of the
+        topic. This means that the seek operation will not complete until all subscribers
+        come online. If the previous seek operation has not yet completed, it will
+        be aborted and the new invocation of seek will supersede it.
+      operationId: pubsublite.admin.projects.locations.subscriptions.seek
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: subscriptionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SeekSubscriptionRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+  /v1/admin/projects/{projectsId}/locations/{locationsId}/topics:
+    get:
+      description: Returns the list of topics for the given project.
+      operationId: pubsublite.admin.projects.locations.topics.list
+      parameters:
+      - description: The maximum number of topics to return. The service may return
+          fewer than this value. If unset or zero, all topics for the parent will
+          be returned.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListTopics` call. Provide
+          this to retrieve the subsequent page. When paginating, all other parameters
+          provided to `ListTopics` must match the call that provided the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTopicsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new topic.
+      operationId: pubsublite.admin.projects.locations.topics.create
+      parameters:
+      - description: 'Required. The ID to use for the topic, which will become the
+          final component of the topic''s name. This value is structured like: `my-topic-name`.'
+        in: query
+        name: topicId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Topic'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+  /v1/admin/projects/{projectsId}/locations/{locationsId}/topics/{topicsId}:
+    delete:
+      description: Deletes the specified topic.
+      operationId: pubsublite.admin.projects.locations.topics.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: topicsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+    get:
+      description: Returns the topic configuration.
+      operationId: pubsublite.admin.projects.locations.topics.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: topicsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates properties of the specified topic.
+      operationId: pubsublite.admin.projects.locations.topics.patch
+      parameters:
+      - description: Required. A mask specifying the topic fields to change.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: topicsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Topic'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+  /v1/admin/projects/{projectsId}/locations/{locationsId}/topics/{topicsId}/partitions:
+    get:
+      description: Returns the partition information for the requested topic.
+      operationId: pubsublite.admin.projects.locations.topics.getPartitions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: topicsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopicPartitions'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/admin/projects/{projectsId}/locations/{locationsId}/topics/{topicsId}/subscriptions:
+    get:
+      description: Lists the subscriptions attached to the specified topic.
+      operationId: pubsublite.admin.projects.locations.topics.subscriptions.list
+      parameters:
+      - description: The maximum number of subscriptions to return. The service may
+          return fewer than this value. If unset or zero, all subscriptions for the
+          given topic will be returned.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListTopicSubscriptions`
+          call. Provide this to retrieve the subsequent page. When paginating, all
+          other parameters provided to `ListTopicSubscriptions` must match the call
+          that provided the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: topicsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTopicSubscriptionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - admin
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /v1/admin/{name}:
     delete:
       description: Deletes the specified topic.
@@ -1713,6 +2712,118 @@ paths:
         - https://www.googleapis.com/auth/cloud-platform
       tags:
       - admin
+  /v1/cursor/projects/{projectsId}/locations/{locationsId}/subscriptions/{subscriptionsId}/cursors:
+    get:
+      description: Returns all committed cursor information for a subscription.
+      operationId: pubsublite.cursor.projects.locations.subscriptions.cursors.list
+      parameters:
+      - description: The maximum number of cursors to return. The service may return
+          fewer than this value. If unset or zero, all cursors for the parent will
+          be returned.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListPartitionCursors`
+          call. Provide this to retrieve the subsequent page. When paginating, all
+          other parameters provided to `ListPartitionCursors` must match the call
+          that provided the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: subscriptionsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListPartitionCursorsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - cursor
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/cursor/projects/{projectsId}/locations/{locationsId}/subscriptions/{subscriptionsId}:commitCursor:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Updates the committed cursor.
+      operationId: pubsublite.cursor.projects.locations.subscriptions.commitCursor
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: subscriptionsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommitCursorRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommitCursorResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - cursor
   /v1/cursor/{parent}/cursors:
     get:
       description: Returns all committed cursor information for a subscription.
@@ -1808,6 +2919,165 @@ paths:
         - https://www.googleapis.com/auth/cloud-platform
       tags:
       - cursor
+  /v1/topicStats/projects/{projectsId}/locations/{locationsId}/topics/{topicsId}:computeHeadCursor:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Compute the head cursor for the partition. The head cursor's offset
+        is guaranteed to be less than or equal to all messages which have not yet
+        been acknowledged as published, and greater than the offset of any message
+        whose publish has already been acknowledged. It is zero if there have never
+        been messages in the partition.
+      operationId: pubsublite.topicStats.projects.locations.topics.computeHeadCursor
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: topicsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComputeHeadCursorRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComputeHeadCursorResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - topicStats
+  /v1/topicStats/projects/{projectsId}/locations/{locationsId}/topics/{topicsId}:computeMessageStats:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Compute statistics about a range of messages in a given topic and
+        partition.
+      operationId: pubsublite.topicStats.projects.locations.topics.computeMessageStats
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: topicsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComputeMessageStatsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComputeMessageStatsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - topicStats
+  /v1/topicStats/projects/{projectsId}/locations/{locationsId}/topics/{topicsId}:computeTimeCursor:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Compute the corresponding cursor for a publish or event time in
+        a topic partition.
+      operationId: pubsublite.topicStats.projects.locations.topics.computeTimeCursor
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: topicsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComputeTimeCursorRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComputeTimeCursorResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - topicStats
   /v1/topicStats/{topic}:computeHeadCursor:
     parameters:
     - $ref: '#/components/parameters/_.xgafv'

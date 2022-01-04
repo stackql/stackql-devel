@@ -168,7 +168,7 @@ components:
       type: oauth2
   x-stackQL-resources:
     challenge:
-      id: google.services.challenge
+      id: google.verifiedaccess.challenge
       methods:
         create:
           operation:

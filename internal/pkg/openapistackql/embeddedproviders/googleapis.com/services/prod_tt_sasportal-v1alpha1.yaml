@@ -799,25 +799,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     customers:
-      id: google.services.customers
+      id: google.prod_tt_sasportal.customers
       methods:
-        create:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1alpha1/customers
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
         delete:
           operation:
             $ref: delete
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/customers/{customersId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -825,9 +813,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/customers/{customersId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -836,8 +822,6 @@ components:
             $ref: get
           path:
             $ref: /v1alpha1/customers
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -845,7 +829,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1alpha1/{name}
+            $ref: /v1alpha1/customers/{customersId}
           request:
             mediaType: application/json
           response:
@@ -853,19 +837,14 @@ components:
             openAPIDocKey: '200'
       name: customers
       title: customers
-    customers.resources:
-      id: google.services.customers.resources
-      methods: {}
-      name: customers.resources
-      title: customers.resources
-    customers.resources.deployments:
-      id: google.services.customers.resources.deployments
+    customers.deployments:
+      id: google.prod_tt_sasportal.customers.deployments
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/deployments
+            $ref: /v1alpha1/customers/{customersId}/deployments
           request:
             mediaType: application/json
           response:
@@ -875,9 +854,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/customers/{customersId}/deployments/{deploymentsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -885,9 +862,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/customers/{customersId}/deployments/{deploymentsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -895,9 +870,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{parent}/deployments
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/customers/{customersId}/deployments
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -905,7 +878,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{name}:move
+            $ref: /v1alpha1/customers/{customersId}/deployments/{deploymentsId}:move
           request:
             mediaType: application/json
           response:
@@ -915,27 +888,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1alpha1/{name}
+            $ref: /v1alpha1/customers/{customersId}/deployments/{deploymentsId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: customers.resources.deployments
-      title: customers.resources.deployments
-    customers.resources.deployments.resources:
-      id: google.services.customers.resources.deployments.resources
-      methods: {}
-      name: customers.resources.deployments.resources
-      title: customers.resources.deployments.resources
-    customers.resources.deployments.resources.devices:
-      id: google.services.customers.resources.deployments.resources.devices
+      name: customers.deployments
+      title: customers.deployments
+    customers.deployments.devices:
+      id: google.prod_tt_sasportal.customers.deployments.devices
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/devices
+            $ref: /v1alpha1/customers/{customersId}/deployments/{deploymentsId}/devices
           request:
             mediaType: application/json
           response:
@@ -945,7 +913,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/devices:createSigned
+            $ref: /v1alpha1/customers/{customersId}/deployments/{deploymentsId}/devices:createSigned
           request:
             mediaType: application/json
           response:
@@ -955,22 +923,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{parent}/devices
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/customers/{customersId}/deployments/{deploymentsId}/devices
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: customers.resources.deployments.resources.devices
-      title: customers.resources.deployments.resources.devices
-    customers.resources.devices:
-      id: google.services.customers.resources.devices
+      name: customers.deployments.devices
+      title: customers.deployments.devices
+    customers.devices:
+      id: google.prod_tt_sasportal.customers.devices
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/devices
+            $ref: /v1alpha1/customers/{customersId}/devices
           request:
             mediaType: application/json
           response:
@@ -980,7 +946,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/devices:createSigned
+            $ref: /v1alpha1/customers/{customersId}/devices:createSigned
           request:
             mediaType: application/json
           response:
@@ -990,9 +956,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/customers/{customersId}/devices/{devicesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1000,9 +964,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/customers/{customersId}/devices/{devicesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1010,9 +972,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{parent}/devices
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/customers/{customersId}/devices
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1020,7 +980,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{name}:move
+            $ref: /v1alpha1/customers/{customersId}/devices/{devicesId}:move
           request:
             mediaType: application/json
           response:
@@ -1030,7 +990,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1alpha1/{name}
+            $ref: /v1alpha1/customers/{customersId}/devices/{devicesId}
           request:
             mediaType: application/json
           response:
@@ -1040,7 +1000,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{name}:signDevice
+            $ref: /v1alpha1/customers/{customersId}/devices/{devicesId}:signDevice
           request:
             mediaType: application/json
           response:
@@ -1050,22 +1010,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1alpha1/{name}:updateSigned
+            $ref: /v1alpha1/customers/{customersId}/devices/{devicesId}:updateSigned
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: customers.resources.devices
-      title: customers.resources.devices
-    customers.resources.nodes:
-      id: google.services.customers.resources.nodes
+      name: customers.devices
+      title: customers.devices
+    customers.nodes:
+      id: google.prod_tt_sasportal.customers.nodes
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/nodes
+            $ref: /v1alpha1/customers/{customersId}/nodes
           request:
             mediaType: application/json
           response:
@@ -1075,9 +1035,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/customers/{customersId}/nodes/{nodesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1085,9 +1043,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/customers/{customersId}/nodes/{nodesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1095,9 +1051,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{parent}/nodes
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/customers/{customersId}/nodes
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1105,7 +1059,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{name}:move
+            $ref: /v1alpha1/customers/{customersId}/nodes/{nodesId}:move
           request:
             mediaType: application/json
           response:
@@ -1115,27 +1069,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1alpha1/{name}
+            $ref: /v1alpha1/customers/{customersId}/nodes/{nodesId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: customers.resources.nodes
-      title: customers.resources.nodes
-    customers.resources.nodes.resources:
-      id: google.services.customers.resources.nodes.resources
-      methods: {}
-      name: customers.resources.nodes.resources
-      title: customers.resources.nodes.resources
-    customers.resources.nodes.resources.deployments:
-      id: google.services.customers.resources.nodes.resources.deployments
+      name: customers.nodes
+      title: customers.nodes
+    customers.nodes.deployments:
+      id: google.prod_tt_sasportal.customers.nodes.deployments
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/deployments
+            $ref: /v1alpha1/customers/{customersId}/nodes/{nodesId}/deployments
           request:
             mediaType: application/json
           response:
@@ -1145,22 +1094,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{parent}/deployments
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/customers/{customersId}/nodes/{nodesId}/deployments
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: customers.resources.nodes.resources.deployments
-      title: customers.resources.nodes.resources.deployments
-    customers.resources.nodes.resources.devices:
-      id: google.services.customers.resources.nodes.resources.devices
+      name: customers.nodes.deployments
+      title: customers.nodes.deployments
+    customers.nodes.devices:
+      id: google.prod_tt_sasportal.customers.nodes.devices
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/devices
+            $ref: /v1alpha1/customers/{customersId}/nodes/{nodesId}/devices
           request:
             mediaType: application/json
           response:
@@ -1170,7 +1117,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/devices:createSigned
+            $ref: /v1alpha1/customers/{customersId}/nodes/{nodesId}/devices:createSigned
           request:
             mediaType: application/json
           response:
@@ -1180,22 +1127,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{parent}/devices
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/customers/{customersId}/nodes/{nodesId}/devices
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: customers.resources.nodes.resources.devices
-      title: customers.resources.nodes.resources.devices
-    customers.resources.nodes.resources.nodes:
-      id: google.services.customers.resources.nodes.resources.nodes
+      name: customers.nodes.devices
+      title: customers.nodes.devices
+    customers.nodes.nodes:
+      id: google.prod_tt_sasportal.customers.nodes.nodes
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/nodes
+            $ref: /v1alpha1/customers/{customersId}/nodes/{nodesId}/nodes
           request:
             mediaType: application/json
           response:
@@ -1205,44 +1150,33 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{parent}/nodes
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/customers/{customersId}/nodes/{nodesId}/nodes
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: customers.resources.nodes.resources.nodes
-      title: customers.resources.nodes.resources.nodes
+      name: customers.nodes.nodes
+      title: customers.nodes.nodes
     deployments:
-      id: google.services.deployments
+      id: google.prod_tt_sasportal.deployments
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/deployments/{deploymentsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: deployments
       title: deployments
-    deployments.resources:
-      id: google.services.deployments.resources
-      methods: {}
-      name: deployments.resources
-      title: deployments.resources
-    deployments.resources.devices:
-      id: google.services.deployments.resources.devices
+    deployments.devices:
+      id: google.prod_tt_sasportal.deployments.devices
       methods:
         delete:
           operation:
             $ref: delete
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/deployments/{deploymentsId}/devices/{devicesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1250,9 +1184,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/deployments/{deploymentsId}/devices/{devicesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1260,7 +1192,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{name}:move
+            $ref: /v1alpha1/deployments/{deploymentsId}/devices/{devicesId}:move
           request:
             mediaType: application/json
           response:
@@ -1270,7 +1202,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1alpha1/{name}
+            $ref: /v1alpha1/deployments/{deploymentsId}/devices/{devicesId}
           request:
             mediaType: application/json
           response:
@@ -1280,7 +1212,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{name}:signDevice
+            $ref: /v1alpha1/deployments/{deploymentsId}/devices/{devicesId}:signDevice
           request:
             mediaType: application/json
           response:
@@ -1290,16 +1222,16 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1alpha1/{name}:updateSigned
+            $ref: /v1alpha1/deployments/{deploymentsId}/devices/{devicesId}:updateSigned
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: deployments.resources.devices
-      title: deployments.resources.devices
+      name: deployments.devices
+      title: deployments.devices
     installer:
-      id: google.services.installer
+      id: google.prod_tt_sasportal.installer
       methods:
         generateSecret:
           operation:
@@ -1324,35 +1256,26 @@ components:
       name: installer
       title: installer
     nodes:
-      id: google.services.nodes
+      id: google.prod_tt_sasportal.nodes
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/nodes/{nodesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: nodes
       title: nodes
-    nodes.resources:
-      id: google.services.nodes.resources
-      methods: {}
-      name: nodes.resources
-      title: nodes.resources
-    nodes.resources.deployments:
-      id: google.services.nodes.resources.deployments
+    nodes.deployments:
+      id: google.prod_tt_sasportal.nodes.deployments
       methods:
         delete:
           operation:
             $ref: delete
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/nodes/{nodesId}/deployments/{deploymentsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1360,9 +1283,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/nodes/{nodesId}/deployments/{deploymentsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1370,9 +1291,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{parent}/deployments
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/nodes/{nodesId}/deployments
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1380,7 +1299,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{name}:move
+            $ref: /v1alpha1/nodes/{nodesId}/deployments/{deploymentsId}:move
           request:
             mediaType: application/json
           response:
@@ -1390,27 +1309,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1alpha1/{name}
+            $ref: /v1alpha1/nodes/{nodesId}/deployments/{deploymentsId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: nodes.resources.deployments
-      title: nodes.resources.deployments
-    nodes.resources.deployments.resources:
-      id: google.services.nodes.resources.deployments.resources
-      methods: {}
-      name: nodes.resources.deployments.resources
-      title: nodes.resources.deployments.resources
-    nodes.resources.deployments.resources.devices:
-      id: google.services.nodes.resources.deployments.resources.devices
+      name: nodes.deployments
+      title: nodes.deployments
+    nodes.deployments.devices:
+      id: google.prod_tt_sasportal.nodes.deployments.devices
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/devices
+            $ref: /v1alpha1/nodes/{nodesId}/deployments/{deploymentsId}/devices
           request:
             mediaType: application/json
           response:
@@ -1420,7 +1334,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/devices:createSigned
+            $ref: /v1alpha1/nodes/{nodesId}/deployments/{deploymentsId}/devices:createSigned
           request:
             mediaType: application/json
           response:
@@ -1430,22 +1344,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{parent}/devices
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/nodes/{nodesId}/deployments/{deploymentsId}/devices
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: nodes.resources.deployments.resources.devices
-      title: nodes.resources.deployments.resources.devices
-    nodes.resources.devices:
-      id: google.services.nodes.resources.devices
+      name: nodes.deployments.devices
+      title: nodes.deployments.devices
+    nodes.devices:
+      id: google.prod_tt_sasportal.nodes.devices
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/devices
+            $ref: /v1alpha1/nodes/{nodesId}/devices
           request:
             mediaType: application/json
           response:
@@ -1455,7 +1367,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/devices:createSigned
+            $ref: /v1alpha1/nodes/{nodesId}/devices:createSigned
           request:
             mediaType: application/json
           response:
@@ -1465,9 +1377,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/nodes/{nodesId}/devices/{devicesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1475,9 +1385,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/nodes/{nodesId}/devices/{devicesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1485,9 +1393,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{parent}/devices
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/nodes/{nodesId}/devices
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1495,7 +1401,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{name}:move
+            $ref: /v1alpha1/nodes/{nodesId}/devices/{devicesId}:move
           request:
             mediaType: application/json
           response:
@@ -1505,7 +1411,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1alpha1/{name}
+            $ref: /v1alpha1/nodes/{nodesId}/devices/{devicesId}
           request:
             mediaType: application/json
           response:
@@ -1515,7 +1421,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{name}:signDevice
+            $ref: /v1alpha1/nodes/{nodesId}/devices/{devicesId}:signDevice
           request:
             mediaType: application/json
           response:
@@ -1525,22 +1431,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1alpha1/{name}:updateSigned
+            $ref: /v1alpha1/nodes/{nodesId}/devices/{devicesId}:updateSigned
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: nodes.resources.devices
-      title: nodes.resources.devices
-    nodes.resources.nodes:
-      id: google.services.nodes.resources.nodes
+      name: nodes.devices
+      title: nodes.devices
+    nodes.nodes:
+      id: google.prod_tt_sasportal.nodes.nodes
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/nodes
+            $ref: /v1alpha1/nodes/{nodesId}/nodes
           request:
             mediaType: application/json
           response:
@@ -1550,9 +1456,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/nodes/{nodesId}/nodes/{nodesId1}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1560,9 +1464,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/nodes/{nodesId}/nodes/{nodesId1}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1570,9 +1472,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{parent}/nodes
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/nodes/{nodesId}/nodes
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1580,7 +1480,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{name}:move
+            $ref: /v1alpha1/nodes/{nodesId}/nodes/{nodesId1}:move
           request:
             mediaType: application/json
           response:
@@ -1590,27 +1490,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1alpha1/{name}
+            $ref: /v1alpha1/nodes/{nodesId}/nodes/{nodesId1}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: nodes.resources.nodes
-      title: nodes.resources.nodes
-    nodes.resources.nodes.resources:
-      id: google.services.nodes.resources.nodes.resources
-      methods: {}
-      name: nodes.resources.nodes.resources
-      title: nodes.resources.nodes.resources
-    nodes.resources.nodes.resources.deployments:
-      id: google.services.nodes.resources.nodes.resources.deployments
+      name: nodes.nodes
+      title: nodes.nodes
+    nodes.nodes.deployments:
+      id: google.prod_tt_sasportal.nodes.nodes.deployments
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/deployments
+            $ref: /v1alpha1/nodes/{nodesId}/nodes/{nodesId1}/deployments
           request:
             mediaType: application/json
           response:
@@ -1620,22 +1515,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{parent}/deployments
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/nodes/{nodesId}/nodes/{nodesId1}/deployments
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: nodes.resources.nodes.resources.deployments
-      title: nodes.resources.nodes.resources.deployments
-    nodes.resources.nodes.resources.devices:
-      id: google.services.nodes.resources.nodes.resources.devices
+      name: nodes.nodes.deployments
+      title: nodes.nodes.deployments
+    nodes.nodes.devices:
+      id: google.prod_tt_sasportal.nodes.nodes.devices
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/devices
+            $ref: /v1alpha1/nodes/{nodesId}/nodes/{nodesId1}/devices
           request:
             mediaType: application/json
           response:
@@ -1645,7 +1538,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/devices:createSigned
+            $ref: /v1alpha1/nodes/{nodesId}/nodes/{nodesId1}/devices:createSigned
           request:
             mediaType: application/json
           response:
@@ -1655,22 +1548,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{parent}/devices
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/nodes/{nodesId}/nodes/{nodesId1}/devices
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: nodes.resources.nodes.resources.devices
-      title: nodes.resources.nodes.resources.devices
-    nodes.resources.nodes.resources.nodes:
-      id: google.services.nodes.resources.nodes.resources.nodes
+      name: nodes.nodes.devices
+      title: nodes.nodes.devices
+    nodes.nodes.nodes:
+      id: google.prod_tt_sasportal.nodes.nodes.nodes
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1alpha1/{parent}/nodes
+            $ref: /v1alpha1/nodes/{nodesId}/nodes/{nodesId1}/nodes
           request:
             mediaType: application/json
           response:
@@ -1680,16 +1571,14 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1alpha1/{parent}/nodes
-          request:
-            mediaType: application/json
+            $ref: /v1alpha1/nodes/{nodesId}/nodes/{nodesId1}/nodes
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: nodes.resources.nodes.resources.nodes
-      title: nodes.resources.nodes.resources.nodes
+      name: nodes.nodes.nodes
+      title: nodes.nodes.nodes
     policies:
-      id: google.services.policies
+      id: google.prod_tt_sasportal.policies
       methods:
         get:
           operation:
@@ -1797,6 +1686,1736 @@ paths:
     - $ref: '#/components/parameters/quotaUser'
     - $ref: '#/components/parameters/upload_protocol'
     - $ref: '#/components/parameters/uploadType'
+  /v1alpha1/customers/{customersId}:
+    delete:
+      description: Deletes a node.
+      operationId: prod_tt_sasportal.nodes.nodes.delete
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    get:
+      description: Returns a requested node.
+      operationId: prod_tt_sasportal.nodes.nodes.get
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates an existing node.
+      operationId: prod_tt_sasportal.nodes.nodes.patch
+      parameters:
+      - description: Fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalNode'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/customers/{customersId}/deployments:
+    get:
+      description: Lists deployments.
+      operationId: prod_tt_sasportal.nodes.nodes.deployments.list
+      parameters:
+      - description: 'The filter expression. The filter should have the following
+          format: "DIRECT_CHILDREN" or format: "direct_children". The filter is case
+          insensitive. If empty, then no deployments are filtered.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of deployments to return in the response.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A pagination token returned from a previous call to ListDeployments
+          that indicates where this listing should continue from.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalListDeploymentsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new deployment.
+      operationId: prod_tt_sasportal.nodes.nodes.deployments.create
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalDeployment'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalDeployment'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/customers/{customersId}/deployments/{deploymentsId}:
+    delete:
+      description: Deletes a node.
+      operationId: prod_tt_sasportal.nodes.nodes.delete
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    get:
+      description: Returns a requested node.
+      operationId: prod_tt_sasportal.nodes.nodes.get
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates an existing node.
+      operationId: prod_tt_sasportal.nodes.nodes.patch
+      parameters:
+      - description: Fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalNode'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/customers/{customersId}/deployments/{deploymentsId}/devices:
+    get:
+      description: Lists devices under a node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.devices.list
+      parameters:
+      - description: 'The filter expression. The filter should have one of the following
+          formats: "sn=123454" or "display_name=MyDevice". sn corresponds to serial
+          number of the device. The filter is case insensitive.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of devices to return in the response. If empty
+          or zero, all devices will be listed. Must be in the range [0, 1000].
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A pagination token returned from a previous call to ListDevices
+          that indicates where this listing should continue from.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalListDevicesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a device under a node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.devices.create
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalDevice'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalDevice'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/customers/{customersId}/deployments/{deploymentsId}/devices:createSigned:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a signed device under a node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.devices.createSigned
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalCreateSignedDeviceRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalDevice'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/customers/{customersId}/deployments/{deploymentsId}:move:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Moves a node under another node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.move
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalMoveNodeRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/customers/{customersId}/devices:
+    get:
+      description: Lists devices under a node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.devices.list
+      parameters:
+      - description: 'The filter expression. The filter should have one of the following
+          formats: "sn=123454" or "display_name=MyDevice". sn corresponds to serial
+          number of the device. The filter is case insensitive.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of devices to return in the response. If empty
+          or zero, all devices will be listed. Must be in the range [0, 1000].
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A pagination token returned from a previous call to ListDevices
+          that indicates where this listing should continue from.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalListDevicesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a device under a node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.devices.create
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalDevice'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalDevice'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/customers/{customersId}/devices/{devicesId}:
+    delete:
+      description: Deletes a node.
+      operationId: prod_tt_sasportal.nodes.nodes.delete
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    get:
+      description: Returns a requested node.
+      operationId: prod_tt_sasportal.nodes.nodes.get
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates an existing node.
+      operationId: prod_tt_sasportal.nodes.nodes.patch
+      parameters:
+      - description: Fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalNode'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/customers/{customersId}/devices/{devicesId}:move:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Moves a node under another node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.move
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalMoveNodeRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/customers/{customersId}/devices/{devicesId}:signDevice:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Signs a device.
+      operationId: prod_tt_sasportal.nodes.devices.signDevice
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalSignDeviceRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/customers/{customersId}/devices/{devicesId}:updateSigned:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a signed device.
+      operationId: prod_tt_sasportal.nodes.devices.updateSigned
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalUpdateSignedDeviceRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalDevice'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/customers/{customersId}/devices:createSigned:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a signed device under a node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.devices.createSigned
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalCreateSignedDeviceRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalDevice'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/customers/{customersId}/nodes:
+    get:
+      description: Lists nodes.
+      operationId: prod_tt_sasportal.nodes.nodes.nodes.list
+      parameters:
+      - description: 'The filter expression. The filter should have the following
+          format: "DIRECT_CHILDREN" or format: "direct_children". The filter is case
+          insensitive. If empty, then no nodes are filtered.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of nodes to return in the response.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A pagination token returned from a previous call to ListNodes
+          that indicates where this listing should continue from.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalListNodesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new node.
+      operationId: prod_tt_sasportal.nodes.nodes.nodes.create
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalNode'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/customers/{customersId}/nodes/{nodesId}:
+    delete:
+      description: Deletes a node.
+      operationId: prod_tt_sasportal.nodes.nodes.delete
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    get:
+      description: Returns a requested node.
+      operationId: prod_tt_sasportal.nodes.nodes.get
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates an existing node.
+      operationId: prod_tt_sasportal.nodes.nodes.patch
+      parameters:
+      - description: Fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalNode'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/customers/{customersId}/nodes/{nodesId}/deployments:
+    get:
+      description: Lists deployments.
+      operationId: prod_tt_sasportal.nodes.nodes.deployments.list
+      parameters:
+      - description: 'The filter expression. The filter should have the following
+          format: "DIRECT_CHILDREN" or format: "direct_children". The filter is case
+          insensitive. If empty, then no deployments are filtered.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of deployments to return in the response.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A pagination token returned from a previous call to ListDeployments
+          that indicates where this listing should continue from.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalListDeploymentsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new deployment.
+      operationId: prod_tt_sasportal.nodes.nodes.deployments.create
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalDeployment'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalDeployment'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/customers/{customersId}/nodes/{nodesId}/devices:
+    get:
+      description: Lists devices under a node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.devices.list
+      parameters:
+      - description: 'The filter expression. The filter should have one of the following
+          formats: "sn=123454" or "display_name=MyDevice". sn corresponds to serial
+          number of the device. The filter is case insensitive.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of devices to return in the response. If empty
+          or zero, all devices will be listed. Must be in the range [0, 1000].
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A pagination token returned from a previous call to ListDevices
+          that indicates where this listing should continue from.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalListDevicesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a device under a node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.devices.create
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalDevice'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalDevice'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/customers/{customersId}/nodes/{nodesId}/devices:createSigned:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a signed device under a node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.devices.createSigned
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalCreateSignedDeviceRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalDevice'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/customers/{customersId}/nodes/{nodesId}/nodes:
+    get:
+      description: Lists nodes.
+      operationId: prod_tt_sasportal.nodes.nodes.nodes.list
+      parameters:
+      - description: 'The filter expression. The filter should have the following
+          format: "DIRECT_CHILDREN" or format: "direct_children". The filter is case
+          insensitive. If empty, then no nodes are filtered.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of nodes to return in the response.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A pagination token returned from a previous call to ListNodes
+          that indicates where this listing should continue from.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalListNodesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new node.
+      operationId: prod_tt_sasportal.nodes.nodes.nodes.create
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalNode'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/customers/{customersId}/nodes/{nodesId}:move:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Moves a node under another node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.move
+      parameters:
+      - in: path
+        name: customersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalMoveNodeRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/deployments/{deploymentsId}:
+    delete:
+      description: Deletes a node.
+      operationId: prod_tt_sasportal.nodes.nodes.delete
+      parameters:
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    get:
+      description: Returns a requested node.
+      operationId: prod_tt_sasportal.nodes.nodes.get
+      parameters:
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates an existing node.
+      operationId: prod_tt_sasportal.nodes.nodes.patch
+      parameters:
+      - description: Fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalNode'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/deployments/{deploymentsId}/devices/{devicesId}:
+    delete:
+      description: Deletes a node.
+      operationId: prod_tt_sasportal.nodes.nodes.delete
+      parameters:
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    get:
+      description: Returns a requested node.
+      operationId: prod_tt_sasportal.nodes.nodes.get
+      parameters:
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates an existing node.
+      operationId: prod_tt_sasportal.nodes.nodes.patch
+      parameters:
+      - description: Fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalNode'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/deployments/{deploymentsId}/devices/{devicesId}:move:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Moves a node under another node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.move
+      parameters:
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalMoveNodeRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/deployments/{deploymentsId}/devices/{devicesId}:signDevice:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Signs a device.
+      operationId: prod_tt_sasportal.nodes.devices.signDevice
+      parameters:
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalSignDeviceRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/deployments/{deploymentsId}/devices/{devicesId}:updateSigned:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a signed device.
+      operationId: prod_tt_sasportal.nodes.devices.updateSigned
+      parameters:
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalUpdateSignedDeviceRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalDevice'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
   /v1alpha1/installer:generateSecret:
     parameters:
     - $ref: '#/components/parameters/_.xgafv'
@@ -1867,6 +3486,1399 @@ paths:
         - https://www.googleapis.com/auth/userinfo.email
       tags:
       - installer
+  /v1alpha1/nodes/{nodesId}:
+    delete:
+      description: Deletes a node.
+      operationId: prod_tt_sasportal.nodes.nodes.delete
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    get:
+      description: Returns a requested node.
+      operationId: prod_tt_sasportal.nodes.nodes.get
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates an existing node.
+      operationId: prod_tt_sasportal.nodes.nodes.patch
+      parameters:
+      - description: Fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalNode'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/nodes/{nodesId}/deployments:
+    get:
+      description: Lists deployments.
+      operationId: prod_tt_sasportal.nodes.nodes.deployments.list
+      parameters:
+      - description: 'The filter expression. The filter should have the following
+          format: "DIRECT_CHILDREN" or format: "direct_children". The filter is case
+          insensitive. If empty, then no deployments are filtered.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of deployments to return in the response.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A pagination token returned from a previous call to ListDeployments
+          that indicates where this listing should continue from.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalListDeploymentsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new deployment.
+      operationId: prod_tt_sasportal.nodes.nodes.deployments.create
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalDeployment'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalDeployment'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/nodes/{nodesId}/deployments/{deploymentsId}:
+    delete:
+      description: Deletes a node.
+      operationId: prod_tt_sasportal.nodes.nodes.delete
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    get:
+      description: Returns a requested node.
+      operationId: prod_tt_sasportal.nodes.nodes.get
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates an existing node.
+      operationId: prod_tt_sasportal.nodes.nodes.patch
+      parameters:
+      - description: Fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalNode'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/nodes/{nodesId}/deployments/{deploymentsId}/devices:
+    get:
+      description: Lists devices under a node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.devices.list
+      parameters:
+      - description: 'The filter expression. The filter should have one of the following
+          formats: "sn=123454" or "display_name=MyDevice". sn corresponds to serial
+          number of the device. The filter is case insensitive.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of devices to return in the response. If empty
+          or zero, all devices will be listed. Must be in the range [0, 1000].
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A pagination token returned from a previous call to ListDevices
+          that indicates where this listing should continue from.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalListDevicesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a device under a node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.devices.create
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalDevice'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalDevice'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/nodes/{nodesId}/deployments/{deploymentsId}/devices:createSigned:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a signed device under a node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.devices.createSigned
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalCreateSignedDeviceRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalDevice'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/nodes/{nodesId}/deployments/{deploymentsId}:move:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Moves a node under another node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.move
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: deploymentsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalMoveNodeRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/nodes/{nodesId}/devices:
+    get:
+      description: Lists devices under a node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.devices.list
+      parameters:
+      - description: 'The filter expression. The filter should have one of the following
+          formats: "sn=123454" or "display_name=MyDevice". sn corresponds to serial
+          number of the device. The filter is case insensitive.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of devices to return in the response. If empty
+          or zero, all devices will be listed. Must be in the range [0, 1000].
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A pagination token returned from a previous call to ListDevices
+          that indicates where this listing should continue from.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalListDevicesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a device under a node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.devices.create
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalDevice'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalDevice'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/nodes/{nodesId}/devices/{devicesId}:
+    delete:
+      description: Deletes a node.
+      operationId: prod_tt_sasportal.nodes.nodes.delete
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    get:
+      description: Returns a requested node.
+      operationId: prod_tt_sasportal.nodes.nodes.get
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates an existing node.
+      operationId: prod_tt_sasportal.nodes.nodes.patch
+      parameters:
+      - description: Fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalNode'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/nodes/{nodesId}/devices/{devicesId}:move:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Moves a node under another node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.move
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalMoveNodeRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/nodes/{nodesId}/devices/{devicesId}:signDevice:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Signs a device.
+      operationId: prod_tt_sasportal.nodes.devices.signDevice
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalSignDeviceRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/nodes/{nodesId}/devices/{devicesId}:updateSigned:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a signed device.
+      operationId: prod_tt_sasportal.nodes.devices.updateSigned
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: devicesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalUpdateSignedDeviceRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalDevice'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/nodes/{nodesId}/devices:createSigned:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a signed device under a node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.devices.createSigned
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalCreateSignedDeviceRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalDevice'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/nodes/{nodesId}/nodes:
+    get:
+      description: Lists nodes.
+      operationId: prod_tt_sasportal.nodes.nodes.nodes.list
+      parameters:
+      - description: 'The filter expression. The filter should have the following
+          format: "DIRECT_CHILDREN" or format: "direct_children". The filter is case
+          insensitive. If empty, then no nodes are filtered.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of nodes to return in the response.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A pagination token returned from a previous call to ListNodes
+          that indicates where this listing should continue from.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalListNodesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new node.
+      operationId: prod_tt_sasportal.nodes.nodes.nodes.create
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalNode'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/nodes/{nodesId}/nodes/{nodesId1}:
+    delete:
+      description: Deletes a node.
+      operationId: prod_tt_sasportal.nodes.nodes.delete
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId1
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    get:
+      description: Returns a requested node.
+      operationId: prod_tt_sasportal.nodes.nodes.get
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId1
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates an existing node.
+      operationId: prod_tt_sasportal.nodes.nodes.patch
+      parameters:
+      - description: Fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId1
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalNode'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/nodes/{nodesId}/nodes/{nodesId1}/deployments:
+    get:
+      description: Lists deployments.
+      operationId: prod_tt_sasportal.nodes.nodes.deployments.list
+      parameters:
+      - description: 'The filter expression. The filter should have the following
+          format: "DIRECT_CHILDREN" or format: "direct_children". The filter is case
+          insensitive. If empty, then no deployments are filtered.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of deployments to return in the response.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A pagination token returned from a previous call to ListDeployments
+          that indicates where this listing should continue from.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId1
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalListDeploymentsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new deployment.
+      operationId: prod_tt_sasportal.nodes.nodes.deployments.create
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId1
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalDeployment'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalDeployment'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/nodes/{nodesId}/nodes/{nodesId1}/devices:
+    get:
+      description: Lists devices under a node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.devices.list
+      parameters:
+      - description: 'The filter expression. The filter should have one of the following
+          formats: "sn=123454" or "display_name=MyDevice". sn corresponds to serial
+          number of the device. The filter is case insensitive.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of devices to return in the response. If empty
+          or zero, all devices will be listed. Must be in the range [0, 1000].
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A pagination token returned from a previous call to ListDevices
+          that indicates where this listing should continue from.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId1
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalListDevicesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a device under a node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.devices.create
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId1
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalDevice'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalDevice'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/nodes/{nodesId}/nodes/{nodesId1}/devices:createSigned:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a signed device under a node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.devices.createSigned
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId1
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalCreateSignedDeviceRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalDevice'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/nodes/{nodesId}/nodes/{nodesId1}/nodes:
+    get:
+      description: Lists nodes.
+      operationId: prod_tt_sasportal.nodes.nodes.nodes.list
+      parameters:
+      - description: 'The filter expression. The filter should have the following
+          format: "DIRECT_CHILDREN" or format: "direct_children". The filter is case
+          insensitive. If empty, then no nodes are filtered.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of nodes to return in the response.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A pagination token returned from a previous call to ListNodes
+          that indicates where this listing should continue from.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId1
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalListNodesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new node.
+      operationId: prod_tt_sasportal.nodes.nodes.nodes.create
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId1
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalNode'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalNode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
+  /v1alpha1/nodes/{nodesId}/nodes/{nodesId1}:move:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Moves a node under another node or customer.
+      operationId: prod_tt_sasportal.nodes.nodes.move
+      parameters:
+      - in: path
+        name: nodesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: nodesId1
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SasPortalMoveNodeRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SasPortalOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/userinfo.email
+        Oauth2c:
+        - https://www.googleapis.com/auth/userinfo.email
+      tags:
+      - nodes
   /v1alpha1/policies:get:
     parameters:
     - $ref: '#/components/parameters/_.xgafv'

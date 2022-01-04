@@ -828,42 +828,7 @@ components:
               data and settings
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
-  x-stackQL-resources:
-    operations:
-      id: google.services.operations
-      methods:
-        cancel:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1/{name}:cancel
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        delete:
-          operation:
-            $ref: delete
-          path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        list:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: operations
-      title: operations
+  x-stackQL-resources: {}
 externalDocs:
   url: https://firebase.google.com/docs/hosting/
 info:

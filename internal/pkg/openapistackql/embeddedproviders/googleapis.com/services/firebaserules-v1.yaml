@@ -552,13 +552,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     projects:
-      id: google.services.projects
+      id: google.firebaserules.projects
       methods:
         test:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:test
+            $ref: /v1/projects/{projectsId}:test
           request:
             mediaType: application/json
           response:
@@ -566,19 +566,14 @@ components:
             openAPIDocKey: '200'
       name: projects
       title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.releases:
-      id: google.services.projects.resources.releases
+    projects.releases:
+      id: google.firebaserules.projects.releases
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}/releases
+            $ref: /v1/projects/{projectsId}/releases
           request:
             mediaType: application/json
           response:
@@ -588,9 +583,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/releases/{releasesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -598,9 +591,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/releases/{releasesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -608,9 +599,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}:getExecutable
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/releases/{releasesId}:getExecutable
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -618,9 +607,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/releases
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/releases
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -628,22 +615,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/releases/{releasesId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.releases
-      title: projects.resources.releases
-    projects.resources.rulesets:
-      id: google.services.projects.resources.rulesets
+      name: projects.releases
+      title: projects.releases
+    projects.rulesets:
+      id: google.firebaserules.projects.rulesets
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}/rulesets
+            $ref: /v1/projects/{projectsId}/rulesets
           request:
             mediaType: application/json
           response:
@@ -653,9 +640,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/rulesets/{rulesetsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -663,9 +648,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/rulesets/{rulesetsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -673,14 +656,12 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/rulesets
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/rulesets
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.rulesets
-      title: projects.resources.rulesets
+      name: projects.rulesets
+      title: projects.rulesets
 externalDocs:
   url: https://firebase.google.com/docs/storage/security
 info:
@@ -714,6 +695,586 @@ info:
   x-serviceName: firebaserules
 openapi: 3.0.0
 paths:
+  /v1/projects/{projectsId}/releases:
+    get:
+      description: List the `Release` values for a project. This list may optionally
+        be filtered by `Release` name, `Ruleset` name, `TestSuite` name, or any combination
+        thereof.
+      operationId: firebaserules.projects.releases.list
+      parameters:
+      - description: '`Release` filter. The list method supports filters with restrictions
+          on the `Release.name`, and `Release.ruleset_name`. Example 1: A filter of
+          ''name=prod*'' might return `Release`s with names within ''projects/foo''
+          prefixed with ''prod'': Name -> Ruleset Name: * projects/foo/releases/prod
+          -> projects/foo/rulesets/uuid1234 * projects/foo/releases/prod/v1 -> projects/foo/rulesets/uuid1234
+          * projects/foo/releases/prod/v2 -> projects/foo/rulesets/uuid8888 Example
+          2: A filter of `name=prod* ruleset_name=uuid1234` would return only `Release`
+          instances for ''projects/foo'' with names prefixed with ''prod'' referring
+          to the same `Ruleset` name of ''uuid1234'': Name -> Ruleset Name: * projects/foo/releases/prod
+          -> projects/foo/rulesets/1234 * projects/foo/releases/prod/v1 -> projects/foo/rulesets/1234
+          In the examples, the filter parameters refer to the search filters are relative
+          to the project. Fully qualified prefixed may also be used.'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: 'Page size to load. Maximum of 100. Defaults to 10. Note: `page_size`
+          is just a hint and the service may choose to load fewer than `page_size`
+          results due to the size of the output. To traverse all of the releases,
+          the caller should iterate until the `page_token` on the response is empty.'
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Next page token for the next batch of `Release` instances.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListReleasesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase.readonly
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Create a `Release`. Release names should reflect the developer's
+        deployment practices. For example, the release name may include the environment
+        name, application name, application version, or any other name meaningful
+        to the developer. Once a `Release` refers to a `Ruleset`, the rules can be
+        enforced by Firebase Rules-enabled services. More than one `Release` may be
+        'live' concurrently. Consider the following three `Release` names for `projects/foo`
+        and the `Ruleset` to which they refer. Release Name -> Ruleset Name * projects/foo/releases/prod
+        -> projects/foo/rulesets/uuid123 * projects/foo/releases/prod/beta -> projects/foo/rulesets/uuid123
+        * projects/foo/releases/prod/v23 -> projects/foo/rulesets/uuid456 The relationships
+        reflect a `Ruleset` rollout in progress. The `prod` and `prod/beta` releases
+        refer to the same `Ruleset`. However, `prod/v23` refers to a new `Ruleset`.
+        The `Ruleset` reference for a `Release` may be updated using the UpdateRelease
+        method.
+      operationId: firebaserules.projects.releases.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Release'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Release'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1/projects/{projectsId}/releases/{releasesId}:
+    delete:
+      description: Delete a `Ruleset` by resource name. If the `Ruleset` is referenced
+        by a `Release` the operation will fail.
+      operationId: firebaserules.projects.rulesets.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: releasesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    get:
+      description: Get a `Ruleset` by name including the full `Source` contents.
+      operationId: firebaserules.projects.rulesets.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: releasesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ruleset'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase.readonly
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Update a `Release` via PATCH. Only updates to `ruleset_name` will
+        be honored. `Release` rename is not supported. To create a `Release` use the
+        CreateRelease method.
+      operationId: firebaserules.projects.releases.patch
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: releasesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateReleaseRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Release'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1/projects/{projectsId}/releases/{releasesId}:getExecutable:
+    get:
+      description: Get the `Release` executable to use when enforcing rules.
+      operationId: firebaserules.projects.releases.getExecutable
+      parameters:
+      - description: The requested runtime executable version. Defaults to FIREBASE_RULES_EXECUTABLE_V1.
+        in: query
+        name: executableVersion
+        schema:
+          enum:
+          - RELEASE_EXECUTABLE_VERSION_UNSPECIFIED
+          - FIREBASE_RULES_EXECUTABLE_V1
+          - FIREBASE_RULES_EXECUTABLE_V2
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: releasesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetReleaseExecutableResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase.readonly
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/rulesets:
+    get:
+      description: List `Ruleset` metadata only and optionally filter the results
+        by `Ruleset` name. The full `Source` contents of a `Ruleset` may be retrieved
+        with GetRuleset.
+      operationId: firebaserules.projects.rulesets.list
+      parameters:
+      - description: '`Ruleset` filter. The list method supports filters with restrictions
+          on `Ruleset.name`. Filters on `Ruleset.create_time` should use the `date`
+          function which parses strings that conform to the RFC 3339 date/time specifications.
+          Example: `create_time > date("2017-01-01T00:00:00Z") AND name=UUID-*`'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: 'Page size to load. Maximum of 100. Defaults to 10. Note: `page_size`
+          is just a hint and the service may choose to load less than `page_size`
+          due to the size of the output. To traverse all of the releases, caller should
+          iterate until the `page_token` is empty.'
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Next page token for loading the next batch of `Ruleset` instances.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRulesetsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase.readonly
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Create a `Ruleset` from `Source`. The `Ruleset` is given a unique
+        generated name which is returned to the caller. `Source` containing syntactic
+        or semantics errors will result in an error response indicating the first
+        error encountered. For a detailed view of `Source` issues, use TestRuleset.
+      operationId: firebaserules.projects.rulesets.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ruleset'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ruleset'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1/projects/{projectsId}/rulesets/{rulesetsId}:
+    delete:
+      description: Delete a `Ruleset` by resource name. If the `Ruleset` is referenced
+        by a `Release` the operation will fail.
+      operationId: firebaserules.projects.rulesets.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: rulesetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+    get:
+      description: Get a `Ruleset` by name including the full `Source` contents.
+      operationId: firebaserules.projects.rulesets.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: rulesetsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ruleset'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase.readonly
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Update a `Release` via PATCH. Only updates to `ruleset_name` will
+        be honored. `Release` rename is not supported. To create a `Release` use the
+        CreateRelease method.
+      operationId: firebaserules.projects.releases.patch
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: rulesetsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateReleaseRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Release'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      tags:
+      - projects
+  /v1/projects/{projectsId}:test:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Test `Source` for syntactic and semantic correctness. Issues present,
+        if any, will be returned to the caller with a description, severity, and source
+        location. The test method may be executed with `Source` or a `Ruleset` name.
+        Passing `Source` is useful for unit testing new rules. Passing a `Ruleset`
+        name is useful for regression testing an existing rule. The following is an
+        example of `Source` that permits users to upload images to a bucket bearing
+        their user id and matching the correct metadata: _*Example*_ // Users are
+        allowed to subscribe and unsubscribe to the blog. service firebase.storage
+        { match /users/{userId}/images/{imageName} { allow write: if userId == request.auth.uid
+        && (imageName.matches(''*.png$'') || imageName.matches(''*.jpg$'')) && resource.mimeType.matches(''^image/'')
+        } }'
+      operationId: firebaserules.projects.test
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestRulesetRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestRulesetResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase
+      - Oauth2:
+        - https://www.googleapis.com/auth/firebase.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/firebase.readonly
+      tags:
+      - projects
   /v1/{name}:
     delete:
       description: Delete a `Ruleset` by resource name. If the `Ruleset` is referenced

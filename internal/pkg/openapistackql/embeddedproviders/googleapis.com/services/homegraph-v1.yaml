@@ -395,22 +395,20 @@ components:
       type: oauth2
   x-stackQL-resources:
     agentUsers:
-      id: google.services.agentUsers
+      id: google.homegraph.agentUsers
       methods:
         delete:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{agentUserId}
-          request:
-            mediaType: application/json
+            $ref: /v1/agentUsers/{agentUsersId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: agentUsers
       title: agentUsers
     devices:
-      id: google.services.devices
+      id: google.homegraph.devices
       methods:
         query:
           operation:
@@ -486,6 +484,52 @@ info:
   x-serviceName: homegraph
 openapi: 3.0.0
 paths:
+  /v1/agentUsers/{agentUsersId}:
+    delete:
+      description: Unlinks the given third-party user from your smart home Action.
+        All data related to this user will be deleted. For more details on how users
+        link their accounts, see [fulfillment and authentication](https://developers.google.com/assistant/smarthome/concepts/fulfillment-authentication).
+        The third-party user's identity is passed in via the `agent_user_id` (see
+        DeleteAgentUserRequest). This request must be authorized using service account
+        credentials from your Actions console project.
+      operationId: homegraph.agentUsers.delete
+      parameters:
+      - description: Request ID used for debugging.
+        in: query
+        name: requestId
+        schema:
+          type: string
+      - in: path
+        name: agentUsersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/homegraph
+        Oauth2c:
+        - https://www.googleapis.com/auth/homegraph
+      tags:
+      - agentUsers
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /v1/devices:query:
     parameters:
     - $ref: '#/components/parameters/_.xgafv'

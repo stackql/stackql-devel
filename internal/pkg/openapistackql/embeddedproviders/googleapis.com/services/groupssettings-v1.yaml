@@ -478,15 +478,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     groups:
-      id: google.services.groups
+      id: google.groupssettings.groups
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /{groupUniqueId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

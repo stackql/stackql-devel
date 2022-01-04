@@ -666,30 +666,26 @@ components:
       type: oauth2
   x-stackQL-resources:
     blogUserInfos:
-      id: google.services.blogUserInfos
+      id: google.blogger.blogUserInfos
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v3/users/{userId}/blogs/{blogId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: blogUserInfos
       title: blogUserInfos
     blogs:
-      id: google.services.blogs
+      id: google.blogger.blogs
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v3/blogs/{blogId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -698,8 +694,6 @@ components:
             $ref: get
           path:
             $ref: /v3/blogs/byurl
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -708,23 +702,19 @@ components:
             $ref: get
           path:
             $ref: /v3/users/{userId}/blogs
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: blogs
       title: blogs
     comments:
-      id: google.services.comments
+      id: google.blogger.comments
       methods:
         approve:
           operation:
             $ref: post
           path:
             $ref: /v3/blogs/{blogId}/posts/{postId}/comments/{commentId}/approve
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -733,18 +723,13 @@ components:
             $ref: delete
           path:
             $ref: /v3/blogs/{blogId}/posts/{postId}/comments/{commentId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /v3/blogs/{blogId}/posts/{postId}/comments/{commentId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -753,8 +738,6 @@ components:
             $ref: get
           path:
             $ref: /v3/blogs/{blogId}/posts/{postId}/comments
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -763,8 +746,6 @@ components:
             $ref: get
           path:
             $ref: /v3/blogs/{blogId}/comments
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -773,8 +754,6 @@ components:
             $ref: post
           path:
             $ref: /v3/blogs/{blogId}/posts/{postId}/comments/{commentId}/spam
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -783,48 +762,39 @@ components:
             $ref: post
           path:
             $ref: /v3/blogs/{blogId}/posts/{postId}/comments/{commentId}/removecontent
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: comments
       title: comments
     pageViews:
-      id: google.services.pageViews
+      id: google.blogger.pageViews
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v3/blogs/{blogId}/pageviews
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: pageViews
       title: pageViews
     pages:
-      id: google.services.pages
+      id: google.blogger.pages
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /v3/blogs/{blogId}/pages/{pageId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /v3/blogs/{blogId}/pages/{pageId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -843,8 +813,6 @@ components:
             $ref: get
           path:
             $ref: /v3/blogs/{blogId}/pages
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -863,8 +831,6 @@ components:
             $ref: post
           path:
             $ref: /v3/blogs/{blogId}/pages/{pageId}/publish
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -873,8 +839,6 @@ components:
             $ref: post
           path:
             $ref: /v3/blogs/{blogId}/pages/{pageId}/revert
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -891,15 +855,13 @@ components:
       name: pages
       title: pages
     postUserInfos:
-      id: google.services.postUserInfos
+      id: google.blogger.postUserInfos
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v3/users/{userId}/blogs/{blogId}/posts/{postId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -908,33 +870,26 @@ components:
             $ref: get
           path:
             $ref: /v3/users/{userId}/blogs/{blogId}/posts
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: postUserInfos
       title: postUserInfos
     posts:
-      id: google.services.posts
+      id: google.blogger.posts
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /v3/blogs/{blogId}/posts/{postId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /v3/blogs/{blogId}/posts/{postId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -943,8 +898,6 @@ components:
             $ref: get
           path:
             $ref: /v3/blogs/{blogId}/posts/bypath
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -963,8 +916,6 @@ components:
             $ref: get
           path:
             $ref: /v3/blogs/{blogId}/posts
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -983,8 +934,6 @@ components:
             $ref: post
           path:
             $ref: /v3/blogs/{blogId}/posts/{postId}/publish
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -993,8 +942,6 @@ components:
             $ref: post
           path:
             $ref: /v3/blogs/{blogId}/posts/{postId}/revert
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1003,8 +950,6 @@ components:
             $ref: get
           path:
             $ref: /v3/blogs/{blogId}/posts/search
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1021,15 +966,13 @@ components:
       name: posts
       title: posts
     users:
-      id: google.services.users
+      id: google.blogger.users
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v3/users/{userId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

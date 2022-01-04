@@ -3657,7 +3657,7 @@ components:
       type: oauth2
   x-stackQL-resources:
     documents:
-      id: google.services.documents
+      id: google.docs.documents
       methods:
         batchUpdate:
           operation:
@@ -3684,8 +3684,6 @@ components:
             $ref: get
           path:
             $ref: /v1/documents/{documentId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

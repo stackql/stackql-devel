@@ -5623,7 +5623,7 @@ components:
       type: oauth2
   x-stackQL-resources:
     abuseReports:
-      id: google.services.abuseReports
+      id: google.youtube.abuseReports
       methods:
         insert:
           operation:
@@ -5638,42 +5638,34 @@ components:
       name: abuseReports
       title: abuseReports
     activities:
-      id: google.services.activities
+      id: google.youtube.activities
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /youtube/v3/activities
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: activities
       title: activities
     captions:
-      id: google.services.captions
+      id: google.youtube.captions
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /youtube/v3/captions
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         download:
           operation:
             $ref: get
           path:
             $ref: /youtube/v3/captions/{id}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         insert:
           operation:
@@ -5681,7 +5673,7 @@ components:
           path:
             $ref: /youtube/v3/captions
           request:
-            mediaType: application/json
+            mediaType: application/octet-stream
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -5690,8 +5682,6 @@ components:
             $ref: get
           path:
             $ref: /youtube/v3/captions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -5701,14 +5691,14 @@ components:
           path:
             $ref: /youtube/v3/captions
           request:
-            mediaType: application/json
+            mediaType: application/octet-stream
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: captions
       title: captions
     channelBanners:
-      id: google.services.channelBanners
+      id: google.youtube.channelBanners
       methods:
         insert:
           operation:
@@ -5716,24 +5706,21 @@ components:
           path:
             $ref: /youtube/v3/channelBanners/insert
           request:
-            mediaType: application/json
+            mediaType: application/octet-stream
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: channelBanners
       title: channelBanners
     channelSections:
-      id: google.services.channelSections
+      id: google.youtube.channelSections
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /youtube/v3/channelSections
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         insert:
           operation:
@@ -5750,8 +5737,6 @@ components:
             $ref: get
           path:
             $ref: /youtube/v3/channelSections
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -5768,15 +5753,13 @@ components:
       name: channelSections
       title: channelSections
     channels:
-      id: google.services.channels
+      id: google.youtube.channels
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /youtube/v3/channels
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -5793,7 +5776,7 @@ components:
       name: channels
       title: channels
     commentThreads:
-      id: google.services.commentThreads
+      id: google.youtube.commentThreads
       methods:
         insert:
           operation:
@@ -5810,25 +5793,20 @@ components:
             $ref: get
           path:
             $ref: /youtube/v3/commentThreads
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: commentThreads
       title: commentThreads
     comments:
-      id: google.services.comments
+      id: google.youtube.comments
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /youtube/v3/comments
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         insert:
           operation:
@@ -5845,8 +5823,6 @@ components:
             $ref: get
           path:
             $ref: /youtube/v3/comments
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -5855,20 +5831,14 @@ components:
             $ref: post
           path:
             $ref: /youtube/v3/comments/markAsSpam
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         setModerationStatus:
           operation:
             $ref: post
           path:
             $ref: /youtube/v3/comments/setModerationStatus
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         update:
           operation:
@@ -5883,45 +5853,39 @@ components:
       name: comments
       title: comments
     i18nLanguages:
-      id: google.services.i18nLanguages
+      id: google.youtube.i18nLanguages
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /youtube/v3/i18nLanguages
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: i18nLanguages
       title: i18nLanguages
     i18nRegions:
-      id: google.services.i18nRegions
+      id: google.youtube.i18nRegions
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /youtube/v3/i18nRegions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: i18nRegions
       title: i18nRegions
     liveBroadcasts:
-      id: google.services.liveBroadcasts
+      id: google.youtube.liveBroadcasts
       methods:
         bind:
           operation:
             $ref: post
           path:
             $ref: /youtube/v3/liveBroadcasts/bind
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -5930,10 +5894,7 @@ components:
             $ref: delete
           path:
             $ref: /youtube/v3/liveBroadcasts
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         insert:
           operation:
@@ -5950,8 +5911,6 @@ components:
             $ref: get
           path:
             $ref: /youtube/v3/liveBroadcasts
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -5960,8 +5919,6 @@ components:
             $ref: post
           path:
             $ref: /youtube/v3/liveBroadcasts/transition
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -5978,17 +5935,14 @@ components:
       name: liveBroadcasts
       title: liveBroadcasts
     liveChatBans:
-      id: google.services.liveChatBans
+      id: google.youtube.liveChatBans
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /youtube/v3/liveChat/bans
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         insert:
           operation:
@@ -6003,17 +5957,14 @@ components:
       name: liveChatBans
       title: liveChatBans
     liveChatMessages:
-      id: google.services.liveChatMessages
+      id: google.youtube.liveChatMessages
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /youtube/v3/liveChat/messages
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         insert:
           operation:
@@ -6030,25 +5981,20 @@ components:
             $ref: get
           path:
             $ref: /youtube/v3/liveChat/messages
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: liveChatMessages
       title: liveChatMessages
     liveChatModerators:
-      id: google.services.liveChatModerators
+      id: google.youtube.liveChatModerators
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /youtube/v3/liveChat/moderators
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         insert:
           operation:
@@ -6065,25 +6011,20 @@ components:
             $ref: get
           path:
             $ref: /youtube/v3/liveChat/moderators
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: liveChatModerators
       title: liveChatModerators
     liveStreams:
-      id: google.services.liveStreams
+      id: google.youtube.liveStreams
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /youtube/v3/liveStreams
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         insert:
           operation:
@@ -6100,8 +6041,6 @@ components:
             $ref: get
           path:
             $ref: /youtube/v3/liveStreams
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -6118,47 +6057,40 @@ components:
       name: liveStreams
       title: liveStreams
     members:
-      id: google.services.members
+      id: google.youtube.members
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /youtube/v3/members
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: members
       title: members
     membershipsLevels:
-      id: google.services.membershipsLevels
+      id: google.youtube.membershipsLevels
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /youtube/v3/membershipsLevels
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: membershipsLevels
       title: membershipsLevels
     playlistItems:
-      id: google.services.playlistItems
+      id: google.youtube.playlistItems
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /youtube/v3/playlistItems
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         insert:
           operation:
@@ -6175,8 +6107,6 @@ components:
             $ref: get
           path:
             $ref: /youtube/v3/playlistItems
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -6193,17 +6123,14 @@ components:
       name: playlistItems
       title: playlistItems
     playlists:
-      id: google.services.playlists
+      id: google.youtube.playlists
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /youtube/v3/playlists
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         insert:
           operation:
@@ -6220,8 +6147,6 @@ components:
             $ref: get
           path:
             $ref: /youtube/v3/playlists
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -6238,32 +6163,27 @@ components:
       name: playlists
       title: playlists
     search:
-      id: google.services.search
+      id: google.youtube.search
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /youtube/v3/search
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: search
       title: search
     subscriptions:
-      id: google.services.subscriptions
+      id: google.youtube.subscriptions
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /youtube/v3/subscriptions
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         insert:
           operation:
@@ -6280,30 +6200,26 @@ components:
             $ref: get
           path:
             $ref: /youtube/v3/subscriptions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: subscriptions
       title: subscriptions
     superChatEvents:
-      id: google.services.superChatEvents
+      id: google.youtube.superChatEvents
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /youtube/v3/superChatEvents
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: superChatEvents
       title: superChatEvents
     tests:
-      id: google.services.tests
+      id: google.youtube.tests
       methods:
         insert:
           operation:
@@ -6318,17 +6234,14 @@ components:
       name: tests
       title: tests
     thirdPartyLinks:
-      id: google.services.thirdPartyLinks
+      id: google.youtube.thirdPartyLinks
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /youtube/v3/thirdPartyLinks
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         insert:
           operation:
@@ -6345,8 +6258,6 @@ components:
             $ref: get
           path:
             $ref: /youtube/v3/thirdPartyLinks
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -6363,70 +6274,59 @@ components:
       name: thirdPartyLinks
       title: thirdPartyLinks
     thumbnails:
-      id: google.services.thumbnails
+      id: google.youtube.thumbnails
       methods:
         set:
           operation:
             $ref: post
           path:
             $ref: /youtube/v3/thumbnails/set
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: thumbnails
       title: thumbnails
     videoAbuseReportReasons:
-      id: google.services.videoAbuseReportReasons
+      id: google.youtube.videoAbuseReportReasons
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /youtube/v3/videoAbuseReportReasons
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: videoAbuseReportReasons
       title: videoAbuseReportReasons
     videoCategories:
-      id: google.services.videoCategories
+      id: google.youtube.videoCategories
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /youtube/v3/videoCategories
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: videoCategories
       title: videoCategories
     videos:
-      id: google.services.videos
+      id: google.youtube.videos
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /youtube/v3/videos
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         getRating:
           operation:
             $ref: get
           path:
             $ref: /youtube/v3/videos/getRating
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -6436,7 +6336,7 @@ components:
           path:
             $ref: /youtube/v3/videos
           request:
-            mediaType: application/json
+            mediaType: application/octet-stream
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -6445,8 +6345,6 @@ components:
             $ref: get
           path:
             $ref: /youtube/v3/videos
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -6455,10 +6353,7 @@ components:
             $ref: post
           path:
             $ref: /youtube/v3/videos/rate
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         reportAbuse:
           operation:
@@ -6468,7 +6363,6 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         update:
           operation:
@@ -6483,7 +6377,7 @@ components:
       name: videos
       title: videos
     watermarks:
-      id: google.services.watermarks
+      id: google.youtube.watermarks
       methods:
         set:
           operation:
@@ -6491,34 +6385,20 @@ components:
           path:
             $ref: /youtube/v3/watermarks/set
           request:
-            mediaType: application/json
+            mediaType: application/octet-stream
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         unset:
           operation:
             $ref: post
           path:
             $ref: /youtube/v3/watermarks/unset
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
       name: watermarks
       title: watermarks
-    youtube:
-      id: google.services.youtube
-      methods: {}
-      name: youtube
-      title: youtube
-    youtube.resources:
-      id: google.services.youtube.resources
-      methods: {}
-      name: youtube.resources
-      title: youtube.resources
-    youtube.resources.v3:
-      id: google.services.youtube.resources.v3
+    youtube.v3:
+      id: google.youtube.youtube.v3
       methods:
         updateCommentThreads:
           operation:
@@ -6530,8 +6410,8 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: youtube.resources.v3
-      title: youtube.resources.v3
+      name: youtube.v3
+      title: youtube.v3
 externalDocs:
   url: https://developers.google.com/youtube/
 info:

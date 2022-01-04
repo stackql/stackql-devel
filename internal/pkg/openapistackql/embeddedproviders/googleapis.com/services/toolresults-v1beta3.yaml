@@ -2126,15 +2126,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     projects:
-      id: google.services.projects
+      id: google.toolresults.projects
       methods:
         getSettings:
           operation:
             $ref: get
           path:
             $ref: /toolresults/v1beta3/projects/{projectId}/settings
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2143,20 +2141,13 @@ components:
             $ref: post
           path:
             $ref: /toolresults/v1beta3/projects/{projectId}:initializeSettings
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: projects
       title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.histories:
-      id: google.services.projects.resources.histories
+    projects.histories:
+      id: google.toolresults.projects.histories
       methods:
         create:
           operation:
@@ -2173,8 +2164,6 @@ components:
             $ref: get
           path:
             $ref: /toolresults/v1beta3/projects/{projectId}/histories/{historyId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2183,20 +2172,13 @@ components:
             $ref: get
           path:
             $ref: /toolresults/v1beta3/projects/{projectId}/histories
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.histories
-      title: projects.resources.histories
-    projects.resources.histories.resources:
-      id: google.services.projects.resources.histories.resources
-      methods: {}
-      name: projects.resources.histories.resources
-      title: projects.resources.histories.resources
-    projects.resources.histories.resources.executions:
-      id: google.services.projects.resources.histories.resources.executions
+      name: projects.histories
+      title: projects.histories
+    projects.histories.executions:
+      id: google.toolresults.projects.histories.executions
       methods:
         create:
           operation:
@@ -2213,8 +2195,6 @@ components:
             $ref: get
           path:
             $ref: /toolresults/v1beta3/projects/{projectId}/histories/{historyId}/executions/{executionId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2223,8 +2203,6 @@ components:
             $ref: get
           path:
             $ref: /toolresults/v1beta3/projects/{projectId}/histories/{historyId}/executions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2238,23 +2216,16 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.histories.resources.executions
-      title: projects.resources.histories.resources.executions
-    projects.resources.histories.resources.executions.resources:
-      id: google.services.projects.resources.histories.resources.executions.resources
-      methods: {}
-      name: projects.resources.histories.resources.executions.resources
-      title: projects.resources.histories.resources.executions.resources
-    projects.resources.histories.resources.executions.resources.clusters:
-      id: google.services.projects.resources.histories.resources.executions.resources.clusters
+      name: projects.histories.executions
+      title: projects.histories.executions
+    projects.histories.executions.clusters:
+      id: google.toolresults.projects.histories.executions.clusters
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /toolresults/v1beta3/projects/{projectId}/histories/{historyId}/executions/{executionId}/clusters/{clusterId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2263,23 +2234,19 @@ components:
             $ref: get
           path:
             $ref: /toolresults/v1beta3/projects/{projectId}/histories/{historyId}/executions/{executionId}/clusters
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.histories.resources.executions.resources.clusters
-      title: projects.resources.histories.resources.executions.resources.clusters
-    projects.resources.histories.resources.executions.resources.environments:
-      id: google.services.projects.resources.histories.resources.executions.resources.environments
+      name: projects.histories.executions.clusters
+      title: projects.histories.executions.clusters
+    projects.histories.executions.environments:
+      id: google.toolresults.projects.histories.executions.environments
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /toolresults/v1beta3/projects/{projectId}/histories/{historyId}/executions/{executionId}/environments/{environmentId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2288,23 +2255,19 @@ components:
             $ref: get
           path:
             $ref: /toolresults/v1beta3/projects/{projectId}/histories/{historyId}/executions/{executionId}/environments
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.histories.resources.executions.resources.environments
-      title: projects.resources.histories.resources.executions.resources.environments
-    projects.resources.histories.resources.executions.resources.steps:
-      id: google.services.projects.resources.histories.resources.executions.resources.steps
+      name: projects.histories.executions.environments
+      title: projects.histories.executions.environments
+    projects.histories.executions.steps:
+      id: google.toolresults.projects.histories.executions.steps
       methods:
         accessibilityClusters:
           operation:
             $ref: get
           path:
-            $ref: /toolresults/v1beta3/{name}:accessibilityClusters
-          request:
-            mediaType: application/json
+            $ref: /toolresults/v1beta3/projects/{projectsId}/histories/{historiesId}/executions/{executionsId}/steps/{stepsId}:accessibilityClusters
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2323,8 +2286,6 @@ components:
             $ref: get
           path:
             $ref: /toolresults/v1beta3/projects/{projectId}/histories/{historyId}/executions/{executionId}/steps/{stepId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2333,8 +2294,6 @@ components:
             $ref: get
           path:
             $ref: /toolresults/v1beta3/projects/{projectId}/histories/{historyId}/executions/{executionId}/steps/{stepId}/perfMetricsSummary
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2343,8 +2302,6 @@ components:
             $ref: get
           path:
             $ref: /toolresults/v1beta3/projects/{projectId}/histories/{historyId}/executions/{executionId}/steps
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2368,15 +2325,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.histories.resources.executions.resources.steps
-      title: projects.resources.histories.resources.executions.resources.steps
-    projects.resources.histories.resources.executions.resources.steps.resources:
-      id: google.services.projects.resources.histories.resources.executions.resources.steps.resources
-      methods: {}
-      name: projects.resources.histories.resources.executions.resources.steps.resources
-      title: projects.resources.histories.resources.executions.resources.steps.resources
-    projects.resources.histories.resources.executions.resources.steps.resources.perfMetricsSummary:
-      id: google.services.projects.resources.histories.resources.executions.resources.steps.resources.perfMetricsSummary
+      name: projects.histories.executions.steps
+      title: projects.histories.executions.steps
+    projects.histories.executions.steps.perfMetricsSummary:
+      id: google.toolresults.projects.histories.executions.steps.perfMetricsSummary
       methods:
         create:
           operation:
@@ -2388,10 +2340,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.histories.resources.executions.resources.steps.resources.perfMetricsSummary
-      title: projects.resources.histories.resources.executions.resources.steps.resources.perfMetricsSummary
-    projects.resources.histories.resources.executions.resources.steps.resources.perfSampleSeries:
-      id: google.services.projects.resources.histories.resources.executions.resources.steps.resources.perfSampleSeries
+      name: projects.histories.executions.steps.perfMetricsSummary
+      title: projects.histories.executions.steps.perfMetricsSummary
+    projects.histories.executions.steps.perfSampleSeries:
+      id: google.toolresults.projects.histories.executions.steps.perfSampleSeries
       methods:
         create:
           operation:
@@ -2408,8 +2360,6 @@ components:
             $ref: get
           path:
             $ref: /toolresults/v1beta3/projects/{projectId}/histories/{historyId}/executions/{executionId}/steps/{stepId}/perfSampleSeries/{sampleSeriesId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2418,20 +2368,13 @@ components:
             $ref: get
           path:
             $ref: /toolresults/v1beta3/projects/{projectId}/histories/{historyId}/executions/{executionId}/steps/{stepId}/perfSampleSeries
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.histories.resources.executions.resources.steps.resources.perfSampleSeries
-      title: projects.resources.histories.resources.executions.resources.steps.resources.perfSampleSeries
-    projects.resources.histories.resources.executions.resources.steps.resources.perfSampleSeries.resources:
-      id: google.services.projects.resources.histories.resources.executions.resources.steps.resources.perfSampleSeries.resources
-      methods: {}
-      name: projects.resources.histories.resources.executions.resources.steps.resources.perfSampleSeries.resources
-      title: projects.resources.histories.resources.executions.resources.steps.resources.perfSampleSeries.resources
-    projects.resources.histories.resources.executions.resources.steps.resources.perfSampleSeries.resources.samples:
-      id: google.services.projects.resources.histories.resources.executions.resources.steps.resources.perfSampleSeries.resources.samples
+      name: projects.histories.executions.steps.perfSampleSeries
+      title: projects.histories.executions.steps.perfSampleSeries
+    projects.histories.executions.steps.perfSampleSeries.samples:
+      id: google.toolresults.projects.histories.executions.steps.perfSampleSeries.samples
       methods:
         batchCreate:
           operation:
@@ -2448,23 +2391,19 @@ components:
             $ref: get
           path:
             $ref: /toolresults/v1beta3/projects/{projectId}/histories/{historyId}/executions/{executionId}/steps/{stepId}/perfSampleSeries/{sampleSeriesId}/samples
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.histories.resources.executions.resources.steps.resources.perfSampleSeries.resources.samples
-      title: projects.resources.histories.resources.executions.resources.steps.resources.perfSampleSeries.resources.samples
-    projects.resources.histories.resources.executions.resources.steps.resources.testCases:
-      id: google.services.projects.resources.histories.resources.executions.resources.steps.resources.testCases
+      name: projects.histories.executions.steps.perfSampleSeries.samples
+      title: projects.histories.executions.steps.perfSampleSeries.samples
+    projects.histories.executions.steps.testCases:
+      id: google.toolresults.projects.histories.executions.steps.testCases
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /toolresults/v1beta3/projects/{projectId}/histories/{historyId}/executions/{executionId}/steps/{stepId}/testCases/{testCaseId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2473,28 +2412,24 @@ components:
             $ref: get
           path:
             $ref: /toolresults/v1beta3/projects/{projectId}/histories/{historyId}/executions/{executionId}/steps/{stepId}/testCases
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.histories.resources.executions.resources.steps.resources.testCases
-      title: projects.resources.histories.resources.executions.resources.steps.resources.testCases
-    projects.resources.histories.resources.executions.resources.steps.resources.thumbnails:
-      id: google.services.projects.resources.histories.resources.executions.resources.steps.resources.thumbnails
+      name: projects.histories.executions.steps.testCases
+      title: projects.histories.executions.steps.testCases
+    projects.histories.executions.steps.thumbnails:
+      id: google.toolresults.projects.histories.executions.steps.thumbnails
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /toolresults/v1beta3/projects/{projectId}/histories/{historyId}/executions/{executionId}/steps/{stepId}/thumbnails
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.histories.resources.executions.resources.steps.resources.thumbnails
-      title: projects.resources.histories.resources.executions.resources.steps.resources.thumbnails
+      name: projects.histories.executions.steps.thumbnails
+      title: projects.histories.executions.steps.thumbnails
 externalDocs:
   url: https://firebase.google.com/docs/test-lab/
 info:
@@ -4153,6 +4088,70 @@ paths:
         - https://www.googleapis.com/auth/cloud-platform
       tags:
       - projects
+  ? /toolresults/v1beta3/projects/{projectsId}/histories/{historiesId}/executions/{executionsId}/steps/{stepsId}:accessibilityClusters
+  : get:
+      description: 'Lists accessibility clusters for a given Step May return any of
+        the following canonical error codes: - PERMISSION_DENIED - if the user is
+        not authorized to read project - INVALID_ARGUMENT - if the request is malformed
+        - FAILED_PRECONDITION - if an argument in the request happens to be invalid;
+        e.g. if the locale format is incorrect - NOT_FOUND - if the containing Step
+        does not exist'
+      operationId: toolresults.projects.histories.executions.steps.accessibilityClusters
+      parameters:
+      - description: The accepted format is the canonical Unicode format with hyphen
+          as a delimiter. Language must be lowercase, Language Script - Capitalized,
+          Region - UPPERCASE. See http://www.unicode.org/reports/tr35/#Unicode_locale_identifier
+          for details. Required.
+        in: query
+        name: locale
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: historiesId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: executionsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: stepsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListStepAccessibilityClustersResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
   /toolresults/v1beta3/{name}:accessibilityClusters:
     get:
       description: 'Lists accessibility clusters for a given Step May return any of

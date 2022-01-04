@@ -1229,7 +1229,7 @@ components:
       type: oauth2
   x-stackQL-resources:
     iamPolicies:
-      id: google.services.iamPolicies
+      id: google.iam.iamPolicies
       methods:
         lintPolicy:
           operation:
@@ -1253,84 +1253,40 @@ components:
             openAPIDocKey: '200'
       name: iamPolicies
       title: iamPolicies
-    locations:
-      id: google.services.locations
-      methods: {}
-      name: locations
-      title: locations
-    locations.resources:
-      id: google.services.locations.resources
-      methods: {}
-      name: locations.resources
-      title: locations.resources
-    locations.resources.workforcePools:
-      id: google.services.locations.resources.workforcePools
-      methods: {}
-      name: locations.resources.workforcePools
-      title: locations.resources.workforcePools
-    locations.resources.workforcePools.resources:
-      id: google.services.locations.resources.workforcePools.resources
-      methods: {}
-      name: locations.resources.workforcePools.resources
-      title: locations.resources.workforcePools.resources
-    locations.resources.workforcePools.resources.operations:
-      id: google.services.locations.resources.workforcePools.resources.operations
+    locations.workforcePools.operations:
+      id: google.iam.locations.workforcePools.operations
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/locations/{locationsId}/workforcePools/{workforcePoolsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: locations.resources.workforcePools.resources.operations
-      title: locations.resources.workforcePools.resources.operations
-    locations.resources.workforcePools.resources.providers:
-      id: google.services.locations.resources.workforcePools.resources.providers
-      methods: {}
-      name: locations.resources.workforcePools.resources.providers
-      title: locations.resources.workforcePools.resources.providers
-    locations.resources.workforcePools.resources.providers.resources:
-      id: google.services.locations.resources.workforcePools.resources.providers.resources
-      methods: {}
-      name: locations.resources.workforcePools.resources.providers.resources
-      title: locations.resources.workforcePools.resources.providers.resources
-    locations.resources.workforcePools.resources.providers.resources.operations:
-      id: google.services.locations.resources.workforcePools.resources.providers.resources.operations
+      name: locations.workforcePools.operations
+      title: locations.workforcePools.operations
+    locations.workforcePools.providers.operations:
+      id: google.iam.locations.workforcePools.providers.operations
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/locations/{locationsId}/workforcePools/{workforcePoolsId}/providers/{providersId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: locations.resources.workforcePools.resources.providers.resources.operations
-      title: locations.resources.workforcePools.resources.providers.resources.operations
-    organizations:
-      id: google.services.organizations
-      methods: {}
-      name: organizations
-      title: organizations
-    organizations.resources:
-      id: google.services.organizations.resources
-      methods: {}
-      name: organizations.resources
-      title: organizations.resources
-    organizations.resources.roles:
-      id: google.services.organizations.resources.roles
+      name: locations.workforcePools.providers.operations
+      title: locations.workforcePools.providers.operations
+    organizations.roles:
+      id: google.iam.organizations.roles
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/roles
+            $ref: /v1/organizations/{organizationsId}/roles
           request:
             mediaType: application/json
           response:
@@ -1340,9 +1296,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/organizations/{organizationsId}/roles/{rolesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1350,9 +1304,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/organizations/{organizationsId}/roles/{rolesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1360,9 +1312,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/roles
-          request:
-            mediaType: application/json
+            $ref: /v1/organizations/{organizationsId}/roles
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1370,7 +1320,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/organizations/{organizationsId}/roles/{rolesId}
           request:
             mediaType: application/json
           response:
@@ -1380,16 +1330,16 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:undelete
+            $ref: /v1/organizations/{organizationsId}/roles/{rolesId}:undelete
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: organizations.resources.roles
-      title: organizations.resources.roles
+      name: organizations.roles
+      title: organizations.roles
     permissions:
-      id: google.services.permissions
+      id: google.iam.permissions
       methods:
         queryTestablePermissions:
           operation:
@@ -1403,34 +1353,14 @@ components:
             openAPIDocKey: '200'
       name: permissions
       title: permissions
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.locations:
-      id: google.services.projects.resources.locations
-      methods: {}
-      name: projects.resources.locations
-      title: projects.resources.locations
-    projects.resources.locations.resources:
-      id: google.services.projects.resources.locations.resources
-      methods: {}
-      name: projects.resources.locations.resources
-      title: projects.resources.locations.resources
-    projects.resources.locations.resources.workloadIdentityPools:
-      id: google.services.projects.resources.locations.resources.workloadIdentityPools
+    projects.locations.workloadIdentityPools:
+      id: google.iam.projects.locations.workloadIdentityPools
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/workloadIdentityPools
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools
           request:
             mediaType: application/json
           response:
@@ -1440,9 +1370,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools/{workloadIdentityPoolsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1450,9 +1378,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools/{workloadIdentityPoolsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1460,9 +1386,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/workloadIdentityPools
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1470,7 +1394,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools/{workloadIdentityPoolsId}
           request:
             mediaType: application/json
           response:
@@ -1480,42 +1404,35 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:undelete
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools/{workloadIdentityPoolsId}:undelete
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.workloadIdentityPools
-      title: projects.resources.locations.resources.workloadIdentityPools
-    projects.resources.locations.resources.workloadIdentityPools.resources:
-      id: google.services.projects.resources.locations.resources.workloadIdentityPools.resources
-      methods: {}
-      name: projects.resources.locations.resources.workloadIdentityPools.resources
-      title: projects.resources.locations.resources.workloadIdentityPools.resources
-    projects.resources.locations.resources.workloadIdentityPools.resources.operations:
-      id: google.services.projects.resources.locations.resources.workloadIdentityPools.resources.operations
+      name: projects.locations.workloadIdentityPools
+      title: projects.locations.workloadIdentityPools
+    projects.locations.workloadIdentityPools.operations:
+      id: google.iam.projects.locations.workloadIdentityPools.operations
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools/{workloadIdentityPoolsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.workloadIdentityPools.resources.operations
-      title: projects.resources.locations.resources.workloadIdentityPools.resources.operations
-    projects.resources.locations.resources.workloadIdentityPools.resources.providers:
-      id: google.services.projects.resources.locations.resources.workloadIdentityPools.resources.providers
+      name: projects.locations.workloadIdentityPools.operations
+      title: projects.locations.workloadIdentityPools.operations
+    projects.locations.workloadIdentityPools.providers:
+      id: google.iam.projects.locations.workloadIdentityPools.providers
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/providers
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools/{workloadIdentityPoolsId}/providers
           request:
             mediaType: application/json
           response:
@@ -1525,9 +1442,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools/{workloadIdentityPoolsId}/providers/{providersId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1535,9 +1450,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools/{workloadIdentityPoolsId}/providers/{providersId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1545,9 +1458,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/providers
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools/{workloadIdentityPoolsId}/providers
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1555,7 +1466,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools/{workloadIdentityPoolsId}/providers/{providersId}
           request:
             mediaType: application/json
           response:
@@ -1565,42 +1476,35 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:undelete
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools/{workloadIdentityPoolsId}/providers/{providersId}:undelete
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.workloadIdentityPools.resources.providers
-      title: projects.resources.locations.resources.workloadIdentityPools.resources.providers
-    projects.resources.locations.resources.workloadIdentityPools.resources.providers.resources:
-      id: google.services.projects.resources.locations.resources.workloadIdentityPools.resources.providers.resources
-      methods: {}
-      name: projects.resources.locations.resources.workloadIdentityPools.resources.providers.resources
-      title: projects.resources.locations.resources.workloadIdentityPools.resources.providers.resources
-    projects.resources.locations.resources.workloadIdentityPools.resources.providers.resources.operations:
-      id: google.services.projects.resources.locations.resources.workloadIdentityPools.resources.providers.resources.operations
+      name: projects.locations.workloadIdentityPools.providers
+      title: projects.locations.workloadIdentityPools.providers
+    projects.locations.workloadIdentityPools.providers.operations:
+      id: google.iam.projects.locations.workloadIdentityPools.providers.operations
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools/{workloadIdentityPoolsId}/providers/{providersId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.workloadIdentityPools.resources.providers.resources.operations
-      title: projects.resources.locations.resources.workloadIdentityPools.resources.providers.resources.operations
-    projects.resources.roles:
-      id: google.services.projects.resources.roles
+      name: projects.locations.workloadIdentityPools.providers.operations
+      title: projects.locations.workloadIdentityPools.providers.operations
+    projects.roles:
+      id: google.iam.projects.roles
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/roles
+            $ref: /v1/projects/{projectsId}/roles
           request:
             mediaType: application/json
           response:
@@ -1610,9 +1514,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/roles/{rolesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1620,9 +1522,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/roles/{rolesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1630,9 +1530,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/roles
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/roles
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1640,7 +1538,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/roles/{rolesId}
           request:
             mediaType: application/json
           response:
@@ -1650,22 +1548,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:undelete
+            $ref: /v1/projects/{projectsId}/roles/{rolesId}:undelete
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.roles
-      title: projects.resources.roles
-    projects.resources.serviceAccounts:
-      id: google.services.projects.resources.serviceAccounts
+      name: projects.roles
+      title: projects.roles
+    projects.serviceAccounts:
+      id: google.iam.projects.serviceAccounts
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}/serviceAccounts
+            $ref: /v1/projects/{projectsId}/serviceAccounts
           request:
             mediaType: application/json
           response:
@@ -1675,9 +1573,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1685,7 +1581,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:disable
+            $ref: /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}:disable
           request:
             mediaType: application/json
           response:
@@ -1695,7 +1591,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:enable
+            $ref: /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}:enable
           request:
             mediaType: application/json
           response:
@@ -1705,9 +1601,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1715,9 +1609,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:getIamPolicy
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}:getIamPolicy
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1725,9 +1617,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/serviceAccounts
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/serviceAccounts
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1735,7 +1625,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}
           request:
             mediaType: application/json
           response:
@@ -1745,7 +1635,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:setIamPolicy
+            $ref: /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}:setIamPolicy
           request:
             mediaType: application/json
           response:
@@ -1755,7 +1645,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:signBlob
+            $ref: /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}:signBlob
           request:
             mediaType: application/json
           response:
@@ -1765,7 +1655,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:signJwt
+            $ref: /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}:signJwt
           request:
             mediaType: application/json
           response:
@@ -1775,7 +1665,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{resource}:testIamPermissions
+            $ref: /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}:testIamPermissions
           request:
             mediaType: application/json
           response:
@@ -1785,7 +1675,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:undelete
+            $ref: /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}:undelete
           request:
             mediaType: application/json
           response:
@@ -1795,27 +1685,22 @@ components:
           operation:
             $ref: put
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.serviceAccounts
-      title: projects.resources.serviceAccounts
-    projects.resources.serviceAccounts.resources:
-      id: google.services.projects.resources.serviceAccounts.resources
-      methods: {}
-      name: projects.resources.serviceAccounts.resources
-      title: projects.resources.serviceAccounts.resources
-    projects.resources.serviceAccounts.resources.keys:
-      id: google.services.projects.resources.serviceAccounts.resources.keys
+      name: projects.serviceAccounts
+      title: projects.serviceAccounts
+    projects.serviceAccounts.keys:
+      id: google.iam.projects.serviceAccounts.keys
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}/keys
+            $ref: /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}/keys
           request:
             mediaType: application/json
           response:
@@ -1825,9 +1710,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}/keys/{keysId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1835,7 +1718,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:disable
+            $ref: /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}/keys/{keysId}:disable
           request:
             mediaType: application/json
           response:
@@ -1845,7 +1728,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:enable
+            $ref: /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}/keys/{keysId}:enable
           request:
             mediaType: application/json
           response:
@@ -1855,9 +1738,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}/keys/{keysId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1865,9 +1746,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/keys
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}/keys
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1875,24 +1754,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}/keys:upload
+            $ref: /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}/keys:upload
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.serviceAccounts.resources.keys
-      title: projects.resources.serviceAccounts.resources.keys
+      name: projects.serviceAccounts.keys
+      title: projects.serviceAccounts.keys
     roles:
-      id: google.services.roles
+      id: google.iam.roles
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/roles/{rolesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1901,8 +1778,6 @@ components:
             $ref: get
           path:
             $ref: /v1/roles
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2027,6 +1902,685 @@ paths:
         - https://www.googleapis.com/auth/cloud-platform
       tags:
       - iamPolicies
+  /v1/locations/{locationsId}/workforcePools/{workforcePoolsId}/operations/{operationsId}:
+    delete:
+      description: Deletes a ServiceAccountKey. Deleting a service account key does
+        not revoke short-lived credentials that have been issued based on the service
+        account key.
+      operationId: iam.projects.serviceAccounts.keys.delete
+      parameters:
+      - description: Used to perform a consistent read-modify-write.
+        in: query
+        name: etag
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workforcePoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the definition of a Role.
+      operationId: iam.roles.get
+      parameters:
+      - description: The output format of the public key requested. X509_PEM is the
+          default output format.
+        in: query
+        name: publicKeyType
+        schema:
+          enum:
+          - TYPE_NONE
+          - TYPE_X509_PEM_FILE
+          - TYPE_RAW_PUBLIC_KEY
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workforcePoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - roles
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Patches a ServiceAccount.
+      operationId: iam.projects.serviceAccounts.patch
+      parameters:
+      - description: A mask describing which fields in the Role have changed.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workforcePoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchServiceAccountRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    put:
+      description: '**Note:** We are in the process of deprecating this method. Use
+        PatchServiceAccount instead. Updates a ServiceAccount. You can update only
+        the `display_name` and `description` fields.'
+      operationId: iam.projects.serviceAccounts.update
+      parameters:
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workforcePoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceAccount'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/locations/{locationsId}/workforcePools/{workforcePoolsId}/providers/{providersId}/operations/{operationsId}:
+    delete:
+      description: Deletes a ServiceAccountKey. Deleting a service account key does
+        not revoke short-lived credentials that have been issued based on the service
+        account key.
+      operationId: iam.projects.serviceAccounts.keys.delete
+      parameters:
+      - description: Used to perform a consistent read-modify-write.
+        in: query
+        name: etag
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workforcePoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: providersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the definition of a Role.
+      operationId: iam.roles.get
+      parameters:
+      - description: The output format of the public key requested. X509_PEM is the
+          default output format.
+        in: query
+        name: publicKeyType
+        schema:
+          enum:
+          - TYPE_NONE
+          - TYPE_X509_PEM_FILE
+          - TYPE_RAW_PUBLIC_KEY
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workforcePoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: providersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - roles
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Patches a ServiceAccount.
+      operationId: iam.projects.serviceAccounts.patch
+      parameters:
+      - description: A mask describing which fields in the Role have changed.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workforcePoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: providersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchServiceAccountRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    put:
+      description: '**Note:** We are in the process of deprecating this method. Use
+        PatchServiceAccount instead. Updates a ServiceAccount. You can update only
+        the `display_name` and `description` fields.'
+      operationId: iam.projects.serviceAccounts.update
+      parameters:
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workforcePoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: providersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceAccount'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/organizations/{organizationsId}/roles:
+    get:
+      description: Lists every predefined Role that IAM supports, or every custom
+        role that is defined for an organization or project.
+      operationId: iam.projects.roles.list
+      parameters:
+      - description: Optional limit on the number of roles to include in the response.
+          The default is 300, and the maximum is 1,000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional pagination token returned in an earlier ListRolesResponse.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: Include Roles that have been deleted.
+        in: query
+        name: showDeleted
+        schema:
+          type: boolean
+      - description: Optional view for the returned Role objects. When `FULL` is specified,
+          the `includedPermissions` field is returned, which includes a list of all
+          permissions in the role. The default value is `BASIC`, which does not return
+          the `includedPermissions` field.
+        in: query
+        name: view
+        schema:
+          enum:
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRolesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new custom Role.
+      operationId: iam.projects.roles.create
+      parameters:
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoleRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/organizations/{organizationsId}/roles/{rolesId}:
+    delete:
+      description: Deletes a ServiceAccountKey. Deleting a service account key does
+        not revoke short-lived credentials that have been issued based on the service
+        account key.
+      operationId: iam.projects.serviceAccounts.keys.delete
+      parameters:
+      - description: Used to perform a consistent read-modify-write.
+        in: query
+        name: etag
+        schema:
+          type: string
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: rolesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the definition of a Role.
+      operationId: iam.roles.get
+      parameters:
+      - description: The output format of the public key requested. X509_PEM is the
+          default output format.
+        in: query
+        name: publicKeyType
+        schema:
+          enum:
+          - TYPE_NONE
+          - TYPE_X509_PEM_FILE
+          - TYPE_RAW_PUBLIC_KEY
+          type: string
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: rolesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - roles
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Patches a ServiceAccount.
+      operationId: iam.projects.serviceAccounts.patch
+      parameters:
+      - description: A mask describing which fields in the Role have changed.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: rolesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchServiceAccountRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    put:
+      description: '**Note:** We are in the process of deprecating this method. Use
+        PatchServiceAccount instead. Updates a ServiceAccount. You can update only
+        the `display_name` and `description` fields.'
+      operationId: iam.projects.serviceAccounts.update
+      parameters:
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: rolesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceAccount'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/organizations/{organizationsId}/roles/{rolesId}:undelete:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Restores a deleted ServiceAccount. **Important:** It is not always
+        possible to restore a deleted service account. Use this method only as a last
+        resort. After you delete a service account, IAM permanently removes the service
+        account 30 days later. There is no way to restore a deleted service account
+        that has been permanently removed.
+      operationId: iam.projects.serviceAccounts.undelete
+      parameters:
+      - in: path
+        name: organizationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: rolesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UndeleteServiceAccountRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UndeleteServiceAccountResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
   /v1/permissions:queryTestablePermissions:
     parameters:
     - $ref: '#/components/parameters/_.xgafv'
@@ -2064,6 +2618,2488 @@ paths:
         - https://www.googleapis.com/auth/cloud-platform
       tags:
       - permissions
+  /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools:
+    get:
+      description: Lists all non-deleted WorkloadIdentityPools in a project. If `show_deleted`
+        is set to `true`, then deleted pools are also listed.
+      operationId: iam.projects.locations.workloadIdentityPools.list
+      parameters:
+      - description: The maximum number of pools to return. If unspecified, at most
+          50 pools are returned. The maximum value is 1000; values above are 1000
+          truncated to 1000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListWorkloadIdentityPools`
+          call. Provide this to retrieve the subsequent page.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: Whether to return soft-deleted pools.
+        in: query
+        name: showDeleted
+        schema:
+          type: boolean
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListWorkloadIdentityPoolsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new WorkloadIdentityPool. You cannot reuse the name of
+        a deleted pool until 30 days after deletion.
+      operationId: iam.projects.locations.workloadIdentityPools.create
+      parameters:
+      - description: Required. The ID to use for the pool, which becomes the final
+          component of the resource name. This value should be 4-32 characters, and
+          may contain the characters [a-z0-9-]. The prefix `gcp-` is reserved for
+          use by Google, and may not be specified.
+        in: query
+        name: workloadIdentityPoolId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkloadIdentityPool'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools/{workloadIdentityPoolsId}:
+    delete:
+      description: Deletes a ServiceAccountKey. Deleting a service account key does
+        not revoke short-lived credentials that have been issued based on the service
+        account key.
+      operationId: iam.projects.serviceAccounts.keys.delete
+      parameters:
+      - description: Used to perform a consistent read-modify-write.
+        in: query
+        name: etag
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the definition of a Role.
+      operationId: iam.roles.get
+      parameters:
+      - description: The output format of the public key requested. X509_PEM is the
+          default output format.
+        in: query
+        name: publicKeyType
+        schema:
+          enum:
+          - TYPE_NONE
+          - TYPE_X509_PEM_FILE
+          - TYPE_RAW_PUBLIC_KEY
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - roles
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Patches a ServiceAccount.
+      operationId: iam.projects.serviceAccounts.patch
+      parameters:
+      - description: A mask describing which fields in the Role have changed.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchServiceAccountRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    put:
+      description: '**Note:** We are in the process of deprecating this method. Use
+        PatchServiceAccount instead. Updates a ServiceAccount. You can update only
+        the `display_name` and `description` fields.'
+      operationId: iam.projects.serviceAccounts.update
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceAccount'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  ? /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools/{workloadIdentityPoolsId}/operations/{operationsId}
+  : delete:
+      description: Deletes a ServiceAccountKey. Deleting a service account key does
+        not revoke short-lived credentials that have been issued based on the service
+        account key.
+      operationId: iam.projects.serviceAccounts.keys.delete
+      parameters:
+      - description: Used to perform a consistent read-modify-write.
+        in: query
+        name: etag
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the definition of a Role.
+      operationId: iam.roles.get
+      parameters:
+      - description: The output format of the public key requested. X509_PEM is the
+          default output format.
+        in: query
+        name: publicKeyType
+        schema:
+          enum:
+          - TYPE_NONE
+          - TYPE_X509_PEM_FILE
+          - TYPE_RAW_PUBLIC_KEY
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - roles
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Patches a ServiceAccount.
+      operationId: iam.projects.serviceAccounts.patch
+      parameters:
+      - description: A mask describing which fields in the Role have changed.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchServiceAccountRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    put:
+      description: '**Note:** We are in the process of deprecating this method. Use
+        PatchServiceAccount instead. Updates a ServiceAccount. You can update only
+        the `display_name` and `description` fields.'
+      operationId: iam.projects.serviceAccounts.update
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceAccount'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools/{workloadIdentityPoolsId}/providers:
+    get:
+      description: Lists all non-deleted WorkloadIdentityPoolProviders in a WorkloadIdentityPool.
+        If `show_deleted` is set to `true`, then deleted providers are also listed.
+      operationId: iam.projects.locations.workloadIdentityPools.providers.list
+      parameters:
+      - description: The maximum number of providers to return. If unspecified, at
+          most 50 providers are returned. The maximum value is 100; values above 100
+          are truncated to 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListWorkloadIdentityPoolProviders`
+          call. Provide this to retrieve the subsequent page.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: Whether to return soft-deleted providers.
+        in: query
+        name: showDeleted
+        schema:
+          type: boolean
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListWorkloadIdentityPoolProvidersResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new WorkloadIdentityPoolProvider in a WorkloadIdentityPool.
+        You cannot reuse the name of a deleted provider until 30 days after deletion.
+      operationId: iam.projects.locations.workloadIdentityPools.providers.create
+      parameters:
+      - description: Required. The ID for the provider, which becomes the final component
+          of the resource name. This value must be 4-32 characters, and may contain
+          the characters [a-z0-9-]. The prefix `gcp-` is reserved for use by Google,
+          and may not be specified.
+        in: query
+        name: workloadIdentityPoolProviderId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkloadIdentityPoolProvider'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools/{workloadIdentityPoolsId}/providers/{providersId}:
+    delete:
+      description: Deletes a ServiceAccountKey. Deleting a service account key does
+        not revoke short-lived credentials that have been issued based on the service
+        account key.
+      operationId: iam.projects.serviceAccounts.keys.delete
+      parameters:
+      - description: Used to perform a consistent read-modify-write.
+        in: query
+        name: etag
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: providersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the definition of a Role.
+      operationId: iam.roles.get
+      parameters:
+      - description: The output format of the public key requested. X509_PEM is the
+          default output format.
+        in: query
+        name: publicKeyType
+        schema:
+          enum:
+          - TYPE_NONE
+          - TYPE_X509_PEM_FILE
+          - TYPE_RAW_PUBLIC_KEY
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: providersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - roles
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Patches a ServiceAccount.
+      operationId: iam.projects.serviceAccounts.patch
+      parameters:
+      - description: A mask describing which fields in the Role have changed.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: providersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchServiceAccountRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    put:
+      description: '**Note:** We are in the process of deprecating this method. Use
+        PatchServiceAccount instead. Updates a ServiceAccount. You can update only
+        the `display_name` and `description` fields.'
+      operationId: iam.projects.serviceAccounts.update
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: providersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceAccount'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  ? /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools/{workloadIdentityPoolsId}/providers/{providersId}/operations/{operationsId}
+  : delete:
+      description: Deletes a ServiceAccountKey. Deleting a service account key does
+        not revoke short-lived credentials that have been issued based on the service
+        account key.
+      operationId: iam.projects.serviceAccounts.keys.delete
+      parameters:
+      - description: Used to perform a consistent read-modify-write.
+        in: query
+        name: etag
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: providersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the definition of a Role.
+      operationId: iam.roles.get
+      parameters:
+      - description: The output format of the public key requested. X509_PEM is the
+          default output format.
+        in: query
+        name: publicKeyType
+        schema:
+          enum:
+          - TYPE_NONE
+          - TYPE_X509_PEM_FILE
+          - TYPE_RAW_PUBLIC_KEY
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: providersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - roles
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Patches a ServiceAccount.
+      operationId: iam.projects.serviceAccounts.patch
+      parameters:
+      - description: A mask describing which fields in the Role have changed.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: providersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchServiceAccountRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    put:
+      description: '**Note:** We are in the process of deprecating this method. Use
+        PatchServiceAccount instead. Updates a ServiceAccount. You can update only
+        the `display_name` and `description` fields.'
+      operationId: iam.projects.serviceAccounts.update
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: providersId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceAccount'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  ? /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools/{workloadIdentityPoolsId}/providers/{providersId}:undelete
+  : parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Restores a deleted ServiceAccount. **Important:** It is not always
+        possible to restore a deleted service account. Use this method only as a last
+        resort. After you delete a service account, IAM permanently removes the service
+        account 30 days later. There is no way to restore a deleted service account
+        that has been permanently removed.
+      operationId: iam.projects.serviceAccounts.undelete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: providersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UndeleteServiceAccountRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UndeleteServiceAccountResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/workloadIdentityPools/{workloadIdentityPoolsId}:undelete:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Restores a deleted ServiceAccount. **Important:** It is not always
+        possible to restore a deleted service account. Use this method only as a last
+        resort. After you delete a service account, IAM permanently removes the service
+        account 30 days later. There is no way to restore a deleted service account
+        that has been permanently removed.
+      operationId: iam.projects.serviceAccounts.undelete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: workloadIdentityPoolsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UndeleteServiceAccountRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UndeleteServiceAccountResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/roles:
+    get:
+      description: Lists every predefined Role that IAM supports, or every custom
+        role that is defined for an organization or project.
+      operationId: iam.projects.roles.list
+      parameters:
+      - description: Optional limit on the number of roles to include in the response.
+          The default is 300, and the maximum is 1,000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional pagination token returned in an earlier ListRolesResponse.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: Include Roles that have been deleted.
+        in: query
+        name: showDeleted
+        schema:
+          type: boolean
+      - description: Optional view for the returned Role objects. When `FULL` is specified,
+          the `includedPermissions` field is returned, which includes a list of all
+          permissions in the role. The default value is `BASIC`, which does not return
+          the `includedPermissions` field.
+        in: query
+        name: view
+        schema:
+          enum:
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRolesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a new custom Role.
+      operationId: iam.projects.roles.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoleRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/roles/{rolesId}:
+    delete:
+      description: Deletes a ServiceAccountKey. Deleting a service account key does
+        not revoke short-lived credentials that have been issued based on the service
+        account key.
+      operationId: iam.projects.serviceAccounts.keys.delete
+      parameters:
+      - description: Used to perform a consistent read-modify-write.
+        in: query
+        name: etag
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: rolesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the definition of a Role.
+      operationId: iam.roles.get
+      parameters:
+      - description: The output format of the public key requested. X509_PEM is the
+          default output format.
+        in: query
+        name: publicKeyType
+        schema:
+          enum:
+          - TYPE_NONE
+          - TYPE_X509_PEM_FILE
+          - TYPE_RAW_PUBLIC_KEY
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: rolesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - roles
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Patches a ServiceAccount.
+      operationId: iam.projects.serviceAccounts.patch
+      parameters:
+      - description: A mask describing which fields in the Role have changed.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: rolesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchServiceAccountRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    put:
+      description: '**Note:** We are in the process of deprecating this method. Use
+        PatchServiceAccount instead. Updates a ServiceAccount. You can update only
+        the `display_name` and `description` fields.'
+      operationId: iam.projects.serviceAccounts.update
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: rolesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceAccount'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/roles/{rolesId}:undelete:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Restores a deleted ServiceAccount. **Important:** It is not always
+        possible to restore a deleted service account. Use this method only as a last
+        resort. After you delete a service account, IAM permanently removes the service
+        account 30 days later. There is no way to restore a deleted service account
+        that has been permanently removed.
+      operationId: iam.projects.serviceAccounts.undelete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: rolesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UndeleteServiceAccountRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UndeleteServiceAccountResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/serviceAccounts:
+    get:
+      description: Lists every ServiceAccount that belongs to a specific project.
+      operationId: iam.projects.serviceAccounts.list
+      parameters:
+      - description: Optional limit on the number of service accounts to include in
+          the response. Further accounts can subsequently be obtained by including
+          the ListServiceAccountsResponse.next_page_token in a subsequent request.
+          The default is 20, and the maximum is 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional pagination token returned in an earlier ListServiceAccountsResponse.next_page_token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListServiceAccountsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a ServiceAccount.
+      operationId: iam.projects.serviceAccounts.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateServiceAccountRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}:
+    delete:
+      description: Deletes a ServiceAccountKey. Deleting a service account key does
+        not revoke short-lived credentials that have been issued based on the service
+        account key.
+      operationId: iam.projects.serviceAccounts.keys.delete
+      parameters:
+      - description: Used to perform a consistent read-modify-write.
+        in: query
+        name: etag
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the definition of a Role.
+      operationId: iam.roles.get
+      parameters:
+      - description: The output format of the public key requested. X509_PEM is the
+          default output format.
+        in: query
+        name: publicKeyType
+        schema:
+          enum:
+          - TYPE_NONE
+          - TYPE_X509_PEM_FILE
+          - TYPE_RAW_PUBLIC_KEY
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - roles
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Patches a ServiceAccount.
+      operationId: iam.projects.serviceAccounts.patch
+      parameters:
+      - description: A mask describing which fields in the Role have changed.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchServiceAccountRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    put:
+      description: '**Note:** We are in the process of deprecating this method. Use
+        PatchServiceAccount instead. Updates a ServiceAccount. You can update only
+        the `display_name` and `description` fields.'
+      operationId: iam.projects.serviceAccounts.update
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceAccount'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}/keys:
+    get:
+      description: Lists every ServiceAccountKey for a service account.
+      operationId: iam.projects.serviceAccounts.keys.list
+      parameters:
+      - description: Filters the types of keys the user wants to include in the list
+          response. Duplicate key types are not allowed. If no key type is provided,
+          all keys are returned.
+        explode: true
+        in: query
+        name: keyTypes
+        schema:
+          items:
+            enum:
+            - KEY_TYPE_UNSPECIFIED
+            - USER_MANAGED
+            - SYSTEM_MANAGED
+            type: string
+          type: array
+        style: form
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListServiceAccountKeysResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a ServiceAccountKey.
+      operationId: iam.projects.serviceAccounts.keys.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateServiceAccountKeyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccountKey'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}/keys/{keysId}:
+    delete:
+      description: Deletes a ServiceAccountKey. Deleting a service account key does
+        not revoke short-lived credentials that have been issued based on the service
+        account key.
+      operationId: iam.projects.serviceAccounts.keys.delete
+      parameters:
+      - description: Used to perform a consistent read-modify-write.
+        in: query
+        name: etag
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keysId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the definition of a Role.
+      operationId: iam.roles.get
+      parameters:
+      - description: The output format of the public key requested. X509_PEM is the
+          default output format.
+        in: query
+        name: publicKeyType
+        schema:
+          enum:
+          - TYPE_NONE
+          - TYPE_X509_PEM_FILE
+          - TYPE_RAW_PUBLIC_KEY
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keysId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - roles
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Patches a ServiceAccount.
+      operationId: iam.projects.serviceAccounts.patch
+      parameters:
+      - description: A mask describing which fields in the Role have changed.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keysId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchServiceAccountRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    put:
+      description: '**Note:** We are in the process of deprecating this method. Use
+        PatchServiceAccount instead. Updates a ServiceAccount. You can update only
+        the `display_name` and `description` fields.'
+      operationId: iam.projects.serviceAccounts.update
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keysId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceAccount'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}/keys/{keysId}:disable:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Disable a ServiceAccountKey. A disabled service account key can
+        be enabled through EnableServiceAccountKey.
+      operationId: iam.projects.serviceAccounts.keys.disable
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keysId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DisableServiceAccountKeyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}/keys/{keysId}:enable:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Enable a ServiceAccountKey.
+      operationId: iam.projects.serviceAccounts.keys.enable
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: keysId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnableServiceAccountKeyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}/keys:upload:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a ServiceAccountKey, using a public key that you provide.
+      operationId: iam.projects.serviceAccounts.keys.upload
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadServiceAccountKeyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccountKey'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}:disable:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Disable a ServiceAccountKey. A disabled service account key can
+        be enabled through EnableServiceAccountKey.
+      operationId: iam.projects.serviceAccounts.keys.disable
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DisableServiceAccountKeyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}:enable:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Enable a ServiceAccountKey.
+      operationId: iam.projects.serviceAccounts.keys.enable
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnableServiceAccountKeyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}:getIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Gets the IAM policy that is attached to a ServiceAccount. This
+        IAM policy specifies which principals have access to the service account.
+        This method does not tell you whether the service account has been granted
+        any roles on other resources. To check whether a service account has role
+        grants on a resource, use the `getIamPolicy` method for that resource. For
+        example, to view the role grants for a project, call the Resource Manager
+        API's [`projects.getIamPolicy`](https://cloud.google.com/resource-manager/reference/rest/v1/projects/getIamPolicy)
+        method.
+      operationId: iam.projects.serviceAccounts.getIamPolicy
+      parameters:
+      - description: Optional. The policy format version to be returned. Valid values
+          are 0, 1, and 3. Requests specifying an invalid value will be rejected.
+          Requests for policies with any conditional bindings must specify version
+          3. Policies without any conditional bindings may specify any valid value
+          or leave the field unset. To learn which resources support conditions in
+          their IAM policies, see the [IAM documentation](https://cloud.google.com/iam/help/conditions/resource-policies).
+        in: query
+        name: options.requestedPolicyVersion
+        schema:
+          type: integer
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}:setIamPolicy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: 'Sets the IAM policy that is attached to a ServiceAccount. Use
+        this method to grant or revoke access to the service account. For example,
+        you could grant a principal the ability to impersonate the service account.
+        This method does not enable the service account to access other resources.
+        To grant roles to a service account on a resource, follow these steps: 1.
+        Call the resource''s `getIamPolicy` method to get its current IAM policy.
+        2. Edit the policy so that it binds the service account to an IAM role for
+        the resource. 3. Call the resource''s `setIamPolicy` method to update its
+        IAM policy. For detailed instructions, see [Manage access to project, folders,
+        and organizations](https://cloud.google.com/iam/help/service-accounts/granting-access-to-service-accounts)
+        or [Manage access to other resources](https://cloud.google.com/iam/help/access/manage-other-resources).'
+      operationId: iam.projects.serviceAccounts.setIamPolicy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetIamPolicyRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Policy'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}:signBlob:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: '**Note:** This method is deprecated. Use the [`signBlob`](https://cloud.google.com/iam/help/rest-credentials/v1/projects.serviceAccounts/signBlob)
+        method in the IAM Service Account Credentials API instead. If you currently
+        use this method, see the [migration guide](https://cloud.google.com/iam/help/credentials/migrate-api)
+        for instructions. Signs a blob using the system-managed private key for a
+        ServiceAccount.'
+      operationId: iam.projects.serviceAccounts.signBlob
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignBlobRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignBlobResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}:signJwt:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: '**Note:** This method is deprecated. Use the [`signJwt`](https://cloud.google.com/iam/help/rest-credentials/v1/projects.serviceAccounts/signJwt)
+        method in the IAM Service Account Credentials API instead. If you currently
+        use this method, see the [migration guide](https://cloud.google.com/iam/help/credentials/migrate-api)
+        for instructions. Signs a JSON Web Token (JWT) using the system-managed private
+        key for a ServiceAccount.'
+      operationId: iam.projects.serviceAccounts.signJwt
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignJwtRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignJwtResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}:testIamPermissions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Tests whether the caller has the specified permissions on a ServiceAccount.
+      operationId: iam.projects.serviceAccounts.testIamPermissions
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestIamPermissionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestIamPermissionsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/serviceAccounts/{serviceAccountsId}:undelete:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Restores a deleted ServiceAccount. **Important:** It is not always
+        possible to restore a deleted service account. Use this method only as a last
+        resort. After you delete a service account, IAM permanently removes the service
+        account 30 days later. There is no way to restore a deleted service account
+        that has been permanently removed.
+      operationId: iam.projects.serviceAccounts.undelete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: serviceAccountsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UndeleteServiceAccountRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UndeleteServiceAccountResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
   /v1/roles:
     get:
       description: Lists every predefined Role that IAM supports, or every custom
@@ -2143,6 +5179,145 @@ paths:
     - $ref: '#/components/parameters/quotaUser'
     - $ref: '#/components/parameters/upload_protocol'
     - $ref: '#/components/parameters/uploadType'
+  /v1/roles/{rolesId}:
+    delete:
+      description: Deletes a ServiceAccountKey. Deleting a service account key does
+        not revoke short-lived credentials that have been issued based on the service
+        account key.
+      operationId: iam.projects.serviceAccounts.keys.delete
+      parameters:
+      - description: Used to perform a consistent read-modify-write.
+        in: query
+        name: etag
+        schema:
+          type: string
+      - in: path
+        name: rolesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the definition of a Role.
+      operationId: iam.roles.get
+      parameters:
+      - description: The output format of the public key requested. X509_PEM is the
+          default output format.
+        in: query
+        name: publicKeyType
+        schema:
+          enum:
+          - TYPE_NONE
+          - TYPE_X509_PEM_FILE
+          - TYPE_RAW_PUBLIC_KEY
+          type: string
+      - in: path
+        name: rolesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - roles
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Patches a ServiceAccount.
+      operationId: iam.projects.serviceAccounts.patch
+      parameters:
+      - description: A mask describing which fields in the Role have changed.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: rolesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchServiceAccountRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    put:
+      description: '**Note:** We are in the process of deprecating this method. Use
+        PatchServiceAccount instead. Updates a ServiceAccount. You can update only
+        the `display_name` and `description` fields.'
+      operationId: iam.projects.serviceAccounts.update
+      parameters:
+      - in: path
+        name: rolesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceAccount'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAccount'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
   /v1/roles:queryGrantableRoles:
     parameters:
     - $ref: '#/components/parameters/_.xgafv'

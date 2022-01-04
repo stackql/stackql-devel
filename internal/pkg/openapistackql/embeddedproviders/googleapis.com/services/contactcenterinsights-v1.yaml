@@ -1788,26 +1788,14 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.locations:
-      id: google.services.projects.resources.locations
+    projects.locations:
+      id: google.contactcenterinsights.projects.locations
       methods:
         getSettings:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/settings
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1815,29 +1803,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/settings
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations
-      title: projects.resources.locations
-    projects.resources.locations.resources:
-      id: google.services.projects.resources.locations.resources
-      methods: {}
-      name: projects.resources.locations.resources
-      title: projects.resources.locations.resources
-    projects.resources.locations.resources.conversations:
-      id: google.services.projects.resources.locations.resources.conversations
+      name: projects.locations
+      title: projects.locations
+    projects.locations.conversations:
+      id: google.contactcenterinsights.projects.locations.conversations
       methods:
         calculateStats:
           operation:
             $ref: get
           path:
-            $ref: /v1/{location}/conversations:calculateStats
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/conversations:calculateStats
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1845,7 +1826,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/conversations
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/conversations
           request:
             mediaType: application/json
           response:
@@ -1855,9 +1836,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/conversations/{conversationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1865,9 +1844,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/conversations/{conversationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1875,9 +1852,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/conversations
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/conversations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1885,27 +1860,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/conversations/{conversationsId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.conversations
-      title: projects.resources.locations.resources.conversations
-    projects.resources.locations.resources.conversations.resources:
-      id: google.services.projects.resources.locations.resources.conversations.resources
-      methods: {}
-      name: projects.resources.locations.resources.conversations.resources
-      title: projects.resources.locations.resources.conversations.resources
-    projects.resources.locations.resources.conversations.resources.analyses:
-      id: google.services.projects.resources.locations.resources.conversations.resources.analyses
+      name: projects.locations.conversations
+      title: projects.locations.conversations
+    projects.locations.conversations.analyses:
+      id: google.contactcenterinsights.projects.locations.conversations.analyses
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/analyses
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/conversations/{conversationsId}/analyses
           request:
             mediaType: application/json
           response:
@@ -1915,9 +1885,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/conversations/{conversationsId}/analyses/{analysesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1925,9 +1893,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/conversations/{conversationsId}/analyses/{analysesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1935,39 +1901,35 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/analyses
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/conversations/{conversationsId}/analyses
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.conversations.resources.analyses
-      title: projects.resources.locations.resources.conversations.resources.analyses
-    projects.resources.locations.resources.insightsdata:
-      id: google.services.projects.resources.locations.resources.insightsdata
+      name: projects.locations.conversations.analyses
+      title: projects.locations.conversations.analyses
+    projects.locations.insightsdata:
+      id: google.contactcenterinsights.projects.locations.insightsdata
       methods:
         export:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/insightsdata:export
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/insightsdata:export
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.insightsdata
-      title: projects.resources.locations.resources.insightsdata
-    projects.resources.locations.resources.issueModels:
-      id: google.services.projects.resources.locations.resources.issueModels
+      name: projects.locations.insightsdata
+      title: projects.locations.insightsdata
+    projects.locations.issueModels:
+      id: google.contactcenterinsights.projects.locations.issueModels
       methods:
         calculateIssueModelStats:
           operation:
             $ref: get
           path:
-            $ref: /v1/{issueModel}:calculateIssueModelStats
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/issueModels/{issueModelsId}:calculateIssueModelStats
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1975,7 +1937,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/issueModels
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/issueModels
           request:
             mediaType: application/json
           response:
@@ -1985,9 +1947,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/issueModels/{issueModelsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1995,7 +1955,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:deploy
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/issueModels/{issueModelsId}:deploy
           request:
             mediaType: application/json
           response:
@@ -2005,9 +1965,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/issueModels/{issueModelsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2015,9 +1973,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/issueModels
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/issueModels
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2025,7 +1981,7 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/issueModels/{issueModelsId}
           request:
             mediaType: application/json
           response:
@@ -2035,29 +1991,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:undeploy
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/issueModels/{issueModelsId}:undeploy
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.issueModels
-      title: projects.resources.locations.resources.issueModels
-    projects.resources.locations.resources.issueModels.resources:
-      id: google.services.projects.resources.locations.resources.issueModels.resources
-      methods: {}
-      name: projects.resources.locations.resources.issueModels.resources
-      title: projects.resources.locations.resources.issueModels.resources
-    projects.resources.locations.resources.issueModels.resources.issues:
-      id: google.services.projects.resources.locations.resources.issueModels.resources.issues
+      name: projects.locations.issueModels
+      title: projects.locations.issueModels
+    projects.locations.issueModels.issues:
+      id: google.contactcenterinsights.projects.locations.issueModels.issues
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/issueModels/{issueModelsId}/issues/{issuesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2065,9 +2014,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/issues
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/issueModels/{issueModelsId}/issues
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2075,24 +2022,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/issueModels/{issueModelsId}/issues/{issuesId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.issueModels.resources.issues
-      title: projects.resources.locations.resources.issueModels.resources.issues
-    projects.resources.locations.resources.operations:
-      id: google.services.projects.resources.locations.resources.operations
+      name: projects.locations.issueModels.issues
+      title: projects.locations.issueModels.issues
+    projects.locations.operations:
+      id: google.contactcenterinsights.projects.locations.operations
       methods:
         cancel:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:cancel
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}:cancel
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2100,9 +2045,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2110,22 +2053,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/operations
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/operations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.operations
-      title: projects.resources.locations.resources.operations
-    projects.resources.locations.resources.phraseMatchers:
-      id: google.services.projects.resources.locations.resources.phraseMatchers
+      name: projects.locations.operations
+      title: projects.locations.operations
+    projects.locations.phraseMatchers:
+      id: google.contactcenterinsights.projects.locations.phraseMatchers
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1/{parent}/phraseMatchers
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/phraseMatchers
           request:
             mediaType: application/json
           response:
@@ -2135,9 +2076,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/phraseMatchers/{phraseMatchersId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2145,9 +2084,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/phraseMatchers/{phraseMatchersId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2155,9 +2092,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/phraseMatchers
-          request:
-            mediaType: application/json
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/phraseMatchers
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2165,14 +2100,14 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1/{name}
+            $ref: /v1/projects/{projectsId}/locations/{locationsId}/phraseMatchers/{phraseMatchersId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.phraseMatchers
-      title: projects.resources.locations.resources.phraseMatchers
+      name: projects.locations.phraseMatchers
+      title: projects.locations.phraseMatchers
 externalDocs:
   url: https://cloud.google.com/contact-center/insights/docs
 info:
@@ -2200,6 +2135,1781 @@ info:
   x-serviceName: contactcenterinsights
 openapi: 3.0.0
 paths:
+  /v1/projects/{projectsId}/locations/{locationsId}/conversations:
+    get:
+      description: Lists conversations.
+      operationId: contactcenterinsights.projects.locations.conversations.list
+      parameters:
+      - description: A filter to reduce results to a specific subset. Useful for querying
+          conversations with specific properties.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of conversations to return in the response.
+          A valid page size ranges from 0 to 1,000 inclusive. If the page size is
+          zero or unspecified, a default page size of 100 will be chosen. Note that
+          a call might return fewer results than the requested page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The value returned by the last `ListConversationsResponse`. This
+          value indicates that this is a continuation of a prior `ListConversations`
+          call and that the system should return the next page of data.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - description: The level of details of the conversation. Default is `BASIC`.
+        in: query
+        name: view
+        schema:
+          enum:
+          - CONVERSATION_VIEW_UNSPECIFIED
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1ListConversationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a conversation.
+      operationId: contactcenterinsights.projects.locations.conversations.create
+      parameters:
+      - description: A unique ID for the new conversation. This ID will become the
+          final component of the conversation's resource name. If no ID is specified,
+          a server-generated ID will be used. This value should be 4-32 characters
+          and must match the regular expression /^[a-z0-9-]{4,32}$/. Valid characters
+          are /a-z-/
+        in: query
+        name: conversationId
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1Conversation'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1Conversation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/conversations/{conversationsId}:
+    delete:
+      description: Deletes a phrase matcher.
+      operationId: contactcenterinsights.projects.locations.phraseMatchers.delete
+      parameters:
+      - description: If set to true, all of this conversation's analyses will also
+          be deleted. Otherwise, the request will only succeed if the conversation
+          has no analyses.
+        in: query
+        name: force
+        schema:
+          type: boolean
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: conversationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets a phrase matcher.
+      operationId: contactcenterinsights.projects.locations.phraseMatchers.get
+      parameters:
+      - description: The level of details of the conversation. Default is `FULL`.
+        in: query
+        name: view
+        schema:
+          enum:
+          - CONVERSATION_VIEW_UNSPECIFIED
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: conversationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1PhraseMatcher'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates an issue.
+      operationId: contactcenterinsights.projects.locations.issueModels.issues.patch
+      parameters:
+      - description: The list of fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: conversationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1Issue'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1Issue'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/conversations/{conversationsId}/analyses:
+    get:
+      description: Lists analyses.
+      operationId: contactcenterinsights.projects.locations.conversations.analyses.list
+      parameters:
+      - description: A filter to reduce results to a specific subset. Useful for querying
+          conversations with specific properties.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of analyses to return in the response. If
+          this value is zero, the service will select a default size. A call might
+          return fewer objects than requested. A non-empty `next_page_token` in the
+          response indicates that more data is available.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The value returned by the last `ListAnalysesResponse`; indicates
+          that this is a continuation of a prior `ListAnalyses` call and the system
+          should return the next page of data.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: conversationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1ListAnalysesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates an analysis. The long running operation is done when the
+        analysis has completed.
+      operationId: contactcenterinsights.projects.locations.conversations.analyses.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: conversationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1Analysis'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/conversations/{conversationsId}/analyses/{analysesId}:
+    delete:
+      description: Deletes a phrase matcher.
+      operationId: contactcenterinsights.projects.locations.phraseMatchers.delete
+      parameters:
+      - description: If set to true, all of this conversation's analyses will also
+          be deleted. Otherwise, the request will only succeed if the conversation
+          has no analyses.
+        in: query
+        name: force
+        schema:
+          type: boolean
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: conversationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: analysesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets a phrase matcher.
+      operationId: contactcenterinsights.projects.locations.phraseMatchers.get
+      parameters:
+      - description: The level of details of the conversation. Default is `FULL`.
+        in: query
+        name: view
+        schema:
+          enum:
+          - CONVERSATION_VIEW_UNSPECIFIED
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: conversationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: analysesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1PhraseMatcher'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates an issue.
+      operationId: contactcenterinsights.projects.locations.issueModels.issues.patch
+      parameters:
+      - description: The list of fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: conversationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: analysesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1Issue'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1Issue'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/conversations:calculateStats:
+    get:
+      description: Gets conversation statistics.
+      operationId: contactcenterinsights.projects.locations.conversations.calculateStats
+      parameters:
+      - description: A filter to reduce results to a specific subset. This field is
+          useful for getting statistics about conversations with specific properties.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1CalculateStatsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/insightsdata:export:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Export insights data to a destination defined in the request body.
+      operationId: contactcenterinsights.projects.locations.insightsdata.export
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1ExportInsightsDataRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/issueModels:
+    get:
+      description: Lists issue models.
+      operationId: contactcenterinsights.projects.locations.issueModels.list
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1ListIssueModelsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates an issue model.
+      operationId: contactcenterinsights.projects.locations.issueModels.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1IssueModel'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/issueModels/{issueModelsId}:
+    delete:
+      description: Deletes a phrase matcher.
+      operationId: contactcenterinsights.projects.locations.phraseMatchers.delete
+      parameters:
+      - description: If set to true, all of this conversation's analyses will also
+          be deleted. Otherwise, the request will only succeed if the conversation
+          has no analyses.
+        in: query
+        name: force
+        schema:
+          type: boolean
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: issueModelsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets a phrase matcher.
+      operationId: contactcenterinsights.projects.locations.phraseMatchers.get
+      parameters:
+      - description: The level of details of the conversation. Default is `FULL`.
+        in: query
+        name: view
+        schema:
+          enum:
+          - CONVERSATION_VIEW_UNSPECIFIED
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: issueModelsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1PhraseMatcher'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates an issue.
+      operationId: contactcenterinsights.projects.locations.issueModels.issues.patch
+      parameters:
+      - description: The list of fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: issueModelsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1Issue'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1Issue'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/issueModels/{issueModelsId}/issues:
+    get:
+      description: Lists issues.
+      operationId: contactcenterinsights.projects.locations.issueModels.issues.list
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: issueModelsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1ListIssuesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/issueModels/{issueModelsId}/issues/{issuesId}:
+    delete:
+      description: Deletes a phrase matcher.
+      operationId: contactcenterinsights.projects.locations.phraseMatchers.delete
+      parameters:
+      - description: If set to true, all of this conversation's analyses will also
+          be deleted. Otherwise, the request will only succeed if the conversation
+          has no analyses.
+        in: query
+        name: force
+        schema:
+          type: boolean
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: issueModelsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: issuesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets a phrase matcher.
+      operationId: contactcenterinsights.projects.locations.phraseMatchers.get
+      parameters:
+      - description: The level of details of the conversation. Default is `FULL`.
+        in: query
+        name: view
+        schema:
+          enum:
+          - CONVERSATION_VIEW_UNSPECIFIED
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: issueModelsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: issuesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1PhraseMatcher'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates an issue.
+      operationId: contactcenterinsights.projects.locations.issueModels.issues.patch
+      parameters:
+      - description: The list of fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: issueModelsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: issuesId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1Issue'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1Issue'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/issueModels/{issueModelsId}:calculateIssueModelStats:
+    get:
+      description: Gets an issue model's statistics.
+      operationId: contactcenterinsights.projects.locations.issueModels.calculateIssueModelStats
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: issueModelsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1CalculateIssueModelStatsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/issueModels/{issueModelsId}:deploy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Deploys an issue model. Returns an error if a model is already
+        deployed. An issue model can only be used in analysis after it has been deployed.
+      operationId: contactcenterinsights.projects.locations.issueModels.deploy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: issueModelsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1DeployIssueModelRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/issueModels/{issueModelsId}:undeploy:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Undeploys an issue model. An issue model can not be used in analysis
+        after it has been undeployed.
+      operationId: contactcenterinsights.projects.locations.issueModels.undeploy
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: issueModelsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1UndeployIssueModelRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/operations:
+    get:
+      description: 'Lists operations that match the specified filter in the request.
+        If the server doesn''t support this method, it returns `UNIMPLEMENTED`. NOTE:
+        the `name` binding allows API services to override the binding to use different
+        resource name schemes, such as `users/*/operations`. To override the binding,
+        API services can add a binding such as `"/v1/{name=users/*}/operations"` to
+        their service configuration. For backwards compatibility, the default name
+        includes the operations collection id, however overriding users must ensure
+        the name binding is the parent resource, without the operations collection
+        id.'
+      operationId: contactcenterinsights.projects.locations.operations.list
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningListOperationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}:
+    delete:
+      description: Deletes a phrase matcher.
+      operationId: contactcenterinsights.projects.locations.phraseMatchers.delete
+      parameters:
+      - description: If set to true, all of this conversation's analyses will also
+          be deleted. Otherwise, the request will only succeed if the conversation
+          has no analyses.
+        in: query
+        name: force
+        schema:
+          type: boolean
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets a phrase matcher.
+      operationId: contactcenterinsights.projects.locations.phraseMatchers.get
+      parameters:
+      - description: The level of details of the conversation. Default is `FULL`.
+        in: query
+        name: view
+        schema:
+          enum:
+          - CONVERSATION_VIEW_UNSPECIFIED
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1PhraseMatcher'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates an issue.
+      operationId: contactcenterinsights.projects.locations.issueModels.issues.patch
+      parameters:
+      - description: The list of fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1Issue'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1Issue'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/operations/{operationsId}:cancel:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Starts asynchronous cancellation on a long-running operation. The
+        server makes a best effort to cancel the operation, but success is not guaranteed.
+        If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.
+        Clients can use Operations.GetOperation or other methods to check whether
+        the cancellation succeeded or whether the operation completed despite cancellation.
+        On successful cancellation, the operation is not deleted; instead, it becomes
+        an operation with an Operation.error value with a google.rpc.Status.code of
+        1, corresponding to `Code.CANCELLED`.
+      operationId: contactcenterinsights.projects.locations.operations.cancel
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/phraseMatchers:
+    get:
+      description: Lists phrase matchers.
+      operationId: contactcenterinsights.projects.locations.phraseMatchers.list
+      parameters:
+      - description: A filter to reduce results to a specific subset. Useful for querying
+          phrase matchers with specific properties.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The maximum number of phrase matchers to return in the response.
+          If this value is zero, the service will select a default size. A call might
+          return fewer objects than requested. A non-empty `next_page_token` in the
+          response indicates that more data is available.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The value returned by the last `ListPhraseMatchersResponse`.
+          This value indicates that this is a continuation of a prior `ListPhraseMatchers`
+          call and that the system should return the next page of data.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1ListPhraseMatchersResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a phrase matcher.
+      operationId: contactcenterinsights.projects.locations.phraseMatchers.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1PhraseMatcher'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1PhraseMatcher'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/phraseMatchers/{phraseMatchersId}:
+    delete:
+      description: Deletes a phrase matcher.
+      operationId: contactcenterinsights.projects.locations.phraseMatchers.delete
+      parameters:
+      - description: If set to true, all of this conversation's analyses will also
+          be deleted. Otherwise, the request will only succeed if the conversation
+          has no analyses.
+        in: query
+        name: force
+        schema:
+          type: boolean
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: phraseMatchersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets a phrase matcher.
+      operationId: contactcenterinsights.projects.locations.phraseMatchers.get
+      parameters:
+      - description: The level of details of the conversation. Default is `FULL`.
+        in: query
+        name: view
+        schema:
+          enum:
+          - CONVERSATION_VIEW_UNSPECIFIED
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: phraseMatchersId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1PhraseMatcher'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates an issue.
+      operationId: contactcenterinsights.projects.locations.issueModels.issues.patch
+      parameters:
+      - description: The list of fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: phraseMatchersId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1Issue'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1Issue'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1/projects/{projectsId}/locations/{locationsId}/settings:
+    delete:
+      description: Deletes a phrase matcher.
+      operationId: contactcenterinsights.projects.locations.phraseMatchers.delete
+      parameters:
+      - description: If set to true, all of this conversation's analyses will also
+          be deleted. Otherwise, the request will only succeed if the conversation
+          has no analyses.
+        in: query
+        name: force
+        schema:
+          type: boolean
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets a phrase matcher.
+      operationId: contactcenterinsights.projects.locations.phraseMatchers.get
+      parameters:
+      - description: The level of details of the conversation. Default is `FULL`.
+        in: query
+        name: view
+        schema:
+          enum:
+          - CONVERSATION_VIEW_UNSPECIFIED
+          - BASIC
+          - FULL
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1PhraseMatcher'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates an issue.
+      operationId: contactcenterinsights.projects.locations.issueModels.issues.patch
+      parameters:
+      - description: The list of fields to be updated.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1Issue'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudContactcenterinsightsV1Issue'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
   /v1/{issueModel}:calculateIssueModelStats:
     get:
       description: Gets an issue model's statistics.

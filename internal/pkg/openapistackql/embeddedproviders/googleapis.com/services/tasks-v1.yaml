@@ -233,25 +233,20 @@ components:
       type: oauth2
   x-stackQL-resources:
     tasklists:
-      id: google.services.tasklists
+      id: google.tasks.tasklists
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /tasks/v1/users/@me/lists/{tasklist}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /tasks/v1/users/@me/lists/{tasklist}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -270,8 +265,6 @@ components:
             $ref: get
           path:
             $ref: /tasks/v1/users/@me/lists
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -298,35 +291,27 @@ components:
       name: tasklists
       title: tasklists
     tasks:
-      id: google.services.tasks
+      id: google.tasks.tasks
       methods:
         clear:
           operation:
             $ref: post
           path:
             $ref: /tasks/v1/lists/{tasklist}/clear
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         delete:
           operation:
             $ref: delete
           path:
             $ref: /tasks/v1/lists/{tasklist}/tasks/{task}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /tasks/v1/lists/{tasklist}/tasks/{task}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -345,8 +330,6 @@ components:
             $ref: get
           path:
             $ref: /tasks/v1/lists/{tasklist}/tasks
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -355,8 +338,6 @@ components:
             $ref: post
           path:
             $ref: /tasks/v1/lists/{tasklist}/tasks/{task}/move
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

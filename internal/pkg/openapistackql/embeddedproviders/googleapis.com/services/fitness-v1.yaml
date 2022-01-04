@@ -807,18 +807,8 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    users:
-      id: google.services.users
-      methods: {}
-      name: users
-      title: users
-    users.resources:
-      id: google.services.users.resources
-      methods: {}
-      name: users.resources
-      title: users.resources
-    users.resources.dataSources:
-      id: google.services.users.resources.dataSources
+    users.dataSources:
+      id: google.fitness.users.dataSources
       methods:
         create:
           operation:
@@ -835,8 +825,6 @@ components:
             $ref: delete
           path:
             $ref: /{userId}/dataSources/{dataSourceId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -845,8 +833,6 @@ components:
             $ref: get
           path:
             $ref: /{userId}/dataSources/{dataSourceId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -855,8 +841,6 @@ components:
             $ref: get
           path:
             $ref: /{userId}/dataSources
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -870,48 +854,36 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: users.resources.dataSources
-      title: users.resources.dataSources
-    users.resources.dataSources.resources:
-      id: google.services.users.resources.dataSources.resources
-      methods: {}
-      name: users.resources.dataSources.resources
-      title: users.resources.dataSources.resources
-    users.resources.dataSources.resources.dataPointChanges:
-      id: google.services.users.resources.dataSources.resources.dataPointChanges
+      name: users.dataSources
+      title: users.dataSources
+    users.dataSources.dataPointChanges:
+      id: google.fitness.users.dataSources.dataPointChanges
       methods:
         list:
           operation:
             $ref: get
           path:
             $ref: /{userId}/dataSources/{dataSourceId}/dataPointChanges
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: users.resources.dataSources.resources.dataPointChanges
-      title: users.resources.dataSources.resources.dataPointChanges
-    users.resources.dataSources.resources.datasets:
-      id: google.services.users.resources.dataSources.resources.datasets
+      name: users.dataSources.dataPointChanges
+      title: users.dataSources.dataPointChanges
+    users.dataSources.datasets:
+      id: google.fitness.users.dataSources.datasets
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /{userId}/dataSources/{dataSourceId}/datasets/{datasetId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /{userId}/dataSources/{dataSourceId}/datasets/{datasetId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -925,10 +897,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: users.resources.dataSources.resources.datasets
-      title: users.resources.dataSources.resources.datasets
-    users.resources.dataset:
-      id: google.services.users.resources.dataset
+      name: users.dataSources.datasets
+      title: users.dataSources.datasets
+    users.dataset:
+      id: google.fitness.users.dataset
       methods:
         aggregate:
           operation:
@@ -940,28 +912,23 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: users.resources.dataset
-      title: users.resources.dataset
-    users.resources.sessions:
-      id: google.services.users.resources.sessions
+      name: users.dataset
+      title: users.dataset
+    users.sessions:
+      id: google.fitness.users.sessions
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /{userId}/sessions/{sessionId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         list:
           operation:
             $ref: get
           path:
             $ref: /{userId}/sessions
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -975,8 +942,8 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: users.resources.sessions
-      title: users.resources.sessions
+      name: users.sessions
+      title: users.sessions
 externalDocs:
   url: https://developers.google.com/fit/rest/v1/get-started
 info:

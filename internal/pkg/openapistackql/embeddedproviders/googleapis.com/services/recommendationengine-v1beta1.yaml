@@ -1236,36 +1236,14 @@ components:
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
   x-stackQL-resources:
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.locations:
-      id: google.services.projects.resources.locations
-      methods: {}
-      name: projects.resources.locations
-      title: projects.resources.locations
-    projects.resources.locations.resources:
-      id: google.services.projects.resources.locations.resources
-      methods: {}
-      name: projects.resources.locations.resources
-      title: projects.resources.locations.resources
-    projects.resources.locations.resources.catalogs:
-      id: google.services.projects.resources.locations.resources.catalogs
+    projects.locations.catalogs:
+      id: google.recommendationengine.projects.locations.catalogs
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{parent}/catalogs
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1273,27 +1251,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1beta1/{name}
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.catalogs
-      title: projects.resources.locations.resources.catalogs
-    projects.resources.locations.resources.catalogs.resources:
-      id: google.services.projects.resources.locations.resources.catalogs.resources
-      methods: {}
-      name: projects.resources.locations.resources.catalogs.resources
-      title: projects.resources.locations.resources.catalogs.resources
-    projects.resources.locations.resources.catalogs.resources.catalogItems:
-      id: google.services.projects.resources.locations.resources.catalogs.resources.catalogItems
+      name: projects.locations.catalogs
+      title: projects.locations.catalogs
+    projects.locations.catalogs.catalogItems:
+      id: google.recommendationengine.projects.locations.catalogs.catalogItems
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{parent}/catalogItems
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/catalogItems
           request:
             mediaType: application/json
           response:
@@ -1303,9 +1276,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/catalogItems/{catalogItemsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1313,9 +1284,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/catalogItems/{catalogItemsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1323,7 +1292,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{parent}/catalogItems:import
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/catalogItems:import
           request:
             mediaType: application/json
           response:
@@ -1333,9 +1302,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{parent}/catalogItems
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/catalogItems
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1343,34 +1310,22 @@ components:
           operation:
             $ref: patch
           path:
-            $ref: /v1beta1/{name}
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/catalogItems/{catalogItemsId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.catalogs.resources.catalogItems
-      title: projects.resources.locations.resources.catalogs.resources.catalogItems
-    projects.resources.locations.resources.catalogs.resources.eventStores:
-      id: google.services.projects.resources.locations.resources.catalogs.resources.eventStores
-      methods: {}
-      name: projects.resources.locations.resources.catalogs.resources.eventStores
-      title: projects.resources.locations.resources.catalogs.resources.eventStores
-    projects.resources.locations.resources.catalogs.resources.eventStores.resources:
-      id: google.services.projects.resources.locations.resources.catalogs.resources.eventStores.resources
-      methods: {}
-      name: projects.resources.locations.resources.catalogs.resources.eventStores.resources
-      title: projects.resources.locations.resources.catalogs.resources.eventStores.resources
-    projects.resources.locations.resources.catalogs.resources.eventStores.resources.operations:
-      id: google.services.projects.resources.locations.resources.catalogs.resources.eventStores.resources.operations
+      name: projects.locations.catalogs.catalogItems
+      title: projects.locations.catalogs.catalogItems
+    projects.locations.catalogs.eventStores.operations:
+      id: google.recommendationengine.projects.locations.catalogs.eventStores.operations
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1378,37 +1333,35 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}/operations
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/operations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.catalogs.resources.eventStores.resources.operations
-      title: projects.resources.locations.resources.catalogs.resources.eventStores.resources.operations
-    projects.resources.locations.resources.catalogs.resources.eventStores.resources.placements:
-      id: google.services.projects.resources.locations.resources.catalogs.resources.eventStores.resources.placements
+      name: projects.locations.catalogs.eventStores.operations
+      title: projects.locations.catalogs.eventStores.operations
+    projects.locations.catalogs.eventStores.placements:
+      id: google.recommendationengine.projects.locations.catalogs.eventStores.placements
       methods:
         predict:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{name}:predict
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/placements/{placementsId}:predict
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.catalogs.resources.eventStores.resources.placements
-      title: projects.resources.locations.resources.catalogs.resources.eventStores.resources.placements
-    projects.resources.locations.resources.catalogs.resources.eventStores.resources.predictionApiKeyRegistrations:
-      id: google.services.projects.resources.locations.resources.catalogs.resources.eventStores.resources.predictionApiKeyRegistrations
+      name: projects.locations.catalogs.eventStores.placements
+      title: projects.locations.catalogs.eventStores.placements
+    projects.locations.catalogs.eventStores.predictionApiKeyRegistrations:
+      id: google.recommendationengine.projects.locations.catalogs.eventStores.predictionApiKeyRegistrations
       methods:
         create:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{parent}/predictionApiKeyRegistrations
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/predictionApiKeyRegistrations
           request:
             mediaType: application/json
           response:
@@ -1418,9 +1371,7 @@ components:
           operation:
             $ref: delete
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/predictionApiKeyRegistrations/{predictionApiKeyRegistrationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1428,24 +1379,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{parent}/predictionApiKeyRegistrations
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/predictionApiKeyRegistrations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.catalogs.resources.eventStores.resources.predictionApiKeyRegistrations
-      title: projects.resources.locations.resources.catalogs.resources.eventStores.resources.predictionApiKeyRegistrations
-    projects.resources.locations.resources.catalogs.resources.eventStores.resources.userEvents:
-      id: google.services.projects.resources.locations.resources.catalogs.resources.eventStores.resources.userEvents
+      name: projects.locations.catalogs.eventStores.predictionApiKeyRegistrations
+      title: projects.locations.catalogs.eventStores.predictionApiKeyRegistrations
+    projects.locations.catalogs.eventStores.userEvents:
+      id: google.recommendationengine.projects.locations.catalogs.eventStores.userEvents
       methods:
         collect:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{parent}/userEvents:collect
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/userEvents:collect
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1453,7 +1400,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{parent}/userEvents:import
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/userEvents:import
           request:
             mediaType: application/json
           response:
@@ -1463,9 +1410,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{parent}/userEvents
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/userEvents
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1473,7 +1418,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{parent}/userEvents:purge
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/userEvents:purge
           request:
             mediaType: application/json
           response:
@@ -1483,7 +1428,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{parent}/userEvents:rejoin
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/userEvents:rejoin
           request:
             mediaType: application/json
           response:
@@ -1493,24 +1438,22 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1beta1/{parent}/userEvents:write
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/userEvents:write
           request:
             mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.catalogs.resources.eventStores.resources.userEvents
-      title: projects.resources.locations.resources.catalogs.resources.eventStores.resources.userEvents
-    projects.resources.locations.resources.catalogs.resources.operations:
-      id: google.services.projects.resources.locations.resources.catalogs.resources.operations
+      name: projects.locations.catalogs.eventStores.userEvents
+      title: projects.locations.catalogs.eventStores.userEvents
+    projects.locations.catalogs.operations:
+      id: google.recommendationengine.projects.locations.catalogs.operations
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/operations/{operationsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1518,14 +1461,12 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1beta1/{name}/operations
-          request:
-            mediaType: application/json
+            $ref: /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/operations
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: projects.resources.locations.resources.catalogs.resources.operations
-      title: projects.resources.locations.resources.catalogs.resources.operations
+      name: projects.locations.catalogs.operations
+      title: projects.locations.catalogs.operations
 externalDocs:
   url: https://cloud.google.com/recommendations-ai/docs
 info:
@@ -1558,6 +1499,1644 @@ info:
   x-serviceName: recommendationengine
 openapi: 3.0.0
 paths:
+  /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs:
+    get:
+      description: Lists all the catalog configurations associated with the project.
+      operationId: recommendationengine.projects.locations.catalogs.list
+      parameters:
+      - description: Optional. Maximum number of results to return. If unspecified,
+          defaults to 50. Max allowed value is 1000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. A page token, received from a previous `ListCatalogs`
+          call. Provide this to retrieve the subsequent page.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1ListCatalogsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}:
+    delete:
+      description: Unregister an apiKey from using for predict method.
+      operationId: recommendationengine.projects.locations.catalogs.eventStores.predictionApiKeyRegistrations.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: recommendationengine.projects.locations.catalogs.operations.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a catalog item. Partial updating is supported. Non-existing
+        items will be created.
+      operationId: recommendationengine.projects.locations.catalogs.catalogItems.patch
+      parameters:
+      - description: Optional. Indicates which fields in the provided 'item' to update.
+          If not set, will by default update all fields.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1CatalogItem'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1CatalogItem'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/catalogItems:
+    get:
+      description: Gets a list of catalog items.
+      operationId: recommendationengine.projects.locations.catalogs.catalogItems.list
+      parameters:
+      - description: Optional. A filter to apply on the list results.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. Maximum number of results to return per page. If zero,
+          the service will choose a reasonable default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. The previous ListCatalogItemsResponse.next_page_token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1ListCatalogItemsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Creates a catalog item.
+      operationId: recommendationengine.projects.locations.catalogs.catalogItems.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1CatalogItem'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1CatalogItem'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/catalogItems/{catalogItemsId}:
+    delete:
+      description: Unregister an apiKey from using for predict method.
+      operationId: recommendationengine.projects.locations.catalogs.eventStores.predictionApiKeyRegistrations.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogItemsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: recommendationengine.projects.locations.catalogs.operations.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogItemsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a catalog item. Partial updating is supported. Non-existing
+        items will be created.
+      operationId: recommendationengine.projects.locations.catalogs.catalogItems.patch
+      parameters:
+      - description: Optional. Indicates which fields in the provided 'item' to update.
+          If not set, will by default update all fields.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogItemsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1CatalogItem'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1CatalogItem'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/catalogItems:import:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Bulk import of multiple catalog items. Request processing may be
+        synchronous. No partial updating supported. Non-existing items will be created.
+        Operation.response is of type ImportResponse. Note that it is possible for
+        a subset of the items to be successfully updated.
+      operationId: recommendationengine.projects.locations.catalogs.catalogItems.import
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1ImportCatalogItemsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/operations:
+    get:
+      description: 'Lists operations that match the specified filter in the request.
+        If the server doesn''t support this method, it returns `UNIMPLEMENTED`. NOTE:
+        the `name` binding allows API services to override the binding to use different
+        resource name schemes, such as `users/*/operations`. To override the binding,
+        API services can add a binding such as `"/v1/{name=users/*}/operations"` to
+        their service configuration. For backwards compatibility, the default name
+        includes the operations collection id, however overriding users must ensure
+        the name binding is the parent resource, without the operations collection
+        id.'
+      operationId: recommendationengine.projects.locations.catalogs.operations.list
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: eventStoresId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningListOperationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  ? /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/operations/{operationsId}
+  : delete:
+      description: Unregister an apiKey from using for predict method.
+      operationId: recommendationengine.projects.locations.catalogs.eventStores.predictionApiKeyRegistrations.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: eventStoresId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: recommendationengine.projects.locations.catalogs.operations.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: eventStoresId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a catalog item. Partial updating is supported. Non-existing
+        items will be created.
+      operationId: recommendationengine.projects.locations.catalogs.catalogItems.patch
+      parameters:
+      - description: Optional. Indicates which fields in the provided 'item' to update.
+          If not set, will by default update all fields.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: eventStoresId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1CatalogItem'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1CatalogItem'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  ? /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/placements/{placementsId}:predict
+  : parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Makes a recommendation prediction. If using API Key based authentication,
+        the API Key must be registered using the PredictionApiKeyRegistry service.
+        [Learn more](https://cloud.google.com/recommendations-ai/docs/setting-up#register-key).
+      operationId: recommendationengine.projects.locations.catalogs.eventStores.placements.predict
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: eventStoresId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: placementsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1PredictRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1PredictResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  ? /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/predictionApiKeyRegistrations
+  : get:
+      description: List the registered apiKeys for use with predict method.
+      operationId: recommendationengine.projects.locations.catalogs.eventStores.predictionApiKeyRegistrations.list
+      parameters:
+      - description: Optional. Maximum number of results to return per page. If unset,
+          the service will choose a reasonable default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. The previous `ListPredictionApiKeyRegistration.nextPageToken`.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: eventStoresId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1ListPredictionApiKeyRegistrationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Register an API key for use with predict method.
+      operationId: recommendationengine.projects.locations.catalogs.eventStores.predictionApiKeyRegistrations.create
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: eventStoresId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1CreatePredictionApiKeyRegistrationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1PredictionApiKeyRegistration'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  ? /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/predictionApiKeyRegistrations/{predictionApiKeyRegistrationsId}
+  : delete:
+      description: Unregister an apiKey from using for predict method.
+      operationId: recommendationengine.projects.locations.catalogs.eventStores.predictionApiKeyRegistrations.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: eventStoresId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: predictionApiKeyRegistrationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: recommendationengine.projects.locations.catalogs.operations.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: eventStoresId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: predictionApiKeyRegistrationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a catalog item. Partial updating is supported. Non-existing
+        items will be created.
+      operationId: recommendationengine.projects.locations.catalogs.catalogItems.patch
+      parameters:
+      - description: Optional. Indicates which fields in the provided 'item' to update.
+          If not set, will by default update all fields.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: eventStoresId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: predictionApiKeyRegistrationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1CatalogItem'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1CatalogItem'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/userEvents:
+    get:
+      description: 'Gets a list of user events within a time range, with potential
+        filtering. The method does not list unjoined user events. Unjoined user event
+        definition: when a user event is ingested from Recommendations AI User Event
+        APIs, the catalog item included in the user event is connected with the current
+        catalog. If a catalog item of the ingested event is not in the current catalog,
+        it could lead to degraded model quality. This is called an unjoined event.'
+      operationId: recommendationengine.projects.locations.catalogs.eventStores.userEvents.list
+      parameters:
+      - description: 'Optional. Filtering expression to specify restrictions over
+          returned events. This is a sequence of terms, where each term applies some
+          kind of a restriction to the returned user events. Use this expression to
+          restrict results to a specific time range, or filter events by eventType.
+          eg: eventTime > "2012-04-23T18:25:43.511Z" eventsMissingCatalogItems eventTime<"2012-04-23T18:25:43.511Z"
+          eventType=search We expect only 3 types of fields: * eventTime: this can
+          be specified a maximum of 2 times, once with a less than operator and once
+          with a greater than operator. The eventTime restrict should result in one
+          contiguous valid eventTime range. * eventType: only 1 eventType restriction
+          can be specified. * eventsMissingCatalogItems: specififying this will restrict
+          results to events for which catalog items were not found in the catalog.
+          The default behavior is to return only those events for which catalog items
+          were found. Some examples of valid filters expressions: * Example 1: eventTime
+          > "2012-04-23T18:25:43.511Z" eventTime < "2012-04-23T18:30:43.511Z" * Example
+          2: eventTime > "2012-04-23T18:25:43.511Z" eventType = detail-page-view *
+          Example 3: eventsMissingCatalogItems eventType = search eventTime < "2018-04-23T18:30:43.511Z"
+          * Example 4: eventTime > "2012-04-23T18:25:43.511Z" * Example 5: eventType
+          = search * Example 6: eventsMissingCatalogItems'
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: Optional. Maximum number of results to return per page. If zero,
+          the service will choose a reasonable default.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: Optional. The previous ListUserEventsResponse.next_page_token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: eventStoresId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1ListUserEventsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  ? /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/userEvents:collect
+  : get:
+      description: Writes a single user event from the browser. This uses a GET request
+        to due to browser restriction of POST-ing to a 3rd party domain. This method
+        is used only by the Recommendations AI JavaScript pixel. Users should not
+        call this method directly.
+      operationId: recommendationengine.projects.locations.catalogs.eventStores.userEvents.collect
+      parameters:
+      - description: Optional. The event timestamp in milliseconds. This prevents
+          browser caching of otherwise identical get requests. The name is abbreviated
+          to reduce the payload bytes.
+        in: query
+        name: ets
+        schema:
+          type: string
+      - description: Optional. The url including cgi-parameters but excluding the
+          hash fragment. The URL must be truncated to 1.5K bytes to conservatively
+          be under the 2K bytes. This is often more useful than the referer url, because
+          many browsers only send the domain for 3rd party requests.
+        in: query
+        name: uri
+        schema:
+          type: string
+      - description: Required. URL encoded UserEvent proto.
+        in: query
+        name: userEvent
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: eventStoresId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleApiHttpBody'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/userEvents:import:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Bulk import of User events. Request processing might be synchronous.
+        Events that already exist are skipped. Use this method for backfilling historical
+        user events. Operation.response is of type ImportResponse. Note that it is
+        possible for a subset of the items to be successfully inserted. Operation.metadata
+        is of type ImportMetadata.
+      operationId: recommendationengine.projects.locations.catalogs.eventStores.userEvents.import
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: eventStoresId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1ImportUserEventsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/userEvents:purge:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Deletes permanently all user events specified by the filter provided.
+        Depending on the number of events specified by the filter, this operation
+        could take hours or days to complete. To test a filter, use the list command
+        first.
+      operationId: recommendationengine.projects.locations.catalogs.eventStores.userEvents.purge
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: eventStoresId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1PurgeUserEventsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/userEvents:rejoin:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Triggers a user event rejoin operation with latest catalog data.
+        Events will not be annotated with detailed catalog information if catalog
+        item is missing at the time the user event is ingested, and these events are
+        stored as unjoined events with a limited usage on training and serving. This
+        API can be used to trigger a 'join' operation on specified events with latest
+        version of catalog items. It can also be used to correct events joined with
+        wrong catalog items.
+      operationId: recommendationengine.projects.locations.catalogs.eventStores.userEvents.rejoin
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: eventStoresId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1RejoinUserEventsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/eventStores/{eventStoresId}/userEvents:write:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Writes a single user event.
+      operationId: recommendationengine.projects.locations.catalogs.eventStores.userEvents.write
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: eventStoresId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1UserEvent'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1UserEvent'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+  /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/operations:
+    get:
+      description: 'Lists operations that match the specified filter in the request.
+        If the server doesn''t support this method, it returns `UNIMPLEMENTED`. NOTE:
+        the `name` binding allows API services to override the binding to use different
+        resource name schemes, such as `users/*/operations`. To override the binding,
+        API services can add a binding such as `"/v1/{name=users/*}/operations"` to
+        their service configuration. For backwards compatibility, the default name
+        includes the operations collection id, however overriding users must ensure
+        the name binding is the parent resource, without the operations collection
+        id.'
+      operationId: recommendationengine.projects.locations.catalogs.operations.list
+      parameters:
+      - description: The standard list filter.
+        in: query
+        name: filter
+        schema:
+          type: string
+      - description: The standard list page size.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: The standard list page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningListOperationsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1beta1/projects/{projectsId}/locations/{locationsId}/catalogs/{catalogsId}/operations/{operationsId}:
+    delete:
+      description: Unregister an apiKey from using for predict method.
+      operationId: recommendationengine.projects.locations.catalogs.eventStores.predictionApiKeyRegistrations.delete
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleProtobufEmpty'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    get:
+      description: Gets the latest state of a long-running operation. Clients can
+        use this method to poll the operation result at intervals as recommended by
+        the API service.
+      operationId: recommendationengine.projects.locations.catalogs.operations.get
+      parameters:
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLongrunningOperation'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    patch:
+      description: Updates a catalog item. Partial updating is supported. Non-existing
+        items will be created.
+      operationId: recommendationengine.projects.locations.catalogs.catalogItems.patch
+      parameters:
+      - description: Optional. Indicates which fields in the provided 'item' to update.
+          If not set, will by default update all fields.
+        in: query
+        name: updateMask
+        schema:
+          type: string
+      - in: path
+        name: projectsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: catalogsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: operationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1CatalogItem'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleCloudRecommendationengineV1beta1CatalogItem'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/cloud-platform
+        Oauth2c:
+        - https://www.googleapis.com/auth/cloud-platform
+      tags:
+      - projects
   /v1beta1/{name}:
     delete:
       description: Unregister an apiKey from using for predict method.

@@ -427,32 +427,7 @@ components:
             its purpose. This can be used e.g. in UIs which allow to enter the expression.
           type: string
       type: object
-  x-stackQL-resources:
-    v1:
-      id: google.services.v1
-      methods:
-        introspect:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1/introspect
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        token:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1/token
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: v1
-      title: v1
+  x-stackQL-resources: {}
 externalDocs:
   url: http://cloud.google.com/iam/docs/workload-identity-federation
 info:

@@ -409,72 +409,7 @@ components:
               Google Account.
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
-  x-stackQL-resources:
-    billingAccounts:
-      id: google.services.billingAccounts
-      methods: {}
-      name: billingAccounts
-      title: billingAccounts
-    billingAccounts.resources:
-      id: google.services.billingAccounts.resources
-      methods: {}
-      name: billingAccounts.resources
-      title: billingAccounts.resources
-    billingAccounts.resources.budgets:
-      id: google.services.billingAccounts.resources.budgets
-      methods:
-        create:
-          operation:
-            $ref: post
-          path:
-            $ref: /v1/{parent}/budgets
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        delete:
-          operation:
-            $ref: delete
-          path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        get:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        list:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1/{parent}/budgets
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        patch:
-          operation:
-            $ref: patch
-          path:
-            $ref: /v1/{name}
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: billingAccounts.resources.budgets
-      title: billingAccounts.resources.budgets
+  x-stackQL-resources: {}
 externalDocs:
   url: https://cloud.google.com/billing/docs/how-to/budget-api-overview
 info:

@@ -1318,25 +1318,20 @@ components:
       type: oauth2
   x-stackQL-resources:
     acl:
-      id: google.services.acl
+      id: google.calendar.acl
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /calendars/{calendarId}/acl/{ruleId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /calendars/{calendarId}/acl/{ruleId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1355,8 +1350,6 @@ components:
             $ref: get
           path:
             $ref: /calendars/{calendarId}/acl
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1393,25 +1386,20 @@ components:
       name: acl
       title: acl
     calendarList:
-      id: google.services.calendarList
+      id: google.calendar.calendarList
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /users/me/calendarList/{calendarId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /users/me/calendarList/{calendarId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1430,8 +1418,6 @@ components:
             $ref: get
           path:
             $ref: /users/me/calendarList
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1468,35 +1454,27 @@ components:
       name: calendarList
       title: calendarList
     calendars:
-      id: google.services.calendars
+      id: google.calendar.calendars
       methods:
         clear:
           operation:
             $ref: post
           path:
             $ref: /calendars/{calendarId}/clear
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         delete:
           operation:
             $ref: delete
           path:
             $ref: /calendars/{calendarId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /calendars/{calendarId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1533,7 +1511,7 @@ components:
       name: calendars
       title: calendars
     channels:
-      id: google.services.channels
+      id: google.calendar.channels
       methods:
         stop:
           operation:
@@ -1543,45 +1521,37 @@ components:
           request:
             mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
       name: channels
       title: channels
     colors:
-      id: google.services.colors
+      id: google.calendar.colors
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /colors
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: colors
       title: colors
     events:
-      id: google.services.events
+      id: google.calendar.events
       methods:
         delete:
           operation:
             $ref: delete
           path:
             $ref: /calendars/{calendarId}/events/{eventId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         get:
           operation:
             $ref: get
           path:
             $ref: /calendars/{calendarId}/events/{eventId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1610,8 +1580,6 @@ components:
             $ref: get
           path:
             $ref: /calendars/{calendarId}/events/{eventId}/instances
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1620,8 +1588,6 @@ components:
             $ref: get
           path:
             $ref: /calendars/{calendarId}/events
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1630,8 +1596,6 @@ components:
             $ref: post
           path:
             $ref: /calendars/{calendarId}/events/{eventId}/move
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1650,8 +1614,6 @@ components:
             $ref: post
           path:
             $ref: /calendars/{calendarId}/events/quickAdd
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1678,7 +1640,7 @@ components:
       name: events
       title: events
     freebusy:
-      id: google.services.freebusy
+      id: google.calendar.freebusy
       methods:
         query:
           operation:
@@ -1693,15 +1655,13 @@ components:
       name: freebusy
       title: freebusy
     settings:
-      id: google.services.settings
+      id: google.calendar.settings
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /users/me/settings/{setting}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1710,8 +1670,6 @@ components:
             $ref: get
           path:
             $ref: /users/me/settings
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'

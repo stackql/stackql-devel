@@ -661,15 +661,13 @@ components:
       type: oauth2
   x-stackQL-resources:
     accounts:
-      id: google.services.accounts
+      id: google.adsense.accounts
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v2/{name}
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -678,8 +676,6 @@ components:
             $ref: get
           path:
             $ref: /v2/accounts
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -687,29 +683,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2/{parent}:listChildAccounts
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}:listChildAccounts
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: accounts
       title: accounts
-    accounts.resources:
-      id: google.services.accounts.resources
-      methods: {}
-      name: accounts.resources
-      title: accounts.resources
-    accounts.resources.adclients:
-      id: google.services.accounts.resources.adclients
+    accounts.adclients:
+      id: google.adsense.accounts.adclients
       methods:
         getAdcode:
           operation:
             $ref: get
           path:
-            $ref: /v2/{name}/adcode
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}/adclients/{adclientsId}/adcode
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -717,29 +704,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2/{parent}/adclients
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}/adclients
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.adclients
-      title: accounts.resources.adclients
-    accounts.resources.adclients.resources:
-      id: google.services.accounts.resources.adclients.resources
-      methods: {}
-      name: accounts.resources.adclients.resources
-      title: accounts.resources.adclients.resources
-    accounts.resources.adclients.resources.adunits:
-      id: google.services.accounts.resources.adclients.resources.adunits
+      name: accounts.adclients
+      title: accounts.adclients
+    accounts.adclients.adunits:
+      id: google.adsense.accounts.adclients.adunits
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v2/{name}
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}/adclients/{adclientsId}/adunits/{adunitsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -747,9 +725,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2/{name}/adcode
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}/adclients/{adclientsId}/adunits/{adunitsId}/adcode
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -757,9 +733,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2/{parent}/adunits
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}/adclients/{adclientsId}/adunits
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -767,24 +741,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2/{parent}:listLinkedCustomChannels
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}/adclients/{adclientsId}/adunits/{adunitsId}:listLinkedCustomChannels
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.adclients.resources.adunits
-      title: accounts.resources.adclients.resources.adunits
-    accounts.resources.adclients.resources.customchannels:
-      id: google.services.accounts.resources.adclients.resources.customchannels
+      name: accounts.adclients.adunits
+      title: accounts.adclients.adunits
+    accounts.adclients.customchannels:
+      id: google.adsense.accounts.adclients.customchannels
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v2/{name}
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}/adclients/{adclientsId}/customchannels/{customchannelsId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -792,9 +762,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2/{parent}/customchannels
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}/adclients/{adclientsId}/customchannels
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -802,69 +770,59 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2/{parent}:listLinkedAdUnits
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}/adclients/{adclientsId}/customchannels/{customchannelsId}:listLinkedAdUnits
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.adclients.resources.customchannels
-      title: accounts.resources.adclients.resources.customchannels
-    accounts.resources.adclients.resources.urlchannels:
-      id: google.services.accounts.resources.adclients.resources.urlchannels
+      name: accounts.adclients.customchannels
+      title: accounts.adclients.customchannels
+    accounts.adclients.urlchannels:
+      id: google.adsense.accounts.adclients.urlchannels
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2/{parent}/urlchannels
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}/adclients/{adclientsId}/urlchannels
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.adclients.resources.urlchannels
-      title: accounts.resources.adclients.resources.urlchannels
-    accounts.resources.alerts:
-      id: google.services.accounts.resources.alerts
+      name: accounts.adclients.urlchannels
+      title: accounts.adclients.urlchannels
+    accounts.alerts:
+      id: google.adsense.accounts.alerts
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2/{parent}/alerts
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}/alerts
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.alerts
-      title: accounts.resources.alerts
-    accounts.resources.payments:
-      id: google.services.accounts.resources.payments
+      name: accounts.alerts
+      title: accounts.alerts
+    accounts.payments:
+      id: google.adsense.accounts.payments
       methods:
         list:
           operation:
             $ref: get
           path:
-            $ref: /v2/{parent}/payments
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}/payments
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.payments
-      title: accounts.resources.payments
-    accounts.resources.reports:
-      id: google.services.accounts.resources.reports
+      name: accounts.payments
+      title: accounts.payments
+    accounts.reports:
+      id: google.adsense.accounts.reports
       methods:
         generate:
           operation:
             $ref: get
           path:
-            $ref: /v2/{account}/reports:generate
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}/reports:generate
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -872,29 +830,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2/{account}/reports:generateCsv
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}/reports:generateCsv
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.reports
-      title: accounts.resources.reports
-    accounts.resources.reports.resources:
-      id: google.services.accounts.resources.reports.resources
-      methods: {}
-      name: accounts.resources.reports.resources
-      title: accounts.resources.reports.resources
-    accounts.resources.reports.resources.saved:
-      id: google.services.accounts.resources.reports.resources.saved
+      name: accounts.reports
+      title: accounts.reports
+    accounts.reports.saved:
+      id: google.adsense.accounts.reports.saved
       methods:
         generate:
           operation:
             $ref: get
           path:
-            $ref: /v2/{name}/saved:generate
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}/reports/{reportsId}/saved:generate
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -902,9 +851,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2/{name}/saved:generateCsv
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}/reports/{reportsId}/saved:generateCsv
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -912,24 +859,20 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2/{parent}/reports/saved
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}/reports/saved
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.reports.resources.saved
-      title: accounts.resources.reports.resources.saved
-    accounts.resources.sites:
-      id: google.services.accounts.resources.sites
+      name: accounts.reports.saved
+      title: accounts.reports.saved
+    accounts.sites:
+      id: google.adsense.accounts.sites
       methods:
         get:
           operation:
             $ref: get
           path:
-            $ref: /v2/{name}
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}/sites/{sitesId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -937,14 +880,12 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v2/{parent}/sites
-          request:
-            mediaType: application/json
+            $ref: /v2/accounts/{accountsId}/sites
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: accounts.resources.sites
-      title: accounts.resources.sites
+      name: accounts.sites
+      title: accounts.sites
 externalDocs:
   url: https://developers.google.com/adsense/management/
 info:
@@ -1001,6 +942,1646 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListAccountsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}:
+    get:
+      description: Gets information about the selected site.
+      operationId: adsense.accounts.sites.get
+      parameters:
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Site'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}/adclients:
+    get:
+      description: Lists all the ad clients available in an account.
+      operationId: adsense.accounts.adclients.list
+      parameters:
+      - description: The maximum number of ad clients to include in the response,
+          used for paging. If unspecified, at most 10000 ad clients will be returned.
+          The maximum value is 10000; values above 10000 will be coerced to 10000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListAdClients` call.
+          Provide this to retrieve the subsequent page. When paginating, all other
+          parameters provided to `ListAdClients` must match the call that provided
+          the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAdClientsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}/adclients/{adclientsId}/adcode:
+    get:
+      description: Gets the AdSense code for a given ad unit.
+      operationId: adsense.accounts.adclients.adunits.getAdcode
+      parameters:
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: adclientsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdUnitAdCode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}/adclients/{adclientsId}/adunits:
+    get:
+      description: Lists all ad units under a specified account and ad client.
+      operationId: adsense.accounts.adclients.adunits.list
+      parameters:
+      - description: The maximum number of ad units to include in the response, used
+          for paging. If unspecified, at most 10000 ad units will be returned. The
+          maximum value is 10000; values above 10000 will be coerced to 10000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListAdUnits` call. Provide
+          this to retrieve the subsequent page. When paginating, all other parameters
+          provided to `ListAdUnits` must match the call that provided the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: adclientsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAdUnitsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}/adclients/{adclientsId}/adunits/{adunitsId}:
+    get:
+      description: Gets information about the selected site.
+      operationId: adsense.accounts.sites.get
+      parameters:
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: adclientsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: adunitsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Site'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}/adclients/{adclientsId}/adunits/{adunitsId}/adcode:
+    get:
+      description: Gets the AdSense code for a given ad unit.
+      operationId: adsense.accounts.adclients.adunits.getAdcode
+      parameters:
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: adclientsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: adunitsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdUnitAdCode'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}/adclients/{adclientsId}/adunits/{adunitsId}:listLinkedCustomChannels:
+    get:
+      description: Lists all the custom channels available for an ad unit.
+      operationId: adsense.accounts.adclients.adunits.listLinkedCustomChannels
+      parameters:
+      - description: The maximum number of custom channels to include in the response,
+          used for paging. If unspecified, at most 10000 custom channels will be returned.
+          The maximum value is 10000; values above 10000 will be coerced to 10000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListLinkedCustomChannels`
+          call. Provide this to retrieve the subsequent page. When paginating, all
+          other parameters provided to `ListLinkedCustomChannels` must match the call
+          that provided the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: adclientsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: adunitsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLinkedCustomChannelsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}/adclients/{adclientsId}/customchannels:
+    get:
+      description: Lists all the custom channels available in an ad client.
+      operationId: adsense.accounts.adclients.customchannels.list
+      parameters:
+      - description: The maximum number of custom channels to include in the response,
+          used for paging. If unspecified, at most 10000 custom channels will be returned.
+          The maximum value is 10000; values above 10000 will be coerced to 10000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListCustomChannels` call.
+          Provide this to retrieve the subsequent page. When paginating, all other
+          parameters provided to `ListCustomChannels` must match the call that provided
+          the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: adclientsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListCustomChannelsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}/adclients/{adclientsId}/customchannels/{customchannelsId}:
+    get:
+      description: Gets information about the selected site.
+      operationId: adsense.accounts.sites.get
+      parameters:
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: adclientsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: customchannelsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Site'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}/adclients/{adclientsId}/customchannels/{customchannelsId}:listLinkedAdUnits:
+    get:
+      description: Lists all the ad units available for a custom channel.
+      operationId: adsense.accounts.adclients.customchannels.listLinkedAdUnits
+      parameters:
+      - description: The maximum number of ad units to include in the response, used
+          for paging. If unspecified, at most 10000 ad units will be returned. The
+          maximum value is 10000; values above 10000 will be coerced to 10000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListLinkedAdUnits` call.
+          Provide this to retrieve the subsequent page. When paginating, all other
+          parameters provided to `ListLinkedAdUnits` must match the call that provided
+          the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: adclientsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: customchannelsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLinkedAdUnitsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}/adclients/{adclientsId}/urlchannels:
+    get:
+      description: Lists active url channels.
+      operationId: adsense.accounts.adclients.urlchannels.list
+      parameters:
+      - description: The maximum number of url channels to include in the response,
+          used for paging. If unspecified, at most 10000 url channels will be returned.
+          The maximum value is 10000; values above 10000 will be coerced to 10000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListUrlChannels` call.
+          Provide this to retrieve the subsequent page. When paginating, all other
+          parameters provided to `ListUrlChannels` must match the call that provided
+          the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: adclientsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUrlChannelsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}/alerts:
+    get:
+      description: Lists all the alerts available in an account.
+      operationId: adsense.accounts.alerts.list
+      parameters:
+      - description: The language to use for translating alert messages. If unspecified,
+          this defaults to the user's display language. If the given language is not
+          supported, alerts will be returned in English. The language is specified
+          as an [IETF BCP-47 language code](https://en.wikipedia.org/wiki/IETF_language_tag).
+        in: query
+        name: languageCode
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAlertsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}/payments:
+    get:
+      description: Lists all the payments available for an account.
+      operationId: adsense.accounts.payments.list
+      parameters:
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListPaymentsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}/reports/saved:
+    get:
+      description: Lists saved reports.
+      operationId: adsense.accounts.reports.saved.list
+      parameters:
+      - description: The maximum number of reports to include in the response, used
+          for paging. If unspecified, at most 10000 reports will be returned. The
+          maximum value is 10000; values above 10000 will be coerced to 10000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListPayments` call. Provide
+          this to retrieve the subsequent page. When paginating, all other parameters
+          provided to `ListPayments` must match the call that provided the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSavedReportsResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}/reports/{reportsId}/saved:generate:
+    get:
+      description: Generates a saved report.
+      operationId: adsense.accounts.reports.saved.generate
+      parameters:
+      - description: The [ISO-4217 currency code](https://en.wikipedia.org/wiki/ISO_4217)
+          to use when reporting on monetary metrics. Defaults to the account's currency
+          if not set.
+        in: query
+        name: currencyCode
+        schema:
+          type: string
+      - description: Date range of the report, if unset the range will be considered
+          CUSTOM.
+        in: query
+        name: dateRange
+        schema:
+          enum:
+          - REPORTING_DATE_RANGE_UNSPECIFIED
+          - CUSTOM
+          - TODAY
+          - YESTERDAY
+          - MONTH_TO_DATE
+          - YEAR_TO_DATE
+          - LAST_7_DAYS
+          - LAST_30_DAYS
+          type: string
+      - description: Day of a month. Must be from 1 to 31 and valid for the year and
+          month, or 0 to specify a year by itself or a year and month where the day
+          isn't significant.
+        in: query
+        name: endDate.day
+        schema:
+          type: integer
+      - description: Month of a year. Must be from 1 to 12, or 0 to specify a year
+          without a month and day.
+        in: query
+        name: endDate.month
+        schema:
+          type: integer
+      - description: Year of the date. Must be from 1 to 9999, or 0 to specify a date
+          without a year.
+        in: query
+        name: endDate.year
+        schema:
+          type: integer
+      - description: The language to use for translating report output. If unspecified,
+          this defaults to English ("en"). If the given language is not supported,
+          report output will be returned in English. The language is specified as
+          an [IETF BCP-47 language code](https://en.wikipedia.org/wiki/IETF_language_tag).
+        in: query
+        name: languageCode
+        schema:
+          type: string
+      - description: Timezone in which to generate the report. If unspecified, this
+          defaults to the account timezone. For more information, see [changing the
+          time zone of your reports](https://support.google.com/adsense/answer/9830725).
+        in: query
+        name: reportingTimeZone
+        schema:
+          enum:
+          - REPORTING_TIME_ZONE_UNSPECIFIED
+          - ACCOUNT_TIME_ZONE
+          - GOOGLE_TIME_ZONE
+          type: string
+      - description: Day of a month. Must be from 1 to 31 and valid for the year and
+          month, or 0 to specify a year by itself or a year and month where the day
+          isn't significant.
+        in: query
+        name: startDate.day
+        schema:
+          type: integer
+      - description: Month of a year. Must be from 1 to 12, or 0 to specify a year
+          without a month and day.
+        in: query
+        name: startDate.month
+        schema:
+          type: integer
+      - description: Year of the date. Must be from 1 to 9999, or 0 to specify a date
+          without a year.
+        in: query
+        name: startDate.year
+        schema:
+          type: integer
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: reportsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResult'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}/reports/{reportsId}/saved:generateCsv:
+    get:
+      description: Generates a csv formatted saved report.
+      operationId: adsense.accounts.reports.saved.generateCsv
+      parameters:
+      - description: The [ISO-4217 currency code](https://en.wikipedia.org/wiki/ISO_4217)
+          to use when reporting on monetary metrics. Defaults to the account's currency
+          if not set.
+        in: query
+        name: currencyCode
+        schema:
+          type: string
+      - description: Date range of the report, if unset the range will be considered
+          CUSTOM.
+        in: query
+        name: dateRange
+        schema:
+          enum:
+          - REPORTING_DATE_RANGE_UNSPECIFIED
+          - CUSTOM
+          - TODAY
+          - YESTERDAY
+          - MONTH_TO_DATE
+          - YEAR_TO_DATE
+          - LAST_7_DAYS
+          - LAST_30_DAYS
+          type: string
+      - description: Day of a month. Must be from 1 to 31 and valid for the year and
+          month, or 0 to specify a year by itself or a year and month where the day
+          isn't significant.
+        in: query
+        name: endDate.day
+        schema:
+          type: integer
+      - description: Month of a year. Must be from 1 to 12, or 0 to specify a year
+          without a month and day.
+        in: query
+        name: endDate.month
+        schema:
+          type: integer
+      - description: Year of the date. Must be from 1 to 9999, or 0 to specify a date
+          without a year.
+        in: query
+        name: endDate.year
+        schema:
+          type: integer
+      - description: The language to use for translating report output. If unspecified,
+          this defaults to English ("en"). If the given language is not supported,
+          report output will be returned in English. The language is specified as
+          an [IETF BCP-47 language code](https://en.wikipedia.org/wiki/IETF_language_tag).
+        in: query
+        name: languageCode
+        schema:
+          type: string
+      - description: Timezone in which to generate the report. If unspecified, this
+          defaults to the account timezone. For more information, see [changing the
+          time zone of your reports](https://support.google.com/adsense/answer/9830725).
+        in: query
+        name: reportingTimeZone
+        schema:
+          enum:
+          - REPORTING_TIME_ZONE_UNSPECIFIED
+          - ACCOUNT_TIME_ZONE
+          - GOOGLE_TIME_ZONE
+          type: string
+      - description: Day of a month. Must be from 1 to 31 and valid for the year and
+          month, or 0 to specify a year by itself or a year and month where the day
+          isn't significant.
+        in: query
+        name: startDate.day
+        schema:
+          type: integer
+      - description: Month of a year. Must be from 1 to 12, or 0 to specify a year
+          without a month and day.
+        in: query
+        name: startDate.month
+        schema:
+          type: integer
+      - description: Year of the date. Must be from 1 to 9999, or 0 to specify a date
+          without a year.
+        in: query
+        name: startDate.year
+        schema:
+          type: integer
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: reportsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBody'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}/reports:generate:
+    get:
+      description: Generates an ad hoc report.
+      operationId: adsense.accounts.reports.generate
+      parameters:
+      - description: The [ISO-4217 currency code](https://en.wikipedia.org/wiki/ISO_4217)
+          to use when reporting on monetary metrics. Defaults to the account's currency
+          if not set.
+        in: query
+        name: currencyCode
+        schema:
+          type: string
+      - description: Date range of the report, if unset the range will be considered
+          CUSTOM.
+        in: query
+        name: dateRange
+        schema:
+          enum:
+          - REPORTING_DATE_RANGE_UNSPECIFIED
+          - CUSTOM
+          - TODAY
+          - YESTERDAY
+          - MONTH_TO_DATE
+          - YEAR_TO_DATE
+          - LAST_7_DAYS
+          - LAST_30_DAYS
+          type: string
+      - description: Dimensions to base the report on.
+        explode: true
+        in: query
+        name: dimensions
+        schema:
+          items:
+            enum:
+            - DIMENSION_UNSPECIFIED
+            - DATE
+            - WEEK
+            - MONTH
+            - ACCOUNT_NAME
+            - AD_CLIENT_ID
+            - PRODUCT_NAME
+            - PRODUCT_CODE
+            - AD_UNIT_NAME
+            - AD_UNIT_ID
+            - AD_UNIT_SIZE_NAME
+            - AD_UNIT_SIZE_CODE
+            - CUSTOM_CHANNEL_NAME
+            - CUSTOM_CHANNEL_ID
+            - OWNED_SITE_DOMAIN_NAME
+            - OWNED_SITE_ID
+            - URL_CHANNEL_NAME
+            - URL_CHANNEL_ID
+            - BUYER_NETWORK_NAME
+            - BUYER_NETWORK_ID
+            - BID_TYPE_NAME
+            - BID_TYPE_CODE
+            - CREATIVE_SIZE_NAME
+            - CREATIVE_SIZE_CODE
+            - DOMAIN_NAME
+            - DOMAIN_CODE
+            - COUNTRY_NAME
+            - COUNTRY_CODE
+            - PLATFORM_TYPE_NAME
+            - PLATFORM_TYPE_CODE
+            - TARGETING_TYPE_NAME
+            - TARGETING_TYPE_CODE
+            - CONTENT_PLATFORM_NAME
+            - CONTENT_PLATFORM_CODE
+            - AD_PLACEMENT_NAME
+            - AD_PLACEMENT_CODE
+            - REQUESTED_AD_TYPE_NAME
+            - REQUESTED_AD_TYPE_CODE
+            - SERVED_AD_TYPE_NAME
+            - SERVED_AD_TYPE_CODE
+            - AD_FORMAT_NAME
+            - AD_FORMAT_CODE
+            - CUSTOM_SEARCH_STYLE_NAME
+            - CUSTOM_SEARCH_STYLE_ID
+            - DOMAIN_REGISTRANT
+            - WEBSEARCH_QUERY_STRING
+            type: string
+          type: array
+        style: form
+      - description: Day of a month. Must be from 1 to 31 and valid for the year and
+          month, or 0 to specify a year by itself or a year and month where the day
+          isn't significant.
+        in: query
+        name: endDate.day
+        schema:
+          type: integer
+      - description: Month of a year. Must be from 1 to 12, or 0 to specify a year
+          without a month and day.
+        in: query
+        name: endDate.month
+        schema:
+          type: integer
+      - description: Year of the date. Must be from 1 to 9999, or 0 to specify a date
+          without a year.
+        in: query
+        name: endDate.year
+        schema:
+          type: integer
+      - description: Filters to be run on the report.
+        explode: true
+        in: query
+        name: filters
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - description: The language to use for translating report output. If unspecified,
+          this defaults to English ("en"). If the given language is not supported,
+          report output will be returned in English. The language is specified as
+          an [IETF BCP-47 language code](https://en.wikipedia.org/wiki/IETF_language_tag).
+        in: query
+        name: languageCode
+        schema:
+          type: string
+      - description: The maximum number of rows of report data to return. Reports
+          producing more rows than the requested limit will be truncated. If unset,
+          this defaults to 100,000 rows for `Reports.GenerateReport` and 1,000,000
+          rows for `Reports.GenerateCsvReport`, which are also the maximum values
+          permitted here. Report truncation can be identified (for `Reports.GenerateReport`
+          only) by comparing the number of rows returned to the value returned in
+          `total_matched_rows`.
+        in: query
+        name: limit
+        schema:
+          type: integer
+      - description: Required. Reporting metrics.
+        explode: true
+        in: query
+        name: metrics
+        schema:
+          items:
+            enum:
+            - METRIC_UNSPECIFIED
+            - PAGE_VIEWS
+            - AD_REQUESTS
+            - MATCHED_AD_REQUESTS
+            - TOTAL_IMPRESSIONS
+            - IMPRESSIONS
+            - INDIVIDUAL_AD_IMPRESSIONS
+            - CLICKS
+            - PAGE_VIEWS_SPAM_RATIO
+            - AD_REQUESTS_SPAM_RATIO
+            - MATCHED_AD_REQUESTS_SPAM_RATIO
+            - IMPRESSIONS_SPAM_RATIO
+            - INDIVIDUAL_AD_IMPRESSIONS_SPAM_RATIO
+            - CLICKS_SPAM_RATIO
+            - AD_REQUESTS_COVERAGE
+            - PAGE_VIEWS_CTR
+            - AD_REQUESTS_CTR
+            - MATCHED_AD_REQUESTS_CTR
+            - IMPRESSIONS_CTR
+            - INDIVIDUAL_AD_IMPRESSIONS_CTR
+            - ACTIVE_VIEW_MEASURABILITY
+            - ACTIVE_VIEW_VIEWABILITY
+            - ACTIVE_VIEW_TIME
+            - ESTIMATED_EARNINGS
+            - PAGE_VIEWS_RPM
+            - AD_REQUESTS_RPM
+            - MATCHED_AD_REQUESTS_RPM
+            - IMPRESSIONS_RPM
+            - INDIVIDUAL_AD_IMPRESSIONS_RPM
+            - COST_PER_CLICK
+            - ADS_PER_IMPRESSION
+            - TOTAL_EARNINGS
+            - WEBSEARCH_RESULT_PAGES
+            type: string
+          type: array
+        style: form
+      - description: The name of a dimension or metric to sort the resulting report
+          on, can be prefixed with "+" to sort ascending or "-" to sort descending.
+          If no prefix is specified, the column is sorted ascending.
+        explode: true
+        in: query
+        name: orderBy
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - description: Timezone in which to generate the report. If unspecified, this
+          defaults to the account timezone. For more information, see [changing the
+          time zone of your reports](https://support.google.com/adsense/answer/9830725).
+        in: query
+        name: reportingTimeZone
+        schema:
+          enum:
+          - REPORTING_TIME_ZONE_UNSPECIFIED
+          - ACCOUNT_TIME_ZONE
+          - GOOGLE_TIME_ZONE
+          type: string
+      - description: Day of a month. Must be from 1 to 31 and valid for the year and
+          month, or 0 to specify a year by itself or a year and month where the day
+          isn't significant.
+        in: query
+        name: startDate.day
+        schema:
+          type: integer
+      - description: Month of a year. Must be from 1 to 12, or 0 to specify a year
+          without a month and day.
+        in: query
+        name: startDate.month
+        schema:
+          type: integer
+      - description: Year of the date. Must be from 1 to 9999, or 0 to specify a date
+          without a year.
+        in: query
+        name: startDate.year
+        schema:
+          type: integer
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResult'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}/reports:generateCsv:
+    get:
+      description: Generates a csv formatted ad hoc report.
+      operationId: adsense.accounts.reports.generateCsv
+      parameters:
+      - description: The [ISO-4217 currency code](https://en.wikipedia.org/wiki/ISO_4217)
+          to use when reporting on monetary metrics. Defaults to the account's currency
+          if not set.
+        in: query
+        name: currencyCode
+        schema:
+          type: string
+      - description: Date range of the report, if unset the range will be considered
+          CUSTOM.
+        in: query
+        name: dateRange
+        schema:
+          enum:
+          - REPORTING_DATE_RANGE_UNSPECIFIED
+          - CUSTOM
+          - TODAY
+          - YESTERDAY
+          - MONTH_TO_DATE
+          - YEAR_TO_DATE
+          - LAST_7_DAYS
+          - LAST_30_DAYS
+          type: string
+      - description: Dimensions to base the report on.
+        explode: true
+        in: query
+        name: dimensions
+        schema:
+          items:
+            enum:
+            - DIMENSION_UNSPECIFIED
+            - DATE
+            - WEEK
+            - MONTH
+            - ACCOUNT_NAME
+            - AD_CLIENT_ID
+            - PRODUCT_NAME
+            - PRODUCT_CODE
+            - AD_UNIT_NAME
+            - AD_UNIT_ID
+            - AD_UNIT_SIZE_NAME
+            - AD_UNIT_SIZE_CODE
+            - CUSTOM_CHANNEL_NAME
+            - CUSTOM_CHANNEL_ID
+            - OWNED_SITE_DOMAIN_NAME
+            - OWNED_SITE_ID
+            - URL_CHANNEL_NAME
+            - URL_CHANNEL_ID
+            - BUYER_NETWORK_NAME
+            - BUYER_NETWORK_ID
+            - BID_TYPE_NAME
+            - BID_TYPE_CODE
+            - CREATIVE_SIZE_NAME
+            - CREATIVE_SIZE_CODE
+            - DOMAIN_NAME
+            - DOMAIN_CODE
+            - COUNTRY_NAME
+            - COUNTRY_CODE
+            - PLATFORM_TYPE_NAME
+            - PLATFORM_TYPE_CODE
+            - TARGETING_TYPE_NAME
+            - TARGETING_TYPE_CODE
+            - CONTENT_PLATFORM_NAME
+            - CONTENT_PLATFORM_CODE
+            - AD_PLACEMENT_NAME
+            - AD_PLACEMENT_CODE
+            - REQUESTED_AD_TYPE_NAME
+            - REQUESTED_AD_TYPE_CODE
+            - SERVED_AD_TYPE_NAME
+            - SERVED_AD_TYPE_CODE
+            - AD_FORMAT_NAME
+            - AD_FORMAT_CODE
+            - CUSTOM_SEARCH_STYLE_NAME
+            - CUSTOM_SEARCH_STYLE_ID
+            - DOMAIN_REGISTRANT
+            - WEBSEARCH_QUERY_STRING
+            type: string
+          type: array
+        style: form
+      - description: Day of a month. Must be from 1 to 31 and valid for the year and
+          month, or 0 to specify a year by itself or a year and month where the day
+          isn't significant.
+        in: query
+        name: endDate.day
+        schema:
+          type: integer
+      - description: Month of a year. Must be from 1 to 12, or 0 to specify a year
+          without a month and day.
+        in: query
+        name: endDate.month
+        schema:
+          type: integer
+      - description: Year of the date. Must be from 1 to 9999, or 0 to specify a date
+          without a year.
+        in: query
+        name: endDate.year
+        schema:
+          type: integer
+      - description: Filters to be run on the report.
+        explode: true
+        in: query
+        name: filters
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - description: The language to use for translating report output. If unspecified,
+          this defaults to English ("en"). If the given language is not supported,
+          report output will be returned in English. The language is specified as
+          an [IETF BCP-47 language code](https://en.wikipedia.org/wiki/IETF_language_tag).
+        in: query
+        name: languageCode
+        schema:
+          type: string
+      - description: The maximum number of rows of report data to return. Reports
+          producing more rows than the requested limit will be truncated. If unset,
+          this defaults to 100,000 rows for `Reports.GenerateReport` and 1,000,000
+          rows for `Reports.GenerateCsvReport`, which are also the maximum values
+          permitted here. Report truncation can be identified (for `Reports.GenerateReport`
+          only) by comparing the number of rows returned to the value returned in
+          `total_matched_rows`.
+        in: query
+        name: limit
+        schema:
+          type: integer
+      - description: Required. Reporting metrics.
+        explode: true
+        in: query
+        name: metrics
+        schema:
+          items:
+            enum:
+            - METRIC_UNSPECIFIED
+            - PAGE_VIEWS
+            - AD_REQUESTS
+            - MATCHED_AD_REQUESTS
+            - TOTAL_IMPRESSIONS
+            - IMPRESSIONS
+            - INDIVIDUAL_AD_IMPRESSIONS
+            - CLICKS
+            - PAGE_VIEWS_SPAM_RATIO
+            - AD_REQUESTS_SPAM_RATIO
+            - MATCHED_AD_REQUESTS_SPAM_RATIO
+            - IMPRESSIONS_SPAM_RATIO
+            - INDIVIDUAL_AD_IMPRESSIONS_SPAM_RATIO
+            - CLICKS_SPAM_RATIO
+            - AD_REQUESTS_COVERAGE
+            - PAGE_VIEWS_CTR
+            - AD_REQUESTS_CTR
+            - MATCHED_AD_REQUESTS_CTR
+            - IMPRESSIONS_CTR
+            - INDIVIDUAL_AD_IMPRESSIONS_CTR
+            - ACTIVE_VIEW_MEASURABILITY
+            - ACTIVE_VIEW_VIEWABILITY
+            - ACTIVE_VIEW_TIME
+            - ESTIMATED_EARNINGS
+            - PAGE_VIEWS_RPM
+            - AD_REQUESTS_RPM
+            - MATCHED_AD_REQUESTS_RPM
+            - IMPRESSIONS_RPM
+            - INDIVIDUAL_AD_IMPRESSIONS_RPM
+            - COST_PER_CLICK
+            - ADS_PER_IMPRESSION
+            - TOTAL_EARNINGS
+            - WEBSEARCH_RESULT_PAGES
+            type: string
+          type: array
+        style: form
+      - description: The name of a dimension or metric to sort the resulting report
+          on, can be prefixed with "+" to sort ascending or "-" to sort descending.
+          If no prefix is specified, the column is sorted ascending.
+        explode: true
+        in: query
+        name: orderBy
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - description: Timezone in which to generate the report. If unspecified, this
+          defaults to the account timezone. For more information, see [changing the
+          time zone of your reports](https://support.google.com/adsense/answer/9830725).
+        in: query
+        name: reportingTimeZone
+        schema:
+          enum:
+          - REPORTING_TIME_ZONE_UNSPECIFIED
+          - ACCOUNT_TIME_ZONE
+          - GOOGLE_TIME_ZONE
+          type: string
+      - description: Day of a month. Must be from 1 to 31 and valid for the year and
+          month, or 0 to specify a year by itself or a year and month where the day
+          isn't significant.
+        in: query
+        name: startDate.day
+        schema:
+          type: integer
+      - description: Month of a year. Must be from 1 to 12, or 0 to specify a year
+          without a month and day.
+        in: query
+        name: startDate.month
+        schema:
+          type: integer
+      - description: Year of the date. Must be from 1 to 9999, or 0 to specify a date
+          without a year.
+        in: query
+        name: startDate.year
+        schema:
+          type: integer
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HttpBody'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}/sites:
+    get:
+      description: Lists all the sites available in an account.
+      operationId: adsense.accounts.sites.list
+      parameters:
+      - description: The maximum number of sites to include in the response, used
+          for paging. If unspecified, at most 10000 sites will be returned. The maximum
+          value is 10000; values above 10000 will be coerced to 10000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListSites` call. Provide
+          this to retrieve the subsequent page. When paginating, all other parameters
+          provided to `ListSites` must match the call that provided the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSitesResponse'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}/sites/{sitesId}:
+    get:
+      description: Gets information about the selected site.
+      operationId: adsense.accounts.sites.get
+      parameters:
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: sitesId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Site'
+          description: Successful response
+      security:
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense
+      - Oauth2:
+        - https://www.googleapis.com/auth/adsense.readonly
+        Oauth2c:
+        - https://www.googleapis.com/auth/adsense.readonly
+      tags:
+      - accounts
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v2/accounts/{accountsId}:listChildAccounts:
+    get:
+      description: Lists all accounts directly managed by the given AdSense account.
+      operationId: adsense.accounts.listChildAccounts
+      parameters:
+      - description: The maximum number of accounts to include in the response, used
+          for paging. If unspecified, at most 10000 accounts will be returned. The
+          maximum value is 10000; values above 10000 will be coerced to 10000.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: A page token, received from a previous `ListAccounts` call. Provide
+          this to retrieve the subsequent page. When paginating, all other parameters
+          provided to `ListAccounts` must match the call that provided the page token.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: accountsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListChildAccountsResponse'
           description: Successful response
       security:
       - Oauth2:

@@ -496,13 +496,13 @@ components:
       type: object
   x-stackQL-resources:
     locations:
-      id: google.services.locations
+      id: google.mybusinessverifications.locations
       methods:
         fetchVerificationOptions:
           operation:
             $ref: post
           path:
-            $ref: /v1/{location}:fetchVerificationOptions
+            $ref: /v1/locations/{locationsId}:fetchVerificationOptions
           request:
             mediaType: application/json
           response:
@@ -512,9 +512,7 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{name}/VoiceOfMerchantState
-          request:
-            mediaType: application/json
+            $ref: /v1/locations/{locationsId}/VoiceOfMerchantState
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -522,7 +520,7 @@ components:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:verify
+            $ref: /v1/locations/{locationsId}:verify
           request:
             mediaType: application/json
           response:
@@ -530,19 +528,14 @@ components:
             openAPIDocKey: '200'
       name: locations
       title: locations
-    locations.resources:
-      id: google.services.locations.resources
-      methods: {}
-      name: locations.resources
-      title: locations.resources
-    locations.resources.verifications:
-      id: google.services.locations.resources.verifications
+    locations.verifications:
+      id: google.mybusinessverifications.locations.verifications
       methods:
         complete:
           operation:
             $ref: post
           path:
-            $ref: /v1/{name}:complete
+            $ref: /v1/locations/{locationsId}/verifications/{verificationsId}:complete
           request:
             mediaType: application/json
           response:
@@ -552,16 +545,14 @@ components:
           operation:
             $ref: get
           path:
-            $ref: /v1/{parent}/verifications
-          request:
-            mediaType: application/json
+            $ref: /v1/locations/{locationsId}/verifications
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: locations.resources.verifications
-      title: locations.resources.verifications
+      name: locations.verifications
+      title: locations.verifications
     verificationTokens:
-      id: google.services.verificationTokens
+      id: google.mybusinessverifications.verificationTokens
       methods:
         generate:
           operation:
@@ -603,6 +594,195 @@ info:
   x-serviceName: mybusinessverifications
 openapi: 3.0.0
 paths:
+  /v1/locations/{locationsId}/VoiceOfMerchantState:
+    get:
+      description: Gets the VoiceOfMerchant state.
+      operationId: mybusinessverifications.locations.getVoiceOfMerchantState
+      parameters:
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiceOfMerchantState'
+          description: Successful response
+      tags:
+      - locations
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/locations/{locationsId}/verifications:
+    get:
+      description: List verifications of a location, ordered by create time.
+      operationId: mybusinessverifications.locations.verifications.list
+      parameters:
+      - description: How many verification to include per page. Minimum is 1, and
+          the default and maximum page size is 100.
+        in: query
+        name: pageSize
+        schema:
+          type: integer
+      - description: If specified, returns the next page of verifications.
+        in: query
+        name: pageToken
+        schema:
+          type: string
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListVerificationsResponse'
+          description: Successful response
+      tags:
+      - locations
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+  /v1/locations/{locationsId}/verifications/{verificationsId}:complete:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Completes a `PENDING` verification. It is only necessary for non
+        `AUTO` verification methods. `AUTO` verification request is instantly `VERIFIED`
+        upon creation.
+      operationId: mybusinessverifications.locations.verifications.complete
+      parameters:
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: verificationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompleteVerificationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompleteVerificationResponse'
+          description: Successful response
+      tags:
+      - locations
+  /v1/locations/{locationsId}:fetchVerificationOptions:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Reports all eligible verification options for a location in a specific
+        language.
+      operationId: mybusinessverifications.locations.fetchVerificationOptions
+      parameters:
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FetchVerificationOptionsRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FetchVerificationOptionsResponse'
+          description: Successful response
+      tags:
+      - locations
+  /v1/locations/{locationsId}:verify:
+    parameters:
+    - $ref: '#/components/parameters/_.xgafv'
+    - $ref: '#/components/parameters/access_token'
+    - $ref: '#/components/parameters/alt'
+    - $ref: '#/components/parameters/callback'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/key'
+    - $ref: '#/components/parameters/oauth_token'
+    - $ref: '#/components/parameters/prettyPrint'
+    - $ref: '#/components/parameters/quotaUser'
+    - $ref: '#/components/parameters/upload_protocol'
+    - $ref: '#/components/parameters/uploadType'
+    post:
+      description: Starts the verification process for a location.
+      operationId: mybusinessverifications.locations.verify
+      parameters:
+      - in: path
+        name: locationsId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyLocationRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyLocationResponse'
+          description: Successful response
+      tags:
+      - locations
   /v1/verificationTokens:generate:
     parameters:
     - $ref: '#/components/parameters/_.xgafv'

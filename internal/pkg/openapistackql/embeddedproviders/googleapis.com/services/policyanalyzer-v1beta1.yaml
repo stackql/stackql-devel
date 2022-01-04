@@ -144,52 +144,7 @@ components:
               Google Account.
           tokenUrl: https://accounts.google.com/o/oauth2/token
       type: oauth2
-  x-stackQL-resources:
-    projects:
-      id: google.services.projects
-      methods: {}
-      name: projects
-      title: projects
-    projects.resources:
-      id: google.services.projects.resources
-      methods: {}
-      name: projects.resources
-      title: projects.resources
-    projects.resources.locations:
-      id: google.services.projects.resources.locations
-      methods: {}
-      name: projects.resources.locations
-      title: projects.resources.locations
-    projects.resources.locations.resources:
-      id: google.services.projects.resources.locations.resources
-      methods: {}
-      name: projects.resources.locations.resources
-      title: projects.resources.locations.resources
-    projects.resources.locations.resources.activityTypes:
-      id: google.services.projects.resources.locations.resources.activityTypes
-      methods: {}
-      name: projects.resources.locations.resources.activityTypes
-      title: projects.resources.locations.resources.activityTypes
-    projects.resources.locations.resources.activityTypes.resources:
-      id: google.services.projects.resources.locations.resources.activityTypes.resources
-      methods: {}
-      name: projects.resources.locations.resources.activityTypes.resources
-      title: projects.resources.locations.resources.activityTypes.resources
-    projects.resources.locations.resources.activityTypes.resources.activities:
-      id: google.services.projects.resources.locations.resources.activityTypes.resources.activities
-      methods:
-        query:
-          operation:
-            $ref: get
-          path:
-            $ref: /v1/{parent}/activities:query
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: projects.resources.locations.resources.activityTypes.resources.activities
-      title: projects.resources.locations.resources.activityTypes.resources.activities
+  x-stackQL-resources: {}
 externalDocs:
   url: https://www.google.com
 info:

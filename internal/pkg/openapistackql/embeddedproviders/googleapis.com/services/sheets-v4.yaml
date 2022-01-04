@@ -5702,7 +5702,7 @@ components:
       type: oauth2
   x-stackQL-resources:
     spreadsheets:
-      id: google.services.spreadsheets
+      id: google.sheets.spreadsheets
       methods:
         batchUpdate:
           operation:
@@ -5729,8 +5729,6 @@ components:
             $ref: get
           path:
             $ref: /v4/spreadsheets/{spreadsheetId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -5746,21 +5744,14 @@ components:
             openAPIDocKey: '200'
       name: spreadsheets
       title: spreadsheets
-    spreadsheets.resources:
-      id: google.services.spreadsheets.resources
-      methods: {}
-      name: spreadsheets.resources
-      title: spreadsheets.resources
-    spreadsheets.resources.developerMetadata:
-      id: google.services.spreadsheets.resources.developerMetadata
+    spreadsheets.developerMetadata:
+      id: google.sheets.spreadsheets.developerMetadata
       methods:
         get:
           operation:
             $ref: get
           path:
             $ref: /v4/spreadsheets/{spreadsheetId}/developerMetadata/{metadataId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -5774,10 +5765,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: spreadsheets.resources.developerMetadata
-      title: spreadsheets.resources.developerMetadata
-    spreadsheets.resources.sheets:
-      id: google.services.spreadsheets.resources.sheets
+      name: spreadsheets.developerMetadata
+      title: spreadsheets.developerMetadata
+    spreadsheets.sheets:
+      id: google.sheets.spreadsheets.sheets
       methods:
         copyTo:
           operation:
@@ -5789,10 +5780,10 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: spreadsheets.resources.sheets
-      title: spreadsheets.resources.sheets
-    spreadsheets.resources.values:
-      id: google.services.spreadsheets.resources.values
+      name: spreadsheets.sheets
+      title: spreadsheets.sheets
+    spreadsheets.values:
+      id: google.sheets.spreadsheets.values
       methods:
         append:
           operation:
@@ -5829,8 +5820,6 @@ components:
             $ref: get
           path:
             $ref: /v4/spreadsheets/{spreadsheetId}/values:batchGet
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -5879,8 +5868,6 @@ components:
             $ref: get
           path:
             $ref: /v4/spreadsheets/{spreadsheetId}/values/{range}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -5894,8 +5881,8 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: spreadsheets.resources.values
-      title: spreadsheets.resources.values
+      name: spreadsheets.values
+      title: spreadsheets.values
 externalDocs:
   url: https://developers.google.com/sheets/
 info:
