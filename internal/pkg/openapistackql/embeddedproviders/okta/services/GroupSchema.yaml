@@ -248,6 +248,30 @@ components:
       in: header
       name: Authorization
       type: apiKey
+  x-stackQL-resources:
+    default:
+      id: okta.groupschema.default
+      methods:
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/meta/schemas/group/default
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        update:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/meta/schemas/group/default
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: default
+      title: default
 externalDocs:
   description: Find more info here
   url: https://developer.okta.com/docs/api/getting_started/design_principles.html

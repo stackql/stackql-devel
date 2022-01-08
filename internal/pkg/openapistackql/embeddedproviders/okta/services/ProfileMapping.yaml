@@ -76,6 +76,38 @@ components:
       in: header
       name: Authorization
       type: apiKey
+  x-stackQL-resources:
+    mappings:
+      id: okta.profilemapping.mappings
+      methods:
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/mappings/{mappingId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/mappings/{mappingId}
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/mappings
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: mappings
+      title: mappings
 externalDocs:
   description: Find more info here
   url: https://developer.okta.com/docs/api/getting_started/design_principles.html

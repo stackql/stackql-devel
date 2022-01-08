@@ -236,6 +236,166 @@ components:
       in: header
       name: Authorization
       type: apiKey
+  x-stackQL-resources:
+    contacts:
+      id: okta.org.contacts
+      methods:
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/org/contacts/{contactType}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/org/contacts
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        update:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/org/contacts/{contactType}
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: contacts
+      title: contacts
+    oktacommunication:
+      id: okta.org.oktacommunication
+      methods:
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/org/privacy/oktaCommunication
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        optIn:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/org/privacy/oktaCommunication/optIn
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        optOut:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/org/privacy/oktaCommunication/optOut
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: oktacommunication
+      title: oktacommunication
+    oktasupport:
+      id: okta.org.oktasupport
+      methods:
+        extend:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/org/privacy/oktaSupport/extend
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/org/privacy/oktaSupport
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        grant:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/org/privacy/oktaSupport/grant
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        revoke:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/org/privacy/oktaSupport/revoke
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: oktasupport
+      title: oktasupport
+    org:
+      id: okta.org.org
+      methods:
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/org
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        partialUpdate:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/org
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        update:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/org
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: org
+      title: org
+    preferences:
+      id: okta.org.preferences
+      methods:
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/org/preferences
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        hideEndUserFooter:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/org/preferences/hideEndUserFooter
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        showEndUserFooter:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/org/preferences/showEndUserFooter
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: preferences
+      title: preferences
 externalDocs:
   description: Find more info here
   url: https://developer.okta.com/docs/api/getting_started/design_principles.html

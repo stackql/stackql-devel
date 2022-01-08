@@ -306,6 +306,53 @@ components:
       in: header
       name: Authorization
       type: apiKey
+  x-stackQL-resources:
+    default:
+      id: okta.userschema.default
+      methods:
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/meta/schemas/apps/{appInstanceId}/default
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/meta/schemas/apps/{appInstanceId}/default
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: default
+      title: default
+    schemas:
+      id: okta.userschema.schemas
+      methods:
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/meta/schemas/user/{schemaId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        partialUpdate:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/meta/schemas/user/{schemaId}
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: schemas
+      title: schemas
 externalDocs:
   description: Find more info here
   url: https://developer.okta.com/docs/api/getting_started/design_principles.html

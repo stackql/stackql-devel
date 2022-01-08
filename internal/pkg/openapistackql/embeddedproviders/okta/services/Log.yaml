@@ -329,6 +329,20 @@ components:
       in: header
       name: Authorization
       type: apiKey
+  x-stackQL-resources:
+    logs:
+      id: okta.log.logs
+      methods:
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/logs
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: logs
+      title: logs
 externalDocs:
   description: Find more info here
   url: https://developer.okta.com/docs/api/getting_started/design_principles.html

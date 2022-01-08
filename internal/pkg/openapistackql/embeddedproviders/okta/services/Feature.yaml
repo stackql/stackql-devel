@@ -86,6 +86,52 @@ components:
       in: header
       name: Authorization
       type: apiKey
+  x-stackQL-resources:
+    features:
+      id: okta.feature.features
+      methods:
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/features/{featureId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/features
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        listFeatureDependencies:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/features/{featureId}/dependencies
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        listFeatureDependents:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/features/{featureId}/dependents
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        updateFeatureLifecycle:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/features/{featureId}/{lifecycle}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: features
+      title: features
 externalDocs:
   description: Find more info here
   url: https://developer.okta.com/docs/api/getting_started/design_principles.html

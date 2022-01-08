@@ -1619,43 +1619,39 @@ components:
     apps:
       id: okta.application.apps
       methods:
-        list:
+        activate:
           operation:
-            $ref: GET
+            $ref: POST
           path:
-            $ref: /api/v1/apps
-          request:
-            mediaType: application/json
+            $ref: /api/v1/apps/{appId}/lifecycle/activate
           response:
-            mediaType: application/json
+            openAPIDocKey: '200'
+        deactivate:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/apps/{appId}/lifecycle/deactivate
+          response:
             openAPIDocKey: '200'
         delete:
           operation:
             $ref: DELETE
           path:
             $ref: /api/v1/apps/{appId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
         deleteall:
           operation:
             $ref: DELETE
           path:
             $ref: /api/v1/apps/{appId}/tokens
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
-            openAPIDocKey: '200'
+            openAPIDocKey: '204'
         get:
           operation:
             $ref: GET
           path:
             $ref: /api/v1/apps/{appId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1666,6 +1662,14 @@ components:
             $ref: /api/v1/apps
           request:
             mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/apps
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1679,53 +1683,23 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-        deactivate:
-          operation:
-            $ref: POST
-          path:
-            $ref: /api/v1/apps/{appId}/lifecycle/deactivate
-          response:
-            openAPIDocKey: '200'
-        activate:
-          operation:
-            $ref: POST
-          path:
-            $ref: /api/v1/apps/{appId}/lifecycle/activate
-          request:
-          response:
-            openAPIDocKey: '200'
       name: apps
       title: apps
     csrs:
       id: okta.application.csrs
       methods:
-        list:
-          operation:
-            $ref: GET
-          path:
-            $ref: /api/v1/apps/{appId}/credentials/csrs
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
         delete:
           operation:
             $ref: DELETE
           path:
             $ref: /api/v1/apps/{appId}/credentials/csrs/{csrId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
-            openAPIDocKey: '200'
+            openAPIDocKey: '204'
         get:
           operation:
             $ref: GET
           path:
             $ref: /api/v1/apps/{appId}/credentials/csrs/{csrId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1736,86 +1710,34 @@ components:
             $ref: /api/v1/apps/{appId}/credentials/csrs
           request:
             mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '201'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/apps/{appId}/credentials/csrs
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: csrs
       title: csrs
-    keys:
-      id: okta.application.keys
-      methods:
-        list:
-          operation:
-            $ref: GET
-          path:
-            $ref: /api/v1/apps/{appId}/credentials/keys
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        delete:
-          operation:
-            $ref: DELETE
-          path:
-            $ref: /api/v1/apps/{appId}/credentials/csrs/{csrId}
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        get:
-          operation:
-            $ref: GET
-          path:
-            $ref: /api/v1/apps/{appId}/credentials/keys/{keyId}
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        insert:
-          operation:
-            $ref: POST
-          path:
-            $ref: /api/v1/apps/{appId}/credentials/keys/generate
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: keys
-      title: keys
     grants:
       id: okta.application.grants
       methods:
-        list:
-          operation:
-            $ref: GET
-          path:
-            $ref: /api/v1/apps/{appId}/grants
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
         delete:
           operation:
             $ref: DELETE
           path:
             $ref: /api/v1/apps/{appId}/grants/{grantId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
-            openAPIDocKey: '200'
+            openAPIDocKey: '204'
         get:
           operation:
             $ref: GET
           path:
             $ref: /api/v1/apps/{appId}/grants/{grantId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1826,6 +1748,14 @@ components:
             $ref: /api/v1/apps/{appId}/grants
           request:
             mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '201'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/apps/{appId}/grants
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1834,33 +1764,26 @@ components:
     groups:
       id: okta.application.groups
       methods:
-        list:
-          operation:
-            $ref: GET
-          path:
-            $ref: /api/v1/apps/{appId}/groups
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
         delete:
           operation:
             $ref: DELETE
           path:
             $ref: /api/v1/apps/{appId}/groups/{groupId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
-            openAPIDocKey: '200'
+            openAPIDocKey: '204'
         get:
           operation:
             $ref: GET
           path:
             $ref: /api/v1/apps/{appId}/groups/{groupId}
-          request:
+          response:
             mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/apps/{appId}/groups
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1876,36 +1799,65 @@ components:
             openAPIDocKey: '200'
       name: groups
       title: groups
-    tokens:
-      id: okta.application.tokens
+    keys:
+      id: okta.application.keys
       methods:
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/apps/{appId}/credentials/csrs/{csrId}
+          response:
+            openAPIDocKey: '204'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/apps/{appId}/credentials/keys/{keyId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/apps/{appId}/credentials/keys/generate
+          response:
+            mediaType: application/json
+            openAPIDocKey: '201'
         list:
           operation:
             $ref: GET
           path:
-            $ref: /api/v1/apps/{appId}/tokens
-          request:
-            mediaType: application/json
+            $ref: /api/v1/apps/{appId}/credentials/keys
           response:
             mediaType: application/json
             openAPIDocKey: '200'
+      name: keys
+      title: keys
+    tokens:
+      id: okta.application.tokens
+      methods:
         delete:
           operation:
             $ref: DELETE
           path:
             $ref: /api/v1/apps/{appId}/tokens/{tokenId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
-            openAPIDocKey: '200'
+            openAPIDocKey: '204'
         get:
           operation:
             $ref: GET
           path:
             $ref: /api/v1/apps/{appId}/tokens/{tokenId}
-          request:
+          response:
             mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/apps/{appId}/tokens
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1914,33 +1866,18 @@ components:
     users:
       id: okta.application.users
       methods:
-        list:
-          operation:
-            $ref: GET
-          path:
-            $ref: /api/v1/apps/{appId}/users
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
         delete:
           operation:
             $ref: DELETE
           path:
             $ref: /api/v1/apps/{appId}/users/{userId}
-          request:
-            mediaType: application/json
           response:
-            mediaType: application/json
-            openAPIDocKey: '200'
+            openAPIDocKey: '204'
         get:
           operation:
             $ref: GET
           path:
             $ref: /api/v1/apps/{appId}/users/{userId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1951,6 +1888,14 @@ components:
             $ref: /api/v1/apps/{appId}/users
           request:
             mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/apps/{appId}/users
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -2983,6 +2928,6 @@ paths:
       x-codegen-request-body-name: appUser
 servers:
 - url: https://{subdomain}.okta.com/
-  variables: 
+  variables:
     subdomain:
       default: my-domain

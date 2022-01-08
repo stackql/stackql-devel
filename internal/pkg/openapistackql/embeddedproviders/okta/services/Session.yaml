@@ -118,6 +118,45 @@ components:
       in: header
       name: Authorization
       type: apiKey
+  x-stackQL-resources:
+    sessions:
+      id: okta.session.sessions
+      methods:
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/sessions/{sessionId}
+          response:
+            openAPIDocKey: '204'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/sessions/{sessionId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/sessions
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        refresh:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/sessions/{sessionId}/lifecycle/refresh
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: sessions
+      title: sessions
 externalDocs:
   description: Find more info here
   url: https://developer.okta.com/docs/api/getting_started/design_principles.html

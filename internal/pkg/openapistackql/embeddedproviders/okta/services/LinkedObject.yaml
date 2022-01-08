@@ -54,6 +54,45 @@ components:
       in: header
       name: Authorization
       type: apiKey
+  x-stackQL-resources:
+    idps:
+      id: okta.linkedobject.idps
+      methods:
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/meta/schemas/user/linkedObjects/{linkedObjectName}
+          response:
+            openAPIDocKey: '204'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/meta/schemas/user/linkedObjects/{linkedObjectName}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/meta/schemas/user/linkedObjects
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '201'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/meta/schemas/user/linkedObjects
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: idps
+      title: idps
 externalDocs:
   description: Find more info here
   url: https://developer.okta.com/docs/api/getting_started/design_principles.html

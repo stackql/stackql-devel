@@ -40,6 +40,20 @@ components:
       in: header
       name: Authorization
       type: apiKey
+  x-stackQL-resources:
+    configuration:
+      id: okta.threatinsight.configuration
+      methods:
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/threats/configuration
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: configuration
+      title: configuration
 externalDocs:
   description: Find more info here
   url: https://developer.okta.com/docs/api/getting_started/design_principles.html

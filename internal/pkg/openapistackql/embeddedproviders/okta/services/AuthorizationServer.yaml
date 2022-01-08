@@ -1168,6 +1168,360 @@ components:
       in: header
       name: Authorization
       type: apiKey
+  x-stackQL-resources:
+    authorizationservers:
+      id: okta.authorizationserver.authorizationservers
+      methods:
+        activate:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/lifecycle/activate
+          response:
+            openAPIDocKey: '200'
+        deactivate:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/lifecycle/deactivate
+          response:
+            openAPIDocKey: '200'
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}
+          response:
+            openAPIDocKey: '204'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/authorizationServers
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/authorizationServers
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        update:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: authorizationservers
+      title: authorizationservers
+    claims:
+      id: okta.authorizationserver.claims
+      methods:
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/claims/{claimId}
+          response:
+            openAPIDocKey: '204'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/claims/{claimId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/claims
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/claims
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        update:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/claims/{claimId}
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: claims
+      title: claims
+    clients:
+      id: okta.authorizationserver.clients
+      methods:
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/clients
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: clients
+      title: clients
+    keys:
+      id: okta.authorizationserver.keys
+      methods:
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/credentials/keys
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        rotate:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/credentials/lifecycle/keyRotate
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: keys
+      title: keys
+    policies:
+      id: okta.authorizationserver.policies
+      methods:
+        activate:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/policies/{policyId}/lifecycle/activate
+          response:
+            openAPIDocKey: '200'
+        deactivate:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/policies/{policyId}/lifecycle/deactivate
+          response:
+            openAPIDocKey: '200'
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/policies/{policyId}
+          response:
+            openAPIDocKey: '204'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/policies/{policyId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/policies
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/policies
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        update:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/policies/{policyId}
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: policies
+      title: policies
+    rules:
+      id: okta.authorizationserver.rules
+      methods:
+        activate:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/policies/{policyId}/rules/{ruleId}/lifecycle/activate
+          response:
+            openAPIDocKey: '200'
+        deactivate:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/policies/{policyId}/rules/{ruleId}/lifecycle/deactivate
+          response:
+            openAPIDocKey: '200'
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/policies/{policyId}/rules/{ruleId}
+          response:
+            openAPIDocKey: '204'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/policies/{policyId}/rules/{ruleId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/policies/{policyId}/rules
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/policies/{policyId}/rules
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        update:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/policies/{policyId}/rules/{ruleId}
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: rules
+      title: rules
+    scopes:
+      id: okta.authorizationserver.scopes
+      methods:
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/scopes/{scopeId}
+          response:
+            openAPIDocKey: '204'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/scopes/{scopeId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/scopes
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/scopes
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        update:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/scopes/{scopeId}
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: scopes
+      title: scopes
+    tokens:
+      id: okta.authorizationserver.tokens
+      methods:
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/clients/{clientId}/tokens/{tokenId}
+          response:
+            openAPIDocKey: '204'
+        deleteall:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/clients/{clientId}/tokens
+          response:
+            openAPIDocKey: '204'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/clients/{clientId}/tokens/{tokenId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/authorizationServers/{authServerId}/clients/{clientId}/tokens
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: tokens
+      title: tokens
 externalDocs:
   description: Find more info here
   url: https://developer.okta.com/docs/api/getting_started/design_principles.html

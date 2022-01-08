@@ -1982,17 +1982,68 @@ components:
       name: Authorization
       type: apiKey
   x-stackQL-resources:
-    groups:
-      id: okta.group.groups
+    appinstancetargets:
+      id: okta.group.appinstancetargets
+      methods:
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/groups/{groupId}/roles/{roleId}/targets/catalog/apps/{appName}/{applicationId}
+          response:
+            openAPIDocKey: '204'
+        insert:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/groups/{groupId}/roles/{roleId}/targets/catalog/apps/{appName}/{applicationId}
+          response:
+            openAPIDocKey: '204'
+      name: appinstancetargets
+      title: appinstancetargets
+    apps:
+      id: okta.group.apps
       methods:
         list:
           operation:
             $ref: GET
           path:
-            $ref: /api/v1/groups
+            $ref: /api/v1/groups/{groupId}/apps
           response:
             mediaType: application/json
             openAPIDocKey: '200'
+      name: apps
+      title: apps
+    apptargets:
+      id: okta.group.apptargets
+      methods:
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/groups/{groupId}/roles/{roleId}/targets/catalog/apps/{appName}
+          response:
+            openAPIDocKey: '204'
+        insert:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/groups/{groupId}/roles/{roleId}/targets/catalog/apps/{appName}
+          response:
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/groups/{groupId}/roles/{roleId}/targets/catalog/apps
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: apptargets
+      title: apptargets
+    groups:
+      id: okta.group.groups
+      methods:
         delete:
           operation:
             $ref: DELETE
@@ -2018,6 +2069,14 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/groups
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
         update:
           operation:
             $ref: PUT
@@ -2028,19 +2087,95 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      name: idps
-      title: idps
-    rules:
-      id: okta.group.rules
+      name: groups
+      title: groups
+    grouptargets:
+      id: okta.group.grouptargets
       methods:
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/groups/{groupId}/roles/{roleId}/targets/groups/{targetGroupId}
+          response:
+            openAPIDocKey: '204'
+        insert:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/groups/{groupId}/roles/{roleId}/targets/groups/{targetGroupId}
+          response:
+            openAPIDocKey: '204'
         list:
           operation:
             $ref: GET
           path:
-            $ref: /api/v1/groups/rules
+            $ref: /api/v1/groups/{groupId}/roles/{roleId}/targets/groups
           response:
             mediaType: application/json
             openAPIDocKey: '200'
+      name: grouptargets
+      title: grouptargets
+    roles:
+      id: okta.group.roles
+      methods:
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/groups/{groupId}/roles/{roleId}
+          response:
+            openAPIDocKey: '204'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/groups/{groupId}/roles/{roleId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/groups/{groupId}/roles
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/groups/{groupId}/roles
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: roles
+      title: roles
+    ruleactivations:
+      id: okta.group.ruleactivations
+      methods:
+        delete:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/groups/rules/{ruleId}/lifecycle/deactivate
+          response:
+            openAPIDocKey: '204'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/groups/rules/{ruleId}/lifecycle/activate
+          response:
+            openAPIDocKey: '204'
+      name: ruleactivations
+      title: ruleactivations
+    rules:
+      id: okta.group.rules
+      methods:
         delete:
           operation:
             $ref: DELETE
@@ -2066,6 +2201,14 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/groups/rules
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
         update:
           operation:
             $ref: PUT
@@ -2078,160 +2221,23 @@ components:
             openAPIDocKey: '200'
       name: rules
       title: rules
-    ruleactivations:
-      id: okta.group.idpactivations
-      methods:
-        insert:
-          operation:
-            $ref: POST
-          path:
-            $ref: /api/v1/groups/rules/{ruleId}/lifecycle/activate
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        delete:
-          operation:
-            $ref: POST
-          path:
-            $ref: /api/v1/groups/rules/{ruleId}/lifecycle/deactivate
-          response:
-            mediaType: application/json
-            openAPIDocKey: '201'
-      name: ruleactivations
-      title: ruleactivations
-    apps:
-      id: okta.group.apps
-      methods:
-        list:
-          operation:
-            $ref: GET
-          path:
-            $ref: /api/v1/groups/{groupId}/apps
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-      name: apps
-      title: apps
-    roles:
-      id: okta.group.roles
-      methods:
-        list:
-          operation:
-            $ref: GET
-          path:
-            $ref: /api/v1/groups/{groupId}/roles
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        delete:
-          operation:
-            $ref: DELETE
-          path:
-            $ref: /api/v1/groups/{groupId}/roles/{roleId}
-          response:
-            openAPIDocKey: '204'
-        get:
-          operation:
-            $ref: GET
-          path:
-            $ref: /api/v1/groups/{groupId}/roles/{roleId}
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        insert:
-          operation:
-            $ref: POST
-          path:
-            $ref: /api/v1/groups/{groupId}/roles
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '201'
-      name: roles
-      title: roles
-    apptargets:
-      id: okta.group.apptargets
-      methods:
-        list:
-          operation:
-            $ref: GET
-          path:
-            $ref: /api/v1/groups/{groupId}/roles/{roleId}/targets/catalog/apps
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        insert:
-          operation:
-            $ref: PUT
-          path:
-            $ref: /api/v1/groups/{groupId}/roles/{roleId}/targets/catalog/apps/{appName}
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        delete:
-          operation:
-            $ref: DELETE
-          path:
-            $ref: /api/v1/groups/{groupId}/roles/{roleId}/targets/catalog/apps/{appName}
-          response:
-            openAPIDocKey: '204'
-      name: apptargets
-      title: apptargets
-    appinstancetargets:
-      id: okta.group.appinstancetargets
-      methods:
-        insert:
-          operation:
-            $ref: PUT
-          path:
-            $ref: /api/v1/groups/{groupId}/roles/{roleId}/targets/catalog/apps/{appName}/{applicationId}
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        delete:
-          operation:
-            $ref: DELETE
-          path:
-            $ref: /api/v1/groups/{groupId}/roles/{roleId}/targets/catalog/apps/{appName}/{applicationId}
-          response:
-            openAPIDocKey: '204'
-      name: appinstancetargets
-      title: appinstancetargets
-    grouptargets:
-      id: okta.group.grouptargets
-      methods:
-        list:
-          operation:
-            $ref: GET
-          path:
-            $ref: /api/v1/groups/{groupId}/roles/{roleId}/targets/groups
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        insert:
-          operation:
-            $ref: PUT
-          path:
-            $ref: /api/v1/groups/{groupId}/roles/{roleId}/targets/groups/{targetGroupId}
-          response:
-            openAPIDocKey: '204'
-        delete:
-          operation:
-            $ref: DELETE
-          path:
-            $ref: /api/v1/groups/{groupId}/roles/{roleId}/targets/groups/{targetGroupId}
-          response:
-            openAPIDocKey: '204'
-      name: grouptargets
-      title: grouptargets
     users:
       id: okta.group.users
       methods:
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/groups/{groupId}/users/{userId}
+          response:
+            openAPIDocKey: '204'
+        insert:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/groups/{groupId}/users/{userId}
+          response:
+            openAPIDocKey: '204'
         list:
           operation:
             $ref: GET
@@ -2240,20 +2246,6 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-        insert:
-          operation:
-            $ref: PUT
-          path:
-            $ref: /api/v1/groups/{groupId}/users/{userId}
-          response:
-            openAPIDocKey: '204'
-        delete:
-          operation:
-            $ref: DELETE
-          path:
-            $ref: /api/v1/groups/{groupId}/users/{userId}
-          response:
-            openAPIDocKey: '204'
       name: users
       title: users
 externalDocs:
@@ -2271,7 +2263,6 @@ info:
   termsOfService: https://developer.okta.com/terms/
   title: Okta API
   version: 2.8.0
-  x-serviceName: group
 openapi: 3.0.1
 paths:
   /api/v1/groups:
@@ -3078,7 +3069,4 @@ paths:
       tags:
       - Group
 servers:
-- url: https://{subdomain}.okta.com/
-  variables: 
-    subdomain:
-      default: my-domain
+- url: https://your-subdomain.okta.com/

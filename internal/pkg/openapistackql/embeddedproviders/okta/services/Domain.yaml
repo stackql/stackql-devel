@@ -108,6 +108,67 @@ components:
       in: header
       name: Authorization
       type: apiKey
+  x-stackQL-resources:
+    certificates:
+      id: okta.domain.certificates
+      methods:
+        insert:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/domains/{domainId}/certificate
+          request:
+            mediaType: application/json
+          response:
+            openAPIDocKey: '204'
+      name: certificates
+      title: certificates
+    domains:
+      id: okta.domain.domains
+      methods:
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/domains/{domainId}
+          response:
+            openAPIDocKey: '204'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/domains/{domainId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/domains
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/domains
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        verify:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/domains/{domainId}/verify
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: domains
+      title: domains
 externalDocs:
   description: Find more info here
   url: https://developer.okta.com/docs/api/getting_started/design_principles.html

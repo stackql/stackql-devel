@@ -70,6 +70,65 @@ components:
       in: header
       name: Authorization
       type: apiKey
+  x-stackQL-resources:
+    sms:
+      id: okta.template.sms
+      methods:
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/templates/sms/{templateId}
+          response:
+            openAPIDocKey: '204'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/templates/sms/{templateId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/templates/sms
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/templates/sms
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        partialUpdate:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/templates/sms/{templateId}
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        update:
+          operation:
+            $ref: PUT
+          path:
+            $ref: /api/v1/templates/sms/{templateId}
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: sms
+      title: sms
 externalDocs:
   description: Find more info here
   url: https://developer.okta.com/docs/api/getting_started/design_principles.html

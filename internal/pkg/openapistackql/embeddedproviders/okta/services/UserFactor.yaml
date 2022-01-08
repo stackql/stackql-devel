@@ -427,6 +427,104 @@ components:
       in: header
       name: Authorization
       type: apiKey
+  x-stackQL-resources:
+    catalog:
+      id: okta.userfactor.catalog
+      methods:
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users/{userId}/factors/catalog
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: catalog
+      title: catalog
+    factors:
+      id: okta.userfactor.factors
+      methods:
+        activate:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/users/{userId}/factors/{factorId}/lifecycle/activate
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/users/{userId}/factors/{factorId}
+          response:
+            openAPIDocKey: '204'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users/{userId}/factors/{factorId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/users/{userId}/factors
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users/{userId}/factors
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        verify:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/users/{userId}/factors/{factorId}/verify
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: factors
+      title: factors
+    questions:
+      id: okta.userfactor.questions
+      methods:
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users/{userId}/factors/questions
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: questions
+      title: questions
+    transactions:
+      id: okta.userfactor.transactions
+      methods:
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/users/{userId}/factors/{factorId}/transactions/{transactionId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: transactions
+      title: transactions
 externalDocs:
   description: Find more info here
   url: https://developer.okta.com/docs/api/getting_started/design_principles.html

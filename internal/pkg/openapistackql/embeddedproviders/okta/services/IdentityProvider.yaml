@@ -1453,14 +1453,97 @@ components:
       name: Authorization
       type: apiKey
   x-stackQL-resources:
-    idps:
-      id: okta.identityprovider.idps
+    csrs:
+      id: okta.identityprovider.csrs
       methods:
+        delete:
+          operation:
+            $ref: DELETE
+          path:
+            $ref: /api/v1/idps/{idpId}/credentials/csrs/{csrId}
+          response:
+            openAPIDocKey: '204'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/idps/{idpId}/credentials/csrs/{csrId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/idps/{idpId}/credentials/csrs
+          request:
+            mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '201'
         list:
           operation:
             $ref: GET
           path:
-            $ref: /api/v1/idps
+            $ref: /api/v1/idps/{idpId}/credentials/csrs
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: csrs
+      title: csrs
+    idpkeys:
+      id: okta.identityprovider.idpkeys
+      methods:
+        clone:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/idps/{idpId}/credentials/keys/{keyId}/clone
+          response:
+            mediaType: application/json
+            openAPIDocKey: '201'
+        get:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/idps/{idpId}/credentials/keys/{keyId}
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        insert:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/idps/{idpId}/credentials/keys/generate
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/idps/{idpId}/credentials/keys
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      name: idpkeys
+      title: idpkeys
+    idps:
+      id: okta.identityprovider.idps
+      methods:
+        activate:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/idps/{idpId}/lifecycle/activate
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        deactivate:
+          operation:
+            $ref: POST
+          path:
+            $ref: /api/v1/idps/{idpId}/lifecycle/activate
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1486,6 +1569,14 @@ components:
             $ref: /api/v1/idps
           request:
             mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/idps
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1504,14 +1595,6 @@ components:
     keys:
       id: okta.identityprovider.keys
       methods:
-        list:
-          operation:
-            $ref: GET
-          path:
-            $ref: /api/v1/idps/credentials/keys
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
         delete:
           operation:
             $ref: DELETE
@@ -1534,34 +1617,34 @@ components:
             $ref: /api/v1/idps/credentials/keys
           request:
             mediaType: application/json
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /api/v1/idps/credentials/keys
           response:
             mediaType: application/json
             openAPIDocKey: '200'
       name: keys
       title: keys
-    csrs:
-      id: okta.identityprovider.csrs
+    users:
+      id: okta.identityprovider.users
       methods:
-        list:
-          operation:
-            $ref: GET
-          path:
-            $ref: /api/v1/idps/{idpId}/credentials/csrs
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
         delete:
           operation:
             $ref: DELETE
           path:
-            $ref: /api/v1/idps/{idpId}/credentials/csrs/{csrId}
+            $ref: /api/v1/idps/{idpId}/users/{userId}
           response:
             openAPIDocKey: '204'
         get:
           operation:
             $ref: GET
           path:
-            $ref: /api/v1/idps/{idpId}/credentials/csrs/{csrId}
+            $ref: /api/v1/idps/{idpId}/users/{userId}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1569,112 +1652,17 @@ components:
           operation:
             $ref: POST
           path:
-            $ref: /api/v1/idps/{idpId}/credentials/csrs
+            $ref: /api/v1/idps/{idpId}/users/{userId}
           request:
             mediaType: application/json
           response:
             mediaType: application/json
-            openAPIDocKey: '201'
-      name: csrs
-      title: csrs
-    idpkeys:
-      id: okta.identityprovider.idpkeys
-      methods:
-        list:
-          operation:
-            $ref: GET
-          path:
-            $ref: /api/v1/idps/{idpId}/credentials/keys
-          response:
-            mediaType: application/json
             openAPIDocKey: '200'
-        get:
-          operation:
-            $ref: GET
-          path:
-            $ref: /api/v1/idps/{idpId}/credentials/keys/{keyId}
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        insert:
-          operation:
-            $ref: POST
-          path:
-            $ref: /api/v1/idps/{idpId}/credentials/keys/generate
-          request:
-            mediaType: application/json
-          response:
-            mediaType: application/json
-            openAPIDocKey: '201'
-      name: idpkeys
-      title: idpkeys
-    idpkeysclone:
-      id: okta.identityprovider.idpkeysclone
-      methods:
-        insert:
-          operation:
-            $ref: POST
-          path:
-            $ref: /api/v1/idps/{idpId}/credentials/keys/generate
-          response:
-            mediaType: application/json
-            openAPIDocKey: '201'
-      name: idpkeysclone
-      title: idpkeysclone
-    idpactivations:
-      id: okta.identityprovider.idpactivations
-      methods:
-        insert:
-          operation:
-            $ref: POST
-          path:
-            $ref: /api/v1/idps/{idpId}/lifecycle/activate
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        delete:
-          operation:
-            $ref: POST
-          path:
-            $ref: /api/v1/idps/{idpId}/lifecycle/deactivate
-          response:
-            mediaType: application/json
-            openAPIDocKey: '201'
-      name: idpactivations
-      title: idpactivations
-    users:
-      id: okta.identityprovider.users
-      methods:
         list:
           operation:
             $ref: GET
           path:
             $ref: /api/v1/idps/{idpId}/users
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        delete:
-          operation:
-            $ref: DELETE
-          path:
-            $ref: /api/v1/idps/{idpId}/users/{userId}
-          response:
-            openAPIDocKey: '204'
-        get:
-          operation:
-            $ref: GET
-          path:
-            $ref: /api/v1/idps/{idpId}/users/{userId}
-          response:
-            mediaType: application/json
-            openAPIDocKey: '200'
-        insert:
-          operation:
-            $ref: POST
-          path:
-            $ref: /api/v1/idps/{idpId}/users/{userId}
-          request:
-            mediaType: application/json
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -1708,7 +1696,6 @@ info:
   termsOfService: https://developer.okta.com/terms/
   title: Okta API
   version: 2.8.0
-  x-serviceName: identityprovider
 openapi: 3.0.1
 paths:
   /api/v1/idps:
@@ -2407,7 +2394,4 @@ paths:
       tags:
       - IdentityProvider
 servers:
-- url: https://{subdomain}.okta.com/
-  variables: 
-    subdomain:
-      default: my-domain
+- url: https://your-subdomain.okta.com/
