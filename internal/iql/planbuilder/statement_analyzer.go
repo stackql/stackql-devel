@@ -823,7 +823,7 @@ func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, n
 			}
 			break
 		}
-		responseSchema, err := tbl.GetItemsObjectSchema()
+		responseSchema, err := tbl.GetSelectableObjectSchema()
 		if err != nil {
 			return err
 		}
@@ -1029,7 +1029,7 @@ func (p *primitiveGenerator) analyzeTableExpr(handlerCtx *handler.HandlerContext
 	log.Infoln(fmt.Sprintf("schema.Items = %v", schema.Items))
 	log.Infoln(fmt.Sprintf("schema.Properties = %v", schema.Properties))
 	var itemObjS *openapistackql.Schema
-	itemObjS, tbl.SelectItemsKey, err = schema.GetSelectListItemsSchema(tbl.LookupSelectItemsKey())
+	itemObjS, tbl.SelectItemsKey, err = schema.GetSelectSchema(tbl.LookupSelectItemsKey())
 	if itemObjS == nil || err != nil {
 		return nil, fmt.Errorf(unsuitableSchemaMsg)
 	}

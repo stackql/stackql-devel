@@ -149,9 +149,20 @@ func (schema *Schema) GetSelectListItems(key string) (*Schema, string) {
 	return nil, ""
 }
 
-func (schema *Schema) GetSelectListItemsSchema(key string) (*Schema, string, error) {
+func (schema *Schema) GetSelectSchema(itemsKey string) (*Schema, string, error) {
+	sc, str, err := schema.getSelectItemsSchema(itemsKey)
+	if err == nil {
+		return sc, str, err
+	}
+	if schema != nil && schema.Properties != nil && len(schema.Properties) > 0 {
+		return schema, "", nil
+	}
+	return nil, "", fmt.Errorf("unable to complete schema.GetSelectSchema() for schema = '%v' and itemsKey = '%s'", schema, itemsKey)
+}
+
+func (schema *Schema) getSelectItemsSchema(key string) (*Schema, string, error) {
 	var itemS *openapi3.Schema
-	log.Infoln(fmt.Sprintf("schema.GetSelectListItemsSchema() key = '%s'", key))
+	log.Infoln(fmt.Sprintf("schema.getSelectItemsSchema() key = '%s'", key))
 	if strings.HasPrefix(schema.key, "[]") {
 		rv, err := schema.GetItems()
 		return rv, key, err

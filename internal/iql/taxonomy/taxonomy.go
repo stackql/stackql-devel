@@ -186,8 +186,8 @@ func (ex ExtendedTableMetadata) GetTableName() (string, error) {
 	return ex.HeirarchyObjects.HeirarchyIds.GetTableName(), nil
 }
 
-func (ex ExtendedTableMetadata) GetItemsObjectSchema() (*openapistackql.Schema, error) {
-	return ex.HeirarchyObjects.GetItemsObjectSchema()
+func (ex ExtendedTableMetadata) GetSelectableObjectSchema() (*openapistackql.Schema, error) {
+	return ex.HeirarchyObjects.GetSelectableObjectSchema()
 }
 
 func NewExtendedTableMetadata(heirarchyObjects *HeirarchyObjects) ExtendedTableMetadata {
@@ -218,12 +218,12 @@ func (ho *HeirarchyObjects) getObjectSchema() (*openapistackql.Schema, error) {
 	return ho.Method.GetResponseBodySchema()
 }
 
-func (ho *HeirarchyObjects) GetItemsObjectSchema() (*openapistackql.Schema, error) {
+func (ho *HeirarchyObjects) GetSelectableObjectSchema() (*openapistackql.Schema, error) {
 	responseObj, err := ho.getObjectSchema()
 	if err != nil {
 		return nil, err
 	}
-	itemObjS, _, err := responseObj.GetSelectListItemsSchema(ho.LookupSelectItemsKey())
+	itemObjS, _, err := responseObj.GetSelectSchema(ho.LookupSelectItemsKey())
 	if itemObjS == nil || err != nil {
 		return nil, fmt.Errorf("could not locate dml object for response type '%v'", ho.Method.Response.ObjectKey)
 	}

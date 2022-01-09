@@ -399,7 +399,7 @@ func prepareErroneousResultSet(rowMap map[string]map[string]interface{}, columnO
 }
 
 func (pb *primitiveGenerator) describeInstructionExecutor(handlerCtx *handler.HandlerContext, tbl taxonomy.ExtendedTableMetadata, extended bool, full bool) dto.ExecutorOutput {
-	schema, err := tbl.GetItemsObjectSchema()
+	schema, err := tbl.GetSelectableObjectSchema()
 	if err != nil {
 		return dto.NewErroneousExecutorOutput(err)
 	}

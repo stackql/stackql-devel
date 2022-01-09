@@ -86,7 +86,7 @@ func (p *primitiveGenerator) analyzeUnarySelection(
 	log.Infoln(fmt.Sprintf("schema.Items = %v", schema.Items))
 	log.Infoln(fmt.Sprintf("schema.Properties = %v", schema.Properties))
 	var itemObjS *openapistackql.Schema
-	itemObjS, tbl.SelectItemsKey, err = schema.GetSelectListItemsSchema(tbl.LookupSelectItemsKey())
+	itemObjS, tbl.SelectItemsKey, err = schema.GetSelectSchema(tbl.LookupSelectItemsKey())
 	if err != nil {
 		return fmt.Errorf(unsuitableSchemaMsg)
 	}

@@ -393,7 +393,14 @@ func (ss *SingleSelectAcquire) Build() error {
 				var ok bool
 				switch pl := target.(type) {
 				case map[string]interface{}:
-					items, ok = pl[ss.tableMeta.SelectItemsKey]
+					if ss.tableMeta.SelectItemsKey != "" {
+						items, ok = pl[ss.tableMeta.SelectItemsKey]
+					} else {
+						items = []interface{}{
+							pl,
+						}
+						ok = true
+					}
 				case []interface{}:
 					items = pl
 					ok = true
