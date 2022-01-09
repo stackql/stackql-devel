@@ -346,6 +346,22 @@
         "json"
       ],
     },
+
+    {
+      "name": "DEBUG exec \"SELECT name FROM google.storage.buckets WHERE project = 'lab-kr-network-01';\" -- prebuilt with cmake",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/infraql",
+      "args": [
+        "exec",
+        "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
+        "SELECT name FROM google.storage.buckets WHERE project = 'lab-kr-network-01';",
+        "-o",
+        "json"
+      ],
+    },
+    // ;
     // ./infraql --verbose --providerroot=./.infraql   --keyfilepath=../keys/sa-key.json exec    "select canIpForward from compute.instances WHERE zone = 'australia-southeast1-b' AND project = 'lab-kr-network-01' ;" -o json | jq
     {
       // need to edit processId as appropriate

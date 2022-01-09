@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -171,7 +172,7 @@ func ProcessHttpResponse(response *http.Response) (interface{}, error) {
 	}
 	var target interface{}
 	rt := response.Header.Get("Content-Type")
-	if rt == "application/json" {
+	if strings.Contains(rt, "application/json") {
 		err := json.NewDecoder(body).Decode(&target)
 		if err == nil && response.StatusCode >= 400 {
 			err = fmt.Errorf(fmt.Sprintf("HTTP response error: %s", string(util.InterfaceToBytes(target, true))))
