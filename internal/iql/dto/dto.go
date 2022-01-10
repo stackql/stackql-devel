@@ -22,6 +22,7 @@ const (
 	CacheTTLKey               string = "metadatattl"
 	ColorSchemeKey            string = "colorscheme"
 	ConfigFilePathKey         string = "configfile"
+	CPUProfileKey             string = "cpuprofile"
 	CSVHeadersDisableKey      string = "hideheaders"
 	DbEngineKey               string = "dbengine"
 	DbGenerationIdKey         string = "dbgenerationid"
@@ -120,6 +121,7 @@ type RuntimeCtx struct {
 	CacheTTL             int
 	ColorScheme          string
 	ConfigFilePath       string
+	CPUProfile           string
 	CSVHeadersDisable    bool
 	DbEngine             string
 	DbFilePath           string
@@ -191,6 +193,8 @@ func (rc *RuntimeCtx) Set(key string, val string) error {
 		rc.ColorScheme = val
 	case ConfigFilePathKey:
 		rc.ConfigFilePath = val
+	case CPUProfileKey:
+		rc.CPUProfile = val
 	case CSVHeadersDisableKey:
 		retVal = setBool(&rc.CSVHeadersDisable, val)
 	case DbEngineKey:

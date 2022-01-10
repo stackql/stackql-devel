@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"runtime/pprof"
 
 	"github.com/spf13/cobra"
 
@@ -48,6 +49,15 @@ infraql exec -i iqlscripts/create-disk.iql --keyfilepath /mnt/c/tmp/infraql-demo
 
 		var err error
 		var rdr io.Reader
+
+		if runtimeCtx.CPUProfile != "" {
+			f, err := os.Create(runtimeCtx.CPUProfile)
+			if err != nil {
+				iqlerror.PrintErrorAndExitOneIfError(err)
+			}
+			pprof.StartCPUProfile(f)
+			defer pprof.StopCPUProfile()
+		}
 
 		switch runtimeCtx.InfilePath {
 		case "stdin":
