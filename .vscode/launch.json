@@ -135,9 +135,9 @@
       "program": "${workspaceFolder}/infraql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
+        "--auth={ \"google\": { \"keyfilepath\": \"${workspaceFolder}/keys/sa-key.json\" } }",
         "--cpuprofile=${workspaceFolder}/build/prof1.prof",
-        "select * from (EXEC /*+ SHOWRESULTS */ google.compute.disks.get @disk = 'my-disk-01-indeed',  @project = 'lab-kr-network-01', @zone = 'australia-southeast1-a');",
+        "select name from (EXEC /*+ SHOWRESULTS */ google.compute.disks.get @disk = 'my-disk-01-indeed',  @project = 'lab-kr-network-01', @zone = 'australia-southeast1-a');",
         "-o",
         "json"
       ],
