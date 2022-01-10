@@ -14,7 +14,7 @@ on:
 
 env:
   GOGETCMD: "go get -v -t -d ./..."
-  GOTESTCMD: "go test --tags \"json1\" -v ./..."
+  GOTESTCMD: "go test -timeout 1200s --tags \"json1\" -v ./..."
   TESTSCRIPT: "test/python/main.py"
 
 jobs:
@@ -82,7 +82,7 @@ jobs:
 
     - name: Test
       if: success()
-      run: go test --tags "json1" -v ./...
+      run: go test -timeout 1200s --tags "json1" -v ./...
     
     - name: Prepare Test DB
       if: success()
@@ -160,7 +160,7 @@ jobs:
       
     - name: Test
       if: success()
-      run: go test --tags "json1" -v ./...
+      run: go test -timeout 1200s --tags "json1" -v ./...
     
     - name: Prepare Test DB
       if: success()
@@ -235,7 +235,7 @@ jobs:
 
     - name: Test
       if: success()
-      run: go test --tags "json1" -v ./...
+      run: go test -timeout 1200s --tags "json1" -v ./...
     
     - name: Prepare Test DB
       if: success()
