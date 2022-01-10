@@ -10,36 +10,15 @@ import (
 	"infraql/internal/iql/util"
 )
 
-func GetOktaRuntimeCtx(providerStr string, outputFmtStr string, testName string) (*dto.RuntimeCtx, error) {
-	saKeyPath, err := util.GetFilePathFromRepositoryRoot("test/assets/credentials/dummy/okta/api-key.txt")
-	if err != nil {
-		return nil, fmt.Errorf("test failed on %s: %v", saKeyPath, err)
-	}
-	providerDir, err := util.GetFilePathFromRepositoryRoot("test/.infraql")
-	if err != nil {
-		return nil, fmt.Errorf("test failed: %v", err)
-	}
-	dbInitFilePath, err := util.GetFilePathFromRepositoryRoot("test/db/setup.sql")
-	if err != nil {
-		return nil, fmt.Errorf("test failed on %s: %v", dbInitFilePath, err)
-	}
-	return &dto.RuntimeCtx{
-		Delimiter:        ",",
-		ProviderStr:      providerStr,
-		LogLevelStr:      "warn",
-		AuthRaw:          fmt.Sprintf(`{ "okta": { "keyfilepath": "%s", "keyfiletype": "api_key" } }`, saKeyPath),
-		ProviderRootPath: providerDir,
-		OutputFormat:     outputFmtStr,
-		DbFilePath:       fmt.Sprintf("file:%s?mode=memory&cache=shared", testName),
-		DbInitFilePath:   dbInitFilePath,
-	}, nil
-}
-
 func GetRuntimeCtx(providerStr string, outputFmtStr string, testName string) (*dto.RuntimeCtx, error) {
 	saKeyPath, err := util.GetFilePathFromRepositoryRoot("test/assets/credentials/dummy/google/dummy-sa-key.json")
 	if err != nil {
 		return nil, fmt.Errorf("test failed on %s: %v", saKeyPath, err)
 	}
+	oktaSaKeyPath, err := util.GetFilePathFromRepositoryRoot("test/assets/credentials/dummy/okta/api-key.txt")
+	if err != nil {
+		return nil, fmt.Errorf("test failed on %s: %v", saKeyPath, err)
+	}
 	providerDir, err := util.GetFilePathFromRepositoryRoot("test/.infraql")
 	if err != nil {
 		return nil, fmt.Errorf("test failed: %v", err)
@@ -52,7 +31,7 @@ func GetRuntimeCtx(providerStr string, outputFmtStr string, testName string) (*d
 		Delimiter:        ",",
 		ProviderStr:      providerStr,
 		LogLevelStr:      "warn",
-		AuthRaw:          fmt.Sprintf(`{ "google": { "keyfilepath": "%s" } }`, saKeyPath),
+		AuthRaw:          fmt.Sprintf(`{ "google": { "keyfilepath": "%s" }, "okta": { "keyfilepath": "%s", "keyfiletype": "api_key" } }`, saKeyPath, oktaSaKeyPath),
 		ProviderRootPath: providerDir,
 		OutputFormat:     outputFmtStr,
 		DbFilePath:       fmt.Sprintf("file:%s?mode=memory&cache=shared", testName),

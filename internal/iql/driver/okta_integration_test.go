@@ -37,7 +37,7 @@ func TestSelectOktaApplicationAppsDriver(t *testing.T) {
 		t.Fatalf("%v", err)
 	}
 
-	runtimeCtx, err := infraqltestutil.GetOktaRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectOktaApplicationAppsDriver")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectOktaApplicationAppsDriver")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -81,7 +81,7 @@ func TestSelectOktaApplicationAppsDriver(t *testing.T) {
 }
 
 func TestSimpleSelectOktaApplicationAppsDriverOutput(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetOktaRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectOktaApplicationAppsDriverOutput")
+	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectOktaApplicationAppsDriverOutput")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
