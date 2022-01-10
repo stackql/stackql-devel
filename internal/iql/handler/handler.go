@@ -9,6 +9,7 @@ import (
 	"infraql/internal/pkg/txncounter"
 	"io"
 
+	"gopkg.in/yaml.v2"
 	lrucache "vitess.io/vitess/go/cache"
 )
 
@@ -66,16 +67,19 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 	if err != nil {
 		return HandlerContext{}, err
 	}
+
+	ac := make(map[string]*dto.AuthCtx)
+	err = yaml.Unmarshal([]byte(runtimeCtx.AuthRaw), ac)
+	if err != nil {
+		return HandlerContext{}, err
+	}
 	return HandlerContext{
 		RawQuery:       cmdString,
 		RuntimeContext: runtimeCtx,
 		providers: map[string]provider.IProvider{
 			runtimeCtx.ProviderStr: prov,
 		},
-		authContexts: map[string]*dto.AuthCtx{
-			"google": dto.GetAuthCtx(nil, runtimeCtx.KeyFilePath, runtimeCtx.KeyFileType),
-			"okta":   dto.GetAuthCtx(nil, runtimeCtx.KeyFilePath, "api_key"),
-		},
+		authContexts:      ac,
 		ErrorPresentation: runtimeCtx.ErrorPresentation,
 		LRUCache:          lruCache,
 		SQLEngine:         sqlEng,

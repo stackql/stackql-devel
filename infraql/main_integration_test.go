@@ -33,7 +33,7 @@ func TestSimpleSelectGoogleComputeInstance(t *testing.T) {
 	provider.DummyAuth = true
 	args := []string{
 		"--loglevel=warn",
-		fmt.Sprintf("--keyfilepath=%s", runtimeCtx.KeyFilePath),
+		fmt.Sprintf("--auth=%s", runtimeCtx.AuthRaw),
 		fmt.Sprintf("--providerroot=%s", runtimeCtx.ProviderRootPath),
 		fmt.Sprintf("--dbfilepath=%s", runtimeCtx.DbFilePath),
 		fmt.Sprintf("--dbinitfilepath=%s", runtimeCtx.DbInitFilePath),
@@ -65,7 +65,7 @@ func TestK8STemplatedE2eSuccess(t *testing.T) {
 
 	args := []string{
 		"--loglevel=warn",
-		fmt.Sprintf("--keyfilepath=%s", runtimeCtx.KeyFilePath),
+		fmt.Sprintf("--auth=%s", runtimeCtx.AuthRaw),
 		fmt.Sprintf("--providerroot=%s", runtimeCtx.ProviderRootPath),
 		fmt.Sprintf("--dbfilepath=%s", runtimeCtx.DbFilePath),
 		fmt.Sprintf("--dbinitfilepath=%s", runtimeCtx.DbInitFilePath),
@@ -90,7 +90,7 @@ func TestInsertAwaitExecSuccess(t *testing.T) {
 
 	args := []string{
 		"--loglevel=warn",
-		fmt.Sprintf("--keyfilepath=%s", runtimeCtx.KeyFilePath),
+		fmt.Sprintf("--auth=%s", runtimeCtx.AuthRaw),
 		fmt.Sprintf("--providerroot=%s", runtimeCtx.ProviderRootPath),
 		fmt.Sprintf("--dbfilepath=%s", runtimeCtx.DbFilePath),
 		fmt.Sprintf("--dbinitfilepath=%s", runtimeCtx.DbInitFilePath),
@@ -116,7 +116,7 @@ func TestDeleteAwaitSuccess(t *testing.T) {
 
 	args := []string{
 		"--loglevel=warn",
-		fmt.Sprintf("--keyfilepath=%s", runtimeCtx.KeyFilePath),
+		fmt.Sprintf("--auth=%s", runtimeCtx.AuthRaw),
 		fmt.Sprintf("--providerroot=%s", runtimeCtx.ProviderRootPath),
 		fmt.Sprintf("--dbfilepath=%s", runtimeCtx.DbFilePath),
 		fmt.Sprintf("--dbinitfilepath=%s", runtimeCtx.DbInitFilePath),
@@ -142,7 +142,7 @@ func TestDeleteAwaitExecSuccess(t *testing.T) {
 
 	args := []string{
 		"--loglevel=warn",
-		fmt.Sprintf("--keyfilepath=%s", runtimeCtx.KeyFilePath),
+		fmt.Sprintf("--auth=%s", runtimeCtx.AuthRaw),
 		fmt.Sprintf("--providerroot=%s", runtimeCtx.ProviderRootPath),
 		fmt.Sprintf("--dbfilepath=%s", runtimeCtx.DbFilePath),
 		fmt.Sprintf("--dbinitfilepath=%s", runtimeCtx.DbInitFilePath),

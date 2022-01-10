@@ -17,6 +17,7 @@ const (
 	DefaultColorScheme        string = DarkColorScheme
 	DefaultWindowsColorScheme string = NullColorScheme
 	DryRunFlagKey             string = "dryrun"
+	AuthCtxKey                string = "auth"
 	APIRequestTimeoutKey      string = "apirequesttimeout"
 	CacheKeyCountKey          string = "cachekeycount"
 	CacheTTLKey               string = "metadatattl"
@@ -38,8 +39,6 @@ const (
 	HTTPProxySchemeKey        string = "http.proxy.scheme"
 	HTTPProxyUserKey          string = "http.proxy.user"
 	InfilePathKey             string = "infile"
-	KeyFilePathKey            string = "keyfilepath"
-	KeyFileTypeKey            string = "keyfiletype"
 	LogLevelStrKey            string = "loglevel"
 	OutfilePathKey            string = "outfile"
 	OutputFormatKey           string = "output"
@@ -80,11 +79,11 @@ type HTTPElement struct {
 }
 
 type AuthCtx struct {
-	Scopes      []string
-	Type        string
-	ID          string
-	KeyFilePath string
-	Active      bool
+	Scopes      []string `json:"scopes,omitempty" yaml:"scopes,omitempty"`
+	Type        string   `json:"keyfiletype" yaml:"keyfiletype"`
+	ID          string   `json:"-" yaml:"-"`
+	KeyFilePath string   `json:"keyfilepath" yaml:"keyfilepath"`
+	Active      bool     `json:"-" yaml:"-"`
 }
 
 type ExecPayload struct {
@@ -117,6 +116,7 @@ func GetAuthCtx(scopes []string, keyFilePath string, keyFileType string) *AuthCt
 
 type RuntimeCtx struct {
 	APIRequestTimeout    int
+	AuthRaw              string
 	CacheKeyCount        int
 	CacheTTL             int
 	ColorScheme          string
@@ -138,8 +138,6 @@ type RuntimeCtx struct {
 	HTTPProxyScheme      string
 	HTTPProxyUser        string
 	InfilePath           string
-	KeyFilePath          string
-	KeyFileType          string
 	LogLevelStr          string
 	OutfilePath          string
 	OutputFormat         string
@@ -185,6 +183,8 @@ func (rc *RuntimeCtx) Set(key string, val string) error {
 	switch key {
 	case APIRequestTimeoutKey:
 		retVal = setInt(&rc.APIRequestTimeout, val)
+	case AuthCtxKey:
+		rc.AuthRaw = val
 	case CacheKeyCountKey:
 		retVal = setInt(&rc.CacheKeyCount, val)
 	case CacheTTLKey:
@@ -227,10 +227,6 @@ func (rc *RuntimeCtx) Set(key string, val string) error {
 		rc.HTTPProxyUser = val
 	case InfilePathKey:
 		rc.InfilePath = val
-	case KeyFilePathKey:
-		rc.KeyFilePath = val
-	case KeyFileTypeKey:
-		rc.KeyFileType = val
 	case LogLevelStrKey:
 		rc.LogLevelStr = val
 	case OutfilePathKey:

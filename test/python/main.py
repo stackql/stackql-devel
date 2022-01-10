@@ -11,7 +11,7 @@ import sys
 from enum import Enum
 from typing import AnyStr, Callable, Iterable, TextIO, Tuple, TypeVar, List
 
-StringOrBytes = TypeVar('S', bytes, str)
+StringOrBytes = TypeVar('StringOrBytes', bytes, str)
 
 TEST_ERRORS_COUNT :int = 0
 TESTS_IN_ERROR :List[str] = []
