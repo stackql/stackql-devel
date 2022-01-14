@@ -286,11 +286,14 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
-    - name: Get dependencies
-      run: $GOGETCMD
+    run: |
+        git config --global url.https://$GH_ACCESS_TOKEN@github.com/.insteadOf https://github.com/
+        $GOGETCMD
       env:
         GOGETCMD: ${{env.GOGETCMD}}
         CGO_ENABLED: 1
+        GH_ACCESS_TOKEN: ${{env.GH_ACCESS_TOKEN}}
+        GOPRIVATE: ${{env.GOPRIVATE}}
 
     - name: Generate Build Flags and Build
       env:
