@@ -60,7 +60,7 @@ jobs:
         GH_ACCESS_TOKEN: ${{env.GH_ACCESS_TOKEN}}
         GOPRIVATE: ${{env.GOPRIVATE}}
       run: |
-        git config --global url.https://$nv:GH_ACCESS_TOKEN@github.com/.insteadOf https://github.com/
+        git config --global url.https://$env:GH_ACCESS_TOKEN@github.com/.insteadOf https://github.com/
         $Version = convertfrom-stringdata (get-content ./version.txt -raw)
         $BuildMajorVersion = $Version.'MajorVersion'
         $BuildMinorVersion = $Version.'MinorVersion'
