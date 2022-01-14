@@ -8,19 +8,19 @@ import (
 	"strings"
 	"testing"
 
-	. "infraql/internal/iql/driver"
-	"infraql/internal/iql/querysubmit"
-	"infraql/internal/iql/responsehandler"
-	"infraql/internal/iql/util"
+	. "github.com/stackql/stackql/internal/iql/driver"
+	"github.com/stackql/stackql/internal/iql/querysubmit"
+	"github.com/stackql/stackql/internal/iql/responsehandler"
+	"github.com/stackql/stackql/internal/iql/util"
 
-	"infraql/internal/iql/config"
-	"infraql/internal/iql/entryutil"
-	"infraql/internal/iql/handler"
-	"infraql/internal/iql/provider"
+	"github.com/stackql/stackql/internal/iql/config"
+	"github.com/stackql/stackql/internal/iql/entryutil"
+	"github.com/stackql/stackql/internal/iql/handler"
+	"github.com/stackql/stackql/internal/iql/provider"
 
-	"infraql/internal/test/infraqltestutil"
-	"infraql/internal/test/testhttpapi"
-	"infraql/internal/test/testobjects"
+	"github.com/stackql/stackql/internal/test/stackqltestutil"
+	"github.com/stackql/stackql/internal/test/testhttpapi"
+	"github.com/stackql/stackql/internal/test/testobjects"
 
 	lrucache "vitess.io/vitess/go/cache"
 )
@@ -37,7 +37,7 @@ func TestSelectOktaApplicationAppsDriver(t *testing.T) {
 		t.Fatalf("%v", err)
 	}
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectOktaApplicationAppsDriver")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectOktaApplicationAppsDriver")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -56,7 +56,7 @@ func TestSelectOktaApplicationAppsDriver(t *testing.T) {
 	testhttpapi.StartServer(t, exp)
 	provider.DummyAuth = true
 
-	sqlEng, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEng, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -81,11 +81,11 @@ func TestSelectOktaApplicationAppsDriver(t *testing.T) {
 }
 
 func TestSimpleSelectOktaApplicationAppsDriverOutput(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectOktaApplicationAppsDriverOutput")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectOktaApplicationAppsDriverOutput")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -116,7 +116,7 @@ func TestSimpleSelectOktaApplicationAppsDriverOutput(t *testing.T) {
 		responsehandler.HandleResponse(&handlerCtx, response)
 	}
 
-	infraqltestutil.SetupSelectOktaApplicationApps(t)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectOktaApplicationAppsJson})
+	stackqltestutil.SetupSelectOktaApplicationApps(t)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectOktaApplicationAppsJson})
 
 }

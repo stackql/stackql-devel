@@ -10,10 +10,10 @@ import (
 	"strings"
 	"testing"
 
-	. "infraql/internal/iql/httpexec"
+	. "github.com/stackql/stackql/internal/iql/httpexec"
 
-	"infraql/internal/test/testhttpapi"
-	"infraql/internal/test/testutil"
+	"github.com/stackql/stackql/internal/test/testhttpapi"
+	"github.com/stackql/stackql/internal/test/testutil"
 
 	log "github.com/sirupsen/logrus"
 )

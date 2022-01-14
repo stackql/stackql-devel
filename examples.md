@@ -3,7 +3,7 @@
 
 ## Assumptions
 
-  - `infraql` is in your `${PATH}`.
+  - `stackql` is in your `${PATH}`.
   - You have an appropriate key file at the file location `${PATH_TO_KEY_FILE}`.  For example, with the google provider, one might use a service account json key.
 
 If using `service account` auth against the `google` provider, then no ancillary information is required.  If howevere, you are using another key type / provider, then more runtime information is required, eg:
@@ -11,9 +11,9 @@ If using `service account` auth against the `google` provider, then no ancillary
 Google:
 
 ```sh
-AUTH_STR='{ "google": { "keyfilepath": "/Users/admin/moonlighting/infraql-original/keys/sa-key.json" }, "okta": { "keyfilepath": "/Users/admin/moonlighting/infraql-original/keys/okta-token.txt", "keyfiletype": "api_key" } }'
+AUTH_STR='{ "google": { "keyfilepath": "/Users/admin/moonlighting/stackql-original/keys/sa-key.json" }, "okta": { "keyfilepath": "/Users/admin/moonlighting/stackql-original/keys/okta-token.txt", "keyfiletype": "api_key" } }'
 
-./infraql shell --auth="${AUTH_STR}"
+./stackql shell --auth="${AUTH_STR}"
 
 
 ```
@@ -21,7 +21,7 @@ AUTH_STR='{ "google": { "keyfilepath": "/Users/admin/moonlighting/infraql-origin
 ### SELECT
 
 ```
-infraql \
+stackql \
   --auth="${AUTH_STR}" exec  \
   "select * from compute.instances WHERE zone = '${YOUR_GOOGLE_ZONE}' AND project = '${YOUR_GOOGLE_PROJECT}' ;" ; echo
 
@@ -30,7 +30,7 @@ infraql \
 Or...
 
 ```
-infraql \
+stackql \
   --auth="${AUTH_STR}" exec  \
   "select selfLink, projectNumber from storage.buckets WHERE location = '${YOUR_GOOGLE_ZONE}' AND project = '${YOUR_GOOGLE_PROJECT}' ;" ; echo
 
@@ -39,7 +39,7 @@ infraql \
 ### SHOW SERVICES
 
 ```
-infraql --providerroot=../test/.infraql \
+stackql --providerroot=../test/.stackql \
   --configfile=../test/.iqlrc exec \
   "SHOW SERVICES from google ;" ; echo
 

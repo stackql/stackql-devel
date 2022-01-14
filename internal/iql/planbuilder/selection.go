@@ -2,11 +2,12 @@ package planbuilder
 
 import (
 	"fmt"
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/handler"
-	"infraql/internal/iql/parserutil"
-	"infraql/internal/iql/taxonomy"
-	"infraql/internal/iql/util"
+
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/handler"
+	"github.com/stackql/stackql/internal/iql/parserutil"
+	"github.com/stackql/stackql/internal/iql/taxonomy"
+	"github.com/stackql/stackql/internal/iql/util"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 

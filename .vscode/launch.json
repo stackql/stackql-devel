@@ -9,7 +9,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "help"
       ]
@@ -19,7 +19,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "show services from google where name = 'abusiveexperiencereport';"
@@ -30,7 +30,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "show resources from okta.group;"
@@ -41,7 +41,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "DESCRIBE compute.instances;", // "--offline"
@@ -52,7 +52,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "DESCRIBE compute.disks;", // "--offline"
@@ -63,7 +63,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "SHOW resources from google.compute WHERE name = '';", // "--offline"
@@ -75,7 +75,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
@@ -89,7 +89,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
@@ -104,7 +104,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
@@ -118,7 +118,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
@@ -132,7 +132,7 @@
       "type": "go",
       "request": "launch",
       "mode": "debug",
-      "program": "${workspaceFolder}/infraql",
+      "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
         "--auth={ \"google\": { \"keyfilepath\": \"${workspaceFolder}/keys/sa-key.json\" } }",
@@ -147,7 +147,7 @@
       "type": "go",
       "request": "launch",
       "mode": "debug",
-      "program": "${workspaceFolder}/infraql",
+      "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/okta-token.txt",
@@ -162,7 +162,7 @@
       "type": "go",
       "request": "launch",
       "mode": "debug",
-      "program": "${workspaceFolder}/infraql",
+      "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/okta-token.txt",
@@ -177,7 +177,7 @@
       "type": "go",
       "request": "launch",
       "mode": "debug",
-      "program": "${workspaceFolder}/infraql",
+      "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/okta-token.txt",
@@ -192,7 +192,7 @@
       "type": "go",
       "request": "launch",
       "mode": "debug",
-      "program": "${workspaceFolder}/infraql",
+      "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/okta-token.txt",
@@ -207,7 +207,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
@@ -225,7 +225,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
@@ -239,7 +239,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
@@ -253,7 +253,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
@@ -267,7 +267,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
@@ -281,7 +281,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
@@ -295,7 +295,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
@@ -309,7 +309,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
@@ -323,7 +323,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
@@ -338,7 +338,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
@@ -352,7 +352,7 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/build/infraql",
+      "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
@@ -367,7 +367,7 @@
       "type": "go",
       "request": "launch",
       "mode": "debug",
-      "program": "${workspaceFolder}/infraql",
+      "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
         "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
@@ -377,7 +377,7 @@
       ],
     },
     // ;
-    // ./infraql --verbose --providerroot=./.infraql   --keyfilepath=../keys/sa-key.json exec    "select canIpForward from compute.instances WHERE zone = 'australia-southeast1-b' AND project = 'lab-kr-network-01' ;" -o json | jq
+    // ./stackql --verbose --providerroot=./.stackql   --keyfilepath=../keys/sa-key.json exec    "select canIpForward from compute.instances WHERE zone = 'australia-southeast1-b' AND project = 'lab-kr-network-01' ;" -o json | jq
     {
       // need to edit processId as appropriate
       "name": "Attach to local process -- eg shell -- amend processId as required",

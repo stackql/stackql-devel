@@ -6,14 +6,14 @@ import (
 
 	"bufio"
 
-	. "infraql/internal/iql/driver"
-	"infraql/internal/iql/util"
+	. "github.com/stackql/stackql/internal/iql/driver"
+	"github.com/stackql/stackql/internal/iql/util"
 
-	"infraql/internal/iql/config"
-	"infraql/internal/iql/entryutil"
+	"github.com/stackql/stackql/internal/iql/config"
+	"github.com/stackql/stackql/internal/iql/entryutil"
 
-	"infraql/internal/test/infraqltestutil"
-	"infraql/internal/test/testobjects"
+	"github.com/stackql/stackql/internal/test/stackqltestutil"
+	"github.com/stackql/stackql/internal/test/testobjects"
 
 	lrucache "vitess.io/vitess/go/cache"
 )
@@ -22,11 +22,11 @@ func TestSimpleShowInsertComputeAddressesRequired(t *testing.T) {
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
 
-		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleShowInsertComputeAddressesRequired")
+		runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleShowInsertComputeAddressesRequired")
 		if err != nil {
 			t.Fatalf("TestSimpleTemplateComputeAddressesRequired failed: %v", err)
 		}
-		sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+		sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 		if err != nil {
 			t.Fatalf("Test failed: %v", err)
 		}
@@ -59,7 +59,7 @@ func TestSimpleShowInsertComputeAddressesRequired(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedShowInsertAddressesRequiredFile})
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedShowInsertAddressesRequiredFile})
 
 }
 
@@ -67,11 +67,11 @@ func TestSimpleShowInsertBiqueryDatasets(t *testing.T) {
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
 
-		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleShowInsertBiqueryDatasets")
+		runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleShowInsertBiqueryDatasets")
 		if err != nil {
 			t.Fatalf("TestSimpleShowInsertBiqueryDatasets failed: %v", err)
 		}
-		sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+		sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 		if err != nil {
 			t.Fatalf("Test failed: %v", err)
 		}
@@ -104,7 +104,7 @@ func TestSimpleShowInsertBiqueryDatasets(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedShowInsertBQDatasetsFile})
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedShowInsertBQDatasetsFile})
 
 }
 
@@ -112,11 +112,11 @@ func TestSimpleShowInsertBiqueryDatasetsRequired(t *testing.T) {
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
 
-		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleShowInsertBiqueryDatasetsRequired")
+		runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleShowInsertBiqueryDatasetsRequired")
 		if err != nil {
 			t.Fatalf("TestSimpleShowInsertBiqueryDatasetsRequired failed: %v", err)
 		}
-		sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+		sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 		if err != nil {
 			t.Fatalf("Test failed: %v", err)
 		}
@@ -149,6 +149,6 @@ func TestSimpleShowInsertBiqueryDatasetsRequired(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedShowInsertBQDatasetsRequiredFile})
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedShowInsertBQDatasetsRequiredFile})
 
 }

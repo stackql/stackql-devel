@@ -2,27 +2,28 @@ package driver_test
 
 import (
 	"bufio"
-	"infraql/internal/iql/config"
-	. "infraql/internal/iql/driver"
-	"infraql/internal/iql/entryutil"
-	"infraql/internal/iql/querysubmit"
-	"infraql/internal/iql/responsehandler"
-	"infraql/internal/test/infraqltestutil"
-	"infraql/internal/test/testobjects"
 	"strings"
 	"testing"
+
+	"github.com/stackql/stackql/internal/iql/config"
+	. "github.com/stackql/stackql/internal/iql/driver"
+	"github.com/stackql/stackql/internal/iql/entryutil"
+	"github.com/stackql/stackql/internal/iql/querysubmit"
+	"github.com/stackql/stackql/internal/iql/responsehandler"
+	"github.com/stackql/stackql/internal/test/stackqltestutil"
+	"github.com/stackql/stackql/internal/test/testobjects"
 
 	lrucache "vitess.io/vitess/go/cache"
 )
 
 func TestSelectComputeDisksOrderByCrtTmstpAscPaginated(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksOrderByCrtTmstpAscPaginated")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksOrderByCrtTmstpAscPaginated")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
 	runtimeCtx.HTTPMaxResults = 5
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -53,19 +54,19 @@ func TestSelectComputeDisksOrderByCrtTmstpAscPaginated(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupSimpleSelectGoogleComputeDisksPaginated(t)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksOrderCrtTmstpAscPaginated})
+	stackqltestutil.SetupSimpleSelectGoogleComputeDisksPaginated(t)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksOrderCrtTmstpAscPaginated})
 
 }
 
 func TestSelectComputeDisksAggOrderBySizeAscPaginated(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggOrderBySizeAscPaginated")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggOrderBySizeAscPaginated")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
 	runtimeCtx.HTTPMaxResults = 5
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -96,19 +97,19 @@ func TestSelectComputeDisksAggOrderBySizeAscPaginated(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupSimpleSelectGoogleComputeDisksPaginated(t)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggPaginatedSizeOrderSizeAsc})
+	stackqltestutil.SetupSimpleSelectGoogleComputeDisksPaginated(t)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggPaginatedSizeOrderSizeAsc})
 
 }
 
 func TestSelectComputeDisksAggOrderBySizeDescPaginated(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggOrderBySizeDescPaginated")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggOrderBySizeDescPaginated")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
 	runtimeCtx.HTTPMaxResults = 5
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -139,19 +140,19 @@ func TestSelectComputeDisksAggOrderBySizeDescPaginated(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupSimpleSelectGoogleComputeDisksPaginated(t)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggPaginatedSizeOrderSizeDesc})
+	stackqltestutil.SetupSimpleSelectGoogleComputeDisksPaginated(t)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggPaginatedSizeOrderSizeDesc})
 
 }
 
 func TestSelectComputeDisksAggTotalSizePaginated(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggTotalSizePaginated")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggTotalSizePaginated")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
 	runtimeCtx.HTTPMaxResults = 5
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -182,19 +183,19 @@ func TestSelectComputeDisksAggTotalSizePaginated(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupSimpleSelectGoogleComputeDisksPaginated(t)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggPaginatedSizeTotal})
+	stackqltestutil.SetupSimpleSelectGoogleComputeDisksPaginated(t)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggPaginatedSizeTotal})
 
 }
 
 func TestSelectComputeDisksAggTotalStringPaginated(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggTotalStringPaginated")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggTotalStringPaginated")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
 	runtimeCtx.HTTPMaxResults = 5
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -225,7 +226,7 @@ func TestSelectComputeDisksAggTotalStringPaginated(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupSimpleSelectGoogleComputeDisksPaginated(t)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggPaginatedStringTotal})
+	stackqltestutil.SetupSimpleSelectGoogleComputeDisksPaginated(t)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggPaginatedStringTotal})
 
 }

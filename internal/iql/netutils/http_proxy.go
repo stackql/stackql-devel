@@ -2,10 +2,11 @@ package netutils
 
 import (
 	"fmt"
-	"infraql/internal/iql/dto"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/stackql/stackql/internal/iql/dto"
 )
 
 func GetHttpClient(runtimeCtx dto.RuntimeCtx, existingClient *http.Client) *http.Client {

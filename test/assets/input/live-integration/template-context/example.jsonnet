@@ -1,6 +1,6 @@
 // variables
 local name = 'kubernetes-the-hard-way';
-local project = 'infraql-demo';
+local project = 'stackql-demo';
 
 {
   // global config

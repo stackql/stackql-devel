@@ -229,7 +229,7 @@
         "\\ data__routingConfig",
         "\\)\\ ",
         "SELECT",
-        "'infraql-demo',",
+        "'stackql-demo',",
         "'kubernetes-the-hard-way-vpc',",
         "false,",
         "'{\\\"routingMode\\\":\\\"REGIONAL\\\"}';"

@@ -3,14 +3,15 @@ package sqlengine
 import (
 	"database/sql"
 	"fmt"
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/util"
 	"io/ioutil"
 	"strings"
 	"sync"
 
-	_ "github.com/infraql/go-sqlite3"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/util"
+
 	log "github.com/sirupsen/logrus"
+	_ "github.com/stackql/go-sqlite3"
 )
 
 type SQLEngineConfig struct {

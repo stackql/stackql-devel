@@ -2,7 +2,7 @@ package color
 
 import (
 	fc "github.com/fatih/color"
-	"infraql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/dto"
 	// log "github.com/sirupsen/logrus"
 )
 

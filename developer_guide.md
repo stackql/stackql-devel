@@ -23,7 +23,7 @@ The following are potentially multi threaded:
 make -C vitess.io/vitess/go/vt/sqlparser
 ```
 
-If you need to add new AST node types, make sure to add them to [go/vt/sqlparser/ast.go](https://github.com/infraql/vitess/blob/feature/infraql-develop/go/vt/sqlparser/ast.go) and then regenerate the file [go/vt/sqlparser/rewriter.go](https://github.com/infraql/vitess/blob/feature/infraql-develop/go/vt/sqlparser/rewriter.go) as follows:
+If you need to add new AST node types, make sure to add them to [go/vt/sqlparser/ast.go](https://github.com/stackql/vitess/blob/feature/stackql-develop/go/vt/sqlparser/ast.go) and then regenerate the file [go/vt/sqlparser/rewriter.go](https://github.com/stackql/vitess/blob/feature/stackql-develop/go/vt/sqlparser/rewriter.go) as follows:
 
 ```
 cd vitess.io/vitess/go/vt/sqlparser
@@ -72,7 +72,7 @@ Building locally or in cloud will automatically:
 
 ### gotest
 
-Test coverage is sparse.  Regressions are mitigated by `gotest` integration testing in the [driver](/internal/iql/driver/driver_integration_test.go) and [infraql](/infraql/main_integration_test.go) packages.  Some testing functionality is supported through convenience functionality inside the [test](/internal/test) packages.
+Test coverage is sparse.  Regressions are mitigated by `gotest` integration testing in the [driver](/internal/iql/driver/driver_integration_test.go) and [stackql](/stackql/main_integration_test.go) packages.  Some testing functionality is supported through convenience functionality inside the [test](/internal/test) packages.
 
 #### Point in time gotest coverage
 
@@ -81,7 +81,7 @@ Then: `go test -cover ../...`.
 
 ### Integration testing
 
-Integration testing is driven from [test/python/main.py](/test/python/main.py), and via config-driven [generators](/test/test-generators/live-integration/integration.json).  In the first instance, this did not not call any remote backends; rather calling the `infraql` executable to run queries against cached provider discovery data.    
+Integration testing is driven from [test/python/main.py](/test/python/main.py), and via config-driven [generators](/test/test-generators/live-integration/integration.json).  In the first instance, this did not not call any remote backends; rather calling the `stackql` executable to run queries against cached provider discovery data.    
 
 One can run local integration tests against remote backends; simple, extensible example as follows:
 
@@ -122,18 +122,18 @@ brew install FiloSottile/musl-cross/musl-cross
 
 ### On mac
 
-Download and unzip.  For the sake of example, let us consider the executable `~/Downloads/infraql`.
+Download and unzip.  For the sake of example, let us consider the executable `~/Downloads/stackql`.
 
 First:
 ```
-chmod +x ~/Downloads/infraql
+chmod +x ~/Downloads/stackql
 ```
 
-Then, on OSX > 10, you will need to whitelist the executable for execution even though it was not signed by an identifie developer.  Least harmful way to do this is try and execute some command (below is one candidate), and then open `System Settings` > `Security & Privacy` and there should be some UI to allow execution of the untrusted `infraql` file.  At least this works on High Sierra `v1.2.1`.
+Then, on OSX > 10, you will need to whitelist the executable for execution even though it was not signed by an identifie developer.  Least harmful way to do this is try and execute some command (below is one candidate), and then open `System Settings` > `Security & Privacy` and there should be some UI to allow execution of the untrusted `stackql` file.  At least this works on High Sierra `v1.2.1`.
 
 Then, run test commands, such as:
 ```
-~/Downloads/infraql --keyfilepath=$HOME/moonlighting/infraql-original/keys/sa-key.json exec "select group_concat(substr(name, 0, 5)) || ' lalala' as cc from google.compute.disks where project = 'lab-kr-network-01' and zone = 'australia-southeast1-b';" -o text
+~/Downloads/stackql --keyfilepath=$HOME/moonlighting/stackql-original/keys/sa-key.json exec "select group_concat(substr(name, 0, 5)) || ' lalala' as cc from google.compute.disks where project = 'lab-kr-network-01' and zone = 'australia-southeast1-b';" -o text
 ```
 
 ## Notes on vitess
@@ -144,33 +144,33 @@ Vitess implements mysql client and sql driver interfaces.  The server backend li
   - "StreamExecute"; tailored to execute a query returning a large result set.
   - "ExecuteBatch"; execution of multiple queries inside a txn.
 
-Vitess maintains an LRU cache of query plans, searchable by query plaintext.  This model will likely work better for vitess thatn infraql; in the former routing is the main concern, in the latter "hotspots" in finer granularity is indicated.
+Vitess maintains an LRU cache of query plans, searchable by query plaintext.  This model will likely work better for vitess thatn stackql; in the former routing is the main concern, in the latter "hotspots" in finer granularity is indicated.
 
-If we do choose to leverage vitess' server implementation, we may implement the vitess vtgate interface [as per vtgate/vtgateservice/interface.go](https://github.com/infraql/vitess/blob/feature/infraql-develop/go/vt/vtgate/vtgateservice/interface.go).
+If we do choose to leverage vitess' server implementation, we may implement the vitess vtgate interface [as per vtgate/vtgateservice/interface.go](https://github.com/stackql/vitess/blob/feature/stackql-develop/go/vt/vtgate/vtgateservice/interface.go).
 
 ### Low level vitess notes
 
 The various `main()` functions:
 
-  - [line 34 cmd/vtctld/main.go](https://github.com/infraql/vitess/blob/feature/infraql-develop/go/cmd/vtctld/main.go)
-  - [line 52 cmd/vtgate/vtgate.go](https://github.com/infraql/vitess/blob/feature/infraql-develop/go/cmd/vtgate/vtgate.go) 
-  - [line 106 cmd/vtcombo/main.go](https://github.com/infraql/vitess/blob/feature/infraql-develop/go/cmd/vtcombo/main.go)
+  - [line 34 cmd/vtctld/main.go](https://github.com/stackql/vitess/blob/feature/stackql-develop/go/cmd/vtctld/main.go)
+  - [line 52 cmd/vtgate/vtgate.go](https://github.com/stackql/vitess/blob/feature/stackql-develop/go/cmd/vtgate/vtgate.go) 
+  - [line 106 cmd/vtcombo/main.go](https://github.com/stackql/vitess/blob/feature/stackql-develop/go/cmd/vtcombo/main.go)
 
 ...aggregate all the requisite setup for the server.
 
-[Run(); line 33 run.go](https://github.com/infraql/vitess/blob/feature/infraql-develop/go/vt/servenv/run.go) sets up RPC and HTTP servers.
+[Run(); line 33 run.go](https://github.com/stackql/vitess/blob/feature/stackql-develop/go/vt/servenv/run.go) sets up RPC and HTTP servers.
 
-[Init(); line 133 in vtgate.go](https://github.com/infraql/vitess/blob/feature/infraql-develop/go/vt/vtgate/vtgate.go) initialises the VT server singleton.
+[Init(); line 133 in vtgate.go](https://github.com/stackql/vitess/blob/feature/stackql-develop/go/vt/vtgate/vtgate.go) initialises the VT server singleton.
 
-Init() calls [NewExecutor(); line 108 in executor.go](https://github.com/infraql/vitess/blob/feature/infraql-develop/go/vt/vtgate/executor.go), a one-per-server object which includes an LRU cache of plans.
+Init() calls [NewExecutor(); line 108 in executor.go](https://github.com/stackql/vitess/blob/feature/stackql-develop/go/vt/vtgate/executor.go), a one-per-server object which includes an LRU cache of plans.
 
 In terms of handling individual queries:
 
-  - VTGate sessions [vtgateconn.go line 46](https://github.com/infraql/vitess/blob/feature/infraql-develop/go/vt/servenv/run.go) are passed in per request.
-  - On the client side, [conn.Query(); line 284 in driver.go](https://github.com/infraql/vitess/blob/feature/infraql-develop/go/vt/vitessdriver/driver.go) calls (for example) `conn.session.StreamExecute()`.
-  - Server side, [Conn.handleNextCommand(); line 759 mysql/conn.go](https://github.com/infraql/vitess/blob/feature/infraql-develop/go/mysql/conn.go)
-  - Server side, vt software; [VTGate.StreamExecute(); line 301 in vtgate.go](https://github.com/infraql/vitess/blob/feature/infraql-develop/go/vt/vtgate/vtgate.go).
-  - Then, (either directly or indirectly) [Executor.StreamExecute(); line 1128 in executor.go](https://github.com/infraql/vitess/blob/feature/infraql-develop/go/vt/vtgate/executor.go) handles synchronous `streaming` queries, and calls `Executor.getPlan()`.
-  - [Executor.getPlan(); in particular line 1352 in executor.go](https://github.com/infraql/vitess/blob/feature/infraql-develop/go/vt/vtgate/executor.go)
+  - VTGate sessions [vtgateconn.go line 46](https://github.com/stackql/vitess/blob/feature/stackql-develop/go/vt/servenv/run.go) are passed in per request.
+  - On the client side, [conn.Query(); line 284 in driver.go](https://github.com/stackql/vitess/blob/feature/stackql-develop/go/vt/vitessdriver/driver.go) calls (for example) `conn.session.StreamExecute()`.
+  - Server side, [Conn.handleNextCommand(); line 759 mysql/conn.go](https://github.com/stackql/vitess/blob/feature/stackql-develop/go/mysql/conn.go)
+  - Server side, vt software; [VTGate.StreamExecute(); line 301 in vtgate.go](https://github.com/stackql/vitess/blob/feature/stackql-develop/go/vt/vtgate/vtgate.go).
+  - Then, (either directly or indirectly) [Executor.StreamExecute(); line 1128 in executor.go](https://github.com/stackql/vitess/blob/feature/stackql-develop/go/vt/vtgate/executor.go) handles synchronous `streaming` queries, and calls `Executor.getPlan()`.
+  - [Executor.getPlan(); in particular line 1352 in executor.go](https://github.com/stackql/vitess/blob/feature/stackql-develop/go/vt/vtgate/executor.go)
 is the guts of query processing.
-  - [Build(); line 265 in builder.go](https://github.com/infraql/vitess/blob/feature/infraql-develop/go/vt/vtgate/planbuilder/builder.go) is the driver for plan building.
+  - [Build(); line 265 in builder.go](https://github.com/stackql/vitess/blob/feature/stackql-develop/go/vt/vtgate/planbuilder/builder.go) is the driver for plan building.

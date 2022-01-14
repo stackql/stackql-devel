@@ -1,6 +1,6 @@
 // variables
 local name = 'kubernetes-the-hard-way';
-local project = 'infraql-demo';
+local project = 'stackql-demo';
 local region = 'australia-southeast1';
 local zone = 'australia-southeast1-a';
 local self_link_base = 'https://compute.googleapis.com/compute/v1/projects/' + project + '/';

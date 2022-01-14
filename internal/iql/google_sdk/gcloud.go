@@ -10,8 +10,8 @@ import (
 
 const (
 	gcloudErrFmt          string = "gcloud error: %s"
-	gcloudInstallInfo     string = `Visit https://cloud.google.com/sdk to download the SDK or alternatively use serviceaccount mode, see https://docs.infraql.io/language-spec/auth for more information`
-	gcloudNotPresentError string = `Interactive mode requires the Google Cloud SDK to be installed on the system being used for infraql. ` + gcloudInstallInfo
+	gcloudInstallInfo     string = `Visit https://cloud.google.com/sdk to download the SDK or alternatively use serviceaccount mode, see https://docs.stackql.io/language-spec/auth for more information`
+	gcloudNotPresentError string = `Interactive mode requires the Google Cloud SDK to be installed on the system being used for stackql. ` + gcloudInstallInfo
 	gcloudRevokeError     string = "Error revoking gcloud credentials.  Please ensure that gcloud is installed and credentials are valid before running this command. " + gcloudInstallInfo
 )
 

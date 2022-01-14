@@ -2,9 +2,10 @@ package primitivegraph
 
 import (
 	"fmt"
-	"infraql/internal/iql/drm"
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/primitive"
+
+	"github.com/stackql/stackql/internal/iql/drm"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/primitive"
 
 	"gonum.org/v1/gonum/graph"
 

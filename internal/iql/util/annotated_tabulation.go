@@ -1,7 +1,7 @@
 package util
 
 import (
-	"infraql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/dto"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 )

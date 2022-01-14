@@ -1,5 +1,5 @@
 /*
-Copyright © 2019 InfraQL info@infraql.io
+Copyright © 2019 stackql info@stackql.io
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,27 +23,27 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"infraql/internal/iql/driver"
-	"infraql/internal/iql/entryutil"
-	"infraql/internal/iql/handler"
-	"infraql/internal/iql/iqlerror"
-	"infraql/internal/iql/writer"
+	"github.com/stackql/stackql/internal/iql/driver"
+	"github.com/stackql/stackql/internal/iql/entryutil"
+	"github.com/stackql/stackql/internal/iql/handler"
+	"github.com/stackql/stackql/internal/iql/iqlerror"
+	"github.com/stackql/stackql/internal/iql/writer"
 )
 
 // execCmd represents the exec command
 var execCmd = &cobra.Command{
 	Use:   "exec",
-	Short: "Run one or more InfraQL commands or queries",
-	Long: `Run one or more InfraQL commands or queries from the command line or from an
+	Short: "Run one or more stackql commands or queries",
+	Long: `Run one or more stackql commands or queries from the command line or from an
 input file. For example:
 
-infraql exec \
-"select id, name from compute.instances where project = 'infraql-demo' and zone = 'australia-southeast1-a'" \
---keyfilepath /mnt/c/tmp/infraql-demo.json --output csv
+stackql exec \
+"select id, name from compute.instances where project = 'stackql-demo' and zone = 'australia-southeast1-a'" \
+--keyfilepath /mnt/c/tmp/stackql-demo.json --output csv
 
-infraql exec -i iqlscripts/listinstances.iql --keyfilepath /mnt/c/tmp/infraql-demo.json --output json
+stackql exec -i iqlscripts/listinstances.iql --keyfilepath /mnt/c/tmp/stackql-demo.json --output json
 
-infraql exec -i iqlscripts/create-disk.iql --keyfilepath /mnt/c/tmp/infraql-demo.json
+stackql exec -i iqlscripts/create-disk.iql --keyfilepath /mnt/c/tmp/stackql-demo.json
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 

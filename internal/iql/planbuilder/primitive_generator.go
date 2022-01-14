@@ -7,26 +7,26 @@ import (
 	"strconv"
 	"strings"
 
-	"infraql/internal/iql/asyncmonitor"
-	"infraql/internal/iql/constants"
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/handler"
-	"infraql/internal/iql/httpbuild"
-	"infraql/internal/iql/httpexec"
-	"infraql/internal/iql/httpmiddleware"
-	"infraql/internal/iql/iqlutil"
-	"infraql/internal/iql/metadatavisitors"
-	"infraql/internal/iql/primitive"
-	"infraql/internal/iql/primitivebuilder"
-	"infraql/internal/iql/primitivegraph"
-	"infraql/internal/iql/provider"
-	"infraql/internal/iql/relational"
-	"infraql/internal/iql/symtab"
-	"infraql/internal/iql/taxonomy"
-	"infraql/internal/iql/util"
+	"github.com/stackql/stackql/internal/iql/asyncmonitor"
+	"github.com/stackql/stackql/internal/iql/constants"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/handler"
+	"github.com/stackql/stackql/internal/iql/httpbuild"
+	"github.com/stackql/stackql/internal/iql/httpexec"
+	"github.com/stackql/stackql/internal/iql/httpmiddleware"
+	"github.com/stackql/stackql/internal/iql/iqlutil"
+	"github.com/stackql/stackql/internal/iql/metadatavisitors"
+	"github.com/stackql/stackql/internal/iql/primitive"
+	"github.com/stackql/stackql/internal/iql/primitivebuilder"
+	"github.com/stackql/stackql/internal/iql/primitivegraph"
+	"github.com/stackql/stackql/internal/iql/provider"
+	"github.com/stackql/stackql/internal/iql/relational"
+	"github.com/stackql/stackql/internal/iql/symtab"
+	"github.com/stackql/stackql/internal/iql/taxonomy"
+	"github.com/stackql/stackql/internal/iql/util"
 
-	"infraql/internal/pkg/prettyprint"
-	"infraql/internal/pkg/sqltypeutil"
+	"github.com/stackql/stackql/internal/pkg/prettyprint"
+	"github.com/stackql/stackql/internal/pkg/sqltypeutil"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 
@@ -694,7 +694,7 @@ func generateSuccessMessagesFromHeirarchy(meta taxonomy.ExtendedTableMetadata) [
 	if methodErr == nil && err == nil && m != nil && prov != nil && prov.GetProviderString() == "google" {
 		if m.APIMethod == "get" || m.APIMethod == "list" || m.APIMethod == "aggregatedList" {
 			successMsgs = []string{
-				"The operation completed successfully, consider using a SELECT statement if you are performing an operation that returns data, see https://docs.infraql.io/language-spec/select for more information",
+				"The operation completed successfully, consider using a SELECT statement if you are performing an operation that returns data, see https://docs.stackql.io/language-spec/select for more information",
 			}
 		}
 	}

@@ -5,22 +5,22 @@ import (
 	"os"
 	"testing"
 
-	"infraql/internal/iql/entryutil"
-	. "infraql/internal/iql/querysubmit"
+	"github.com/stackql/stackql/internal/iql/entryutil"
+	. "github.com/stackql/stackql/internal/iql/querysubmit"
 
-	"infraql/internal/iql/config"
-	"infraql/internal/iql/handler"
-	"infraql/internal/iql/provider"
+	"github.com/stackql/stackql/internal/iql/config"
+	"github.com/stackql/stackql/internal/iql/handler"
+	"github.com/stackql/stackql/internal/iql/provider"
 
-	"infraql/internal/test/infraqltestutil"
-	"infraql/internal/test/testhttpapi"
-	"infraql/internal/test/testobjects"
+	"github.com/stackql/stackql/internal/test/stackqltestutil"
+	"github.com/stackql/stackql/internal/test/testhttpapi"
+	"github.com/stackql/stackql/internal/test/testobjects"
 
 	lrucache "vitess.io/vitess/go/cache"
 )
 
 func TestSimpleSelectGoogleComputeInstanceQuerySubmit(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleComputeInstanceQuerySubmit")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleComputeInstanceQuerySubmit")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -35,7 +35,7 @@ func TestSimpleSelectGoogleComputeInstanceQuerySubmit(t *testing.T) {
 	testhttpapi.StartServer(t, exp)
 	provider.DummyAuth = true
 
-	sqlEng, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEng, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 
 	handlerCtx, err := handler.GetHandlerCtx(testobjects.SimpleSelectGoogleComputeInstance, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), sqlEng)
 	handlerCtx.Outfile = os.Stdout

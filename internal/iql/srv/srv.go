@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"infraql/internal/iql/driver"
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/entryutil"
-	"infraql/internal/iql/handler"
+	"github.com/stackql/stackql/internal/iql/driver"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/entryutil"
+	"github.com/stackql/stackql/internal/iql/handler"
 
 	lrucache "vitess.io/vitess/go/cache"
 )

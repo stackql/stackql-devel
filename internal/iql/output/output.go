@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"infraql/internal/iql/constants"
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/iqlutil"
 	"io"
 	"os"
 	"strings"
+
+	"github.com/stackql/stackql/internal/iql/constants"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/iqlutil"
 
 	"github.com/olekukonko/tablewriter"
 	log "github.com/sirupsen/logrus"

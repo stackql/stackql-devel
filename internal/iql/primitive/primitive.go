@@ -1,8 +1,9 @@
 package primitive
 
 import (
-	"infraql/internal/iql/dto"
 	"io"
+
+	"github.com/stackql/stackql/internal/iql/dto"
 )
 
 type IPrimitiveCtx interface {

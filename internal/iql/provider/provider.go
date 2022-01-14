@@ -5,14 +5,14 @@ import (
 
 	"net/http"
 
-	"infraql/internal/iql/config"
-	"infraql/internal/iql/constants"
-	"infraql/internal/iql/discovery"
-	"infraql/internal/iql/docparser"
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/httpexec"
-	"infraql/internal/iql/methodselect"
-	"infraql/internal/iql/sqlengine"
+	"github.com/stackql/stackql/internal/iql/config"
+	"github.com/stackql/stackql/internal/iql/constants"
+	"github.com/stackql/stackql/internal/iql/discovery"
+	"github.com/stackql/stackql/internal/iql/docparser"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/httpexec"
+	"github.com/stackql/stackql/internal/iql/methodselect"
+	"github.com/stackql/stackql/internal/iql/sqlengine"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 )

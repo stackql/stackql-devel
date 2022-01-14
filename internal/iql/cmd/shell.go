@@ -1,5 +1,5 @@
 /*
-Copyright © 2019 InfraQL info@infraql.io
+Copyright © 2019 stackql info@stackql.io
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,18 +17,19 @@ package cmd
 
 import (
 	"fmt"
-	"infraql/internal/iql/color"
-	"infraql/internal/iql/config"
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/entryutil"
-	"infraql/internal/iql/handler"
-	"infraql/internal/iql/iqlerror"
-	"infraql/internal/iql/provider"
-	"infraql/internal/iql/writer"
 	"io"
 	"runtime"
 	"strconv"
 	"strings"
+
+	"github.com/stackql/stackql/internal/iql/color"
+	"github.com/stackql/stackql/internal/iql/config"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/entryutil"
+	"github.com/stackql/stackql/internal/iql/handler"
+	"github.com/stackql/stackql/internal/iql/iqlerror"
+	"github.com/stackql/stackql/internal/iql/provider"
+	"github.com/stackql/stackql/internal/iql/writer"
 
 	"github.com/spf13/cobra"
 
@@ -38,21 +39,21 @@ import (
 )
 
 const (
-	shellLongStr string = `InfraQL Command Shell %s
-Copyright (c) 2021, InfraQL Technologies. All rights reserved.
-Welcome to the interactive shell for running InfraQL commands.
+	shellLongStr string = `stackql Command Shell %s
+Copyright (c) 2021, stackql Technologies. All rights reserved.
+Welcome to the interactive shell for running stackql commands.
 ---`
 
 	// Auth messages
-	interactiveSuccessMsgTmpl string = `Authenticated interactively to google as %s, to change the authenticated user, use AUTH REVOKE followed by AUTH LOGIN, see https://docs.infraql.io/language-spec/auth`
+	interactiveSuccessMsgTmpl string = `Authenticated interactively to google as %s, to change the authenticated user, use AUTH REVOKE followed by AUTH LOGIN, see https://docs.stackql.io/language-spec/auth`
 
-	notAuthenticatedMsg string = `Not authenticated, to authenticate to a provider use the AUTH LOGIN command, see https://docs.infraql.io/language-spec/auth`
+	notAuthenticatedMsg string = `Not authenticated, to authenticate to a provider use the AUTH LOGIN command, see https://docs.stackql.io/language-spec/auth`
 
-	saFileErrorMsgTmpl string = `Not authenticated, credentials referenced in keyfilepath (%s) does not exist, authenticate interactively using AUTH LOGIN, for more information see https://docs.infraql.io/language-spec/auth`
+	saFileErrorMsgTmpl string = `Not authenticated, credentials referenced in keyfilepath (%s) does not exist, authenticate interactively using AUTH LOGIN, for more information see https://docs.stackql.io/language-spec/auth`
 
-	saSuccessMsgTmpl string = `Authenticated using credentials set using the keyfilepath flag (%s) of type = '%s', for more information see https://docs.infraql.io/language-spec/auth`
+	saSuccessMsgTmpl string = `Authenticated using credentials set using the keyfilepath flag (%s) of type = '%s', for more information see https://docs.stackql.io/language-spec/auth`
 
-	credentialProvidedMsgTmpl string = `Credentials provided using the keyfilepath flag (%s) of type = '%s', for more information see https://docs.infraql.io/language-spec/auth`
+	credentialProvidedMsgTmpl string = `Credentials provided using the keyfilepath flag (%s) of type = '%s', for more information see https://docs.stackql.io/language-spec/auth`
 )
 
 func getShellIntroLong() string {
@@ -67,12 +68,12 @@ func getShellPRompt(authCtx *dto.AuthCtx, cd *color.ColorDriver) string {
 	if authCtx != nil && authCtx.Active {
 		switch authCtx.Type {
 		case dto.AuthInteractiveStr:
-			return cd.ShellColorPrint("InfraQL* >>")
+			return cd.ShellColorPrint("stackql* >>")
 		case dto.AuthServiceAccountStr:
-			return cd.ShellColorPrint("InfraQL**>>")
+			return cd.ShellColorPrint("stackql**>>")
 		}
 	}
-	return cd.ShellColorPrint("InfraQL  >>")
+	return cd.ShellColorPrint("stackql  >>")
 }
 
 func getIntroAuthMsg(authCtx *dto.AuthCtx, provider provider.IProvider) string {
@@ -103,7 +104,7 @@ func colorIsNull(runtimeCtx dto.RuntimeCtx) bool {
 // shellCmd represents the shell command
 var shellCmd = &cobra.Command{
 	Use:   "shell",
-	Short: "Interactive shell for running InfraQL commands",
+	Short: "Interactive shell for running stackql commands",
 	Long:  getShellIntroLong(),
 	Run: func(command *cobra.Command, args []string) {
 

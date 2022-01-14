@@ -1,9 +1,10 @@
 package plan
 
 import (
-	"infraql/internal/iql/primitive"
 	"sync"
 	"time"
+
+	"github.com/stackql/stackql/internal/iql/primitive"
 
 	"vitess.io/vitess/go/vt/sqlparser"
 	// log "github.com/sirupsen/logrus"

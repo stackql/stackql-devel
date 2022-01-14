@@ -3,10 +3,10 @@ package docparser
 import (
 	"fmt"
 
-	"infraql/internal/iql/drm"
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/sqlengine"
-	"infraql/internal/iql/util"
+	"github.com/stackql/stackql/internal/iql/drm"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/sqlengine"
+	"github.com/stackql/stackql/internal/iql/util"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 
@@ -19,7 +19,7 @@ import (
 const (
 	SchemaDelimiter            string = "."
 	googleServiceKeyDelimiter  string = ":"
-	infraqlServiceKeyDelimiter string = "__"
+	stackqlServiceKeyDelimiter string = "__"
 )
 
 var (
@@ -29,11 +29,11 @@ var (
 )
 
 func TranslateServiceKeyGenericProviderToIql(serviceKey string) string {
-	return strings.Replace(serviceKey, googleServiceKeyDelimiter, infraqlServiceKeyDelimiter, -1)
+	return strings.Replace(serviceKey, googleServiceKeyDelimiter, stackqlServiceKeyDelimiter, -1)
 }
 
 func TranslateServiceKeyIqlToGenericProvider(serviceKey string) string {
-	return strings.Replace(serviceKey, infraqlServiceKeyDelimiter, googleServiceKeyDelimiter, -1)
+	return strings.Replace(serviceKey, stackqlServiceKeyDelimiter, googleServiceKeyDelimiter, -1)
 }
 
 func OpenapiStackQLServiceDiscoveryDocPersistor(prov *openapistackql.Provider, svc *openapistackql.Service, dbEngine sqlengine.SQLEngine, prefix string) error {

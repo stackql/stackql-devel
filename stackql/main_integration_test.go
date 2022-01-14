@@ -3,13 +3,13 @@ package main
 import (
 	"fmt"
 
-	"infraql/internal/iql/config"
-	"infraql/internal/iql/provider"
-	"infraql/internal/iql/util"
+	"github.com/stackql/stackql/internal/iql/config"
+	"github.com/stackql/stackql/internal/iql/provider"
+	"github.com/stackql/stackql/internal/iql/util"
 
-	"infraql/internal/test/infraqltestutil"
-	"infraql/internal/test/testhttpapi"
-	"infraql/internal/test/testobjects"
+	"github.com/stackql/stackql/internal/test/stackqltestutil"
+	"github.com/stackql/stackql/internal/test/testhttpapi"
+	"github.com/stackql/stackql/internal/test/testobjects"
 
 	"net/url"
 	"os"
@@ -18,7 +18,7 @@ import (
 )
 
 func TestSimpleSelectGoogleComputeInstance(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleComputeInstance")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleComputeInstance")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -53,7 +53,7 @@ func TestSimpleSelectGoogleComputeInstance(t *testing.T) {
 
 func TestK8STemplatedE2eSuccess(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestK8STemplatedE2eSuccess")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestK8STemplatedE2eSuccess")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -74,16 +74,16 @@ func TestK8STemplatedE2eSuccess(t *testing.T) {
 	}
 	t.Logf("k8s e2e integration: about to invoke main() with args:\n\t%s", strings.Join(args, ",\n\t"))
 
-	infraqltestutil.SetupK8sTheHardWayE2eSuccess(t)
+	stackqltestutil.SetupK8sTheHardWayE2eSuccess(t)
 
 	os.Args = args
 
-	infraqltestutil.RunStdOutTestAgainstFiles(t, execStuff, []string{testobjects.ExpectedK8STheHardWayAsyncFile})
+	stackqltestutil.RunStdOutTestAgainstFiles(t, execStuff, []string{testobjects.ExpectedK8STheHardWayAsyncFile})
 }
 
 func TestInsertAwaitExecSuccess(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestInsertAwaitExecSuccess")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestInsertAwaitExecSuccess")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -100,16 +100,16 @@ func TestInsertAwaitExecSuccess(t *testing.T) {
 	}
 	t.Logf("k8s e2e integration: about to invoke main() with args:\n\t%s", strings.Join(args, ",\n\t"))
 
-	infraqltestutil.SetupSimpleInsertGoogleComputeNetworks(t)
+	stackqltestutil.SetupSimpleInsertGoogleComputeNetworks(t)
 
 	os.Args = args
 
-	infraqltestutil.RunStdOutTestAgainstFiles(t, execStuff, []string{testobjects.ExpectedComputeNetworkInsertAsyncFile})
+	stackqltestutil.RunStdOutTestAgainstFiles(t, execStuff, []string{testobjects.ExpectedComputeNetworkInsertAsyncFile})
 }
 
 func TestDeleteAwaitSuccess(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestDeleteAwaitSuccess")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestDeleteAwaitSuccess")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -126,16 +126,16 @@ func TestDeleteAwaitSuccess(t *testing.T) {
 	}
 	t.Logf("k8s e2e integration: about to invoke main() with args:\n\t%s", strings.Join(args, ",\n\t"))
 
-	infraqltestutil.SetupSimpleDeleteGoogleComputeNetworks(t)
+	stackqltestutil.SetupSimpleDeleteGoogleComputeNetworks(t)
 
 	os.Args = args
 
-	infraqltestutil.RunStdOutTestAgainstFiles(t, execStuff, []string{testobjects.ExpectedComputeNetworkDeleteAsyncFile})
+	stackqltestutil.RunStdOutTestAgainstFiles(t, execStuff, []string{testobjects.ExpectedComputeNetworkDeleteAsyncFile})
 }
 
 func TestDeleteAwaitExecSuccess(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestDeleteAwaitExecSuccess")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestDeleteAwaitExecSuccess")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -152,11 +152,11 @@ func TestDeleteAwaitExecSuccess(t *testing.T) {
 	}
 	t.Logf("k8s e2e integration: about to invoke main() with args:\n\t%s", strings.Join(args, ",\n\t"))
 
-	infraqltestutil.SetupSimpleDeleteGoogleComputeNetworks(t)
+	stackqltestutil.SetupSimpleDeleteGoogleComputeNetworks(t)
 
 	os.Args = args
 
-	infraqltestutil.RunStdOutTestAgainstFiles(t, execStuff, []string{testobjects.ExpectedComputeNetworkDeleteAsyncFile})
+	stackqltestutil.RunStdOutTestAgainstFiles(t, execStuff, []string{testobjects.ExpectedComputeNetworkDeleteAsyncFile})
 }
 
 func execStuff(t *testing.T) {

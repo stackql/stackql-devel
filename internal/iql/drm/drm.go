@@ -4,15 +4,16 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"infraql/internal/iql/astvisit"
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/parserutil"
-	"infraql/internal/iql/sqlengine"
-	"infraql/internal/iql/util"
-	"infraql/internal/pkg/txncounter"
 	"reflect"
 	"sort"
 	"strings"
+
+	"github.com/stackql/stackql/internal/iql/astvisit"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/parserutil"
+	"github.com/stackql/stackql/internal/iql/sqlengine"
+	"github.com/stackql/stackql/internal/iql/util"
+	"github.com/stackql/stackql/internal/pkg/txncounter"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 

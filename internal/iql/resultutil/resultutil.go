@@ -1,7 +1,7 @@
 package resultutil
 
 import (
-	"infraql/internal/iql/util"
+	"github.com/stackql/stackql/internal/iql/util"
 
 	"vitess.io/vitess/go/sqltypes"
 	querypb "vitess.io/vitess/go/vt/proto/query"

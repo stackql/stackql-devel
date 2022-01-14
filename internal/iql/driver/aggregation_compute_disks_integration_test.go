@@ -2,17 +2,18 @@ package driver_test
 
 import (
 	"bufio"
-	"infraql/internal/iql/config"
-	. "infraql/internal/iql/driver"
-	"infraql/internal/iql/entryutil"
-	"infraql/internal/iql/querysubmit"
-	"infraql/internal/iql/responsehandler"
-	"infraql/internal/test/infraqltestutil"
-	"infraql/internal/test/testobjects"
 	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/stackql/stackql/internal/iql/config"
+	. "github.com/stackql/stackql/internal/iql/driver"
+	"github.com/stackql/stackql/internal/iql/entryutil"
+	"github.com/stackql/stackql/internal/iql/querysubmit"
+	"github.com/stackql/stackql/internal/iql/responsehandler"
+	"github.com/stackql/stackql/internal/test/stackqltestutil"
+	"github.com/stackql/stackql/internal/test/testobjects"
 
 	log "github.com/sirupsen/logrus"
 
@@ -26,11 +27,11 @@ func TestMain(m *testing.M) {
 
 func TestSelectComputeDisksOrderByCrtTmstpAsc(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksOrderByCrtTmstpAsc")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksOrderByCrtTmstpAsc")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -61,18 +62,18 @@ func TestSelectComputeDisksOrderByCrtTmstpAsc(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 1)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksOrderCrtTmstpAsc})
+	stackqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 1)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksOrderCrtTmstpAsc})
 
 }
 
 func TestSelectComputeDisksAggOrderBySizeAsc(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggOrderBySizeAsc")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggOrderBySizeAsc")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -103,18 +104,18 @@ func TestSelectComputeDisksAggOrderBySizeAsc(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 1)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggSizeOrderSizeAsc})
+	stackqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 1)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggSizeOrderSizeAsc})
 
 }
 
 func TestSelectComputeDisksAggOrderBySizeDesc(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggOrderBySizeDesc")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggOrderBySizeDesc")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -145,18 +146,18 @@ func TestSelectComputeDisksAggOrderBySizeDesc(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 1)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggSizeOrderSizeDesc})
+	stackqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 1)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggSizeOrderSizeDesc})
 
 }
 
 func TestSelectComputeDisksAggTotalSize(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggTotalSize")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggTotalSize")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -187,18 +188,18 @@ func TestSelectComputeDisksAggTotalSize(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 1)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggSizeTotal})
+	stackqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 1)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggSizeTotal})
 
 }
 
 func TestSelectComputeDisksAggTotalString(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggTotalString")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggTotalString")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -229,7 +230,7 @@ func TestSelectComputeDisksAggTotalString(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 1)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggStringTotal})
+	stackqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 1)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggStringTotal})
 
 }

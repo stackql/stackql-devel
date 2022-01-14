@@ -1,4 +1,4 @@
-package infraqltestutil
+package stackqltestutil
 
 import (
 	"fmt"
@@ -7,13 +7,13 @@ import (
 	"net/url"
 	"testing"
 
-	"infraql/internal/iql/asyncmonitor"
-	"infraql/internal/iql/provider"
-	"infraql/internal/iql/util"
+	"github.com/stackql/stackql/internal/iql/asyncmonitor"
+	"github.com/stackql/stackql/internal/iql/provider"
+	"github.com/stackql/stackql/internal/iql/util"
 
-	"infraql/internal/test/testhttpapi"
-	"infraql/internal/test/testobjects"
-	"infraql/internal/test/testutil"
+	"github.com/stackql/stackql/internal/test/testhttpapi"
+	"github.com/stackql/stackql/internal/test/testobjects"
+	"github.com/stackql/stackql/internal/test/testutil"
 )
 
 func SetupSimpleSelectGoogleComputeInstance(t *testing.T) {

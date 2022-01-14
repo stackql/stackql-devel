@@ -2,7 +2,8 @@ package dto
 
 import (
 	"fmt"
-	"infraql/internal/iql/iqlutil"
+
+	"github.com/stackql/stackql/internal/iql/iqlutil"
 
 	"vitess.io/vitess/go/vt/sqlparser"
 )

@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"infraql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/dto"
 
 	"vitess.io/vitess/go/sqltypes"
 	"vitess.io/vitess/go/vt/sqlparser"

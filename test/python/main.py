@@ -29,10 +29,10 @@ TEST_GENERATOR_DEFINITIONS_ROOT :str = os.path.join(TEST_ROOT_DIR, 'test-generat
 TEST_GENERATOR_ALWAYS_ROOT :str = os.path.join(TEST_GENERATOR_DEFINITIONS_ROOT, 'always')
 TEST_GENERATOR_ASSETS_ROOT :str = os.path.join(TEST_ROOT_DIR, 'assets')
 DEFAULT_RUN_DIR :str = os.path.abspath(os.path.join(REPOSITORY_ROOT_DIR, 'build'))
-DEFAULT_PROVIDER_DIR :str = os.path.abspath(os.path.join(TEST_ROOT_DIR, '.infraql'))
+DEFAULT_PROVIDER_DIR :str = os.path.abspath(os.path.join(TEST_ROOT_DIR, '.stackql'))
 DEFAULT_CONFIG_FILE :str = os.path.abspath(os.path.join(TEST_ROOT_DIR, '.iqlrc'))
 DEFAULT_DB_FILE :str = os.path.abspath(os.path.join(TEST_ROOT_DIR, 'db/tmp/python-tests-tmp-db.sqlite'))
-DEFAULT_EXECUTABLE :str = 'infraql'
+DEFAULT_EXECUTABLE :str = 'stackql'
 
 TEST_COUNT :int = 0
 DEFAULT_TEST_NAME_TEMPLATE :str = 'TEST #{}'
@@ -77,25 +77,25 @@ parser.add_argument(
 parser.add_argument(
     '--loglevel',
     type=str,
-    default=os.environ.get('INFRAQL_TEST_LOG_LEVEL', 'warn'),
+    default=os.environ.get('STACKQL_TEST_LOG_LEVEL', 'warn'),
     help='log level'
 )
 parser.add_argument(
     '--testgoogleproject',
     type=str,
-    default=os.environ.get('INFRAQL_TEST_GOOGLE_PROJECT', 'lab-kr-network-01'),
+    default=os.environ.get('STACKQL_TEST_GOOGLE_PROJECT', 'lab-kr-network-01'),
     help='google project to use in testing'
 )
 parser.add_argument(
     '--testgooglezone',
     type=str,
-    default=os.environ.get('INFRAQL_TEST_GOOGLE_ZONE', 'australia-southeast1-b'),
+    default=os.environ.get('STACKQL_TEST_GOOGLE_ZONE', 'australia-southeast1-b'),
     help='google zone to use in testing'
 )
 parser.add_argument(
     '--verbosetesting',
     type=bool,
-    default=os.environ.get('INFRAQL_TEST_VERBOSE', False),
+    default=os.environ.get('STACKQL_TEST_VERBOSE', False),
     help='enable verbose outputs for tests'
 )
 parser.add_argument(

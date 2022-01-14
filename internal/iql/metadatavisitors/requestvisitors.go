@@ -2,12 +2,14 @@ package metadatavisitors
 
 import (
 	"fmt"
-	"infraql/internal/iql/constants"
-	"infraql/internal/iql/iqlutil"
 
-	"infraql/internal/pkg/prettyprint"
+	"github.com/stackql/stackql/internal/iql/constants"
+	"github.com/stackql/stackql/internal/iql/iqlutil"
+
 	"sort"
 	"strings"
+
+	"github.com/stackql/stackql/internal/pkg/prettyprint"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 

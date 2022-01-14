@@ -1,15 +1,16 @@
 package config
 
 import (
-	"infraql/internal/iql/dto"
 	"os"
 	"path"
 	"runtime"
 
+	"github.com/stackql/stackql/internal/iql/dto"
+
 	log "github.com/sirupsen/logrus"
 )
 
-const defaultConfigCacheDir = ".infraql"
+const defaultConfigCacheDir = ".stackql"
 
 const defaultNixConfigCacheDirFileMode uint32 = 0755
 
