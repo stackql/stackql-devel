@@ -40,7 +40,9 @@ jobs:
 
     - name: Get dependencies
       run: |
+        go env -w GOPRIVATE=github.com/stackql/*
         git config --global url."https://$GHACCESSTOKEN@github.com/".insteadOf "https://github.com/"
+        git --no-pager config --list
         go get -v -t -d ./...
       env:
         GOGETCMD: ${{env.GOGETCMD}}
