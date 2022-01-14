@@ -41,7 +41,7 @@ jobs:
     - name: Get dependencies
       run: |
         git config --global url.https://%GH_ACCESS_TOKEN%@github.com/.insteadOf https://github.com/
-        $GOGETCMD
+        %GOGETCMD%
       env:
         GOGETCMD: ${{env.GOGETCMD}}
         CGO_ENABLED: 1
@@ -55,7 +55,10 @@ jobs:
         BUILDPLATFORM: ${{runner.os}}
         BUILDPATCHVERSION: ${{github.run_number}}
         CGO_ENABLED: 1
+        GH_ACCESS_TOKEN: ${{env.GH_ACCESS_TOKEN}}
+        GOPRIVATE: ${{env.GOPRIVATE}}
       run: |
+        git config --global url.https://%GH_ACCESS_TOKEN%@github.com/.insteadOf https://github.com/
         $Version = convertfrom-stringdata (get-content ./version.txt -raw)
         $BuildMajorVersion = $Version.'MajorVersion'
         $BuildMinorVersion = $Version.'MinorVersion'
