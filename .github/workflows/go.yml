@@ -13,7 +13,7 @@ on:
       - develop
 
 env:
-  GOGETCMD: "git config --global url.https://$GH_ACCESS_TOKEN@github.com/.insteadOf https://github.com/; go get -v -t -d ./..."
+  GOGETCMD: "go get -v -t -d ./..."
   GOTESTCMD: "go test -timeout 1200s --tags \"json1\" -v ./..."
   TESTSCRIPT: "test/python/main.py"
   GOPRIVATE: github.com/stackql/*
