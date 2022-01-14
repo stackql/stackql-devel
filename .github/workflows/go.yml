@@ -41,7 +41,7 @@ jobs:
     - name: Get dependencies
       run: |
         git config --global url.https://%GH_ACCESS_TOKEN%@github.com/.insteadOf https://github.com/
-        %GOGETCMD%
+        go get -v -t -d ./...
       env:
         GOGETCMD: ${{env.GOGETCMD}}
         CGO_ENABLED: 1
