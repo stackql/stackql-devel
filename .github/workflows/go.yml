@@ -40,12 +40,12 @@ jobs:
 
     - name: Get dependencies
       run: |
-        git config --global url.https://$GH_ACCESS_TOKEN@github.com/.insteadOf https://github.com/
+        git config --global url."https://$GHACCESSTOKEN@github.com/".insteadOf "https://github.com/"
         go get -v -t -d ./...
       env:
         GOGETCMD: ${{env.GOGETCMD}}
         CGO_ENABLED: 1
-        GH_ACCESS_TOKEN: ${{env.GH_ACCESS_TOKEN}}
+        GHACCESSTOKEN: ${{env.GH_ACCESS_TOKEN}}
         GOPRIVATE: ${{env.GOPRIVATE}}
 
     - name: Generate Build Flags and Build
