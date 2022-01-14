@@ -8,7 +8,7 @@ import (
 	"infraql/internal/iql/parserutil"
 	"infraql/internal/iql/provider"
 
-	"infraql/internal/pkg/openapistackql"
+	"github.com/stackql/go-openapistackql/openapistackql"
 
 	"strings"
 

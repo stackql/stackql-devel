@@ -2,8 +2,9 @@ package methodselect
 
 import (
 	"fmt"
-	"infraql/internal/pkg/openapistackql"
 	"strings"
+
+	"github.com/stackql/go-openapistackql/openapistackql"
 )
 
 type IMethodSelector interface {

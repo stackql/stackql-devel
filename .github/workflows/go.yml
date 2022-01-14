@@ -13,9 +13,11 @@ on:
       - develop
 
 env:
-  GOGETCMD: "go get -v -t -d ./..."
+  GOGETCMD: "git config --global url.https://$GH_ACCESS_TOKEN@github.com/.insteadOf https://github.com/; go get -v -t -d ./..."
   GOTESTCMD: "go test -timeout 1200s --tags \"json1\" -v ./..."
   TESTSCRIPT: "test/python/main.py"
+  GOPRIVATE: github.com/stackql/*
+  GH_ACCESS_TOKEN: ${{ secrets.ACTIONS_PRIVATE_PACKAGE_SECRET }}
 
 jobs:
 
@@ -37,10 +39,14 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Get dependencies
-      run: $GOGETCMD
+      run: |
+        git config --global url.https://$GH_ACCESS_TOKEN@github.com/.insteadOf https://github.com/
+        $GOGETCMD
       env:
         GOGETCMD: ${{env.GOGETCMD}}
         CGO_ENABLED: 1
+        GH_ACCESS_TOKEN: ${{env.GH_ACCESS_TOKEN}}
+        GOPRIVATE: ${{env.GOPRIVATE}}
 
     - name: Generate Build Flags and Build
       env:
@@ -120,9 +126,13 @@ jobs:
       uses: actions/checkout@v2
       
     - name: Get dependencies
-      run: $GOGETCMD
+      run: |
+        git config --global url.https://$GH_ACCESS_TOKEN@github.com/.insteadOf https://github.com/
+        $GOGETCMD
       env:
         GOGETCMD: ${{env.GOGETCMD}}
+        GH_ACCESS_TOKEN: ${{env.GH_ACCESS_TOKEN}}
+        GOPRIVATE: ${{env.GOPRIVATE}}
 
     - name: Generate Build Flags and Build
       env:
@@ -193,10 +203,14 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Get dependencies
-      run: $GOGETCMD
+      run: |
+        git config --global url.https://$GH_ACCESS_TOKEN@github.com/.insteadOf https://github.com/
+        $GOGETCMD
       env:
         GOGETCMD: ${{env.GOGETCMD}}
         CGO_ENABLED: 1
+        GH_ACCESS_TOKEN: ${{env.GH_ACCESS_TOKEN}}
+        GOPRIVATE: ${{env.GOPRIVATE}}
 
     - name: Generate Build Flags and Build
       env:

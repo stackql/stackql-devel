@@ -16,7 +16,8 @@ import (
 	"infraql/internal/iql/sqlengine"
 	"infraql/internal/iql/taxonomy"
 	"infraql/internal/iql/util"
-	"infraql/internal/pkg/openapistackql"
+
+	"github.com/stackql/go-openapistackql/openapistackql"
 
 	"vitess.io/vitess/go/sqltypes"
 	querypb "vitess.io/vitess/go/vt/proto/query"

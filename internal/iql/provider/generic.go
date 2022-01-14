@@ -16,8 +16,9 @@ import (
 	"infraql/internal/iql/relational"
 	"infraql/internal/iql/sqlengine"
 
-	"infraql/internal/pkg/openapistackql"
 	"infraql/internal/pkg/sqltypeutil"
+
+	"github.com/stackql/go-openapistackql/openapistackql"
 
 	"net/http"
 	"net/url"

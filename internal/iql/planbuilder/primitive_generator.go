@@ -25,9 +25,10 @@ import (
 	"infraql/internal/iql/taxonomy"
 	"infraql/internal/iql/util"
 
-	"infraql/internal/pkg/openapistackql"
 	"infraql/internal/pkg/prettyprint"
 	"infraql/internal/pkg/sqltypeutil"
+
+	"github.com/stackql/go-openapistackql/openapistackql"
 
 	log "github.com/sirupsen/logrus"
 

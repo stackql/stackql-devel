@@ -5,7 +5,7 @@ import (
 
 	"encoding/json"
 
-	"infraql/internal/pkg/openapistackql"
+	"github.com/stackql/go-openapistackql/openapistackql"
 
 	"gopkg.in/yaml.v2"
 )

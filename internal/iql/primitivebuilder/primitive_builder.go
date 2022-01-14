@@ -11,7 +11,8 @@ import (
 	"infraql/internal/iql/sqlengine"
 	"infraql/internal/iql/symtab"
 	"infraql/internal/iql/taxonomy"
-	"infraql/internal/pkg/openapistackql"
+
+	"github.com/stackql/go-openapistackql/openapistackql"
 
 	"infraql/internal/pkg/txncounter"
 

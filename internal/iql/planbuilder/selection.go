@@ -7,7 +7,8 @@ import (
 	"infraql/internal/iql/parserutil"
 	"infraql/internal/iql/taxonomy"
 	"infraql/internal/iql/util"
-	"infraql/internal/pkg/openapistackql"
+
+	"github.com/stackql/go-openapistackql/openapistackql"
 
 	log "github.com/sirupsen/logrus"
 	"vitess.io/vitess/go/vt/sqlparser"

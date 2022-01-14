@@ -2,7 +2,8 @@ package dto
 
 import (
 	"fmt"
-	"infraql/internal/pkg/openapistackql"
+
+	"github.com/stackql/go-openapistackql/openapistackql"
 
 	"github.com/getkin/kin-openapi/openapi3"
 )

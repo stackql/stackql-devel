@@ -14,7 +14,7 @@ import (
 	"infraql/internal/iql/methodselect"
 	"infraql/internal/iql/sqlengine"
 
-	"infraql/internal/pkg/openapistackql"
+	"github.com/stackql/go-openapistackql/openapistackql"
 )
 
 const (

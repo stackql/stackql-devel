@@ -11,7 +11,7 @@ import (
 	"infraql/internal/iql/netutils"
 	"infraql/internal/iql/sqlengine"
 
-	"infraql/internal/pkg/openapistackql"
+	"github.com/stackql/go-openapistackql/openapistackql"
 )
 
 type IDiscoveryStore interface {

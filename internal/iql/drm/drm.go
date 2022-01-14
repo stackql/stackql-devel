@@ -9,11 +9,12 @@ import (
 	"infraql/internal/iql/parserutil"
 	"infraql/internal/iql/sqlengine"
 	"infraql/internal/iql/util"
-	"infraql/internal/pkg/openapistackql"
 	"infraql/internal/pkg/txncounter"
 	"reflect"
 	"sort"
 	"strings"
+
+	"github.com/stackql/go-openapistackql/openapistackql"
 
 	log "github.com/sirupsen/logrus"
 	"vitess.io/vitess/go/vt/sqlparser"

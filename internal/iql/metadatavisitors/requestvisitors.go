@@ -5,10 +5,11 @@ import (
 	"infraql/internal/iql/constants"
 	"infraql/internal/iql/iqlutil"
 
-	"infraql/internal/pkg/openapistackql"
 	"infraql/internal/pkg/prettyprint"
 	"sort"
 	"strings"
+
+	"github.com/stackql/go-openapistackql/openapistackql"
 
 	log "github.com/sirupsen/logrus"
 	"vitess.io/vitess/go/vt/sqlparser"

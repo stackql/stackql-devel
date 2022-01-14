@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/coreos/etcd v3.3.13+incompatible // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.9.0
 	github.com/getkin/kin-openapi v0.88.0
 	github.com/ghodss/yaml v1.0.0
@@ -24,6 +25,7 @@ require (
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.8.1
+	github.com/stackql/go-openapistackql v0.0.2
 	go.starlark.net v0.0.0-20210602144842-1cdb82c9e17a // indirect
 	golang.org/x/arch v0.0.0-20210502124803-cbf565b21d1e // indirect
 	golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602

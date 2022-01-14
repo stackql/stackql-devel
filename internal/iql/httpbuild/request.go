@@ -12,7 +12,7 @@ import (
 	"infraql/internal/iql/requests"
 	"infraql/internal/iql/util"
 
-	"infraql/internal/pkg/openapistackql"
+	"github.com/stackql/go-openapistackql/openapistackql"
 
 	"vitess.io/vitess/go/vt/sqlparser"
 

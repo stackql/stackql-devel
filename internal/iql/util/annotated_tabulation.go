@@ -3,7 +3,7 @@ package util
 import (
 	"infraql/internal/iql/dto"
 
-	"infraql/internal/pkg/openapistackql"
+	"github.com/stackql/go-openapistackql/openapistackql"
 )
 
 type AnnotatedTabulation struct {

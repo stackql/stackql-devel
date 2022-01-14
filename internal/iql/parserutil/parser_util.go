@@ -2,9 +2,10 @@ package parserutil
 
 import (
 	"fmt"
-	"infraql/internal/pkg/openapistackql"
 	"strconv"
 	"strings"
+
+	"github.com/stackql/go-openapistackql/openapistackql"
 
 	log "github.com/sirupsen/logrus"
 	"vitess.io/vitess/go/vt/sqlparser"

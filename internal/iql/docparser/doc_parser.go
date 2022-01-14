@@ -8,7 +8,7 @@ import (
 	"infraql/internal/iql/sqlengine"
 	"infraql/internal/iql/util"
 
-	"infraql/internal/pkg/openapistackql"
+	"github.com/stackql/go-openapistackql/openapistackql"
 
 	"regexp"
 	"strings"

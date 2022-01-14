@@ -10,7 +10,7 @@ import (
 	"infraql/internal/iql/dto"
 	"infraql/internal/iql/provider"
 
-	"infraql/internal/pkg/openapistackql"
+	"github.com/stackql/go-openapistackql/openapistackql"
 )
 
 type requestBodyParam struct {

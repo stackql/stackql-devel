@@ -2,8 +2,9 @@ package relational
 
 import (
 	"fmt"
-	"infraql/internal/pkg/openapistackql"
 	"regexp"
+
+	"github.com/stackql/go-openapistackql/openapistackql"
 
 	"vitess.io/vitess/go/sqltypes"
 	"vitess.io/vitess/go/vt/sqlparser"
