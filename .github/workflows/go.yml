@@ -286,7 +286,8 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
-    run: |
+    - name: Get dependencies
+      run: |
         git config --global url.https://$GH_ACCESS_TOKEN@github.com/.insteadOf https://github.com/
         $GOGETCMD
       env:
