@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"infraql/internal/iql/util"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/stackql/stackql/internal/iql/util"
 
 	log "github.com/sirupsen/logrus"
 )

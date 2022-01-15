@@ -6,20 +6,20 @@ import (
 
 	"bufio"
 
-	. "infraql/internal/iql/driver"
-	"infraql/internal/iql/util"
+	. "github.com/stackql/stackql/internal/iql/driver"
+	"github.com/stackql/stackql/internal/iql/util"
 
-	"infraql/internal/iql/config"
-	"infraql/internal/iql/entryutil"
+	"github.com/stackql/stackql/internal/iql/config"
+	"github.com/stackql/stackql/internal/iql/entryutil"
 
-	"infraql/internal/test/infraqltestutil"
-	"infraql/internal/test/testobjects"
+	"github.com/stackql/stackql/internal/test/stackqltestutil"
+	"github.com/stackql/stackql/internal/test/testobjects"
 
 	lrucache "vitess.io/vitess/go/cache"
 )
 
 func TestSimpleInsertDependentGoogleComputeDiskAsync(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleInsertDependentGoogleComputeDiskAsync")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleInsertDependentGoogleComputeDiskAsync")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -28,7 +28,7 @@ func TestSimpleInsertDependentGoogleComputeDiskAsync(t *testing.T) {
 		t.Fatalf("TestSimpleInsertDependentGoogleComputeNetworkAsync failed: %v", err)
 	}
 	runtimeCtx.InfilePath = inputFile
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -60,13 +60,13 @@ func TestSimpleInsertDependentGoogleComputeDiskAsync(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupDependentInsertGoogleComputeDisks(t)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedComputeDisksDependentInsertAsyncFile})
+	stackqltestutil.SetupDependentInsertGoogleComputeDisks(t)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedComputeDisksDependentInsertAsyncFile})
 
 }
 
 func TestSimpleInsertDependentGoogleComputeDiskAsyncReversed(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleInsertDependentGoogleComputeDiskAsyncReversed")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleInsertDependentGoogleComputeDiskAsyncReversed")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -75,7 +75,7 @@ func TestSimpleInsertDependentGoogleComputeDiskAsyncReversed(t *testing.T) {
 		t.Fatalf("TestSimpleInsertDependentGoogleComputeNetworkAsync failed: %v", err)
 	}
 	runtimeCtx.InfilePath = inputFile
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -107,13 +107,13 @@ func TestSimpleInsertDependentGoogleComputeDiskAsyncReversed(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupDependentInsertGoogleComputeDisks(t)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedComputeDisksDependentInsertAsyncFile})
+	stackqltestutil.SetupDependentInsertGoogleComputeDisks(t)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedComputeDisksDependentInsertAsyncFile})
 
 }
 
 func TestSimpleInsertDependentGoogleBQDatasetAsync(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleInsertDependentGoogleBQDatasetAsync")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleInsertDependentGoogleBQDatasetAsync")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -122,7 +122,7 @@ func TestSimpleInsertDependentGoogleBQDatasetAsync(t *testing.T) {
 		t.Fatalf("TestSimpleInsertDependentGoogleComputeNetworkAsync failed: %v", err)
 	}
 	runtimeCtx.InfilePath = inputFile
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -154,13 +154,13 @@ func TestSimpleInsertDependentGoogleBQDatasetAsync(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupDependentInsertGoogleBQDatasets(t)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedBQDatasetsDependentInsertFile})
+	stackqltestutil.SetupDependentInsertGoogleBQDatasets(t)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedBQDatasetsDependentInsertFile})
 
 }
 
 func TestSimpleSelectExecDependentGoogleOrganizationsGetIamPolicy(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "csv", "TestSimpleSelectExecDependentGoogleOrganizationsGetIamPolicy")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "csv", "TestSimpleSelectExecDependentGoogleOrganizationsGetIamPolicy")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -169,7 +169,7 @@ func TestSimpleSelectExecDependentGoogleOrganizationsGetIamPolicy(t *testing.T) 
 		t.Fatalf("TestSimpleSelectExecDependentGoogleOrganizationsGetIamPolicy failed: %v", err)
 	}
 	runtimeCtx.InfilePath = inputFile
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -201,7 +201,7 @@ func TestSimpleSelectExecDependentGoogleOrganizationsGetIamPolicy(t *testing.T) 
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupExecGoogleOrganizationsGetIamPolicy(t)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectExecOrgGetIamPolicyAgg})
+	stackqltestutil.SetupExecGoogleOrganizationsGetIamPolicy(t)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectExecOrgGetIamPolicyAgg})
 
 }

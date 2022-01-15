@@ -82,13 +82,13 @@ jobs:
         Write-Output $BuildDate
         Write-Output $BuildPlatform
         
-        go build -x -v --tags "json1" -ldflags "-X infraql/internal/iql/cmd.BuildMajorVersion=$BuildMajorVersion `
-          -X infraql/internal/iql/cmd.BuildMinorVersion=$BuildMinorVersion `
-          -X infraql/internal/iql/cmd.BuildPatchVersion=$BuildPatchVersion `
-          -X infraql/internal/iql/cmd.BuildCommitSHA=$BuildCommitSHA `
-          -X infraql/internal/iql/cmd.BuildShortCommitSHA=$BuildShortCommitSHA `
-          -X 'infraql/internal/iql/cmd.BuildDate=$BuildDate' `
-          -X infraql/internal/iql/cmd.BuildPlatform=$BuildPlatform" `
+        go build -x -v --tags "json1" -ldflags "-X github.com/stackql/stackql/internal/iql/cmd.BuildMajorVersion=$BuildMajorVersion `
+          -X github.com/stackql/stackql/internal/iql/cmd.BuildMinorVersion=$BuildMinorVersion `
+          -X github.com/stackql/stackql/internal/iql/cmd.BuildPatchVersion=$BuildPatchVersion `
+          -X github.com/stackql/stackql/internal/iql/cmd.BuildCommitSHA=$BuildCommitSHA `
+          -X github.com/stackql/stackql/internal/iql/cmd.BuildShortCommitSHA=$BuildShortCommitSHA `
+          -X 'github.com/stackql/stackql/internal/iql/cmd.BuildDate=$BuildDate' `
+          -X github.com/stackql/stackql/internal/iql/cmd.BuildPlatform=$BuildPlatform" `
           -o build/ ./...
 
     - name: Test
@@ -107,8 +107,8 @@ jobs:
       uses: actions/upload-artifact@v2
       if: success()
       with:
-        name: infraql_windows_amd64
-        path: build/infraql.exe
+        name: stackql_windows_amd64
+        path: build/stackql.exe
 
   linuxbuild:
     name: Linux Build
@@ -164,13 +164,13 @@ jobs:
         echo "BUILDDATE: ${BUILDDATE}"
         echo "BUILDPLATFORM: ${BUILDPLATFORM}"
 
-        go build -x -v --tags "json1" -ldflags "-X infraql/internal/iql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
-        -X infraql/internal/iql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
-        -X infraql/internal/iql/cmd.BuildPatchVersion=$BUILDPATCHVERSION \
-        -X infraql/internal/iql/cmd.BuildCommitSHA=$BUILDCOMMITSHA \
-        -X infraql/internal/iql/cmd.BuildShortCommitSHA=$BUILDSHORTCOMMITSHA \
-        -X \"infraql/internal/iql/cmd.BuildDate=$BUILDDATE\" \
-        -X infraql/internal/iql/cmd.BuildPlatform=$BUILDPLATFORM" \
+        go build -x -v --tags "json1" -ldflags "-X github.com/stackql/stackql/internal/iql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
+        -X github.com/stackql/stackql/internal/iql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
+        -X github.com/stackql/stackql/internal/iql/cmd.BuildPatchVersion=$BUILDPATCHVERSION \
+        -X github.com/stackql/stackql/internal/iql/cmd.BuildCommitSHA=$BUILDCOMMITSHA \
+        -X github.com/stackql/stackql/internal/iql/cmd.BuildShortCommitSHA=$BUILDSHORTCOMMITSHA \
+        -X \"github.com/stackql/stackql/internal/iql/cmd.BuildDate=$BUILDDATE\" \
+        -X github.com/stackql/stackql/internal/iql/cmd.BuildPlatform=$BUILDPLATFORM" \
         -o build/ ./...
       
     - name: Test
@@ -191,8 +191,8 @@ jobs:
       uses: actions/upload-artifact@v2
       if: success()
       with:
-        name: infraql_linux_amd64
-        path: build/infraql
+        name: stackql_linux_amd64
+        path: build/stackql
 
   macosbuild:
     name: MacOS Build
@@ -243,13 +243,13 @@ jobs:
         echo "BUILDDATE: ${BUILDDATE}"
         echo "BUILDPLATFORM: ${BUILDPLATFORM}"
 
-        go build -x -v --tags "json1" -ldflags "-X infraql/internal/iql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
-        -X infraql/internal/iql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
-        -X infraql/internal/iql/cmd.BuildPatchVersion=$BUILDPATCHVERSION \
-        -X infraql/internal/iql/cmd.BuildCommitSHA=$BUILDCOMMITSHA \
-        -X infraql/internal/iql/cmd.BuildShortCommitSHA=$BUILDSHORTCOMMITSHA \
-        -X \"infraql/internal/iql/cmd.BuildDate=$BUILDDATE\" \
-        -X infraql/internal/iql/cmd.BuildPlatform=$BUILDPLATFORM" \
+        go build -x -v --tags "json1" -ldflags "-X github.com/stackql/stackql/internal/iql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
+        -X github.com/stackql/stackql/internal/iql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
+        -X github.com/stackql/stackql/internal/iql/cmd.BuildPatchVersion=$BUILDPATCHVERSION \
+        -X github.com/stackql/stackql/internal/iql/cmd.BuildCommitSHA=$BUILDCOMMITSHA \
+        -X github.com/stackql/stackql/internal/iql/cmd.BuildShortCommitSHA=$BUILDSHORTCOMMITSHA \
+        -X \"github.com/stackql/stackql/internal/iql/cmd.BuildDate=$BUILDDATE\" \
+        -X github.com/stackql/stackql/internal/iql/cmd.BuildPlatform=$BUILDPLATFORM" \
         -o build/ ./...
 
     - name: Test
@@ -270,8 +270,8 @@ jobs:
       uses: actions/upload-artifact@v2
       if: success()
       with:
-        name: infraql_darwin_amd64
-        path: build/infraql
+        name: stackql_darwin_amd64
+        path: build/stackql
 
   macosarmbuild:
     name: MacOS ARM Build
@@ -323,18 +323,18 @@ jobs:
         echo "BUILDPLATFORM: ${BUILDPLATFORM}"
 
         GOOS=darwin GOARCH=arm64 \
-        go build -x -v --tags "json1" -ldflags "-X infraql/internal/iql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
-        -X infraql/internal/iql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
-        -X infraql/internal/iql/cmd.BuildPatchVersion=$BUILDPATCHVERSION \
-        -X infraql/internal/iql/cmd.BuildCommitSHA=$BUILDCOMMITSHA \
-        -X infraql/internal/iql/cmd.BuildShortCommitSHA=$BUILDSHORTCOMMITSHA \
-        -X \"infraql/internal/iql/cmd.BuildDate=$BUILDDATE\" \
-        -X infraql/internal/iql/cmd.BuildPlatform=$BUILDPLATFORM" \
+        go build -x -v --tags "json1" -ldflags "-X github.com/stackql/stackql/internal/iql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
+        -X github.com/stackql/stackql/internal/iql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
+        -X github.com/stackql/stackql/internal/iql/cmd.BuildPatchVersion=$BUILDPATCHVERSION \
+        -X github.com/stackql/stackql/internal/iql/cmd.BuildCommitSHA=$BUILDCOMMITSHA \
+        -X github.com/stackql/stackql/internal/iql/cmd.BuildShortCommitSHA=$BUILDSHORTCOMMITSHA \
+        -X \"github.com/stackql/stackql/internal/iql/cmd.BuildDate=$BUILDDATE\" \
+        -X github.com/stackql/stackql/internal/iql/cmd.BuildPlatform=$BUILDPLATFORM" \
         -o build/ ./...
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       if: success()
       with:
-        name: infraql_darwin_arm64
-        path: build/infraql
+        name: stackql_darwin_arm64
+        path: build/stackql

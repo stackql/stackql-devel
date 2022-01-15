@@ -1,11 +1,11 @@
 
 cmake_minimum_required(VERSION 3.0)
-project(infraql)
+project(stackql)
 
-set(TARGET infraql_build)
-set(EXECUTABLE infraql)
+set(TARGET stackql_build)
+set(EXECUTABLE stackql)
 
-set(GOLANG_SRC_PATH_STR infraql)
+set(GOLANG_SRC_PATH_STR stackql)
 set(GOLANG_BUILD_PATH_STR build)
 
 set(OS_STR_MAC darwin)
@@ -56,13 +56,13 @@ add_custom_command(TARGET ${TARGET}
   DEPENDS ${SRCS}
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMAND go build  --tags "json1" -ldflags
-  "-X infraql/internal/iql/cmd.BuildMajorVersion=${BUILDMAJORVERSION} \
-  -X infraql/internal/iql/cmd.BuildMinorVersion=${BUILDMINORVERSION} \
-  -X infraql/internal/iql/cmd.BuildPatchVersion=${BUILDPATCHVERSION} \
-  -X infraql/internal/iql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
-  -X infraql/internal/iql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
-  -X \"infraql/internal/iql/cmd.BuildDate=${BUILDDATE}\" \
-  -X infraql/internal/iql/cmd.BuildPlatform=$ENV{GOOS}"
+  "-X stackql/internal/iql/cmd.BuildMajorVersion=${BUILDMAJORVERSION} \
+  -X stackql/internal/iql/cmd.BuildMinorVersion=${BUILDMINORVERSION} \
+  -X stackql/internal/iql/cmd.BuildPatchVersion=${BUILDPATCHVERSION} \
+  -X stackql/internal/iql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
+  -X stackql/internal/iql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
+  -X \"stackql/internal/iql/cmd.BuildDate=${BUILDDATE}\" \
+  -X stackql/internal/iql/cmd.BuildPlatform=$ENV{GOOS}"
   -o "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_BUILD_PATH_STR}/${EXECUTABLE}"
   "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_SRC_PATH_STR}"
   COMMENT "Building Go executable for local platform: $ENV{GOOS}"
@@ -73,13 +73,13 @@ add_custom_command(TARGET ${TARGET}
   DEPENDS ${SRCS}
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMAND ${CMAKE_COMMAND} -E env GOOS=${OS_STR_MAC} go build --tags "json1" -ldflags
-  "-X infraql/internal/iql/cmd.BuildMajorVersion=${BUILDMAJORVERSION} \
-  -X infraql/internal/iql/cmd.BuildMinorVersion=${BUILDMINORVERSION} \
-  -X infraql/internal/iql/cmd.BuildPatchVersion=${BUILDPATCHVERSION} \
-  -X infraql/internal/iql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
-  -X infraql/internal/iql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
-  -X \"infraql/internal/iql/cmd.BuildDate=${BUILDDATE}\" \
-  -X infraql/internal/iql/cmd.BuildPlatform=${OS_STR_MAC}"
+  "-X stackql/internal/iql/cmd.BuildMajorVersion=${BUILDMAJORVERSION} \
+  -X stackql/internal/iql/cmd.BuildMinorVersion=${BUILDMINORVERSION} \
+  -X stackql/internal/iql/cmd.BuildPatchVersion=${BUILDPATCHVERSION} \
+  -X stackql/internal/iql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
+  -X stackql/internal/iql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
+  -X \"stackql/internal/iql/cmd.BuildDate=${BUILDDATE}\" \
+  -X stackql/internal/iql/cmd.BuildPlatform=${OS_STR_MAC}"
   -o "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_BUILD_PATH_STR}/${EXECUTABLE}${EXE_SUFFIX_MAC}"
   "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_SRC_PATH_STR}"
   COMMENT "Building Go executable for ${OS_STR_MAC}"
@@ -90,13 +90,13 @@ add_custom_command(TARGET ${TARGET}
   DEPENDS ${SRCS}
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMAND ${CMAKE_COMMAND} -E env GOOS=${OS_STR_WINDOWS} ${WINCOMPILER} go build --tags "json1" -ldflags
-  "-X infraql/internal/iql/cmd.BuildMajorVersion=${BUILDMAJORVERSION} \
-  -X infraql/internal/iql/cmd.BuildMinorVersion=${BUILDMINORVERSION} \
-  -X infraql/internal/iql/cmd.BuildPatchVersion=${BUILDPATCHVERSION} \
-  -X infraql/internal/iql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
-  -X infraql/internal/iql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
-  -X \"infraql/internal/iql/cmd.BuildDate=${BUILDDATE}\" \
-  -X infraql/internal/iql/cmd.BuildPlatform=${OS_STR_WINDOWS}"
+  "-X stackql/internal/iql/cmd.BuildMajorVersion=${BUILDMAJORVERSION} \
+  -X stackql/internal/iql/cmd.BuildMinorVersion=${BUILDMINORVERSION} \
+  -X stackql/internal/iql/cmd.BuildPatchVersion=${BUILDPATCHVERSION} \
+  -X stackql/internal/iql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
+  -X stackql/internal/iql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
+  -X \"stackql/internal/iql/cmd.BuildDate=${BUILDDATE}\" \
+  -X stackql/internal/iql/cmd.BuildPlatform=${OS_STR_WINDOWS}"
   -o "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_BUILD_PATH_STR}/${EXECUTABLE}${EXE_SUFFIX_WINDOWS}"
   "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_SRC_PATH_STR}"
   COMMENT "Building Go executable for ${OS_STR_WINDOWS}"
@@ -107,13 +107,13 @@ add_custom_command(TARGET ${TARGET}
   DEPENDS ${SRCS}
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMAND ${CMAKE_COMMAND} -E env GOOS=${OS_STR_LINUX} ${LINUXCOMPILER} go build -ldflags
-  "-X infraql/internal/iql/cmd.BuildMajorVersion=${BUILDMAJORVERSION} \
-  -X infraql/internal/iql/cmd.BuildMinorVersion=${BUILDMINORVERSION} \
-  -X infraql/internal/iql/cmd.BuildPatchVersion=${BUILDPATCHVERSION} \
-  -X infraql/internal/iql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
-  -X infraql/internal/iql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
-  -X \"infraql/internal/iql/cmd.BuildDate=${BUILDDATE}\" \
-  -X infraql/internal/iql/cmd.BuildPlatform=${OS_STR_LINUX}"
+  "-X stackql/internal/iql/cmd.BuildMajorVersion=${BUILDMAJORVERSION} \
+  -X stackql/internal/iql/cmd.BuildMinorVersion=${BUILDMINORVERSION} \
+  -X stackql/internal/iql/cmd.BuildPatchVersion=${BUILDPATCHVERSION} \
+  -X stackql/internal/iql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
+  -X stackql/internal/iql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
+  -X \"stackql/internal/iql/cmd.BuildDate=${BUILDDATE}\" \
+  -X stackql/internal/iql/cmd.BuildPlatform=${OS_STR_LINUX}"
   -o "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_BUILD_PATH_STR}/${EXECUTABLE}${EXE_SUFFIX_LINUX}"
   "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_SRC_PATH_STR}"
   COMMENT "Building Go executable for ${OS_STR_LINUX}"
@@ -122,10 +122,10 @@ add_custom_command(TARGET ${TARGET}
 find_program(Python_EXECUTABLE python3)
 
 
-if(DEFINED ENV{INFRAQL_TEST_LOG_LEVEL})
-  set(INFRAQL_TEST_LOG_LEVEL $ENV{INFRAQL_TEST_LOG_LEVEL})
+if(DEFINED ENV{STACKQL_TEST_LOG_LEVEL})
+  set(STACKQL_TEST_LOG_LEVEL $ENV{STACKQL_TEST_LOG_LEVEL})
 else()
-  set(INFRAQL_TEST_LOG_LEVEL warn)
+  set(STACKQL_TEST_LOG_LEVEL warn)
 endif()
 
 if(DEFINED LIVE_INTEGRATION_TESTS)
@@ -139,7 +139,7 @@ if(NOT Python_EXECUTABLE)
     message(FATAL_ERROR "Cannot find the python3 executable!")
 endif()
 add_test(NAME int-tests
-    COMMAND ${Python_EXECUTABLE} ${TEST_SCRIPT} --additionalintegrationtestdir=${LIVE_INTEGRATION_TESTS} --loglevel=${INFRAQL_TEST_LOG_LEVEL}
+    COMMAND ${Python_EXECUTABLE} ${TEST_SCRIPT} --additionalintegrationtestdir=${LIVE_INTEGRATION_TESTS} --loglevel=${STACKQL_TEST_LOG_LEVEL}
 )
 
 add_custom_command(TARGET ${TARGET}

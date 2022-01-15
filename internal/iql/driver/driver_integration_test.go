@@ -9,25 +9,25 @@ import (
 
 	"bufio"
 
-	. "infraql/internal/iql/driver"
-	"infraql/internal/iql/util"
+	. "github.com/stackql/stackql/internal/iql/driver"
+	"github.com/stackql/stackql/internal/iql/util"
 
-	"infraql/internal/iql/config"
-	"infraql/internal/iql/entryutil"
-	"infraql/internal/iql/handler"
-	"infraql/internal/iql/provider"
-	"infraql/internal/iql/querysubmit"
-	"infraql/internal/iql/responsehandler"
+	"github.com/stackql/stackql/internal/iql/config"
+	"github.com/stackql/stackql/internal/iql/entryutil"
+	"github.com/stackql/stackql/internal/iql/handler"
+	"github.com/stackql/stackql/internal/iql/provider"
+	"github.com/stackql/stackql/internal/iql/querysubmit"
+	"github.com/stackql/stackql/internal/iql/responsehandler"
 
-	"infraql/internal/test/infraqltestutil"
-	"infraql/internal/test/testhttpapi"
-	"infraql/internal/test/testobjects"
+	"github.com/stackql/stackql/internal/test/stackqltestutil"
+	"github.com/stackql/stackql/internal/test/testhttpapi"
+	"github.com/stackql/stackql/internal/test/testobjects"
 
 	lrucache "vitess.io/vitess/go/cache"
 )
 
 func TestSimpleSelectGoogleComputeInstanceDriver(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleComputeInstanceDriver")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleComputeInstanceDriver")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -46,7 +46,7 @@ func TestSimpleSelectGoogleComputeInstanceDriver(t *testing.T) {
 	testhttpapi.StartServer(t, exp)
 	provider.DummyAuth = true
 
-	sqlEng, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEng, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -71,11 +71,11 @@ func TestSimpleSelectGoogleComputeInstanceDriver(t *testing.T) {
 }
 
 func TestSimpleSelectGoogleComputeInstanceDriverOutput(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleComputeInstanceDriverOutput")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleComputeInstanceDriverOutput")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -106,17 +106,17 @@ func TestSimpleSelectGoogleComputeInstanceDriverOutput(t *testing.T) {
 		responsehandler.HandleResponse(&handlerCtx, response)
 	}
 
-	infraqltestutil.SetupSimpleSelectGoogleComputeInstance(t)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSimpleSelectGoogleComputeInstanceTextFile01, testobjects.ExpectedSimpleSelectGoogleComputeInstanceTextFile02})
+	stackqltestutil.SetupSimpleSelectGoogleComputeInstance(t)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSimpleSelectGoogleComputeInstanceTextFile01, testobjects.ExpectedSimpleSelectGoogleComputeInstanceTextFile02})
 
 }
 
 func TestSimpleSelectGoogleComputeInstanceDriverOutputRepeated(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleComputeInstanceDriverOutputRepeated")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleComputeInstanceDriverOutputRepeated")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -147,17 +147,17 @@ func TestSimpleSelectGoogleComputeInstanceDriverOutputRepeated(t *testing.T) {
 		responsehandler.HandleResponse(&handlerCtx, response)
 	}
 
-	infraqltestutil.SetupSimpleSelectGoogleComputeInstance(t)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSimpleSelectGoogleComputeInstanceTextFile01, testobjects.ExpectedSimpleSelectGoogleComputeInstanceTextFile02})
+	stackqltestutil.SetupSimpleSelectGoogleComputeInstance(t)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSimpleSelectGoogleComputeInstanceTextFile01, testobjects.ExpectedSimpleSelectGoogleComputeInstanceTextFile02})
 
 }
 
 func TestSimpleSelectGoogleContainerSubnetworksAllowedDriverOutput(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleContainerSubnetworksAllowedDriverOutput")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleContainerSubnetworksAllowedDriverOutput")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -188,17 +188,17 @@ func TestSimpleSelectGoogleContainerSubnetworksAllowedDriverOutput(t *testing.T)
 		responsehandler.HandleResponse(&handlerCtx, response)
 	}
 
-	infraqltestutil.SetupSimpleSelectGoogleContainerAggAllowedSubnetworks(t)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSimpleSelectGoogleCotainerSubnetworkTextFile01, testobjects.ExpectedSimpleSelectGoogleCotainerSubnetworkTextFile02})
+	stackqltestutil.SetupSimpleSelectGoogleContainerAggAllowedSubnetworks(t)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSimpleSelectGoogleCotainerSubnetworkTextFile01, testobjects.ExpectedSimpleSelectGoogleCotainerSubnetworkTextFile02})
 
 }
 
 func TestSimpleInsertGoogleComputeNetworkAsync(t *testing.T) {
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleInsertGoogleComputeNetworkAsync")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleInsertGoogleComputeNetworkAsync")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -229,18 +229,18 @@ func TestSimpleInsertGoogleComputeNetworkAsync(t *testing.T) {
 		responsehandler.HandleResponse(&handlerCtx, response)
 	}
 
-	infraqltestutil.SetupSimpleInsertGoogleComputeNetworks(t)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedComputeNetworkInsertAsyncFile})
+	stackqltestutil.SetupSimpleInsertGoogleComputeNetworks(t)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedComputeNetworkInsertAsyncFile})
 
 }
 
 func TestK8sTheHardWayAsync(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestK8sTheHardWayAsync")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestK8sTheHardWayAsync")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -279,8 +279,8 @@ func TestK8sTheHardWayAsync(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupK8sTheHardWayE2eSuccess(t)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedK8STheHardWayAsyncFile})
+	stackqltestutil.SetupK8sTheHardWayE2eSuccess(t)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedK8STheHardWayAsyncFile})
 
 }
 
@@ -288,11 +288,11 @@ func TestSimpleDryRunK8sTheHardWayDriver(t *testing.T) {
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
 
-		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleDryRunK8sTheHardWayDriver")
+		runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleDryRunK8sTheHardWayDriver")
 		if err != nil {
 			t.Fatalf("TestSimpleDryRunDriver failed: %v", err)
 		}
-		sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+		sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 		if err != nil {
 			t.Fatalf("Test failed: %v", err)
 		}
@@ -331,6 +331,6 @@ func TestSimpleDryRunK8sTheHardWayDriver(t *testing.T) {
 		ProcessDryRun(&handlerCtx)
 	}
 
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedK8STheHardWayRenderedFile})
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedK8STheHardWayRenderedFile})
 
 }

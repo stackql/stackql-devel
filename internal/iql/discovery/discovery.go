@@ -6,10 +6,10 @@ import (
 
 	"net/http"
 
-	"infraql/internal/iql/docparser"
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/netutils"
-	"infraql/internal/iql/sqlengine"
+	"github.com/stackql/stackql/internal/iql/docparser"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/netutils"
+	"github.com/stackql/stackql/internal/iql/sqlengine"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 )

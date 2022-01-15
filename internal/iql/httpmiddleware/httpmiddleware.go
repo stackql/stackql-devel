@@ -2,10 +2,11 @@ package httpmiddleware
 
 import (
 	"fmt"
-	"infraql/internal/iql/handler"
-	"infraql/internal/iql/httpexec"
-	"infraql/internal/iql/provider"
 	"net/http"
+
+	"github.com/stackql/stackql/internal/iql/handler"
+	"github.com/stackql/stackql/internal/iql/httpexec"
+	"github.com/stackql/stackql/internal/iql/provider"
 )
 
 func getAuthenticatedClient(handlerCtx handler.HandlerContext, prov provider.IProvider) (*http.Client, error) {

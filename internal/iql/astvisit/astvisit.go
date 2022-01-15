@@ -2,8 +2,9 @@ package astvisit
 
 import (
 	"fmt"
-	"infraql/internal/iql/dto"
 	"strings"
+
+	"github.com/stackql/stackql/internal/iql/dto"
 
 	"vitess.io/vitess/go/sqltypes"
 	"vitess.io/vitess/go/vt/sqlparser"
@@ -168,19 +169,19 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 		v.rewrittenQuery = rq
 
 	case *sqlparser.Auth:
-		var infraql_opt string
+		var stackql_opt string
 		if node.SessionAuth {
-			infraql_opt = "infraql "
+			stackql_opt = "stackql "
 		}
-		rq := fmt.Sprintf("%sAUTH %v %s %v", infraql_opt, node.Provider, node.Type, node.KeyFilePath)
+		rq := fmt.Sprintf("%sAUTH %v %s %v", stackql_opt, node.Provider, node.Type, node.KeyFilePath)
 		v.rewrittenQuery = rq
 
 	case *sqlparser.AuthRevoke:
-		var infraql_opt string
+		var stackql_opt string
 		if node.SessionAuth {
-			infraql_opt = "infraql "
+			stackql_opt = "stackql "
 		}
-		rq := fmt.Sprintf("%sauth revoke %v", infraql_opt, node.Provider)
+		rq := fmt.Sprintf("%sauth revoke %v", stackql_opt, node.Provider)
 		v.rewrittenQuery = rq
 
 	case *sqlparser.Sleep:

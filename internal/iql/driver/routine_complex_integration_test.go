@@ -6,26 +6,26 @@ import (
 
 	"bufio"
 
-	. "infraql/internal/iql/driver"
+	. "github.com/stackql/stackql/internal/iql/driver"
 
-	"infraql/internal/iql/config"
-	"infraql/internal/iql/entryutil"
-	"infraql/internal/iql/querysubmit"
-	"infraql/internal/iql/responsehandler"
+	"github.com/stackql/stackql/internal/iql/config"
+	"github.com/stackql/stackql/internal/iql/entryutil"
+	"github.com/stackql/stackql/internal/iql/querysubmit"
+	"github.com/stackql/stackql/internal/iql/responsehandler"
 
-	"infraql/internal/test/infraqltestutil"
-	"infraql/internal/test/testobjects"
+	"github.com/stackql/stackql/internal/test/stackqltestutil"
+	"github.com/stackql/stackql/internal/test/testobjects"
 
 	lrucache "vitess.io/vitess/go/cache"
 )
 
 func TestUnionAllSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonExtract(t *testing.T) {
 
-	runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "csv", "TestUnionAllSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonExtract")
+	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "csv", "TestUnionAllSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonExtract")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
-	sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+	sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
@@ -56,7 +56,7 @@ func TestUnionAllSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonExtract(t *
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 2)
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedUnionAllSelectComputeDisksOrderCrtTmstpAscPlusJsonExtractCoalesce})
+	stackqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 2)
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedUnionAllSelectComputeDisksOrderCrtTmstpAscPlusJsonExtractCoalesce})
 
 }

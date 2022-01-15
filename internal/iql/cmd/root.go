@@ -1,5 +1,5 @@
 /*
-Copyright © 2019 InfraQL info@infraql.io
+Copyright © 2019 stackql info@stackql.io
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,12 +17,13 @@ package cmd
 
 import (
 	"fmt"
-	"infraql/internal/iql/config"
-	"infraql/internal/iql/constants"
-	"infraql/internal/iql/dto"
-	"infraql/internal/pkg/txncounter"
 	"os"
 	"path"
+
+	"github.com/stackql/stackql/internal/iql/config"
+	"github.com/stackql/stackql/internal/iql/constants"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/pkg/txncounter"
 
 	"github.com/magiconair/properties"
 	"github.com/spf13/cobra"
@@ -55,7 +56,7 @@ var (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:     "infraql",
+	Use:     "stackql",
 	Version: SemVersion,
 	Short:   "Cloud infrastructure coding using SQL",
 	Long: `
@@ -82,7 +83,7 @@ func Execute() error {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.SetVersionTemplate("InfraQL v{{.Version}} " + BuildPlatform + " (" + BuildShortCommitSHA + ")\nBuildDate: " + BuildDate + "\nhttps://infraql.io\n")
+	rootCmd.SetVersionTemplate("stackql v{{.Version}} " + BuildPlatform + " (" + BuildShortCommitSHA + ")\nBuildDate: " + BuildDate + "\nhttps://stackql.io\n")
 
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.CPUProfile, dto.CPUProfileKey, "", "cpuprofile file, none if empty")
 
@@ -108,7 +109,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.HTTPProxyPassword, dto.HTTPProxyPasswordKey, "", "http proxy password")
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.HTTPProxyUser, dto.HTTPProxyUserKey, "", "http proxy user")
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.DbInitFilePath, dto.DbInitFilePathKey, config.GetDefaultDbInitFilePath(), fmt.Sprintf("DB init file path"))
-	rootCmd.PersistentFlags().StringVar(&runtimeCtx.ProviderStr, dto.ProviderStrKey, config.GetGoogleProviderString(), fmt.Sprintf(`InfraQL provider`))
+	rootCmd.PersistentFlags().StringVar(&runtimeCtx.ProviderStr, dto.ProviderStrKey, config.GetGoogleProviderString(), fmt.Sprintf(`stackql provider`))
 	rootCmd.PersistentFlags().BoolVar(&runtimeCtx.WorkOffline, dto.WorkOfflineKey, false, "Work offline, using cached data")
 	rootCmd.PersistentFlags().BoolVarP(&runtimeCtx.VerboseFlag, dto.VerboseFlagKey, "v", false, "Verbose flag")
 	rootCmd.PersistentFlags().BoolVar(&runtimeCtx.DryRunFlag, dto.DryRunFlagKey, false, "dryrun flag; preprocessor only will run and output returned")

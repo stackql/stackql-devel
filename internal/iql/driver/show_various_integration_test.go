@@ -6,14 +6,14 @@ import (
 
 	"bufio"
 
-	. "infraql/internal/iql/driver"
-	"infraql/internal/iql/util"
+	. "github.com/stackql/stackql/internal/iql/driver"
+	"github.com/stackql/stackql/internal/iql/util"
 
-	"infraql/internal/iql/config"
-	"infraql/internal/iql/entryutil"
+	"github.com/stackql/stackql/internal/iql/config"
+	"github.com/stackql/stackql/internal/iql/entryutil"
 
-	"infraql/internal/test/infraqltestutil"
-	"infraql/internal/test/testobjects"
+	"github.com/stackql/stackql/internal/test/stackqltestutil"
+	"github.com/stackql/stackql/internal/test/testobjects"
 
 	lrucache "vitess.io/vitess/go/cache"
 )
@@ -22,11 +22,11 @@ func TestSimpleShowResourcesFiltered(t *testing.T) {
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
 
-		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleShowResourcesFiltered")
+		runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleShowResourcesFiltered")
 		if err != nil {
 			t.Fatalf("TestSimpleShowResourcesFiltered failed: %v", err)
 		}
-		sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+		sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 		if err != nil {
 			t.Fatalf("Test failed: %v", err)
 		}
@@ -60,7 +60,7 @@ func TestSimpleShowResourcesFiltered(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedShowResourcesFilteredFile})
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedShowResourcesFilteredFile})
 
 }
 
@@ -68,11 +68,11 @@ func TestSimpleShowBQDatasets(t *testing.T) {
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
 
-		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleShowBQDatasets")
+		runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleShowBQDatasets")
 		if err != nil {
 			t.Fatalf("TestSimpleShowResourcesFiltered failed: %v", err)
 		}
-		sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+		sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 		if err != nil {
 			t.Fatalf("Test failed: %v", err)
 		}
@@ -106,7 +106,7 @@ func TestSimpleShowBQDatasets(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedShowMethodsGoogleBQDatasetsFile})
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedShowMethodsGoogleBQDatasetsFile})
 
 }
 
@@ -114,11 +114,11 @@ func TestSimpleShowGoogleStorageBuckets(t *testing.T) {
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
 
-		runtimeCtx, err := infraqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleShowGoogleStorageBuckets")
+		runtimeCtx, err := stackqltestutil.GetRuntimeCtx(config.GetGoogleProviderString(), "text", "TestSimpleShowGoogleStorageBuckets")
 		if err != nil {
 			t.Fatalf("TestSimpleShowResourcesFiltered failed: %v", err)
 		}
-		sqlEngine, err := infraqltestutil.BuildSQLEngine(*runtimeCtx)
+		sqlEngine, err := stackqltestutil.BuildSQLEngine(*runtimeCtx)
 		if err != nil {
 			t.Fatalf("Test failed: %v", err)
 		}
@@ -152,6 +152,6 @@ func TestSimpleShowGoogleStorageBuckets(t *testing.T) {
 		ProcessQuery(&handlerCtx)
 	}
 
-	infraqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedShowMethodsGoogleStorageBucketsFile})
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedShowMethodsGoogleStorageBucketsFile})
 
 }

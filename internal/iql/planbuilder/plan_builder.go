@@ -2,18 +2,19 @@ package planbuilder
 
 import (
 	"fmt"
-	"infraql/internal/iql/astvisit"
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/handler"
-	"infraql/internal/iql/iqlerror"
-	"infraql/internal/iql/parse"
-	"infraql/internal/iql/parserutil"
-	"infraql/internal/iql/plan"
-	"infraql/internal/iql/primitive"
-	"infraql/internal/iql/primitivebuilder"
-	"infraql/internal/iql/primitivegraph"
-	"infraql/internal/iql/util"
 	"strings"
+
+	"github.com/stackql/stackql/internal/iql/astvisit"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/handler"
+	"github.com/stackql/stackql/internal/iql/iqlerror"
+	"github.com/stackql/stackql/internal/iql/parse"
+	"github.com/stackql/stackql/internal/iql/parserutil"
+	"github.com/stackql/stackql/internal/iql/plan"
+	"github.com/stackql/stackql/internal/iql/primitive"
+	"github.com/stackql/stackql/internal/iql/primitivebuilder"
+	"github.com/stackql/stackql/internal/iql/primitivegraph"
+	"github.com/stackql/stackql/internal/iql/util"
 
 	"vitess.io/vitess/go/vt/sqlparser"
 

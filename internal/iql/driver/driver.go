@@ -1,13 +1,14 @@
 package driver
 
 import (
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/entryutil"
-	"infraql/internal/iql/handler"
-	"infraql/internal/iql/querysubmit"
-	"infraql/internal/iql/responsehandler"
-	"infraql/internal/iql/util"
 	"strings"
+
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/entryutil"
+	"github.com/stackql/stackql/internal/iql/handler"
+	"github.com/stackql/stackql/internal/iql/querysubmit"
+	"github.com/stackql/stackql/internal/iql/responsehandler"
+	"github.com/stackql/stackql/internal/iql/util"
 
 	log "github.com/sirupsen/logrus"
 )

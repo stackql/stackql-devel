@@ -1,4 +1,4 @@
-package infraqltestutil
+package stackqltestutil
 
 import (
 	"bufio"
@@ -7,8 +7,8 @@ import (
 	"os"
 	"testing"
 
-	"infraql/internal/iql/util"
-	"infraql/internal/test/testutil"
+	"github.com/stackql/stackql/internal/iql/util"
+	"github.com/stackql/stackql/internal/test/testutil"
 )
 
 func RunStdOutTestAgainstFiles(t *testing.T, testSubject func(*testing.T), possibleExpectedOutputFiles []string) {

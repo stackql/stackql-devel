@@ -2,12 +2,13 @@ package handler
 
 import (
 	"fmt"
-	"infraql/internal/iql/drm"
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/provider"
-	"infraql/internal/iql/sqlengine"
-	"infraql/internal/pkg/txncounter"
 	"io"
+
+	"github.com/stackql/stackql/internal/iql/drm"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/provider"
+	"github.com/stackql/stackql/internal/iql/sqlengine"
+	"github.com/stackql/stackql/internal/pkg/txncounter"
 
 	"gopkg.in/yaml.v2"
 	lrucache "vitess.io/vitess/go/cache"

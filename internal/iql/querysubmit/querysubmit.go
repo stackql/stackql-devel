@@ -1,9 +1,9 @@
 package querysubmit
 
 import (
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/handler"
-	"infraql/internal/iql/planbuilder"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/handler"
+	"github.com/stackql/stackql/internal/iql/planbuilder"
 
 	log "github.com/sirupsen/logrus"
 )

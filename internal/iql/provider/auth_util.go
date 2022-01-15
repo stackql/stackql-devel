@@ -6,9 +6,9 @@ import (
 	"errors"
 	"fmt"
 
-	"infraql/internal/iql/constants"
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/netutils"
+	"github.com/stackql/stackql/internal/iql/constants"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/netutils"
 
 	"io/ioutil"
 	"net/http"

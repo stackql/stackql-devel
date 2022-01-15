@@ -16,8 +16,8 @@ import (
 	"sync"
 	"testing"
 
-	"infraql/internal/test/testobjects"
-	"infraql/internal/test/testutil"
+	"github.com/stackql/stackql/internal/test/testobjects"
+	"github.com/stackql/stackql/internal/test/testutil"
 
 	log "github.com/sirupsen/logrus"
 )

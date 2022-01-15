@@ -3,12 +3,13 @@ package cache
 import (
 	"encoding/json"
 	"fmt"
-	"infraql/internal/iql/constants"
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/sqlengine"
 	"path"
 	"sync"
 	"time"
+
+	"github.com/stackql/stackql/internal/iql/constants"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/sqlengine"
 
 	log "github.com/sirupsen/logrus"
 )

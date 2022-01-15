@@ -8,23 +8,23 @@ before:
     - go generate ./...
 builds:
   - 
-    id: infraql
-    binary: infraql
+    id: stackql
+    binary: stackql
     # Path to project's (sub)directory containing Go code.
     # This is the working directory for the Go build command(s).
     # Default is `.`.
-    dir: infraql
+    dir: stackql
 
     # Custom ldflags templates.
     # Default is `-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser`.
     ldflags:
-      - -s -w -X infraql/internal/iql/cmd.BuildMajorVersion={{.Major}}
-      - -s -w -X infraql/internal/iql/cmd.BuildMinorVersion={{.Minor}}
-      - -s -w -X infraql/internal/iql/cmd.BuildPatchVersion={{.Patch}}
-      - -s -w -X iinfraql/internal/iql/cmd.BuildCommitSHA={{.FullCommit}}
-      - -s -w -X infraql/internal/iql/cmd.BuildShortCommitSHA={{.ShortCommit}}
-      - -s -w -X infraql/internal/iql/cmd.BuildDate={{.Date}}
-      - -s -w -X infraql/internal/iql/cmd.BuildPlatform={{.Os}}
+      - -s -w -X github.com/stackql/stackql/internal/iql/cmd.BuildMajorVersion={{.Major}}
+      - -s -w -X github.com/stackql/stackql/internal/iql/cmd.BuildMinorVersion={{.Minor}}
+      - -s -w -X github.com/stackql/stackql/internal/iql/cmd.BuildPatchVersion={{.Patch}}
+      - -s -w -X igithub.com/stackql/stackql/internal/iql/cmd.BuildCommitSHA={{.FullCommit}}
+      - -s -w -X github.com/stackql/stackql/internal/iql/cmd.BuildShortCommitSHA={{.ShortCommit}}
+      - -s -w -X github.com/stackql/stackql/internal/iql/cmd.BuildDate={{.Date}}
+      - -s -w -X github.com/stackql/stackql/internal/iql/cmd.BuildPlatform={{.Os}}
 
     # Custom environment variables to be set during the builds.
     # Default is empty.
@@ -41,9 +41,9 @@ builds:
 
 archives:
   -
-    id: infraql-archive
+    id: stackql-archive
     builds:
-      - infraql
+      - stackql
     format_overrides:
       - goos: macos
         # format: zip
@@ -65,12 +65,12 @@ brews:
   -
     # Name template of the recipe
     # Default to project name
-    name: infraql
+    name: stackql
 
     # IDs of the archives to use.
     # Defaults to all.
     ids:
-    - infraql-archive
+    - stackql-archive
 
     # NOTE: make sure the url_template, the token and given repo (github or gitlab) owner and name are from the
     # same kind. We will probably unify this in the next major version like it is done with scoop.
@@ -78,8 +78,8 @@ brews:
     # GitHub/GitLab repository to push the formula to
     # Gitea is not supported yet, but the support coming
     tap:
-      owner: infraql
-      name: homebrew-infraql
+      owner: stackql
+      name: homebrew-stackql
       # Optionally a token can be provided, if it differs from the token provided to GoReleaser
       # token: "{{ .Env.GORELEASER_GITHUB_TOKEN }}"
 
@@ -87,7 +87,7 @@ brews:
     # Default for github is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     # Default for gitlab is "https://gitlab.com/<repo_owner>/<repo_name>/uploads/{{ .ArtifactUploadHash }}/{{ .ArtifactName }}"
     # Default for gitea is "https://gitea.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-    url_template: "https://github.com/infraql/infraql/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    url_template: "https://github.com/github.com/stackql/stackql/github.com/stackql/stackql/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
 
     # Allows you to set a custom download strategy.
     download_strategy: GitHubPrivateRepositoryReleaseDownloadStrategy
@@ -109,12 +109,12 @@ brews:
     # Default is empty.
     caveats: > 
       "How to use this binary"
-      "Start up `infraql --version` to ensure you're running"
+      "Start up `stackql --version` to ensure you're running"
       "the most up to date version of INFRAQL"
 
     # Your app's homepage.
     # Default is empty.
-    homepage: "https://infraql.io/"
+    homepage: "https://stackql.io/"
 
     # Your app's description.
     # Default is empty.

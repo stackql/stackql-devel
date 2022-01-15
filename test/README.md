@@ -3,7 +3,7 @@
 
 ## Contrived local integration testing
 
-Offline invocations of `infraql` are assessed against expected responses, through the functionality of [/test/python/main.py](/test/python/main.py).  These are backed by data stored in cache files in [/test/.infraql/ttl_cache](/test/.infraql/ttl_cache).  These scripts are run during the build process:
+Offline invocations of `stackql` are assessed against expected responses, through the functionality of [/test/python/main.py](/test/python/main.py).  These are backed by data stored in cache files in [/test/.stackql/ttl_cache](/test/.stackql/ttl_cache).  These scripts are run during the build process:
   - locally through cmake as per [/README.md#build](/README.md#build)
   - in github actions based CICD as per [/.github/workflows/go.yml](/.github/workflows/go.yml).
 

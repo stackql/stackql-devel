@@ -2,19 +2,20 @@ package primitivebuilder
 
 import (
 	"fmt"
-	"infraql/internal/iql/drm"
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/parserutil"
-	"infraql/internal/iql/primitive"
-	"infraql/internal/iql/primitivegraph"
-	"infraql/internal/iql/provider"
-	"infraql/internal/iql/sqlengine"
-	"infraql/internal/iql/symtab"
-	"infraql/internal/iql/taxonomy"
+
+	"github.com/stackql/stackql/internal/iql/drm"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/parserutil"
+	"github.com/stackql/stackql/internal/iql/primitive"
+	"github.com/stackql/stackql/internal/iql/primitivegraph"
+	"github.com/stackql/stackql/internal/iql/provider"
+	"github.com/stackql/stackql/internal/iql/sqlengine"
+	"github.com/stackql/stackql/internal/iql/symtab"
+	"github.com/stackql/stackql/internal/iql/taxonomy"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 
-	"infraql/internal/pkg/txncounter"
+	"github.com/stackql/stackql/internal/pkg/txncounter"
 
 	"vitess.io/vitess/go/vt/sqlparser"
 )

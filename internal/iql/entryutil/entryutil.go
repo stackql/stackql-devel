@@ -8,13 +8,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/handler"
-	"infraql/internal/iql/iqlerror"
-	"infraql/internal/iql/sqlengine"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/handler"
+	"github.com/stackql/stackql/internal/iql/iqlerror"
+	"github.com/stackql/stackql/internal/iql/sqlengine"
 
-	"infraql/internal/pkg/preprocessor"
-	"infraql/internal/pkg/txncounter"
+	"github.com/stackql/stackql/internal/pkg/preprocessor"
+	"github.com/stackql/stackql/internal/pkg/txncounter"
 
 	lrucache "vitess.io/vitess/go/cache"
 )

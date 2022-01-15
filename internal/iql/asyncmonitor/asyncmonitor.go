@@ -2,14 +2,15 @@ package asyncmonitor
 
 import (
 	"fmt"
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/httpexec"
-	"infraql/internal/iql/primitive"
-	"infraql/internal/iql/provider"
-	"infraql/internal/iql/taxonomy"
-	"infraql/internal/iql/util"
 	"strings"
 	"time"
+
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/httpexec"
+	"github.com/stackql/stackql/internal/iql/primitive"
+	"github.com/stackql/stackql/internal/iql/provider"
+	"github.com/stackql/stackql/internal/iql/taxonomy"
+	"github.com/stackql/stackql/internal/iql/util"
 
 	log "github.com/sirupsen/logrus"
 	"vitess.io/vitess/go/vt/sqlparser"

@@ -4,7 +4,7 @@ import (
 	"io"
 	"os"
 
-	"infraql/internal/iql/color"
+	"github.com/stackql/stackql/internal/iql/color"
 
 	log "github.com/sirupsen/logrus"
 )

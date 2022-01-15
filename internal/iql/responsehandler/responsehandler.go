@@ -2,10 +2,11 @@ package responsehandler
 
 import (
 	"fmt"
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/handler"
-	"infraql/internal/iql/output"
 	"os"
+
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/handler"
+	"github.com/stackql/stackql/internal/iql/output"
 
 	log "github.com/sirupsen/logrus"
 )

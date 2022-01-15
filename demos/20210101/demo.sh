@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-IQL_EXE="${PWD}/infraql"
+IQL_EXE="${PWD}/stackql"
 
 PROJECT_ID="lab-kr-network-01"
 GCP_REGION="australia-southeast1"

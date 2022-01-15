@@ -1,5 +1,5 @@
 /*
-Copyright © 2019 InfraQL info@infraql.io
+Copyright © 2019 stackql info@stackql.io
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	server "infraql/internal/iql/srv"
+	server "github.com/stackql/stackql/internal/iql/srv"
 )
 
 const MIN = 1

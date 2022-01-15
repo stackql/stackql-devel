@@ -1,13 +1,13 @@
-package infraqltestutil
+package stackqltestutil
 
 import (
 	"fmt"
 	"io/ioutil"
 
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/entryutil"
-	"infraql/internal/iql/sqlengine"
-	"infraql/internal/iql/util"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/entryutil"
+	"github.com/stackql/stackql/internal/iql/sqlengine"
+	"github.com/stackql/stackql/internal/iql/util"
 )
 
 func GetRuntimeCtx(providerStr string, outputFmtStr string, testName string) (*dto.RuntimeCtx, error) {
@@ -19,7 +19,7 @@ func GetRuntimeCtx(providerStr string, outputFmtStr string, testName string) (*d
 	if err != nil {
 		return nil, fmt.Errorf("test failed on %s: %v", saKeyPath, err)
 	}
-	providerDir, err := util.GetFilePathFromRepositoryRoot("test/.infraql")
+	providerDir, err := util.GetFilePathFromRepositoryRoot("test/.stackql")
 	if err != nil {
 		return nil, fmt.Errorf("test failed: %v", err)
 	}

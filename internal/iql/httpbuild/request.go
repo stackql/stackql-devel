@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"infraql/internal/iql/dto"
-	"infraql/internal/iql/handler"
-	"infraql/internal/iql/httpexec"
-	"infraql/internal/iql/provider"
-	"infraql/internal/iql/requests"
-	"infraql/internal/iql/util"
+	"github.com/stackql/stackql/internal/iql/dto"
+	"github.com/stackql/stackql/internal/iql/handler"
+	"github.com/stackql/stackql/internal/iql/httpexec"
+	"github.com/stackql/stackql/internal/iql/provider"
+	"github.com/stackql/stackql/internal/iql/requests"
+	"github.com/stackql/stackql/internal/iql/util"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 
