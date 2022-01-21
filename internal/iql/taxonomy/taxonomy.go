@@ -324,7 +324,7 @@ func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparse
 	if err != nil {
 		return nil, err
 	}
-	svcHdl, err := prov.GetService(hIds.ServiceStr, handlerCtx.RuntimeContext)
+	svcHdl, err := prov.GetServiceShard(hIds.ServiceStr, hIds.ResourceStr, handlerCtx.RuntimeContext)
 	if err != nil {
 		return nil, err
 	}

@@ -11,7 +11,6 @@ require (
 	github.com/go-delve/delve v1.6.1 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5
 	github.com/google/go-jsonnet v0.17.0
-	github.com/stackql/go-sqlite3 v0.0.1-stackqlalpha
 	github.com/magiconair/properties v1.8.5
 	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
@@ -25,7 +24,8 @@ require (
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.8.1
-	github.com/stackql/go-openapistackql v0.0.3-alpha1
+	github.com/stackql/go-openapistackql v0.0.3-alpha4
+	github.com/stackql/go-sqlite3 v0.0.1-stackqlalpha
 	go.starlark.net v0.0.0-20210602144842-1cdb82c9e17a // indirect
 	golang.org/x/arch v0.0.0-20210502124803-cbf565b21d1e // indirect
 	golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602

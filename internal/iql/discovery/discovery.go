@@ -10,13 +10,16 @@ import (
 	"github.com/stackql/stackql/internal/iql/dto"
 	"github.com/stackql/stackql/internal/iql/netutils"
 	"github.com/stackql/stackql/internal/iql/sqlengine"
+	"gopkg.in/yaml.v2"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 )
 
 type IDiscoveryStore interface {
 	ProcessProviderDiscoveryDoc(string, string) (*openapistackql.Provider, error)
+	ProcessResourcesDiscoveryDoc(string, *openapistackql.ProviderService, string) (*openapistackql.ResourceRegister, error)
 	ProcessServiceDiscoveryDoc(string, *openapistackql.ProviderService, string) (*openapistackql.Service, error)
+	PersistServiceShard(*openapistackql.Provider, *openapistackql.ProviderService, string) (*openapistackql.Service, error)
 }
 
 type TTLDiscoveryStore struct {
@@ -26,8 +29,7 @@ type TTLDiscoveryStore struct {
 
 type IDiscoveryAdapter interface {
 	GetResourcesMap(providerKey, serviceKey string) (map[string]*openapistackql.Resource, error)
-	GetSchemaMap(providerName, serviceName string, resourceName string) (map[string]*openapistackql.Schema, error)
-	GetService(providerKey, serviceKey string) (*openapistackql.Service, error)
+	GetServiceShard(providerKey, serviceKey, resourceKey string) (*openapistackql.Service, error)
 	GetServiceHandlesMap(providerKey string) (map[string]openapistackql.ProviderService, error)
 	GetServiceHandle(providerKey, serviceKey string) (*openapistackql.ProviderService, error)
 	GetProvider(providerKey string) (*openapistackql.Provider, error)
@@ -54,14 +56,6 @@ func NewBasicDiscoveryAdapter(
 	}
 }
 
-func (adp *BasicDiscoveryAdapter) getServiceDiscoveryDoc(providerKey, serviceKey string, runtimeCtx dto.RuntimeCtx) (*openapistackql.Service, error) {
-	component, err := adp.GetServiceHandle(providerKey, serviceKey)
-	if component == nil || err != nil {
-		return nil, err
-	}
-	return adp.discoveryStore.ProcessServiceDiscoveryDoc(providerKey, component, fmt.Sprintf("%s.%s", adp.alias, serviceKey))
-}
-
 func (adp *BasicDiscoveryAdapter) GetProvider(providerKey string) (*openapistackql.Provider, error) {
 	return adp.discoveryStore.ProcessProviderDiscoveryDoc(adp.apiDiscoveryDocUrl, adp.alias)
 }
@@ -86,21 +80,21 @@ func (adp *BasicDiscoveryAdapter) GetServiceHandle(providerKey, serviceKey strin
 	return &rv, nil
 }
 
-func (adp *BasicDiscoveryAdapter) GetSchemaMap(providerName string, serviceName string, resourceName string) (map[string]*openapistackql.Schema, error) {
-	svcDiscDocMap, err := adp.getServiceDiscoveryDoc(providerName, serviceName, *adp.runtimeCtx)
+func (adp *BasicDiscoveryAdapter) GetServiceShard(providerKey, serviceKey, resourceKey string) (*openapistackql.Service, error) {
+	serviceIdString := docparser.TranslateServiceKeyIqlToGenericProvider(serviceKey)
+	pr, err := adp.GetProvider(providerKey)
 	if err != nil {
 		return nil, err
 	}
-	return svcDiscDocMap.GetSchemas()
-}
-
-func (adp *BasicDiscoveryAdapter) GetService(providerKey, serviceKey string) (*openapistackql.Service, error) {
-	serviceIdString := docparser.TranslateServiceKeyIqlToGenericProvider(serviceKey)
 	sh, err := adp.GetServiceHandle(providerKey, serviceIdString)
 	if err != nil {
 		return nil, err
 	}
-	return sh.GetService()
+	shard, err := adp.discoveryStore.PersistServiceShard(pr, sh, resourceKey)
+	if err != nil {
+		return nil, err
+	}
+	return shard, nil
 }
 
 func (adp *BasicDiscoveryAdapter) GetResourcesMap(providerKey, serviceKey string) (map[string]*openapistackql.Resource, error) {
@@ -108,11 +102,21 @@ func (adp *BasicDiscoveryAdapter) GetResourcesMap(providerKey, serviceKey string
 	if component == nil || err != nil {
 		return nil, err
 	}
-	disDoc, err := adp.discoveryStore.ProcessServiceDiscoveryDoc(providerKey, component, fmt.Sprintf("%s.%s", adp.alias, serviceKey))
+	if component.ResourcesRef != nil && component.ResourcesRef.Ref != "" {
+		disDoc, err := adp.discoveryStore.ProcessResourcesDiscoveryDoc(providerKey, component, fmt.Sprintf("%s.%s", adp.alias, serviceKey))
+		if err != nil {
+			return nil, err
+		}
+		return disDoc.Resources, nil
+	}
+	svc, err := component.GetResourcesShallow()
 	if err != nil {
 		return nil, err
 	}
-	return disDoc.GetResources()
+	if svc.Resources == nil {
+		return nil, fmt.Errorf("no resources found for provider = '%s' and service = '%s'", providerKey, serviceKey)
+	}
+	return svc.Resources, nil
 }
 
 func NewTTLDiscoveryStore(sqlengine sqlengine.SQLEngine, runtimeCtx dto.RuntimeCtx) IDiscoveryStore {
@@ -152,7 +156,7 @@ func (store *TTLDiscoveryStore) ProcessServiceDiscoveryDoc(providerKey string, s
 	// k := fmt.Sprintf("%s.%s", providerKey, serviceHandle.Name)
 	switch providerKey {
 	case "googleapis.com", "google":
-		k := fmt.Sprintf("%s.%s", "google", serviceHandle.Name)
+		k := fmt.Sprintf("services.%s.%s", "google", serviceHandle.Name)
 		b, err := store.sqlengine.CacheStoreGet(k)
 		if b != nil && err == nil {
 			return openapistackql.LoadServiceDocFromBytes(b)
@@ -161,9 +165,12 @@ func (store *TTLDiscoveryStore) ProcessServiceDiscoveryDoc(providerKey string, s
 		if err != nil {
 			return nil, err
 		}
-		svc, err := pr.GetService(serviceHandle.Name)
+		svc, err := serviceHandle.GetServiceFragment(serviceHandle.Name)
 		if err != nil {
-			svc, err = pr.GetService(serviceHandle.ID)
+			svc, err = serviceHandle.GetServiceFragment(serviceHandle.ID)
+		}
+		if err != nil {
+			return nil, err
 		}
 		bt, err := svc.ToYaml()
 		if err != nil {
@@ -189,6 +196,9 @@ func (store *TTLDiscoveryStore) ProcessServiceDiscoveryDoc(providerKey string, s
 		if err != nil {
 			svc, err = pr.GetService(serviceHandle.ID)
 		}
+		if err != nil {
+			return nil, err
+		}
 		bt, err := svc.ToYaml()
 		if err != nil {
 			return nil, err
@@ -199,6 +209,74 @@ func (store *TTLDiscoveryStore) ProcessServiceDiscoveryDoc(providerKey string, s
 		}
 		err = docparser.OpenapiStackQLServiceDiscoveryDocPersistor(pr, svc, store.sqlengine, pr.Name)
 		return svc, err
+	}
+}
+
+func (store *TTLDiscoveryStore) PersistServiceShard(pr *openapistackql.Provider, serviceHandle *openapistackql.ProviderService, resourceKey string) (*openapistackql.Service, error) {
+	k := fmt.Sprintf("services.%s.%s", "google", serviceHandle.Name)
+	b, err := store.sqlengine.CacheStoreGet(k)
+	if b != nil && err == nil {
+		return openapistackql.LoadServiceDocFromBytes(b)
+	}
+	shard, err := serviceHandle.GetServiceFragment(resourceKey)
+	if err != nil {
+		return nil, err
+	}
+	err = docparser.OpenapiStackQLServiceDiscoveryDocPersistor(pr, shard, store.sqlengine, pr.Name)
+	if err != nil {
+		return nil, err
+	}
+	return shard, err
+}
+
+func (store *TTLDiscoveryStore) ProcessResourcesDiscoveryDoc(providerKey string, serviceHandle *openapistackql.ProviderService, alias string) (*openapistackql.ResourceRegister, error) {
+	// k := fmt.Sprintf("%s.%s", providerKey, serviceHandle.Name)
+	switch providerKey {
+	case "googleapis.com", "google":
+		k := fmt.Sprintf("resources.%s.%s", "google", serviceHandle.Name)
+		b, err := store.sqlengine.CacheStoreGet(k)
+		if b != nil && err == nil {
+			return openapistackql.LoadResourcesShallow(b)
+		}
+		rr, err := serviceHandle.GetResourcesShallow()
+		if err != nil {
+			rr, err = serviceHandle.GetResourcesShallow()
+		}
+		if err != nil {
+			return nil, err
+		}
+		bt, err := yaml.Marshal(rr)
+		if err != nil {
+			return nil, err
+		}
+		err = store.sqlengine.CacheStorePut(k, bt, "", 0)
+		if err != nil {
+			return nil, err
+		}
+		// err = docparser.OpenapiStackQLServiceDiscoveryDocPersistor(pr, svc, store.sqlengine, pr.Name)
+		return rr, err
+	default:
+		k := fmt.Sprintf("%s.%s", providerKey, serviceHandle.Name)
+		b, err := store.sqlengine.CacheStoreGet(k)
+		if b != nil && err == nil {
+			return openapistackql.LoadResourcesShallow(b)
+		}
+		rr, err := serviceHandle.GetResourcesShallow()
+		if err != nil {
+			rr, err = serviceHandle.GetResourcesShallow()
+		}
+		if err != nil {
+			return nil, err
+		}
+		bt, err := yaml.Marshal(rr)
+		if err != nil {
+			return nil, err
+		}
+		err = store.sqlengine.CacheStorePut(k, bt, "", 0)
+		if err != nil {
+			return nil, err
+		}
+		return rr, nil
 	}
 }
 

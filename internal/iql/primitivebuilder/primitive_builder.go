@@ -56,9 +56,6 @@ type PrimitiveBuilder struct {
 	insertPreparedStatementCtx *drm.PreparedStatementCtx
 	selectPreparedStatementCtx *drm.PreparedStatementCtx
 
-	// per query -- SHOW INSERT only
-	insertSchemaMap map[string]*openapistackql.Schema
-
 	// TODO: universally retire in favour of builder, which returns primitive.IPrimitive
 	root primitivegraph.PrimitiveNode
 
@@ -117,10 +114,6 @@ func (pb *PrimitiveBuilder) GetAst() sqlparser.SQLNode {
 	return pb.ast
 }
 
-func (pb *PrimitiveBuilder) GetInsertSchemaMap() map[string]*openapistackql.Schema {
-	return pb.insertSchemaMap
-}
-
 func (pb *PrimitiveBuilder) GetTxnCounterManager() *txncounter.TxnCounterManager {
 	return pb.txnCounterManager
 }
@@ -129,10 +122,6 @@ func (pb *PrimitiveBuilder) NewChildPrimitiveBuilder(ast sqlparser.SQLNode) *Pri
 	child := NewPrimitiveBuilder(pb, ast, pb.drmConfig, pb.txnCounterManager, pb.graph, pb.tables, pb.symTab, pb.sqlEngine)
 	pb.children = append(pb.children, child)
 	return child
-}
-
-func (pb *PrimitiveBuilder) SetInsertSchemaMap(m map[string]*openapistackql.Schema) {
-	pb.insertSchemaMap = m
 }
 
 func (pb *PrimitiveBuilder) GetInsertValOnlyRows() map[int]map[int]interface{} {

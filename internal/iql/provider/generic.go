@@ -63,8 +63,8 @@ func (gp *GenericProvider) GetVersion() string {
 	return gp.apiVersion
 }
 
-func (gp *GenericProvider) GetService(serviceKey string, runtimeCtx dto.RuntimeCtx) (*openapistackql.Service, error) {
-	return gp.discoveryAdapter.GetService(gp.provider.Name, serviceKey)
+func (gp *GenericProvider) GetServiceShard(serviceKey string, resourceKey string, runtimeCtx dto.RuntimeCtx) (*openapistackql.Service, error) {
+	return gp.discoveryAdapter.GetServiceShard(gp.provider.Name, serviceKey, resourceKey)
 }
 
 func (gp *GenericProvider) inferAuthType(authCtx dto.AuthCtx, authTypeRequested string) string {
@@ -153,21 +153,12 @@ func (gp *GenericProvider) InferDescribeMethod(rsc *openapistackql.Resource) (*o
 	return nil, "", fmt.Errorf("SELECT not supported for this resource, use SHOW METHODS to view available operations for the resource and then invoke a supported method using the EXEC command")
 }
 
-func (gp *GenericProvider) retrieveSchemaMap(serviceName string, resourceName string) (map[string]*openapistackql.Schema, error) {
-	return gp.discoveryAdapter.GetSchemaMap(gp.provider.Name, serviceName, resourceName)
-}
-
-func (gp *GenericProvider) GetSchemaMap(serviceName string, resourceName string) (map[string]*openapistackql.Schema, error) {
-	return gp.discoveryAdapter.GetSchemaMap(gp.provider.Name, serviceName, resourceName)
-}
-
 func (gp *GenericProvider) GetObjectSchema(serviceName string, resourceName string, schemaName string) (*openapistackql.Schema, error) {
-	sm, err := gp.retrieveSchemaMap(serviceName, resourceName)
+	svc, err := gp.GetServiceShard(serviceName, resourceName, gp.runtimeCtx)
 	if err != nil {
 		return nil, err
 	}
-	s := sm[schemaName]
-	return s, nil
+	return svc.GetSchema(schemaName)
 }
 
 func (gp *GenericProvider) ShowAuth(authCtx *dto.AuthCtx) (*openapistackql.AuthMetadata, error) {
@@ -435,15 +426,11 @@ func (gp *GenericProvider) GetResourcesMap(serviceKey string, runtimeCtx dto.Run
 }
 
 func (gp *GenericProvider) GetResource(serviceKey string, resourceKey string, runtimeCtx dto.RuntimeCtx) (*openapistackql.Resource, error) {
-	rm, err := gp.GetResourcesMap(serviceKey, runtimeCtx)
+	svc, err := gp.GetServiceShard(serviceKey, resourceKey, runtimeCtx)
 	if err != nil {
 		return nil, err
 	}
-	retVal, ok := rm[resourceKey]
-	if !ok {
-		return nil, fmt.Errorf("Could not obtain resource '%s' from service '%s'", resourceKey, serviceKey)
-	}
-	return retVal, err
+	return svc.GetResource(resourceKey)
 }
 
 func (gp *GenericProvider) GetProviderString() string {

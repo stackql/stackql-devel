@@ -173,16 +173,12 @@ func checkResource(handlerCtx *handler.HandlerContext, prov provider.IProvider, 
 	return prov.GetResource(service, resource, handlerCtx.RuntimeContext)
 }
 
-func checkService(handlerCtx *handler.HandlerContext, prov provider.IProvider, service string) (*openapistackql.Service, error) {
-	return prov.GetService(service, handlerCtx.RuntimeContext)
-}
-
-func (pb *primitiveGenerator) assembleServiceAndResources(handlerCtx *handler.HandlerContext, prov provider.IProvider, service string) (*openapistackql.Service, error) {
-	svc, err := prov.GetService(service, handlerCtx.RuntimeContext)
+func (pb *primitiveGenerator) assembleResources(handlerCtx *handler.HandlerContext, prov provider.IProvider, service string) (map[string]*openapistackql.Resource, error) {
+	rm, err := prov.GetResourcesMap(service, handlerCtx.RuntimeContext)
 	if err != nil {
 		return nil, err
 	}
-	return svc, err
+	return rm, err
 }
 
 func (pb *primitiveGenerator) analyzeShowFilter(node *sqlparser.Show, table openapistackql.ITable) error {
@@ -599,6 +595,7 @@ func (p *primitiveGenerator) analyzeUnaryExec(handlerCtx *handler.HandlerContext
 	if err != nil {
 		return nil, err
 	}
+	log.Infoln(fmt.Sprintf("provider = '%s', service = '%s', resource = '%s'", prov.GetProviderString(), svcStr, rStr))
 	requestSchema, err := method.GetRequestBodySchema()
 	// requestSchema, err := prov.GetObjectSchema(svcStr, rStr, method.Request.BodyMediaType)
 	if err != nil && method.Request != nil {
@@ -614,10 +611,6 @@ func (p *primitiveGenerator) analyzeUnaryExec(handlerCtx *handler.HandlerContext
 		if err != nil {
 			return nil, err
 		}
-	}
-	_, err = prov.GetSchemaMap(svcStr, rStr)
-	if err != nil {
-		return nil, err
 	}
 	rsc, err := meta.GetResource()
 	if err != nil {
@@ -932,7 +925,7 @@ func (p *primitiveGenerator) analyzeSelectDetail(handlerCtx *handler.HandlerCont
 		return err
 	}
 
-	prov, err := tbl.GetProvider()
+	_, err = tbl.GetProvider()
 	if err != nil {
 		return err
 	}
@@ -979,10 +972,6 @@ func (p *primitiveGenerator) analyzeSelectDetail(handlerCtx *handler.HandlerCont
 			return fmt.Errorf("SELECT HAVING element = '%s' is NOT present in data returned from provider", w)
 		}
 	}
-	if err != nil {
-		return err
-	}
-	_, err = prov.GetSchemaMap(svcStr, rStr)
 	if err != nil {
 		return err
 	}
@@ -1115,11 +1104,6 @@ func (p *primitiveGenerator) analyzeInsert(handlerCtx *handler.HandlerContext, n
 		return err
 	}
 
-	_, err = prov.GetSchemaMap(currentService, currentResource)
-	if err != nil {
-		return err
-	}
-
 	_, err = p.buildRequestContext(handlerCtx, node, &tbl, nil, insertValOnlyRows)
 	if err != nil {
 		return err
@@ -1170,10 +1154,6 @@ func (p *primitiveGenerator) analyzeDelete(handlerCtx *handler.HandlerContext, n
 	if err != nil {
 		return err
 	}
-	_, err = checkService(handlerCtx, prov, currentService)
-	if err != nil {
-		return err
-	}
 	_, err = checkResource(handlerCtx, prov, currentService, currentResource)
 	if err != nil {
 		return err
@@ -1206,10 +1186,6 @@ func (p *primitiveGenerator) analyzeDelete(handlerCtx *handler.HandlerContext, n
 	if err != nil {
 		return err
 	}
-	_, err = prov.GetSchemaMap(currentService, currentResource)
-	if err != nil {
-		return err
-	}
 	_, err = p.buildRequestContext(handlerCtx, node, &tbl, nil, nil)
 	if err != nil {
 		return err
@@ -1237,10 +1213,6 @@ func (p *primitiveGenerator) analyzeDescribe(handlerCtx *handler.HandlerContext,
 		return err
 	}
 	currentResource, err := tbl.GetResourceStr()
-	if err != nil {
-		return err
-	}
-	_, err = checkService(handlerCtx, prov, currentService)
 	if err != nil {
 		return err
 	}
@@ -1305,27 +1277,6 @@ func (p *primitiveGenerator) analyzeShow(handlerCtx *handler.HandlerContext, nod
 		if err != nil {
 			return err
 		}
-		tbl, err := p.PrimitiveBuilder.GetTable(node)
-		if err != nil {
-			return err
-		}
-		prov, err := tbl.GetProvider()
-		if err != nil {
-			return err
-		}
-		currentService, err := tbl.GetServiceStr()
-		if err != nil {
-			return err
-		}
-		currentResource, err := tbl.GetResourceStr()
-		if err != nil {
-			return err
-		}
-		sm, err := prov.GetSchemaMap(currentService, currentResource)
-		if err != nil {
-			return err
-		}
-		p.PrimitiveBuilder.SetInsertSchemaMap(sm)
 	case "METHODS":
 		err = p.inferHeirarchyAndPersist(handlerCtx, node)
 		if err != nil {
@@ -1363,7 +1314,7 @@ func (p *primitiveGenerator) analyzeShow(handlerCtx *handler.HandlerContext, nod
 			return err
 		}
 		p.PrimitiveBuilder.SetProvider(prov)
-		_, err = p.assembleServiceAndResources(handlerCtx, p.PrimitiveBuilder.GetProvider(), node.OnTable.Name.GetRawVal())
+		_, err = p.assembleResources(handlerCtx, p.PrimitiveBuilder.GetProvider(), node.OnTable.Name.GetRawVal())
 		if err != nil {
 			return err
 		}

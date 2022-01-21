@@ -464,10 +464,6 @@ func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext,
 		if !inputExists {
 			return dto.NewErroneousExecutorOutput(fmt.Errorf("input for insert does not exist"))
 		}
-		_, err := prov.GetSchemaMap(tbl.HeirarchyObjects.HeirarchyIds.ServiceStr, tbl.HeirarchyObjects.HeirarchyIds.ResourceStr)
-		if err != nil {
-			return dto.NewErroneousExecutorOutput(err)
-		}
 		inputMap, err := input.ResultToMap()
 		if err != nil {
 			return dto.NewErroneousExecutorOutput(err)
