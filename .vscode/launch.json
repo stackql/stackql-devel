@@ -157,6 +157,33 @@
         "json"
       ],
     },
+    // 
+    {
+      "name": "debug \"SHOW RESOURCES ;\" -- prebuilt with cmake",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
+      "args": [
+        "exec",
+        "show extended resources from google.compute where name = 'resourcePolicies';",
+        "-o",
+        "json"
+      ],
+    }, 
+    {
+      "name": "exec \"SHOW RESOURCES ;\" -- prebuilt with cmake",
+      "type": "go",
+      "request": "launch",
+      "mode": "exec",
+      "program": "${workspaceFolder}/build/stackql",
+      "args": [
+        "exec",
+        "show extended resources from google.compute where name = 'resourcePolicies';",
+        "-o",
+        "json"
+      ],
+    },
     {
       "name": "okta \"DELETE from okta.application.apps ;\" -- prebuilt with cmake",
       "type": "go",

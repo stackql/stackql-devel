@@ -7,7 +7,7 @@
       "instruction": "exec",
       "query": "show extended resources from google.compute where name = 'resourcePolicies' and id like '%.resourcePol%';",
       "expected": [ 
-        "name;id;type;description",
+        "name;id;description",
         "resourcePolicies;.*"
       ],
       "output_file": "output/filtered_resources_semicolon.csv",

@@ -423,7 +423,7 @@ def simple_test_suite():
         '-f={}'.format(_SHOW_EXTENDED_RESOURCES_FILTERED_OUTPUT_FILE_ALT_CSV),
         'exec',
         "show extended resources from google.compute where name = 'resourcePolicies' and id like '%.resourcePol%';",
-        expected = [ 'name;id;type;description', 'resourcePolicies;.*' ],
+        expected = [ 'name;id;description', 'resourcePolicies;.*' ],
         test_output_file = _SHOW_EXTENDED_RESOURCES_FILTERED_OUTPUT_FILE_ALT_CSV,
         verbose = args.verbosetesting,
         name = 'Verbose output, filtered, alt-deimited CSV file based SHOW EXTENDED RESOURCES test + assertion'

@@ -24,7 +24,7 @@ require (
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.8.1
-	github.com/stackql/go-openapistackql v0.0.3-alpha4
+	github.com/stackql/go-openapistackql v0.0.3-alpha5
 	github.com/stackql/go-sqlite3 v0.0.1-stackqlalpha
 	go.starlark.net v0.0.0-20210602144842-1cdb82c9e17a // indirect
 	golang.org/x/arch v0.0.0-20210502124803-cbf565b21d1e // indirect
@@ -43,5 +43,3 @@ replace readline => github.com/stackql/readline v0.0.0-20210418072316-6e4ad520d2
 replace github.com/fatih/color => github.com/stackql/color v1.10.1-0.20210418074258-4aa529ee76ed
 
 replace vitess.io/vitess => github.com/stackql/vitess v0.0.9-alpha5
-
-// replace github.com/getkin/kin-openapi => github.com/infraql/kin-openapi v0.9.0-sortreverse-alpha1
