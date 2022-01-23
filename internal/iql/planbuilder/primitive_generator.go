@@ -151,10 +151,10 @@ func getProviderServiceMap(item openapistackql.ProviderService, extended bool) m
 	return retVal
 }
 
-func convertProviderServicesToMap(services map[string]openapistackql.ProviderService, extended bool) map[string]map[string]interface{} {
+func convertProviderServicesToMap(services map[string]*openapistackql.ProviderService, extended bool) map[string]map[string]interface{} {
 	retVal := make(map[string]map[string]interface{})
 	for k, v := range services {
-		retVal[k] = getProviderServiceMap(v, extended)
+		retVal[k] = getProviderServiceMap(*v, extended)
 	}
 	return retVal
 }
@@ -177,15 +177,15 @@ func filterResources(resources map[string]*openapistackql.Resource, tableFilter 
 	return resources, err
 }
 
-func filterServices(services map[string]openapistackql.ProviderService, tableFilter func(openapistackql.ITable) (openapistackql.ITable, error), useNonPreferredAPIs bool) (map[string]openapistackql.ProviderService, error) {
+func filterServices(services map[string]*openapistackql.ProviderService, tableFilter func(openapistackql.ITable) (openapistackql.ITable, error), useNonPreferredAPIs bool) (map[string]*openapistackql.ProviderService, error) {
 	var err error
 	if tableFilter != nil {
-		filteredServices := make(map[string]openapistackql.ProviderService)
+		filteredServices := make(map[string]*openapistackql.ProviderService)
 		for k, svc := range services {
 			if useNonPreferredAPIs || svc.Preferred {
-				filteredService, filterErr := tableFilter(&svc)
+				filteredService, filterErr := tableFilter(svc)
 				if filterErr == nil && filteredService != nil {
-					filteredServices[k] = *(filteredService.(*openapistackql.ProviderService))
+					filteredServices[k] = (filteredService.(*openapistackql.ProviderService))
 				}
 				if filterErr != nil {
 					err = filterErr
@@ -371,7 +371,7 @@ func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, hand
 		}
 	case "SERVICES":
 		log.Infoln(fmt.Sprintf("Show For node.Type = '%s': Displaying services for provider = '%s'", node.Type, pb.PrimitiveBuilder.GetProvider().GetProviderString()))
-		var services map[string]openapistackql.ProviderService
+		var services map[string]*openapistackql.ProviderService
 		services, err = pb.PrimitiveBuilder.GetProvider().GetProviderServicesRedacted(handlerCtx.RuntimeContext, extended)
 		if err != nil {
 			return prepareErroneousResultSet(keys, columnOrder, err)

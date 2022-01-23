@@ -64,7 +64,7 @@ func (gp *GenericProvider) GetVersion() string {
 }
 
 func (gp *GenericProvider) GetServiceShard(serviceKey string, resourceKey string, runtimeCtx dto.RuntimeCtx) (*openapistackql.Service, error) {
-	return gp.discoveryAdapter.GetServiceShard(gp.provider.Name, serviceKey, resourceKey)
+	return gp.discoveryAdapter.GetServiceShard(gp.provider, serviceKey, resourceKey)
 }
 
 func (gp *GenericProvider) inferAuthType(authCtx dto.AuthCtx, authTypeRequested string) string {
@@ -321,9 +321,9 @@ func (gp *GenericProvider) EnhanceMetadataFilter(metadataType string, metadataFi
 	return metadataFilter, nil
 }
 
-func (gp *GenericProvider) getProviderServices() (map[string]openapistackql.ProviderService, error) {
-	retVal := make(map[string]openapistackql.ProviderService)
-	disDoc, err := gp.discoveryAdapter.GetServiceHandlesMap(gp.provider.Name)
+func (gp *GenericProvider) getProviderServices() (map[string]*openapistackql.ProviderService, error) {
+	retVal := make(map[string]*openapistackql.ProviderService)
+	disDoc, err := gp.discoveryAdapter.GetServiceHandlesMap(gp.provider)
 	if err != nil {
 		return nil, err
 	}
@@ -333,12 +333,12 @@ func (gp *GenericProvider) getProviderServices() (map[string]openapistackql.Prov
 	return retVal, nil
 }
 
-func (gp *GenericProvider) GetProviderServicesRedacted(runtimeCtx dto.RuntimeCtx, extended bool) (map[string]openapistackql.ProviderService, error) {
+func (gp *GenericProvider) GetProviderServicesRedacted(runtimeCtx dto.RuntimeCtx, extended bool) (map[string]*openapistackql.ProviderService, error) {
 	return gp.getProviderServices()
 }
 
 func (gp *GenericProvider) GetResourcesRedacted(currentService string, runtimeCtx dto.RuntimeCtx, extended bool) (map[string]*openapistackql.Resource, error) {
-	svcDiscDocMap, err := gp.discoveryAdapter.GetResourcesMap(gp.provider.Name, currentService)
+	svcDiscDocMap, err := gp.discoveryAdapter.GetResourcesMap(gp.provider, currentService)
 	return svcDiscDocMap, err
 }
 
@@ -422,7 +422,7 @@ func (gp *GenericProvider) getPathParams(httpContext httpexec.IHttpContext) map[
 }
 
 func (gp *GenericProvider) GetResourcesMap(serviceKey string, runtimeCtx dto.RuntimeCtx) (map[string]*openapistackql.Resource, error) {
-	return gp.discoveryAdapter.GetResourcesMap(gp.provider.Name, serviceKey)
+	return gp.discoveryAdapter.GetResourcesMap(gp.provider, serviceKey)
 }
 
 func (gp *GenericProvider) GetResource(serviceKey string, resourceKey string, runtimeCtx dto.RuntimeCtx) (*openapistackql.Resource, error) {
