@@ -98,14 +98,20 @@ func (adp *BasicDiscoveryAdapter) GetResourcesMap(prov *openapistackql.Provider,
 		}
 		return disDoc.Resources, nil
 	}
-	svc, err := component.GetResourcesShallow()
+	rr, err := component.GetResourcesShallow()
 	if err != nil {
-		return nil, err
+		svc, err := component.GetService()
+		if err != nil {
+			return nil, err
+		}
+		return svc.GetResources()
+	} else {
+		if rr.Resources == nil {
+			return nil, fmt.Errorf("no resources found for provider = '%s' and service = '%s'", prov.Name, serviceKey)
+		}
+		return rr.Resources, nil
 	}
-	if svc.Resources == nil {
-		return nil, fmt.Errorf("no resources found for provider = '%s' and service = '%s'", prov.Name, serviceKey)
-	}
-	return svc.Resources, nil
+
 }
 
 func NewTTLDiscoveryStore(sqlengine sqlengine.SQLEngine, runtimeCtx dto.RuntimeCtx) IDiscoveryStore {
