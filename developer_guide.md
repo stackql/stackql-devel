@@ -174,3 +174,11 @@ In terms of handling individual queries:
   - [Executor.getPlan(); in particular line 1352 in executor.go](https://github.com/stackql/vitess/blob/feature/stackql-develop/go/vt/vtgate/executor.go)
 is the guts of query processing.
   - [Build(); line 265 in builder.go](https://github.com/stackql/vitess/blob/feature/stackql-develop/go/vt/vtgate/planbuilder/builder.go) is the driver for plan building.
+
+
+## Profiling
+
+
+```
+time ./stackql exec --cpuprofile=./select-disks-improved-03.profile --auth='{ "google": { "keyfilepath": "/Users/admin/moonlighting/infraql-original/keys/sa-key.json" }, "okta": { "keyfilepath": "/Users/admin/moonlighting/infraql-original/keys/okta-token.txt", "keyfiletype": "api_key" } } ' "select name from google.compute.disks where project = 'lab-kr-network-01' and zone = 'australia-southeast1-a';"
+```

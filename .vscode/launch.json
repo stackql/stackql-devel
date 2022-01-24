@@ -87,7 +87,7 @@
     },
     // select name from google.compute.disks where project = 'lab-kr-network-01' and zone = 'australia-southeast1-a';
     {
-      "name": "DEBUG select compute.discks ... ;",
+      "name": "DEBUG select compute.disks ... ;",
       "type": "go",
       "request": "launch",
       "mode": "debug",
