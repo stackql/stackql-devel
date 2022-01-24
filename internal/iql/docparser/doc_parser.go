@@ -94,7 +94,7 @@ func OpenapiStackQLServiceDiscoveryDocPersistor(prov *openapistackql.Provider, s
 		return err
 	}
 	for _, tblt := range tabluationsAnnotated {
-		ddl := drmConfig.GenerateDDL(tblt, discoveryGenerationId)
+		ddl := drmConfig.GenerateDDL(tblt, discoveryGenerationId, true)
 		for _, q := range ddl {
 			// log.Infoln(q)
 			_, err = db.Exec(q)
@@ -131,7 +131,7 @@ func OpenapiStackQLTabulationsPersistor(prov *openapistackql.Provider, svc *open
 		return err
 	}
 	for _, tblt := range tabluationsAnnotated {
-		ddl := drmConfig.GenerateDDL(tblt, discoveryGenerationId)
+		ddl := drmConfig.GenerateDDL(tblt, discoveryGenerationId, false)
 		for _, q := range ddl {
 			// log.Infoln(q)
 			_, err = db.Exec(q)

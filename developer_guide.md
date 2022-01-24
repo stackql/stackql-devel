@@ -180,5 +180,5 @@ is the guts of query processing.
 
 
 ```
-time ./stackql exec --cpuprofile=./select-disks-improved-03.profile --auth='{ "google": { "keyfilepath": "/Users/admin/moonlighting/infraql-original/keys/sa-key.json" }, "okta": { "keyfilepath": "/Users/admin/moonlighting/infraql-original/keys/okta-token.txt", "keyfiletype": "api_key" } } ' "select name from google.compute.disks where project = 'lab-kr-network-01' and zone = 'australia-southeast1-a';"
+time ./stackql exec --cpuprofile=./select-disks-improved-04.profile --auth='{ "google": { "keyfilepath": "/Users/admin/moonlighting/infraql-original/keys/sa-key.json" }, "okta": { "keyfilepath": "/Users/admin/moonlighting/infraql-original/keys/okta-token.txt", "keyfiletype": "api_key" } } ' "select name from google.compute.disks where project = 'lab-kr-network-01' and zone = 'australia-southeast1-a';"
 ```

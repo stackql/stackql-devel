@@ -135,7 +135,7 @@ type DRMConfig interface {
 	ExtractFromGolangValue(interface{}) interface{}
 	GetCurrentTable(*dto.HeirarchyIdentifiers, sqlengine.SQLEngine) (dto.DBTable, error)
 	GetRelationalType(string) string
-	GenerateDDL(util.AnnotatedTabulation, int) []string
+	GenerateDDL(util.AnnotatedTabulation, int, bool) []string
 	GetGolangValue(string) interface{}
 	GenerateInsertDML(util.AnnotatedTabulation, *txncounter.TxnCounterManager, int) (PreparedStatementCtx, error)
 	GenerateSelectDML(util.AnnotatedTabulation, *dto.TxnControlCounters, sqlparser.SQLNode, *sqlparser.Where) (PreparedStatementCtx, error)
@@ -244,7 +244,7 @@ func (dc *StaticDRMConfig) generateDropTableStatement(hIds *dto.HeirarchyIdentif
 	return fmt.Sprintf(`drop table if exists "%s"`, dc.getTableName(hIds, discoveryGenerationID))
 }
 
-func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, discoveryGenerationID int) []string {
+func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, discoveryGenerationID int, dropTable bool) []string {
 	var colDefs, retVal []string
 	var rv strings.Builder
 	tableName := dc.getTableName(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID)
@@ -266,7 +266,9 @@ func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, discover
 	}
 	rv.WriteString(strings.Join(colDefs, " , "))
 	rv.WriteString(" ) ")
-	retVal = append(retVal, dc.generateDropTableStatement(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID))
+	if dropTable {
+		retVal = append(retVal, dc.generateDropTableStatement(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID))
+	}
 	retVal = append(retVal, rv.String())
 	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), genIdColName, tableName, genIdColName))
 	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), sessionIdColName, tableName, sessionIdColName))
