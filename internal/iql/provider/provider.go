@@ -65,6 +65,8 @@ type IProvider interface {
 
 	GetMethodSelector() methodselect.IMethodSelector
 
+	GetProvider() (*openapistackql.Provider, error)
+
 	GetProviderString() string
 
 	GetProviderServicesRedacted(runtimeCtx dto.RuntimeCtx, extended bool) (map[string]*openapistackql.ProviderService, error)

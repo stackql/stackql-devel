@@ -437,6 +437,13 @@ func (gp *GenericProvider) GetProviderString() string {
 	return gp.provider.Name
 }
 
+func (gp *GenericProvider) GetProvider() (*openapistackql.Provider, error) {
+	if gp.provider == nil {
+		return nil, fmt.Errorf("nil provider object")
+	}
+	return gp.provider, nil
+}
+
 func (gp *GenericProvider) InferMaxResultsElement(*openapistackql.OperationStore) *dto.HTTPElement {
 	return &dto.HTTPElement{
 		Type: dto.QueryParam,

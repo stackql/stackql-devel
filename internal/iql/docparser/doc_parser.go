@@ -113,6 +113,43 @@ func OpenapiStackQLServiceDiscoveryDocPersistor(prov *openapistackql.Provider, s
 	return nil
 }
 
+func OpenapiStackQLTabulationsPersistor(prov *openapistackql.Provider, svc *openapistackql.Service, tabluationsAnnotated []util.AnnotatedTabulation, dbEngine sqlengine.SQLEngine, prefix string) error {
+	// replace := false
+	discoveryGenerationId, err := dbEngine.GetCurrentDiscoveryGenerationId(prefix)
+	if err != nil {
+		discoveryGenerationId, err = dbEngine.GetNextDiscoveryGenerationId(prefix)
+		if err != nil {
+			return err
+		}
+	}
+	db, err := dbEngine.GetDB()
+	if err != nil {
+		return err
+	}
+	txn, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	for _, tblt := range tabluationsAnnotated {
+		ddl := drmConfig.GenerateDDL(tblt, discoveryGenerationId)
+		for _, q := range ddl {
+			// log.Infoln(q)
+			_, err = db.Exec(q)
+			if err != nil {
+				errStr := fmt.Sprintf("aborting DDL run on query = %s, err = %v", q, err)
+				log.Infoln(errStr)
+				txn.Rollback()
+				return err
+			}
+		}
+	}
+	err = txn.Commit()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func isAlwaysRequired(item interface{}) bool {
 	if rMap, ok := item.(map[string]interface{}); ok {
 		if desc, ok := rMap["description"]; ok {

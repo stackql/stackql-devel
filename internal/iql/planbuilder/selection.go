@@ -3,6 +3,7 @@ package planbuilder
 import (
 	"fmt"
 
+	"github.com/stackql/stackql/internal/iql/docparser"
 	"github.com/stackql/stackql/internal/iql/dto"
 	"github.com/stackql/stackql/internal/iql/handler"
 	"github.com/stackql/stackql/internal/iql/parserutil"
@@ -27,7 +28,13 @@ func (p *primitiveGenerator) assembleUnarySelectionBuilder(
 	cols []parserutil.ColumnHandle,
 ) error {
 	annotatedInsertTabulation := util.NewAnnotatedTabulation(insertTabulation, hIds)
-	tableDTO, err := p.PrimitiveBuilder.GetDRMConfig().GetCurrentTable(hIds, handlerCtx.SQLEngine)
+
+	prov, err := tbl.GetProviderObject()
+	if err != nil {
+		return err
+	}
+
+	svc, err := tbl.GetService()
 	if err != nil {
 		return err
 	}
@@ -37,6 +44,14 @@ func (p *primitiveGenerator) assembleUnarySelectionBuilder(
 		return err
 	}
 
+	err = docparser.OpenapiStackQLTabulationsPersistor(prov, svc, []util.AnnotatedTabulation{annotatedInsertTabulation}, p.PrimitiveBuilder.GetSQLEngine(), prov.Name)
+	if err != nil {
+		return err
+	}
+	tableDTO, err := p.PrimitiveBuilder.GetDRMConfig().GetCurrentTable(hIds, handlerCtx.SQLEngine)
+	if err != nil {
+		return err
+	}
 	insPsc, err := p.PrimitiveBuilder.GetDRMConfig().GenerateInsertDML(annotatedInsertTabulation, p.PrimitiveBuilder.GetTxnCounterManager(), tableDTO.GetDiscoveryID())
 	if err != nil {
 		return err

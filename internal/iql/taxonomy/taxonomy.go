@@ -99,6 +99,13 @@ func (ex ExtendedTableMetadata) GetProvider() (provider.IProvider, error) {
 	return ex.HeirarchyObjects.Provider, nil
 }
 
+func (ex ExtendedTableMetadata) GetProviderObject() (*openapistackql.Provider, error) {
+	if ex.HeirarchyObjects == nil || ex.HeirarchyObjects.Provider == nil {
+		return nil, fmt.Errorf("cannot resolve Provider")
+	}
+	return ex.HeirarchyObjects.Provider.GetProvider()
+}
+
 func (ex ExtendedTableMetadata) GetService() (*openapistackql.Service, error) {
 	if ex.HeirarchyObjects == nil || ex.HeirarchyObjects.ServiceHdl == nil {
 		return nil, fmt.Errorf("cannot resolve ServiceHandle")

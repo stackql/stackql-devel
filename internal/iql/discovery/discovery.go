@@ -156,10 +156,10 @@ func (store *TTLDiscoveryStore) ProcessServiceDiscoveryDoc(providerKey string, s
 		if b != nil && err == nil {
 			return openapistackql.LoadServiceDocFromBytes(b)
 		}
-		pr, err := openapistackql.LoadProviderByName("google")
-		if err != nil {
-			return nil, err
-		}
+		// pr, err := openapistackql.LoadProviderByName("google")
+		// if err != nil {
+		// 	return nil, err
+		// }
 		svc, err := serviceHandle.GetServiceFragment(serviceHandle.Name)
 		if err != nil {
 			svc, err = serviceHandle.GetServiceFragment(serviceHandle.ID)
@@ -175,7 +175,7 @@ func (store *TTLDiscoveryStore) ProcessServiceDiscoveryDoc(providerKey string, s
 		if err != nil {
 			return nil, err
 		}
-		err = docparser.OpenapiStackQLServiceDiscoveryDocPersistor(pr, svc, store.sqlengine, pr.Name)
+		// err = docparser.OpenapiStackQLServiceDiscoveryDocPersistor(pr, svc, store.sqlengine, pr.Name)
 		return svc, err
 	default:
 		k := fmt.Sprintf("%s.%s", providerKey, serviceHandle.Name)
@@ -202,7 +202,7 @@ func (store *TTLDiscoveryStore) ProcessServiceDiscoveryDoc(providerKey string, s
 		if err != nil {
 			return nil, err
 		}
-		err = docparser.OpenapiStackQLServiceDiscoveryDocPersistor(pr, svc, store.sqlengine, pr.Name)
+		// err = docparser.OpenapiStackQLServiceDiscoveryDocPersistor(pr, svc, store.sqlengine, pr.Name)
 		return svc, err
 	}
 }
@@ -221,7 +221,7 @@ func (store *TTLDiscoveryStore) PersistServiceShard(pr *openapistackql.Provider,
 	if err != nil {
 		return nil, err
 	}
-	err = docparser.OpenapiStackQLServiceDiscoveryDocPersistor(pr, shard, store.sqlengine, pr.Name)
+	// err = docparser.OpenapiStackQLServiceDiscoveryDocPersistor(pr, shard, store.sqlengine, pr.Name)
 	if err != nil {
 		return nil, err
 	}
