@@ -109,6 +109,9 @@ func (pgb *planGraphBuilder) handleAuth(handlerCtx *handler.HandlerContext, node
 			if node.KeyFilePath != "" {
 				authCtx.KeyFilePath = node.KeyFilePath
 			}
+			if node.KeyEnvVar != "" {
+				authCtx.KeyEnvVar = node.KeyEnvVar
+			}
 			_, err := prov.Auth(authCtx, authType, true)
 			return dto.NewExecutorOutput(nil, nil, nil, nil, err)
 		})

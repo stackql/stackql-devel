@@ -49,11 +49,11 @@ Welcome to the interactive shell for running stackql commands.
 
 	notAuthenticatedMsg string = `Not authenticated, to authenticate to a provider use the AUTH LOGIN command, see https://docs.stackql.io/language-spec/auth`
 
-	saFileErrorMsgTmpl string = `Not authenticated, credentials referenced in keyfilepath (%s) does not exist, authenticate interactively using AUTH LOGIN, for more information see https://docs.stackql.io/language-spec/auth`
+	saFileErrorMsgTmpl string = `Not authenticated, credentials referenced in %s do not exist, authenticate interactively using AUTH LOGIN, for more information see https://docs.stackql.io/language-spec/auth`
 
-	saSuccessMsgTmpl string = `Authenticated using credentials set using the keyfilepath flag (%s) of type = '%s', for more information see https://docs.stackql.io/language-spec/auth`
+	saSuccessMsgTmpl string = `Authenticated using credentials set using the flag %s of type = '%s', for more information see https://docs.stackql.io/language-spec/auth`
 
-	credentialProvidedMsgTmpl string = `Credentials provided using the keyfilepath flag (%s) of type = '%s', for more information see https://docs.stackql.io/language-spec/auth`
+	credentialProvidedMsgTmpl string = `Credentials provided using the the flag %s of type = '%s', for more information see https://docs.stackql.io/language-spec/auth`
 )
 
 func getShellIntroLong() string {
@@ -83,15 +83,14 @@ func getIntroAuthMsg(authCtx *dto.AuthCtx, provider provider.IProvider) string {
 			case dto.AuthInteractiveStr:
 				return fmt.Sprintf(interactiveSuccessMsgTmpl, authCtx.ID)
 			case dto.AuthServiceAccountStr, dto.AuthApiKeyStr:
-				return fmt.Sprintf(saSuccessMsgTmpl, authCtx.KeyFilePath, authCtx.Type)
+				return fmt.Sprintf(saSuccessMsgTmpl, authCtx.GetCredentialsSourceDescriptorString(), authCtx.Type)
 			}
-		} else if err := provider.CheckCredentialFile(authCtx); authCtx.KeyFilePath != "" && err != nil {
-			log.Debugln(fmt.Sprintf("authCtx.KeyFilePath = %v", authCtx.KeyFilePath))
-			return fmt.Sprintf(saFileErrorMsgTmpl, authCtx.KeyFilePath)
+		} else if err := provider.CheckCredentialFile(authCtx); authCtx.HasKey() && err != nil {
+			return fmt.Sprintf(saFileErrorMsgTmpl, authCtx.GetCredentialsSourceDescriptorString())
 		}
 		switch authCtx.Type {
 		case dto.AuthServiceAccountStr, dto.AuthApiKeyStr:
-			return fmt.Sprintf(credentialProvidedMsgTmpl, authCtx.KeyFilePath, authCtx.Type)
+			return fmt.Sprintf(credentialProvidedMsgTmpl, authCtx.GetCredentialsSourceDescriptorString(), authCtx.Type)
 		}
 	}
 	return notAuthenticatedMsg

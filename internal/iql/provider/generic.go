@@ -3,7 +3,6 @@ package provider
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 
 	"github.com/stackql/stackql/internal/iql/constants"
 	"github.com/stackql/stackql/internal/iql/discovery"
@@ -77,7 +76,7 @@ func (gp *GenericProvider) inferAuthType(authCtx dto.AuthCtx, authTypeRequested 
 	case dto.AuthInteractiveStr:
 		return dto.AuthInteractiveStr
 	}
-	if authCtx.KeyFilePath != "" {
+	if authCtx.KeyFilePath != "" || authCtx.KeyEnvVar != "" {
 		return dto.AuthServiceAccountStr
 	}
 	return dto.AuthInteractiveStr
@@ -168,12 +167,12 @@ func (gp *GenericProvider) ShowAuth(authCtx *dto.AuthCtx) (*openapistackql.AuthM
 	switch gp.inferAuthType(*authCtx, authCtx.Type) {
 	case dto.AuthServiceAccountStr:
 		var sa serviceAccount
-		sa, err = parseServiceAccountFile(authCtx.KeyFilePath)
+		sa, err = parseServiceAccountFile(authCtx)
 		if err == nil {
 			authObj = openapistackql.AuthMetadata{
 				Principal: sa.Email,
 				Type:      strings.ToUpper(dto.AuthServiceAccountStr),
-				Source:    authCtx.KeyFilePath,
+				Source:    authCtx.GetCredentialsSourceDescriptorString(),
 			}
 			retVal = &authObj
 			activateAuth(authCtx, sa.Email, dto.AuthServiceAccountStr)
@@ -345,10 +344,10 @@ func (gp *GenericProvider) GetResourcesRedacted(currentService string, runtimeCt
 func (gp *GenericProvider) CheckCredentialFile(authCtx *dto.AuthCtx) error {
 	switch authCtx.Type {
 	case dto.AuthServiceAccountStr:
-		_, err := parseServiceAccountFile(authCtx.KeyFilePath)
+		_, err := parseServiceAccountFile(authCtx)
 		return err
 	case dto.AuthApiKeyStr:
-		_, err := ioutil.ReadFile(authCtx.KeyFilePath)
+		_, err := authCtx.GetCredentialsBytes()
 		return err
 	}
 	return fmt.Errorf("auth type = '%s' not supported", authCtx.Type)

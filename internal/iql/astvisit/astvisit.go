@@ -173,7 +173,7 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 		if node.SessionAuth {
 			stackql_opt = "stackql "
 		}
-		rq := fmt.Sprintf("%sAUTH %v %s %v", stackql_opt, node.Provider, node.Type, node.KeyFilePath)
+		rq := fmt.Sprintf("%sAUTH %v %s %v %v", stackql_opt, node.Provider, node.Type, node.KeyFilePath, node.KeyEnvVar)
 		v.rewrittenQuery = rq
 
 	case *sqlparser.AuthRevoke:

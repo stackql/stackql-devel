@@ -3,14 +3,12 @@ package provider
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 
 	"github.com/stackql/stackql/internal/iql/constants"
 	"github.com/stackql/stackql/internal/iql/dto"
 	"github.com/stackql/stackql/internal/iql/netutils"
 
-	"io/ioutil"
 	"net/http"
 	"regexp"
 
@@ -53,20 +51,19 @@ func deactivateAuth(authCtx *dto.AuthCtx) {
 	authCtx.Active = false
 }
 
-func parseServiceAccountFile(credentialFile string) (serviceAccount, error) {
-	b, err := ioutil.ReadFile(credentialFile)
+func parseServiceAccountFile(ac *dto.AuthCtx) (serviceAccount, error) {
+	b, err := ac.GetCredentialsBytes()
 	var c serviceAccount
 	if err != nil {
-		return c, errors.New(constants.ServiceAccountPathErrStr)
+		return c, fmt.Errorf(constants.ServiceAccountPathErrStr)
 	}
 	return c, json.Unmarshal(b, &c)
 }
 
 func oauthServiceAccount(authCtx *dto.AuthCtx, scopes []string, runtimeCtx dto.RuntimeCtx) (*http.Client, error) {
-	credentialFile := authCtx.KeyFilePath
-	b, err := ioutil.ReadFile(credentialFile)
+	b, err := authCtx.GetCredentialsBytes()
 	if err != nil {
-		return nil, errors.New(constants.ServiceAccountPathErrStr)
+		return nil, fmt.Errorf("service account credentials error: %v", err)
 	}
 	config, errToken := google.JWTConfigFromJSON(b, scopes...)
 	if errToken != nil {
@@ -81,10 +78,9 @@ func oauthServiceAccount(authCtx *dto.AuthCtx, scopes []string, runtimeCtx dto.R
 }
 
 func apiTokenAuth(authCtx *dto.AuthCtx, runtimeCtx dto.RuntimeCtx) (*http.Client, error) {
-	credentialFile := authCtx.KeyFilePath
-	b, err := ioutil.ReadFile(credentialFile)
+	b, err := authCtx.GetCredentialsBytes()
 	if err != nil {
-		return nil, errors.New(constants.ServiceAccountPathErrStr)
+		return nil, fmt.Errorf("credentials error: %v", err)
 	}
 	activateAuth(authCtx, "", "api_key")
 	httpClient := netutils.GetHttpClient(runtimeCtx, http.DefaultClient)

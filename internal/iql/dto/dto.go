@@ -1,8 +1,12 @@
 package dto
 
 import (
+	"fmt"
 	"io"
+	"io/ioutil"
+	"os"
 	"strconv"
+	"strings"
 
 	"vitess.io/vitess/go/sqltypes"
 )
@@ -83,7 +87,50 @@ type AuthCtx struct {
 	Type        string   `json:"keyfiletype" yaml:"keyfiletype"`
 	ID          string   `json:"-" yaml:"-"`
 	KeyFilePath string   `json:"keyfilepath" yaml:"keyfilepath"`
+	KeyEnvVar   string   `json:"keyenvvar" yaml:"keyenvvar"`
 	Active      bool     `json:"-" yaml:"-"`
+}
+
+func (ac *AuthCtx) HasKey() bool {
+	if ac.KeyFilePath != "" || ac.KeyEnvVar != "" {
+		return true
+	}
+	return false
+}
+
+func (ac *AuthCtx) InferAuthType(authTypeRequested string) string {
+	ft := strings.ToLower(authTypeRequested)
+	switch ft {
+	case AuthApiKeyStr:
+		return AuthApiKeyStr
+	case AuthServiceAccountStr:
+		return AuthServiceAccountStr
+	case AuthInteractiveStr:
+		return AuthInteractiveStr
+	}
+	if ac.KeyFilePath != "" || ac.KeyEnvVar != "" {
+		return AuthServiceAccountStr
+	}
+	return AuthInteractiveStr
+}
+
+func (ac *AuthCtx) GetCredentialsBytes() ([]byte, error) {
+	if ac.KeyEnvVar != "" {
+		rv := os.Getenv(ac.KeyEnvVar)
+		if rv == "" {
+			return nil, fmt.Errorf("keyenvvar references empty string")
+		}
+		return []byte(rv), nil
+	}
+	credentialFile := ac.KeyFilePath
+	return ioutil.ReadFile(credentialFile)
+}
+
+func (ac *AuthCtx) GetCredentialsSourceDescriptorString() string {
+	if ac.KeyEnvVar != "" {
+		return fmt.Sprintf("keyenvvar:%s", ac.KeyEnvVar)
+	}
+	return fmt.Sprintf("keyfilepath:%s", ac.KeyFilePath)
 }
 
 type ExecPayload struct {
