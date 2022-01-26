@@ -133,7 +133,7 @@ Then, on OSX > 10, you will need to whitelist the executable for execution even 
 
 Then, run test commands, such as:
 ```
-~/Downloads/stackql --keyfilepath=$HOME/moonlighting/stackql-original/keys/sa-key.json exec "select group_concat(substr(name, 0, 5)) || ' lalala' as cc from google.compute.disks where project = 'lab-kr-network-01' and zone = 'australia-southeast1-b';" -o text
+~/Downloads/stackql --keyfilepath=$HOME/stackql/stackql-devel/keys/sa-key.json exec "select group_concat(substr(name, 0, 5)) || ' lalala' as cc from google.compute.disks where project = 'lab-kr-network-01' and zone = 'australia-southeast1-b';" -o text
 ```
 
 ## Notes on vitess
@@ -180,5 +180,5 @@ is the guts of query processing.
 
 
 ```
-time ./stackql exec --cpuprofile=./select-disks-improved-04.profile --auth='{ "google": { "keyfilepath": "/Users/admin/moonlighting/infraql-original/keys/sa-key.json" }, "okta": { "keyfilepath": "/Users/admin/moonlighting/infraql-original/keys/okta-token.txt", "keyfiletype": "api_key" } } ' "select name from google.compute.disks where project = 'lab-kr-network-01' and zone = 'australia-southeast1-a';"
+time ./stackql exec --cpuprofile=./select-disks-improved-05.profile --auth='{ "google": { "keyfilepath": "'${HOME}'/stackql/stackql-devel/keys/sa-key.json" }, "okta": { "keyfilepath": "'${HOME}'/stackql/stackql-devel/keys/okta-token.txt", "keyfiletype": "api_key" } } ' "select name from google.compute.disks where project = 'lab-kr-network-01' and zone = 'australia-southeast1-a';"
 ```
