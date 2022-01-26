@@ -4,7 +4,7 @@
 ![Go](https://github.com/stackql/stackql/workflows/Go/badge.svg)
 ![License](https://img.shields.io/github/license/stackql/stackql)
 ![Lines](https://img.shields.io/tokei/lines/github/stackql/stackql)  
-[![InfraQL](https://docs.stackql.io/img/stackql-banner.png)](https://stackql.io/)  
+[![StackQL](https://docs.stackql.io/img/stackql-banner.png)](https://stackql.io/)  
 
 
 # Deploy, Manage and Query Cloud Infrastructure using SQL
@@ -13,7 +13,7 @@
 
 ## Cloud infrastructure coding using SQL
 
-> InfraQL allows you to create, modify and query the state of services and resources across all three major public cloud providers (Google, AWS and Azure) using a common, widely known DSL...SQL.
+> StackQL allows you to create, modify and query the state of services and resources across all three major public cloud providers (Google, AWS and Azure) using a common, widely known DSL...SQL.
 
 ----
 ## Its as easy as...

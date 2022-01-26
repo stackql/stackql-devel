@@ -110,7 +110,7 @@ brews:
     caveats: > 
       "How to use this binary"
       "Start up `stackql --version` to ensure you're running"
-      "the most up to date version of INFRAQL"
+      "the most up to date version of STACKQL"
 
     # Your app's homepage.
     # Default is empty.

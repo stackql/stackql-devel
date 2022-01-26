@@ -1,5 +1,5 @@
 
-# Infraql Developer Guide
+# StackQL Developer Guide
 
 ## Concurrency considerations
 
