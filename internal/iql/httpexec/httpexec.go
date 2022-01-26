@@ -3,12 +3,13 @@ package httpexec
 import (
 	"bytes"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"mime"
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/stackql/stackql/internal/iql/util"
 
@@ -166,33 +167,62 @@ func HTTPApiCall(httpClient *http.Client, requestCtx IHttpContext) (*http.Respon
 	return response, nil
 }
 
-func ProcessHttpResponse(response *http.Response) (interface{}, error) {
-	body := response.Body
+func getResponseMediaType(r *http.Response) (string, error) {
+	rt := r.Header.Get("Content-Type")
+	var mediaType string
+	var err error
+	if rt != "" {
+		mediaType, _, err = mime.ParseMediaType(rt)
+		if err != nil {
+			return "", err
+		}
+		return mediaType, nil
+	}
+	return "", nil
+}
+
+func marshalResponse(r *http.Response) (interface{}, error) {
+	body := r.Body
 	if body != nil {
 		defer body.Close()
+	} else {
+		return nil, nil
 	}
 	var target interface{}
-	rt := response.Header.Get("Content-Type")
-	if strings.Contains(rt, "application/json") {
-		err := json.NewDecoder(body).Decode(&target)
-		if err == nil && response.StatusCode >= 400 {
-			err = fmt.Errorf(fmt.Sprintf("HTTP response error: %s", string(util.InterfaceToBytes(target, true))))
-		}
-		if err == io.EOF {
-			if response.StatusCode >= 200 && response.StatusCode < 300 {
-				return map[string]interface{}{"result": "The Operation Completed Successfully"}, nil
-			}
-		}
-		return target, err
-	}
-	b, err := io.ReadAll(body)
+	mediaType, err := getResponseMediaType(r)
 	if err != nil {
 		return nil, err
 	}
-	if response.StatusCode >= 400 {
-		return nil, fmt.Errorf("error: status code = %d, response = '%s'", response.StatusCode, string(b))
+	switch mediaType {
+	case "application/json":
+		err = json.NewDecoder(body).Decode(&target)
+	case "application/xml":
+		err = xml.NewDecoder(body).Decode(&target)
+	case "application/octet-stream":
+		target, err = io.ReadAll(body)
+	case "text/plain", "text/html":
+		var b []byte
+		b, err = io.ReadAll(body)
+		if err != nil {
+			target = string(b)
+		}
+	default:
+		target, err = io.ReadAll(body)
 	}
-	return nil, nil
+	return target, err
+}
+
+func ProcessHttpResponse(response *http.Response) (interface{}, error) {
+	target, err := marshalResponse(response)
+	if err == nil && response.StatusCode >= 400 {
+		err = fmt.Errorf(fmt.Sprintf("HTTP response error: %s", string(util.InterfaceToBytes(target, true))))
+	}
+	if err == io.EOF {
+		if response.StatusCode >= 200 && response.StatusCode < 300 {
+			return map[string]interface{}{"result": "The Operation Completed Successfully"}, nil
+		}
+	}
+	return target, err
 }
 
 func DeprecatedProcessHttpResponse(response *http.Response) (map[string]interface{}, error) {

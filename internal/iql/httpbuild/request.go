@@ -131,19 +131,6 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 			// fmt.Printf("url for request = %s\n", url)
 			handlerCtx.OutErrFile.Write([]byte(fmt.Sprintln(fmt.Sprintf("http request url: %s", url))))
 		}
-		// if p.Header == nil {
-		// 	p.Header = make(http.Header)
-		// }
-		// p.Header["Content-Type"] = []string{"application/json"}
-		// if p.BodyBytes != nil && p.Header != nil && len(p.Header) > 0 {
-		// 	requestBodyMsg := fmt.Sprintf("http request body: %s", string(p.BodyBytes))
-		// 	log.Infoln(requestBodyMsg)
-		// 	if handlerCtx.RuntimeContext.HTTPLogEnabled {
-		// 		handlerCtx.OutErrFile.Write([]byte(fmt.Sprintln(requestBodyMsg)))
-		// 	}
-		// 	p.Context.SetBody(bytes.NewReader(p.BodyBytes))
-		// 	p.Context.SetHeaders(p.Header)
-		// }
 		log.Infoln(fmt.Sprintf("post transform: httpArmoury.RequestParams[%d] = %s", i, string(p.BodyBytes)))
 		httpArmoury.RequestParams[i] = p
 	}
