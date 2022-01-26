@@ -795,6 +795,8 @@ github.com/stackql/vitess v0.0.9-alpha5 h1:0CW7OmB96jCptO9Uaez1fnjnYMOpy7sHbJUXR
 github.com/stackql/vitess v0.0.9-alpha5/go.mod h1:4M5NhkFYCF10+U3LS4owUYY2GsUt+7t1kN9Rv5UVc9A=
 github.com/stackql/vitess v0.0.9-alpha6 h1:ZTQ8avn8YvGLx8N6IH+21nPNwdk+qCNyRdyfIeE/Z+4=
 github.com/stackql/vitess v0.0.9-alpha6/go.mod h1:4M5NhkFYCF10+U3LS4owUYY2GsUt+7t1kN9Rv5UVc9A=
+github.com/stackql/vitess v0.0.9-alpha7 h1:CBCPeyH0yzz2cgswVjWYDqdZi6mE6kZZQ268kWopFwQ=
+github.com/stackql/vitess v0.0.9-alpha7/go.mod h1:4M5NhkFYCF10+U3LS4owUYY2GsUt+7t1kN9Rv5UVc9A=
 github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94/go.mod h1:AZpEONHx3DKn8O/DFsRAY58/XVQiIPMTMB1SddzLXVw=
 github.com/streadway/amqp v0.0.0-20190827072141-edfb9018d271/go.mod h1:AZpEONHx3DKn8O/DFsRAY58/XVQiIPMTMB1SddzLXVw=
 github.com/streadway/handy v0.0.0-20190108123426-d5acb3125c2a/go.mod h1:qNTQ5P5JnDBl6z3cMAg/SywNDC5ABu5ApDIw6lUbRmI=
