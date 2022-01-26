@@ -18,6 +18,7 @@ env:
   TESTSCRIPT: "test/python/main.py"
   GOPRIVATE: github.com/stackql/*
   GH_ACCESS_TOKEN: ${{ secrets.ACTIONS_PRIVATE_PACKAGE_SECRET }}
+  PLANCACHEENABLED: "true"
 
 jobs:
 
@@ -72,7 +73,8 @@ jobs:
         $BuildCommitSHA = $env:BUILDCOMMITSHA
         $BuildShortCommitSHA = "$BuildCommitSHA".Substring(0,6)
         $BuildDate = (Get-Date -UFormat "%a %b %e %H:%M:%S UTC %Y").ToString()
-        $BuildPlatform = $env:BUILDPLATFORM		
+        $BuildPlatform = $env:BUILDPLATFORM
+        $PlanCacheEnabled = $env:PLANCACHEENABLED	
             
         Write-Output $BuildMajorVersion
         Write-Output $BuildMinorVersion
@@ -88,6 +90,7 @@ jobs:
           -X github.com/stackql/stackql/internal/iql/cmd.BuildCommitSHA=$BuildCommitSHA `
           -X github.com/stackql/stackql/internal/iql/cmd.BuildShortCommitSHA=$BuildShortCommitSHA `
           -X 'github.com/stackql/stackql/internal/iql/cmd.BuildDate=$BuildDate' `
+          -X 'stackql/internal/iql/planbuilder.PlanCacheEnabled=$PlanCacheEnabled' `
           -X github.com/stackql/stackql/internal/iql/cmd.BuildPlatform=$BuildPlatform" `
           -o build/ ./...
 
@@ -170,6 +173,7 @@ jobs:
         -X github.com/stackql/stackql/internal/iql/cmd.BuildCommitSHA=$BUILDCOMMITSHA \
         -X github.com/stackql/stackql/internal/iql/cmd.BuildShortCommitSHA=$BUILDSHORTCOMMITSHA \
         -X \"github.com/stackql/stackql/internal/iql/cmd.BuildDate=$BUILDDATE\" \
+        -X \"stackql/internal/iql/planbuilder.PlanCacheEnabled=$PLANCACHEENABLED\" \
         -X github.com/stackql/stackql/internal/iql/cmd.BuildPlatform=$BUILDPLATFORM" \
         -o build/ ./...
       
@@ -249,6 +253,7 @@ jobs:
         -X github.com/stackql/stackql/internal/iql/cmd.BuildCommitSHA=$BUILDCOMMITSHA \
         -X github.com/stackql/stackql/internal/iql/cmd.BuildShortCommitSHA=$BUILDSHORTCOMMITSHA \
         -X \"github.com/stackql/stackql/internal/iql/cmd.BuildDate=$BUILDDATE\" \
+        -X \"stackql/internal/iql/planbuilder.PlanCacheEnabled=$PLANCACHEENABLED\" \
         -X github.com/stackql/stackql/internal/iql/cmd.BuildPlatform=$BUILDPLATFORM" \
         -o build/ ./...
 
@@ -329,6 +334,7 @@ jobs:
         -X github.com/stackql/stackql/internal/iql/cmd.BuildCommitSHA=$BUILDCOMMITSHA \
         -X github.com/stackql/stackql/internal/iql/cmd.BuildShortCommitSHA=$BUILDSHORTCOMMITSHA \
         -X \"github.com/stackql/stackql/internal/iql/cmd.BuildDate=$BUILDDATE\" \
+        -X \"stackql/internal/iql/planbuilder.PlanCacheEnabled=$PLANCACHEENABLED\" \
         -X github.com/stackql/stackql/internal/iql/cmd.BuildPlatform=$BUILDPLATFORM" \
         -o build/ ./...
 

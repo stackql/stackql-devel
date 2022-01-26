@@ -23,6 +23,8 @@ set(BUILDCOMMITSHA local-dev)
 set(BUILDSHORTCOMMITSHA local-dev)
 set(BUILDDATE 1900-01-01)
 
+set(PLANCACHEENABLED true)
+
 set(WINCOMPILER "CC=x86_64-w64-mingw32-gcc")
 set(LINUXCOMPILER "CC=x86_64-linux-musl-gcc")
 
@@ -62,6 +64,7 @@ add_custom_command(TARGET ${TARGET}
   -X stackql/internal/iql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
   -X stackql/internal/iql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
   -X \"stackql/internal/iql/cmd.BuildDate=${BUILDDATE}\" \
+  -X \"stackql/internal/iql/planbuilder.PlanCacheEnabled=${PLANCACHEENABLED}\" \
   -X stackql/internal/iql/cmd.BuildPlatform=$ENV{GOOS}"
   -o "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_BUILD_PATH_STR}/${EXECUTABLE}"
   "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_SRC_PATH_STR}"
@@ -79,6 +82,7 @@ add_custom_command(TARGET ${TARGET}
   -X stackql/internal/iql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
   -X stackql/internal/iql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
   -X \"stackql/internal/iql/cmd.BuildDate=${BUILDDATE}\" \
+  -X \"stackql/internal/iql/planbuilder.PlanCacheEnabled=${PLANCACHEENABLED}\" \
   -X stackql/internal/iql/cmd.BuildPlatform=${OS_STR_MAC}"
   -o "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_BUILD_PATH_STR}/${EXECUTABLE}${EXE_SUFFIX_MAC}"
   "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_SRC_PATH_STR}"
@@ -96,6 +100,7 @@ add_custom_command(TARGET ${TARGET}
   -X stackql/internal/iql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
   -X stackql/internal/iql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
   -X \"stackql/internal/iql/cmd.BuildDate=${BUILDDATE}\" \
+  -X \"stackql/internal/iql/planbuilder.PlanCacheEnabled=${PLANCACHEENABLED}\" \
   -X stackql/internal/iql/cmd.BuildPlatform=${OS_STR_WINDOWS}"
   -o "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_BUILD_PATH_STR}/${EXECUTABLE}${EXE_SUFFIX_WINDOWS}"
   "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_SRC_PATH_STR}"
@@ -113,6 +118,7 @@ add_custom_command(TARGET ${TARGET}
   -X stackql/internal/iql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
   -X stackql/internal/iql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
   -X \"stackql/internal/iql/cmd.BuildDate=${BUILDDATE}\" \
+  -X \"stackql/internal/iql/planbuilder.PlanCacheEnabled=${PLANCACHEENABLED}\" \
   -X stackql/internal/iql/cmd.BuildPlatform=${OS_STR_LINUX}"
   -o "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_BUILD_PATH_STR}/${EXECUTABLE}${EXE_SUFFIX_LINUX}"
   "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_SRC_PATH_STR}"

@@ -21,6 +21,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+var (
+	// only string "false" will disable
+	PlanCacheEnabled string = "true"
+)
+
+func isPlanCacheEnabled() bool {
+	return strings.ToLower(PlanCacheEnabled) != "false"
+}
+
 type planGraphBuilder struct {
 	planGraph *primitivegraph.PrimitiveGraph
 }
@@ -375,7 +384,7 @@ func createErroneousPlan(handlerCtx *handler.HandlerContext, qPlan *plan.Plan, r
 
 func BuildPlanFromContext(handlerCtx *handler.HandlerContext) (*plan.Plan, error) {
 	planKey := handlerCtx.Query
-	if qp, ok := handlerCtx.LRUCache.Get(planKey); ok && false {
+	if qp, ok := handlerCtx.LRUCache.Get(planKey); ok && isPlanCacheEnabled() {
 		log.Infoln("retrieving query plan from cache")
 		pl, ok := qp.(*plan.Plan)
 		if ok {
