@@ -18,13 +18,13 @@ builds:
     # Custom ldflags templates.
     # Default is `-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser`.
     ldflags:
-      - -s -w -X github.com/stackql/stackql/internal/iql/cmd.BuildMajorVersion={{.Major}}
-      - -s -w -X github.com/stackql/stackql/internal/iql/cmd.BuildMinorVersion={{.Minor}}
-      - -s -w -X github.com/stackql/stackql/internal/iql/cmd.BuildPatchVersion={{.Patch}}
-      - -s -w -X igithub.com/stackql/stackql/internal/iql/cmd.BuildCommitSHA={{.FullCommit}}
-      - -s -w -X github.com/stackql/stackql/internal/iql/cmd.BuildShortCommitSHA={{.ShortCommit}}
-      - -s -w -X github.com/stackql/stackql/internal/iql/cmd.BuildDate={{.Date}}
-      - -s -w -X github.com/stackql/stackql/internal/iql/cmd.BuildPlatform={{.Os}}
+      - -s -w -X github.com/stackql/stackql/internal/stackql/cmd.BuildMajorVersion={{.Major}}
+      - -s -w -X github.com/stackql/stackql/internal/stackql/cmd.BuildMinorVersion={{.Minor}}
+      - -s -w -X github.com/stackql/stackql/internal/stackql/cmd.BuildPatchVersion={{.Patch}}
+      - -s -w -X igithub.com/stackql/stackql/internal/stackql/cmd.BuildCommitSHA={{.FullCommit}}
+      - -s -w -X github.com/stackql/stackql/internal/stackql/cmd.BuildShortCommitSHA={{.ShortCommit}}
+      - -s -w -X github.com/stackql/stackql/internal/stackql/cmd.BuildDate={{.Date}}
+      - -s -w -X github.com/stackql/stackql/internal/stackql/cmd.BuildPlatform={{.Os}}
 
     # Custom environment variables to be set during the builds.
     # Default is empty.

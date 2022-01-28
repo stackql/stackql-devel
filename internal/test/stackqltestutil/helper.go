@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stackql/stackql/internal/iql/util"
+	"github.com/stackql/stackql/internal/stackql/util"
 	"github.com/stackql/stackql/internal/test/testutil"
 )
 

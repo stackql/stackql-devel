@@ -72,7 +72,7 @@ Building locally or in cloud will automatically:
 
 ### gotest
 
-Test coverage is sparse.  Regressions are mitigated by `gotest` integration testing in the [driver](/internal/iql/driver/driver_integration_test.go) and [stackql](/stackql/main_integration_test.go) packages.  Some testing functionality is supported through convenience functionality inside the [test](/internal/test) packages.
+Test coverage is sparse.  Regressions are mitigated by `gotest` integration testing in the [driver](/internal/stackql/driver/driver_integration_test.go) and [stackql](/stackql/main_integration_test.go) packages.  Some testing functionality is supported through convenience functionality inside the [test](/internal/test) packages.
 
 #### Point in time gotest coverage
 
