@@ -14,6 +14,7 @@ import (
 	"github.com/stackql/stackql/internal/iql/dto"
 	"github.com/stackql/stackql/internal/iql/entryutil"
 	"github.com/stackql/stackql/internal/iql/handler"
+	"github.com/stackql/stackql/internal/iql/iqlerror"
 
 	lrucache "vitess.io/vitess/go/cache"
 )
@@ -40,6 +41,7 @@ func handleConnection(c net.Conn, runtimeCtx dto.RuntimeCtx, lruCache *lrucache.
 		handlerContext, _ := handler.GetHandlerCtx(netData, runtimeCtx, lruCache, sqlEng)
 		handlerContext.Outfile = c
 		handlerContext.OutErrFile = c
+		defer iqlerror.HandlePanic(c)
 		if handlerContext.RuntimeContext.DryRunFlag {
 			driver.ProcessDryRun(&handlerContext)
 			continue

@@ -91,6 +91,7 @@ func getOutputFile(filename string) (*os.File, error) {
 }
 
 func RunCommand(handlerCtx *handler.HandlerContext, outfile io.Writer, outErrFile io.Writer) {
+	defer iqlerror.HandlePanic(outErrFile)
 	if outfile == nil {
 		outfile, _ = getOutputFile(handlerCtx.RuntimeContext.OutfilePath)
 	}

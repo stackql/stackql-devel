@@ -2,6 +2,7 @@ package iqlerror
 
 import (
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -20,5 +21,16 @@ func PrintErrorAndExitOneIfError(err error) {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, fmt.Sprintln(err.Error()))
 		os.Exit(1)
+	}
+}
+
+func HandlePanic(outFile io.Writer) {
+	if r := recover(); r != nil {
+		msg := fmt.Sprintln("Error: Recovered in HandlePanic():", r)
+		if outFile != nil {
+			outFile.Write([]byte(msg))
+		} else {
+			fmt.Print(msg)
+		}
 	}
 }
