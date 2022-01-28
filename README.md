@@ -9,7 +9,7 @@
 
 # Deploy, Manage and Query Cloud Infrastructure using SQL
 
-[[Documentation](https://docs.stackql.io/)]  [[Developer Guide](https://github.com/stackql/stackql/blob/develop/developer_guide.md)]
+[Documentation](https://docs.stackql.io/)]  [Developer Guide](/docs/developer_guide.md)]
 
 ## Cloud infrastructure coding using SQL
 
@@ -80,17 +80,19 @@ Executable `build/stackql` will be created.
 ./stackql exec "show extended services from google where title = 'Service Directory API';"
 ```
 
-More examples in [/examples.md](/examples.md).
+More examples in [docs/examples.md](/docs/examples.md).
 
 ---
 
 ## Developers
 
-[/developer_guide.md](/developer_guide.md).
+[docs/developer_guide.md](/docs/developer_guide.md).
 
 ## Testing
 
-[/test/README.md](/test/README.md).
+[test/README.md](/test/README.md).
+
+[docs/integration_testing.md](/docs/integration_testing.md).
 
 ## Acknowledgements
 
