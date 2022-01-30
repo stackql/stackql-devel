@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/stackql/stackql/internal/iql/cmd"
+	"github.com/stackql/stackql/internal/stackql/cmd"
 )
 
 func main() {

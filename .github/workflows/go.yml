@@ -18,6 +18,7 @@ env:
   TESTSCRIPT: "test/python/main.py"
   GOPRIVATE: github.com/stackql/*
   GH_ACCESS_TOKEN: ${{ secrets.ACTIONS_PRIVATE_PACKAGE_SECRET }}
+  PLANCACHEENABLED: "true"
 
 jobs:
 
@@ -72,7 +73,8 @@ jobs:
         $BuildCommitSHA = $env:BUILDCOMMITSHA
         $BuildShortCommitSHA = "$BuildCommitSHA".Substring(0,6)
         $BuildDate = (Get-Date -UFormat "%a %b %e %H:%M:%S UTC %Y").ToString()
-        $BuildPlatform = $env:BUILDPLATFORM		
+        $BuildPlatform = $env:BUILDPLATFORM
+        $PlanCacheEnabled = $env:PLANCACHEENABLED	
             
         Write-Output $BuildMajorVersion
         Write-Output $BuildMinorVersion
@@ -82,13 +84,14 @@ jobs:
         Write-Output $BuildDate
         Write-Output $BuildPlatform
         
-        go build -x -v --tags "json1" -ldflags "-X github.com/stackql/stackql/internal/iql/cmd.BuildMajorVersion=$BuildMajorVersion `
-          -X github.com/stackql/stackql/internal/iql/cmd.BuildMinorVersion=$BuildMinorVersion `
-          -X github.com/stackql/stackql/internal/iql/cmd.BuildPatchVersion=$BuildPatchVersion `
-          -X github.com/stackql/stackql/internal/iql/cmd.BuildCommitSHA=$BuildCommitSHA `
-          -X github.com/stackql/stackql/internal/iql/cmd.BuildShortCommitSHA=$BuildShortCommitSHA `
-          -X 'github.com/stackql/stackql/internal/iql/cmd.BuildDate=$BuildDate' `
-          -X github.com/stackql/stackql/internal/iql/cmd.BuildPlatform=$BuildPlatform" `
+        go build -x -v --tags "json1" -ldflags "-X github.com/stackql/stackql/internal/stackql/cmd.BuildMajorVersion=$BuildMajorVersion `
+          -X github.com/stackql/stackql/internal/stackql/cmd.BuildMinorVersion=$BuildMinorVersion `
+          -X github.com/stackql/stackql/internal/stackql/cmd.BuildPatchVersion=$BuildPatchVersion `
+          -X github.com/stackql/stackql/internal/stackql/cmd.BuildCommitSHA=$BuildCommitSHA `
+          -X github.com/stackql/stackql/internal/stackql/cmd.BuildShortCommitSHA=$BuildShortCommitSHA `
+          -X 'github.com/stackql/stackql/internal/stackql/cmd.BuildDate=$BuildDate' `
+          -X 'stackql/internal/stackql/planbuilder.PlanCacheEnabled=$PlanCacheEnabled' `
+          -X github.com/stackql/stackql/internal/stackql/cmd.BuildPlatform=$BuildPlatform" `
           -o build/ ./...
 
     - name: Test
@@ -164,13 +167,14 @@ jobs:
         echo "BUILDDATE: ${BUILDDATE}"
         echo "BUILDPLATFORM: ${BUILDPLATFORM}"
 
-        go build -x -v --tags "json1" -ldflags "-X github.com/stackql/stackql/internal/iql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
-        -X github.com/stackql/stackql/internal/iql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
-        -X github.com/stackql/stackql/internal/iql/cmd.BuildPatchVersion=$BUILDPATCHVERSION \
-        -X github.com/stackql/stackql/internal/iql/cmd.BuildCommitSHA=$BUILDCOMMITSHA \
-        -X github.com/stackql/stackql/internal/iql/cmd.BuildShortCommitSHA=$BUILDSHORTCOMMITSHA \
-        -X \"github.com/stackql/stackql/internal/iql/cmd.BuildDate=$BUILDDATE\" \
-        -X github.com/stackql/stackql/internal/iql/cmd.BuildPlatform=$BUILDPLATFORM" \
+        go build -x -v --tags "json1" -ldflags "-X github.com/stackql/stackql/internal/stackql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
+        -X github.com/stackql/stackql/internal/stackql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
+        -X github.com/stackql/stackql/internal/stackql/cmd.BuildPatchVersion=$BUILDPATCHVERSION \
+        -X github.com/stackql/stackql/internal/stackql/cmd.BuildCommitSHA=$BUILDCOMMITSHA \
+        -X github.com/stackql/stackql/internal/stackql/cmd.BuildShortCommitSHA=$BUILDSHORTCOMMITSHA \
+        -X \"github.com/stackql/stackql/internal/stackql/cmd.BuildDate=$BUILDDATE\" \
+        -X \"stackql/internal/stackql/planbuilder.PlanCacheEnabled=$PLANCACHEENABLED\" \
+        -X github.com/stackql/stackql/internal/stackql/cmd.BuildPlatform=$BUILDPLATFORM" \
         -o build/ ./...
       
     - name: Test
@@ -243,13 +247,14 @@ jobs:
         echo "BUILDDATE: ${BUILDDATE}"
         echo "BUILDPLATFORM: ${BUILDPLATFORM}"
 
-        go build -x -v --tags "json1" -ldflags "-X github.com/stackql/stackql/internal/iql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
-        -X github.com/stackql/stackql/internal/iql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
-        -X github.com/stackql/stackql/internal/iql/cmd.BuildPatchVersion=$BUILDPATCHVERSION \
-        -X github.com/stackql/stackql/internal/iql/cmd.BuildCommitSHA=$BUILDCOMMITSHA \
-        -X github.com/stackql/stackql/internal/iql/cmd.BuildShortCommitSHA=$BUILDSHORTCOMMITSHA \
-        -X \"github.com/stackql/stackql/internal/iql/cmd.BuildDate=$BUILDDATE\" \
-        -X github.com/stackql/stackql/internal/iql/cmd.BuildPlatform=$BUILDPLATFORM" \
+        go build -x -v --tags "json1" -ldflags "-X github.com/stackql/stackql/internal/stackql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
+        -X github.com/stackql/stackql/internal/stackql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
+        -X github.com/stackql/stackql/internal/stackql/cmd.BuildPatchVersion=$BUILDPATCHVERSION \
+        -X github.com/stackql/stackql/internal/stackql/cmd.BuildCommitSHA=$BUILDCOMMITSHA \
+        -X github.com/stackql/stackql/internal/stackql/cmd.BuildShortCommitSHA=$BUILDSHORTCOMMITSHA \
+        -X \"github.com/stackql/stackql/internal/stackql/cmd.BuildDate=$BUILDDATE\" \
+        -X \"stackql/internal/stackql/planbuilder.PlanCacheEnabled=$PLANCACHEENABLED\" \
+        -X github.com/stackql/stackql/internal/stackql/cmd.BuildPlatform=$BUILDPLATFORM" \
         -o build/ ./...
 
     - name: Test
@@ -323,13 +328,14 @@ jobs:
         echo "BUILDPLATFORM: ${BUILDPLATFORM}"
 
         GOOS=darwin GOARCH=arm64 \
-        go build -x -v --tags "json1" -ldflags "-X github.com/stackql/stackql/internal/iql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
-        -X github.com/stackql/stackql/internal/iql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
-        -X github.com/stackql/stackql/internal/iql/cmd.BuildPatchVersion=$BUILDPATCHVERSION \
-        -X github.com/stackql/stackql/internal/iql/cmd.BuildCommitSHA=$BUILDCOMMITSHA \
-        -X github.com/stackql/stackql/internal/iql/cmd.BuildShortCommitSHA=$BUILDSHORTCOMMITSHA \
-        -X \"github.com/stackql/stackql/internal/iql/cmd.BuildDate=$BUILDDATE\" \
-        -X github.com/stackql/stackql/internal/iql/cmd.BuildPlatform=$BUILDPLATFORM" \
+        go build -x -v --tags "json1" -ldflags "-X github.com/stackql/stackql/internal/stackql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
+        -X github.com/stackql/stackql/internal/stackql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
+        -X github.com/stackql/stackql/internal/stackql/cmd.BuildPatchVersion=$BUILDPATCHVERSION \
+        -X github.com/stackql/stackql/internal/stackql/cmd.BuildCommitSHA=$BUILDCOMMITSHA \
+        -X github.com/stackql/stackql/internal/stackql/cmd.BuildShortCommitSHA=$BUILDSHORTCOMMITSHA \
+        -X \"github.com/stackql/stackql/internal/stackql/cmd.BuildDate=$BUILDDATE\" \
+        -X \"stackql/internal/stackql/planbuilder.PlanCacheEnabled=$PLANCACHEENABLED\" \
+        -X github.com/stackql/stackql/internal/stackql/cmd.BuildPlatform=$BUILDPLATFORM" \
         -o build/ ./...
 
     - name: Upload Artifact

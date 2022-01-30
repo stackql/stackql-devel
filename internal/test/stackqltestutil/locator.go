@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/stackql/stackql/internal/iql/dto"
-	"github.com/stackql/stackql/internal/iql/entryutil"
-	"github.com/stackql/stackql/internal/iql/sqlengine"
-	"github.com/stackql/stackql/internal/iql/util"
+	"github.com/stackql/stackql/internal/stackql/dto"
+	"github.com/stackql/stackql/internal/stackql/entryutil"
+	"github.com/stackql/stackql/internal/stackql/sqlengine"
+	"github.com/stackql/stackql/internal/stackql/util"
 )
 
 func GetRuntimeCtx(providerStr string, outputFmtStr string, testName string) (*dto.RuntimeCtx, error) {

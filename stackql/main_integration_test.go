@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/stackql/stackql/internal/iql/config"
-	"github.com/stackql/stackql/internal/iql/provider"
-	"github.com/stackql/stackql/internal/iql/util"
+	"github.com/stackql/stackql/internal/stackql/config"
+	"github.com/stackql/stackql/internal/stackql/provider"
+	"github.com/stackql/stackql/internal/stackql/util"
 
 	"github.com/stackql/stackql/internal/test/stackqltestutil"
 	"github.com/stackql/stackql/internal/test/testhttpapi"

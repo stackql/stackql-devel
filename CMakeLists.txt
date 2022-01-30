@@ -23,6 +23,8 @@ set(BUILDCOMMITSHA local-dev)
 set(BUILDSHORTCOMMITSHA local-dev)
 set(BUILDDATE 1900-01-01)
 
+set(PLANCACHEENABLED true)
+
 set(WINCOMPILER "CC=x86_64-w64-mingw32-gcc")
 set(LINUXCOMPILER "CC=x86_64-linux-musl-gcc")
 
@@ -39,7 +41,7 @@ add_custom_command(TARGET ${TARGET}
   PRE_BUILD
   DEPENDS ${SRCS}
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  COMMAND go test -timeout 1200s -p 2 --tags "json1" ./...
+  COMMAND go test -timeout 2400s -p 2 --tags "json1" ./...
   COMMENT "Running Go Unit Tests"
 )
 
@@ -56,13 +58,14 @@ add_custom_command(TARGET ${TARGET}
   DEPENDS ${SRCS}
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMAND go build  --tags "json1" -ldflags
-  "-X stackql/internal/iql/cmd.BuildMajorVersion=${BUILDMAJORVERSION} \
-  -X stackql/internal/iql/cmd.BuildMinorVersion=${BUILDMINORVERSION} \
-  -X stackql/internal/iql/cmd.BuildPatchVersion=${BUILDPATCHVERSION} \
-  -X stackql/internal/iql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
-  -X stackql/internal/iql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
-  -X \"stackql/internal/iql/cmd.BuildDate=${BUILDDATE}\" \
-  -X stackql/internal/iql/cmd.BuildPlatform=$ENV{GOOS}"
+  "-X stackql/internal/stackql/cmd.BuildMajorVersion=${BUILDMAJORVERSION} \
+  -X stackql/internal/stackql/cmd.BuildMinorVersion=${BUILDMINORVERSION} \
+  -X stackql/internal/stackql/cmd.BuildPatchVersion=${BUILDPATCHVERSION} \
+  -X stackql/internal/stackql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
+  -X stackql/internal/stackql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
+  -X \"stackql/internal/stackql/cmd.BuildDate=${BUILDDATE}\" \
+  -X \"stackql/internal/stackql/planbuilder.PlanCacheEnabled=${PLANCACHEENABLED}\" \
+  -X stackql/internal/stackql/cmd.BuildPlatform=$ENV{GOOS}"
   -o "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_BUILD_PATH_STR}/${EXECUTABLE}"
   "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_SRC_PATH_STR}"
   COMMENT "Building Go executable for local platform: $ENV{GOOS}"
@@ -73,13 +76,14 @@ add_custom_command(TARGET ${TARGET}
   DEPENDS ${SRCS}
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMAND ${CMAKE_COMMAND} -E env GOOS=${OS_STR_MAC} go build --tags "json1" -ldflags
-  "-X stackql/internal/iql/cmd.BuildMajorVersion=${BUILDMAJORVERSION} \
-  -X stackql/internal/iql/cmd.BuildMinorVersion=${BUILDMINORVERSION} \
-  -X stackql/internal/iql/cmd.BuildPatchVersion=${BUILDPATCHVERSION} \
-  -X stackql/internal/iql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
-  -X stackql/internal/iql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
-  -X \"stackql/internal/iql/cmd.BuildDate=${BUILDDATE}\" \
-  -X stackql/internal/iql/cmd.BuildPlatform=${OS_STR_MAC}"
+  "-X stackql/internal/stackql/cmd.BuildMajorVersion=${BUILDMAJORVERSION} \
+  -X stackql/internal/stackql/cmd.BuildMinorVersion=${BUILDMINORVERSION} \
+  -X stackql/internal/stackql/cmd.BuildPatchVersion=${BUILDPATCHVERSION} \
+  -X stackql/internal/stackql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
+  -X stackql/internal/stackql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
+  -X \"stackql/internal/stackql/cmd.BuildDate=${BUILDDATE}\" \
+  -X \"stackql/internal/stackql/planbuilder.PlanCacheEnabled=${PLANCACHEENABLED}\" \
+  -X stackql/internal/stackql/cmd.BuildPlatform=${OS_STR_MAC}"
   -o "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_BUILD_PATH_STR}/${EXECUTABLE}${EXE_SUFFIX_MAC}"
   "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_SRC_PATH_STR}"
   COMMENT "Building Go executable for ${OS_STR_MAC}"
@@ -90,13 +94,14 @@ add_custom_command(TARGET ${TARGET}
   DEPENDS ${SRCS}
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMAND ${CMAKE_COMMAND} -E env GOOS=${OS_STR_WINDOWS} ${WINCOMPILER} go build --tags "json1" -ldflags
-  "-X stackql/internal/iql/cmd.BuildMajorVersion=${BUILDMAJORVERSION} \
-  -X stackql/internal/iql/cmd.BuildMinorVersion=${BUILDMINORVERSION} \
-  -X stackql/internal/iql/cmd.BuildPatchVersion=${BUILDPATCHVERSION} \
-  -X stackql/internal/iql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
-  -X stackql/internal/iql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
-  -X \"stackql/internal/iql/cmd.BuildDate=${BUILDDATE}\" \
-  -X stackql/internal/iql/cmd.BuildPlatform=${OS_STR_WINDOWS}"
+  "-X stackql/internal/stackql/cmd.BuildMajorVersion=${BUILDMAJORVERSION} \
+  -X stackql/internal/stackql/cmd.BuildMinorVersion=${BUILDMINORVERSION} \
+  -X stackql/internal/stackql/cmd.BuildPatchVersion=${BUILDPATCHVERSION} \
+  -X stackql/internal/stackql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
+  -X stackql/internal/stackql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
+  -X \"stackql/internal/stackql/cmd.BuildDate=${BUILDDATE}\" \
+  -X \"stackql/internal/stackql/planbuilder.PlanCacheEnabled=${PLANCACHEENABLED}\" \
+  -X stackql/internal/stackql/cmd.BuildPlatform=${OS_STR_WINDOWS}"
   -o "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_BUILD_PATH_STR}/${EXECUTABLE}${EXE_SUFFIX_WINDOWS}"
   "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_SRC_PATH_STR}"
   COMMENT "Building Go executable for ${OS_STR_WINDOWS}"
@@ -107,13 +112,14 @@ add_custom_command(TARGET ${TARGET}
   DEPENDS ${SRCS}
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMAND ${CMAKE_COMMAND} -E env GOOS=${OS_STR_LINUX} ${LINUXCOMPILER} go build -ldflags
-  "-X stackql/internal/iql/cmd.BuildMajorVersion=${BUILDMAJORVERSION} \
-  -X stackql/internal/iql/cmd.BuildMinorVersion=${BUILDMINORVERSION} \
-  -X stackql/internal/iql/cmd.BuildPatchVersion=${BUILDPATCHVERSION} \
-  -X stackql/internal/iql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
-  -X stackql/internal/iql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
-  -X \"stackql/internal/iql/cmd.BuildDate=${BUILDDATE}\" \
-  -X stackql/internal/iql/cmd.BuildPlatform=${OS_STR_LINUX}"
+  "-X stackql/internal/stackql/cmd.BuildMajorVersion=${BUILDMAJORVERSION} \
+  -X stackql/internal/stackql/cmd.BuildMinorVersion=${BUILDMINORVERSION} \
+  -X stackql/internal/stackql/cmd.BuildPatchVersion=${BUILDPATCHVERSION} \
+  -X stackql/internal/stackql/cmd.BuildCommitSHA=${BUILDCOMMITSHA} \
+  -X stackql/internal/stackql/cmd.BuildShortCommitSHA=${BUILDSHORTCOMMITSHA} \
+  -X \"stackql/internal/stackql/cmd.BuildDate=${BUILDDATE}\" \
+  -X \"stackql/internal/stackql/planbuilder.PlanCacheEnabled=${PLANCACHEENABLED}\" \
+  -X stackql/internal/stackql/cmd.BuildPlatform=${OS_STR_LINUX}"
   -o "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_BUILD_PATH_STR}/${EXECUTABLE}${EXE_SUFFIX_LINUX}"
   "${CMAKE_CURRENT_SOURCE_DIR}/${GOLANG_SRC_PATH_STR}"
   COMMENT "Building Go executable for ${OS_STR_LINUX}"

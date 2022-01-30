@@ -7,9 +7,9 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/stackql/stackql/internal/iql/asyncmonitor"
-	"github.com/stackql/stackql/internal/iql/provider"
-	"github.com/stackql/stackql/internal/iql/util"
+	"github.com/stackql/stackql/internal/stackql/asyncmonitor"
+	"github.com/stackql/stackql/internal/stackql/provider"
+	"github.com/stackql/stackql/internal/stackql/util"
 
 	"github.com/stackql/stackql/internal/test/testhttpapi"
 	"github.com/stackql/stackql/internal/test/testobjects"

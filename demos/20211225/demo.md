@@ -10,7 +10,7 @@
 ## Golden Path
 
 ```sh
-OKTA_KEYFILE_PATH="${HOME}/moonlighting/stackql-original/keys/okta-token.txt"
+OKTA_KEYFILE_PATH="${HOME}/stackql/stackql-devel/keys/okta-token.txt"
 
 ./stackql shell --keyfilepath=${OKTA_KEYFILE_PATH} --keyfiletype=api_key
 ```
