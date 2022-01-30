@@ -5,7 +5,7 @@
 
 The architecture of `stackql` can be regarded as an amalgam of:
 
-1. an SQL parser.
+1. an SQL parser and rewriter.
 2. an ORM between arbitrary APIs and a traditional SQL RDBMS.  In practice all APIs are HTTP(S) APIs at this time.
 3. a planner for DAGs defined by calls to APIs and their dependencies.
 4. an executor for (3).
@@ -46,3 +46,27 @@ Database connection details are initialised from user supplied context and then 
 ![High Level Component Architecture](/docs/images/components-HLDD.drawio.svg)
 
 **Figure A1**: High Level Component Architecture.
+
+## Database and tables
+
+The application leverages an RDBMS to implement SQL semantics.
+The existing default implementation is an embedded `SQLite3` binary, accessibled via `CGO`.
+By default the database instance is in memory, but can be persistent, specified via runtime arguments.
+
+For each API response type, a database table can be lazily created (eagerly is slower, but we would not rule out some future opt-in scenarios for persistent databases).  
+Table nomenclature includes dot (`.`) separated namespacing for provider, service, resource, schema type and `generation`; this latter being a poisitve integer version for the table itself.  Generation suppports either analyics on extinct records or multiple versions of an API.
+
+Each table contains control columns to identify the query and session to which records belong.
+This will support audit, concurrency, and garbage collection.
+
+### Garbage Collection
+
+Garbage collection is not implemented at this point in time.
+In the short term, a manual collect all option will be implemented.
+
+**Table GC1**: Proposed database object lifetimes.
+| Object | Proposed Mimimum Lifetime | Proposed Maximum Lifetime |
+| --- | ----------- | ----------- |
+| Database |  |  |
+| Tables | Same as API document lifetime | Same as API document lifetime |
+| Records | Query or Session (latter possibly useful for SELECT) | Session or some arbitrary limit, on a best-effort basis |
