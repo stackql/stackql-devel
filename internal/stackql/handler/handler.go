@@ -25,6 +25,7 @@ type HandlerContext struct {
 	providers         map[string]provider.IProvider
 	CurrentProvider   string
 	authContexts      map[string]*dto.AuthCtx
+	registryContext   *dto.RegistryCtx
 	ErrorPresentation string
 	Outfile           io.Writer
 	OutErrFile        io.Writer
@@ -74,6 +75,11 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 	if err != nil {
 		return HandlerContext{}, err
 	}
+	var rc dto.RegistryCtx
+	err = yaml.Unmarshal([]byte(runtimeCtx.RegistryRaw), &rc)
+	if err != nil {
+		return HandlerContext{}, err
+	}
 	return HandlerContext{
 		RawQuery:       cmdString,
 		RuntimeContext: runtimeCtx,
@@ -81,6 +87,7 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 			runtimeCtx.ProviderStr: prov,
 		},
 		authContexts:      ac,
+		registryContext:   &rc,
 		ErrorPresentation: runtimeCtx.ErrorPresentation,
 		LRUCache:          lruCache,
 		SQLEngine:         sqlEng,

@@ -50,6 +50,7 @@ const (
 	ProviderRootPathModeKey   string = "providerrootfilemode"
 	ProviderStrKey            string = "provider"
 	QueryCacheSizeKey         string = "querycachesize"
+	RegistryRawKey            string = "registry"
 	ReinitKey                 string = "reinit"
 	TemplateCtxFilePathKey    string = "iqldata"
 	TestWithoutApiCallsKey    string = "testwithoutapicalls"
@@ -89,6 +90,10 @@ type AuthCtx struct {
 	KeyFilePath string   `json:"keyfilepath" yaml:"keyfilepath"`
 	KeyEnvVar   string   `json:"keyenvvar" yaml:"keyenvvar"`
 	Active      bool     `json:"-" yaml:"-"`
+}
+
+type RegistryCtx struct {
+	Url string `json:"url" yaml:"url"`
 }
 
 func (ac *AuthCtx) HasKey() bool {
@@ -191,6 +196,7 @@ type RuntimeCtx struct {
 	ProviderRootPath     string
 	ProviderRootPathMode uint32
 	ProviderStr          string
+	RegistryRaw          string
 	Reinit               bool
 	QueryCacheSize       int
 	TemplateCtxFilePath  string
@@ -286,6 +292,8 @@ func (rc *RuntimeCtx) Set(key string, val string) error {
 		retVal = setUint32(&rc.ProviderRootPathMode, val)
 	case QueryCacheSizeKey:
 		retVal = setInt(&rc.QueryCacheSize, val)
+	case RegistryRawKey:
+		rc.RegistryRaw = val
 	case ReinitKey:
 		retVal = setBool(&rc.Reinit, val)
 	case TemplateCtxFilePathKey:
