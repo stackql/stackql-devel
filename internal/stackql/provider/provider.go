@@ -100,15 +100,15 @@ type IProvider interface {
 	GetDiscoveryGeneration(sqlengine.SQLEngine) (int, error)
 }
 
-func GetProviderFromRuntimeCtx(runtimeCtx dto.RuntimeCtx, dbEngine sqlengine.SQLEngine) (IProvider, error) {
+func GetProviderFromRuntimeCtx(runtimeCtx dto.RuntimeCtx, reg openapistackql.RegistryAPI, dbEngine sqlengine.SQLEngine) (IProvider, error) {
 	providerStr := runtimeCtx.ProviderStr
-	return GetProvider(runtimeCtx, providerStr, "v1", dbEngine)
+	return GetProvider(runtimeCtx, providerStr, "v1", reg, dbEngine)
 }
 
-func GetProvider(runtimeCtx dto.RuntimeCtx, providerStr, providerVersion string, dbEngine sqlengine.SQLEngine) (IProvider, error) {
+func GetProvider(runtimeCtx dto.RuntimeCtx, providerStr, providerVersion string, reg openapistackql.RegistryAPI, dbEngine sqlengine.SQLEngine) (IProvider, error) {
 	switch providerStr {
 	case config.GetGoogleProviderString(), config.GetOktaProviderString():
-		return newGenericProvider(runtimeCtx, providerStr, providerVersion, dbEngine)
+		return newGenericProvider(runtimeCtx, providerStr, providerVersion, reg, dbEngine)
 	}
 	return nil, fmt.Errorf("provider %s not supported", providerStr)
 }
@@ -123,7 +123,7 @@ func getUrl(prov string) (string, error) {
 	return "", fmt.Errorf("cannot find root doc for provider = '%s'", prov)
 }
 
-func newGenericProvider(rtCtx dto.RuntimeCtx, providerStr, versionStr string, dbEngine sqlengine.SQLEngine) (IProvider, error) {
+func newGenericProvider(rtCtx dto.RuntimeCtx, providerStr, versionStr string, reg openapistackql.RegistryAPI, dbEngine sqlengine.SQLEngine) (IProvider, error) {
 	methSel, err := methodselect.NewMethodSelector(providerStr, versionStr)
 	if err != nil {
 		return nil, err
@@ -139,9 +139,11 @@ func newGenericProvider(rtCtx dto.RuntimeCtx, providerStr, versionStr string, db
 		rootUrl,
 		discovery.NewTTLDiscoveryStore(
 			dbEngine,
+			reg,
 			rtCtx,
 		),
 		&rtCtx,
+		reg,
 	)
 
 	p, err := da.GetProvider(rtCtx.ProviderStr)

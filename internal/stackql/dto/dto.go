@@ -93,7 +93,8 @@ type AuthCtx struct {
 }
 
 type RegistryCtx struct {
-	Url string `json:"url" yaml:"url"`
+	Url         string `json:"url" yaml:"url"`
+	UseEmbedded bool   `json:"useEmbedded" yaml:"useEmbedded"`
 }
 
 func (ac *AuthCtx) HasKey() bool {

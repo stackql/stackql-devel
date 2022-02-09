@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/stackql/internal/pkg/txncounter"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/dto"
@@ -25,7 +26,7 @@ type HandlerContext struct {
 	providers         map[string]provider.IProvider
 	CurrentProvider   string
 	authContexts      map[string]*dto.AuthCtx
-	registryContext   *dto.RegistryCtx
+	registry          openapistackql.RegistryAPI
 	ErrorPresentation string
 	Outfile           io.Writer
 	OutErrFile        io.Writer
@@ -42,7 +43,7 @@ func (hc *HandlerContext) GetProvider(providerName string) (provider.IProvider, 
 	}
 	prov, ok := hc.providers[providerName]
 	if !ok {
-		prov, err = provider.GetProvider(hc.RuntimeContext, providerName, "v1", hc.SQLEngine)
+		prov, err = provider.GetProvider(hc.RuntimeContext, providerName, "v1", hc.registry, hc.SQLEngine)
 		if err == nil {
 			hc.providers[providerName] = prov
 			return prov, err
@@ -65,18 +66,22 @@ func (hc *HandlerContext) GetAuthContext(providerName string) (*dto.AuthCtx, err
 }
 
 func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucache.LRUCache, sqlEng sqlengine.SQLEngine) (HandlerContext, error) {
-	prov, err := provider.GetProviderFromRuntimeCtx(runtimeCtx, sqlEng)
-	if err != nil {
-		return HandlerContext{}, err
-	}
 
 	ac := make(map[string]*dto.AuthCtx)
-	err = yaml.Unmarshal([]byte(runtimeCtx.AuthRaw), ac)
+	err := yaml.Unmarshal([]byte(runtimeCtx.AuthRaw), ac)
 	if err != nil {
 		return HandlerContext{}, err
 	}
 	var rc dto.RegistryCtx
 	err = yaml.Unmarshal([]byte(runtimeCtx.RegistryRaw), &rc)
+	if err != nil {
+		return HandlerContext{}, err
+	}
+	reg, err := openapistackql.NewRegistry(rc.Url, nil, rc.UseEmbedded)
+	if err != nil {
+		return HandlerContext{}, err
+	}
+	prov, err := provider.GetProviderFromRuntimeCtx(runtimeCtx, reg, sqlEng)
 	if err != nil {
 		return HandlerContext{}, err
 	}
@@ -87,7 +92,7 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 			runtimeCtx.ProviderStr: prov,
 		},
 		authContexts:      ac,
-		registryContext:   &rc,
+		registry:          reg,
 		ErrorPresentation: runtimeCtx.ErrorPresentation,
 		LRUCache:          lruCache,
 		SQLEngine:         sqlEng,

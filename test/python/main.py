@@ -32,6 +32,7 @@ DEFAULT_RUN_DIR :str = os.path.abspath(os.path.join(REPOSITORY_ROOT_DIR, 'build'
 DEFAULT_PROVIDER_DIR :str = os.path.abspath(os.path.join(TEST_ROOT_DIR, '.stackql'))
 DEFAULT_CONFIG_FILE :str = os.path.abspath(os.path.join(TEST_ROOT_DIR, '.iqlrc'))
 DEFAULT_DB_FILE :str = os.path.abspath(os.path.join(TEST_ROOT_DIR, 'db/tmp/python-tests-tmp-db.sqlite'))
+DEFAULT_REGISTRY_CFG :str = '{ "url": "https://some-sample-registry",  "useEmbedded": true }'
 DEFAULT_EXECUTABLE :str = 'stackql'
 
 TEST_COUNT :int = 0
@@ -104,6 +105,12 @@ parser.add_argument(
     default=DEFAULT_DB_FILE,
     help='db file to use as starting point'
 )
+parser.add_argument(
+    '--registry',
+    type=str,
+    default=DEFAULT_REGISTRY_CFG,
+    help='registry config'
+)
 
 args = parser.parse_args()
 executable_path = f'{args.rundir}/{args.executable}'
@@ -114,7 +121,8 @@ INVOCATION_BASE_ARGS = [
     '--offline',
     f'--providerroot={args.providerdir}',
     f'--loglevel={args.loglevel}',
-    f'--dbfilepath={args.dbfilepath}'
+    f'--dbfilepath={args.dbfilepath}',
+    f'--registry={args.registry}'
 ]
 
 INVOCATION_SIMPLE_ARGS = INVOCATION_BASE_ARGS + [ 'exec' ]

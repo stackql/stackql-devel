@@ -32,6 +32,7 @@ func GetRuntimeCtx(providerStr string, outputFmtStr string, testName string) (*d
 		ProviderStr:      providerStr,
 		LogLevelStr:      "warn",
 		AuthRaw:          fmt.Sprintf(`{ "google": { "keyfilepath": "%s" }, "okta": { "keyfilepath": "%s", "keyfiletype": "api_key" } }`, saKeyPath, oktaSaKeyPath),
+		RegistryRaw:      `{ "url": "https://some-sample-registry",  "useEmbedded": true }`,
 		ProviderRootPath: providerDir,
 		OutputFormat:     outputFmtStr,
 		DbFilePath:       fmt.Sprintf("file:%s?mode=memory&cache=shared", testName),
