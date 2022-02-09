@@ -46,7 +46,7 @@ stackql \
 
 ```
 stackql --providerroot=../test/.stackql \
-  --configfile=../test/.iqlrc exec \
+  --configfile=../test/.stackqlrc exec \
   "SHOW SERVICES from google ;" ; echo
 
 ```

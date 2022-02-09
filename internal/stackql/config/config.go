@@ -16,9 +16,7 @@ const defaultNixConfigCacheDirFileMode uint32 = 0755
 
 const defaultWindowsConfigCacheDirFileMode uint32 = 0777
 
-const defaultConfigFileName = ".iqlrc"
-
-const defaultKeyFileName = "sa-key.json"
+const defaultConfigFileName = ".stackqlrc"
 
 const defaltLogLevel = "warn"
 
