@@ -27,12 +27,16 @@ func GetRuntimeCtx(providerStr string, outputFmtStr string, testName string) (*d
 	if err != nil {
 		return nil, fmt.Errorf("test failed on %s: %v", dbInitFilePath, err)
 	}
+	registryRoot, err := util.GetFilePathFromRepositoryRoot("test/registry/src")
+	if err != nil {
+		return nil, fmt.Errorf("test failed on %s: %v", dbInitFilePath, err)
+	}
 	return &dto.RuntimeCtx{
 		Delimiter:        ",",
 		ProviderStr:      providerStr,
 		LogLevelStr:      "warn",
 		AuthRaw:          fmt.Sprintf(`{ "google": { "keyfilepath": "%s" }, "okta": { "keyfilepath": "%s", "keyfiletype": "api_key" } }`, saKeyPath, oktaSaKeyPath),
-		RegistryRaw:      `{ "url": "https://some-sample-registry",  "useEmbedded": true }`,
+		RegistryRaw:      fmt.Sprintf(`{ "url": "file://%s",  "useEmbedded": false }`, registryRoot),
 		ProviderRootPath: providerDir,
 		OutputFormat:     outputFmtStr,
 		DbFilePath:       fmt.Sprintf("file:%s?mode=memory&cache=shared", testName),

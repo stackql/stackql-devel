@@ -25,6 +25,7 @@ class TestStatus(Enum):
 CURDIR :str = os.path.dirname(os.path.realpath(__file__))
 TEST_ROOT_DIR :str = os.path.abspath(os.path.join(CURDIR, '..'))
 REPOSITORY_ROOT_DIR :str = os.path.abspath(os.path.join(CURDIR, '../..'))
+PROVIDER_REGISTRY_ROOT_DIR :str = os.path.abspath(os.path.join(REPOSITORY_ROOT_DIR, 'test/registry/src'))
 TEST_GENERATOR_DEFINITIONS_ROOT :str = os.path.join(TEST_ROOT_DIR, 'test-generators')
 TEST_GENERATOR_ALWAYS_ROOT :str = os.path.join(TEST_GENERATOR_DEFINITIONS_ROOT, 'always')
 TEST_GENERATOR_ASSETS_ROOT :str = os.path.join(TEST_ROOT_DIR, 'assets')
@@ -32,7 +33,7 @@ DEFAULT_RUN_DIR :str = os.path.abspath(os.path.join(REPOSITORY_ROOT_DIR, 'build'
 DEFAULT_PROVIDER_DIR :str = os.path.abspath(os.path.join(TEST_ROOT_DIR, '.stackql'))
 DEFAULT_CONFIG_FILE :str = os.path.abspath(os.path.join(TEST_ROOT_DIR, '.iqlrc'))
 DEFAULT_DB_FILE :str = os.path.abspath(os.path.join(TEST_ROOT_DIR, 'db/tmp/python-tests-tmp-db.sqlite'))
-DEFAULT_REGISTRY_CFG :str = '{ "url": "https://some-sample-registry",  "useEmbedded": true }'
+DEFAULT_REGISTRY_CFG :str = f'{{ "url": "{PROVIDER_REGISTRY_ROOT_DIR}",  "useEmbedded": true }}'
 DEFAULT_EXECUTABLE :str = 'stackql'
 
 TEST_COUNT :int = 0
