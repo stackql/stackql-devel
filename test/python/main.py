@@ -234,7 +234,7 @@ def test_presentation(test_callable):
 
 
 @test_presentation
-def integration_test(*args, **kwargs) -> (TestStatus, Iterable[StringOrBytes], int):
+def integration_test(*args, **kwargs) -> Tuple[TestStatus, Iterable[StringOrBytes], int]:
     try:
         child = subprocess.Popen([
                 *args
