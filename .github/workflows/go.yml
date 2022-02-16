@@ -36,6 +36,10 @@ jobs:
       uses: egor-tensin/setup-mingw@v2
       id: gccsetup
 
+    - name: Get rid of dissruptive line endings before checkout
+      run: |
+        git config --global core.autocrlf false
+
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
