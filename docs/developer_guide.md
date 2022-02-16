@@ -70,6 +70,8 @@ Building locally or in cloud will automatically:
 2. Build the executable.
 3. Run integration tests.
 
+[This article](https://medium.com/cbi-engineering/mocking-techniques-for-go-805c10f1676b) gives a nice overview of mocking in golang.
+
 ### gotest
 
 Test coverage is sparse.  Regressions are mitigated by `gotest` integration testing in the [driver](/internal/stackql/driver/driver_integration_test.go) and [stackql](/stackql/main_integration_test.go) packages.  Some testing functionality is supported through convenience functionality inside the [test](/internal/test) packages.
