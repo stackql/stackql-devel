@@ -342,6 +342,20 @@ jobs:
         -X github.com/stackql/stackql/internal/stackql/cmd.BuildPlatform=$BUILDPLATFORM" \
         -o build/ ./...
 
+    - name: Test
+      if: success()
+      run: go test -timeout 1200s --tags "json1" -v ./...
+    
+    - name: Prepare Test DB
+      if: success()
+      run: cp test/db/db.sqlite test/db/tmp/python-tests-tmp-db.sqlite
+        
+    - name: Test Script
+      if: success()
+      run: python3 $TESTSCRIPT
+      env:
+        TESTSCRIPT: ${{env.TESTSCRIPT}}
+
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       if: success()
