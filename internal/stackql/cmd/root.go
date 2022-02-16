@@ -146,6 +146,7 @@ func init() {
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 	rootCmd.AddCommand(execCmd)
 	rootCmd.AddCommand(shellCmd)
+	rootCmd.AddCommand(registryCmd)
 	// rootCmd.AddCommand(srvCmd)
 
 }

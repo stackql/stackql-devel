@@ -115,6 +115,20 @@
         "json"
       ],
     },
+    {
+      "name": "DEBUG delete from google.storage.buckets ... ;",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
+      "args": [
+        "exec",
+        "--auth={ \"google\": { \"keyfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"keyfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"keyfiletype\": \"api_key\" } }",
+        "delete from google.storage.buckets WHERE bucket = 'lab-kr-network-03-trial-bucket';",
+        "-o",
+        "json"
+      ],
+    },
     // 
     {
       "name": "SELECT using alias... ;",
