@@ -27,7 +27,7 @@ func GetRuntimeCtx(providerStr string, outputFmtStr string, testName string) (*d
 	if err != nil {
 		return nil, fmt.Errorf("test failed on %s: %v", dbInitFilePath, err)
 	}
-	registryRoot, err := util.GetFilePathFromRepositoryRoot("test/registry/src")
+	registryRoot, err := util.GetForwardSlashFilePathFromRepositoryRoot("test/registry/src")
 	if err != nil {
 		return nil, fmt.Errorf("test failed on %s: %v", dbInitFilePath, err)
 	}
