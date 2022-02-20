@@ -8,6 +8,7 @@ import (
 	"github.com/stackql/stackql/internal/pkg/txncounter"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/dto"
+	"github.com/stackql/stackql/internal/stackql/netutils"
 	"github.com/stackql/stackql/internal/stackql/provider"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 
@@ -72,12 +73,13 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 	if err != nil {
 		return HandlerContext{}, err
 	}
-	var rc dto.RegistryCtx
+	var rc openapistackql.RegistryConfig
 	err = yaml.Unmarshal([]byte(runtimeCtx.RegistryRaw), &rc)
 	if err != nil {
 		return HandlerContext{}, err
 	}
-	reg, err := openapistackql.NewRegistry(rc.Url, nil, rc.UseEmbedded)
+	rt := netutils.GetRoundTripper(runtimeCtx, nil)
+	reg, err := openapistackql.NewRegistry(rc, rt)
 	if err != nil {
 		return HandlerContext{}, err
 	}

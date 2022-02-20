@@ -648,6 +648,8 @@ github.com/stackql/go-openapistackql v0.0.4-alpha15 h1:z8J8+T5rLxSWlQQ+j0PbAhN/2
 github.com/stackql/go-openapistackql v0.0.4-alpha15/go.mod h1:3kT49HH3LjXqFjKOaRf5Mam2m6MBYKjd3NWIZctpiU8=
 github.com/stackql/go-openapistackql v0.0.4-alpha16 h1:emg29m7DP2fmVHfUIHt9gEcFQpPt/zVg6qEohXf253Q=
 github.com/stackql/go-openapistackql v0.0.4-alpha16/go.mod h1:3kT49HH3LjXqFjKOaRf5Mam2m6MBYKjd3NWIZctpiU8=
+github.com/stackql/go-openapistackql v0.0.4-alpha17 h1:PCX+f1mZMG1QhFFulCzPKbrv0Ogv4coo6had0yBXnpE=
+github.com/stackql/go-openapistackql v0.0.4-alpha17/go.mod h1:lH3Mh4AYySeAy3B+RHMTie0kC5Mvwr+EchuVkDrnmNE=
 github.com/stackql/go-openapistackql v0.0.4-alpha2 h1:vO/7rzQDbtQrKhp9fVMtod9uIIvTQL0sY+zGp4Xqua8=
 github.com/stackql/go-openapistackql v0.0.4-alpha2/go.mod h1:ficis807+HOpLcS6fLpPbsYY5pOsn9RuPeP0UlOqNQQ=
 github.com/stackql/go-openapistackql v0.0.4-alpha3 h1:WPXh4EqhXXmV74KUx5N+6/Vp/ZDkAAd4BBaZM696A64=
@@ -674,6 +676,8 @@ github.com/stackql/stackql-provider-registry v0.0.1-alpha7 h1:6RN3tMbSCRSN/htT0w
 github.com/stackql/stackql-provider-registry v0.0.1-alpha7/go.mod h1:2Zw/OeEvFlDijJKcac26T3PjuouXfHOhgLXm+Sgg2/A=
 github.com/stackql/stackql-provider-registry v0.0.1-alpha8 h1:MLOIn55Zr6VmmKz1GV5SVH+zLcHC0B8VSWJzrtFX4MM=
 github.com/stackql/stackql-provider-registry v0.0.1-alpha8/go.mod h1:2Zw/OeEvFlDijJKcac26T3PjuouXfHOhgLXm+Sgg2/A=
+github.com/stackql/stackql-provider-registry v0.0.1-alpha9 h1:1ktZx668DLCEn7yRDxdbhJcEnW9cFjjQ+dnC7bon/io=
+github.com/stackql/stackql-provider-registry v0.0.1-alpha9/go.mod h1:D0WFWa7HOXS+PQAmvN0Nm1E6dMdUkUFtAzRH8cXxg88=
 github.com/stackql/vitess v0.0.9-alpha7 h1:CBCPeyH0yzz2cgswVjWYDqdZi6mE6kZZQ268kWopFwQ=
 github.com/stackql/vitess v0.0.9-alpha7/go.mod h1:4M5NhkFYCF10+U3LS4owUYY2GsUt+7t1kN9Rv5UVc9A=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

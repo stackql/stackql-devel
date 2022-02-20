@@ -9,11 +9,15 @@ import (
 	"github.com/stackql/stackql/internal/stackql/dto"
 )
 
-func GetHttpClient(runtimeCtx dto.RuntimeCtx, existingClient *http.Client) *http.Client {
+func GetRoundTripper(runtimeCtx dto.RuntimeCtx, existingTransport http.RoundTripper) http.RoundTripper {
+	return getRoundTripper(runtimeCtx, existingTransport)
+}
+
+func getRoundTripper(runtimeCtx dto.RuntimeCtx, existingTransport http.RoundTripper) http.RoundTripper {
 	var tr *http.Transport
 	var rt http.RoundTripper
-	if existingClient != nil && existingClient.Transport != nil {
-		switch exTR := existingClient.Transport.(type) {
+	if existingTransport != nil {
+		switch exTR := existingTransport.(type) {
 		case *http.Transport:
 			tr = exTR.Clone()
 		default:
@@ -43,8 +47,20 @@ func GetHttpClient(runtimeCtx dto.RuntimeCtx, existingClient *http.Client) *http
 	if tr != nil {
 		rt = tr
 	}
+	return rt
+}
+
+func GetHttpClient(runtimeCtx dto.RuntimeCtx, existingClient *http.Client) *http.Client {
+	return getHttpClient(runtimeCtx, existingClient)
+}
+
+func getHttpClient(runtimeCtx dto.RuntimeCtx, existingClient *http.Client) *http.Client {
+	var rt http.RoundTripper
+	if existingClient != nil && existingClient.Transport != nil {
+		rt = existingClient.Transport
+	}
 	return &http.Client{
 		Timeout:   time.Second * time.Duration(runtimeCtx.APIRequestTimeout),
-		Transport: rt,
+		Transport: getRoundTripper(runtimeCtx, rt),
 	}
 }
