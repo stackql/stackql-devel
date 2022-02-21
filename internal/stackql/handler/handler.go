@@ -94,16 +94,14 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 	if err != nil {
 		return HandlerContext{}, err
 	}
-	prov, err := provider.GetProviderFromRuntimeCtx(runtimeCtx, reg, sqlEng)
+	providers := make(map[string]provider.IProvider)
 	if err != nil {
 		return HandlerContext{}, err
 	}
 	return HandlerContext{
-		RawQuery:       cmdString,
-		RuntimeContext: runtimeCtx,
-		providers: map[string]provider.IProvider{
-			runtimeCtx.ProviderStr: prov,
-		},
+		RawQuery:          cmdString,
+		RuntimeContext:    runtimeCtx,
+		providers:         providers,
 		authContexts:      ac,
 		registry:          reg,
 		ErrorPresentation: runtimeCtx.ErrorPresentation,
