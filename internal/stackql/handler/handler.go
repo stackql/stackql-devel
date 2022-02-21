@@ -66,6 +66,23 @@ func (hc *HandlerContext) GetAuthContext(providerName string) (*dto.AuthCtx, err
 	return authCtx, err
 }
 
+func GetRegistry(runtimeCtx dto.RuntimeCtx) (openapistackql.RegistryAPI, error) {
+	return getRegistry(runtimeCtx)
+}
+
+func getRegistry(runtimeCtx dto.RuntimeCtx) (openapistackql.RegistryAPI, error) {
+	var rc openapistackql.RegistryConfig
+	err := yaml.Unmarshal([]byte(runtimeCtx.RegistryRaw), &rc)
+	if err != nil {
+		return nil, err
+	}
+	if rc.LocalDocRoot == "" {
+		rc.LocalDocRoot = runtimeCtx.ProviderRootPath
+	}
+	rt := netutils.GetRoundTripper(runtimeCtx, nil)
+	return openapistackql.NewRegistry(rc, rt)
+}
+
 func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucache.LRUCache, sqlEng sqlengine.SQLEngine) (HandlerContext, error) {
 
 	ac := make(map[string]*dto.AuthCtx)
@@ -73,13 +90,7 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 	if err != nil {
 		return HandlerContext{}, err
 	}
-	var rc openapistackql.RegistryConfig
-	err = yaml.Unmarshal([]byte(runtimeCtx.RegistryRaw), &rc)
-	if err != nil {
-		return HandlerContext{}, err
-	}
-	rt := netutils.GetRoundTripper(runtimeCtx, nil)
-	reg, err := openapistackql.NewRegistry(rc, rt)
+	reg, err := getRegistry(runtimeCtx)
 	if err != nil {
 		return HandlerContext{}, err
 	}

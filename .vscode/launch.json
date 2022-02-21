@@ -129,7 +129,21 @@
         "json"
       ],
     },
-    // 
+    // ' registry pull okta
+    {
+      "name": "DEBUG pull okta ... ;",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
+      "args": [
+        "registry",
+        "--registry={ \"useEmbedded\": false, \"url\": \"https://raw.githubusercontent.com/stackql/stackql-provider-registry/intial-devel/providers\" }",
+        "--auth={ \"google\": { \"keyfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"keyfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"keyfiletype\": \"api_key\" } }",
+        "pull",
+        "okta"
+      ],
+    },
     {
       "name": "SELECT using alias... ;",
       "type": "go",

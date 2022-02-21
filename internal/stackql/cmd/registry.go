@@ -20,6 +20,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/iqlerror"
 )
 
@@ -38,6 +39,10 @@ var registryCmd = &cobra.Command{
 		if len(args) < 1 {
 			iqlerror.PrintErrorAndExitOneWithMessage(usagemsg)
 		}
+		reg, err := handler.GetRegistry(runtimeCtx)
+		if err != nil {
+			iqlerror.PrintErrorAndExitOneWithMessage(err.Error())
+		}
 		subCommand := args[0]
 		switch subCommand {
 		case "pull":
@@ -46,6 +51,11 @@ var registryCmd = &cobra.Command{
 			}
 			providerName := args[1]
 			fmt.Printf("called '%s %s %s'\n", cmd.Use, subCommand, providerName)
+			err := reg.PullAndPersistProviderArchive(providerName, "v1")
+			if err != nil {
+				iqlerror.PrintErrorAndExitOneWithMessage(err.Error())
+			}
+			return
 		}
 		iqlerror.PrintErrorAndExitOneWithMessage(usagemsg)
 	},
