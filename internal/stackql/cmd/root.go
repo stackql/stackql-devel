@@ -102,7 +102,7 @@ func init() {
 	rootCmd.PersistentFlags().Uint32Var(&runtimeCtx.ProviderRootPathMode, dto.ProviderRootPathModeKey, config.GetDefaultProviderCacheDirFileMode(), fmt.Sprintf("Config and cache file mode"))
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.ViperCfgFileName, dto.ViperCfgFileNameKey, config.GetDefaultViperConfigFileName(), fmt.Sprintf("Config filename"))
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.AuthRaw, dto.AuthCtxKey, "", `auth contexts keyvals in json form, eg: '{ "google": { "keyfilepath": "/path/to/google/sevice/account/key.json",  "keyfiletype": "serviceaccount" }, "okta": { "keyenvvar": "OKTA_SECRET_KEY",  "keyfiletype": "api_key" } }'`)
-	rootCmd.PersistentFlags().StringVar(&runtimeCtx.RegistryRaw, dto.RegistryRawKey, `{ "useEmbedded": true }`, fmt.Sprintf(`openapi registry context keyvals in json form, eg: '{ "url": "%s" }'.  The default is no registry at all, leaving only the embedded providers.`, defaultRegistryUrlString))
+	rootCmd.PersistentFlags().StringVar(&runtimeCtx.RegistryRaw, dto.RegistryRawKey, fmt.Sprintf(`{ "useEmbedded": false, "url": "%s", "localDocRoot": "%s" }`, defaultRegistryUrlString, runtimeCtx.ProviderRootPath), fmt.Sprintf(`openapi registry context keyvals in json form, eg: '{ "url": "%s" }'.`, defaultRegistryUrlString))
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.DbEngine, dto.DbEngineKey, config.GetDefaultDbEngine(), fmt.Sprintf("DB engine id"))
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.DbFilePath, dto.DbFilePathKey, config.GetDefaultDbFilePath(), fmt.Sprintf("DB persistence filename"))
 	rootCmd.PersistentFlags().IntVar(&runtimeCtx.DbGenerationId, dto.DbGenerationIdKey, txncounter.GetNextGenerationId(), fmt.Sprintf("DB generation id"))
@@ -185,7 +185,6 @@ func initConfig() {
 	}
 	viper.SetConfigFile(path.Join(runtimeCtx.ProviderRootPath, runtimeCtx.ViperCfgFileName))
 	viper.AddConfigPath(runtimeCtx.ProviderRootPath)
-	log.Infof("ProviderRootPath = %s, ViperCfgFileName = %s", runtimeCtx.ProviderRootPath, runtimeCtx.ViperCfgFileName)
 
 	viper.AutomaticEnv() // read in environment variables that match
 
