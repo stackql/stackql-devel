@@ -29,7 +29,7 @@ var registryCmd = &cobra.Command{
 	Long: `
 	Interaction with the provider registry, as configured at initialisation time. Usage: stackql registry {subcommand}
 	Currently supported subcommands:
-	  - pull {provider}
+	  - pull {provider} {version}
     
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
