@@ -16,8 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
 	"github.com/stackql/stackql/internal/stackql/handler"
@@ -43,15 +41,18 @@ var registryCmd = &cobra.Command{
 		if err != nil {
 			iqlerror.PrintErrorAndExitOneWithMessage(err.Error())
 		}
+		if len(args) == 0 {
+			iqlerror.PrintErrorAndExitOneWithMessage(usagemsg)
+		}
 		subCommand := args[0]
 		switch subCommand {
 		case "pull":
-			if len(args) != 2 {
+			if len(args) != 3 {
 				iqlerror.PrintErrorAndExitOneWithMessage(usagemsg)
 			}
 			providerName := args[1]
-			fmt.Printf("called '%s %s %s'\n", cmd.Use, subCommand, providerName)
-			err := reg.PullAndPersistProviderArchive(providerName, "v1")
+			providerVersion := args[2]
+			err := reg.PullAndPersistProviderArchive(providerName, providerVersion)
 			if err != nil {
 				iqlerror.PrintErrorAndExitOneWithMessage(err.Error())
 			}
