@@ -28,14 +28,70 @@ type serviceAccount struct {
 type transport struct {
 	token               []byte
 	authType            string
+	tokenLocation       string
+	key                 string
 	underlyingTransport http.RoundTripper
 }
 
+func newTransport(token []byte, authType, tokenLocation, key string, underlyingTransport http.RoundTripper) (*transport, error) {
+	switch authType {
+	case authTypeBasic, authTypeBearer, authTypeSSWS:
+		if len(token) < 1 {
+			return nil, fmt.Errorf("no credentials provided for auth type = '%s'", authType)
+		}
+		if tokenLocation != locationHeader {
+			return nil, fmt.Errorf("improper location provided for auth type = '%s', provided = '%s', expected = '%s'", authType, tokenLocation, locationHeader)
+		}
+	default:
+		switch tokenLocation {
+		case locationHeader:
+		case locationQuery:
+			if key == "" {
+				return nil, fmt.Errorf("key reuired for query parambased auth")
+			}
+		default:
+			return nil, fmt.Errorf("token location not supported: '%s'", tokenLocation)
+		}
+	}
+	return &transport{
+		token:               token,
+		authType:            authType,
+		tokenLocation:       tokenLocation,
+		key:                 key,
+		underlyingTransport: underlyingTransport,
+	}, nil
+}
+
+const (
+	locationHeader string = "header"
+	locationQuery  string = "query"
+	authTypeBasic  string = "BASIC"
+	authTypeBearer string = "Bearer"
+	authTypeSSWS   string = "SSWS"
+)
+
 func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
-	req.Header.Set(
-		"Authorization",
-		fmt.Sprintf("%s %s", t.authType, string(t.token)),
-	)
+	switch t.tokenLocation {
+	case locationHeader:
+		switch t.authType {
+		case authTypeBasic, authTypeBearer, authTypeSSWS:
+			req.Header.Set(
+				"Authorization",
+				fmt.Sprintf("%s %s", t.authType, string(t.token)),
+			)
+		default:
+			req.Header.Set(
+				t.key,
+				string(t.token),
+			)
+		}
+	case locationQuery:
+		qv := req.URL.Query()
+		qv.Set(
+			t.key, string(t.token),
+		)
+		req.URL.RawQuery = qv.Encode()
+	}
 	return t.underlyingTransport.RoundTrip(req)
 }
 
@@ -84,11 +140,11 @@ func apiTokenAuth(authCtx *dto.AuthCtx, runtimeCtx dto.RuntimeCtx) (*http.Client
 	}
 	activateAuth(authCtx, "", "api_key")
 	httpClient := netutils.GetHttpClient(runtimeCtx, http.DefaultClient)
-	httpClient.Transport = &transport{
-		token:               b,
-		authType:            "SSWS",
-		underlyingTransport: httpClient.Transport,
+	tr, err := newTransport(b, authTypeSSWS, locationHeader, "", httpClient.Transport)
+	if err != nil {
+		return nil, err
 	}
+	httpClient.Transport = tr
 	return httpClient, nil
 }
 
@@ -99,10 +155,10 @@ func basicAuth(authCtx *dto.AuthCtx, runtimeCtx dto.RuntimeCtx) (*http.Client, e
 	}
 	activateAuth(authCtx, "", "basic")
 	httpClient := netutils.GetHttpClient(runtimeCtx, http.DefaultClient)
-	httpClient.Transport = &transport{
-		token:               b,
-		authType:            "BASIC",
-		underlyingTransport: httpClient.Transport,
+	tr, err := newTransport(b, authTypeBasic, locationHeader, "", httpClient.Transport)
+	if err != nil {
+		return nil, err
 	}
+	httpClient.Transport = tr
 	return httpClient, nil
 }

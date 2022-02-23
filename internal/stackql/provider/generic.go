@@ -75,11 +75,13 @@ func (gp *GenericProvider) inferAuthType(authCtx dto.AuthCtx, authTypeRequested 
 		return dto.AuthServiceAccountStr
 	case dto.AuthInteractiveStr:
 		return dto.AuthInteractiveStr
+	case dto.AuthNullStr:
+		return dto.AuthNullStr
 	}
 	if authCtx.KeyFilePath != "" || authCtx.KeyEnvVar != "" {
 		return dto.AuthServiceAccountStr
 	}
-	return dto.AuthInteractiveStr
+	return dto.AuthNullStr
 }
 
 func (gp *GenericProvider) Auth(authCtx *dto.AuthCtx, authTypeRequested string, enforceRevokeFirst bool) (*http.Client, error) {
@@ -93,8 +95,10 @@ func (gp *GenericProvider) Auth(authCtx *dto.AuthCtx, authTypeRequested string, 
 		return gp.basicAuth(authCtx)
 	case dto.AuthInteractiveStr:
 		return gp.oAuth(authCtx, enforceRevokeFirst)
+	case dto.AuthNullStr:
+		return netutils.GetHttpClient(gp.runtimeCtx, http.DefaultClient), nil
 	}
-	return nil, fmt.Errorf("Could not infer auth type")
+	return nil, fmt.Errorf("could not infer auth type")
 }
 
 func (gp *GenericProvider) AuthRevoke(authCtx *dto.AuthCtx) error {
@@ -226,11 +230,11 @@ func (gp *GenericProvider) oAuth(authCtx *dto.AuthCtx, enforceRevokeFirst bool) 
 	}
 	activateAuth(authCtx, "", dto.AuthInteractiveStr)
 	client := netutils.GetHttpClient(gp.runtimeCtx, nil)
-	client.Transport = &transport{
-		token:               tokenBytes,
-		authType:            "Bearer",
-		underlyingTransport: client.Transport,
+	tr, err := newTransport(tokenBytes, authTypeBearer, locationHeader, "", client.Transport)
+	if err != nil {
+		return nil, err
 	}
+	client.Transport = tr
 	return client, nil
 }
 

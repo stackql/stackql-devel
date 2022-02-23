@@ -16,6 +16,7 @@ const (
 	AuthBasicStr                    string = "basic"
 	AuthInteractiveStr              string = "interactive"
 	AuthServiceAccountStr           string = "serviceaccount"
+	AuthNullStr                     string = "null_auth"
 	DarkColorScheme                 string = "dark"
 	LightColorScheme                string = "light"
 	NullColorScheme                 string = "null"
