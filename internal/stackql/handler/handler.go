@@ -51,7 +51,10 @@ func getProviderMapExtended(providerName string) map[string]interface{} {
 
 func (hc *HandlerContext) GetSupportedProviders(extended bool) map[string]map[string]interface{} {
 	retVal := make(map[string]map[string]interface{})
-	for pn, _ := range hc.Registry.ListLocallyAvailableProviders() {
+	for pn := range hc.Registry.ListLocallyAvailableProviders() {
+		if pn == "googleapis.com" {
+			pn = "google"
+		}
 		if extended {
 			retVal[pn] = getProviderMapExtended(pn)
 		} else {
