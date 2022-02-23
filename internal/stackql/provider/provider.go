@@ -1,8 +1,6 @@
 package provider
 
 import (
-	"fmt"
-
 	"net/http"
 
 	"github.com/stackql/stackql/internal/stackql/config"
@@ -104,18 +102,18 @@ func GetProvider(runtimeCtx dto.RuntimeCtx, providerStr, providerVersion string,
 	switch providerStr {
 	case config.GetGoogleProviderString(), config.GetOktaProviderString():
 		return newGenericProvider(runtimeCtx, providerStr, providerVersion, reg, dbEngine)
+	default:
+		return newGenericProvider(runtimeCtx, providerStr, providerVersion, reg, dbEngine)
 	}
-	return nil, fmt.Errorf("provider %s not supported", providerStr)
 }
 
 func getUrl(prov string) (string, error) {
 	switch prov {
 	case "google":
 		return constants.GoogleV1DiscoveryDoc, nil
-	case "okta":
-		return "okta", nil
+	default:
+		return prov, nil
 	}
-	return "", fmt.Errorf("cannot find root doc for provider = '%s'", prov)
 }
 
 func newGenericProvider(rtCtx dto.RuntimeCtx, providerStr, versionStr string, reg openapistackql.RegistryAPI, dbEngine sqlengine.SQLEngine) (IProvider, error) {

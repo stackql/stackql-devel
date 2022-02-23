@@ -9,6 +9,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
+	"github.com/stackql/go-openapistackql/pkg/nomenclature"
 )
 
 type IDiscoveryStore interface {
@@ -125,10 +126,13 @@ func (store *TTLDiscoveryStore) ProcessProviderDiscoveryDoc(url string, alias st
 	switch url {
 	case "https://www.googleapis.com/discovery/v1/apis":
 		return store.registry.LoadProviderByName("google", "v1")
-	case "okta":
-		return store.registry.LoadProviderByName("okta", "v1")
+	default:
+		ds, err := nomenclature.ExtractProviderDesignation(url)
+		if err != nil {
+			return nil, err
+		}
+		return store.registry.LoadProviderByName(ds.Name, ds.Tag)
 	}
-	return nil, fmt.Errorf("cannot process provider discovery doc url = '%s'", url)
 }
 
 func (store *TTLDiscoveryStore) PersistServiceShard(pr *openapistackql.Provider, serviceHandle *openapistackql.ProviderService, resourceKey string) (*openapistackql.Service, error) {

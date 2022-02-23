@@ -2,7 +2,6 @@ package constants
 
 const (
 	GoogleV1DiscoveryDoc               string = "https://www.googleapis.com/discovery/v1/apis"
-	GoogleV1String                     string = "v1"
 	GoogleV1OperationURLPropertyString string = "selfLink"
 	GoogleV1ProviderCacheName          string = "google_provider_v_0_3_7"
 	stackqlKeyTmplStr                  string = "__KEY_TEMPLATE__"

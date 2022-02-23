@@ -792,7 +792,6 @@ func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, n
 		case *sqlparser.ExecSubquery:
 			log.Infoln(fmt.Sprintf("from = %v", from))
 			tbl, err = pChild.analyzeTableExpr(handlerCtx, from)
-			// return fmt.Errorf("from clause of type - '%T' currently not supported", from)
 		default:
 			tbl, err = pChild.analyzeTableExpr(handlerCtx, from)
 		}

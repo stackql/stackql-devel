@@ -50,7 +50,6 @@ func (hc *HandlerContext) GetProvider(providerName string) (provider.IProvider, 
 	prov, ok := hc.providers[providerName]
 	if !ok {
 		prov, err = provider.GetProvider(hc.RuntimeContext, ds.Name, ds.Tag, hc.registry, hc.SQLEngine)
-		// prov, err = provider.GetProvider(hc.RuntimeContext, providerName, "v1", hc.registry, hc.SQLEngine)
 		if err == nil {
 			hc.providers[providerName] = prov
 			return prov, err
