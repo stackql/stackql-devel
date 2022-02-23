@@ -30,10 +30,10 @@ TEST_GENERATOR_DEFINITIONS_ROOT :str = os.path.join(TEST_ROOT_DIR, 'test-generat
 TEST_GENERATOR_ALWAYS_ROOT :str = os.path.join(TEST_GENERATOR_DEFINITIONS_ROOT, 'always')
 TEST_GENERATOR_ASSETS_ROOT :str = os.path.join(TEST_ROOT_DIR, 'assets')
 DEFAULT_RUN_DIR :str = os.path.abspath(os.path.join(REPOSITORY_ROOT_DIR, 'build'))
-DEFAULT_PROVIDER_DIR :str = os.path.abspath(os.path.join(TEST_ROOT_DIR, 'registry'))
+DEFAULT_APP_DIR :str = os.path.abspath(os.path.join(TEST_ROOT_DIR, '.stackql'))
 DEFAULT_CONFIG_FILE :str = os.path.abspath(os.path.join(TEST_ROOT_DIR, '.stackqlrc'))
 DEFAULT_DB_FILE :str = os.path.abspath(os.path.join(TEST_ROOT_DIR, 'db/tmp/python-tests-tmp-db.sqlite'))
-DEFAULT_REGISTRY_CFG :str = f'{{ "url": "file://{PROVIDER_REGISTRY_ROOT_DIR}",  "useEmbedded": false }}'
+DEFAULT_REGISTRY_CFG :str = f'{{ "url": "file://{PROVIDER_REGISTRY_ROOT_DIR}", "localDocRoot": "{PROVIDER_REGISTRY_ROOT_DIR}",  "useEmbedded": false }}'
 DEFAULT_EXECUTABLE :str = 'stackql'
 
 TEST_COUNT :int = 0
@@ -53,9 +53,9 @@ parser.add_argument(
     help='directory containing executable'
 )
 parser.add_argument(
-    '--providerdir',
+    '--appdir',
     type=str,
-    default=DEFAULT_PROVIDER_DIR,
+    default=DEFAULT_APP_DIR,
     help='directory containing config and cache'
 )
 parser.add_argument(
@@ -121,7 +121,7 @@ INVOCATION_BASE_ARGS = [
     f'--configfile={args.configfile}',
     '--offline',
     # '--provider=google',
-    f'--providerroot={args.providerdir}',
+    f'--approot={args.appdir}',
     f'--loglevel={args.loglevel}',
     f'--dbfilepath={args.dbfilepath}',
     f'--registry={args.registry}'

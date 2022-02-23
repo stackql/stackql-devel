@@ -12,53 +12,53 @@ import (
 )
 
 const (
-	AuthApiKeyStr             string = "api_key"
-	AuthBasicStr              string = "basic"
-	AuthInteractiveStr        string = "interactive"
-	AuthServiceAccountStr     string = "serviceaccount"
-	DarkColorScheme           string = "dark"
-	LightColorScheme          string = "light"
-	NullColorScheme           string = "null"
-	DefaultColorScheme        string = DarkColorScheme
-	DefaultWindowsColorScheme string = NullColorScheme
-	DryRunFlagKey             string = "dryrun"
-	AuthCtxKey                string = "auth"
-	APIRequestTimeoutKey      string = "apirequesttimeout"
-	CacheKeyCountKey          string = "cachekeycount"
-	CacheTTLKey               string = "metadatattl"
-	ColorSchemeKey            string = "colorscheme"
-	ConfigFilePathKey         string = "configfile"
-	CPUProfileKey             string = "cpuprofile"
-	CSVHeadersDisableKey      string = "hideheaders"
-	DbEngineKey               string = "dbengine"
-	DbGenerationIdKey         string = "dbgenerationid"
-	DbFilePathKey             string = "dbfilepath"
-	DbInitFilePathKey         string = "dbinitfilepath"
-	DelimiterKey              string = "delimiter"
-	ErrorPresentationKey      string = "errorpresentation"
-	HTTPLogEnabledKey         string = "http.log.enabled"
-	HTTPMaxResultsKey         string = "http.response.maxResults"
-	HTTPProxyHostKey          string = "http.proxy.host"
-	HTTPProxyPasswordKey      string = "http.proxy.password"
-	HTTPProxyPortKey          string = "http.proxy.port"
-	HTTPProxySchemeKey        string = "http.proxy.scheme"
-	HTTPProxyUserKey          string = "http.proxy.user"
-	InfilePathKey             string = "infile"
-	LogLevelStrKey            string = "loglevel"
-	OutfilePathKey            string = "outfile"
-	OutputFormatKey           string = "output"
-	ProviderRootPathKey       string = "providerroot"
-	ProviderRootPathModeKey   string = "providerrootfilemode"
-	ProviderStrKey            string = "provider"
-	QueryCacheSizeKey         string = "querycachesize"
-	RegistryRawKey            string = "registry"
-	ReinitKey                 string = "reinit"
-	TemplateCtxFilePathKey    string = "iqldata"
-	TestWithoutApiCallsKey    string = "testwithoutapicalls"
-	UseNonPreferredAPIsKEy    string = "usenonpreferredapis"
-	VerboseFlagKey            string = "verbose"
-	ViperCfgFileNameKey       string = "viperconfigfilename"
-	WorkOfflineKey            string = "offline"
+	AuthApiKeyStr                   string = "api_key"
+	AuthBasicStr                    string = "basic"
+	AuthInteractiveStr              string = "interactive"
+	AuthServiceAccountStr           string = "serviceaccount"
+	DarkColorScheme                 string = "dark"
+	LightColorScheme                string = "light"
+	NullColorScheme                 string = "null"
+	DefaultColorScheme              string = DarkColorScheme
+	DefaultWindowsColorScheme       string = NullColorScheme
+	DryRunFlagKey                   string = "dryrun"
+	AuthCtxKey                      string = "auth"
+	APIRequestTimeoutKey            string = "apirequesttimeout"
+	CacheKeyCountKey                string = "cachekeycount"
+	CacheTTLKey                     string = "metadatattl"
+	ColorSchemeKey                  string = "colorscheme"
+	ConfigFilePathKey               string = "configfile"
+	CPUProfileKey                   string = "cpuprofile"
+	CSVHeadersDisableKey            string = "hideheaders"
+	DbEngineKey                     string = "dbengine"
+	DbGenerationIdKey               string = "dbgenerationid"
+	DbFilePathKey                   string = "dbfilepath"
+	DbInitFilePathKey               string = "dbinitfilepath"
+	DelimiterKey                    string = "delimiter"
+	ErrorPresentationKey            string = "errorpresentation"
+	HTTPLogEnabledKey               string = "http.log.enabled"
+	HTTPMaxResultsKey               string = "http.response.maxResults"
+	HTTPProxyHostKey                string = "http.proxy.host"
+	HTTPProxyPasswordKey            string = "http.proxy.password"
+	HTTPProxyPortKey                string = "http.proxy.port"
+	HTTPProxySchemeKey              string = "http.proxy.scheme"
+	HTTPProxyUserKey                string = "http.proxy.user"
+	InfilePathKey                   string = "infile"
+	LogLevelStrKey                  string = "loglevel"
+	OutfilePathKey                  string = "outfile"
+	OutputFormatKey                 string = "output"
+	ApplicationFilesRootPathKey     string = "approot"
+	ApplicationFilesRootPathModeKey string = "approotfilemode"
+	ProviderStrKey                  string = "provider"
+	QueryCacheSizeKey               string = "querycachesize"
+	RegistryRawKey                  string = "registry"
+	ReinitKey                       string = "reinit"
+	TemplateCtxFilePathKey          string = "iqldata"
+	TestWithoutApiCallsKey          string = "testwithoutapicalls"
+	UseNonPreferredAPIsKEy          string = "usenonpreferredapis"
+	VerboseFlagKey                  string = "verbose"
+	ViperCfgFileNameKey             string = "viperconfigfilename"
+	WorkOfflineKey                  string = "offline"
 )
 
 type KeyVal struct {
@@ -169,44 +169,44 @@ func GetAuthCtx(scopes []string, keyFilePath string, keyFileType string) *AuthCt
 }
 
 type RuntimeCtx struct {
-	APIRequestTimeout    int
-	AuthRaw              string
-	CacheKeyCount        int
-	CacheTTL             int
-	ColorScheme          string
-	ConfigFilePath       string
-	CPUProfile           string
-	CSVHeadersDisable    bool
-	DbEngine             string
-	DbFilePath           string
-	DbGenerationId       int
-	DbInitFilePath       string
-	Delimiter            string
-	DryRunFlag           bool
-	ErrorPresentation    string
-	HTTPLogEnabled       bool
-	HTTPMaxResults       int
-	HTTPProxyHost        string
-	HTTPProxyPassword    string
-	HTTPProxyPort        int
-	HTTPProxyScheme      string
-	HTTPProxyUser        string
-	InfilePath           string
-	LogLevelStr          string
-	OutfilePath          string
-	OutputFormat         string
-	ProviderRootPath     string
-	ProviderRootPathMode uint32
-	ProviderStr          string
-	RegistryRaw          string
-	Reinit               bool
-	QueryCacheSize       int
-	TemplateCtxFilePath  string
-	TestWithoutApiCalls  bool
-	UseNonPreferredAPIs  bool
-	VerboseFlag          bool
-	ViperCfgFileName     string
-	WorkOffline          bool
+	APIRequestTimeout            int
+	AuthRaw                      string
+	CacheKeyCount                int
+	CacheTTL                     int
+	ColorScheme                  string
+	ConfigFilePath               string
+	CPUProfile                   string
+	CSVHeadersDisable            bool
+	DbEngine                     string
+	DbFilePath                   string
+	DbGenerationId               int
+	DbInitFilePath               string
+	Delimiter                    string
+	DryRunFlag                   bool
+	ErrorPresentation            string
+	HTTPLogEnabled               bool
+	HTTPMaxResults               int
+	HTTPProxyHost                string
+	HTTPProxyPassword            string
+	HTTPProxyPort                int
+	HTTPProxyScheme              string
+	HTTPProxyUser                string
+	InfilePath                   string
+	LogLevelStr                  string
+	OutfilePath                  string
+	OutputFormat                 string
+	ApplicationFilesRootPath     string
+	ApplicationFilesRootPathMode uint32
+	ProviderStr                  string
+	RegistryRaw                  string
+	Reinit                       bool
+	QueryCacheSize               int
+	TemplateCtxFilePath          string
+	TestWithoutApiCalls          bool
+	UseNonPreferredAPIs          bool
+	VerboseFlag                  bool
+	ViperCfgFileName             string
+	WorkOffline                  bool
 }
 
 func setInt(iPtr *int, val string) error {
@@ -288,10 +288,10 @@ func (rc *RuntimeCtx) Set(key string, val string) error {
 		rc.OutfilePath = val
 	case OutputFormatKey:
 		rc.OutputFormat = val
-	case ProviderRootPathKey:
-		rc.ProviderRootPath = val
-	case ProviderRootPathModeKey:
-		retVal = setUint32(&rc.ProviderRootPathMode, val)
+	case ApplicationFilesRootPathKey:
+		rc.ApplicationFilesRootPath = val
+	case ApplicationFilesRootPathModeKey:
+		retVal = setUint32(&rc.ApplicationFilesRootPathMode, val)
 	case QueryCacheSizeKey:
 		retVal = setInt(&rc.QueryCacheSize, val)
 	case RegistryRawKey:

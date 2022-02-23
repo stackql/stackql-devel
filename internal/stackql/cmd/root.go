@@ -98,11 +98,11 @@ func init() {
 	rootCmd.PersistentFlags().IntVar(&runtimeCtx.APIRequestTimeout, dto.APIRequestTimeoutKey, 45, "API request timeout in seconds, 0 for no timeout.")
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.ColorScheme, dto.ColorSchemeKey, config.GetDefaultColorScheme(), fmt.Sprintf("Color scheme, must be one of {'%s', '%s', '%s'}", dto.DarkColorScheme, dto.LightColorScheme, dto.NullColorScheme))
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.ConfigFilePath, dto.ConfigFilePathKey, config.GetDefaultConfigFilePath(), fmt.Sprintf("Config file full path; defaults to current dir"))
-	rootCmd.PersistentFlags().StringVar(&runtimeCtx.ProviderRootPath, dto.ProviderRootPathKey, config.GetDefaultProviderCacheRoot(), fmt.Sprintf("Config and cache root path"))
-	rootCmd.PersistentFlags().Uint32Var(&runtimeCtx.ProviderRootPathMode, dto.ProviderRootPathModeKey, config.GetDefaultProviderCacheDirFileMode(), fmt.Sprintf("Config and cache file mode"))
+	rootCmd.PersistentFlags().StringVar(&runtimeCtx.ApplicationFilesRootPath, dto.ApplicationFilesRootPathKey, config.GetDefaultApplicationFilesRoot(), fmt.Sprintf("Application config and cache root path"))
+	rootCmd.PersistentFlags().Uint32Var(&runtimeCtx.ApplicationFilesRootPathMode, dto.ApplicationFilesRootPathModeKey, config.GetDefaultProviderCacheDirFileMode(), fmt.Sprintf("Application config and cache file mode"))
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.ViperCfgFileName, dto.ViperCfgFileNameKey, config.GetDefaultViperConfigFileName(), fmt.Sprintf("Config filename"))
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.AuthRaw, dto.AuthCtxKey, "", `auth contexts keyvals in json form, eg: '{ "google": { "credentialsfilepath": "/path/to/google/sevice/account/key.json",  "type": "serviceaccount" }, "okta": { "credentialsenvvar": "OKTA_SECRET_KEY",  "type": "api_key" } }'`)
-	rootCmd.PersistentFlags().StringVar(&runtimeCtx.RegistryRaw, dto.RegistryRawKey, fmt.Sprintf(`{ "useEmbedded": true, "url": "%s", "localDocRoot": "%s" }`, defaultRegistryUrlString, runtimeCtx.ProviderRootPath), fmt.Sprintf(`openapi registry context keyvals in json form, eg: '{ "url": "%s" }'.`, defaultRegistryUrlString))
+	rootCmd.PersistentFlags().StringVar(&runtimeCtx.RegistryRaw, dto.RegistryRawKey, fmt.Sprintf(`{ "useEmbedded": true, "url": "%s", "localDocRoot": "%s" }`, defaultRegistryUrlString, runtimeCtx.ApplicationFilesRootPath), fmt.Sprintf(`openapi registry context keyvals in json form, eg: '{ "url": "%s" }'.`, defaultRegistryUrlString))
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.DbEngine, dto.DbEngineKey, config.GetDefaultDbEngine(), fmt.Sprintf("DB engine id"))
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.DbFilePath, dto.DbFilePathKey, config.GetDefaultDbFilePath(), fmt.Sprintf("DB persistence filename"))
 	rootCmd.PersistentFlags().IntVar(&runtimeCtx.DbGenerationId, dto.DbGenerationIdKey, txncounter.GetNextGenerationId(), fmt.Sprintf("DB generation id"))
@@ -177,14 +177,14 @@ func initConfig() {
 	mergeConfigFromFile(&runtimeCtx, *rootCmd.PersistentFlags())
 
 	setLogLevel()
-	config.CreateDirIfNotExists(runtimeCtx.ProviderRootPath, os.FileMode(runtimeCtx.ProviderRootPathMode))
-	config.CreateDirIfNotExists(path.Join(runtimeCtx.ProviderRootPath, runtimeCtx.ProviderStr), os.FileMode(runtimeCtx.ProviderRootPathMode))
-	config.CreateDirIfNotExists(config.GetReadlineDirPath(runtimeCtx), os.FileMode(runtimeCtx.ProviderRootPathMode))
+	config.CreateDirIfNotExists(runtimeCtx.ApplicationFilesRootPath, os.FileMode(runtimeCtx.ApplicationFilesRootPathMode))
+	config.CreateDirIfNotExists(path.Join(runtimeCtx.ApplicationFilesRootPath, runtimeCtx.ProviderStr), os.FileMode(runtimeCtx.ApplicationFilesRootPathMode))
+	config.CreateDirIfNotExists(config.GetReadlineDirPath(runtimeCtx), os.FileMode(runtimeCtx.ApplicationFilesRootPathMode))
 	if runtimeCtx.Reinit {
 		os.Remove(runtimeCtx.DbFilePath)
 	}
-	viper.SetConfigFile(path.Join(runtimeCtx.ProviderRootPath, runtimeCtx.ViperCfgFileName))
-	viper.AddConfigPath(runtimeCtx.ProviderRootPath)
+	viper.SetConfigFile(path.Join(runtimeCtx.ApplicationFilesRootPath, runtimeCtx.ViperCfgFileName))
+	viper.AddConfigPath(runtimeCtx.ApplicationFilesRootPath)
 
 	viper.AutomaticEnv() // read in environment variables that match
 

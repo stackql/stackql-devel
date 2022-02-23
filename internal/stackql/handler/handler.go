@@ -108,7 +108,7 @@ func getRegistry(runtimeCtx dto.RuntimeCtx) (openapistackql.RegistryAPI, error) 
 		return nil, err
 	}
 	if rc.LocalDocRoot == "" {
-		rc.LocalDocRoot = runtimeCtx.ProviderRootPath
+		rc.LocalDocRoot = runtimeCtx.ApplicationFilesRootPath
 	}
 	rt := netutils.GetRoundTripper(runtimeCtx, nil)
 	return openapistackql.NewRegistry(rc, rt)

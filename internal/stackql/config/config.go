@@ -44,7 +44,7 @@ func GetWorkingDir() string {
 	return dir
 }
 
-func GetDefaultProviderCacheRoot() string {
+func GetDefaultApplicationFilesRoot() string {
 	return path.Join(GetWorkingDir(), defaultConfigCacheDir)
 }
 
@@ -60,11 +60,11 @@ func GetDefaultColorScheme() string {
 }
 
 func GetReadlineDirPath(runtimeCtx dto.RuntimeCtx) string {
-	return path.Join(runtimeCtx.ProviderRootPath, readlineDir)
+	return path.Join(runtimeCtx.ApplicationFilesRootPath, readlineDir)
 }
 
 func GetReadlineFilePath(runtimeCtx dto.RuntimeCtx) string {
-	return path.Join(runtimeCtx.ProviderRootPath, readlineDir, readlineTmpFile)
+	return path.Join(runtimeCtx.ApplicationFilesRootPath, readlineDir, readlineTmpFile)
 }
 
 func GetDefaultViperConfigFileName() string {

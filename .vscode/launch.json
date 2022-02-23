@@ -478,7 +478,7 @@
       ],
     },
     // ;
-    // ./stackql --verbose --providerroot=./.stackql   --keyfilepath=../keys/sa-key.json exec    "select canIpForward from compute.instances WHERE zone = 'australia-southeast1-b' AND project = 'lab-kr-network-01' ;" -o json | jq
+    // ./stackql --verbose --approot=./.stackql   --keyfilepath=../keys/sa-key.json exec    "select canIpForward from compute.instances WHERE zone = 'australia-southeast1-b' AND project = 'lab-kr-network-01' ;" -o json | jq
     {
       // need to edit processId as appropriate
       "name": "Attach to local process -- eg shell -- amend processId as required",
