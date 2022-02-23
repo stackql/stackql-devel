@@ -79,7 +79,7 @@
       "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
+        "--credentialsfilepath=${workspaceFolder}/keys/sa-key.json",
         "select * from google.logging.`projects.logs` WHERE parent = 'projects/lab-kr-network-01';",
         "-o",
         "json"
@@ -94,7 +94,7 @@
       "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
-        "--auth={ \"google\": { \"keyfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"keyfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"keyfiletype\": \"api_key\" } }",
+        "--auth={ \"google\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"type\": \"api_key\" } }",
         "select name from google.compute.disks where project = 'lab-kr-network-01' and zone = 'australia-southeast1-a';",
         "-o",
         "json"
@@ -109,7 +109,7 @@
       "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
-        "--auth={ \"google\": { \"keyfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"keyfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"keyfiletype\": \"api_key\" } }",
+        "--auth={ \"google\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"type\": \"api_key\" } }",
         "show extended resources from okta.group;",
         "-o",
         "json"
@@ -123,7 +123,7 @@
       "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
-        "--auth={ \"google\": { \"keyfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"keyfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"keyfiletype\": \"api_key\" } }",
+        "--auth={ \"google\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"type\": \"api_key\" } }",
         "delete from google.storage.buckets WHERE bucket = 'lab-kr-network-03-trial-bucket';",
         "-o",
         "json"
@@ -139,7 +139,7 @@
       "args": [
         "registry",
         "--registry={ \"useEmbedded\": false, \"url\": \"https://raw.githubusercontent.com/stackql/stackql-provider-registry/intial-devel/providers\" }",
-        "--auth={ \"google\": { \"keyfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"keyfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"keyfiletype\": \"api_key\" } }",
+        "--auth={ \"google\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"type\": \"api_key\" } }",
         "pull",
         "okta"
       ],
@@ -152,7 +152,7 @@
       "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
-        "--auth={ \"google\": { \"keyfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"keyfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"keyfiletype\": \"api_key\" } }",
+        "--auth={ \"google\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"type\": \"api_key\" } }",
         "select apps.id from okta.application.apps apps where subdomain = 'dev-79923018-admin';",
         "-o",
         "json"
@@ -166,7 +166,7 @@
       "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
+        "--credentialsfilepath=${workspaceFolder}/keys/sa-key.json",
         "insert /*+ AWAIT */ into google.logging.`organizations.locations.buckets`(parent, bucketId) values('projects/lab-kr-network-01/locations/australia-southeast1', 'kr-lab-network-01-logging-bucket-03');",
         "-o",
         "json"
@@ -181,7 +181,7 @@
       "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
+        "--credentialsfilepath=${workspaceFolder}/keys/sa-key.json",
         "select * from google.bigquery.jobs where projectId='lab-kr-network-01';",
         "-o",
         "json"
@@ -195,7 +195,7 @@
       "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
+        "--credentialsfilepath=${workspaceFolder}/keys/sa-key.json",
         "select * from ( exec /*+ SHOWRESULTS */ google.bigquery.jobs.getQueryResults @projectId='lab-kr-network-01', @jobId='bquxjob_19abc6d_17c14bbcb9e' ) ;",
         "-o",
         "json"
@@ -209,7 +209,7 @@
       "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
-        "--auth={ \"google\": { \"keyfilepath\": \"${workspaceFolder}/keys/sa-key.json\" } }",
+        "--auth={ \"google\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/sa-key.json\" } }",
         "--cpuprofile=${workspaceFolder}/build/prof1.prof",
         "select name from (EXEC /*+ SHOWRESULTS */ google.compute.disks.get @disk = 'my-disk-01-indeed',  @project = 'lab-kr-network-01', @zone = 'australia-southeast1-a');",
         "-o",
@@ -224,8 +224,8 @@
       "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/okta-token.txt",
-        "--keyfiletype=api_key",
+        "--credentialsfilepath=${workspaceFolder}/keys/okta-token.txt",
+        "--type=api_key",
         "insert into okta.application.apps(subdomain, data__name, data__label, data__signOnMode, data__settings) SELECT 'dev-79923018-admin', 'template_basic_auth', 'some new app again', 'BASIC_AUTH', '{ \"app\": { \"authURL\": \"https://example.com/auth.html\", \"url\": \"https://example.com/bookmark.htm\" } }' ;",
         "-o",
         "json"
@@ -266,8 +266,8 @@
       "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/okta-token.txt",
-        "--keyfiletype=api_key",
+        "--credentialsfilepath=${workspaceFolder}/keys/okta-token.txt",
+        "--type=api_key",
         "delete from okta.application.apps where appId = '0oa3fvey86qdXch1g5d7' and subdomain = 'dev-79923018-admin';",
         "-o",
         "json"
@@ -281,8 +281,8 @@
       "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/okta-token.txt",
-        "--keyfiletype=api_key",
+        "--credentialsfilepath=${workspaceFolder}/keys/okta-token.txt",
+        "--type=api_key",
         "exec okta.application.apps.deactivate @appId = '0oa3gvv2cruvhWBXU5d7',  @subdomain = 'dev-79923018-admin';",
         "-o",
         "json"
@@ -296,8 +296,8 @@
       "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/okta-token.txt",
-        "--keyfiletype=api_key",
+        "--credentialsfilepath=${workspaceFolder}/keys/okta-token.txt",
+        "--type=api_key",
         "show resources from okta.group;",
         "-o",
         "json"
@@ -311,7 +311,7 @@
       "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
+        "--credentialsfilepath=${workspaceFolder}/keys/sa-key.json",
         // "exec /*+ some AWAIT */ google.compute.disks.list  @zone = 'australia-southeast1-a', /* */ @project = 'lab-kr-network-01';",
         "EXEC /*+ some AWAIT */ compute.disks.insert @project='lab-kr-network-01', @zone= 'australia-southeast1-a' @@json='{ \"name\": \"test-disk9\", \"sizeGb\": 10 }';",
         // "select name, region from google.compute.subnetworks where region = 'australia-southeast1' AND /* */ project = 'lab-kr-network-01';",
@@ -329,7 +329,7 @@
       "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
+        "--credentialsfilepath=${workspaceFolder}/keys/sa-key.json",
         "insert into google.compute.disks(project, zone, data__name) SELECT 'lab-kr-network-01', 'australia-southeast1-a', name || '-newzy2' as name from google.compute.disks where project = 'lab-kr-network-01' and zone =  'australia-southeast1-a' limit 2;",
         "-o",
         "json"
@@ -343,7 +343,7 @@
       "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
+        "--credentialsfilepath=${workspaceFolder}/keys/sa-key.json",
         "SHOW EXTENDED INSERT INTO google.bigquery.datasets;",
         "-o",
         "pptext"
@@ -357,7 +357,7 @@
       "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
+        "--credentialsfilepath=${workspaceFolder}/keys/sa-key.json",
         "show insert into google.compute.instances( project, data__sourceSnapshotId );",
         "-o",
         "pptext"
@@ -371,7 +371,7 @@
       "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
+        "--credentialsfilepath=${workspaceFolder}/keys/sa-key.json",
         "show insert /*+ REQUIRED */ into google.compute.addresses;",
         "-o",
         "pptext"
@@ -385,7 +385,7 @@
       "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
+        "--credentialsfilepath=${workspaceFolder}/keys/sa-key.json",
         "show providers;",
         "-o",
         "table"
@@ -399,7 +399,7 @@
       "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
+        "--credentialsfilepath=${workspaceFolder}/keys/sa-key.json",
         "show resources from google.container;",
         "-o",
         "table"
@@ -413,7 +413,7 @@
       "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
+        "--credentialsfilepath=${workspaceFolder}/keys/sa-key.json",
         "-i=${workspaceFolder}/test/assets/input/show-services-extended-filtered.iql",
         "-o",
         "table"
@@ -427,7 +427,7 @@
       "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
+        "--credentialsfilepath=${workspaceFolder}/keys/sa-key.json",
         "-i=${workspaceFolder}/test/assets/input/insert-compute-network.iql",
         "-o",
         "table"
@@ -442,7 +442,7 @@
       "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
+        "--credentialsfilepath=${workspaceFolder}/keys/sa-key.json",
         "select * from google.container.`projects.aggregated.usableSubnetworks` where parent = 'projects/kr-lab-network-01'",
         "-o",
         "json"
@@ -456,7 +456,7 @@
       "program": "${workspaceFolder}/build/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
+        "--credentialsfilepath=${workspaceFolder}/keys/sa-key.json",
         "select * from google.bigquery.datasets where projectId = 'lab-kr-network-01';",
         "-o",
         "json"
@@ -471,14 +471,14 @@
       "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
-        "--keyfilepath=${workspaceFolder}/keys/sa-key.json",
+        "--credentialsfilepath=${workspaceFolder}/keys/sa-key.json",
         "SELECT name FROM google.storage.buckets WHERE project = 'lab-kr-network-01';",
         "-o",
         "json"
       ],
     },
     // ;
-    // ./stackql --verbose --approot=./.stackql   --keyfilepath=../keys/sa-key.json exec    "select canIpForward from compute.instances WHERE zone = 'australia-southeast1-b' AND project = 'lab-kr-network-01' ;" -o json | jq
+    // ./stackql --verbose --approot=./.stackql   --credentialsfilepath=../keys/sa-key.json exec    "select canIpForward from compute.instances WHERE zone = 'australia-southeast1-b' AND project = 'lab-kr-network-01' ;" -o json | jq
     {
       // need to edit processId as appropriate
       "name": "Attach to local process -- eg shell -- amend processId as required",

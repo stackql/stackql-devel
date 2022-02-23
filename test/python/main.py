@@ -444,9 +444,9 @@ def run_integration_test_generator(generator :dict, parent_test_file_path :str, 
     invocation_base_args = copy.deepcopy(INVOCATION_BASE_ARGS)
     if generator.get("testwitoutapicalls"):
       invocation_base_args.append(f'--testwitoutapicalls={generator.get("testwitoutapicalls")}')
-    if generator.get("keyfilepath"):
-      kp :str = generator.get("keyfilepath") if generator.get("keyfilepath").startswith("/") else os.path.abspath(os.path.join(TEST_GENERATOR_ASSETS_ROOT, generator.get("keyfilepath")))
-      invocation_base_args.append(f'--keyfilepath={kp}')
+    if generator.get("credentialsfilepath"):
+      kp :str = generator.get("credentialsfilepath") if generator.get("credentialsfilepath").startswith("/") else os.path.abspath(os.path.join(TEST_GENERATOR_ASSETS_ROOT, generator.get("credentialsfilepath")))
+      invocation_base_args.append(f'--credentialsfilepath={kp}')
     if generator.get("iqldata"):
       idt :str = generator.get("iqldata") if generator.get("iqldata").startswith("/") else os.path.abspath(os.path.join(TEST_GENERATOR_ASSETS_ROOT, generator.get("iqldata")))
       invocation_base_args.append(f'--iqldata={idt}')
