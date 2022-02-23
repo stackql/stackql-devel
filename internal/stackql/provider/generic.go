@@ -88,6 +88,8 @@ func (gp *GenericProvider) Auth(authCtx *dto.AuthCtx, authTypeRequested string, 
 		return gp.apiTokenFileAuth(authCtx)
 	case dto.AuthServiceAccountStr:
 		return gp.keyFileAuth(authCtx)
+	case dto.AuthBasicStr:
+		return gp.basicAuth(authCtx)
 	case dto.AuthInteractiveStr:
 		return gp.oAuth(authCtx, enforceRevokeFirst)
 	}
@@ -243,6 +245,10 @@ func (gp *GenericProvider) keyFileAuth(authCtx *dto.AuthCtx) (*http.Client, erro
 
 func (gp *GenericProvider) apiTokenFileAuth(authCtx *dto.AuthCtx) (*http.Client, error) {
 	return apiTokenAuth(authCtx, gp.runtimeCtx)
+}
+
+func (gp *GenericProvider) basicAuth(authCtx *dto.AuthCtx) (*http.Client, error) {
+	return basicAuth(authCtx, gp.runtimeCtx)
 }
 
 func (gp *GenericProvider) getServiceType(service *openapistackql.Service) string {

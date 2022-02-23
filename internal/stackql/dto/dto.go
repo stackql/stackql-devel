@@ -13,6 +13,7 @@ import (
 
 const (
 	AuthApiKeyStr             string = "api_key"
+	AuthBasicStr              string = "basic"
 	AuthInteractiveStr        string = "interactive"
 	AuthServiceAccountStr     string = "serviceaccount"
 	DarkColorScheme           string = "dark"
@@ -85,10 +86,10 @@ type HTTPElement struct {
 
 type AuthCtx struct {
 	Scopes      []string `json:"scopes,omitempty" yaml:"scopes,omitempty"`
-	Type        string   `json:"keyfiletype" yaml:"keyfiletype"`
+	Type        string   `json:"type" yaml:"type"`
 	ID          string   `json:"-" yaml:"-"`
-	KeyFilePath string   `json:"keyfilepath" yaml:"keyfilepath"`
-	KeyEnvVar   string   `json:"keyenvvar" yaml:"keyenvvar"`
+	KeyFilePath string   `json:"credentialsfilepath" yaml:"credentialsfilepath"`
+	KeyEnvVar   string   `json:"credentialsenvvar" yaml:"credentialsenvvar"`
 	Active      bool     `json:"-" yaml:"-"`
 }
 
@@ -124,7 +125,7 @@ func (ac *AuthCtx) GetCredentialsBytes() ([]byte, error) {
 	if ac.KeyEnvVar != "" {
 		rv := os.Getenv(ac.KeyEnvVar)
 		if rv == "" {
-			return nil, fmt.Errorf("keyenvvar references empty string")
+			return nil, fmt.Errorf("credentialsenvvar references empty string")
 		}
 		return []byte(rv), nil
 	}
@@ -134,9 +135,9 @@ func (ac *AuthCtx) GetCredentialsBytes() ([]byte, error) {
 
 func (ac *AuthCtx) GetCredentialsSourceDescriptorString() string {
 	if ac.KeyEnvVar != "" {
-		return fmt.Sprintf("keyenvvar:%s", ac.KeyEnvVar)
+		return fmt.Sprintf("credentialsenvvar:%s", ac.KeyEnvVar)
 	}
-	return fmt.Sprintf("keyfilepath:%s", ac.KeyFilePath)
+	return fmt.Sprintf("credentialsfilepath:%s", ac.KeyFilePath)
 }
 
 type ExecPayload struct {

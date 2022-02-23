@@ -25,7 +25,7 @@ class TestStatus(Enum):
 CURDIR :str = os.path.dirname(os.path.realpath(__file__))
 TEST_ROOT_DIR :str = os.path.abspath(os.path.join(CURDIR, '..'))
 REPOSITORY_ROOT_DIR :str = os.path.abspath(os.path.join(CURDIR, '../..'))
-PROVIDER_REGISTRY_ROOT_DIR :str = os.path.abspath(os.path.join(REPOSITORY_ROOT_DIR, 'test/registry')).replace(os.sep, '/')
+PROVIDER_REGISTRY_ROOT_DIR :str = os.path.abspath(os.path.join(TEST_ROOT_DIR, '.stackql')).replace(os.sep, '/')
 TEST_GENERATOR_DEFINITIONS_ROOT :str = os.path.join(TEST_ROOT_DIR, 'test-generators')
 TEST_GENERATOR_ALWAYS_ROOT :str = os.path.join(TEST_GENERATOR_DEFINITIONS_ROOT, 'always')
 TEST_GENERATOR_ASSETS_ROOT :str = os.path.join(TEST_ROOT_DIR, 'assets')
@@ -120,6 +120,7 @@ INVOCATION_BASE_ARGS = [
     executable_path,
     f'--configfile={args.configfile}',
     '--offline',
+    '--provider=google',
     f'--providerroot={args.providerdir}',
     f'--loglevel={args.loglevel}',
     f'--dbfilepath={args.dbfilepath}',

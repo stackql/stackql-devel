@@ -35,7 +35,7 @@ func GetRuntimeCtx(providerStr string, outputFmtStr string, testName string) (*d
 		Delimiter:        ",",
 		ProviderStr:      providerStr,
 		LogLevelStr:      "warn",
-		AuthRaw:          fmt.Sprintf(`{ "google": { "keyfilepath": "%s" }, "okta": { "keyfilepath": "%s", "keyfiletype": "api_key" } }`, saKeyPath, oktaSaKeyPath),
+		AuthRaw:          fmt.Sprintf(`{ "google": { "credentialsfilepath": "%s" }, "okta": { "credentialsfilepath": "%s", "type": "api_key" } }`, saKeyPath, oktaSaKeyPath),
 		RegistryRaw:      fmt.Sprintf(`{ "url": "file://%s",  "useEmbedded": false }`, registryRoot),
 		ProviderRootPath: providerDir,
 		OutputFormat:     outputFmtStr,

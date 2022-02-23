@@ -28,7 +28,7 @@ type HandlerContext struct {
 	providers         map[string]provider.IProvider
 	CurrentProvider   string
 	authContexts      map[string]*dto.AuthCtx
-	registry          openapistackql.RegistryAPI
+	Registry          openapistackql.RegistryAPI
 	ErrorPresentation string
 	Outfile           io.Writer
 	OutErrFile        io.Writer
@@ -36,6 +36,29 @@ type HandlerContext struct {
 	SQLEngine         sqlengine.SQLEngine
 	DrmConfig         drm.DRMConfig
 	TxnCounterMgr     *txncounter.TxnCounterManager
+}
+
+func getProviderMap(providerName string) map[string]interface{} {
+	googleMap := map[string]interface{}{
+		"name": providerName,
+	}
+	return googleMap
+}
+
+func getProviderMapExtended(providerName string) map[string]interface{} {
+	return getProviderMap(providerName)
+}
+
+func (hc *HandlerContext) GetSupportedProviders(extended bool) map[string]map[string]interface{} {
+	retVal := make(map[string]map[string]interface{})
+	for pn, _ := range hc.Registry.ListLocallyAvailableProviders() {
+		if extended {
+			retVal[pn] = getProviderMapExtended(pn)
+		} else {
+			retVal[pn] = getProviderMap(pn)
+		}
+	}
+	return retVal
 }
 
 func (hc *HandlerContext) GetProvider(providerName string) (provider.IProvider, error) {
@@ -49,7 +72,7 @@ func (hc *HandlerContext) GetProvider(providerName string) (provider.IProvider, 
 	}
 	prov, ok := hc.providers[providerName]
 	if !ok {
-		prov, err = provider.GetProvider(hc.RuntimeContext, ds.Name, ds.Tag, hc.registry, hc.SQLEngine)
+		prov, err = provider.GetProvider(hc.RuntimeContext, ds.Name, ds.Tag, hc.Registry, hc.SQLEngine)
 		if err == nil {
 			hc.providers[providerName] = prov
 			return prov, err
@@ -108,7 +131,7 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 		RuntimeContext:    runtimeCtx,
 		providers:         providers,
 		authContexts:      ac,
-		registry:          reg,
+		Registry:          reg,
 		ErrorPresentation: runtimeCtx.ErrorPresentation,
 		LRUCache:          lruCache,
 		SQLEngine:         sqlEng,

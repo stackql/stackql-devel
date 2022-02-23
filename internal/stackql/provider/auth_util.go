@@ -91,3 +91,18 @@ func apiTokenAuth(authCtx *dto.AuthCtx, runtimeCtx dto.RuntimeCtx) (*http.Client
 	}
 	return httpClient, nil
 }
+
+func basicAuth(authCtx *dto.AuthCtx, runtimeCtx dto.RuntimeCtx) (*http.Client, error) {
+	b, err := authCtx.GetCredentialsBytes()
+	if err != nil {
+		return nil, fmt.Errorf("credentials error: %v", err)
+	}
+	activateAuth(authCtx, "", "basic")
+	httpClient := netutils.GetHttpClient(runtimeCtx, http.DefaultClient)
+	httpClient.Transport = &transport{
+		token:               b,
+		authType:            "BASIC",
+		underlyingTransport: httpClient.Transport,
+	}
+	return httpClient, nil
+}
