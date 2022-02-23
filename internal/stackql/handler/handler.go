@@ -5,6 +5,7 @@ import (
 	"io"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
+	"github.com/stackql/go-openapistackql/pkg/nomenclature"
 	"github.com/stackql/stackql/internal/pkg/txncounter"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/dto"
@@ -42,9 +43,14 @@ func (hc *HandlerContext) GetProvider(providerName string) (provider.IProvider, 
 	if providerName == "" {
 		providerName = hc.RuntimeContext.ProviderStr
 	}
+	ds, err := nomenclature.ExtractProviderDesignation(providerName)
+	if err != nil {
+		return nil, err
+	}
 	prov, ok := hc.providers[providerName]
 	if !ok {
-		prov, err = provider.GetProvider(hc.RuntimeContext, providerName, "v1", hc.registry, hc.SQLEngine)
+		prov, err = provider.GetProvider(hc.RuntimeContext, ds.Name, ds.Tag, hc.registry, hc.SQLEngine)
+		// prov, err = provider.GetProvider(hc.RuntimeContext, providerName, "v1", hc.registry, hc.SQLEngine)
 		if err == nil {
 			hc.providers[providerName] = prov
 			return prov, err

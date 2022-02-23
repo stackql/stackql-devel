@@ -100,11 +100,6 @@ type IProvider interface {
 	GetDiscoveryGeneration(sqlengine.SQLEngine) (int, error)
 }
 
-func GetProviderFromRuntimeCtx(runtimeCtx dto.RuntimeCtx, reg openapistackql.RegistryAPI, dbEngine sqlengine.SQLEngine) (IProvider, error) {
-	providerStr := runtimeCtx.ProviderStr
-	return GetProvider(runtimeCtx, providerStr, "v1", reg, dbEngine)
-}
-
 func GetProvider(runtimeCtx dto.RuntimeCtx, providerStr, providerVersion string, reg openapistackql.RegistryAPI, dbEngine sqlengine.SQLEngine) (IProvider, error) {
 	switch providerStr {
 	case config.GetGoogleProviderString(), config.GetOktaProviderString():
