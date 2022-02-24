@@ -684,6 +684,8 @@ github.com/stackql/go-openapistackql v0.0.4-alpha33 h1:HIksovaHlGQIulFmsKFUgBkBP
 github.com/stackql/go-openapistackql v0.0.4-alpha33/go.mod h1:yqI4zH413RP2Yk6zWSv/fXs8PgU2ZDuR5iVBWpQdUyU=
 github.com/stackql/go-openapistackql v0.0.4-alpha34 h1:DvAbj08yKLL40xf8iSYHRjzm0Fxesx++crz+y3taHrw=
 github.com/stackql/go-openapistackql v0.0.4-alpha34/go.mod h1:yqI4zH413RP2Yk6zWSv/fXs8PgU2ZDuR5iVBWpQdUyU=
+github.com/stackql/go-openapistackql v0.0.4-alpha35 h1:4E4J/MwyJvP4V/ar3LF3WDV1OOx3e+hSOjcviBlo4YQ=
+github.com/stackql/go-openapistackql v0.0.4-alpha35/go.mod h1:yqI4zH413RP2Yk6zWSv/fXs8PgU2ZDuR5iVBWpQdUyU=
 github.com/stackql/go-openapistackql v0.0.4-alpha4 h1:vc8kPXM/zw6PnJ6j/iz5DWgYhjGaw0x4e5oF/o6DUvE=
 github.com/stackql/go-openapistackql v0.0.4-alpha4/go.mod h1:ficis807+HOpLcS6fLpPbsYY5pOsn9RuPeP0UlOqNQQ=
 github.com/stackql/go-openapistackql v0.0.4-alpha5 h1:ZT/T8e4ERsyrCVBIKBkwhaMaq7yjcXbhwiTKA3Apu4c=

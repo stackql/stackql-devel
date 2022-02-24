@@ -25,7 +25,7 @@ require (
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.10.1
-	github.com/stackql/go-openapistackql v0.0.4-alpha34
+	github.com/stackql/go-openapistackql v0.0.4-alpha35
 	github.com/stackql/go-sqlite3 v0.0.1-stackqlalpha
 	github.com/stackql/stackql-provider-registry v0.0.1-alpha901 // indirect
 	go.starlark.net v0.0.0-20210602144842-1cdb82c9e17a // indirect

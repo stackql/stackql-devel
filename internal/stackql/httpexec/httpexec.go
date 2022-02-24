@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/stackql/internal/stackql/util"
 
 	log "github.com/sirupsen/logrus"
@@ -194,13 +195,13 @@ func marshalResponse(r *http.Response) (interface{}, error) {
 		return nil, err
 	}
 	switch mediaType {
-	case "application/json":
+	case openapistackql.MediaTypeJson:
 		err = json.NewDecoder(body).Decode(&target)
-	case "application/xml":
+	case openapistackql.MediaTypeXML:
 		err = xml.NewDecoder(body).Decode(&target)
-	case "application/octet-stream":
+	case openapistackql.MediaTypeOctetStream:
 		target, err = io.ReadAll(body)
-	case "text/plain", "text/html":
+	case openapistackql.MediaTypeTextPlain, openapistackql.MediaTypeHTML:
 		var b []byte
 		b, err = io.ReadAll(body)
 		if err != nil {
