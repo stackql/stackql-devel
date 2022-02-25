@@ -6,7 +6,7 @@ title: Public APIs
 providerServices:
   api:
     description: Public API
-      Catalogue of known publi APIs.
+      Catalogue of known public APIs.
     id: api:v1
     name: api
     preferred: true
