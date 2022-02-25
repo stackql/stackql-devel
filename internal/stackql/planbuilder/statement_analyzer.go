@@ -824,7 +824,7 @@ func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, n
 			return err
 		}
 		if len(cols) == 0 {
-			cols = openapistackql.Schemas{"_": responseSchema}
+			cols = openapistackql.Schemas{openapistackql.AnonymousColumnName: responseSchema}
 		}
 		for colName, colSchema := range cols {
 			if colSchema == nil {

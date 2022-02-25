@@ -425,7 +425,7 @@ func (ss *SingleSelectAcquire) Build() error {
 							item, ok := iArr[i].(map[string]interface{})
 							if !ok {
 								if iArr[i] != nil {
-									item = map[string]interface{}{"_": iArr[i]}
+									item = map[string]interface{}{openapistackql.AnonymousColumnName: iArr[i]}
 									ok = true
 								}
 							}
