@@ -325,7 +325,7 @@ func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparse
 	case *sqlparser.Select:
 		methodAction = "select"
 	case *sqlparser.DescribeTable:
-
+		methodRequired = true
 	case sqlparser.TableName:
 	case *sqlparser.AliasedTableExpr:
 		return GetHeirarchyFromStatement(handlerCtx, n.Expr)
