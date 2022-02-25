@@ -31,8 +31,7 @@ components:
           type: integer
         categories:
           items:
-            schema:
-              type: string
+            type: string
           type: array
     HealthStatus:
       type: object
@@ -68,6 +67,20 @@ components:
             mediaType: application/json
             openAPIDocKey: '200'
             objectKey: entries
+    categories:
+      id: publicapis.api.categories
+      name: categories
+      title: categories
+      methods:
+        list:
+          operation:
+            $ref: GET
+          path:
+            $ref: /categories
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+            objectKey: categories
     health:
       id: publicapis.api.health
       name: health

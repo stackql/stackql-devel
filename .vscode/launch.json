@@ -155,7 +155,7 @@
         "exec",
         "--registry={ \"useEmbedded\": false, \"url\": \"file://${workspaceFolder}/examples/registry\", \"localDocRoot\": \"${workspaceFolder}/examples/registry\", \"verifyConfig\": { \"nopVerify\": true } }",
         "--auth={ \"publicapis\": { \"type\": \"null_auth\" }, \"google\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"type\": \"api_key\" } }",
-        "select API from publicapis.api.apis limit 10;"
+        "select * from publicapis.api.categories limit 10;"
       ],
     },
     {
