@@ -204,7 +204,7 @@ func marshalResponse(r *http.Response) (interface{}, error) {
 	case openapistackql.MediaTypeTextPlain, openapistackql.MediaTypeHTML:
 		var b []byte
 		b, err = io.ReadAll(body)
-		if err != nil {
+		if err == nil {
 			target = string(b)
 		}
 	default:
@@ -236,6 +236,8 @@ func DeprecatedProcessHttpResponse(response *http.Response) (map[string]interfac
 		return rv, nil
 	case nil:
 		return nil, nil
+	case string:
+		return map[string]interface{}{openapistackql.AnonymousColumnName: rv}, nil
 	default:
 		return nil, fmt.Errorf("DeprecatedProcessHttpResponse() cannot acccept response of type %T", rv)
 	}

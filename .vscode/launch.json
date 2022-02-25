@@ -146,7 +146,7 @@
     },
     // { "url": "file://${workspaceFolder}/examples/registry'${PROVIDER_REGISTRY_ROOT_DIR}'", "localDocRoot": "'${PROVIDER_REGISTRY_ROOT_DIR}'",  "useEmbedded": false, "verifyConfig": {"nopVerify": true } }
     {
-      "name": "DEBUG BYO describe _ ... ;",
+      "name": "DEBUG BYO describe anonymous column ... ;",
       "type": "go",
       "request": "launch",
       "mode": "debug",
@@ -159,7 +159,7 @@
       ],
     },
     {
-      "name": "DEBUG BYO _ ... ;",
+      "name": "DEBUG BYO anonymous column ... ;",
       "type": "go",
       "request": "launch",
       "mode": "debug",
@@ -168,7 +168,7 @@
         "exec",
         "--registry={ \"useEmbedded\": false, \"url\": \"file://${workspaceFolder}/examples/registry\", \"localDocRoot\": \"${workspaceFolder}/examples/registry\", \"verifyConfig\": { \"nopVerify\": true } }",
         "--auth={ \"publicapis\": { \"type\": \"null_auth\" }, \"google\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"type\": \"api_key\" } }",
-        "select _ as f from publicapis.api.categories where _ like 'B%' limit 10;"
+        "select column_anon as f from publicapis.api.categories where column_anon like 'B%' limit 10;"
       ],
     },
     {
@@ -184,8 +184,22 @@
         "select API from publicapis.api.apis limit 10;"
       ],
     },
+    // exec /*+ SHOWRESULTS */ publicapis.api.health.get;
     {
-      "name": "SELECT using alias... ;",
+      "name": "DEBUG bool select BYO ... ;",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
+      "args": [
+        "exec",
+        "--registry={ \"useEmbedded\": false, \"url\": \"file://${workspaceFolder}/examples/registry\", \"localDocRoot\": \"${workspaceFolder}/examples/registry\", \"verifyConfig\": { \"nopVerify\": true } }",
+        "--auth={ \"publicapis\": { \"type\": \"null_auth\" }, \"google\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"type\": \"api_key\" } }",
+        "exec /*+ SHOWRESULTS */ publicapis.api.health.get;"
+      ],
+    },
+    {
+      "name": "SELECT using table alias... ;",
       "type": "go",
       "request": "launch",
       "mode": "debug",

@@ -70,7 +70,7 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 		requestSchema = m.Request.Schema
 	}
 	if m.Response != nil && m.Response.Schema != nil {
-		requestSchema = m.Response.Schema
+		responseSchema = m.Response.Schema
 	}
 	httpArmoury.RequestSchema = requestSchema
 	httpArmoury.ResponseSchema = responseSchema
@@ -101,10 +101,10 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 			}
 			pm.BodyBytes = b
 			pm.Header["Content-Type"] = []string{m.Request.BodyMediaType}
-			if m.Response != nil {
-				if m.Response.BodyMediaType != "" {
-					pm.Header["Accept"] = []string{m.Response.BodyMediaType}
-				}
+		}
+		if m.Response != nil {
+			if m.Response.BodyMediaType != "" {
+				pm.Header["Accept"] = []string{m.Response.BodyMediaType}
 			}
 		}
 		pm.Parameters = params
@@ -119,6 +119,11 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 		switch node := node.(type) {
 		case *sqlparser.Delete, *sqlparser.Exec, *sqlparser.Insert, *sqlparser.Select:
 			baseRequestCtx, err = getRequest(svc, m, p.Parameters)
+			for k, v := range p.Header {
+				for _, vi := range v {
+					baseRequestCtx.Header.Set(k, vi)
+				}
+			}
 			p.Request = baseRequestCtx
 		default:
 			return nil, fmt.Errorf("cannot create http primitive for sql node of type %T", node)

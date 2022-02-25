@@ -34,10 +34,7 @@ components:
             type: string
           type: array
     HealthStatus:
-      type: object
-      properties:
-        alive:
-          type: boolean
+      type: string
   x-stackQL-resources:
     apis:
       id: publicapis.api.apis
@@ -92,7 +89,7 @@ components:
           path:
             $ref: /health
           response:
-            mediaType: application/json
+            mediaType: text/plain
             openAPIDocKey: '200'
 externalDocs:
   description: Find more info here
@@ -204,7 +201,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
+            text/plain:
               schema:
                 $ref: '#/components/schemas/HealthStatus'
           description: Success
