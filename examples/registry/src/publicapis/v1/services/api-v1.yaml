@@ -108,7 +108,7 @@ paths:
       description: apis currently present in the repository.
         Can be filtered through parameters.
       parameters:
-      - description: name of entry (matches via substring - i.e. "at" would return "cat" and "atlas")
+      - description: 'name of entry (matches via substring - i.e. "at" would return "cat" and "atlas")'
         in: query
         name: title
         schema:
@@ -128,7 +128,7 @@ paths:
         name: https
         schema:
           type: boolean
-      - description: CORS support for entry ("yes", "no", or "unknown")
+      - description: 'CORS support for entry ("yes", "no", or "unknown")'
         in: query
         name: cors
         schema:
@@ -150,7 +150,7 @@ paths:
       description: random selection from apis currently present in the repository.
         Can be filtered through parameters.
       parameters:
-      - description: name of entry (matches via substring - i.e. "at" would return "cat" and "atlas")
+      - description: 'name of entry (matches via substring - i.e. "at" would return "cat" and "atlas")'
         in: query
         name: title
         schema:
@@ -170,7 +170,7 @@ paths:
         name: https
         schema:
           type: boolean
-      - description: CORS support for entry ("yes", "no", or "unknown")
+      - description: 'CORS support for entry ("yes", "no", or "unknown")'
         in: query
         name: cors
         schema:
