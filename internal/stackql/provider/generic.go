@@ -36,13 +36,6 @@ type GenericProvider struct {
 	methodSelector   methodselect.IMethodSelector
 }
 
-func (gp *GenericProvider) getDefaultKeyForSelectItems(sc *openapistackql.Schema) string {
-	if gp.provider.SelectItemsKey != "" {
-		return gp.provider.SelectItemsKey
-	}
-	return "items"
-}
-
 func (gp *GenericProvider) GetDiscoveryGeneration(dbEngine sqlengine.SQLEngine) (int, error) {
 	return dbEngine.GetCurrentDiscoveryGenerationId(gp.GetProviderString())
 }

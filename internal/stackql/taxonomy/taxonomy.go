@@ -237,7 +237,11 @@ func (ho *HeirarchyObjects) GetSelectableObjectSchema() (*openapistackql.Schema,
 	if err != nil {
 		return nil, err
 	}
-	itemObjS, _, err := responseObj.GetSelectSchema(ho.LookupSelectItemsKey())
+	itemsKey := ho.Method.Response.ObjectKey
+	if itemsKey == "" {
+		itemsKey = ho.LookupSelectItemsKey()
+	}
+	itemObjS, _, err := responseObj.GetSelectSchema(itemsKey)
 	if itemObjS == nil || err != nil {
 		return nil, fmt.Errorf("could not locate dml object for response type '%v'", ho.Method.Response.ObjectKey)
 	}
