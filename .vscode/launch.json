@@ -146,7 +146,7 @@
     },
     // { "url": "file://${workspaceFolder}/examples/registry'${PROVIDER_REGISTRY_ROOT_DIR}'", "localDocRoot": "'${PROVIDER_REGISTRY_ROOT_DIR}'",  "useEmbedded": false, "verifyConfig": {"nopVerify": true } }
     {
-      "name": "DEBUG BYO provider ... ;",
+      "name": "DEBUG BYO _ ... ;",
       "type": "go",
       "request": "launch",
       "mode": "debug",
@@ -155,7 +155,20 @@
         "exec",
         "--registry={ \"useEmbedded\": false, \"url\": \"file://${workspaceFolder}/examples/registry\", \"localDocRoot\": \"${workspaceFolder}/examples/registry\", \"verifyConfig\": { \"nopVerify\": true } }",
         "--auth={ \"publicapis\": { \"type\": \"null_auth\" }, \"google\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"type\": \"api_key\" } }",
-        "select * from publicapis.api.categories limit 10;"
+        "select _ from publicapis.api.categories limit 10;"
+      ],
+    },
+    {
+      "name": "DEBUG BYO API ... ;",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
+      "args": [
+        "exec",
+        "--registry={ \"useEmbedded\": false, \"url\": \"file://${workspaceFolder}/examples/registry\", \"localDocRoot\": \"${workspaceFolder}/examples/registry\", \"verifyConfig\": { \"nopVerify\": true } }",
+        "--auth={ \"publicapis\": { \"type\": \"null_auth\" }, \"google\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"type\": \"api_key\" } }",
+        "select API from publicapis.api.apis limit 10;"
       ],
     },
     {
