@@ -5,8 +5,8 @@ description: Catalogue of public http APIs.
 title: Public APIs
 providerServices:
   api:
-    description: Okta application
-      management.
+    description: Public API
+      Catalogue of known publi APIs.
     id: api:v1
     name: api
     preferred: true
