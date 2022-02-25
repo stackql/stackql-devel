@@ -823,6 +823,9 @@ func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, n
 		if err != nil {
 			return err
 		}
+		if len(cols) == 0 {
+			cols = openapistackql.Schemas{"_": responseSchema}
+		}
 		for colName, colSchema := range cols {
 			if colSchema == nil {
 				return fmt.Errorf("could not infer column information")
