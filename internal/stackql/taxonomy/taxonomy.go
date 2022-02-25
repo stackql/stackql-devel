@@ -35,6 +35,9 @@ func (ho *HeirarchyObjects) LookupSelectItemsKey() string {
 	if method == nil {
 		return defaultSelectItemsKEy
 	}
+	if sk := method.GetSelectItemsKey(); sk != "" {
+		return sk
+	}
 	responseSchema, _ := method.GetResponseBodySchema()
 	if prov.GetProviderString() == "google" {
 		sn := svcHdl.GetName()
