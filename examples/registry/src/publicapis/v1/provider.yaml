@@ -14,4 +14,3 @@ providerServices:
       $ref: publicapis/v1/services/api-v1.yaml
     title: API catalogue
     version: v1
-  
