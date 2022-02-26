@@ -17,3 +17,4 @@ _RESISTRY_CFG    = {
 RESISTRY_CFG_STR = json.dumps(_RESISTRY_CFG)
 SHOW_PROVIDERS_STR = "show providers;"
 SHOW_OKTA_SERVICES_FILTERED_STR  = "show services from okta like 'app%';"
+SHOW_OKTA_APPLICATION_RESOURCES_FILTERED_STR  = "show resources from okta.application like 'gr%';"

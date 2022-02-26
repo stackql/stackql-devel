@@ -21,4 +21,7 @@ Get Okta Services
     Log    ${result.stdout}
     Should contain    ${result.stdout}   Application${SPACE}API
 
-
+Get Okta Application Resources
+    ${result} =     Run Process    ${STACKQL_EXE}    exec    \-\-registry\=${RESISTRY_CFG_STR}    ${SHOW_OKTA_APPLICATION_RESOURCES_FILTERED_STR} 
+    Log    ${result.stdout}
+    Should contain    ${result.stdout}   grants    groups
