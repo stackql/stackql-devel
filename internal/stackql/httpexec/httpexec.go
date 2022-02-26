@@ -223,6 +223,10 @@ func ProcessHttpResponse(response *http.Response) (interface{}, error) {
 			return map[string]interface{}{"result": "The Operation Completed Successfully"}, nil
 		}
 	}
+	switch rv := target.(type) {
+	case string, int:
+		return map[string]interface{}{openapistackql.AnonymousColumnName: []interface{}{rv}}, nil
+	}
 	return target, err
 }
 

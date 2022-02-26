@@ -39,6 +39,10 @@ func (ho *HeirarchyObjects) LookupSelectItemsKey() string {
 		return sk
 	}
 	responseSchema, _ := method.GetResponseBodySchema()
+	switch responseSchema.Type {
+	case "string", "integer":
+		return openapistackql.AnonymousColumnName
+	}
 	if prov.GetProviderString() == "google" {
 		sn := svcHdl.GetName()
 		if sn == "bigquery" && svcHdl.Info.Version == "v2" {
