@@ -14,6 +14,7 @@ import (
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"golang.org/x/oauth2/jwt"
 )
 
 var (
@@ -116,12 +117,21 @@ func parseServiceAccountFile(ac *dto.AuthCtx) (serviceAccount, error) {
 	return c, json.Unmarshal(b, &c)
 }
 
-func oauthServiceAccount(authCtx *dto.AuthCtx, scopes []string, runtimeCtx dto.RuntimeCtx) (*http.Client, error) {
+func getJWTConfig(provider string, credentialsBytes []byte, scopes []string) (*jwt.Config, error) {
+	switch provider {
+	case "google":
+		return google.JWTConfigFromJSON(credentialsBytes, scopes...)
+	default:
+		return nil, fmt.Errorf("service account auth for provider = '%s' currently not supported", provider)
+	}
+}
+
+func oauthServiceAccount(provider string, authCtx *dto.AuthCtx, scopes []string, runtimeCtx dto.RuntimeCtx) (*http.Client, error) {
 	b, err := authCtx.GetCredentialsBytes()
 	if err != nil {
 		return nil, fmt.Errorf("service account credentials error: %v", err)
 	}
-	config, errToken := google.JWTConfigFromJSON(b, scopes...)
+	config, errToken := getJWTConfig(provider, b, scopes)
 	if errToken != nil {
 		return nil, errToken
 	}

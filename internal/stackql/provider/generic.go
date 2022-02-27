@@ -238,7 +238,7 @@ func (gp *GenericProvider) keyFileAuth(authCtx *dto.AuthCtx) (*http.Client, erro
 			"https://www.googleapis.com/auth/cloud-platform",
 		}
 	}
-	return oauthServiceAccount(authCtx, scopes, gp.runtimeCtx)
+	return oauthServiceAccount(gp.GetProviderString(), authCtx, scopes, gp.runtimeCtx)
 }
 
 func (gp *GenericProvider) apiTokenFileAuth(authCtx *dto.AuthCtx) (*http.Client, error) {
