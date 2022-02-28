@@ -10,10 +10,15 @@ Test Teardown    Terminate All Processes
 *** Test Cases *** 
 Get Okta Application Resources
     Set Environment Variable    OKTA_SECRET_KEY    ${OKTA_SECRET_STR}
-    ${result} =     Run Process    ${STACKQL_EXE}    exec    \-\-registry\=${RESISTRY_CFG_STR}    \-\-auth\=${AUTH_CFG_STR}    \-\-tls.allowInsecure\=true    ${SELECT_CONTAINER_SUBNET_AGG} 
+    ${result} =     Run Process    
+                    ...  ${STACKQL_EXE}
+                    ...  exec    \-\-registry\=${RESISTRY_CFG_STR}
+                    ...  \-\-auth\=${AUTH_CFG_STR}
+                    ...  \-\-tls.allowInsecure\=true
+                    ...  ${SELECT_CONTAINER_SUBNET_AGG_DESC} 
     Log             ${result.stdout}
     Log             ${result.stderr}
-    Should contain    ${result.stdout}   ip
+    Should Be Equal    ${result.stdout}   ${SELECT_CONTAINER_SUBNET_AGG_DESC_EXPECTED}
 
 *** Keywords ***
 Start Mock Server

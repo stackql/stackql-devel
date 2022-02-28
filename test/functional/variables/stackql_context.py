@@ -33,6 +33,10 @@ AUTH_CFG_STR = json.dumps(_AUTH_CFG)
 SHOW_PROVIDERS_STR = "show providers;"
 SHOW_OKTA_SERVICES_FILTERED_STR  = "show services from okta like 'app%';"
 SHOW_OKTA_APPLICATION_RESOURCES_FILTERED_STR  = "show resources from okta.application like 'gr%';"
-SELECT_CONTAINER_SUBNET_AGG = "select ipCidrRange, sum(5) cc  from  google.container.`projects.aggregated.usableSubnetworks` where projectsId = 'testing-project' group by \"ipCidrRange\" having sum(5) >= 5 order by ipCidrRange desc;"
+SELECT_CONTAINER_SUBNET_AGG_DESC = "select ipCidrRange, sum(5) cc  from  google.container.`projects.aggregated.usableSubnetworks` where projectsId = 'testing-project' group by \"ipCidrRange\" having sum(5) >= 5 order by ipCidrRange desc;"
 JSON_INIT_FILE_PATH = f'{REPOSITORY_ROOT}/test/server/expectations/static-gcp-expectations.json'
 MOCKSERVER_JAR = '/usr/local/lib/mockserver/mockserver-netty-jar-with-dependencies.jar'
+
+with open(f"{REPOSITORY_ROOT}/test/assets/expected/aggregated-select/google/container/agg-subnetworks-allowed/table/simple-count-grouped-variant-desc.txt", 'r') as f:
+    SELECT_CONTAINER_SUBNET_AGG_DESC_EXPECTED = f.read().strip()
+
