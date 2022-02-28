@@ -4,7 +4,7 @@
 ## Assumptions
 
 - `stackql` is in your `${PATH}`.
-- Authentication particulars are supplied as a json string in the arg `--auth`.  Per provider, you supply a key/val pair.  The val iteslf is a json string, optionally specifying `type` (defaulted to `serviceaccount`, which represents a google service account key). The val minimally contains either:
+- Authentication particulars are supplied as a json string in the arg `--auth`.  Per provider, you supply a key/val pair.  The val iteslf is a json string, optionally specifying `type` (defaulted to `service_account`, which represents a google service account key). The val minimally contains either:
     - An appropriate key file at the file location `{ "credentialsfilepath": "/PATH/TO/KEY/FILE" }`.  For example, with the google provider, one might use a service account json key.
     - An appropriate key plaintext stored in an (exported) environment variable.  Eg: `{ "credentialsenvvar": "OKTA_SECRET_KEY" }`.  For example, with the google provider, one might use a service account json key.
 

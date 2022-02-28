@@ -1,9 +1,12 @@
 package netutils
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 
 	"github.com/stackql/stackql/internal/stackql/dto"
@@ -25,6 +28,21 @@ func getRoundTripper(runtimeCtx dto.RuntimeCtx, existingTransport http.RoundTrip
 		}
 	} else {
 		tr = &http.Transport{}
+	}
+	if runtimeCtx.CABundle != "" {
+		rootCAs, err := getCertPool(runtimeCtx.CABundle)
+		if err == nil {
+			config := &tls.Config{
+				InsecureSkipVerify: runtimeCtx.AllowInsecure,
+				RootCAs:            rootCAs,
+			}
+			tr.TLSClientConfig = config
+		}
+	} else if runtimeCtx.AllowInsecure {
+		config := &tls.Config{
+			InsecureSkipVerify: runtimeCtx.AllowInsecure,
+		}
+		tr.TLSClientConfig = config
 	}
 	host := runtimeCtx.HTTPProxyHost
 	if host != "" {
@@ -63,4 +81,27 @@ func getHttpClient(runtimeCtx dto.RuntimeCtx, existingClient *http.Client) *http
 		Timeout:   time.Second * time.Duration(runtimeCtx.APIRequestTimeout),
 		Transport: getRoundTripper(runtimeCtx, rt),
 	}
+}
+
+func getCertPool(localCaBundlePath string) (*x509.CertPool, error) {
+	var lb []byte
+	var err error
+	if localCaBundlePath != "" {
+		lb, err = os.ReadFile(localCaBundlePath)
+		if err != nil {
+			return nil, err
+		}
+	}
+	sp, err := x509.SystemCertPool()
+	if err == nil && sp != nil {
+		if lb != nil {
+			sp.AppendCertsFromPEM(lb)
+		}
+		return sp, nil
+	}
+	vp := x509.NewCertPool()
+	if lb != nil {
+		vp.AppendCertsFromPEM(lb)
+	}
+	return vp, nil
 }

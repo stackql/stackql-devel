@@ -15,7 +15,7 @@ const (
 	AuthApiKeyStr                   string = "api_key"
 	AuthBasicStr                    string = "basic"
 	AuthInteractiveStr              string = "interactive"
-	AuthServiceAccountStr           string = "serviceaccount"
+	AuthServiceAccountStr           string = "service_account"
 	AuthNullStr                     string = "null_auth"
 	DarkColorScheme                 string = "dark"
 	LightColorScheme                string = "light"
@@ -44,6 +44,8 @@ const (
 	HTTPProxyPortKey                string = "http.proxy.port"
 	HTTPProxySchemeKey              string = "http.proxy.scheme"
 	HTTPProxyUserKey                string = "http.proxy.user"
+	CABundleKey                     string = "tls.CABundle"
+	AllowInsecureKey                string = "tls.allowInsecure"
 	InfilePathKey                   string = "infile"
 	LogLevelStrKey                  string = "loglevel"
 	OutfilePathKey                  string = "outfile"
@@ -172,6 +174,8 @@ func GetAuthCtx(scopes []string, keyFilePath string, keyFileType string) *AuthCt
 type RuntimeCtx struct {
 	APIRequestTimeout            int
 	AuthRaw                      string
+	CABundle                     string
+	AllowInsecure                bool
 	CacheKeyCount                int
 	CacheTTL                     int
 	ColorScheme                  string
@@ -241,6 +245,8 @@ func (rc *RuntimeCtx) Set(key string, val string) error {
 		retVal = setInt(&rc.APIRequestTimeout, val)
 	case AuthCtxKey:
 		rc.AuthRaw = val
+	case CABundleKey:
+		rc.CABundle = val
 	case CacheKeyCountKey:
 		retVal = setInt(&rc.CacheKeyCount, val)
 	case CacheTTLKey:
