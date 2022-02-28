@@ -37,8 +37,9 @@ AUTH_CFG_STR = json.dumps(_AUTH_CFG)
 SHOW_PROVIDERS_STR = "show providers;"
 SHOW_OKTA_SERVICES_FILTERED_STR  = "show services from okta like 'app%';"
 SHOW_OKTA_APPLICATION_RESOURCES_FILTERED_STR  = "show resources from okta.application like 'gr%';"
-JSON_INIT_FILE_PATH = f'{REPOSITORY_ROOT}/test/server/expectations/static-gcp-expectations.json'
-MOCKSERVER_JAR = '/usr/local/lib/mockserver/mockserver-netty-jar-with-dependencies.jar'
+JSON_INIT_FILE_PATH = os.path.join(REPOSITORY_ROOT, 'test', 'server', 'expectations', 'static-gcp-expectations.json')
+MOCKSERVER_JAR = os.path.join(REPOSITORY_ROOT, 'test', 'downloads', 'mockserver-netty-5.12.0-shaded.jar')
+# MOCKSERVER_JAR = '/usr/local/lib/mockserver/mockserver-netty-jar-with-dependencies.jar'
 
 
 SELECT_CONTAINER_SUBNET_AGG_DESC = "select ipCidrRange, sum(5) cc  from  google.container.`projects.aggregated.usableSubnetworks` where projectsId = 'testing-project' group by \"ipCidrRange\" having sum(5) >= 5 order by ipCidrRange desc;"
@@ -48,6 +49,6 @@ SELECT_CONTAINER_SUBNET_AGG_DESC_EXPECTED = get_output_from_local_file("test/ass
 
 SELECT_CONTAINER_SUBNET_AGG_ASC_EXPECTED = get_output_from_local_file("test/assets/expected/aggregated-select/google/container/agg-subnetworks-allowed/table/simple-count-grouped-variant-asc.txt")
 
-GET_IAM_POLICY_AGG_ASC_INPUT_FILE = os.path.join(REPOSITORY_ROOT, "test/assets/input/select-exec-dependent-org-iam-policy.iql")
+GET_IAM_POLICY_AGG_ASC_INPUT_FILE = os.path.join(REPOSITORY_ROOT, 'test', 'assets', 'input', 'select-exec-dependent-org-iam-policy.iql')
 
 GET_IAM_POLICY_AGG_ASC_EXPECTED = get_output_from_local_file("test/assets/expected/aggregated-select/google/cloudresourcemanager/select-exec-getiampolicy-agg.csv")
