@@ -18,6 +18,12 @@ Google Container Agg Asc
     ...    ${SELECT_CONTAINER_SUBNET_AGG_ASC}
     ...    ${SELECT_CONTAINER_SUBNET_AGG_ASC_EXPECTED}
 
+Google IAM Policy Agg
+    Should StackQL Exec Equal
+    ...    \-\-infile\=${GET_IAM_POLICY_AGG_ASC_INPUT_FILE}
+    ...    ${GET_IAM_POLICY_AGG_ASC_EXPECTED}
+    ...    \-o\=csv
+
 *** Keywords ***
 Start Mock Server
     [Arguments]    ${_JSON_INIT_FILE_PATH}    ${_MOCKSERVER_JAR}    ${_MOCKSERVER_PORT}
@@ -35,20 +41,20 @@ Prepare StackQL Environment
 
 
 Run StackQL Exec Command
-    [Arguments]    ${_EXEC_CMD_STR}
+    [Arguments]    ${_EXEC_CMD_STR}    @{varargs}
     Set Environment Variable    OKTA_SECRET_KEY    ${OKTA_SECRET_STR}
     ${result} =     Run Process    
                     ...  ${STACKQL_EXE}
                     ...  exec    \-\-registry\=${REGISTRY_CFG_STR}
                     ...  \-\-auth\=${AUTH_CFG_STR}
                     ...  \-\-tls.allowInsecure\=true
-                    ...  ${_EXEC_CMD_STR} 
+                    ...  ${_EXEC_CMD_STR}    @{varargs}
     Log             ${result.stdout}
     Log             ${result.stderr}
     [Return]    ${result}
 
 
 Should StackQL Exec Equal
-    [Arguments]    ${_EXEC_CMD_STR}    ${_EXEC_CMD_EXPECTED_OUTPUT}
-    ${result} =    Run StackQL Exec Command    ${_EXEC_CMD_STR}
+    [Arguments]    ${_EXEC_CMD_STR}    ${_EXEC_CMD_EXPECTED_OUTPUT}    @{varargs}
+    ${result} =    Run StackQL Exec Command    ${_EXEC_CMD_STR}    @{varargs}
     Should Be Equal    ${result.stdout}    ${_EXEC_CMD_EXPECTED_OUTPUT}

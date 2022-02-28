@@ -3,6 +3,10 @@ import json
 import os
 
 
+def get_output_from_local_file(fp :str) -> str:
+  with open(os.path.join(REPOSITORY_ROOT, fp), 'r') as f:
+    return f.read().strip()
+
 REPOSITORY_ROOT = os.path.abspath(os.path.join(__file__, "../../../..")).replace("\\","/")
 REGISTRY_ROOT   = os.path.join(REPOSITORY_ROOT, "test/registry-mocked").replace("\\","/")
 STACKQL_EXE     = os.path.join(REPOSITORY_ROOT, "build/stackql").replace("\\","/")
@@ -40,9 +44,10 @@ MOCKSERVER_JAR = '/usr/local/lib/mockserver/mockserver-netty-jar-with-dependenci
 SELECT_CONTAINER_SUBNET_AGG_DESC = "select ipCidrRange, sum(5) cc  from  google.container.`projects.aggregated.usableSubnetworks` where projectsId = 'testing-project' group by \"ipCidrRange\" having sum(5) >= 5 order by ipCidrRange desc;"
 SELECT_CONTAINER_SUBNET_AGG_ASC = "select ipCidrRange, sum(5) cc  from  google.container.`projects.aggregated.usableSubnetworks` where projectsId = 'testing-project' group by \"ipCidrRange\" having sum(5) >= 5 order by ipCidrRange asc;"
 
-with open(f"{REPOSITORY_ROOT}/test/assets/expected/aggregated-select/google/container/agg-subnetworks-allowed/table/simple-count-grouped-variant-desc.txt", 'r') as f:
-    SELECT_CONTAINER_SUBNET_AGG_DESC_EXPECTED = f.read().strip()
+SELECT_CONTAINER_SUBNET_AGG_DESC_EXPECTED = get_output_from_local_file("test/assets/expected/aggregated-select/google/container/agg-subnetworks-allowed/table/simple-count-grouped-variant-desc.txt")
 
-with open(f"{REPOSITORY_ROOT}/test/assets/expected/aggregated-select/google/container/agg-subnetworks-allowed/table/simple-count-grouped-variant-asc.txt", 'r') as f:
-    SELECT_CONTAINER_SUBNET_AGG_ASC_EXPECTED = f.read().strip()
+SELECT_CONTAINER_SUBNET_AGG_ASC_EXPECTED = get_output_from_local_file("test/assets/expected/aggregated-select/google/container/agg-subnetworks-allowed/table/simple-count-grouped-variant-asc.txt")
 
+GET_IAM_POLICY_AGG_ASC_INPUT_FILE = os.path.join(REPOSITORY_ROOT, "test/assets/input/select-exec-dependent-org-iam-policy.iql")
+
+GET_IAM_POLICY_AGG_ASC_EXPECTED = get_output_from_local_file("test/assets/expected/aggregated-select/google/cloudresourcemanager/select-exec-getiampolicy-agg.csv")
