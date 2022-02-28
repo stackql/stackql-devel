@@ -3,22 +3,20 @@ Library    Process
 Library    OperatingSystem
 
 *** Settings ***
-Variables        ${CURDIR}/variables/stackql_context.py
-Suite Setup       Start Mock Server    ${JSON_INIT_FILE_PATH}    ${MOCKSERVER_JAR}    1080
+Variables         ${CURDIR}/variables/stackql_context.py
+Suite Setup       Prepare StackQL Environment
 Suite Teardown    Terminate All Processes
 
 *** Test Cases *** 
 Google Container Agg Desc
-    Set Environment Variable    OKTA_SECRET_KEY    ${OKTA_SECRET_STR}
-    ${result} =     Run StackQL Exec Command
-                    ...  ${SELECT_CONTAINER_SUBNET_AGG_DESC}
-    Should Be Equal    ${result.stdout}   ${SELECT_CONTAINER_SUBNET_AGG_DESC_EXPECTED}
+    Should StackQL Exec Equal
+    ...    ${SELECT_CONTAINER_SUBNET_AGG_DESC}
+    ...    ${SELECT_CONTAINER_SUBNET_AGG_DESC_EXPECTED}
 
 Google Container Agg Asc
-    Set Environment Variable    OKTA_SECRET_KEY    ${OKTA_SECRET_STR}
-    ${result} =     Run StackQL Exec Command
-                    ...  ${SELECT_CONTAINER_SUBNET_AGG_ASC}
-    Should Be Equal    ${result.stdout}   ${SELECT_CONTAINER_SUBNET_AGG_ASC_EXPECTED}
+    Should StackQL Exec Equal
+    ...    ${SELECT_CONTAINER_SUBNET_AGG_ASC}
+    ...    ${SELECT_CONTAINER_SUBNET_AGG_ASC_EXPECTED}
 
 *** Keywords ***
 Start Mock Server
@@ -30,15 +28,27 @@ Start Mock Server
     Sleep    5s
     [Return]    ${process}
 
+
+Prepare StackQL Environment
+    Set Environment Variable    OKTA_SECRET_KEY    ${OKTA_SECRET_STR}
+    Start Mock Server    ${JSON_INIT_FILE_PATH}    ${MOCKSERVER_JAR}    1080
+
+
 Run StackQL Exec Command
     [Arguments]    ${_EXEC_CMD_STR}
     Set Environment Variable    OKTA_SECRET_KEY    ${OKTA_SECRET_STR}
     ${result} =     Run Process    
                     ...  ${STACKQL_EXE}
-                    ...  exec    \-\-registry\=${RESISTRY_CFG_STR}
+                    ...  exec    \-\-registry\=${REGISTRY_CFG_STR}
                     ...  \-\-auth\=${AUTH_CFG_STR}
                     ...  \-\-tls.allowInsecure\=true
                     ...  ${_EXEC_CMD_STR} 
     Log             ${result.stdout}
     Log             ${result.stderr}
     [Return]    ${result}
+
+
+Should StackQL Exec Equal
+    [Arguments]    ${_EXEC_CMD_STR}    ${_EXEC_CMD_EXPECTED_OUTPUT}
+    ${result} =    Run StackQL Exec Command    ${_EXEC_CMD_STR}
+    Should Be Equal    ${result.stdout}    ${_EXEC_CMD_EXPECTED_OUTPUT}

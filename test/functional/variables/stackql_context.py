@@ -6,7 +6,7 @@ import os
 REPOSITORY_ROOT = os.path.abspath(os.path.join(__file__, "../../../..")).replace("\\","/")
 REGISTRY_ROOT   = os.path.join(REPOSITORY_ROOT, "test/registry-mocked").replace("\\","/")
 STACKQL_EXE     = os.path.join(REPOSITORY_ROOT, "build/stackql").replace("\\","/")
-_RESISTRY_CFG    = { 
+_REGISTRY_CFG    = { 
   "url": f"file://{REGISTRY_ROOT}",
   "localDocRoot": f"{REGISTRY_ROOT}",
   "useEmbedded": False,
@@ -28,7 +28,7 @@ _AUTH_CFG={
 with open(f"{REPOSITORY_ROOT}/test/assets/credentials/dummy/okta/api-key.txt", 'r') as f:
     OKTA_SECRET_STR = f.read()
 
-RESISTRY_CFG_STR = json.dumps(_RESISTRY_CFG)
+REGISTRY_CFG_STR = json.dumps(_REGISTRY_CFG)
 AUTH_CFG_STR = json.dumps(_AUTH_CFG)
 SHOW_PROVIDERS_STR = "show providers;"
 SHOW_OKTA_SERVICES_FILTERED_STR  = "show services from okta like 'app%';"
