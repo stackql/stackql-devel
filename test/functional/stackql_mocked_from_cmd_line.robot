@@ -2,10 +2,9 @@
 Library    Process
 Library    OperatingSystem
 
-
 *** Settings ***
 Variables        ${CURDIR}/variables/stackql_context.py
-Test Setup       Start Mock Server
+Test Setup       Start Mock Server    ${JSON_INIT_FILE_PATH}    ${MOCKSERVER_JAR}    1080
 Test Teardown    Terminate All Processes
 
 *** Test Cases *** 
@@ -18,8 +17,10 @@ Get Okta Application Resources
 
 *** Keywords ***
 Start Mock Server
-    Start Process    java    \-Dfile.encoding\=UTF-8
-    ...  \-Dmockserver.initializationJsonPath\=${REPOSITORY_ROOT}/test/server/expectations/static-gcp-expectations.json
-    ...  \-jar    /usr/local/lib/mockserver/mockserver-netty-jar-with-dependencies.jar
-    ...  \-serverPort    1080    \-logLevel    INFO
+    [Arguments]    ${_JSON_INIT_FILE_PATH}    ${_MOCKSERVER_JAR}    ${_MOCKSERVER_PORT}
+    ${process} =    Start Process    java    \-Dfile.encoding\=UTF-8
+    ...  \-Dmockserver.initializationJsonPath\=${_JSON_INIT_FILE_PATH}
+    ...  \-jar    ${_MOCKSERVER_JAR}
+    ...  \-serverPort    ${_MOCKSERVER_PORT}    \-logLevel    INFO
     Sleep    5s
+    [Return]    ${process}
