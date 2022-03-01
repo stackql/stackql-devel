@@ -36,17 +36,6 @@ jobs:
       uses: egor-tensin/setup-mingw@v2
       id: gccsetup
 
-    - name: Robot Framework
-      run: |
-        pip install robotframework
-
-    - name: Mock Server Download
-      run: |
-        mvn `
-        org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy `
-        -Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded `
-        -DoutputDirectory=test/downloads
-
     - name: Get rid of disruptive line endings before checkout
       run: |
         git config --global core.autocrlf false
@@ -110,6 +99,17 @@ jobs:
       if: success()
       run: go test -timeout 1200s --tags "json1" -v ./...
 
+    - name: Robot Framework
+      run: |
+        pip install robotframework
+
+    - name: Mock Server Download
+      run: |
+        mvn `
+        org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy `
+        -Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded `
+        -DoutputDirectory=test/downloads
+
     - name: Run robot tests
       if: success()
       run: |
@@ -146,17 +146,6 @@ jobs:
       with:
         platform: x64
         cygwin: 0
-
-    - name: Robot Framework
-      run: |
-        pip install robotframework
-
-    - name: Mock Server Download
-      run: |
-        mvn \
-        org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy \
-        -Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded \
-        -DoutputDirectory=test/downloads
       
     - name: Get dependencies
       run: |
@@ -205,6 +194,17 @@ jobs:
     - name: Test
       if: success()
       run: go test -timeout 1200s --tags "json1" -v ./...
+
+    - name: Robot Framework
+      run: |
+        pip install robotframework
+
+    - name: Mock Server Download
+      run: |
+        mvn \
+        org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy \
+        -Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded \
+        -DoutputDirectory=test/downloads
 
     - name: Run robot tests
       if: success()
@@ -240,17 +240,6 @@ jobs:
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
-    
-    - name: Robot Framework
-      run: |
-        pip install robotframework
-
-    - name: Mock Server Download
-      run: |
-        mvn \
-        org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy \
-        -Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded \
-        -DoutputDirectory=test/downloads
 
     - name: Get dependencies
       run: |
@@ -301,6 +290,17 @@ jobs:
     - name: Test
       if: success()
       run: go test -timeout 1200s --tags "json1" -v ./...
+    
+    - name: Robot Framework
+      run: |
+        pip install robotframework
+
+    - name: Mock Server Download
+      run: |
+        mvn \
+        org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy \
+        -Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded \
+        -DoutputDirectory=test/downloads
 
     - name: Run robot tests
       if: success()
