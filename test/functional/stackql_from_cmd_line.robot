@@ -6,7 +6,7 @@ Variables    ${CURDIR}/variables/stackql_context.py
 
 *** Test Cases *** 
 Get StackQL Help
-    ${result} =     Run Process     ${STACKQL_EXE}    --help 
+    ${result} =     Run Process     ${STACKQL_EXE}    \-\-help 
     Log    ${result.stdout}
     Should contain    ${result.stdout}   stackql${SPACE}\[command\]
 
