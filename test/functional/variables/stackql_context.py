@@ -2,6 +2,11 @@
 import json
 import os
 
+_exe_name = 'stackql'
+
+if os.name == 'nt':
+  _exe_name = _exe_name + '.exe'
+
 REPOSITORY_ROOT = os.path.abspath(os.path.join(__file__, '..', '..', '..', '..'))
 
 def get_output_from_local_file(fp :str) -> str:
@@ -14,7 +19,7 @@ def get_unix_path(pathStr :str) -> str:
 
 REPOSITORY_ROOT_UNIX = get_unix_path(REPOSITORY_ROOT)
 REGISTRY_ROOT   = get_unix_path(os.path.join(REPOSITORY_ROOT, 'test', 'registry-mocked'))
-STACKQL_EXE     = get_unix_path(os.path.join(REPOSITORY_ROOT, 'build', 'stackql'))
+STACKQL_EXE     = get_unix_path(os.path.join(REPOSITORY_ROOT, 'build', _exe_name))
 _REGISTRY_CFG    = { 
   "url": f"file://{get_unix_path(REGISTRY_ROOT)}",
   "localDocRoot": f"{get_unix_path(REGISTRY_ROOT)}",
