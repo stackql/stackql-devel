@@ -37,7 +37,8 @@ jobs:
       id: gccsetup
 
     - name: Robot Framework
-      uses: joonvena/robotframework-docker-action@v1.0
+      run: |
+        pip install robotframework
 
     - name: Mock Server Download
       run: |
@@ -49,10 +50,6 @@ jobs:
     - name: Get rid of disruptive line endings before checkout
       run: |
         git config --global core.autocrlf false
-
-    - name: Robot Framework
-      run: |
-        pip install robotframework
 
     - name: Get dependencies
       run: |
@@ -153,9 +150,6 @@ jobs:
     - name: Robot Framework
       run: |
         pip install robotframework
-    
-    - name: Robot Framework
-      uses: joonvena/robotframework-docker-action@v1.0
 
     - name: Mock Server Download
       run: |
