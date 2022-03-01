@@ -5,6 +5,10 @@ Library    Process
 Variables    ${CURDIR}/variables/stackql_context.py
 
 *** Test Cases *** 
+Positive Control
+    Should contain    ''   ''
+
+
 Get StackQL Help
     ${result} =     Run Process     ${STACKQL_EXE}    \-\-help 
     Log    ${result.stdout}

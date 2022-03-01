@@ -115,7 +115,7 @@ jobs:
     - name: Run robot tests
       if: success()
       run: |
-        robot test\functional
+        cmd /c "robot test\functional"
     
     - name: Prepare Test DB
       if: success()
