@@ -108,7 +108,9 @@ jobs:
 
     - name: Mock Server Download
       run: |
-        mvn org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy -Dartifact\=org.mock-server:mockserver-netty:5.12.0:jar:shaded -DoutputDirectory\=test/downloads
+        mvn org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy `
+        '-Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded' `
+        '-DoutputDirectory=test/downloads'
 
     - name: Run robot tests
       if: success()
