@@ -6,12 +6,16 @@
 
 We are using the java [mockserver](https://www.mock-server.com/) tool.
 
+To install:
+
 ```bash
 mvn org.apache.maven.plugins:maven-dependency-plugin:3.2.0:copy -Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded -DoutputDirectory=${HOME}/stackql/stackql-devel/test/downloads -DdestFileName=mockserver-netty.jar -DoverWrite=true
 ```
 
-```sh
-java  -Dfile.encoding=UTF-8 -Dmockserver.initializationJsonPath=${HOME}/stackql/stackql-devel/test/server/expectations/static-expectations.json -jar /usr/local/lib/mockserver/mockserver-netty-jar-with-dependencies.jar  -serverPort 1080 -logLevel INFO &
+To run:
+
+```bash
+java  -Dfile.encoding=UTF-8 -Dmockserver.initializationJsonPath=${HOME}/stackql/stackql-devel/test/server/expectations/static-expectations.json -jar /usr/local/lib/mockserver/mockserver-netty-jar-with-dependencies.jar  -serverPort 1080 -logLevel INFO
 ```
 
 ### Expectations from local file
