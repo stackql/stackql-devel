@@ -213,7 +213,7 @@ paths:
       - ProfileMapping
       x-codegen-request-body-name: profileMapping
 servers:
-- url: https://{subdomain}.okta.com/
+- url: https://localhost:1080/
   variables:
     subdomain:
       default: my-domain

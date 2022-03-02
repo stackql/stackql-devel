@@ -2927,7 +2927,7 @@ paths:
       - Application
       x-codegen-request-body-name: appUser
 servers:
-- url: https://{subdomain}.okta.com/
+- url: https://localhost:1080/
   variables:
     subdomain:
       default: my-domain

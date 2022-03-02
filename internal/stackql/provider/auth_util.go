@@ -48,7 +48,7 @@ func newTransport(token []byte, authType, tokenLocation, key string, underlyingT
 		case locationHeader:
 		case locationQuery:
 			if key == "" {
-				return nil, fmt.Errorf("key reuired for query parambased auth")
+				return nil, fmt.Errorf("key required for query param based auth")
 			}
 		default:
 			return nil, fmt.Errorf("token location not supported: '%s'", tokenLocation)

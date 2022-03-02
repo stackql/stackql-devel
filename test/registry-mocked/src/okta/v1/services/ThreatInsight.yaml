@@ -108,7 +108,7 @@ paths:
       - ThreatInsight
       x-codegen-request-body-name: ThreatInsightConfiguration
 servers:
-- url: https://{subdomain}.okta.com/
+- url: https://localhost:1080/
   variables:
     subdomain:
       default: my-domain

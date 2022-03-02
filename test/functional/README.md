@@ -2,10 +2,10 @@
 
 ## TODO
 
-- Source registry files from other repository, where possible.
-- "reuired" string
-- clean up this readme
-- integration tests for different registry configurations.
+- [ ]Source registry files from other repository, where possible.
+- [x]"reuired" string.
+- [ ]clean up this readme.
+- [ ]integration tests for different registry configurations.
 
 ### Example query executed by the functional tests
 

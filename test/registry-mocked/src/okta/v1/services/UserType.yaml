@@ -282,7 +282,7 @@ paths:
       - UserType
       x-codegen-request-body-name: userType
 servers:
-- url: https://{subdomain}.okta.com/
+- url: https://localhost:1080/
   variables:
     subdomain:
       default: my-domain

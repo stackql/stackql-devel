@@ -2394,7 +2394,7 @@ paths:
       tags:
       - IdentityProvider
 servers:
-- url: https://{subdomain}.okta.com/
+- url: https://localhost:1080/
   variables:
     subdomain:
       default: my-domain
