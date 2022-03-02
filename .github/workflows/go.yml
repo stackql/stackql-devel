@@ -42,6 +42,11 @@ jobs:
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
+
+    - name: Install Python dependencies
+      run: |
+        pip3 install PyYaml
+        pip3 install robotframework
     
     - name: Generate rewritten registry for simulations
       run: |
@@ -106,10 +111,6 @@ jobs:
       if: success()
       run: go test -timeout 1200s --tags "json1" -v ./...
 
-    - name: Robot Framework
-      run: |
-        pip3 install robotframework
-
     - name: Mock Server Download
       run: |
         mvn org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy `
@@ -155,6 +156,11 @@ jobs:
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
+
+    - name: Install Python dependencies
+      run: |
+        pip3 install PyYaml
+        pip3 install robotframework
     
     - name: Generate rewritten registry for simulations
       run: |
@@ -207,10 +213,6 @@ jobs:
     - name: Test
       if: success()
       run: go test -timeout 1200s --tags "json1" -v ./...
-
-    - name: Robot Framework
-      run: |
-        pip3 install robotframework
 
     - name: Mock Server Download
       run: |
@@ -253,6 +255,11 @@ jobs:
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
+
+    - name: Install Python dependencies
+      run: |
+        pip3 install PyYaml
+        pip3 install robotframework
     
     - name: Generate rewritten registry for simulations
       run: |
@@ -307,10 +314,6 @@ jobs:
     - name: Test
       if: success()
       run: go test -timeout 1200s --tags "json1" -v ./...
-    
-    - name: Robot Framework
-      run: |
-        pip3 install robotframework
 
     - name: Mock Server Download
       run: |
