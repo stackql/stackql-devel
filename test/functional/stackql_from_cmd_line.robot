@@ -9,12 +9,6 @@ Positive Control
     Should contain    ''   ''
 
 
-Get StackQL Help
-    ${result} =     Run Process     ${STACKQL_EXE}    \-\-help 
-    Log    ${result.stdout}
-    Should contain    ${result.stdout}   stackql${SPACE}\[command\]
-
-
 Get Providers
     ${result} =     Run Process    ${STACKQL_EXE}    exec    \-\-registry\=${REGISTRY_CFG_STR}    ${SHOW_PROVIDERS_STR} 
     Log    ${result.stdout}
