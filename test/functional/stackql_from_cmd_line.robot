@@ -6,8 +6,7 @@ Variables    ${CURDIR}/variables/stackql_context.py
 
 *** Test Cases *** 
 Positive Control
-    Should contain    ''   ''
-
+    Should contain    ''    ''
 
 Get Providers
     ${result} =     Run Process    ${STACKQL_EXE}    exec    \-\-registry\=${REGISTRY_CFG_STR}    ${SHOW_PROVIDERS_STR} 
