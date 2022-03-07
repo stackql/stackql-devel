@@ -38,7 +38,10 @@ func (ho *HeirarchyObjects) LookupSelectItemsKey() string {
 	if sk := method.GetSelectItemsKey(); sk != "" {
 		return sk
 	}
-	responseSchema, _ := method.GetResponseBodySchema()
+	responseSchema, err := method.GetResponseBodySchema()
+	if responseSchema == nil || err != nil {
+		return ""
+	}
 	switch responseSchema.Type {
 	case "string", "integer":
 		return openapistackql.AnonymousColumnName

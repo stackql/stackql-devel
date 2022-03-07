@@ -335,9 +335,8 @@
       "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
-        "--credentialsfilepath=${workspaceFolder}/keys/okta-token.txt",
-        "--type=api_key",
-        "exec okta.application.apps.deactivate @appId = '0oa3gvv2cruvhWBXU5d7',  @subdomain = 'dev-79923018-admin';",
+        "--auth={ \"google\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"type\": \"api_key\" } }",
+        "exec okta.application.apps.deactivate @appId = '0oa3pssr5jYavmnNF5d7',  @subdomain = 'dev-79923018-admin';",
         "-o",
         "json"
       ],

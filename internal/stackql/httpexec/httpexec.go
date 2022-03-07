@@ -242,6 +242,8 @@ func DeprecatedProcessHttpResponse(response *http.Response) (map[string]interfac
 		return nil, nil
 	case string:
 		return map[string]interface{}{openapistackql.AnonymousColumnName: rv}, nil
+	case []byte:
+		return map[string]interface{}{openapistackql.AnonymousColumnName: string(rv)}, nil
 	default:
 		return nil, fmt.Errorf("DeprecatedProcessHttpResponse() cannot acccept response of type %T", rv)
 	}
