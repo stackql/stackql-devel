@@ -29,8 +29,6 @@ import (
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 
-	querypb "vitess.io/vitess/go/vt/proto/query"
-
 	log "github.com/sirupsen/logrus"
 
 	"vitess.io/vitess/go/sqltypes"
@@ -346,18 +344,11 @@ func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, hand
 	case "PROVIDERS":
 		keys = handlerCtx.GetSupportedProviders(extended)
 		rv := util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, keys, columnOrder, nil, err, nil))
-		colz := []string{"name"}
 		if len(keys) == 0 {
-			resVal := &sqltypes.Result{
-				Fields: make([]*querypb.Field, len(colz)),
-			}
-
-			for f := range resVal.Fields {
-				resVal.Fields[f] = &querypb.Field{
-					Name: colz[f],
-				}
-			}
-			rv.GetSQLResult = func() *sqltypes.Result { return resVal }
+			rv = util.EmptyProtectResultSet(
+				rv,
+				[]string{"name"},
+			)
 		}
 		return rv
 	case "RESOURCES":
