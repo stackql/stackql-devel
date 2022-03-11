@@ -38,18 +38,18 @@
       ],
     },
     {
-      "name": "Launch exec \"DESCRIBE compute.instances;\" -- prebuilt with cmake",
+      "name": "Debug \"DESCRIBE google.compute.instances;\" -- prebuilt with cmake",
       "type": "go",
       "request": "launch",
-      "mode": "exec",
-      "program": "${workspaceFolder}/build/stackql",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
-        "DESCRIBE compute.instances;", // "--offline"
+        "DESCRIBE google.compute.instances;", // "--offline"
       ],
     },
     {
-      "name": "Launch exec \"DESCRIBE compute.disks;\" -- prebuilt with cmake",
+      "name": "Launch exec \"DESCRIBE google.compute.disks;\" -- prebuilt with cmake",
       "type": "go",
       "request": "launch",
       "mode": "exec",
