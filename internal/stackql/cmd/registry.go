@@ -58,7 +58,10 @@ var registryCmd = &cobra.Command{
 			if len(provStrSplit) > 1 {
 				providerVersion = provStrSplit[1]
 			}
-			err := reg.PullAndPersistProviderArchive(providerName, providerVersion)
+			err := reg.PullAndPersistProviderArchive(
+				providerName,
+				providerVersion,
+			)
 			if err != nil {
 				iqlerror.PrintErrorAndExitOneWithMessage(err.Error())
 			}
