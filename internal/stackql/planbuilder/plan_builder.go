@@ -279,7 +279,7 @@ func (pgb *planGraphBuilder) handleRegistry(handlerCtx *handler.HandlerContext, 
 				if err != nil {
 					return dto.NewErroneousExecutorOutput(err)
 				}
-				return util.PrepareResultSet(dto.NewPrepareResultSetPlusRawDTO(nil, nil, nil, nil, nil, &dto.BackendMessages{WorkingMessages: []string{fmt.Sprintf("successfully pulled provider '%s', version '%s'", node.ProviderId, node.ProviderVersion)}}, nil))
+				return util.PrepareResultSet(dto.NewPrepareResultSetPlusRawDTO(nil, nil, nil, nil, nil, &dto.BackendMessages{WorkingMessages: []string{fmt.Sprintf("%s provider, version '%s' successfully installed", node.ProviderId, node.ProviderVersion)}}, nil))
 			case "list":
 				provz, err := reg.ListAllAvailableProviders()
 				if err != nil {

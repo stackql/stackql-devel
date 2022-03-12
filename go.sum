@@ -638,6 +638,12 @@ github.com/stackql/vitess v0.0.10-alpha1 h1:oYn54nh8QJt9OsvUb044wT+cKrCL9MK4ElD5
 github.com/stackql/vitess v0.0.10-alpha1/go.mod h1:4M5NhkFYCF10+U3LS4owUYY2GsUt+7t1kN9Rv5UVc9A=
 github.com/stackql/vitess v0.0.10-alpha2 h1:Aa6lKhnScQFxRvZCI0wmhroxFZh8mFRoHFtFPwUfaao=
 github.com/stackql/vitess v0.0.10-alpha2/go.mod h1:4M5NhkFYCF10+U3LS4owUYY2GsUt+7t1kN9Rv5UVc9A=
+github.com/stackql/vitess v0.0.10-alpha3 h1:eI9VMiaPBAelmAv7xVVuWuxiaFlpsJ4DL+nMFvDrNaE=
+github.com/stackql/vitess v0.0.10-alpha3/go.mod h1:4M5NhkFYCF10+U3LS4owUYY2GsUt+7t1kN9Rv5UVc9A=
+github.com/stackql/vitess v0.0.10-alpha4 h1:YrgtRqFYAPxut/lb9q9x/5Jw8pyyV5ON46dR2GzxQL0=
+github.com/stackql/vitess v0.0.10-alpha4/go.mod h1:4M5NhkFYCF10+U3LS4owUYY2GsUt+7t1kN9Rv5UVc9A=
+github.com/stackql/vitess v0.0.10-alpha5 h1:AEVzt8eCJY8rVqVruft2N/nXGw8EmE3AJ+cBvLq4Uuc=
+github.com/stackql/vitess v0.0.10-alpha5/go.mod h1:4M5NhkFYCF10+U3LS4owUYY2GsUt+7t1kN9Rv5UVc9A=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.2.0/go.mod h1:qt09Ya8vawLte6SNmTgCsAVtYtaKzEcn8ATUoHMkEqE=
