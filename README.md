@@ -21,6 +21,14 @@
 
 ----
 
+## Provider development
+
+Keen to expose some new functionality though `stackql`?  We are very keen on this!  
+
+Please see [registry_contribution.md](/docs/registry_contribution.md).
+
+---
+
 ## Design
 
 [HLDD](/docs/high-level-design.md)

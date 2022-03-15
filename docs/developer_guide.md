@@ -1,6 +1,12 @@
 
 # StackQL Developer Guide
 
+## Provider development
+
+Keen to expose some new functionality though `stackql`?  We are very keen on this!  
+
+Please see [registry_contribution.md](/docs/registry_contribution.md).
+
 ## Concurrency considerations
 
 In server mode, a thread pool issues one thread to handle each connection.
