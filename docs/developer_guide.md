@@ -206,3 +206,11 @@ is the guts of query processing.
 ```
 time ./stackql exec --cpuprofile=./select-disks-improved-05.profile --auth='{ "google": { "credentialsfilepath": "'${HOME}'/stackql/stackql-devel/keys/sa-key.json" }, "okta": { "credentialsfilepath": "'${HOME}'/stackql/stackql-devel/keys/okta-token.txt", "type": "api_key" } } ' "select name from google.compute.disks where project = 'lab-kr-network-01' and zone = 'australia-southeast1-a';"
 ```
+
+## Postgres Server Implementation
+
+1. Heavy duty option as per cockroachdb:
+    - https://github.com/cockroachdb/cockroach/tree/e6a0d23d516203bf5e8d1c8b3c3c26ddfaddc388/pkg/sql/pgwire
+2. Light touch option can be based upon:
+    - https://github.com/jeroenrinzema/psql-wire
+
