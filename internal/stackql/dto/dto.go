@@ -52,6 +52,10 @@ const (
 	OutputFormatKey                 string = "output"
 	ApplicationFilesRootPathKey     string = "approot"
 	ApplicationFilesRootPathModeKey string = "approotfilemode"
+	PgSrvAddressKey                 string = "pgsrv.address"
+	PgSrvLogLevelKey                string = "pgsrv.loglevel"
+	PgSrvPortKey                    string = "pgsrv.port"
+	PgSrvRawTLSCfgKey               string = "pgsrv.tls"
 	ProviderStrKey                  string = "provider"
 	QueryCacheSizeKey               string = "querycachesize"
 	RegistryRawKey                  string = "registry"
@@ -197,6 +201,10 @@ type RuntimeCtx struct {
 	OutputFormat                 string
 	ApplicationFilesRootPath     string
 	ApplicationFilesRootPathMode uint32
+	PGSrvAddress                 string
+	PGSrvLogLevel                string
+	PGSrvPort                    int
+	PGSrvRawTLSCfg               string
 	ProviderStr                  string
 	RegistryRaw                  string
 	Reinit                       bool
@@ -294,6 +302,14 @@ func (rc *RuntimeCtx) Set(key string, val string) error {
 		rc.ApplicationFilesRootPath = val
 	case ApplicationFilesRootPathModeKey:
 		retVal = setUint32(&rc.ApplicationFilesRootPathMode, val)
+	case PgSrvAddressKey:
+		rc.PGSrvAddress = val
+	case PgSrvLogLevelKey:
+		rc.PGSrvLogLevel = val
+	case PgSrvPortKey:
+		retVal = setInt(&rc.PGSrvPort, val)
+	case PgSrvRawTLSCfgKey:
+		rc.PGSrvRawTLSCfg = val
 	case QueryCacheSizeKey:
 		retVal = setInt(&rc.QueryCacheSize, val)
 	case RegistryRawKey:

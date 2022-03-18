@@ -18,7 +18,8 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	server "github.com/stackql/stackql/internal/stackql/srv"
+	"github.com/stackql/stackql/internal/stackql/iqlerror"
+	"github.com/stackql/stackql/internal/stackql/psqlwire"
 )
 
 const MIN = 1
@@ -37,6 +38,8 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		server.Serve(DEFAULT_PORT_NO, runtimeCtx, queryCache)
+		server, err := psqlwire.MakeWireServer(runtimeCtx)
+		iqlerror.PrintErrorAndExitOneIfError(err)
+		server.Serve()
 	},
 }
