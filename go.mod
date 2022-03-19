@@ -22,6 +22,7 @@ require (
 	github.com/getsentry/raven-go v0.2.0 // indirect
 	github.com/google/flatbuffers v2.0.6+incompatible // indirect
 	github.com/google/go-jsonnet v0.17.0
+	github.com/jackc/pgtype v1.10.0
 	github.com/jackc/pgx v3.6.2+incompatible // indirect
 	github.com/jaegertracing/jaeger v1.32.0 // indirect
 	github.com/jeroenrinzema/psql-wire v0.0.1-stackqlalpha3

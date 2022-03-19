@@ -2,9 +2,11 @@ package psqlwire
 
 import (
 	"context"
+	"fmt"
 
 	postgreswire "github.com/jeroenrinzema/psql-wire"
 
+	"github.com/jackc/pgtype"
 	"github.com/jeroenrinzema/psql-wire/pkg/sqlbackend"
 	"github.com/jeroenrinzema/psql-wire/pkg/sqldata"
 	"github.com/lib/pq/oid"
@@ -110,4 +112,39 @@ func mockSQLStream() (sqlbackend.ISQLBackend, error) {
 	sqlBackend := sqlbackend.NewSimpleSQLBackend(qcb)
 
 	return sqlBackend, nil
+}
+
+func ExtractRowElement(column sqldata.ISQLColumn, src interface{}, ci *pgtype.ConnInfo) ([]byte, error) {
+	// ci := pgtype.NewConnInfo()
+	typed, has := ci.DataTypeForOID(column.GetObjectID())
+	if !has {
+		return nil, fmt.Errorf("unknown data type: %T", column)
+	}
+
+	err := typed.Value.Set(src)
+	if err != nil {
+		return nil, err
+	}
+
+	fc, err := getFormatCode(column.GetFormat())
+	if err != nil {
+		return nil, err
+	}
+	encoder := fc.Encoder(typed)
+	bb, err := encoder(ci, nil)
+	if err != nil {
+		return nil, err
+	}
+	return bb, nil
+}
+
+func getFormatCode(fc string) (postgreswire.FormatCode, error) {
+	switch fc {
+	case "TextFormat":
+		return postgreswire.TextFormat, nil
+	case "":
+		return postgreswire.BinaryFormat, nil
+	default:
+		return 3, fmt.Errorf("cannot find format code for '%s'", fc)
+	}
 }

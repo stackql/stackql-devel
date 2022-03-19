@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"vitess.io/vitess/go/sqltypes"
+	"github.com/jeroenrinzema/psql-wire/pkg/sqldata"
 )
 
 const (
@@ -341,7 +341,7 @@ type RowsDTO struct {
 
 type OutputContext struct {
 	RuntimeContext RuntimeCtx
-	Result         *sqltypes.Result
+	Result         sqldata.ISQLResultStream
 }
 
 type PrepareResultSetDTO struct {
@@ -394,7 +394,7 @@ func NewPrepareResultSetPlusRawDTO(
 }
 
 type ExecutorOutput struct {
-	GetSQLResult  func() *sqltypes.Result
+	GetSQLResult  func() sqldata.ISQLResultStream
 	GetRawResult  func() map[int]map[int]interface{}
 	GetOutputBody func() map[string]interface{}
 	Msg           *BackendMessages
@@ -405,13 +405,13 @@ func (ex ExecutorOutput) ResultToMap() (map[int]map[int]interface{}, error) {
 	return ex.GetRawResult(), nil
 }
 
-func NewExecutorOutput(result *sqltypes.Result, body map[string]interface{}, rawResult map[int]map[int]interface{}, msg *BackendMessages, err error) ExecutorOutput {
+func NewExecutorOutput(result sqldata.ISQLResultStream, body map[string]interface{}, rawResult map[int]map[int]interface{}, msg *BackendMessages, err error) ExecutorOutput {
 	return newExecutorOutput(result, body, rawResult, msg, err)
 }
 
-func newExecutorOutput(result *sqltypes.Result, body map[string]interface{}, rawResult map[int]map[int]interface{}, msg *BackendMessages, err error) ExecutorOutput {
+func newExecutorOutput(result sqldata.ISQLResultStream, body map[string]interface{}, rawResult map[int]map[int]interface{}, msg *BackendMessages, err error) ExecutorOutput {
 	return ExecutorOutput{
-		GetSQLResult: func() *sqltypes.Result { return result },
+		GetSQLResult: func() sqldata.ISQLResultStream { return result },
 		GetRawResult: func() map[int]map[int]interface{} {
 			if rawResult == nil {
 				return make(map[int]map[int]interface{})

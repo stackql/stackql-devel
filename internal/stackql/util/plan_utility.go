@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/jeroenrinzema/psql-wire/pkg/sqldata"
 	"github.com/stackql/stackql/internal/stackql/dto"
 
 	"vitess.io/vitess/go/sqltypes"
@@ -300,7 +301,7 @@ func EmptyProtectResultSet(rv dto.ExecutorOutput, columns []string) dto.Executor
 				Name: columns[f],
 			}
 		}
-		rv.GetSQLResult = func() *sqltypes.Result { return resVal }
+		rv.GetSQLResult = func() sqldata.ISQLResultStream { return resVal }
 	}
 	return rv
 }
