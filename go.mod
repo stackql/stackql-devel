@@ -48,6 +48,7 @@ require (
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	gonum.org/v1/gonum v0.9.3
 	gopkg.in/yaml.v2 v2.4.0
+	gotest.tools v2.2.0+incompatible
 	readline v0.0.0-00010101000000-000000000000
 	vitess.io/vitess v0.0.10-alpha5
 )

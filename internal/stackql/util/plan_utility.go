@@ -215,15 +215,7 @@ func PrepareResultSet(payload dto.PrepareResultSetDTO) dto.ExecutorOutput {
 	rowsVisited := make(map[string]bool, len(payload.RowMap))
 	if payload.ColumnOrder != nil && len(payload.ColumnOrder) > 0 {
 		for f := range columns {
-			columns[f] = sqldata.NewSQLColumn(
-				table,
-				payload.ColumnOrder[f],
-				0,
-				uint32(oid.T_text),
-				1024,
-				0,
-				"TextFormat",
-			)
+			columns[f] = getPlaceholderColumn(table, payload.ColumnOrder[f])
 		}
 		i := 0
 		for _, key := range payload.RowSort(payload.RowMap) {
@@ -251,15 +243,7 @@ func PrepareResultSet(payload dto.PrepareResultSetDTO) dto.ExecutorOutput {
 		}
 		for _, k := range defaultColSortArr {
 			if _, isPresent := sampleRow[k]; isPresent {
-				columns[colIdx] = sqldata.NewSQLColumn(
-					table,
-					k,
-					0,
-					uint32(oid.T_text),
-					1024,
-					0,
-					"TextFormat",
-				)
+				columns[colIdx] = getPlaceholderColumn(table, k)
 				payload.ColumnOrder[colIdx] = k
 				colIdx++
 				colSet[k] = true
@@ -267,15 +251,7 @@ func PrepareResultSet(payload dto.PrepareResultSetDTO) dto.ExecutorOutput {
 		}
 		for k := range sampleRow {
 			if !colSet[k] {
-				columns[colIdx] = sqldata.NewSQLColumn(
-					table,
-					k,
-					0,
-					uint32(oid.T_text),
-					1024,
-					0,
-					"TextFormat",
-				)
+				columns[colIdx] = getPlaceholderColumn(table, k)
 				payload.ColumnOrder[colIdx] = k
 				colIdx++
 				colSet[k] = true
@@ -321,15 +297,7 @@ func EmptyProtectResultSet(rv dto.ExecutorOutput, columns []string) dto.Executor
 		table := sqldata.NewSQLTable(0, "meta_table")
 		rCols := make([]sqldata.ISQLColumn, len(columns))
 		for f := range rCols {
-			rCols[f] = sqldata.NewSQLColumn(
-				table,
-				columns[f],
-				0,
-				uint32(oid.T_text),
-				1024,
-				0,
-				"TextFormat",
-			)
+			rCols[f] = getPlaceholderColumn(table, columns[f])
 		}
 		rv.GetSQLResult = func() sqldata.ISQLResultStream {
 			return sqldata.NewSimpleSQLResultStream(sqldata.NewSQLResult(rCols, 0, 0, nil))
@@ -340,4 +308,30 @@ func EmptyProtectResultSet(rv dto.ExecutorOutput, columns []string) dto.Executor
 
 func DescribeRowSort(rows map[string]map[string]interface{}) []string {
 	return describeRowSortArr
+}
+
+func GetPlaceholderColumn(table sqldata.ISQLTable, colName string) sqldata.ISQLColumn {
+	return getPlaceholderColumn(table, colName)
+}
+
+func getPlaceholderColumn(table sqldata.ISQLTable, colName string) sqldata.ISQLColumn {
+	return sqldata.NewSQLColumn(
+		table,
+		colName,
+		0,
+		uint32(oid.T_text),
+		1024,
+		0,
+		"TextFormat",
+	)
+}
+
+func GetHeaderOnlyResultStream(colz []string) sqldata.ISQLResultStream {
+	table := sqldata.NewSQLTable(0, "table_meta")
+	columns := make([]sqldata.ISQLColumn, len(colz))
+	for i := range colz {
+		columns[i] = getPlaceholderColumn(table, colz[i])
+	}
+	return sqldata.NewSimpleSQLResultStream(sqldata.NewSQLResult(columns, 0, 0, nil))
+
 }
