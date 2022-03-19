@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/jeroenrinzema/psql-wire/pkg/sqldata"
+	"github.com/lib/pq/oid"
 	"github.com/stackql/stackql/internal/stackql/dto"
 
 	"vitess.io/vitess/go/sqltypes"
@@ -138,11 +139,10 @@ func InterfaceToBytes(subject interface{}, isErrorCol bool) []byte {
 	}
 }
 
-func arrangeOrderedColumnRow(row map[string]interface{}, columnOrder []string, colNumber int) []sqltypes.Value {
-	rowVals := make([]sqltypes.Value, colNumber)
+func arrangeOrderedColumnRow(row map[string]interface{}, columns []sqldata.ISQLColumn, columnOrder []string, colNumber int) []interface{} {
+	rowVals := make([]interface{}, colNumber)
 	for j := range columnOrder {
-		rvj, _ := sqltypes.NewValue(querypb.Type_TEXT, InterfaceToBytes(row[columnOrder[j]], strings.ToLower(columnOrder[j]) == "error"))
-		rowVals[j] = rvj
+		rowVals[j] = InterfaceToBytes(row[columnOrder[j]], strings.ToLower(columnOrder[j]) == "error")
 	}
 	return rowVals
 }
@@ -208,31 +208,36 @@ func PrepareResultSet(payload dto.PrepareResultSetDTO) dto.ExecutorOutput {
 		}
 	}
 
-	res := &sqltypes.Result{
-		Fields: make([]*querypb.Field, colNumber),
-		Rows:   make([][]sqltypes.Value, len(payload.RowMap)),
-	}
+	table := sqldata.NewSQLTable(0, "meta_table")
+	columns := make([]sqldata.ISQLColumn, colNumber)
+	rows := make([]sqldata.ISQLRow, len(payload.RowMap))
 
 	rowsVisited := make(map[string]bool, len(payload.RowMap))
 	if payload.ColumnOrder != nil && len(payload.ColumnOrder) > 0 {
-		for f := range res.Fields {
-			res.Fields[f] = &querypb.Field{
-				Name: payload.ColumnOrder[f],
-			}
+		for f := range columns {
+			columns[f] = sqldata.NewSQLColumn(
+				table,
+				payload.ColumnOrder[f],
+				0,
+				uint32(oid.T_text),
+				1024,
+				0,
+				"TextFormat",
+			)
 		}
 		i := 0
 		for _, key := range payload.RowSort(payload.RowMap) {
 			if !rowsVisited[key] && payload.RowMap[key] != nil {
-				rowVals := arrangeOrderedColumnRow(payload.RowMap[key], payload.ColumnOrder, colNumber)
-				res.Rows[i] = rowVals
+				rowVals := arrangeOrderedColumnRow(payload.RowMap[key], columns, payload.ColumnOrder, colNumber)
+				rows[i] = sqldata.NewSQLRow(rowVals)
 				rowsVisited[key] = true
 				i++
 			}
 		}
 		for key, row := range payload.RowMap {
 			if !rowsVisited[key] {
-				rowVals := arrangeOrderedColumnRow(row, payload.ColumnOrder, colNumber)
-				res.Rows[i] = rowVals
+				rowVals := arrangeOrderedColumnRow(row, columns, payload.ColumnOrder, colNumber)
+				rows[i] = sqldata.NewSQLRow(rowVals)
 				rowsVisited[key] = true
 				i++
 			}
@@ -246,9 +251,15 @@ func PrepareResultSet(payload dto.PrepareResultSetDTO) dto.ExecutorOutput {
 		}
 		for _, k := range defaultColSortArr {
 			if _, isPresent := sampleRow[k]; isPresent {
-				res.Fields[colIdx] = &querypb.Field{
-					Name: k,
-				}
+				columns[colIdx] = sqldata.NewSQLColumn(
+					table,
+					k,
+					0,
+					uint32(oid.T_text),
+					1024,
+					0,
+					"TextFormat",
+				)
 				payload.ColumnOrder[colIdx] = k
 				colIdx++
 				colSet[k] = true
@@ -256,9 +267,15 @@ func PrepareResultSet(payload dto.PrepareResultSetDTO) dto.ExecutorOutput {
 		}
 		for k := range sampleRow {
 			if !colSet[k] {
-				res.Fields[colIdx] = &querypb.Field{
-					Name: k,
-				}
+				columns[colIdx] = sqldata.NewSQLColumn(
+					table,
+					k,
+					0,
+					uint32(oid.T_text),
+					1024,
+					0,
+					"TextFormat",
+				)
 				payload.ColumnOrder[colIdx] = k
 				colIdx++
 				colSet[k] = true
@@ -267,23 +284,23 @@ func PrepareResultSet(payload dto.PrepareResultSetDTO) dto.ExecutorOutput {
 		i := 0
 		for _, key := range payload.RowSort(payload.RowMap) {
 			if !rowsVisited[key] && payload.RowMap[key] != nil {
-				rowVals := arrangeOrderedColumnRow(payload.RowMap[key], payload.ColumnOrder, colIdx)
-				res.Rows[i] = rowVals
+				rowVals := arrangeOrderedColumnRow(payload.RowMap[key], columns, payload.ColumnOrder, colIdx)
+				rows[i] = sqldata.NewSQLRow(rowVals)
 				rowsVisited[key] = true
 				i++
 			}
 		}
 		for key, row := range payload.RowMap {
 			if !rowsVisited[key] {
-				rowVals := arrangeOrderedColumnRow(row, payload.ColumnOrder, colIdx)
-				res.Rows[i] = rowVals
+				rowVals := arrangeOrderedColumnRow(row, columns, payload.ColumnOrder, colIdx)
+				rows[i] = sqldata.NewSQLRow(rowVals)
 				rowsVisited[key] = true
 				i++
 			}
 		}
 	}
 	return dto.NewExecutorOutput(
-		res,
+		sqldata.NewSimpleSQLResultStream(sqldata.NewSQLResult(columns, 0, 0, nil)),
 		payload.OutputBody,
 		payload.RawRows,
 		payload.Msg,
@@ -301,7 +318,22 @@ func EmptyProtectResultSet(rv dto.ExecutorOutput, columns []string) dto.Executor
 				Name: columns[f],
 			}
 		}
-		rv.GetSQLResult = func() sqldata.ISQLResultStream { return resVal }
+		table := sqldata.NewSQLTable(0, "meta_table")
+		rCols := make([]sqldata.ISQLColumn, len(columns))
+		for f := range rCols {
+			rCols[f] = sqldata.NewSQLColumn(
+				table,
+				columns[f],
+				0,
+				uint32(oid.T_text),
+				1024,
+				0,
+				"TextFormat",
+			)
+		}
+		rv.GetSQLResult = func() sqldata.ISQLResultStream {
+			return sqldata.NewSimpleSQLResultStream(sqldata.NewSQLResult(rCols, 0, 0, nil))
+		}
 	}
 	return rv
 }
