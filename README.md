@@ -108,6 +108,8 @@ Forks of the following support our work:
 
 We gratefully acknowledge these pieces of work.
 
-## License
+## Licensing
 
-See [/LICENSE](/LICENSE)
+Please see the [stackql LICENSE](/LICENSE).
+
+Licenses for third party software we are using are included in the [/licenses](/licenses) directory.
