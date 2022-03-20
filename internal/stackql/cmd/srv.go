@@ -18,6 +18,8 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
+	"github.com/stackql/stackql/internal/stackql/driver"
+	"github.com/stackql/stackql/internal/stackql/entryutil"
 	"github.com/stackql/stackql/internal/stackql/iqlerror"
 	"github.com/stackql/stackql/internal/stackql/psqlwire"
 )
@@ -38,7 +40,13 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		server, err := psqlwire.MakeWireServer(runtimeCtx)
+		sqlEngine, err := entryutil.BuildSQLEngine(runtimeCtx)
+		iqlerror.PrintErrorAndExitOneIfError(err)
+		handlerCtx, err := entryutil.BuildHandlerContextNoPreProcess(runtimeCtx, queryCache, sqlEngine)
+		iqlerror.PrintErrorAndExitOneIfError(err)
+		sbe, err := driver.NewStackQLBackend(&handlerCtx)
+		iqlerror.PrintErrorAndExitOneIfError(err)
+		server, err := psqlwire.MakeWireServer(sbe, runtimeCtx)
 		iqlerror.PrintErrorAndExitOneIfError(err)
 		server.Serve()
 	},

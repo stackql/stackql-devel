@@ -21,21 +21,14 @@ type IWireServer interface {
 }
 
 type SimpleWireServer struct {
-	logger  *zap.Logger
-	server  *wire.Server
-	rtCtx   dto.RuntimeCtx
-	tlsCfg  dto.PgTLSCfg
-	backend sqlbackend.ISQLBackend
+	logger *zap.Logger
+	server *wire.Server
+	rtCtx  dto.RuntimeCtx
+	tlsCfg dto.PgTLSCfg
 }
 
-func MakeWireServer(cfg dto.RuntimeCtx) (IWireServer, error) {
+func MakeWireServer(sbe sqlbackend.ISQLBackend, cfg dto.RuntimeCtx) (IWireServer, error) {
 	logger, err := zap.NewDevelopment()
-	if err != nil {
-		return nil, err
-	}
-
-	sbe, err := mockSQLStream()
-
 	if err != nil {
 		return nil, err
 	}
