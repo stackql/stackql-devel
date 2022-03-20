@@ -57,7 +57,7 @@ AUTH_CFG_STR = json.dumps(_AUTH_CFG)
 SHOW_PROVIDERS_STR = "show providers;"
 SHOW_OKTA_SERVICES_FILTERED_STR  = "show services from okta like 'app%';"
 SHOW_OKTA_APPLICATION_RESOURCES_FILTERED_STR  = "show resources from okta.application like 'gr%';"
-JSON_INIT_FILE_PATH = os.path.join(REPOSITORY_ROOT, 'test', 'server', 'expectations', 'static-gcp-expectations.json')
+JSON_INIT_FILE_PATH = os.path.join(REPOSITORY_ROOT, 'test', 'mockserver', 'expectations', 'static-gcp-expectations.json')
 MOCKSERVER_JAR = os.path.join(REPOSITORY_ROOT, 'test', 'downloads', 'mockserver-netty-5.12.0-shaded.jar')
 
 

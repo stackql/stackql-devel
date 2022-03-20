@@ -38,14 +38,19 @@ Please see [registry_contribution.md](/docs/registry_contribution.md).
 
 ## Providers
 
+Please see [the stackql-provider-registry repository](https://github.com/stackql/stackql-provider-registry)
+
+Providers include:
+
 - Google.
 - Okta.
+- ...
 
 ---
 
 ## Build
 
-With cmake:
+Presuming you have all of [the system requirements](#system-requirements-for-local-devlopment-build-and-test), then build/test with cmake:
 
 ```bash
 cd build
@@ -53,8 +58,13 @@ cmake ..
 cmake --build .
 ```
 
-
 Executable `build/stackql` will be created.
+
+### System requirements for local devlopment, build and test
+
+- golang>=1.16
+- Python>=3.5
+- cmake>=3.22.3
 
 
 ## Run
@@ -83,6 +93,10 @@ More examples in [docs/examples.md](/docs/examples.md).
 [test/README.md](/test/README.md).
 
 [docs/integration_testing.md](/docs/integration_testing.md).
+
+## Server mode
+
+Please see [the server mode section of the developer docs](/docs/developer_guide.md#server-mode).
 
 ## Acknowledgements
 

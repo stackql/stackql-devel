@@ -21,6 +21,16 @@ If you want further auth types or discover bugs, please raise an issue.
 
 Examples are present [here](/docs/examples.md).
 
+## Server mode
+
+**Note that this feature is in alpha**.  We will update timelines for General Availability after a period of analysis and testing.  At the time of writing, server mode is most useful for R&D purposes: 
+- experimentation.
+- tooling / system integrations and design thereof.
+- development of `stackql` itself.
+- development of use cases for the product.
+
+The `stackql` server leverages the `postgres` wire protocol and can be used with the `psql` client, including mTLS auth / encryption in transit.  Please see [the relevant examples](/docs/examples.md#running-in-server-mode) for further details.
+
 ## Concurrency considerations
 
 In server mode, a thread pool issues one thread to handle each connection.
