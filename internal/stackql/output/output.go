@@ -257,6 +257,8 @@ func (tw *TableWriter) Write(res sqldata.ISQLResultStream) error {
 				for _, rs := range rowsArr {
 					table.Append(rs)
 				}
+				tw.configureTable(table)
+				table.Render()
 				return nil
 			}
 			return err
@@ -275,7 +277,6 @@ func (tw *TableWriter) Write(res sqldata.ISQLResultStream) error {
 			return err
 		}
 	}
-	return nil
 }
 
 func decodeRow(colz []sqldata.ISQLColumn, row sqldata.ISQLRow, ci *pgtype.ConnInfo) ([][]byte, error) {
@@ -336,7 +337,8 @@ func (csvw *CSVWriter) Write(res sqldata.ISQLResultStream) error {
 				for _, rs := range rowsArr {
 					w.Write(rs)
 				}
-				return nil
+				w.Flush()
+				return w.Error()
 			}
 			return err
 		}

@@ -1,6 +1,8 @@
 package querysubmit_test
 
 import (
+	"errors"
+	"io"
 	"net/url"
 	"os"
 	"testing"
@@ -62,7 +64,7 @@ func TestSimpleSelectGoogleComputeInstanceQuerySubmit(t *testing.T) {
 
 	r, err := response.GetSQLResult().Read()
 
-	assert.NilError(t, err)
+	assert.Assert(t, errors.Is(err, io.EOF))
 
 	assert.Assert(t, len(r.GetRows()) == 2)
 

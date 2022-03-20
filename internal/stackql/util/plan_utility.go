@@ -276,7 +276,7 @@ func PrepareResultSet(payload dto.PrepareResultSetDTO) dto.ExecutorOutput {
 		}
 	}
 	return dto.NewExecutorOutput(
-		sqldata.NewSimpleSQLResultStream(sqldata.NewSQLResult(columns, 0, 0, nil)),
+		sqldata.NewSimpleSQLResultStream(sqldata.NewSQLResult(columns, 0, 0, rows)),
 		payload.OutputBody,
 		payload.RawRows,
 		payload.Msg,
