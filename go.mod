@@ -40,7 +40,7 @@ require (
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.10.1
-	github.com/stackql/go-openapistackql v0.0.5-alpha05
+	github.com/stackql/go-openapistackql v0.0.5-alpha06
 	github.com/stackql/go-sqlite3 v0.0.1-stackqlalpha
 	github.com/stackql/pg-server-various v0.0.0-20220316225650-bd1ff18b9439
 	go.uber.org/zap v1.21.0
