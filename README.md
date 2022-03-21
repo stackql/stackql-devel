@@ -60,11 +60,12 @@ cmake --build .
 
 Executable `build/stackql` will be created.
 
-### System requirements for local devlopment, build and test
+### System requirements for local development, build and test
 
-- golang>=1.16
-- Python>=3.5
 - cmake>=3.22.3
+- golang>=1.16
+- openssl>=1.1.1
+- python>=3.5
 
 
 ## Run
