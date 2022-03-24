@@ -107,6 +107,13 @@ func (ex ExtendedTableMetadata) GetAlias() string {
 	return ex.Alias
 }
 
+func (ex ExtendedTableMetadata) GetUniqueId() string {
+	if ex.Alias != "" {
+		return ex.Alias
+	}
+	return ex.HeirarchyObjects.GetTableName()
+}
+
 func (ex ExtendedTableMetadata) GetProvider() (provider.IProvider, error) {
 	if ex.HeirarchyObjects == nil || ex.HeirarchyObjects.Provider == nil {
 		return nil, fmt.Errorf("cannot resolve Provider")

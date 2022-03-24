@@ -775,6 +775,8 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 		v.rewrittenQuery = buf.String()
 
 	case *sqlparser.JoinTableExpr:
+		node.LeftExpr.Accept(v)
+		node.LeftExpr.Accept(v)
 		buf.AstPrintf(node, "%v %s %v%v", node.LeftExpr, node.Join, node.RightExpr, node.Condition)
 		v.rewrittenQuery = buf.String()
 
