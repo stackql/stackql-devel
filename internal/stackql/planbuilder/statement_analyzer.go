@@ -781,6 +781,9 @@ func (p *primitiveGenerator) analyzeSchemaVsMap(handlerCtx *handler.HandlerConte
 func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, node *sqlparser.Select) error {
 
 	var tblMeta *taxonomy.ExtendedTableMetadata
+	var pChild *primitiveGenerator
+	var err error
+
 	for i, fromExpr := range node.From {
 		var leafKey interface{} = i
 		switch from := fromExpr.(type) {
@@ -794,7 +797,7 @@ func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, n
 		if err != nil {
 			return err
 		}
-		pChild := p.addChildPrimitiveGenerator(fromExpr, leaf)
+		pChild = p.addChildPrimitiveGenerator(fromExpr, leaf)
 		var tblz []*taxonomy.ExtendedTableMetadata
 		switch from := fromExpr.(type) {
 		case *sqlparser.ExecSubquery:
@@ -868,68 +871,69 @@ func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, n
 				pChild.PrimitiveBuilder.SetSymbol(uid, colEntry)
 			}
 		}
-		// TODO: fix this hack
-		var rewrittenWhere *sqlparser.Where
-		if len(node.From) == 1 {
-			switch ft := node.From[0].(type) {
-			case *sqlparser.ExecSubquery:
-				log.Infoln(fmt.Sprintf("%v", ft))
-			default:
-				rewrittenWhere, err = p.analyzeWhere(node.Where)
-				if err != nil {
-					return err
-				}
-				p.PrimitiveBuilder.SetWhere(rewrittenWhere)
+	}
+	// TODO: fix this hack
+	var rewrittenWhere *sqlparser.Where
+	if len(node.From) == 1 {
+		switch ft := node.From[0].(type) {
+		case *sqlparser.ExecSubquery:
+			log.Infoln(fmt.Sprintf("%v", ft))
+		default:
+			rewrittenWhere, err = p.analyzeWhere(node.Where)
+			if err != nil {
+				return err
 			}
+			p.PrimitiveBuilder.SetWhere(rewrittenWhere)
 		}
-		// END TODO
-		if len(node.From) == 1 {
-			switch ft := node.From[0].(type) {
-			case *sqlparser.JoinTableExpr:
-				tbl, err := pChild.analyzeTableExpr(handlerCtx, ft.LeftExpr)
-				if err != nil {
-					return err
-				}
-				err = pChild.analyzeSelectDetail(handlerCtx, node, tbl, rewrittenWhere)
-				if err != nil {
-					return err
-				}
-				rhsPb := newRootPrimitiveGenerator(pChild.PrimitiveBuilder.GetAst(), handlerCtx, pChild.PrimitiveBuilder.GetGraph())
-				tbl, err = rhsPb.analyzeTableExpr(handlerCtx, ft.RightExpr)
-				if err != nil {
-					return err
-				}
-				err = rhsPb.analyzeSelectDetail(handlerCtx, node, tbl, rewrittenWhere)
-				if err != nil {
-					return err
-				}
-				pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewJoin(pChild.PrimitiveBuilder, rhsPb.PrimitiveBuilder, handlerCtx, nil))
-				return nil
-			case *sqlparser.AliasedTableExpr:
-				tbl, err := pChild.analyzeTableExpr(handlerCtx, node.From[0])
-				if err != nil {
-					return err
-				}
-				err = pChild.analyzeSelectDetail(handlerCtx, node, tbl, rewrittenWhere)
-				if err != nil {
-					return err
-				}
-				pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveBuilder, handlerCtx, *tbl, pChild.PrimitiveBuilder.GetInsertPreparedStatementCtx(), pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
-				p.PrimitiveBuilder.SetSelectPreparedStatementCtx(pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx())
-				return nil
-			case *sqlparser.ExecSubquery:
-				cols, err := parserutil.ExtractSelectColumnNames(node)
-				if err != nil {
-					return err
-				}
-				tbl, err := pChild.analyzeUnaryExec(handlerCtx, ft.Exec, node, cols)
-				if err != nil {
-					return err
-				}
-				pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveBuilder, handlerCtx, *tbl, pChild.PrimitiveBuilder.GetInsertPreparedStatementCtx(), pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
-				return nil
+	}
+	// END TODO
+	if len(node.From) == 1 {
+		switch ft := node.From[0].(type) {
+		case *sqlparser.JoinTableExpr:
+			tbl, err := pChild.analyzeTableExpr(handlerCtx, ft.LeftExpr)
+			if err != nil {
+				return err
 			}
+			err = pChild.analyzeSelectDetail(handlerCtx, node, tbl, rewrittenWhere)
+			if err != nil {
+				return err
+			}
+			rhsPb := newRootPrimitiveGenerator(pChild.PrimitiveBuilder.GetAst(), handlerCtx, pChild.PrimitiveBuilder.GetGraph())
+			tbl, err = rhsPb.analyzeTableExpr(handlerCtx, ft.RightExpr)
+			if err != nil {
+				return err
+			}
+			err = rhsPb.analyzeSelectDetail(handlerCtx, node, tbl, rewrittenWhere)
+			if err != nil {
+				return err
+			}
+			pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewJoin(pChild.PrimitiveBuilder, rhsPb.PrimitiveBuilder, handlerCtx, nil))
+			return nil
+		case *sqlparser.AliasedTableExpr:
+			tbl, err := pChild.analyzeTableExpr(handlerCtx, node.From[0])
+			if err != nil {
+				return err
+			}
+			err = pChild.analyzeSelectDetail(handlerCtx, node, tbl, rewrittenWhere)
+			if err != nil {
+				return err
+			}
+			pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveBuilder, handlerCtx, *tbl, pChild.PrimitiveBuilder.GetInsertPreparedStatementCtx(), pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
+			p.PrimitiveBuilder.SetSelectPreparedStatementCtx(pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx())
+			return nil
+		case *sqlparser.ExecSubquery:
+			cols, err := parserutil.ExtractSelectColumnNames(node)
+			if err != nil {
+				return err
+			}
+			tbl, err := pChild.analyzeUnaryExec(handlerCtx, ft.Exec, node, cols)
+			if err != nil {
+				return err
+			}
+			pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveBuilder, handlerCtx, *tbl, pChild.PrimitiveBuilder.GetInsertPreparedStatementCtx(), pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
+			return nil
 		}
+
 	}
 	return fmt.Errorf("cannot process complex select just yet")
 }
