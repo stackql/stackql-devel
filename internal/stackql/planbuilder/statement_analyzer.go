@@ -244,42 +244,6 @@ func (pb *primitiveGenerator) traverseShowFilter(table openapistackql.ITable, no
 	return retVal, nil
 }
 
-// DEPRECATED
-func (pb *primitiveGenerator) traverseWhereFilterDeprecated(table *openapistackql.OperationStore, node sqlparser.Expr, schema *openapistackql.Schema, requiredParameters *suffix.ParameterSuffixMap) (func(openapistackql.ITable) (openapistackql.ITable, error), error) {
-	var retVal func(openapistackql.ITable) (openapistackql.ITable, error)
-	switch node := node.(type) {
-	case *sqlparser.ComparisonExpr:
-		return pb.whereComparisonExprToFilterFunc(node, table, schema, requiredParameters)
-	case *sqlparser.AndExpr:
-		log.Infoln("complex AND expr detected")
-		lhs, lhErr := pb.traverseWhereFilterDeprecated(table, node.Left, schema, requiredParameters)
-		rhs, rhErr := pb.traverseWhereFilterDeprecated(table, node.Right, schema, requiredParameters)
-		if lhErr != nil {
-			return nil, lhErr
-		}
-		if rhErr != nil {
-			return nil, rhErr
-		}
-		return relational.AndTableFilters(lhs, rhs), nil
-	case *sqlparser.OrExpr:
-		log.Infoln("complex OR expr detected")
-		lhs, lhErr := pb.traverseWhereFilterDeprecated(table, node.Left, schema, requiredParameters)
-		rhs, rhErr := pb.traverseWhereFilterDeprecated(table, node.Right, schema, requiredParameters)
-		if lhErr != nil {
-			return nil, lhErr
-		}
-		if rhErr != nil {
-			return nil, rhErr
-		}
-		return relational.OrTableFilters(lhs, rhs), nil
-	case *sqlparser.FuncExpr:
-		return nil, fmt.Errorf("unsupported constraint in openapistackql filter: %v", sqlparser.String(node))
-	default:
-		return nil, fmt.Errorf("unsupported constraint in openapistackql filter: %v", sqlparser.String(node))
-	}
-	return retVal, nil
-}
-
 func (pb *primitiveGenerator) traverseWhereFilter(node sqlparser.SQLNode, requiredParameters, optionalParameters *suffix.ParameterSuffixMap) (sqlparser.Expr, error) {
 	switch node := node.(type) {
 	case *sqlparser.ComparisonExpr:
@@ -395,84 +359,6 @@ func (pb *primitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sqlparser.
 		Operator: expr.Operator,
 		Escape:   expr.Escape,
 	}, nil
-}
-
-// DEPRECATED
-func (pb *primitiveGenerator) whereComparisonExprToFilterFunc(expr *sqlparser.ComparisonExpr, table *openapistackql.OperationStore, schema *openapistackql.Schema, requiredParameters *suffix.ParameterSuffixMap) (func(openapistackql.ITable) (openapistackql.ITable, error), error) {
-	qualifiedName, ok := expr.Left.(*sqlparser.ColName)
-	if !ok {
-		return nil, fmt.Errorf("unexpected: %v", sqlparser.String(expr))
-	}
-	colName := qualifiedName.Name.GetRawVal()
-	tableContainsKey := table.KeyExists(colName)
-	var subSchema *openapistackql.Schema
-	if schema != nil {
-		subSchema = schema.FindByPath(colName, nil)
-	}
-	if !tableContainsKey && subSchema == nil {
-		return nil, fmt.Errorf("col name = '%s' not found in resource name = '%s'", colName, table.GetName())
-	}
-	requiredParameters.Delete(colName)
-	if tableContainsKey && subSchema != nil && !subSchema.ReadOnly {
-		log.Infoln(fmt.Sprintf("tableContainsKey && subSchema = %v", subSchema))
-		return nil, fmt.Errorf("col name = '%s' ambiguous for resource name = '%s'", colName, table.GetName())
-	}
-	val, ok := expr.Right.(*sqlparser.SQLVal)
-	if !ok {
-		return nil, fmt.Errorf("unexpected: %v", sqlparser.String(expr))
-	}
-	//StrVal is varbinary, we do not support varchar since we would have to implement all collation types
-	if val.Type != sqlparser.IntVal && val.Type != sqlparser.StrVal {
-		return nil, fmt.Errorf("unexpected: %v", sqlparser.String(expr))
-	}
-	pv, err := sqlparser.NewPlanValue(val)
-	if err != nil {
-		return nil, err
-	}
-	resolved, err := pv.ResolveValue(nil)
-	log.Debugln(fmt.Sprintf("resolved = %v", resolved))
-	if err != nil {
-		return nil, err
-	}
-	return nil, nil
-}
-
-// DEPRECATED
-func (pb *primitiveGenerator) analyzeSingleTableWhere(where *sqlparser.Where, schema *openapistackql.Schema) error {
-	remainingRequiredParameters := suffix.NewParameterSuffixMap()
-	for _, v := range pb.PrimitiveBuilder.GetTables() {
-		method, err := v.GetMethod()
-		if err != nil {
-			return err
-		}
-		requiredParameters := suffix.MakeSuffixMapFromParameterMap(method.GetRequiredParameters())
-		if where != nil {
-			pb.traverseWhereFilterDeprecated(method, where.Expr, schema, requiredParameters)
-		}
-		for l, w := range requiredParameters.GetAll() {
-			rscStr, _ := v.GetResourceStr()
-			remainingRequiredParameters.Put(fmt.Sprintf("%s.%s", rscStr, l), w)
-		}
-		var colUsages []parserutil.ColumnUsageMetadata
-		if where != nil {
-			colUsages, err = parserutil.GetColumnUsageTypes(where.Expr)
-		}
-		if err != nil {
-			return err
-		}
-		err = parserutil.CheckColUsagesAgainstTable(colUsages, method)
-		if err != nil {
-			return err
-		}
-	}
-	if remainingRequiredParameters.Size() > 0 {
-		var keys []string
-		for k := range remainingRequiredParameters.GetAll() {
-			keys = append(keys, k)
-		}
-		return fmt.Errorf("query cannot be executed, missing required parameters: { %s }", strings.Join(keys, ", "))
-	}
-	return nil
 }
 
 func (pb *primitiveGenerator) analyzeWhere(where *sqlparser.Where) (*sqlparser.Where, error) {
