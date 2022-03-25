@@ -121,7 +121,11 @@ func (gp *GenericProvider) InferDescribeMethod(rsc *openapistackql.Resource) (*o
 		return nil, "", fmt.Errorf("cannot infer describe method from nil resource")
 	}
 	var method *openapistackql.OperationStore
-	m, methodErr := rsc.FindMethod("list")
+	m, methodErr := rsc.FindMethod("select")
+	if methodErr == nil && m != nil {
+		return m, "select", nil
+	}
+	m, methodErr = rsc.FindMethod("list")
 	if methodErr == nil && m != nil {
 		return m, "list", nil
 	}

@@ -1208,7 +1208,7 @@ func (p *primitiveGenerator) analyzeDelete(handlerCtx *handler.HandlerContext, n
 		log.Infof("no response schema for delete: %s \n", err.Error())
 	}
 	if schema != nil {
-		whereErr := p.analyzeSingleTableWhere(node.Where, schema)
+		_, whereErr := p.analyzeWhere(node.Where)
 		if whereErr != nil {
 			return whereErr
 		}

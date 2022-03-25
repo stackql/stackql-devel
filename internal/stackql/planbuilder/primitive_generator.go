@@ -697,7 +697,7 @@ func generateSuccessMessagesFromHeirarchy(meta taxonomy.ExtendedTableMetadata) [
 	m, methodErr := meta.GetMethod()
 	prov, err := meta.GetProvider()
 	if methodErr == nil && err == nil && m != nil && prov != nil && prov.GetProviderString() == "google" {
-		if m.APIMethod == "get" || m.APIMethod == "list" || m.APIMethod == "aggregatedList" {
+		if m.APIMethod == "select" || m.APIMethod == "get" || m.APIMethod == "list" || m.APIMethod == "aggregatedList" {
 			successMsgs = []string{
 				"The operation completed successfully, consider using a SELECT statement if you are performing an operation that returns data, see https://docs.stackql.io/language-spec/select for more information",
 			}
