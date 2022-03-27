@@ -244,49 +244,56 @@ func (pb *primitiveGenerator) traverseShowFilter(table openapistackql.ITable, no
 	return retVal, nil
 }
 
-func (pb *primitiveGenerator) traverseWhereFilter(node sqlparser.SQLNode, requiredParameters, optionalParameters *suffix.ParameterSuffixMap) (sqlparser.Expr, error) {
+func (pb *primitiveGenerator) traverseWhereFilter(node sqlparser.SQLNode, requiredParameters, optionalParameters *suffix.ParameterSuffixMap) (sqlparser.Expr, []string, error) {
 	switch node := node.(type) {
 	case *sqlparser.ComparisonExpr:
-		return pb.whereComparisonExprCopyAndReWrite(node, requiredParameters, optionalParameters)
+		exp, cn, err := pb.whereComparisonExprCopyAndReWrite(node, requiredParameters, optionalParameters)
+		return exp, []string{cn}, err
 	case *sqlparser.AndExpr:
 		log.Infoln("complex AND expr detected")
-		lhs, lhErr := pb.traverseWhereFilter(node.Left, requiredParameters, optionalParameters)
-		rhs, rhErr := pb.traverseWhereFilter(node.Right, requiredParameters, optionalParameters)
+		lhs, lParams, lhErr := pb.traverseWhereFilter(node.Left, requiredParameters, optionalParameters)
+		rhs, rParams, rhErr := pb.traverseWhereFilter(node.Right, requiredParameters, optionalParameters)
 		if lhErr != nil {
-			return nil, lhErr
+			return nil, nil, lhErr
 		}
 		if rhErr != nil {
-			return nil, rhErr
+			return nil, nil, rhErr
 		}
-		return &sqlparser.AndExpr{Left: lhs, Right: rhs}, nil
+		for _, v := range rParams {
+			lParams = append(lParams, v)
+		}
+		return &sqlparser.AndExpr{Left: lhs, Right: rhs}, lParams, nil
 	case *sqlparser.OrExpr:
 		log.Infoln("complex OR expr detected")
-		lhs, lhErr := pb.traverseWhereFilter(node.Left, requiredParameters, optionalParameters)
-		rhs, rhErr := pb.traverseWhereFilter(node.Right, requiredParameters, optionalParameters)
+		lhs, lParams, lhErr := pb.traverseWhereFilter(node.Left, requiredParameters, optionalParameters)
+		rhs, rParams, rhErr := pb.traverseWhereFilter(node.Right, requiredParameters, optionalParameters)
 		if lhErr != nil {
-			return nil, lhErr
+			return nil, nil, lhErr
 		}
 		if rhErr != nil {
-			return nil, rhErr
+			return nil, nil, rhErr
 		}
-		return &sqlparser.OrExpr{Left: lhs, Right: rhs}, nil
+		for _, v := range rParams {
+			lParams = append(lParams, v)
+		}
+		return &sqlparser.OrExpr{Left: lhs, Right: rhs}, lParams, nil
 	case *sqlparser.FuncExpr:
-		return nil, fmt.Errorf("unsupported constraint in openapistackql filter: %v", sqlparser.String(node))
+		return nil, nil, fmt.Errorf("unsupported constraint in openapistackql filter: %v", sqlparser.String(node))
 	case *sqlparser.IsExpr:
 		return &sqlparser.IsExpr{
 			Operator: node.Operator,
 			Expr:     node.Expr,
-		}, nil
+		}, nil, nil
 	default:
-		return nil, fmt.Errorf("unsupported constraint in openapistackql filter: %v", sqlparser.String(node))
+		return nil, nil, fmt.Errorf("unsupported constraint in openapistackql filter: %v", sqlparser.String(node))
 	}
-	return nil, fmt.Errorf("unsupported constraint in openapistackql filter: %v", sqlparser.String(node))
+	return nil, nil, fmt.Errorf("unsupported constraint in openapistackql filter: %v", sqlparser.String(node))
 }
 
-func (pb *primitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sqlparser.ComparisonExpr, requiredParameters, optionalParameters *suffix.ParameterSuffixMap) (sqlparser.Expr, error) {
+func (pb *primitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sqlparser.ComparisonExpr, requiredParameters, optionalParameters *suffix.ParameterSuffixMap) (sqlparser.Expr, string, error) {
 	qualifiedName, ok := expr.Left.(*sqlparser.ColName)
 	if !ok {
-		return nil, fmt.Errorf("unexpected: %v", sqlparser.String(expr))
+		return nil, "", fmt.Errorf("unexpected: %v", sqlparser.String(expr))
 	}
 	colName := dto.GeneratePutativelyUniqueColumnID(qualifiedName.Qualifier, qualifiedName.Name.GetRawVal())
 	symTabEntry, symTabErr := pb.PrimitiveBuilder.GetSymbol(colName)
@@ -294,7 +301,7 @@ func (pb *primitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sqlparser.
 	_, optionalParamPresent := optionalParameters.Get(colName)
 	log.Infoln(fmt.Sprintf("symTabEntry = %v", symTabEntry))
 	if symTabErr != nil && !(requiredParamPresent || optionalParamPresent) {
-		return nil, symTabErr
+		return nil, colName, symTabErr
 	}
 	if requiredParamPresent {
 		requiredParameters.Delete(colName)
@@ -309,7 +316,7 @@ func (pb *primitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sqlparser.
 				Right:    expr.Right,
 				Operator: expr.Operator,
 				Escape:   expr.Escape,
-			}, nil
+			}, colName, nil
 		}
 		paramMAtchStr := ""
 		switch rhs := expr.Right.(type) {
@@ -351,31 +358,31 @@ func (pb *primitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sqlparser.
 				Operator: sqlparser.LikeStr,
 				Escape:   nil,
 			},
-		}, nil
+		}, colName, nil
 	}
 	return &sqlparser.ComparisonExpr{
 		Left:     &sqlparser.SQLVal{Type: sqlparser.IntVal, Val: []byte("1")},
 		Right:    &sqlparser.SQLVal{Type: sqlparser.IntVal, Val: []byte("1")},
 		Operator: expr.Operator,
 		Escape:   expr.Escape,
-	}, nil
+	}, colName, nil
 }
 
-func (pb *primitiveGenerator) analyzeWhere(where *sqlparser.Where) (*sqlparser.Where, error) {
+func (pb *primitiveGenerator) resolveMethods(where *sqlparser.Where) error {
 	requiredParameters := suffix.NewParameterSuffixMap()
-	remainingRequiredParameters := suffix.NewParameterSuffixMap()
+	// remainingRequiredParameters := suffix.NewParameterSuffixMap()
 	optionalParameters := suffix.NewParameterSuffixMap()
 	for _, tb := range pb.PrimitiveBuilder.GetTables() {
 		tbID := tb.GetUniqueId()
 		method, err := tb.GetMethod()
 		if err != nil {
-			return nil, err
+			return err
 		}
 		for k, v := range method.GetRequiredParameters() {
 			key := fmt.Sprintf("%s.%s", tbID, k)
 			_, keyExists := requiredParameters.Get(key)
 			if keyExists {
-				return nil, fmt.Errorf("key already is required: %s", k)
+				return fmt.Errorf("key already is required: %s", k)
 			}
 			requiredParameters.Put(key, v)
 		}
@@ -383,17 +390,55 @@ func (pb *primitiveGenerator) analyzeWhere(where *sqlparser.Where) (*sqlparser.W
 			key := fmt.Sprintf("%s.%s", tbID, k)
 			_, keyExists := optionalParameters.Get(key)
 			if keyExists {
-				return nil, fmt.Errorf("key already is optional: %s", k)
+				return fmt.Errorf("key already is optional: %s", k)
+			}
+			optionalParameters.Put(key, vOpt)
+		}
+	}
+	return nil
+}
+
+func (pb *primitiveGenerator) extractParamsFromWhere(where *sqlparser.Where) (map[string]interface{}, error) {
+	if where == nil {
+		return map[string]interface{}{}, nil
+	}
+	return map[string]interface{}{}, nil
+}
+
+func (pb *primitiveGenerator) analyzeWhere(where *sqlparser.Where) (*sqlparser.Where, []string, error) {
+	requiredParameters := suffix.NewParameterSuffixMap()
+	remainingRequiredParameters := suffix.NewParameterSuffixMap()
+	optionalParameters := suffix.NewParameterSuffixMap()
+	for _, tb := range pb.PrimitiveBuilder.GetTables() {
+		tbID := tb.GetUniqueId()
+		method, err := tb.GetMethod()
+		if err != nil {
+			return nil, nil, err
+		}
+		for k, v := range method.GetRequiredParameters() {
+			key := fmt.Sprintf("%s.%s", tbID, k)
+			_, keyExists := requiredParameters.Get(key)
+			if keyExists {
+				return nil, nil, fmt.Errorf("key already is required: %s", k)
+			}
+			requiredParameters.Put(key, v)
+		}
+		for k, vOpt := range method.GetOptionalParameters() {
+			key := fmt.Sprintf("%s.%s", tbID, k)
+			_, keyExists := optionalParameters.Get(key)
+			if keyExists {
+				return nil, nil, fmt.Errorf("key already is optional: %s", k)
 			}
 			optionalParameters.Put(key, vOpt)
 		}
 	}
 	var retVal sqlparser.Expr
+	var paramsSupplied []string
 	var err error
 	if where != nil {
-		retVal, err = pb.traverseWhereFilter(where.Expr, requiredParameters, optionalParameters)
+		retVal, paramsSupplied, err = pb.traverseWhereFilter(where.Expr, requiredParameters, optionalParameters)
 		if err != nil {
-			return nil, err
+			return nil, paramsSupplied, err
 		}
 	}
 
@@ -403,18 +448,18 @@ func (pb *primitiveGenerator) analyzeWhere(where *sqlparser.Where) (*sqlparser.W
 
 	if remainingRequiredParameters.Size() > 0 {
 		if where == nil {
-			return nil, fmt.Errorf("WHERE clause not supplied, run DESCRIBE EXTENDED for the resource to see required parameters")
+			return nil, paramsSupplied, fmt.Errorf("WHERE clause not supplied, run DESCRIBE EXTENDED for the resource to see required parameters")
 		}
 		var keys []string
 		for k := range remainingRequiredParameters.GetAll() {
 			keys = append(keys, k)
 		}
-		return nil, fmt.Errorf("query cannot be executed, missing required parameters: { %s }", strings.Join(keys, ", "))
+		return nil, paramsSupplied, fmt.Errorf("query cannot be executed, missing required parameters: { %s }", strings.Join(keys, ", "))
 	}
 	if where == nil {
-		return nil, nil
+		return nil, paramsSupplied, nil
 	}
-	return &sqlparser.Where{Type: where.Type, Expr: retVal}, nil
+	return &sqlparser.Where{Type: where.Type, Expr: retVal}, paramsSupplied, nil
 }
 
 func extractVarDefFromExec(node *sqlparser.Exec, argName string) (*sqlparser.ExecVarDef, error) {
@@ -438,7 +483,7 @@ func (p *primitiveGenerator) persistHerarchyToBuilder(heirarchy *taxonomy.Heirar
 }
 
 func (p *primitiveGenerator) analyzeUnaryExec(handlerCtx *handler.HandlerContext, node *sqlparser.Exec, selectNode *sqlparser.Select, cols []parserutil.ColumnHandle) (*taxonomy.ExtendedTableMetadata, error) {
-	err := p.inferHeirarchyAndPersist(handlerCtx, node)
+	err := p.inferHeirarchyAndPersist(handlerCtx, node, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -670,6 +715,8 @@ func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, n
 	var pChild *primitiveGenerator
 	var err error
 
+	paramMap := astvisit.ExtractParamsFromWhereClause(node.Where)
+
 	for i, fromExpr := range node.From {
 		var leafKey interface{} = i
 		switch from := fromExpr.(type) {
@@ -688,24 +735,24 @@ func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, n
 		switch from := fromExpr.(type) {
 		case *sqlparser.ExecSubquery:
 			log.Infoln(fmt.Sprintf("from = %v", from))
-			tblMeta, err = pChild.analyzeTableExpr(handlerCtx, from)
+			tblMeta, err = pChild.analyzeTableExpr(handlerCtx, from, nil)
 			if err != nil {
 				return err
 			}
 			tblz = append(tblz, tblMeta)
 		case *sqlparser.JoinTableExpr:
-			tblMeta, err = pChild.analyzeTableExpr(handlerCtx, from.LeftExpr)
+			tblMeta, err = pChild.analyzeTableExpr(handlerCtx, from.LeftExpr, paramMap)
 			if err != nil {
 				return err
 			}
 			tblz = append(tblz, tblMeta)
-			tblMeta, err = pChild.analyzeTableExpr(handlerCtx, from.RightExpr)
+			tblMeta, err = pChild.analyzeTableExpr(handlerCtx, from.RightExpr, paramMap)
 			if err != nil {
 				return err
 			}
 			tblz = append(tblz, tblMeta)
 		default:
-			tblMeta, err = pChild.analyzeTableExpr(handlerCtx, from)
+			tblMeta, err = pChild.analyzeTableExpr(handlerCtx, from, paramMap)
 			if err != nil {
 				return err
 			}
@@ -760,23 +807,26 @@ func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, n
 	}
 	// TODO: fix this hack
 	var rewrittenWhere *sqlparser.Where
+	var paramsPresent []string
 	if len(node.From) == 1 {
 		switch ft := node.From[0].(type) {
 		case *sqlparser.ExecSubquery:
 			log.Infoln(fmt.Sprintf("%v", ft))
 		default:
-			rewrittenWhere, err = p.analyzeWhere(node.Where)
+			rewrittenWhere, paramsPresent, err = p.analyzeWhere(node.Where)
 			if err != nil {
 				return err
 			}
 			p.PrimitiveBuilder.SetWhere(rewrittenWhere)
 		}
 	}
+	log.Debugf("len(paramsPresent) = %d\n", len(paramsPresent))
+
 	// END TODO
 	if len(node.From) == 1 {
 		switch ft := node.From[0].(type) {
 		case *sqlparser.JoinTableExpr:
-			tbl, err := pChild.analyzeTableExpr(handlerCtx, ft.LeftExpr)
+			tbl, err := pChild.analyzeTableExpr(handlerCtx, ft.LeftExpr, paramMap)
 			if err != nil {
 				return err
 			}
@@ -785,7 +835,7 @@ func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, n
 				return err
 			}
 			rhsPb := newRootPrimitiveGenerator(pChild.PrimitiveBuilder.GetAst(), handlerCtx, pChild.PrimitiveBuilder.GetGraph())
-			tbl, err = rhsPb.analyzeTableExpr(handlerCtx, ft.RightExpr)
+			tbl, err = rhsPb.analyzeTableExpr(handlerCtx, ft.RightExpr, paramMap)
 			if err != nil {
 				return err
 			}
@@ -796,7 +846,7 @@ func (p *primitiveGenerator) analyzeSelect(handlerCtx *handler.HandlerContext, n
 			pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewJoin(pChild.PrimitiveBuilder, rhsPb.PrimitiveBuilder, handlerCtx, nil))
 			return nil
 		case *sqlparser.AliasedTableExpr:
-			tbl, err := pChild.analyzeTableExpr(handlerCtx, node.From[0])
+			tbl, err := pChild.analyzeTableExpr(handlerCtx, node.From[0], paramMap)
 			if err != nil {
 				return err
 			}
@@ -913,13 +963,13 @@ func (p *primitiveGenerator) analyzeSelectDetail(handlerCtx *handler.HandlerCont
 	return nil
 }
 
-func (p *primitiveGenerator) analyzeTableExpr(handlerCtx *handler.HandlerContext, node sqlparser.TableExpr) (*taxonomy.ExtendedTableMetadata, error) {
+func (p *primitiveGenerator) analyzeTableExpr(handlerCtx *handler.HandlerContext, node sqlparser.TableExpr, parameters map[string]interface{}) (*taxonomy.ExtendedTableMetadata, error) {
 	var nodeToPersist sqlparser.SQLNode = node
 	switch node := node.(type) {
 	case *sqlparser.ExecSubquery:
 		nodeToPersist = node.Exec
 	}
-	err := p.inferHeirarchyAndPersist(handlerCtx, nodeToPersist)
+	err := p.inferHeirarchyAndPersist(handlerCtx, nodeToPersist, parameters)
 	if err != nil {
 		return nil, err
 	}
@@ -978,7 +1028,7 @@ func (p *primitiveGenerator) buildRequestContext(handlerCtx *handler.HandlerCont
 }
 
 func (p *primitiveGenerator) analyzeInsert(handlerCtx *handler.HandlerContext, node *sqlparser.Insert) error {
-	err := p.inferHeirarchyAndPersist(handlerCtx, node)
+	err := p.inferHeirarchyAndPersist(handlerCtx, node, nil)
 	if err != nil {
 		return err
 	}
@@ -1043,8 +1093,8 @@ func (p *primitiveGenerator) analyzeInsert(handlerCtx *handler.HandlerContext, n
 	return nil
 }
 
-func (p *primitiveGenerator) inferHeirarchyAndPersist(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode) error {
-	heirarchy, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, node)
+func (p *primitiveGenerator) inferHeirarchyAndPersist(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, parameters map[string]interface{}) error {
+	heirarchy, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, node, parameters)
 	if err != nil {
 		return err
 	}
@@ -1054,7 +1104,8 @@ func (p *primitiveGenerator) inferHeirarchyAndPersist(handlerCtx *handler.Handle
 
 func (p *primitiveGenerator) analyzeDelete(handlerCtx *handler.HandlerContext, node *sqlparser.Delete) error {
 	p.parseComments(node.Comments)
-	err := p.inferHeirarchyAndPersist(handlerCtx, node)
+	paramMap := astvisit.ExtractParamsFromWhereClause(node.Where)
+	err := p.inferHeirarchyAndPersist(handlerCtx, node, paramMap)
 	if err != nil {
 		return err
 	}
@@ -1094,7 +1145,7 @@ func (p *primitiveGenerator) analyzeDelete(handlerCtx *handler.HandlerContext, n
 		log.Infof("no response schema for delete: %s \n", err.Error())
 	}
 	if schema != nil {
-		_, whereErr := p.analyzeWhere(node.Where)
+		_, _, whereErr := p.analyzeWhere(node.Where)
 		if whereErr != nil {
 			return whereErr
 		}
@@ -1132,7 +1183,7 @@ func (p *primitiveGenerator) analyzeDelete(handlerCtx *handler.HandlerContext, n
 
 func (p *primitiveGenerator) analyzeDescribe(handlerCtx *handler.HandlerContext, node *sqlparser.DescribeTable) error {
 	var err error
-	err = p.inferHeirarchyAndPersist(handlerCtx, node)
+	err = p.inferHeirarchyAndPersist(handlerCtx, node, nil)
 	if err != nil {
 		return err
 	}
@@ -1214,12 +1265,12 @@ func (p *primitiveGenerator) analyzeShow(handlerCtx *handler.HandlerContext, nod
 	case "AUTH":
 		// TODO
 	case "INSERT":
-		err = p.inferHeirarchyAndPersist(handlerCtx, node)
+		err = p.inferHeirarchyAndPersist(handlerCtx, node, nil)
 		if err != nil {
 			return err
 		}
 	case "METHODS":
-		err = p.inferHeirarchyAndPersist(handlerCtx, node)
+		err = p.inferHeirarchyAndPersist(handlerCtx, node, nil)
 		if err != nil {
 			return err
 		}

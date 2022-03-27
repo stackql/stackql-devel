@@ -3,7 +3,7 @@ package suffix
 import (
 	"github.com/stackql/go-openapistackql/openapistackql"
 
-	"github.com/stackql/stackql/internal/pkg/suffixmap"
+	"github.com/stackql/go-suffix-map/pkg/suffixmap"
 )
 
 type ParameterSuffixMap struct {

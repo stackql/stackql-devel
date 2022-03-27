@@ -6,7 +6,7 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/stackql/stackql/internal/pkg/suffixmap"
+	"github.com/stackql/go-suffix-map/pkg/suffixmap"
 )
 
 type SymTabEntry struct {

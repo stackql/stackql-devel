@@ -234,6 +234,7 @@ type HeirarchyObjects struct {
 	Provider     provider.IProvider
 	ServiceHdl   *openapistackql.Service
 	Resource     *openapistackql.Resource
+	MethodSet    openapistackql.MethodSet
 	Method       *openapistackql.OperationStore
 }
 
@@ -326,7 +327,7 @@ func GetAliasFromStatement(node sqlparser.SQLNode) string {
 	}
 }
 
-func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode) (*HeirarchyObjects, error) {
+func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, parameters map[string]interface{}) (*HeirarchyObjects, error) {
 	var hIds *dto.HeirarchyIdentifiers
 	hIds, err := getHids(handlerCtx, node)
 	if err != nil {
@@ -341,7 +342,7 @@ func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparse
 	case *sqlparser.DescribeTable:
 	case sqlparser.TableName:
 	case *sqlparser.AliasedTableExpr:
-		return GetHeirarchyFromStatement(handlerCtx, n.Expr)
+		return GetHeirarchyFromStatement(handlerCtx, n.Expr, parameters)
 	case *sqlparser.Show:
 		switch strings.ToUpper(n.Type) {
 		case "INSERT":
@@ -391,7 +392,7 @@ func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparse
 		if methodAction == "" {
 			methodAction = "select"
 		}
-		meth, methStr, err := prov.GetMethodForAction(retVal.HeirarchyIds.ServiceStr, retVal.HeirarchyIds.ResourceStr, methodAction, handlerCtx.RuntimeContext)
+		meth, methStr, err := prov.GetMethodForAction(retVal.HeirarchyIds.ServiceStr, retVal.HeirarchyIds.ResourceStr, methodAction, parameters, handlerCtx.RuntimeContext)
 		if err != nil {
 			return nil, fmt.Errorf("could not find method in taxonomy: %s", err.Error())
 		}
