@@ -528,7 +528,7 @@ func (ss *SingleAcquireAndSelect) Build() error {
 		return err
 	}
 	graph := ss.primitiveBuilder.GetGraph()
-	graph.NewDependency(ss.acquireBuilder.GetRoot(), ss.selectBuilder.GetRoot(), 1.0)
+	graph.NewDependency(ss.acquireBuilder.GetTail(), ss.selectBuilder.GetRoot(), 1.0)
 	return nil
 }
 
@@ -551,7 +551,7 @@ func (ss *MultipleAcquireAndSelect) Build() error {
 			return err
 		}
 		graph := ss.primitiveBuilder.GetGraph()
-		graph.NewDependency(acbBld.GetRoot(), ss.selectBuilder.GetRoot(), 1.0)
+		graph.NewDependency(acbBld.GetTail(), ss.selectBuilder.GetRoot(), 1.0)
 	}
 	return nil
 }
