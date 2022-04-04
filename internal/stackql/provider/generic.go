@@ -64,6 +64,8 @@ func (gp *GenericProvider) inferAuthType(authCtx dto.AuthCtx, authTypeRequested 
 	switch ft {
 	case dto.AuthApiKeyStr:
 		return dto.AuthApiKeyStr
+	case dto.AuthBasicStr:
+		return dto.AuthBasicStr
 	case dto.AuthServiceAccountStr:
 		return dto.AuthServiceAccountStr
 	case dto.AuthInteractiveStr:
@@ -227,7 +229,7 @@ func (gp *GenericProvider) oAuth(authCtx *dto.AuthCtx, enforceRevokeFirst bool) 
 	}
 	activateAuth(authCtx, "", dto.AuthInteractiveStr)
 	client := netutils.GetHttpClient(gp.runtimeCtx, nil)
-	tr, err := newTransport(tokenBytes, authTypeBearer, locationHeader, "", client.Transport)
+	tr, err := newTransport(tokenBytes, authTypeBearer, authCtx.ValuePrefix, locationHeader, "", client.Transport)
 	if err != nil {
 		return nil, err
 	}

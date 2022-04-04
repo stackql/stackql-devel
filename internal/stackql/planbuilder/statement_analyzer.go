@@ -540,7 +540,11 @@ func (p *primitiveGenerator) analyzeUnaryExec(handlerCtx *handler.HandlerContext
 	}
 	var execPayload *dto.ExecPayload
 	if node.OptExecPayload != nil {
-		execPayload, err = p.parseExecPayload(node.OptExecPayload, method.Request.BodyMediaType)
+		mediaType := "application/json"
+		if method.Request != nil && method.Request.BodyMediaType != "" {
+			mediaType = method.Request.BodyMediaType
+		}
+		execPayload, err = p.parseExecPayload(node.OptExecPayload, mediaType)
 		if err != nil {
 			return nil, err
 		}
