@@ -135,8 +135,8 @@
       "args": [
         "exec",
         "--registry={ \"useEmbedded\": false, \"url\": \"file://${workspaceFolder}/test/registry\", \"localDocRoot\": \"${workspaceFolder}/test/registry\", \"verifyConfig\": { \"nopVerify\": true } }",
-        "--auth={ \"google\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"type\": \"api_key\" }, \"github\": { \"type\": \"basic\", \"credentialsfilepath\": \"${workspaceFolder}/keys/github-user-token.txt\", \"valuePrefix\": \"Basic \" } }",
-        "EXEC github.repos.repos.create_in_org @org='stackql' @@json='{\"name\":\"test-r1\"}';"
+        "--auth={ \"google\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/sa-key.json\" }, \"okta\": { \"credentialsfilepath\": \"${workspaceFolder}/keys/okta-token.txt\", \"type\": \"api_key\" }, \"github\": { \"type\": \"basic\", \"credentialsfilepath\": \"${workspaceFolder}/keys/github-user-token.txt\" } }",
+        "EXEC github.repos.repos.create_in_org @org='stackql' @@json='{\"name\":\"test-r2\"}';"
       ],
     },
     // show extended resources from okta.group
