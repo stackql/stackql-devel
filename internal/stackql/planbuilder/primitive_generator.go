@@ -648,6 +648,8 @@ func (pb *primitiveGenerator) deleteExecutor(handlerCtx *handler.HandlerContext,
 				return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil))
 			}
 			target, err = httpexec.DeprecatedProcessHttpResponse(response)
+
+			log.Infoln(fmt.Sprintf("deleteExecutor() target = %v", target))
 			if err != nil {
 				return util.PrepareResultSet(dto.NewPrepareResultSetDTO(
 					nil,
@@ -802,7 +804,7 @@ func (pb *primitiveGenerator) composeAsyncMonitor(handlerCtx *handler.HandlerCon
 	if err != nil {
 		return nil, err
 	}
-	asm, err := asyncmonitor.NewAsyncMonitor(prov)
+	asm, err := asyncmonitor.NewAsyncMonitor(handlerCtx, prov)
 	if err != nil {
 		return nil, err
 	}
