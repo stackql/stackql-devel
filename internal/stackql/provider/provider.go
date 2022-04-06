@@ -7,7 +7,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/discovery"
 	"github.com/stackql/stackql/internal/stackql/docparser"
 	"github.com/stackql/stackql/internal/stackql/dto"
-	"github.com/stackql/stackql/internal/stackql/httpexec"
 	"github.com/stackql/stackql/internal/stackql/methodselect"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 
@@ -35,8 +34,6 @@ type IProvider interface {
 	CheckCredentialFile(authCtx *dto.AuthCtx) error
 
 	EnhanceMetadataFilter(string, func(openapistackql.ITable) (openapistackql.ITable, error), map[string]bool) (func(openapistackql.ITable) (openapistackql.ITable, error), error)
-
-	GenerateHTTPRestInstruction(httpContext httpexec.IHttpContext) (httpexec.IHttpContext, error)
 
 	GetCurrentService() string
 
@@ -73,8 +70,6 @@ type IProvider interface {
 	InferNextPageRequestElement(*openapistackql.OperationStore) *dto.HTTPElement
 
 	InferNextPageResponseElement(*openapistackql.OperationStore) *dto.HTTPElement
-
-	Parameterise(httpContext httpexec.IHttpContext, method *openapistackql.OperationStore, parameters *dto.HttpParameters, requestSchema *openapistackql.Schema) (httpexec.IHttpContext, error)
 
 	SetCurrentService(serviceKey string)
 
