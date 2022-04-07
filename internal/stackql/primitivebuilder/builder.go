@@ -10,7 +10,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
-	"github.com/stackql/stackql/internal/stackql/httpexec"
 	"github.com/stackql/stackql/internal/stackql/httpmiddleware"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
@@ -373,9 +372,13 @@ func (ss *SingleSelectAcquire) Build() error {
 	if err != nil {
 		return err
 	}
+	m, err := ss.tableMeta.GetMethod()
+	if err != nil {
+		return err
+	}
 	ex := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 		ss.primitiveBuilder.graph.AddTxnControlCounters(*ss.primitiveBuilder.txnCtrlCtrs)
-		mr := prov.InferMaxResultsElement(ss.tableMeta.HeirarchyObjects.Method)
+		mr := prov.InferMaxResultsElement(m)
 		if mr != nil {
 			// TODO: infer param position and act accordingly
 			ok := true
@@ -398,7 +401,7 @@ func (ss *SingleSelectAcquire) Build() error {
 				if apiErr != nil {
 					return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, nil, nil, ss.rowSort, apiErr, nil))
 				}
-				target, err := httpexec.ProcessHttpResponse(response)
+				target, err := m.ProcessResponse(response)
 				if err != nil {
 					return dto.NewErroneousExecutorOutput(err)
 				}

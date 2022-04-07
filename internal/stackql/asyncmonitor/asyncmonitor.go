@@ -8,7 +8,6 @@ import (
 
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
-	"github.com/stackql/stackql/internal/stackql/httpexec"
 	"github.com/stackql/stackql/internal/stackql/httpmiddleware"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/provider"
@@ -199,7 +198,7 @@ func (gm *DefaultGoogleAsyncMonitor) getV1Monitor(heirarchy *taxonomy.HeirarchyO
 			if apiErr != nil {
 				return dto.NewExecutorOutput(nil, nil, nil, nil, apiErr)
 			}
-			target, err := httpexec.DeprecatedProcessHttpResponse(response)
+			target, err := heirarchy.Method.DeprecatedProcessResponse(response)
 			if err != nil {
 				return dto.NewExecutorOutput(nil, nil, nil, nil, err)
 			}
