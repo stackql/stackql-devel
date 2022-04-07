@@ -377,8 +377,17 @@ func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparse
 		return nil, err
 	}
 	retVal.Resource = rsc
-	method, methodErr := rsc.FindMethod(hIds.MethodStr) // rsc.Methods[hIds.MethodStr]
-	if methodErr != nil && methodRequired {
+	var method *openapistackql.OperationStore
+	switch node.(type) {
+	case *sqlparser.Exec, *sqlparser.ExecSubquery:
+		method, err = rsc.FindMethod(hIds.MethodStr)
+		if err != nil {
+			return nil, err
+		}
+		retVal.Method = method
+		return &retVal, nil
+	}
+	if methodRequired {
 		switch node.(type) {
 		case *sqlparser.DescribeTable:
 			m, mStr, err := prov.InferDescribeMethod(rsc)
