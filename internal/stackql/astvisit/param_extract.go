@@ -27,7 +27,7 @@ func (v *ParamAstVisitor) GetStringifiedParameters() map[string]interface{} {
 	for k, v := range v.params {
 		switch k := k.(type) {
 		case *sqlparser.ColName:
-			rv[k.Name.GetRawVal()] = v
+			rv[k.GetRawVal()] = v
 		}
 	}
 	return rv
