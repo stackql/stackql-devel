@@ -31,6 +31,20 @@ func isPlanCacheEnabled() bool {
 	return strings.ToLower(PlanCacheEnabled) != "false"
 }
 
+type PlanBuilderInput struct {
+	handlerCtx      *handler.HandlerContext
+	stmt            sqlparser.SQLNode
+	assignedAliases map[sqlparser.TableName]sqlparser.TableExpr
+}
+
+func (pbi PlanBuilderInput) GetStatement() sqlparser.SQLNode {
+	return pbi.stmt
+}
+
+func (pbi PlanBuilderInput) GetHandlerCtx() *handler.HandlerContext {
+	return pbi.handlerCtx
+}
+
 type planGraphBuilder struct {
 	planGraph *primitivegraph.PrimitiveGraph
 }
@@ -41,12 +55,13 @@ func newPlanGraphBuilder() *planGraphBuilder {
 	}
 }
 
-func (pgb *planGraphBuilder) createInstructionFor(handlerCtx *handler.HandlerContext, stmt sqlparser.SQLNode) error {
+func (pgb *planGraphBuilder) createInstructionFor(pbi PlanBuilderInput) error {
+	stmt := pbi.GetStatement()
 	switch stmt := stmt.(type) {
 	case *sqlparser.Auth:
-		return pgb.handleAuth(handlerCtx, stmt)
+		return pgb.handleAuth(pbi, stmt)
 	case *sqlparser.AuthRevoke:
-		return pgb.handleAuthRevoke(handlerCtx, stmt)
+		return pgb.handleAuthRevoke(pbi, stmt)
 	case *sqlparser.Begin:
 		return iqlerror.GetStatementNotSupportedError("TRANSACTION: BEGIN")
 	case *sqlparser.Commit:
@@ -56,50 +71,51 @@ func (pgb *planGraphBuilder) createInstructionFor(handlerCtx *handler.HandlerCon
 	case *sqlparser.DDL:
 		return iqlerror.GetStatementNotSupportedError("DDL")
 	case *sqlparser.Delete:
-		return pgb.handleDelete(handlerCtx, stmt)
+		return pgb.handleDelete(pbi, stmt)
 	case *sqlparser.DescribeTable:
-		return pgb.handleDescribe(handlerCtx, stmt)
+		return pgb.handleDescribe(pbi, stmt)
 	case *sqlparser.Exec:
-		return pgb.handleExec(handlerCtx, stmt)
+		return pgb.handleExec(pbi, stmt)
 	case *sqlparser.Explain:
 		return iqlerror.GetStatementNotSupportedError("EXPLAIN")
 	case *sqlparser.Insert:
-		return pgb.handleInsert(handlerCtx, stmt)
+		return pgb.handleInsert(pbi, stmt)
 	case *sqlparser.OtherRead, *sqlparser.OtherAdmin:
 		return iqlerror.GetStatementNotSupportedError("OTHER")
 	case *sqlparser.Registry:
-		return pgb.handleRegistry(handlerCtx, stmt)
+		return pgb.handleRegistry(pbi, stmt)
 	case *sqlparser.Rollback:
 		return iqlerror.GetStatementNotSupportedError("TRANSACTION: ROLLBACK")
 	case *sqlparser.Savepoint:
 		return iqlerror.GetStatementNotSupportedError("TRANSACTION: SAVEPOINT")
 	case *sqlparser.Select:
-		_, _, err := pgb.handleSelect(handlerCtx, stmt)
+		_, _, err := pgb.handleSelect(pbi, stmt)
 		return err
 	case *sqlparser.Set:
 		return iqlerror.GetStatementNotSupportedError("SET")
 	case *sqlparser.SetTransaction:
 		return iqlerror.GetStatementNotSupportedError("SET TRANSACTION")
 	case *sqlparser.Show:
-		return pgb.handleShow(handlerCtx, stmt)
+		return pgb.handleShow(pbi, stmt)
 	case *sqlparser.Sleep:
-		return pgb.handleSleep(handlerCtx, stmt)
+		return pgb.handleSleep(pbi, stmt)
 	case *sqlparser.SRollback:
 		return iqlerror.GetStatementNotSupportedError("TRANSACTION: SROLLBACK")
 	case *sqlparser.Release:
 		return iqlerror.GetStatementNotSupportedError("TRANSACTION: RELEASE")
 	case *sqlparser.Union:
-		_, _, err := pgb.handleUnion(handlerCtx, stmt)
+		_, _, err := pgb.handleUnion(pbi, stmt)
 		return err
 	case *sqlparser.Update:
 		return iqlerror.GetStatementNotSupportedError("UPDATE")
 	case *sqlparser.Use:
-		return pgb.handleUse(handlerCtx, stmt)
+		return pgb.handleUse(pbi, stmt)
 	}
 	return iqlerror.GetStatementNotSupportedError(fmt.Sprintf("BUG: unexpected statement type: %T", stmt))
 }
 
-func (pgb *planGraphBuilder) handleAuth(handlerCtx *handler.HandlerContext, node *sqlparser.Auth) error {
+func (pgb *planGraphBuilder) handleAuth(pbi PlanBuilderInput, node *sqlparser.Auth) error {
+	handlerCtx := pbi.GetHandlerCtx()
 	primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 	prov, err := handlerCtx.GetProvider(node.Provider)
 	if err != nil {
@@ -131,7 +147,8 @@ func (pgb *planGraphBuilder) handleAuth(handlerCtx *handler.HandlerContext, node
 	return nil
 }
 
-func (pgb *planGraphBuilder) handleAuthRevoke(handlerCtx *handler.HandlerContext, node *sqlparser.AuthRevoke) error {
+func (pgb *planGraphBuilder) handleAuthRevoke(pbi PlanBuilderInput, node *sqlparser.AuthRevoke) error {
+	handlerCtx := pbi.GetHandlerCtx()
 	primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 	err := primitiveGenerator.analyzeStatement(handlerCtx, node)
 	if err != nil {
@@ -154,7 +171,8 @@ func (pgb *planGraphBuilder) handleAuthRevoke(handlerCtx *handler.HandlerContext
 	return nil
 }
 
-func (pgb *planGraphBuilder) handleDescribe(handlerCtx *handler.HandlerContext, node *sqlparser.DescribeTable) error {
+func (pgb *planGraphBuilder) handleDescribe(pbi PlanBuilderInput, node *sqlparser.DescribeTable) error {
+	handlerCtx := pbi.GetHandlerCtx()
 	primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 	err := primitiveGenerator.analyzeStatement(handlerCtx, node)
 	if err != nil {
@@ -179,7 +197,8 @@ func (pgb *planGraphBuilder) handleDescribe(handlerCtx *handler.HandlerContext, 
 	return nil
 }
 
-func (pgb *planGraphBuilder) handleSelect(handlerCtx *handler.HandlerContext, node *sqlparser.Select) (*primitivegraph.PrimitiveNode, *primitivegraph.PrimitiveNode, error) {
+func (pgb *planGraphBuilder) handleSelect(pbi PlanBuilderInput, node *sqlparser.Select) (*primitivegraph.PrimitiveNode, *primitivegraph.PrimitiveNode, error) {
+	handlerCtx := pbi.GetHandlerCtx()
 	if !handlerCtx.RuntimeContext.TestWithoutApiCalls {
 		primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 		err := primitiveGenerator.analyzeStatement(handlerCtx, node)
@@ -216,7 +235,8 @@ func (pgb *planGraphBuilder) handleSelect(handlerCtx *handler.HandlerContext, no
 	return &rv, &rv, nil
 }
 
-func (pgb *planGraphBuilder) handleUnion(handlerCtx *handler.HandlerContext, node *sqlparser.Union) (*primitivegraph.PrimitiveNode, *primitivegraph.PrimitiveNode, error) {
+func (pgb *planGraphBuilder) handleUnion(pbi PlanBuilderInput, node *sqlparser.Union) (*primitivegraph.PrimitiveNode, *primitivegraph.PrimitiveNode, error) {
+	handlerCtx := pbi.GetHandlerCtx()
 	primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 	err := primitiveGenerator.analyzeStatement(handlerCtx, node)
 	if err != nil {
@@ -240,7 +260,8 @@ func (pgb *planGraphBuilder) handleUnion(handlerCtx *handler.HandlerContext, nod
 	return &root, &tail, nil
 }
 
-func (pgb *planGraphBuilder) handleDelete(handlerCtx *handler.HandlerContext, node *sqlparser.Delete) error {
+func (pgb *planGraphBuilder) handleDelete(pbi PlanBuilderInput, node *sqlparser.Delete) error {
+	handlerCtx := pbi.GetHandlerCtx()
 	if !handlerCtx.RuntimeContext.TestWithoutApiCalls {
 		primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 		err := primitiveGenerator.analyzeStatement(handlerCtx, node)
@@ -261,7 +282,8 @@ func (pgb *planGraphBuilder) handleDelete(handlerCtx *handler.HandlerContext, no
 	return nil
 }
 
-func (pgb *planGraphBuilder) handleRegistry(handlerCtx *handler.HandlerContext, node *sqlparser.Registry) error {
+func (pgb *planGraphBuilder) handleRegistry(pbi PlanBuilderInput, node *sqlparser.Registry) error {
+	handlerCtx := pbi.GetHandlerCtx()
 	primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 	err := primitiveGenerator.analyzeRegistry(handlerCtx, node)
 	if err != nil {
@@ -308,7 +330,8 @@ func (pgb *planGraphBuilder) handleRegistry(handlerCtx *handler.HandlerContext, 
 	return nil
 }
 
-func (pgb *planGraphBuilder) handleInsert(handlerCtx *handler.HandlerContext, node *sqlparser.Insert) error {
+func (pgb *planGraphBuilder) handleInsert(pbi PlanBuilderInput, node *sqlparser.Insert) error {
+	handlerCtx := pbi.GetHandlerCtx()
 	if !handlerCtx.RuntimeContext.TestWithoutApiCalls {
 		primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 		err := primitiveGenerator.analyzeInsert(handlerCtx, node)
@@ -324,7 +347,7 @@ func (pgb *planGraphBuilder) handleInsert(handlerCtx *handler.HandlerContext, no
 		if nonValCols > 0 {
 			switch rowsNode := node.Rows.(type) {
 			case *sqlparser.Select:
-				_, selectPrimitiveNode, err = pgb.handleSelect(handlerCtx, rowsNode)
+				_, selectPrimitiveNode, err = pgb.handleSelect(pbi, rowsNode)
 				if err != nil {
 					return err
 				}
@@ -358,7 +381,8 @@ func (pgb *planGraphBuilder) handleInsert(handlerCtx *handler.HandlerContext, no
 	return nil
 }
 
-func (pgb *planGraphBuilder) handleExec(handlerCtx *handler.HandlerContext, node *sqlparser.Exec) error {
+func (pgb *planGraphBuilder) handleExec(pbi PlanBuilderInput, node *sqlparser.Exec) error {
+	handlerCtx := pbi.GetHandlerCtx()
 	if !handlerCtx.RuntimeContext.TestWithoutApiCalls {
 		primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 		err := primitiveGenerator.analyzeStatement(handlerCtx, node)
@@ -376,7 +400,8 @@ func (pgb *planGraphBuilder) handleExec(handlerCtx *handler.HandlerContext, node
 	return nil
 }
 
-func (pgb *planGraphBuilder) handleShow(handlerCtx *handler.HandlerContext, node *sqlparser.Show) error {
+func (pgb *planGraphBuilder) handleShow(pbi PlanBuilderInput, node *sqlparser.Show) error {
+	handlerCtx := pbi.GetHandlerCtx()
 	primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 	err := primitiveGenerator.analyzeStatement(handlerCtx, node)
 	if err != nil {
@@ -391,7 +416,8 @@ func (pgb *planGraphBuilder) handleShow(handlerCtx *handler.HandlerContext, node
 	return nil
 }
 
-func (pgb *planGraphBuilder) handleSleep(handlerCtx *handler.HandlerContext, node *sqlparser.Sleep) error {
+func (pgb *planGraphBuilder) handleSleep(pbi PlanBuilderInput, node *sqlparser.Sleep) error {
+	handlerCtx := pbi.GetHandlerCtx()
 	primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 	err := primitiveGenerator.analyzeStatement(handlerCtx, node)
 	if err != nil {
@@ -400,7 +426,8 @@ func (pgb *planGraphBuilder) handleSleep(handlerCtx *handler.HandlerContext, nod
 	return nil
 }
 
-func (pgb *planGraphBuilder) handleUse(handlerCtx *handler.HandlerContext, node *sqlparser.Use) error {
+func (pgb *planGraphBuilder) handleUse(pbi PlanBuilderInput, node *sqlparser.Use) error {
+	handlerCtx := pbi.GetHandlerCtx()
 	primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 	err := primitiveGenerator.analyzeStatement(handlerCtx, node)
 	if err != nil {
@@ -480,7 +507,16 @@ func BuildPlanFromContext(handlerCtx *handler.HandlerContext) (*plan.Plan, error
 
 	pGBuilder := newPlanGraphBuilder()
 
-	createInstructionError := pGBuilder.createInstructionFor(handlerCtx, result.AST)
+	ast := result.AST
+	tVis := astvisit.NewTableExtractAstVisitor()
+	tVis.Visit(ast)
+
+	aVis := astvisit.NewTableAliasAstVisitor(tVis.GetTables())
+	aVis.Visit(ast)
+
+	pbi := PlanBuilderInput{stmt: ast, handlerCtx: handlerCtx, assignedAliases: aVis.GetAliases()}
+
+	createInstructionError := pGBuilder.createInstructionFor(pbi)
 	if createInstructionError != nil {
 		return nil, createInstructionError
 	}

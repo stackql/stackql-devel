@@ -691,8 +691,9 @@ func (v *ParamAstVisitor) Visit(node sqlparser.SQLNode) error {
 		default:
 			switch rt := node.Right.(type) {
 			case *sqlparser.SQLVal:
+			case *sqlparser.ColName:
+				v.params[rt] = lt
 			default:
-				v.params[lt] = rt
 			}
 		}
 		return nil
