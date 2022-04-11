@@ -23,7 +23,7 @@ func analyzeAliasedTable(handlerCtx *handler.HandlerContext, tb *sqlparser.Alias
 	case sqlparser.TableName:
 		sm := tableMap.SingleTableMap(expr)
 		params := sm.ToStringMap()
-		_, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, tb, params)
+		_, _, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, tb, params)
 		if err != nil {
 			return nil, err
 		}

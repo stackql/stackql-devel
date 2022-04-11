@@ -1136,7 +1136,7 @@ func (p *primitiveGenerator) analyzeInsert(pbi PlanBuilderInput) error {
 }
 
 func (p *primitiveGenerator) inferHeirarchyAndPersist(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, parameters map[string]interface{}) error {
-	heirarchy, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, node, parameters)
+	heirarchy, _, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, node, parameters)
 	if err != nil {
 		return err
 	}
