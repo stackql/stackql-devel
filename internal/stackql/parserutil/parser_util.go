@@ -461,3 +461,23 @@ func TableFromSelectNode(sel *sqlparser.Select) (sqlparser.TableName, error) {
 	}
 	return tableName, nil
 }
+
+type TableExprMap map[sqlparser.TableName]sqlparser.TableExpr
+
+func (tm TableExprMap) SingleTableMap(filterTable sqlparser.TableName) TableExprMap {
+	rv := make(TableExprMap)
+	for k, v := range tm {
+		if k == filterTable {
+			rv[k] = v
+		}
+	}
+	return rv
+}
+
+func (tm TableExprMap) ToStringMap() map[string]interface{} {
+	rv := make(map[string]interface{})
+	for k, v := range tm {
+		rv[k.GetRawVal()] = v
+	}
+	return rv
+}

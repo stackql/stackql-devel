@@ -109,10 +109,10 @@ func (gp *GenericProvider) AuthRevoke(authCtx *dto.AuthCtx) error {
 	return fmt.Errorf(`Auth revoke for Google Failed; improper auth method: "%s" speciied`, authCtx.Type)
 }
 
-func (gp *GenericProvider) GetMethodForAction(serviceName string, resourceName string, iqlAction string, parameters map[string]interface{}, runtimeCtx dto.RuntimeCtx) (*openapistackql.OperationStore, string, error) {
+func (gp *GenericProvider) GetMethodForAction(serviceName string, resourceName string, iqlAction string, parameters map[string]interface{}, runtimeCtx dto.RuntimeCtx) (*openapistackql.OperationStore, string, map[string]interface{}, error) {
 	rsc, err := gp.GetResource(serviceName, resourceName, runtimeCtx)
 	if err != nil {
-		return nil, "", err
+		return nil, "", parameters, err
 	}
 	return gp.methodSelector.GetMethodForAction(rsc, iqlAction, parameters)
 }

@@ -7,16 +7,17 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/stackql/stackql/internal/stackql/parserutil"
 )
 
 type TableAliasAstVisitor struct {
-	aliases map[sqlparser.TableName]sqlparser.TableExpr
+	aliases parserutil.TableExprMap
 	tables  sqlparser.TableExprs
 }
 
 func NewTableAliasAstVisitor(tables sqlparser.TableExprs) *TableAliasAstVisitor {
 	return &TableAliasAstVisitor{
-		aliases: make(map[sqlparser.TableName]sqlparser.TableExpr),
+		aliases: make(parserutil.TableExprMap),
 		tables:  tables,
 	}
 }
@@ -50,7 +51,7 @@ func (v *TableAliasAstVisitor) findTableFromQualifier(qualifier sqlparser.TableN
 	return nil, fmt.Errorf("could not locate table corresponding to expression '%s'", qualifier.GetRawVal())
 }
 
-func (v *TableAliasAstVisitor) GetAliases() map[sqlparser.TableName]sqlparser.TableExpr {
+func (v *TableAliasAstVisitor) GetAliases() parserutil.TableExprMap {
 	return v.aliases
 }
 

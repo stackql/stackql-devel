@@ -401,7 +401,7 @@ func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparse
 		if methodAction == "" {
 			methodAction = "select"
 		}
-		meth, methStr, err := prov.GetMethodForAction(retVal.HeirarchyIds.ServiceStr, retVal.HeirarchyIds.ResourceStr, methodAction, parameters, handlerCtx.RuntimeContext)
+		meth, methStr, _, err := prov.GetMethodForAction(retVal.HeirarchyIds.ServiceStr, retVal.HeirarchyIds.ResourceStr, methodAction, parameters, handlerCtx.RuntimeContext)
 		if err != nil {
 			return nil, fmt.Errorf("could not find method in taxonomy: %s", err.Error())
 		}
@@ -413,3 +413,8 @@ func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparse
 	}
 	return &retVal, nil
 }
+
+// func GetHeirarchyFromTableStatement(handlerCtx *handler.HandlerContext, node *sqlparser.AliasedTableExpr, allParameters parserutil.TableExprMap) (*HeirarchyObjects, error) {
+// 	//
+// 	return GetHeirarchyFromStatement(handlerCtx, node.Expr, parameters)
+// }
