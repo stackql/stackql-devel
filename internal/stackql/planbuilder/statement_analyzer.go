@@ -117,7 +117,7 @@ func (p *primitiveGenerator) analyzeUnion(pbi PlanBuilderInput) error {
 		return err
 	}
 	pChild := p.addChildPrimitiveGenerator(node.FirstStatement, leaf)
-	err = pChild.analyzeSelectStatement(NewPlanBuilderInput(handlerCtx, node.FirstStatement, nil))
+	err = pChild.analyzeSelectStatement(NewPlanBuilderInput(handlerCtx, node.FirstStatement, nil, nil))
 	if err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func (p *primitiveGenerator) analyzeUnion(pbi PlanBuilderInput) error {
 			return err
 		}
 		pChild := p.addChildPrimitiveGenerator(rhsStmt.Statement, leaf)
-		err = pChild.analyzeSelectStatement(NewPlanBuilderInput(handlerCtx, rhsStmt.Statement, nil))
+		err = pChild.analyzeSelectStatement(NewPlanBuilderInput(handlerCtx, rhsStmt.Statement, nil, nil))
 		if err != nil {
 			return err
 		}
@@ -748,11 +748,26 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 		return fmt.Errorf("could not cast statement of type '%T' to required Select", pbi.GetStatement())
 	}
 
-	var tblMeta *taxonomy.ExtendedTableMetadata
 	var pChild *primitiveGenerator
 	var err error
 
 	paramMap := astvisit.ExtractParamsFromWhereClause(node.Where)
+
+	router := parserutil.NewParameterRouter(pbi.GetAssignedAliases(), paramMap)
+
+	v := astvisit.NewTableRouteAstVisitor(pbi.handlerCtx, router)
+
+	err = v.Visit(pbi.GetStatement())
+
+	if err != nil {
+		return err
+	}
+
+	tblz := v.GetTableMap()
+
+	for k, v := range tblz {
+		p.PrimitiveBuilder.SetTable(k, v)
+	}
 
 	for i, fromExpr := range node.From {
 		var leafKey interface{} = i
@@ -768,54 +783,28 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 			return err
 		}
 		pChild = p.addChildPrimitiveGenerator(fromExpr, leaf)
-		var tblz []*taxonomy.ExtendedTableMetadata
-		switch from := fromExpr.(type) {
-		case *sqlparser.ExecSubquery:
-			log.Infoln(fmt.Sprintf("from = %v", from))
-			tblMeta, err = pChild.analyzeTableExpr(handlerCtx, from, nil)
-			if err != nil {
-				return err
-			}
-			tblz = append(tblz, tblMeta)
-		case *sqlparser.JoinTableExpr:
-			tblMeta, err = pChild.analyzeTableExpr(handlerCtx, from.LeftExpr, paramMap)
-			if err != nil {
-				return err
-			}
-			tblz = append(tblz, tblMeta)
-			tblMeta, err = pChild.analyzeTableExpr(handlerCtx, from.RightExpr, paramMap)
-			if err != nil {
-				return err
-			}
-			tblz = append(tblz, tblMeta)
-		default:
-			tblMeta, err = pChild.analyzeTableExpr(handlerCtx, from, paramMap)
-			if err != nil {
-				return err
-			}
-			tblz = append(tblz, tblMeta)
-		}
-		svc, err := tblMeta.GetService()
-		if err != nil {
-			return err
-		}
-		for _, sv := range svc.Servers {
-			for k := range sv.Variables {
-				colEntry := symtab.NewSymTabEntry(
-					pChild.PrimitiveBuilder.GetDRMConfig().GetRelationalType("string"),
-					"",
-					"server",
-				)
-				pChild.PrimitiveBuilder.SetSymbol(k, colEntry)
-			}
-			break
-		}
-
-		if err != nil {
-			return err
-		}
 
 		for _, tbl := range tblz {
+			//
+			svc, err := tbl.GetService()
+			if err != nil {
+				return err
+			}
+			for _, sv := range svc.Servers {
+				for k := range sv.Variables {
+					colEntry := symtab.NewSymTabEntry(
+						pChild.PrimitiveBuilder.GetDRMConfig().GetRelationalType("string"),
+						"",
+						"server",
+					)
+					pChild.PrimitiveBuilder.SetSymbol(k, colEntry)
+				}
+				break
+			}
+
+			if err != nil {
+				return err
+			}
 			//
 			responseSchema, err := tbl.GetSelectableObjectSchema()
 			if err != nil {
@@ -863,7 +852,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 	if len(node.From) == 1 {
 		switch ft := node.From[0].(type) {
 		case *sqlparser.JoinTableExpr:
-			tbl, err := pChild.analyzeTableExpr(handlerCtx, ft.LeftExpr, paramMap)
+			tbl, err := pChild.analyzeTableExpr(handlerCtx, ft.LeftExpr, router.GetAvailableParameters(ft.LeftExpr))
 			if err != nil {
 				return err
 			}
@@ -872,7 +861,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				return err
 			}
 			rhsPb := newRootPrimitiveGenerator(pChild.PrimitiveBuilder.GetAst(), handlerCtx, pChild.PrimitiveBuilder.GetGraph())
-			tbl, err = rhsPb.analyzeTableExpr(handlerCtx, ft.RightExpr, paramMap)
+			tbl, err = rhsPb.analyzeTableExpr(handlerCtx, ft.RightExpr, router.GetAvailableParameters(ft.RightExpr))
 			if err != nil {
 				return err
 			}
@@ -883,15 +872,12 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 			pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewJoin(pChild.PrimitiveBuilder, rhsPb.PrimitiveBuilder, handlerCtx, nil))
 			return nil
 		case *sqlparser.AliasedTableExpr:
-			tbl, err := pChild.analyzeTableExpr(handlerCtx, node.From[0], paramMap)
+			tbl, err := tblz.GetTable(ft)
+			err = pChild.analyzeSelectDetail(handlerCtx, node, &tbl, rewrittenWhere)
 			if err != nil {
 				return err
 			}
-			err = pChild.analyzeSelectDetail(handlerCtx, node, tbl, rewrittenWhere)
-			if err != nil {
-				return err
-			}
-			pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveBuilder, handlerCtx, *tbl, pChild.PrimitiveBuilder.GetInsertPreparedStatementCtx(), pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
+			pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveBuilder, handlerCtx, tbl, pChild.PrimitiveBuilder.GetInsertPreparedStatementCtx(), pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
 			p.PrimitiveBuilder.SetSelectPreparedStatementCtx(pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx())
 			return nil
 		case *sqlparser.ExecSubquery:
@@ -1152,7 +1138,8 @@ func (p *primitiveGenerator) analyzeDelete(pbi PlanBuilderInput) error {
 	}
 	p.parseComments(node.Comments)
 	paramMap := astvisit.ExtractParamsFromWhereClause(node.Where)
-	err := p.inferHeirarchyAndPersist(handlerCtx, node, paramMap)
+
+	err := p.inferHeirarchyAndPersist(handlerCtx, node, paramMap.ToStringMap())
 	if err != nil {
 		return err
 	}

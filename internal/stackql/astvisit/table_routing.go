@@ -16,12 +16,14 @@ type TableRouteAstVisitor struct {
 	handlerCtx     *handler.HandlerContext
 	router         *parserutil.ParameterRouter
 	tableMetaSlice []*taxonomy.ExtendedTableMetadata
+	tables         taxonomy.TblMap
 }
 
 func NewTableRouteAstVisitor(handlerCtx *handler.HandlerContext, router *parserutil.ParameterRouter) *TableRouteAstVisitor {
 	return &TableRouteAstVisitor{
 		handlerCtx: handlerCtx,
 		router:     router,
+		tables:     make(taxonomy.TblMap),
 	}
 }
 
@@ -48,8 +50,12 @@ func (v *TableRouteAstVisitor) analyzeAliasedTable(tb *sqlparser.AliasedTableExp
 	}
 }
 
-func (v *TableRouteAstVisitor) GetTables() []*taxonomy.ExtendedTableMetadata {
+func (v *TableRouteAstVisitor) GetTableMetaArray() []*taxonomy.ExtendedTableMetadata {
 	return v.tableMetaSlice
+}
+
+func (v *TableRouteAstVisitor) GetTableMap() taxonomy.TblMap {
+	return v.tables
 }
 
 func (v *TableRouteAstVisitor) Visit(node sqlparser.SQLNode) error {
@@ -81,7 +87,10 @@ func (v *TableRouteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			node.SelectExprs.Accept(v)
 		}
 		if node.From != nil {
-			node.From.Accept(v)
+			err := node.From.Accept(v)
+			if err != nil {
+				return err
+			}
 		}
 		if node.Where != nil {
 			node.Where.Accept(v)
@@ -396,7 +405,10 @@ func (v *TableRouteAstVisitor) Visit(node sqlparser.SQLNode) error {
 
 	case sqlparser.TableExprs:
 		for _, n := range node {
-			n.Accept(v)
+			err := n.Accept(v)
+			if err != nil {
+				return err
+			}
 		}
 
 	case *sqlparser.AliasedTableExpr:
@@ -405,7 +417,11 @@ func (v *TableRouteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			if err != nil {
 				return err
 			}
+			if t == nil {
+				return fmt.Errorf("nil table returned")
+			}
 			v.tableMetaSlice = append(v.tableMetaSlice, t)
+			v.tables[node] = *t
 			// node.Expr.Accept(v)
 		}
 		if node.Partitions != nil {

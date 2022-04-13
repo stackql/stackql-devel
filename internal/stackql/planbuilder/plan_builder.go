@@ -34,16 +34,19 @@ func isPlanCacheEnabled() bool {
 type PlanBuilderInput struct {
 	handlerCtx      *handler.HandlerContext
 	stmt            sqlparser.SQLNode
-	assignedAliases map[sqlparser.TableName]sqlparser.TableExpr
+	assignedAliases parserutil.TableExprMap
+	tables          sqlparser.TableExprs
 }
 
 func NewPlanBuilderInput(
 	handlerCtx *handler.HandlerContext,
 	stmt sqlparser.SQLNode,
-	assignedAliases map[sqlparser.TableName]sqlparser.TableExpr) PlanBuilderInput {
+	tables sqlparser.TableExprs,
+	assignedAliases parserutil.TableExprMap) PlanBuilderInput {
 	rv := PlanBuilderInput{
 		handlerCtx:      handlerCtx,
 		stmt:            stmt,
+		tables:          tables,
 		assignedAliases: assignedAliases,
 	}
 	if rv.assignedAliases == nil {
@@ -58,6 +61,10 @@ func (pbi PlanBuilderInput) GetStatement() sqlparser.SQLNode {
 
 func (pbi PlanBuilderInput) GetAssignedAliases() map[sqlparser.TableName]sqlparser.TableExpr {
 	return pbi.assignedAliases
+}
+
+func (pbi PlanBuilderInput) GetTableExprs() sqlparser.TableExprs {
+	return pbi.tables
 }
 
 func (pbi PlanBuilderInput) GetAuth() (*sqlparser.Auth, bool) {
@@ -459,7 +466,7 @@ func (pgb *planGraphBuilder) handleInsert(pbi PlanBuilderInput) error {
 		if nonValCols > 0 {
 			switch rowsNode := node.Rows.(type) {
 			case *sqlparser.Select:
-				selPbi := NewPlanBuilderInput(pbi.GetHandlerCtx(), rowsNode, pbi.GetAssignedAliases())
+				selPbi := NewPlanBuilderInput(pbi.GetHandlerCtx(), rowsNode, pbi.GetTableExprs(), pbi.GetAssignedAliases())
 				_, selectPrimitiveNode, err = pgb.handleSelect(selPbi)
 				if err != nil {
 					return err
@@ -643,7 +650,7 @@ func BuildPlanFromContext(handlerCtx *handler.HandlerContext) (*plan.Plan, error
 	aVis := astvisit.NewTableAliasAstVisitor(tVis.GetTables())
 	aVis.Visit(ast)
 
-	pbi := NewPlanBuilderInput(handlerCtx, ast, aVis.GetAliases())
+	pbi := NewPlanBuilderInput(handlerCtx, ast, tVis.GetTables(), aVis.GetAliases())
 
 	createInstructionError := pGBuilder.createInstructionFor(pbi)
 	if createInstructionError != nil {

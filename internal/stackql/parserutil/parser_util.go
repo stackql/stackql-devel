@@ -475,6 +475,14 @@ func (tem TableExprMap) GetByAlias(alias string) (sqlparser.TableExpr, bool) {
 
 type ParameterMap map[*sqlparser.ColName]interface{}
 
+func (tm ParameterMap) ToStringMap() map[string]interface{} {
+	rv := make(map[string]interface{})
+	for k, v := range tm {
+		rv[k.GetRawVal()] = v
+	}
+	return rv
+}
+
 func (tm TableExprMap) SingleTableMap(filterTable sqlparser.TableName) TableExprMap {
 	rv := make(TableExprMap)
 	for k, v := range tm {
@@ -510,7 +518,7 @@ func NewParameterRouter(tableMap TableExprMap, paramMap ParameterMap) *Parameter
 func (pr *ParameterRouter) GetAvailableParameters(tb sqlparser.TableExpr) map[string]interface{} {
 	rv := make(map[string]interface{})
 	for k, v := range pr.paramMap {
-		key := k.Qualifier.GetRawVal()
+		key := k.GetRawVal()
 		if pr.isInvalidated(key) {
 			continue
 		}
