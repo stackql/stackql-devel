@@ -107,6 +107,14 @@ func (ex ExtendedTableMetadata) GetAlias() string {
 	return ex.Alias
 }
 
+func (ex ExtendedTableMetadata) IsSimple() bool {
+	return ex.isSimple()
+}
+
+func (ex ExtendedTableMetadata) isSimple() bool {
+	return ex.HeirarchyObjects != nil && (len(ex.HeirarchyObjects.MethodSet) > 0 || ex.HeirarchyObjects.Method != nil)
+}
+
 func (ex ExtendedTableMetadata) GetUniqueId() string {
 	if ex.Alias != "" {
 		return ex.Alias
@@ -154,7 +162,10 @@ func (ex ExtendedTableMetadata) getMethod() (*openapistackql.OperationStore, err
 }
 
 func (ex ExtendedTableMetadata) GetResponseSchema() (*openapistackql.Schema, error) {
-	return ex.HeirarchyObjects.GetResponseSchema()
+	if ex.isSimple() {
+		return ex.HeirarchyObjects.GetResponseSchema()
+	}
+	return nil, fmt.Errorf("subqueries currently not supported")
 }
 
 func (ho *HeirarchyObjects) GetResponseSchema() (*openapistackql.Schema, error) {

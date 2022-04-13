@@ -9,25 +9,35 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-func analyzeFrom(from sqlparser.TableExprs, tableMap parserutil.TableExprMap) ([]*taxonomy.ExtendedTableMetadata, error) {
+func analyzeFrom(from sqlparser.TableExprs, router *parserutil.ParameterRouter) ([]*taxonomy.ExtendedTableMetadata, error) {
 	if len(from) > 1 {
 		return nil, fmt.Errorf("cannot accomodate cartesian joins")
 	}
-	//      tableRoot := from[0]
 
 	return nil, nil
 }
 
-func analyzeAliasedTable(handlerCtx *handler.HandlerContext, tb *sqlparser.AliasedTableExpr, tableMap parserutil.TableExprMap) (meta *taxonomy.ExtendedTableMetadata, err error) {
-	switch expr := tb.Expr.(type) {
+// *sqlparser.ColName
+
+func analyzeAliasedTable(handlerCtx *handler.HandlerContext, tb *sqlparser.AliasedTableExpr, router *parserutil.ParameterRouter) (*taxonomy.ExtendedTableMetadata, error) {
+	switch ex := tb.Expr.(type) {
 	case sqlparser.TableName:
-		sm := tableMap.SingleTableMap(expr)
-		params := sm.ToStringMap()
-		_, _, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, tb, params)
+		err := router.Route(tb)
+		params := router.GetAvailableParameters(tb)
 		if err != nil {
 			return nil, err
 		}
+		hr, remainingParams, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, tb, params)
+		if err != nil {
+			return nil, err
+		}
+		err = router.InvalidateParams(remainingParams)
+		if err != nil {
+			return nil, err
+		}
+		m := taxonomy.NewExtendedTableMetadata(hr, taxonomy.GetAliasFromStatement(tb))
+		return &m, nil
+	default:
+		return nil, fmt.Errorf("table of type '%T' not curently supported", ex)
 	}
-
-	return nil, nil
 }
