@@ -852,6 +852,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 	if len(node.From) == 1 {
 		switch ft := node.From[0].(type) {
 		case *sqlparser.JoinTableExpr:
+			var execSlice []primitivebuilder.Builder
 			for k, v := range tblz {
 				err = pChild.analyzeSelectDetail(handlerCtx, node, &v, rewrittenWhere)
 				if err != nil {
@@ -861,6 +862,8 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				if err != nil {
 					return err
 				}
+				builder := primitivebuilder.NewSingleSelectAcquire(p.PrimitiveBuilder.GetGraph(), handlerCtx, v, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), nil)
+				execSlice = append(execSlice, builder)
 			}
 			tbl, err := tblz.GetTable(ft.LeftExpr)
 			if err != nil {
