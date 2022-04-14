@@ -121,38 +121,9 @@ func (gp *GenericProvider) InferDescribeMethod(rsc *openapistackql.Resource) (*o
 	if rsc == nil {
 		return nil, "", fmt.Errorf("cannot infer describe method from nil resource")
 	}
-	var method *openapistackql.OperationStore
-	m, methodErr := rsc.FindMethod("select")
-	if methodErr == nil && m != nil {
-		return m, "select", nil
-	}
-	m, methodErr = rsc.FindMethod("list")
-	if methodErr == nil && m != nil {
-		return m, "list", nil
-	}
-	m, methodErr = rsc.FindMethod("aggregatedList")
-	if methodErr == nil && m != nil {
-		return m, "aggregatedList", nil
-	}
-	m, methodErr = rsc.FindMethod("get")
-	if methodErr == nil && m != nil {
-		return m, "get", nil
-	}
-	var ms []string
-	for _, v := range rsc.Methods {
-		vp := &v
-		ms = append(ms, v.GetName())
-		if strings.HasPrefix(v.GetName(), "get") {
-			method = vp
-			return method, v.GetName(), nil
-		}
-	}
-	for _, v := range rsc.Methods {
-		vp := &v
-		if strings.HasPrefix(v.GetName(), "list") {
-			method = vp
-			return method, v.GetName(), nil
-		}
+	m, mk, ok := rsc.GetFirstMethodFromSQLVerb("select")
+	if ok {
+		return m, mk, nil
 	}
 	return nil, "", fmt.Errorf("SELECT not supported for this resource, use SHOW METHODS to view available operations for the resource and then invoke a supported method using the EXEC command")
 }
