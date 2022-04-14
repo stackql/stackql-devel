@@ -139,7 +139,7 @@ func (p *primitiveGenerator) analyzeUnion(pbi PlanBuilderInput) error {
 	}
 
 	bldr := primitivebuilder.NewUnion(
-		p.PrimitiveBuilder,
+		p.PrimitiveBuilder.GetGraph(),
 		handlerCtx,
 		drm.NewQueryOnlyPreparedStatementCtx(unionQuery),
 		pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx(),
@@ -610,10 +610,10 @@ func (p *primitiveGenerator) analyzeExec(pbi PlanBuilderInput) error {
 			return err
 		}
 		if m.IsNullary() && !p.PrimitiveBuilder.IsAwait() {
-			p.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleSelectAcquire(p.PrimitiveBuilder, handlerCtx, *tbl, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), nil))
+			p.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleSelectAcquire(p.PrimitiveBuilder.GetGraph(), handlerCtx, *tbl, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), nil))
 			return nil
 		}
-		p.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(p.PrimitiveBuilder, handlerCtx, *tbl, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), p.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
+		p.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(p.PrimitiveBuilder.GetGraph(), p.PrimitiveBuilder.GetTxnCtrlCtrs(), handlerCtx, *tbl, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), p.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
 	}
 	return nil
 }
@@ -852,20 +852,30 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 	if len(node.From) == 1 {
 		switch ft := node.From[0].(type) {
 		case *sqlparser.JoinTableExpr:
-			tbl, err := pChild.analyzeTableExpr(handlerCtx, ft.LeftExpr, router.GetAvailableParameters(ft.LeftExpr))
+			for k, v := range tblz {
+				err = pChild.analyzeSelectDetail(handlerCtx, node, &v, rewrittenWhere)
+				if err != nil {
+					return err
+				}
+				_, err = p.buildRequestContext(handlerCtx, k, &v, nil, nil)
+				if err != nil {
+					return err
+				}
+			}
+			tbl, err := tblz.GetTable(ft.LeftExpr)
 			if err != nil {
 				return err
 			}
-			err = pChild.analyzeSelectDetail(handlerCtx, node, tbl, rewrittenWhere)
+			err = pChild.analyzeSelectDetail(handlerCtx, node, &tbl, rewrittenWhere)
 			if err != nil {
 				return err
 			}
 			rhsPb := newRootPrimitiveGenerator(pChild.PrimitiveBuilder.GetAst(), handlerCtx, pChild.PrimitiveBuilder.GetGraph())
-			tbl, err = rhsPb.analyzeTableExpr(handlerCtx, ft.RightExpr, router.GetAvailableParameters(ft.RightExpr))
+			tbl, err = tblz.GetTable(ft.RightExpr)
 			if err != nil {
 				return err
 			}
-			err = rhsPb.analyzeSelectDetail(handlerCtx, node, tbl, rewrittenWhere)
+			err = rhsPb.analyzeSelectDetail(handlerCtx, node, &tbl, rewrittenWhere)
 			if err != nil {
 				return err
 			}
@@ -877,7 +887,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 			if err != nil {
 				return err
 			}
-			pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveBuilder, handlerCtx, tbl, pChild.PrimitiveBuilder.GetInsertPreparedStatementCtx(), pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
+			pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveBuilder.GetGraph(), p.PrimitiveBuilder.GetTxnCtrlCtrs(), handlerCtx, tbl, pChild.PrimitiveBuilder.GetInsertPreparedStatementCtx(), pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
 			p.PrimitiveBuilder.SetSelectPreparedStatementCtx(pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx())
 			return nil
 		case *sqlparser.ExecSubquery:
@@ -889,7 +899,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 			if err != nil {
 				return err
 			}
-			pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveBuilder, handlerCtx, *tbl, pChild.PrimitiveBuilder.GetInsertPreparedStatementCtx(), pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
+			pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveBuilder.GetGraph(), pChild.PrimitiveBuilder.GetTxnCtrlCtrs(), handlerCtx, *tbl, pChild.PrimitiveBuilder.GetInsertPreparedStatementCtx(), pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
 			return nil
 		}
 
