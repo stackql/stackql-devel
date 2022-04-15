@@ -853,6 +853,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 		switch ft := node.From[0].(type) {
 		case *sqlparser.JoinTableExpr:
 			var execSlice []primitivebuilder.Builder
+			var tcc *dto.TxnControlCounters
 			for k, v := range tblz {
 				err = pChild.analyzeSelectDetail(handlerCtx, node, &v, rewrittenWhere)
 				if err != nil {
@@ -864,25 +865,25 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				}
 				builder := primitivebuilder.NewSingleSelectAcquire(p.PrimitiveBuilder.GetGraph(), handlerCtx, v, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), nil)
 				execSlice = append(execSlice, builder)
+				tableDTO, err := p.PrimitiveBuilder.GetDRMConfig().GetCurrentTable(&v.HeirarchyObjects.HeirarchyIds, handlerCtx.SQLEngine)
+				if err != nil {
+					return err
+				}
+				tcc = dto.NewTxnControlCounters(p.PrimitiveBuilder.GetTxnCounterManager(), tableDTO.GetDiscoveryID())
 			}
-			tbl, err := tblz.GetTable(ft.LeftExpr)
-			if err != nil {
-				return err
+			v := astvisit.NewQueryRewriteAstVisitor(
+				handlerCtx,
+				drm.GetGoogleV1SQLiteConfig(),
+				nil,
+				tcc,
+				"",
+			)
+			selCtx, ok := v.GetSelectContext()
+			if !ok {
 			}
-			err = pChild.analyzeSelectDetail(handlerCtx, node, &tbl, rewrittenWhere)
-			if err != nil {
-				return err
-			}
-			rhsPb := newRootPrimitiveGenerator(pChild.PrimitiveBuilder.GetAst(), handlerCtx, pChild.PrimitiveBuilder.GetGraph())
-			tbl, err = tblz.GetTable(ft.RightExpr)
-			if err != nil {
-				return err
-			}
-			err = rhsPb.analyzeSelectDetail(handlerCtx, node, &tbl, rewrittenWhere)
-			if err != nil {
-				return err
-			}
-			pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewJoin(pChild.PrimitiveBuilder, rhsPb.PrimitiveBuilder, handlerCtx, nil))
+			selBld := primitivebuilder.NewSingleSelect(p.PrimitiveBuilder.GetGraph(), handlerCtx, selCtx, nil)
+			bld := primitivebuilder.NewMultipleAcquireAndSelect(p.PrimitiveBuilder.GetGraph(), execSlice, selBld)
+			pChild.PrimitiveBuilder.SetBuilder(bld)
 			return nil
 		case *sqlparser.AliasedTableExpr:
 			tbl, err := tblz.GetTable(ft)

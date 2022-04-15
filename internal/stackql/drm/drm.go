@@ -215,16 +215,32 @@ func (dc *StaticDRMConfig) GetGolangKind(discoType string) reflect.Kind {
 
 // switch v := reflect.ValueOf(v); v.Kind()
 
+func (dc *StaticDRMConfig) GetGenerationControlColumn() string {
+	return dc.getGenerationControlColumn()
+}
+
 func (dc *StaticDRMConfig) getGenerationControlColumn() string {
 	return gen_id_col_name
+}
+
+func (dc *StaticDRMConfig) GetSessionControlColumn() string {
+	return dc.getSessionControlColumn()
 }
 
 func (dc *StaticDRMConfig) getSessionControlColumn() string {
 	return ssn_id_col_name
 }
 
+func (dc *StaticDRMConfig) GetTxnControlColumn() string {
+	return dc.getTxnControlColumn()
+}
+
 func (dc *StaticDRMConfig) getTxnControlColumn() string {
 	return txn_id_col_name
+}
+
+func (dc *StaticDRMConfig) GetInsControlColumn() string {
+	return dc.getInsControlColumn()
 }
 
 func (dc *StaticDRMConfig) getInsControlColumn() string {
@@ -233,6 +249,10 @@ func (dc *StaticDRMConfig) getInsControlColumn() string {
 
 func (dc *StaticDRMConfig) GetCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers, dbEngine sqlengine.SQLEngine) (dto.DBTable, error) {
 	return dbEngine.GetCurrentTable(tableHeirarchyIDs)
+}
+
+func (dc *StaticDRMConfig) GetTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) string {
+	return dc.getTableName(hIds, discoveryGenerationID)
 }
 
 func (dc *StaticDRMConfig) getTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) string {
@@ -314,13 +334,7 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 			TxnIdControlColName:     txnIdColName,
 			InsIdControlColName:     insIdColName,
 			NonControlColumns:       columns,
-			TxnCtrlCtrs: &dto.TxnControlCounters{
-				GenId:                 txnCtrMgr.GetCurrentGenerationId(),
-				SessionId:             txnCtrMgr.GetCurrentSessionId(),
-				TxnId:                 txnCtrMgr.GetNextTxnId(),
-				InsertId:              txnCtrMgr.GetNextInsertId(),
-				DiscoveryGenerationId: discoveryGenerationID,
-			},
+			TxnCtrlCtrs:             dto.NewTxnControlCounters(txnCtrMgr, discoveryGenerationID),
 		},
 		nil
 }

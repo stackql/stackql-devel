@@ -1,7 +1,21 @@
 package dto
 
+import (
+	"github.com/stackql/stackql/internal/pkg/txncounter"
+)
+
 type TxnControlCounters struct {
 	GenId, SessionId, TxnId, InsertId, DiscoveryGenerationId int
+}
+
+func NewTxnControlCounters(txnCtrMgr *txncounter.TxnCounterManager, discoveryGenerationID int) *TxnControlCounters {
+	return &TxnControlCounters{
+		GenId:                 txnCtrMgr.GetCurrentGenerationId(),
+		SessionId:             txnCtrMgr.GetCurrentSessionId(),
+		TxnId:                 txnCtrMgr.GetNextTxnId(),
+		InsertId:              txnCtrMgr.GetNextInsertId(),
+		DiscoveryGenerationId: discoveryGenerationID,
+	}
 }
 
 func (tc *TxnControlCounters) SetTxnId(ti int) {

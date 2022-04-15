@@ -246,11 +246,11 @@ func NewSingleAcquireAndSelect(graph *primitivegraph.PrimitiveGraph, txnControlC
 	}
 }
 
-func NewMultipleAcquireAndSelect(graph *primitivegraph.PrimitiveGraph, txnControlCounters *dto.TxnControlCounters, handlerCtx *handler.HandlerContext, tableMeta taxonomy.ExtendedTableMetadata, insertCtx *drm.PreparedStatementCtx, selectCtx *drm.PreparedStatementCtx, rowSort func(map[string]map[string]interface{}) []string) Builder {
+func NewMultipleAcquireAndSelect(graph *primitivegraph.PrimitiveGraph, acquireBuilders []Builder, selectBuilder Builder) Builder {
 	return &MultipleAcquireAndSelect{
 		graph:           graph,
-		acquireBuilders: []Builder{NewSingleSelectAcquire(graph, handlerCtx, tableMeta, insertCtx, rowSort)},
-		selectBuilder:   NewSingleSelect(graph, handlerCtx, selectCtx, rowSort),
+		acquireBuilders: acquireBuilders,
+		selectBuilder:   selectBuilder,
 	}
 }
 
