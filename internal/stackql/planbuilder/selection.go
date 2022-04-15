@@ -53,7 +53,7 @@ func (p *primitiveGenerator) assembleUnarySelectionBuilder(
 	if err != nil {
 		return err
 	}
-	insPsc, err := p.PrimitiveBuilder.GetDRMConfig().GenerateInsertDML(annotatedInsertTabulation, p.PrimitiveBuilder.GetTxnCounterManager(), tableDTO.GetDiscoveryID())
+	insPsc, err := p.PrimitiveBuilder.GetDRMConfig().GenerateInsertDML(annotatedInsertTabulation, dto.NewTxnControlCounters(p.PrimitiveBuilder.GetTxnCounterManager(), tableDTO.GetDiscoveryID()))
 	if err != nil {
 		return err
 	}

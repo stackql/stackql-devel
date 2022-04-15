@@ -7,15 +7,157 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
+	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 	"github.com/stackql/stackql/internal/stackql/util"
 )
 
-func GenerateComplexSelectDML(dc *drm.StaticDRMConfig, tabAnnotated util.AnnotatedTabulation, txnCtrlCtrs *dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (drm.PreparedStatementCtx, error) {
+func (v *QueryRewriteAstVisitor) buildAcquireQueryCtx(
+	sqlEngine sqlengine.SQLEngine,
+	tbl *taxonomy.ExtendedTableMetadata,
+	dc drm.DRMConfig,
+) (*drm.PreparedStatementCtx, error) {
+	schema, err := tbl.GetResponseSchema()
+	if err != nil {
+		return nil, err
+	}
+	provStr, _ := tbl.GetProviderStr()
+	svcStr, _ := tbl.GetServiceStr()
+	// rscStr, _ := tbl.GetResourceStr()
+	unsuitableSchemaMsg := "schema unsuitable for select query"
+	// log.Infoln(fmt.Sprintf("schema.ID = %v", schema.ID))
+	log.Infoln(fmt.Sprintf("schema.Items = %v", schema.Items))
+	log.Infoln(fmt.Sprintf("schema.Properties = %v", schema.Properties))
+	var itemObjS *openapistackql.Schema
+	itemObjS, tbl.SelectItemsKey, err = schema.GetSelectSchema(tbl.LookupSelectItemsKey())
+	if err != nil {
+		return nil, fmt.Errorf(unsuitableSchemaMsg)
+	}
+	if itemObjS == nil {
+		return nil, fmt.Errorf(unsuitableSchemaMsg)
+	}
+	insertTabulation := itemObjS.Tabulate(false)
+
+	hIds := dto.NewHeirarchyIdentifiers(provStr, svcStr, itemObjS.GetName(), "")
+	log.Infof("%v %v", insertTabulation, hIds)
+
+	annotatedInsertTabulation := util.NewAnnotatedTabulation(insertTabulation, hIds, "")
+	tableDTO, err := dc.GetCurrentTable(hIds, sqlEngine)
+	if err != nil {
+		return nil, err
+	}
+	insPsc, err := dc.GenerateInsertDML(annotatedInsertTabulation, v.getCtrlCounters(tableDTO.GetDiscoveryID()))
+	if err != nil {
+		return nil, err
+	}
+	return &insPsc, nil
+}
+
+func (v *QueryRewriteAstVisitor) addAcquireQuery(
+	handlerCtx *handler.HandlerContext,
+	tbl *taxonomy.ExtendedTableMetadata,
+	dc drm.DRMConfig,
+) error {
+	acqCtx, err := v.buildAcquireQueryCtx(v.handlerCtx.SQLEngine, tbl, v.handlerCtx.DrmConfig)
+	if err != nil {
+		return err
+	}
+	v.insertCtxSlice = append(v.insertCtxSlice, acqCtx)
+	return nil
+}
+
+func (v *QueryRewriteAstVisitor) buildSelectQuery(
+	handlerCtx *handler.HandlerContext,
+	node sqlparser.SQLNode,
+	tbl *taxonomy.ExtendedTableMetadata,
+	cols []parserutil.ColumnHandle,
+	dc drm.DRMConfig,
+) error {
+	schema, err := tbl.GetResponseSchema()
+	if err != nil {
+		return err
+	}
+	provStr, _ := tbl.GetProviderStr()
+	svcStr, _ := tbl.GetServiceStr()
+	// rscStr, _ := tbl.GetResourceStr()
+	unsuitableSchemaMsg := "schema unsuitable for select query"
+	// log.Infoln(fmt.Sprintf("schema.ID = %v", schema.ID))
+	log.Infoln(fmt.Sprintf("schema.Items = %v", schema.Items))
+	log.Infoln(fmt.Sprintf("schema.Properties = %v", schema.Properties))
+	var itemObjS *openapistackql.Schema
+	itemObjS, tbl.SelectItemsKey, err = schema.GetSelectSchema(tbl.LookupSelectItemsKey())
+	if err != nil {
+		return fmt.Errorf(unsuitableSchemaMsg)
+	}
+	if itemObjS == nil {
+		return fmt.Errorf(unsuitableSchemaMsg)
+	}
+	if len(cols) == 0 {
+		colNames := itemObjS.GetAllColumns()
+		for _, v := range colNames {
+			cols = append(cols, parserutil.NewUnaliasedColumnHandle(v))
+		}
+	}
+	insertTabulation := itemObjS.Tabulate(false)
+
+	hIds := dto.NewHeirarchyIdentifiers(provStr, svcStr, itemObjS.GetName(), "")
+	selectTabulation := itemObjS.Tabulate(true)
+	log.Infof("%v %v %v", insertTabulation, hIds, selectTabulation)
+
+	// annotatedSelectTabulation := util.NewAnnotatedTabulation(selectTabulation, hIds, tbl.GetAlias())
+	annotatedInsertTabulation := util.NewAnnotatedTabulation(insertTabulation, hIds, "")
+	tableDTO, err := dc.GetCurrentTable(hIds, handlerCtx.SQLEngine)
+	if err != nil {
+		return err
+	}
+	insPsc, err := dc.GenerateInsertDML(annotatedInsertTabulation, v.getCtrlCounters(tableDTO.GetDiscoveryID()))
+	if err != nil {
+		return err
+	}
+	v.insertCtxSlice = append(v.insertCtxSlice, &insPsc)
+	return nil
+}
+
+func buildQuery(
+	handlerCtx *handler.HandlerContext,
+	node sqlparser.SQLNode,
+	rewrittenWhere *sqlparser.Where,
+	tbl *taxonomy.ExtendedTableMetadata,
+	cols []parserutil.ColumnHandle,
+) error {
+	schema, err := tbl.GetResponseSchema()
+	if err != nil {
+		return err
+	}
+	provStr, _ := tbl.GetProviderStr()
+	svcStr, _ := tbl.GetServiceStr()
+	// rscStr, _ := tbl.GetResourceStr()
+	unsuitableSchemaMsg := "schema unsuitable for select query"
+	// log.Infoln(fmt.Sprintf("schema.ID = %v", schema.ID))
+	log.Infoln(fmt.Sprintf("schema.Items = %v", schema.Items))
+	log.Infoln(fmt.Sprintf("schema.Properties = %v", schema.Properties))
+	var itemObjS *openapistackql.Schema
+	itemObjS, tbl.SelectItemsKey, err = schema.GetSelectSchema(tbl.LookupSelectItemsKey())
+	if err != nil {
+		return fmt.Errorf(unsuitableSchemaMsg)
+	}
+	if itemObjS == nil {
+		return fmt.Errorf(unsuitableSchemaMsg)
+	}
+	insertTabulation := itemObjS.Tabulate(false)
+
+	hIds := dto.NewHeirarchyIdentifiers(provStr, svcStr, itemObjS.GetName(), "")
+	selectTabulation := itemObjS.Tabulate(true)
+	log.Infof("%v %v %v", insertTabulation, hIds, selectTabulation)
+	return nil
+}
+
+func (v *QueryRewriteAstVisitor) GenerateSelectDML(dc drm.DRMConfig, tabAnnotated util.AnnotatedTabulation, txnCtrlCtrs *dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (drm.PreparedStatementCtx, error) {
 	var q strings.Builder
 	var quotedColNames, quotedWhereColNames []string
 	var columns []drm.ColumnMetadata
@@ -55,7 +197,7 @@ func GenerateComplexSelectDML(dc *drm.StaticDRMConfig, tabAnnotated util.Annotat
 	if tabAnnotated.GetAlias() != "" {
 		aliasStr = fmt.Sprintf(` AS "%s" `, tabAnnotated.GetAlias())
 	}
-	q.WriteString(fmt.Sprintf(`SELECT %s FROM "%s"%s WHERE `, strings.Join(quotedColNames, ", "), dc.GetTableName(tabAnnotated.GetHeirarchyIdentifiers(), txnCtrlCtrs.DiscoveryGenerationId), aliasStr))
+	q.WriteString(fmt.Sprintf(`SELECT %s FROM "%s" %s WHERE `, strings.Join(quotedColNames, ", "), dc.GetTableName(tabAnnotated.GetHeirarchyIdentifiers(), txnCtrlCtrs.DiscoveryGenerationId), aliasStr))
 	q.WriteString(fmt.Sprintf(`( "%s" = ? AND "%s" = ? AND "%s" = ? AND "%s" = ? ) `, genIdColName, sessionIDColName, txnIdColName, insIdColName))
 	if strings.TrimSpace(rewrittenWhere) != "" {
 		q.WriteString(fmt.Sprintf(" AND ( %s ) ", rewrittenWhere))
@@ -74,45 +216,35 @@ func GenerateComplexSelectDML(dc *drm.StaticDRMConfig, tabAnnotated util.Annotat
 }
 
 type QueryRewriteAstVisitor struct {
-	handlerCtx     *handler.HandlerContext
-	router         *parserutil.ParameterRouter
-	tableMetaSlice []*taxonomy.ExtendedTableMetadata
-	tables         taxonomy.TblMap
-	selectCtx      *drm.PreparedStatementCtx
+	handlerCtx       *handler.HandlerContext
+	dc               drm.DRMConfig
+	tables           taxonomy.TblMap
+	annotations      taxonomy.AnnotationCtxMap
+	insertCtxSlice   []*drm.PreparedStatementCtx
+	selectCtx        *drm.PreparedStatementCtx
+	baseCtrlCounters *dto.TxnControlCounters
 }
 
-func NewQueryRewriteAstVisitor(handlerCtx *handler.HandlerContext, dc drm.DRMConfig, tabAnnotated []util.AnnotatedTabulation, txnCtrlCtrs *dto.TxnControlCounters, selectSuffix string) *QueryRewriteAstVisitor {
+func (v *QueryRewriteAstVisitor) getCtrlCounters(discoveryGenerationID int) *dto.TxnControlCounters {
+	if v.baseCtrlCounters == nil {
+		return dto.NewTxnControlCounters(v.handlerCtx.TxnCounterMgr, discoveryGenerationID)
+	}
+	return v.baseCtrlCounters.CloneWithDiscoGenID(discoveryGenerationID)
+}
+
+func NewQueryRewriteAstVisitor(
+	handlerCtx *handler.HandlerContext,
+	tables taxonomy.TblMap,
+	annotations taxonomy.AnnotationCtxMap,
+	dc drm.DRMConfig,
+	txnCtrlCtrs *dto.TxnControlCounters,
+) *QueryRewriteAstVisitor {
 	return &QueryRewriteAstVisitor{
-		handlerCtx: handlerCtx,
-		tables:     make(taxonomy.TblMap),
+		handlerCtx:  handlerCtx,
+		tables:      tables,
+		annotations: annotations,
+		dc:          dc,
 	}
-}
-
-func (v *QueryRewriteAstVisitor) analyzeAliasedTable(tb *sqlparser.AliasedTableExpr) (*taxonomy.ExtendedTableMetadata, error) {
-	switch ex := tb.Expr.(type) {
-	case sqlparser.TableName:
-		err := v.router.Route(tb)
-		params := v.router.GetAvailableParameters(tb)
-		if err != nil {
-			return nil, err
-		}
-		hr, remainingParams, err := taxonomy.GetHeirarchyFromStatement(v.handlerCtx, tb, params)
-		if err != nil {
-			return nil, err
-		}
-		err = v.router.InvalidateParams(remainingParams)
-		if err != nil {
-			return nil, err
-		}
-		m := taxonomy.NewExtendedTableMetadata(hr, taxonomy.GetAliasFromStatement(tb))
-		return &m, nil
-	default:
-		return nil, fmt.Errorf("table of type '%T' not curently supported", ex)
-	}
-}
-
-func (v *QueryRewriteAstVisitor) GetTableMetaArray() []*taxonomy.ExtendedTableMetadata {
-	return v.tableMetaSlice
 }
 
 func (v *QueryRewriteAstVisitor) GetTableMap() taxonomy.TblMap {
@@ -483,15 +615,15 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 
 	case *sqlparser.AliasedTableExpr:
 		if node.Expr != nil {
-			t, err := v.analyzeAliasedTable(node)
-			if err != nil {
-				return err
-			}
-			if t == nil {
-				return fmt.Errorf("nil table returned")
-			}
-			v.tableMetaSlice = append(v.tableMetaSlice, t)
-			v.tables[node] = *t
+			// t, err := v.analyzeAliasedTable(node)
+			// if err != nil {
+			// 	return err
+			// }
+			// if t == nil {
+			// 	return fmt.Errorf("nil table returned")
+			// }
+			// v.tableMetaSlice = append(v.tableMetaSlice, t)
+			// v.tables[node] = *t
 			// node.Expr.Accept(v)
 		}
 		if node.Partitions != nil {

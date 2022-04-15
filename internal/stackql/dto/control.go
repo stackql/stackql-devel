@@ -18,6 +18,16 @@ func NewTxnControlCounters(txnCtrMgr *txncounter.TxnCounterManager, discoveryGen
 	}
 }
 
+func (tc *TxnControlCounters) CloneWithDiscoGenID(discoveryGenerationID int) *TxnControlCounters {
+	return &TxnControlCounters{
+		GenId:                 tc.GenId,
+		SessionId:             tc.SessionId,
+		TxnId:                 tc.TxnId,
+		InsertId:              tc.InsertId,
+		DiscoveryGenerationId: discoveryGenerationID,
+	}
+}
+
 func (tc *TxnControlCounters) SetTxnId(ti int) {
 	tc.TxnId = ti
 }

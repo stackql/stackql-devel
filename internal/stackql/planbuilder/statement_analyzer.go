@@ -764,6 +764,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 	}
 
 	tblz := v.GetTableMap()
+	annotations := v.GetAnnotations()
 
 	for k, v := range tblz {
 		p.PrimitiveBuilder.SetTable(k, v)
@@ -854,15 +855,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 		case *sqlparser.JoinTableExpr:
 			var execSlice []primitivebuilder.Builder
 			var tcc *dto.TxnControlCounters
-			for k, v := range tblz {
-				err = pChild.analyzeSelectDetail(handlerCtx, node, &v, rewrittenWhere)
-				if err != nil {
-					return err
-				}
-				_, err = p.buildRequestContext(handlerCtx, k, &v, nil, nil)
-				if err != nil {
-					return err
-				}
+			for _, v := range tblz {
 				builder := primitivebuilder.NewSingleSelectAcquire(p.PrimitiveBuilder.GetGraph(), handlerCtx, v, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), nil)
 				execSlice = append(execSlice, builder)
 				tableDTO, err := p.PrimitiveBuilder.GetDRMConfig().GetCurrentTable(&v.HeirarchyObjects.HeirarchyIds, handlerCtx.SQLEngine)
@@ -873,10 +866,10 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 			}
 			v := astvisit.NewQueryRewriteAstVisitor(
 				handlerCtx,
+				tblz,
+				annotations,
 				drm.GetGoogleV1SQLiteConfig(),
-				nil,
 				tcc,
-				"",
 			)
 			selCtx, ok := v.GetSelectContext()
 			if !ok {

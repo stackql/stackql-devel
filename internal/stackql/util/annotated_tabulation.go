@@ -6,6 +6,11 @@ import (
 	"github.com/stackql/go-openapistackql/openapistackql"
 )
 
+type AnnotationCtx struct {
+	Schema *openapistackql.Schema
+	HIDs   *dto.HeirarchyIdentifiers
+}
+
 type AnnotatedTabulation struct {
 	tab   *openapistackql.Tabulation
 	hIds  *dto.HeirarchyIdentifiers

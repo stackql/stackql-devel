@@ -8,6 +8,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/httpbuild"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/provider"
+	"github.com/stackql/stackql/internal/stackql/util"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 
@@ -79,6 +80,8 @@ func (ho *HeirarchyObjects) LookupSelectItemsKey() string {
 }
 
 type TblMap map[sqlparser.SQLNode]ExtendedTableMetadata
+
+type AnnotationCtxMap map[sqlparser.SQLNode]util.AnnotationCtx
 
 func (tm TblMap) GetTable(node sqlparser.SQLNode) (ExtendedTableMetadata, error) {
 	tbl, ok := tm[node]

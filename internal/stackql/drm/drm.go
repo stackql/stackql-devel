@@ -8,7 +8,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/stackql/stackql/internal/pkg/txncounter"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
@@ -140,7 +139,12 @@ type DRMConfig interface {
 	GetRelationalType(string) string
 	GenerateDDL(util.AnnotatedTabulation, int, bool) []string
 	GetGolangValue(string) interface{}
-	GenerateInsertDML(util.AnnotatedTabulation, *txncounter.TxnCounterManager, int) (PreparedStatementCtx, error)
+	GetInsControlColumn() string
+	GetSessionControlColumn() string
+	GetTableName(*dto.HeirarchyIdentifiers, int) string
+	GetTxnControlColumn() string
+	GetGenerationControlColumn() string
+	GenerateInsertDML(util.AnnotatedTabulation, *dto.TxnControlCounters) (PreparedStatementCtx, error)
 	GenerateSelectDML(util.AnnotatedTabulation, *dto.TxnControlCounters, string, string) (PreparedStatementCtx, error)
 	ExecuteInsertDML(sqlengine.SQLEngine, *PreparedStatementCtx, map[string]interface{}) (sql.Result, error)
 	QueryDML(sqlengine.SQLEngine, PreparedStatementParameterized) (*sql.Rows, error)
@@ -300,12 +304,12 @@ func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, discover
 	return retVal
 }
 
-func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulation, txnCtrMgr *txncounter.TxnCounterManager, discoveryGenerationID int) (PreparedStatementCtx, error) {
+func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulation, tcc *dto.TxnControlCounters) (PreparedStatementCtx, error) {
 	// log.Infoln(fmt.Sprintf("%v", tabulation))
 	var q strings.Builder
 	var quotedColNames, vals []string
 	var columns []ColumnMetadata
-	tableName := dc.inferTableName(tabAnnotated.GetHeirarchyIdentifiers(), discoveryGenerationID)
+	tableName := dc.inferTableName(tabAnnotated.GetHeirarchyIdentifiers(), tcc.DiscoveryGenerationId)
 	q.WriteString(fmt.Sprintf(`INSERT INTO "%s" `, tableName))
 	genIdColName := dc.getGenerationControlColumn()
 	sessionIdColName := dc.getSessionControlColumn()
@@ -334,7 +338,7 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 			TxnIdControlColName:     txnIdColName,
 			InsIdControlColName:     insIdColName,
 			NonControlColumns:       columns,
-			TxnCtrlCtrs:             dto.NewTxnControlCounters(txnCtrMgr, discoveryGenerationID),
+			TxnCtrlCtrs:             tcc,
 		},
 		nil
 }

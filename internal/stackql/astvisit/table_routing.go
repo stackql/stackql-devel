@@ -7,9 +7,13 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/stackql/go-openapistackql/openapistackql"
+	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
+	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
+	"github.com/stackql/stackql/internal/stackql/util"
 )
 
 type TableRouteAstVisitor struct {
@@ -17,14 +21,55 @@ type TableRouteAstVisitor struct {
 	router         *parserutil.ParameterRouter
 	tableMetaSlice []*taxonomy.ExtendedTableMetadata
 	tables         taxonomy.TblMap
+	annotations    taxonomy.AnnotationCtxMap
 }
 
 func NewTableRouteAstVisitor(handlerCtx *handler.HandlerContext, router *parserutil.ParameterRouter) *TableRouteAstVisitor {
 	return &TableRouteAstVisitor{
-		handlerCtx: handlerCtx,
-		router:     router,
-		tables:     make(taxonomy.TblMap),
+		handlerCtx:  handlerCtx,
+		router:      router,
+		tables:      make(taxonomy.TblMap),
+		annotations: make(taxonomy.AnnotationCtxMap),
 	}
+}
+
+func obtainAnnotationCtx(
+	sqlEngine sqlengine.SQLEngine,
+	tbl *taxonomy.ExtendedTableMetadata,
+) (util.AnnotationCtx, error) {
+	schema, err := tbl.GetResponseSchema()
+	if err != nil {
+		return util.AnnotationCtx{}, err
+	}
+	provStr, _ := tbl.GetProviderStr()
+	svcStr, _ := tbl.GetServiceStr()
+	// rscStr, _ := tbl.GetResourceStr()
+	unsuitableSchemaMsg := "schema unsuitable for select query"
+	// log.Infoln(fmt.Sprintf("schema.ID = %v", schema.ID))
+	log.Infoln(fmt.Sprintf("schema.Items = %v", schema.Items))
+	log.Infoln(fmt.Sprintf("schema.Properties = %v", schema.Properties))
+	var itemObjS *openapistackql.Schema
+	itemObjS, tbl.SelectItemsKey, err = schema.GetSelectSchema(tbl.LookupSelectItemsKey())
+	if err != nil {
+		return util.AnnotationCtx{}, fmt.Errorf(unsuitableSchemaMsg)
+	}
+	if itemObjS == nil {
+		return util.AnnotationCtx{}, fmt.Errorf(unsuitableSchemaMsg)
+	}
+	hIds := dto.NewHeirarchyIdentifiers(provStr, svcStr, itemObjS.GetName(), "")
+	return util.AnnotationCtx{Schema: itemObjS, HIDs: hIds}, nil
+}
+
+func (v *TableRouteAstVisitor) addAnnotationCtx(
+	node sqlparser.SQLNode,
+	tbl *taxonomy.ExtendedTableMetadata,
+) error {
+	ac, err := obtainAnnotationCtx(v.handlerCtx.SQLEngine, tbl)
+	if err != nil {
+		return err
+	}
+	v.annotations[node] = ac
+	return nil
 }
 
 func (v *TableRouteAstVisitor) analyzeAliasedTable(tb *sqlparser.AliasedTableExpr) (*taxonomy.ExtendedTableMetadata, error) {
@@ -56,6 +101,10 @@ func (v *TableRouteAstVisitor) GetTableMetaArray() []*taxonomy.ExtendedTableMeta
 
 func (v *TableRouteAstVisitor) GetTableMap() taxonomy.TblMap {
 	return v.tables
+}
+
+func (v *TableRouteAstVisitor) GetAnnotations() taxonomy.AnnotationCtxMap {
+	return v.annotations
 }
 
 func (v *TableRouteAstVisitor) Visit(node sqlparser.SQLNode) error {
@@ -422,6 +471,11 @@ func (v *TableRouteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			}
 			v.tableMetaSlice = append(v.tableMetaSlice, t)
 			v.tables[node] = *t
+			err = v.addAnnotationCtx(node, t)
+			if err != nil {
+				return err
+			}
+
 			// node.Expr.Accept(v)
 		}
 		if node.Partitions != nil {
