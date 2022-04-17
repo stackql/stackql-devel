@@ -117,7 +117,7 @@ func (p *primitiveGenerator) analyzeUnion(pbi PlanBuilderInput) error {
 		return err
 	}
 	pChild := p.addChildPrimitiveGenerator(node.FirstStatement, leaf)
-	err = pChild.analyzeSelectStatement(NewPlanBuilderInput(handlerCtx, node.FirstStatement, nil, nil))
+	err = pChild.analyzeSelectStatement(NewPlanBuilderInput(handlerCtx, node.FirstStatement, nil, nil, nil))
 	if err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func (p *primitiveGenerator) analyzeUnion(pbi PlanBuilderInput) error {
 			return err
 		}
 		pChild := p.addChildPrimitiveGenerator(rhsStmt.Statement, leaf)
-		err = pChild.analyzeSelectStatement(NewPlanBuilderInput(handlerCtx, rhsStmt.Statement, nil, nil))
+		err = pChild.analyzeSelectStatement(NewPlanBuilderInput(handlerCtx, rhsStmt.Statement, nil, nil, nil))
 		if err != nil {
 			return err
 		}
@@ -753,7 +753,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 
 	paramMap := astvisit.ExtractParamsFromWhereClause(node.Where)
 
-	router := parserutil.NewParameterRouter(pbi.GetAssignedAliases(), paramMap)
+	router := parserutil.NewParameterRouter(pbi.GetAssignedAliases(), paramMap, pbi.GetColRefs())
 
 	v := astvisit.NewTableRouteAstVisitor(pbi.handlerCtx, router)
 

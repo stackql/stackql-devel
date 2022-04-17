@@ -12,12 +12,14 @@ import (
 
 type TableAliasAstVisitor struct {
 	aliases parserutil.TableExprMap
+	colRefs parserutil.ColTableMap
 	tables  sqlparser.TableExprs
 }
 
 func NewTableAliasAstVisitor(tables sqlparser.TableExprs) *TableAliasAstVisitor {
 	return &TableAliasAstVisitor{
 		aliases: make(parserutil.TableExprMap),
+		colRefs: make(parserutil.ColTableMap),
 		tables:  tables,
 	}
 }
@@ -53,6 +55,10 @@ func (v *TableAliasAstVisitor) findTableFromQualifier(qualifier sqlparser.TableN
 
 func (v *TableAliasAstVisitor) GetAliases() parserutil.TableExprMap {
 	return v.aliases
+}
+
+func (v *TableAliasAstVisitor) GetColRefs() parserutil.ColTableMap {
+	return v.colRefs
 }
 
 func (v *TableAliasAstVisitor) Visit(node sqlparser.SQLNode) error {
@@ -536,7 +542,7 @@ func (v *TableAliasAstVisitor) Visit(node sqlparser.SQLNode) error {
 			if err != nil {
 				return err
 			}
-			node.Metadata = t
+			v.colRefs[node] = t
 		}
 
 	case sqlparser.ValTuple:

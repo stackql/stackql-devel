@@ -216,13 +216,16 @@ func (v *QueryRewriteAstVisitor) GenerateSelectDML(dc drm.DRMConfig, tabAnnotate
 }
 
 type QueryRewriteAstVisitor struct {
-	handlerCtx       *handler.HandlerContext
-	dc               drm.DRMConfig
-	tables           taxonomy.TblMap
-	annotations      taxonomy.AnnotationCtxMap
-	insertCtxSlice   []*drm.PreparedStatementCtx
-	selectCtx        *drm.PreparedStatementCtx
-	baseCtrlCounters *dto.TxnControlCounters
+	handlerCtx        *handler.HandlerContext
+	dc                drm.DRMConfig
+	tables            taxonomy.TblMap
+	annotations       taxonomy.AnnotationCtxMap
+	insertCtxSlice    []*drm.PreparedStatementCtx
+	selectCtx         *drm.PreparedStatementCtx
+	baseCtrlCounters  *dto.TxnControlCounters
+	colRefs           parserutil.ColTableMap
+	columnNames       []parserutil.ColumnHandle
+	columnDescriptors []openapistackql.ColumnDescriptor
 }
 
 func (v *QueryRewriteAstVisitor) getCtrlCounters(discoveryGenerationID int) *dto.TxnControlCounters {
@@ -587,6 +590,17 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		}
 
 	case *sqlparser.AliasedExpr:
+		tbl, ok := v.tables[node]
+		if !ok {
+			return fmt.Errorf("could not locate table for expr '%v'", node)
+		}
+		schema, err := tbl.GetResponseSchema()
+		if err != nil {
+			return err
+		}
+		col := parserutil.InferColNameFromExpr(node)
+		v.columnNames = append(v.columnNames, col)
+		openapistackql.NewColumnDescriptor(col.Alias, col.Name, col.DecoratedColumn, schema, col.Val)
 		if !node.As.IsEmpty() {
 		}
 

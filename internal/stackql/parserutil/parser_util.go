@@ -314,6 +314,10 @@ func GetColumnUsageTypesForExec(exec *sqlparser.Exec) ([]ColumnUsageMetadata, er
 	return colMetaSlice, nil
 }
 
+func InferColNameFromExpr(node *sqlparser.AliasedExpr) ColumnHandle {
+	return inferColNameFromExpr(node)
+}
+
 func inferColNameFromExpr(node *sqlparser.AliasedExpr) ColumnHandle {
 	alias := node.As.GetRawVal()
 	retVal := ColumnHandle{
@@ -475,6 +479,8 @@ func (tem TableExprMap) GetByAlias(alias string) (sqlparser.TableExpr, bool) {
 
 type ParameterMap map[*sqlparser.ColName]interface{}
 
+type ColTableMap map[*sqlparser.ColName]sqlparser.TableExpr
+
 func (tm ParameterMap) ToStringMap() map[string]interface{} {
 	rv := make(map[string]interface{})
 	for k, v := range tm {
@@ -504,13 +510,15 @@ func (tm TableExprMap) ToStringMap() map[string]interface{} {
 type ParameterRouter struct {
 	tableMap          TableExprMap
 	paramMap          ParameterMap
+	colRefs           ColTableMap
 	invalidatedParams map[string]interface{}
 }
 
-func NewParameterRouter(tableMap TableExprMap, paramMap ParameterMap) *ParameterRouter {
+func NewParameterRouter(tableMap TableExprMap, paramMap ParameterMap, colRefs ColTableMap) *ParameterRouter {
 	return &ParameterRouter{
 		tableMap:          tableMap,
 		paramMap:          paramMap,
+		colRefs:           colRefs,
 		invalidatedParams: make(map[string]interface{}),
 	}
 }
@@ -522,7 +530,8 @@ func (pr *ParameterRouter) GetAvailableParameters(tb sqlparser.TableExpr) map[st
 		if pr.isInvalidated(key) {
 			continue
 		}
-		if k.Metadata != nil && k.Metadata != tb {
+		ref, ok := pr.colRefs[k]
+		if ok && ref != tb {
 			continue
 		}
 		rv[key] = v
@@ -564,10 +573,11 @@ func (pr *ParameterRouter) Route(tb sqlparser.TableExpr) error {
 			return fmt.Errorf("alias '%s' does not map to any table expression", alias)
 		}
 		if t == tb {
-			if k.Metadata != nil && k.Metadata != t {
+			ref, ok := pr.colRefs[k]
+			if ok && ref != t {
 				return fmt.Errorf("failed parameter routing, cannot re-assign")
 			}
-			k.Metadata = t
+			pr.colRefs[k] = t
 		}
 	}
 	return nil

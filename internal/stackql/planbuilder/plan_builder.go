@@ -34,6 +34,7 @@ func isPlanCacheEnabled() bool {
 type PlanBuilderInput struct {
 	handlerCtx      *handler.HandlerContext
 	stmt            sqlparser.SQLNode
+	colRefs         parserutil.ColTableMap
 	assignedAliases parserutil.TableExprMap
 	tables          sqlparser.TableExprs
 }
@@ -42,12 +43,14 @@ func NewPlanBuilderInput(
 	handlerCtx *handler.HandlerContext,
 	stmt sqlparser.SQLNode,
 	tables sqlparser.TableExprs,
-	assignedAliases parserutil.TableExprMap) PlanBuilderInput {
+	assignedAliases parserutil.TableExprMap,
+	colRefs parserutil.ColTableMap) PlanBuilderInput {
 	rv := PlanBuilderInput{
 		handlerCtx:      handlerCtx,
 		stmt:            stmt,
 		tables:          tables,
 		assignedAliases: assignedAliases,
+		colRefs:         colRefs,
 	}
 	if rv.assignedAliases == nil {
 		rv.assignedAliases = make(map[sqlparser.TableName]sqlparser.TableExpr)
@@ -61,6 +64,10 @@ func (pbi PlanBuilderInput) GetStatement() sqlparser.SQLNode {
 
 func (pbi PlanBuilderInput) GetAssignedAliases() map[sqlparser.TableName]sqlparser.TableExpr {
 	return pbi.assignedAliases
+}
+
+func (pbi PlanBuilderInput) GetColRefs() parserutil.ColTableMap {
+	return pbi.colRefs
 }
 
 func (pbi PlanBuilderInput) GetTableExprs() sqlparser.TableExprs {
@@ -466,7 +473,7 @@ func (pgb *planGraphBuilder) handleInsert(pbi PlanBuilderInput) error {
 		if nonValCols > 0 {
 			switch rowsNode := node.Rows.(type) {
 			case *sqlparser.Select:
-				selPbi := NewPlanBuilderInput(pbi.GetHandlerCtx(), rowsNode, pbi.GetTableExprs(), pbi.GetAssignedAliases())
+				selPbi := NewPlanBuilderInput(pbi.GetHandlerCtx(), rowsNode, pbi.GetTableExprs(), pbi.GetAssignedAliases(), pbi.GetColRefs())
 				_, selectPrimitiveNode, err = pgb.handleSelect(selPbi)
 				if err != nil {
 					return err
@@ -650,7 +657,7 @@ func BuildPlanFromContext(handlerCtx *handler.HandlerContext) (*plan.Plan, error
 	aVis := astvisit.NewTableAliasAstVisitor(tVis.GetTables())
 	aVis.Visit(ast)
 
-	pbi := NewPlanBuilderInput(handlerCtx, ast, tVis.GetTables(), aVis.GetAliases())
+	pbi := NewPlanBuilderInput(handlerCtx, ast, tVis.GetTables(), aVis.GetAliases(), aVis.GetColRefs())
 
 	createInstructionError := pGBuilder.createInstructionFor(pbi)
 	if createInstructionError != nil {
