@@ -91,7 +91,8 @@ func (v *TableRouteAstVisitor) analyzeAliasedTable(tb *sqlparser.AliasedTableExp
 			return nil, err
 		}
 		m := taxonomy.NewExtendedTableMetadata(hr, taxonomy.GetAliasFromStatement(tb))
-		return &m, nil
+		v.tables[ex] = m
+		return m, nil
 	default:
 		return nil, fmt.Errorf("table of type '%T' not curently supported", ex)
 	}
@@ -476,7 +477,7 @@ func (v *TableRouteAstVisitor) Visit(node sqlparser.SQLNode) error {
 				return fmt.Errorf("nil table returned")
 			}
 			v.tableMetaSlice = append(v.tableMetaSlice, t)
-			v.tables[node] = *t
+			v.tables[node] = t
 			err = v.addAnnotationCtx(node, t)
 			if err != nil {
 				return err

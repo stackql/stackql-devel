@@ -41,7 +41,7 @@ type Builder interface {
 type SingleSelectAcquire struct {
 	graph                      *primitivegraph.PrimitiveGraph
 	handlerCtx                 *handler.HandlerContext
-	tableMeta                  taxonomy.ExtendedTableMetadata
+	tableMeta                  *taxonomy.ExtendedTableMetadata
 	drmCfg                     drm.DRMConfig
 	insertPreparedStatementCtx *drm.PreparedStatementCtx
 	txnCtrlCtr                 *dto.TxnControlCounters
@@ -173,7 +173,7 @@ type Join struct {
 	rowSort      func(map[string]map[string]interface{}) []string
 }
 
-func NewSingleSelectAcquire(graph *primitivegraph.PrimitiveGraph, handlerCtx *handler.HandlerContext, tableMeta taxonomy.ExtendedTableMetadata, insertCtx *drm.PreparedStatementCtx, rowSort func(map[string]map[string]interface{}) []string) Builder {
+func NewSingleSelectAcquire(graph *primitivegraph.PrimitiveGraph, handlerCtx *handler.HandlerContext, tableMeta *taxonomy.ExtendedTableMetadata, insertCtx *drm.PreparedStatementCtx, rowSort func(map[string]map[string]interface{}) []string) Builder {
 	var tcc *dto.TxnControlCounters
 	if insertCtx != nil {
 		tcc = insertCtx.TxnCtrlCtrs
@@ -238,7 +238,7 @@ func NewUnion(graph *primitivegraph.PrimitiveGraph, handlerCtx *handler.HandlerC
 	}
 }
 
-func NewSingleAcquireAndSelect(graph *primitivegraph.PrimitiveGraph, txnControlCounters *dto.TxnControlCounters, handlerCtx *handler.HandlerContext, tableMeta taxonomy.ExtendedTableMetadata, insertCtx *drm.PreparedStatementCtx, selectCtx *drm.PreparedStatementCtx, rowSort func(map[string]map[string]interface{}) []string) Builder {
+func NewSingleAcquireAndSelect(graph *primitivegraph.PrimitiveGraph, txnControlCounters *dto.TxnControlCounters, handlerCtx *handler.HandlerContext, tableMeta *taxonomy.ExtendedTableMetadata, insertCtx *drm.PreparedStatementCtx, selectCtx *drm.PreparedStatementCtx, rowSort func(map[string]map[string]interface{}) []string) Builder {
 	return &SingleAcquireAndSelect{
 		graph:          graph,
 		acquireBuilder: NewSingleSelectAcquire(graph, handlerCtx, tableMeta, insertCtx, rowSort),

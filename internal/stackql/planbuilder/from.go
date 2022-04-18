@@ -36,7 +36,7 @@ func analyzeAliasedTable(handlerCtx *handler.HandlerContext, tb *sqlparser.Alias
 			return nil, err
 		}
 		m := taxonomy.NewExtendedTableMetadata(hr, taxonomy.GetAliasFromStatement(tb))
-		return &m, nil
+		return m, nil
 	default:
 		return nil, fmt.Errorf("table of type '%T' not curently supported", ex)
 	}

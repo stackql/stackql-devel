@@ -79,21 +79,21 @@ func (ho *HeirarchyObjects) LookupSelectItemsKey() string {
 	return "items"
 }
 
-type TblMap map[sqlparser.SQLNode]ExtendedTableMetadata
+type TblMap map[sqlparser.SQLNode]*ExtendedTableMetadata
 
 type AnnotationCtxMap map[sqlparser.SQLNode]util.AnnotationCtx
 
 type AnnotatedTabulationMap map[sqlparser.SQLNode]util.AnnotatedTabulation
 
-func (tm TblMap) GetTable(node sqlparser.SQLNode) (ExtendedTableMetadata, error) {
+func (tm TblMap) GetTable(node sqlparser.SQLNode) (*ExtendedTableMetadata, error) {
 	tbl, ok := tm[node]
 	if !ok {
-		return ExtendedTableMetadata{}, fmt.Errorf("could not locate table for AST node: %v", node)
+		return nil, fmt.Errorf("could not locate table for AST node: %v", node)
 	}
 	return tbl, nil
 }
 
-func (tm TblMap) SetTable(node sqlparser.SQLNode, table ExtendedTableMetadata) {
+func (tm TblMap) SetTable(node sqlparser.SQLNode, table *ExtendedTableMetadata) {
 	tm[node] = table
 }
 
@@ -236,8 +236,8 @@ func (ex ExtendedTableMetadata) GetSelectableObjectSchema() (*openapistackql.Sch
 	return ex.HeirarchyObjects.GetSelectableObjectSchema()
 }
 
-func NewExtendedTableMetadata(heirarchyObjects *HeirarchyObjects, alias string) ExtendedTableMetadata {
-	return ExtendedTableMetadata{
+func NewExtendedTableMetadata(heirarchyObjects *HeirarchyObjects, alias string) *ExtendedTableMetadata {
+	return &ExtendedTableMetadata{
 		ColsVisited:        make(map[string]bool),
 		RequiredParameters: make(map[string]openapistackql.Parameter),
 		HeirarchyObjects:   heirarchyObjects,

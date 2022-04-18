@@ -25,14 +25,6 @@ func (v *QueryRewriteAstVisitor) getSelectExprString(dc *drm.StaticDRMConfig, ta
 	return fmt.Sprintf(`"%s" %s`, dc.GetTableName(tabAnnotated.GetHeirarchyIdentifiers(), txnCtrlCtrs.DiscoveryGenerationId), aliasStr)
 }
 
-func (v *QueryRewriteAstVisitor) getSelectExpr(dc *drm.StaticDRMConfig, tabAnnotated util.AnnotatedTabulation, txnCtrlCtrs *dto.TxnControlCounters) string {
-	aliasStr := ""
-	if tabAnnotated.GetAlias() != "" {
-		aliasStr = fmt.Sprintf(` AS "%s" `, tabAnnotated.GetAlias())
-	}
-	return fmt.Sprintf(`"%s" %s`, dc.GetTableName(tabAnnotated.GetHeirarchyIdentifiers(), txnCtrlCtrs.DiscoveryGenerationId), aliasStr)
-}
-
 func (v *QueryRewriteAstVisitor) buildAcquireQueryCtx(
 	sqlEngine sqlengine.SQLEngine,
 	ac util.AnnotationCtx,
@@ -640,7 +632,7 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 	case sqlparser.SelectExprs:
 
 	case *sqlparser.StarExpr:
-		var tbl taxonomy.ExtendedTableMetadata
+		var tbl *taxonomy.ExtendedTableMetadata
 		if node.TableName.IsEmpty() {
 			if len(v.tables) != 1 {
 				return fmt.Errorf("unaliased star expr not permitted for table count = %d", len(v.tables))
@@ -656,7 +648,7 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 				return fmt.Errorf("could not locate table for expr '%v'", node.TableName)
 			}
 		}
-		cols, err := v.getStarColumns(&tbl)
+		cols, err := v.getStarColumns(tbl)
 		if err != nil {
 			return err
 		}

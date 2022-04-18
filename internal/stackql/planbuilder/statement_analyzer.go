@@ -431,13 +431,19 @@ func (pb *primitiveGenerator) analyzeWhere(where *sqlparser.Where) (*sqlparser.W
 	requiredParameters := suffix.NewParameterSuffixMap()
 	remainingRequiredParameters := suffix.NewParameterSuffixMap()
 	optionalParameters := suffix.NewParameterSuffixMap()
+	tbVisited := map[*taxonomy.ExtendedTableMetadata]struct{}{}
 	for _, tb := range pb.PrimitiveBuilder.GetTables() {
+		if _, ok := tbVisited[tb]; ok {
+			continue
+		}
+		tbVisited[tb] = struct{}{}
 		tbID := tb.GetUniqueId()
 		method, err := tb.GetMethod()
 		if err != nil {
 			return nil, nil, err
 		}
-		for k, v := range method.GetRequiredParameters() {
+		reqParams := method.GetRequiredParameters()
+		for k, v := range reqParams {
 			key := fmt.Sprintf("%s.%s", tbID, k)
 			_, keyExists := requiredParameters.Get(key)
 			if keyExists {
@@ -579,7 +585,7 @@ func (p *primitiveGenerator) analyzeUnaryExec(handlerCtx *handler.HandlerContext
 	if err != nil {
 		return nil, err
 	}
-	_, err = p.buildRequestContext(handlerCtx, node, &meta, httpbuild.NewExecContext(execPayload, rsc), nil)
+	_, err = p.buildRequestContext(handlerCtx, node, meta, httpbuild.NewExecContext(execPayload, rsc), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -587,12 +593,12 @@ func (p *primitiveGenerator) analyzeUnaryExec(handlerCtx *handler.HandlerContext
 
 	// parse response with SQL
 	if method.IsNullary() && !p.PrimitiveBuilder.IsAwait() {
-		return &meta, nil
+		return meta, nil
 	}
 	if selectNode != nil {
-		return &meta, p.analyzeUnarySelection(handlerCtx, selectNode, selectNode.Where, &meta, cols)
+		return meta, p.analyzeUnarySelection(handlerCtx, selectNode, selectNode.Where, meta, cols)
 	}
-	return &meta, p.analyzeUnarySelection(handlerCtx, node, nil, &meta, cols)
+	return meta, p.analyzeUnarySelection(handlerCtx, node, nil, meta, cols)
 }
 
 func (p *primitiveGenerator) analyzeExec(pbi PlanBuilderInput) error {
@@ -610,10 +616,10 @@ func (p *primitiveGenerator) analyzeExec(pbi PlanBuilderInput) error {
 			return err
 		}
 		if m.IsNullary() && !p.PrimitiveBuilder.IsAwait() {
-			p.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleSelectAcquire(p.PrimitiveBuilder.GetGraph(), handlerCtx, *tbl, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), nil))
+			p.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleSelectAcquire(p.PrimitiveBuilder.GetGraph(), handlerCtx, tbl, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), nil))
 			return nil
 		}
-		p.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(p.PrimitiveBuilder.GetGraph(), p.PrimitiveBuilder.GetTxnCtrlCtrs(), handlerCtx, *tbl, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), p.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
+		p.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(p.PrimitiveBuilder.GetGraph(), p.PrimitiveBuilder.GetTxnCtrlCtrs(), handlerCtx, tbl, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), p.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
 	}
 	return nil
 }
@@ -884,7 +890,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 			return nil
 		case *sqlparser.AliasedTableExpr:
 			tbl, err := tblz.GetTable(ft)
-			err = pChild.analyzeSelectDetail(handlerCtx, node, &tbl, rewrittenWhere)
+			err = pChild.analyzeSelectDetail(handlerCtx, node, tbl, rewrittenWhere)
 			if err != nil {
 				return err
 			}
@@ -900,7 +906,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 			if err != nil {
 				return err
 			}
-			pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveBuilder.GetGraph(), pChild.PrimitiveBuilder.GetTxnCtrlCtrs(), handlerCtx, *tbl, pChild.PrimitiveBuilder.GetInsertPreparedStatementCtx(), pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
+			pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveBuilder.GetGraph(), pChild.PrimitiveBuilder.GetTxnCtrlCtrs(), handlerCtx, tbl, pChild.PrimitiveBuilder.GetInsertPreparedStatementCtx(), pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
 			return nil
 		}
 
@@ -1037,7 +1043,7 @@ func (p *primitiveGenerator) analyzeTableExpr(handlerCtx *handler.HandlerContext
 	if itemObjS == nil || err != nil {
 		return nil, fmt.Errorf(unsuitableSchemaMsg)
 	}
-	return &tbl, nil
+	return tbl, nil
 }
 
 func (p *primitiveGenerator) buildRequestContext(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, meta *taxonomy.ExtendedTableMetadata, execContext *httpbuild.ExecContext, rowsToInsert map[int]map[int]interface{}) (*httpbuild.HTTPArmoury, error) {
@@ -1124,7 +1130,7 @@ func (p *primitiveGenerator) analyzeInsert(pbi PlanBuilderInput) error {
 		return err
 	}
 
-	_, err = p.buildRequestContext(handlerCtx, node, &tbl, nil, insertValOnlyRows)
+	_, err = p.buildRequestContext(handlerCtx, node, tbl, nil, insertValOnlyRows)
 	if err != nil {
 		return err
 	}
@@ -1218,7 +1224,7 @@ func (p *primitiveGenerator) analyzeDelete(pbi PlanBuilderInput) error {
 	if err != nil {
 		return err
 	}
-	_, err = p.buildRequestContext(handlerCtx, node, &tbl, nil, nil)
+	_, err = p.buildRequestContext(handlerCtx, node, tbl, nil, nil)
 	if err != nil {
 		return err
 	}
