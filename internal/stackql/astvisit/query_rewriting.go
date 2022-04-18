@@ -244,12 +244,12 @@ func buildQuery(
 	return nil
 }
 
-func (v *QueryRewriteAstVisitor) GenerateSelectDML(dc drm.DRMConfig, tabAnnotated util.AnnotatedTabulation, txnCtrlCtrs *dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (drm.PreparedStatementCtx, error) {
+func (v *QueryRewriteAstVisitor) GenerateSelectDML(dc drm.DRMConfig, cols []openapistackql.ColumnDescriptor, txnCtrlCtrs *dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (drm.PreparedStatementCtx, error) {
 	var q strings.Builder
-	var quotedColNames, quotedWhereColNames []string
+	var quotedColNames []string
 	var columns []drm.ColumnMetadata
 	// var vals []interface{}
-	for _, col := range tabAnnotated.GetTabulation().GetColumns() {
+	for _, col := range cols {
 		var typeStr string
 		if col.Schema != nil {
 			typeStr = dc.GetRelationalType(col.Schema.Type)
@@ -277,18 +277,28 @@ func (v *QueryRewriteAstVisitor) GenerateSelectDML(dc drm.DRMConfig, tabAnnotate
 	sessionIDColName := dc.GetSessionControlColumn()
 	txnIdColName := dc.GetTxnControlColumn()
 	insIdColName := dc.GetInsControlColumn()
-	quotedWhereColNames = append(quotedWhereColNames, `"`+genIdColName+`" `)
-	quotedWhereColNames = append(quotedWhereColNames, `"`+txnIdColName+`" `)
-	quotedWhereColNames = append(quotedWhereColNames, `"`+insIdColName+`" `)
-	aliasStr := ""
-	if tabAnnotated.GetAlias() != "" {
-		aliasStr = fmt.Sprintf(` AS "%s" `, tabAnnotated.GetAlias())
+	// var controlWhereSubClause strings.Builder
+	// controlWhereSubClause.WriteString("(")
+	var wq strings.Builder
+	var controlWhereComparisons []string
+	for _, v := range v.tables {
+		gIDcn := fmt.Sprintf(`"%s"."%s"`, v.GetUniqueId(), genIdColName)
+		tIDcn := fmt.Sprintf(`"%s"."%s"`, v.GetUniqueId(), txnIdColName)
+		iIDcn := fmt.Sprintf(`"%s"."%s"`, v.GetUniqueId(), insIdColName)
+		controlWhereComparisons = append(controlWhereComparisons, fmt.Sprintf(`%s = ? AND %s = ? AND %s = ? AND %s = ?`, gIDcn, tIDcn, txnIdColName, iIDcn))
 	}
-	q.WriteString(fmt.Sprintf(`SELECT %s FROM "%s" %s WHERE `, strings.Join(quotedColNames, ", "), dc.GetTableName(tabAnnotated.GetHeirarchyIdentifiers(), txnCtrlCtrs.DiscoveryGenerationId), aliasStr))
-	q.WriteString(fmt.Sprintf(`( "%s" = ? AND "%s" = ? AND "%s" = ? AND "%s" = ? ) `, genIdColName, sessionIDColName, txnIdColName, insIdColName))
+	controlWhereSubClause := fmt.Sprintf("( %s )", strings.Join(controlWhereComparisons, " AND "))
+	wq.WriteString(controlWhereSubClause)
 	if strings.TrimSpace(rewrittenWhere) != "" {
-		q.WriteString(fmt.Sprintf(" AND ( %s ) ", rewrittenWhere))
+		wq.WriteString(fmt.Sprintf(" AND ( %s ) ", rewrittenWhere))
 	}
+	v.whereExprsStr = wq.String()
+
+	// write select expressions to execute
+	v.selectExprsStr = strings.Join(quotedColNames, ", ")
+
+	// q.WriteString(fmt.Sprintf(`SELECT %s FROM "%s" %s WHERE `, strings.Join(quotedColNames, ", "), dc.GetTableName(tabAnnotated.GetHeirarchyIdentifiers(), txnCtrlCtrs.DiscoveryGenerationId), aliasStr))
+
 	q.WriteString(selectSuffix)
 
 	return drm.PreparedStatementCtx{
@@ -315,6 +325,9 @@ type QueryRewriteAstVisitor struct {
 	colRefs              parserutil.ColTableMap
 	columnNames          []parserutil.ColumnHandle
 	columnDescriptors    []openapistackql.ColumnDescriptor
+	//
+	selectExprsStr string
+	whereExprsStr  string
 }
 
 func (v *QueryRewriteAstVisitor) getCtrlCounters(discoveryGenerationID int) *dto.TxnControlCounters {

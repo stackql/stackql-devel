@@ -84,6 +84,7 @@ type PreparedStatementCtx struct {
 	TxnIdControlColName     string
 	InsIdControlColName     string
 	NonControlColumns       []ColumnMetadata
+	CtrlColumnRepeats       int
 	TxnCtrlCtrs             *dto.TxnControlCounters
 }
 
@@ -405,10 +406,14 @@ func (dc *StaticDRMConfig) generateControlVarArgs(cp PreparedStatementParameteri
 	// log.Infoln(fmt.Sprintf("%v", ctx))
 	var varArgs []interface{}
 	if cp.controlArgsRequired {
-		varArgs = append(varArgs, cp.Ctx.TxnCtrlCtrs.GenId)
-		varArgs = append(varArgs, cp.Ctx.TxnCtrlCtrs.SessionId)
-		varArgs = append(varArgs, cp.Ctx.TxnCtrlCtrs.TxnId)
-		varArgs = append(varArgs, cp.Ctx.TxnCtrlCtrs.InsertId)
+		i := 0
+		for i <= cp.Ctx.CtrlColumnRepeats {
+			varArgs = append(varArgs, cp.Ctx.TxnCtrlCtrs.GenId)
+			varArgs = append(varArgs, cp.Ctx.TxnCtrlCtrs.SessionId)
+			varArgs = append(varArgs, cp.Ctx.TxnCtrlCtrs.TxnId)
+			varArgs = append(varArgs, cp.Ctx.TxnCtrlCtrs.InsertId)
+			i++
+		}
 	}
 	return varArgs, nil
 }
