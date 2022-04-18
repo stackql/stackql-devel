@@ -17,11 +17,12 @@ import (
 )
 
 type TableRouteAstVisitor struct {
-	handlerCtx     *handler.HandlerContext
-	router         *parserutil.ParameterRouter
-	tableMetaSlice []*taxonomy.ExtendedTableMetadata
-	tables         taxonomy.TblMap
-	annotations    taxonomy.AnnotationCtxMap
+	handlerCtx      *handler.HandlerContext
+	router          *parserutil.ParameterRouter
+	tableMetaSlice  []*taxonomy.ExtendedTableMetadata
+	tables          taxonomy.TblMap
+	annotations     taxonomy.AnnotationCtxMap
+	annotationSlice []util.AnnotationCtx
 }
 
 func NewTableRouteAstVisitor(handlerCtx *handler.HandlerContext, router *parserutil.ParameterRouter) *TableRouteAstVisitor {
@@ -69,6 +70,7 @@ func (v *TableRouteAstVisitor) addAnnotationCtx(
 		return err
 	}
 	v.annotations[node] = ac
+	v.annotationSlice = append(v.annotationSlice, ac)
 	return nil
 }
 
@@ -105,6 +107,10 @@ func (v *TableRouteAstVisitor) GetTableMap() taxonomy.TblMap {
 
 func (v *TableRouteAstVisitor) GetAnnotations() taxonomy.AnnotationCtxMap {
 	return v.annotations
+}
+
+func (v *TableRouteAstVisitor) GetAnnotationSlice() []util.AnnotationCtx {
+	return v.annotationSlice
 }
 
 func (v *TableRouteAstVisitor) Visit(node sqlparser.SQLNode) error {

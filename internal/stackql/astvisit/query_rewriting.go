@@ -17,33 +17,88 @@ import (
 	"github.com/stackql/stackql/internal/stackql/util"
 )
 
+func (v *QueryRewriteAstVisitor) getSelectExprString(dc *drm.StaticDRMConfig, tabAnnotated util.AnnotatedTabulation, txnCtrlCtrs *dto.TxnControlCounters) string {
+	aliasStr := ""
+	if tabAnnotated.GetAlias() != "" {
+		aliasStr = fmt.Sprintf(` AS "%s" `, tabAnnotated.GetAlias())
+	}
+	return fmt.Sprintf(`"%s" %s`, dc.GetTableName(tabAnnotated.GetHeirarchyIdentifiers(), txnCtrlCtrs.DiscoveryGenerationId), aliasStr)
+}
+
+func (v *QueryRewriteAstVisitor) getSelectExpr(dc *drm.StaticDRMConfig, tabAnnotated util.AnnotatedTabulation, txnCtrlCtrs *dto.TxnControlCounters) string {
+	aliasStr := ""
+	if tabAnnotated.GetAlias() != "" {
+		aliasStr = fmt.Sprintf(` AS "%s" `, tabAnnotated.GetAlias())
+	}
+	return fmt.Sprintf(`"%s" %s`, dc.GetTableName(tabAnnotated.GetHeirarchyIdentifiers(), txnCtrlCtrs.DiscoveryGenerationId), aliasStr)
+}
+
+func GenerateComplexSelectDML(dc *drm.StaticDRMConfig, cols []openapistackql.ColumnDescriptor, txnCtrlCtrs *dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (drm.PreparedStatementCtx, error) {
+	var q strings.Builder
+	var quotedColNames, quotedWhereColNames []string
+	var columns []drm.ColumnMetadata
+	// var vals []interface{}
+	for _, col := range cols {
+		var typeStr string
+		if col.Schema != nil {
+			typeStr = dc.GetRelationalType(col.Schema.Type)
+		} else {
+			if col.Val != nil {
+				switch col.Val.Type {
+				case sqlparser.BitVal:
+				}
+			}
+		}
+		columns = append(columns, drm.NewColDescriptor(col, typeStr))
+		var colEntry strings.Builder
+		if col.DecoratedCol == "" {
+			colEntry.WriteString(fmt.Sprintf(`"%s" `, col.Name))
+			if col.Alias != "" {
+				colEntry.WriteString(fmt.Sprintf(` AS "%s"`, col.Alias))
+			}
+		} else {
+			colEntry.WriteString(fmt.Sprintf("%s ", col.DecoratedCol))
+		}
+		quotedColNames = append(quotedColNames, fmt.Sprintf("%s ", colEntry.String()))
+
+	}
+	genIdColName := dc.GetGenerationControlColumn()
+	sessionIDColName := dc.GetSessionControlColumn()
+	txnIdColName := dc.GetTxnControlColumn()
+	insIdColName := dc.GetInsControlColumn()
+	quotedWhereColNames = append(quotedWhereColNames, `"`+genIdColName+`" `)
+	quotedWhereColNames = append(quotedWhereColNames, `"`+txnIdColName+`" `)
+	quotedWhereColNames = append(quotedWhereColNames, `"`+insIdColName+`" `)
+	// aliasStr := ""
+	// if tabAnnotated.GetAlias() != "" {
+	// 	aliasStr = fmt.Sprintf(` AS "%s" `, tabAnnotated.GetAlias())
+	// }
+	// q.WriteString(fmt.Sprintf(`SELECT %s FROM "%s"%s WHERE `, strings.Join(quotedColNames, ", "), dc.GetTableName(tabAnnotated.GetHeirarchyIdentifiers(), txnCtrlCtrs.DiscoveryGenerationId), aliasStr))
+	q.WriteString(fmt.Sprintf(`( "%s" = ? AND "%s" = ? AND "%s" = ? AND "%s" = ? ) `, genIdColName, sessionIDColName, txnIdColName, insIdColName))
+	if strings.TrimSpace(rewrittenWhere) != "" {
+		q.WriteString(fmt.Sprintf(" AND ( %s ) ", rewrittenWhere))
+	}
+	q.WriteString(selectSuffix)
+
+	return drm.PreparedStatementCtx{
+		Query:                   q.String(),
+		GenIdControlColName:     genIdColName,
+		SessionIdControlColName: sessionIDColName,
+		TxnIdControlColName:     txnIdColName,
+		InsIdControlColName:     insIdColName,
+		NonControlColumns:       columns,
+		TxnCtrlCtrs:             txnCtrlCtrs,
+	}, nil
+}
+
 func (v *QueryRewriteAstVisitor) buildAcquireQueryCtx(
 	sqlEngine sqlengine.SQLEngine,
-	tbl *taxonomy.ExtendedTableMetadata,
+	ac util.AnnotationCtx,
 	dc drm.DRMConfig,
 ) (*drm.PreparedStatementCtx, error) {
-	schema, err := tbl.GetResponseSchema()
-	if err != nil {
-		return nil, err
-	}
-	provStr, _ := tbl.GetProviderStr()
-	svcStr, _ := tbl.GetServiceStr()
-	// rscStr, _ := tbl.GetResourceStr()
-	unsuitableSchemaMsg := "schema unsuitable for select query"
-	// log.Infoln(fmt.Sprintf("schema.ID = %v", schema.ID))
-	log.Infoln(fmt.Sprintf("schema.Items = %v", schema.Items))
-	log.Infoln(fmt.Sprintf("schema.Properties = %v", schema.Properties))
-	var itemObjS *openapistackql.Schema
-	itemObjS, tbl.SelectItemsKey, err = schema.GetSelectSchema(tbl.LookupSelectItemsKey())
-	if err != nil {
-		return nil, fmt.Errorf(unsuitableSchemaMsg)
-	}
-	if itemObjS == nil {
-		return nil, fmt.Errorf(unsuitableSchemaMsg)
-	}
-	insertTabulation := itemObjS.Tabulate(false)
+	insertTabulation := ac.Schema.Tabulate(false)
 
-	hIds := dto.NewHeirarchyIdentifiers(provStr, svcStr, itemObjS.GetName(), "")
+	hIds := ac.HIDs
 	log.Infof("%v %v", insertTabulation, hIds)
 
 	annotatedInsertTabulation := util.NewAnnotatedTabulation(insertTabulation, hIds, "")
@@ -60,15 +115,47 @@ func (v *QueryRewriteAstVisitor) buildAcquireQueryCtx(
 
 func (v *QueryRewriteAstVisitor) addAcquireQuery(
 	handlerCtx *handler.HandlerContext,
-	tbl *taxonomy.ExtendedTableMetadata,
+	ac util.AnnotationCtx,
 	dc drm.DRMConfig,
 ) error {
-	acqCtx, err := v.buildAcquireQueryCtx(v.handlerCtx.SQLEngine, tbl, v.handlerCtx.DrmConfig)
+	acqCtx, err := v.buildAcquireQueryCtx(v.handlerCtx.SQLEngine, ac, v.handlerCtx.DrmConfig)
 	if err != nil {
 		return err
 	}
 	v.insertCtxSlice = append(v.insertCtxSlice, acqCtx)
 	return nil
+}
+
+func (v *QueryRewriteAstVisitor) getStarColumns(
+	tbl *taxonomy.ExtendedTableMetadata,
+) ([]openapistackql.ColumnDescriptor, error) {
+	schema, err := tbl.GetResponseSchema()
+	if err != nil {
+		return nil, err
+	}
+	// rscStr, _ := tbl.GetResourceStr()
+	unsuitableSchemaMsg := "schema unsuitable for select query"
+	// log.Infoln(fmt.Sprintf("schema.ID = %v", schema.ID))
+	log.Infoln(fmt.Sprintf("schema.Items = %v", schema.Items))
+	log.Infoln(fmt.Sprintf("schema.Properties = %v", schema.Properties))
+	var itemObjS *openapistackql.Schema
+	itemObjS, tbl.SelectItemsKey, err = schema.GetSelectSchema(tbl.LookupSelectItemsKey())
+	if err != nil {
+		return nil, fmt.Errorf(unsuitableSchemaMsg)
+	}
+	if itemObjS == nil {
+		return nil, fmt.Errorf(unsuitableSchemaMsg)
+	}
+	var cols []parserutil.ColumnHandle
+	colNames := itemObjS.GetAllColumns()
+	for _, v := range colNames {
+		cols = append(cols, parserutil.NewUnaliasedColumnHandle(v))
+	}
+	var columnDescriptors []openapistackql.ColumnDescriptor
+	for _, col := range cols {
+		columnDescriptors = append(columnDescriptors, openapistackql.NewColumnDescriptor(col.Alias, col.Name, col.DecoratedColumn, schema, col.Val))
+	}
+	return columnDescriptors, nil
 }
 
 func (v *QueryRewriteAstVisitor) buildSelectQuery(
@@ -216,16 +303,18 @@ func (v *QueryRewriteAstVisitor) GenerateSelectDML(dc drm.DRMConfig, tabAnnotate
 }
 
 type QueryRewriteAstVisitor struct {
-	handlerCtx        *handler.HandlerContext
-	dc                drm.DRMConfig
-	tables            taxonomy.TblMap
-	annotations       taxonomy.AnnotationCtxMap
-	insertCtxSlice    []*drm.PreparedStatementCtx
-	selectCtx         *drm.PreparedStatementCtx
-	baseCtrlCounters  *dto.TxnControlCounters
-	colRefs           parserutil.ColTableMap
-	columnNames       []parserutil.ColumnHandle
-	columnDescriptors []openapistackql.ColumnDescriptor
+	handlerCtx           *handler.HandlerContext
+	dc                   drm.DRMConfig
+	tables               taxonomy.TblMap
+	annotations          taxonomy.AnnotationCtxMap
+	annotatedTabulations taxonomy.AnnotatedTabulationMap
+	annotationSlice      []util.AnnotationCtx
+	insertCtxSlice       []*drm.PreparedStatementCtx
+	selectCtx            *drm.PreparedStatementCtx
+	baseCtrlCounters     *dto.TxnControlCounters
+	colRefs              parserutil.ColTableMap
+	columnNames          []parserutil.ColumnHandle
+	columnDescriptors    []openapistackql.ColumnDescriptor
 }
 
 func (v *QueryRewriteAstVisitor) getCtrlCounters(discoveryGenerationID int) *dto.TxnControlCounters {
@@ -239,19 +328,28 @@ func NewQueryRewriteAstVisitor(
 	handlerCtx *handler.HandlerContext,
 	tables taxonomy.TblMap,
 	annotations taxonomy.AnnotationCtxMap,
+	annotationSlice []util.AnnotationCtx,
+	colRefs parserutil.ColTableMap,
 	dc drm.DRMConfig,
 	txnCtrlCtrs *dto.TxnControlCounters,
 ) *QueryRewriteAstVisitor {
 	return &QueryRewriteAstVisitor{
-		handlerCtx:  handlerCtx,
-		tables:      tables,
-		annotations: annotations,
-		dc:          dc,
+		handlerCtx:           handlerCtx,
+		tables:               tables,
+		annotations:          annotations,
+		annotationSlice:      annotationSlice,
+		annotatedTabulations: make(taxonomy.AnnotatedTabulationMap),
+		colRefs:              colRefs,
+		dc:                   dc,
 	}
 }
 
 func (v *QueryRewriteAstVisitor) GetTableMap() taxonomy.TblMap {
 	return v.tables
+}
+
+func (v *QueryRewriteAstVisitor) GetColumnDescriptors() []openapistackql.ColumnDescriptor {
+	return v.columnDescriptors
 }
 
 // drm.PreparedStatementCtx
@@ -586,8 +684,27 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 	case sqlparser.SelectExprs:
 
 	case *sqlparser.StarExpr:
-		if !node.TableName.IsEmpty() {
+		var tbl taxonomy.ExtendedTableMetadata
+		if node.TableName.IsEmpty() {
+			if len(v.tables) != 1 {
+				return fmt.Errorf("unaliased star expr not permitted for table count = %d", len(v.tables))
+			}
+			for _, v := range v.tables {
+				tbl = v
+				break
+			}
+		} else {
+			var ok bool
+			tbl, ok = v.tables[node.TableName]
+			if !ok {
+				return fmt.Errorf("could not locate table for expr '%v'", node.TableName)
+			}
 		}
+		cols, err := v.getStarColumns(&tbl)
+		if err != nil {
+			return err
+		}
+		v.columnDescriptors = append(v.columnDescriptors, cols...)
 
 	case *sqlparser.AliasedExpr:
 		tbl, ok := v.tables[node]
@@ -600,7 +717,8 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		}
 		col := parserutil.InferColNameFromExpr(node)
 		v.columnNames = append(v.columnNames, col)
-		openapistackql.NewColumnDescriptor(col.Alias, col.Name, col.DecoratedColumn, schema, col.Val)
+		cd := openapistackql.NewColumnDescriptor(col.Alias, col.Name, col.DecoratedColumn, schema, col.Val)
+		v.columnDescriptors = append(v.columnDescriptors, cd)
 		if !node.As.IsEmpty() {
 		}
 

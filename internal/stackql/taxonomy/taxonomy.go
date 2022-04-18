@@ -83,6 +83,8 @@ type TblMap map[sqlparser.SQLNode]ExtendedTableMetadata
 
 type AnnotationCtxMap map[sqlparser.SQLNode]util.AnnotationCtx
 
+type AnnotatedTabulationMap map[sqlparser.SQLNode]util.AnnotatedTabulation
+
 func (tm TblMap) GetTable(node sqlparser.SQLNode) (ExtendedTableMetadata, error) {
 	tbl, ok := tm[node]
 	if !ok {

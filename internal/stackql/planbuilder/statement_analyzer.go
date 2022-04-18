@@ -765,6 +765,8 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 
 	tblz := v.GetTableMap()
 	annotations := v.GetAnnotations()
+	annotationSlice := v.GetAnnotationSlice()
+	colRefs := pbi.GetColRefs()
 
 	for k, v := range tblz {
 		p.PrimitiveBuilder.SetTable(k, v)
@@ -868,6 +870,8 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				handlerCtx,
 				tblz,
 				annotations,
+				annotationSlice,
+				colRefs,
 				drm.GetGoogleV1SQLiteConfig(),
 				tcc,
 			)
