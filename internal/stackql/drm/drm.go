@@ -89,7 +89,7 @@ type PreparedStatementCtx struct {
 }
 
 func NewQueryOnlyPreparedStatementCtx(query string) *PreparedStatementCtx {
-	return &PreparedStatementCtx{Query: query}
+	return &PreparedStatementCtx{Query: query, CtrlColumnRepeats: 0}
 }
 
 func (ps PreparedStatementCtx) GetGCHousekeepingQueries() string {
@@ -339,6 +339,7 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 			TxnIdControlColName:     txnIdColName,
 			InsIdControlColName:     insIdColName,
 			NonControlColumns:       columns,
+			CtrlColumnRepeats:       1,
 			TxnCtrlCtrs:             tcc,
 		},
 		nil
@@ -398,6 +399,7 @@ func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 		TxnIdControlColName:     txnIdColName,
 		InsIdControlColName:     insIdColName,
 		NonControlColumns:       columns,
+		CtrlColumnRepeats:       1,
 		TxnCtrlCtrs:             txnCtrlCtrs,
 	}, nil
 }
@@ -407,7 +409,7 @@ func (dc *StaticDRMConfig) generateControlVarArgs(cp PreparedStatementParameteri
 	var varArgs []interface{}
 	if cp.controlArgsRequired {
 		i := 0
-		for i <= cp.Ctx.CtrlColumnRepeats {
+		for i < cp.Ctx.CtrlColumnRepeats {
 			varArgs = append(varArgs, cp.Ctx.TxnCtrlCtrs.GenId)
 			varArgs = append(varArgs, cp.Ctx.TxnCtrlCtrs.SessionId)
 			varArgs = append(varArgs, cp.Ctx.TxnCtrlCtrs.TxnId)

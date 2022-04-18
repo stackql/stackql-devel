@@ -33,64 +33,6 @@ func (v *QueryRewriteAstVisitor) getSelectExpr(dc *drm.StaticDRMConfig, tabAnnot
 	return fmt.Sprintf(`"%s" %s`, dc.GetTableName(tabAnnotated.GetHeirarchyIdentifiers(), txnCtrlCtrs.DiscoveryGenerationId), aliasStr)
 }
 
-func GenerateComplexSelectDML(dc *drm.StaticDRMConfig, cols []openapistackql.ColumnDescriptor, txnCtrlCtrs *dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (drm.PreparedStatementCtx, error) {
-	var q strings.Builder
-	var quotedColNames, quotedWhereColNames []string
-	var columns []drm.ColumnMetadata
-	// var vals []interface{}
-	for _, col := range cols {
-		var typeStr string
-		if col.Schema != nil {
-			typeStr = dc.GetRelationalType(col.Schema.Type)
-		} else {
-			if col.Val != nil {
-				switch col.Val.Type {
-				case sqlparser.BitVal:
-				}
-			}
-		}
-		columns = append(columns, drm.NewColDescriptor(col, typeStr))
-		var colEntry strings.Builder
-		if col.DecoratedCol == "" {
-			colEntry.WriteString(fmt.Sprintf(`"%s" `, col.Name))
-			if col.Alias != "" {
-				colEntry.WriteString(fmt.Sprintf(` AS "%s"`, col.Alias))
-			}
-		} else {
-			colEntry.WriteString(fmt.Sprintf("%s ", col.DecoratedCol))
-		}
-		quotedColNames = append(quotedColNames, fmt.Sprintf("%s ", colEntry.String()))
-
-	}
-	genIdColName := dc.GetGenerationControlColumn()
-	sessionIDColName := dc.GetSessionControlColumn()
-	txnIdColName := dc.GetTxnControlColumn()
-	insIdColName := dc.GetInsControlColumn()
-	quotedWhereColNames = append(quotedWhereColNames, `"`+genIdColName+`" `)
-	quotedWhereColNames = append(quotedWhereColNames, `"`+txnIdColName+`" `)
-	quotedWhereColNames = append(quotedWhereColNames, `"`+insIdColName+`" `)
-	// aliasStr := ""
-	// if tabAnnotated.GetAlias() != "" {
-	// 	aliasStr = fmt.Sprintf(` AS "%s" `, tabAnnotated.GetAlias())
-	// }
-	// q.WriteString(fmt.Sprintf(`SELECT %s FROM "%s"%s WHERE `, strings.Join(quotedColNames, ", "), dc.GetTableName(tabAnnotated.GetHeirarchyIdentifiers(), txnCtrlCtrs.DiscoveryGenerationId), aliasStr))
-	q.WriteString(fmt.Sprintf(`( "%s" = ? AND "%s" = ? AND "%s" = ? AND "%s" = ? ) `, genIdColName, sessionIDColName, txnIdColName, insIdColName))
-	if strings.TrimSpace(rewrittenWhere) != "" {
-		q.WriteString(fmt.Sprintf(" AND ( %s ) ", rewrittenWhere))
-	}
-	q.WriteString(selectSuffix)
-
-	return drm.PreparedStatementCtx{
-		Query:                   q.String(),
-		GenIdControlColName:     genIdColName,
-		SessionIdControlColName: sessionIDColName,
-		TxnIdControlColName:     txnIdColName,
-		InsIdControlColName:     insIdColName,
-		NonControlColumns:       columns,
-		TxnCtrlCtrs:             txnCtrlCtrs,
-	}, nil
-}
-
 func (v *QueryRewriteAstVisitor) buildAcquireQueryCtx(
 	sqlEngine sqlengine.SQLEngine,
 	ac util.AnnotationCtx,
@@ -308,6 +250,7 @@ func (v *QueryRewriteAstVisitor) GenerateSelectDML(dc drm.DRMConfig, cols []open
 		TxnIdControlColName:     txnIdColName,
 		InsIdControlColName:     insIdColName,
 		NonControlColumns:       columns,
+		CtrlColumnRepeats:       len(v.tables),
 		TxnCtrlCtrs:             txnCtrlCtrs,
 	}, nil
 }
