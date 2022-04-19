@@ -141,6 +141,7 @@ type DRMConfig interface {
 	GenerateDDL(util.AnnotatedTabulation, int, bool) []string
 	GetGolangValue(string) interface{}
 	GetInsControlColumn() string
+	GetParserTableName(*dto.HeirarchyIdentifiers, int) sqlparser.TableName
 	GetSessionControlColumn() string
 	GetTableName(*dto.HeirarchyIdentifiers, int) string
 	GetTxnControlColumn() string
@@ -262,6 +263,19 @@ func (dc *StaticDRMConfig) GetTableName(hIds *dto.HeirarchyIdentifiers, discover
 
 func (dc *StaticDRMConfig) getTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) string {
 	return fmt.Sprintf("%s.generation_%d", hIds.GetTableName(), discoveryGenerationID)
+}
+
+func (dc *StaticDRMConfig) GetParserTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) sqlparser.TableName {
+	return dc.getParserTableName(hIds, discoveryGenerationID)
+}
+
+func (dc *StaticDRMConfig) getParserTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) sqlparser.TableName {
+	return sqlparser.TableName{
+		Name:            sqlparser.NewTableIdent(fmt.Sprintf("generation_%d", discoveryGenerationID)),
+		Qualifier:       sqlparser.NewTableIdent(hIds.ResourceStr),
+		QualifierSecond: sqlparser.NewTableIdent(hIds.ServiceStr),
+		QualifierThird:  sqlparser.NewTableIdent(hIds.ProviderStr),
+	}
 }
 
 func (dc *StaticDRMConfig) inferTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) string {

@@ -468,6 +468,8 @@ func TableFromSelectNode(sel *sqlparser.Select) (sqlparser.TableName, error) {
 
 type TableExprMap map[sqlparser.TableName]sqlparser.TableExpr
 
+type TableAliasMap map[string]sqlparser.TableExpr
+
 func (tem TableExprMap) GetByAlias(alias string) (sqlparser.TableExpr, bool) {
 	for k, v := range tem {
 		if k.GetRawVal() == alias {
@@ -508,14 +510,16 @@ func (tm TableExprMap) ToStringMap() map[string]interface{} {
 }
 
 type ParameterRouter struct {
+	tablesAliasMap    TableAliasMap
 	tableMap          TableExprMap
 	paramMap          ParameterMap
 	colRefs           ColTableMap
 	invalidatedParams map[string]interface{}
 }
 
-func NewParameterRouter(tableMap TableExprMap, paramMap ParameterMap, colRefs ColTableMap) *ParameterRouter {
+func NewParameterRouter(tablesAliasMap TableAliasMap, tableMap TableExprMap, paramMap ParameterMap, colRefs ColTableMap) *ParameterRouter {
 	return &ParameterRouter{
+		tablesAliasMap:    tablesAliasMap,
 		tableMap:          tableMap,
 		paramMap:          paramMap,
 		colRefs:           colRefs,
@@ -568,7 +572,7 @@ func (pr *ParameterRouter) Route(tb sqlparser.TableExpr) error {
 		if alias == "" {
 			continue
 		}
-		t, ok := pr.tableMap.GetByAlias(alias)
+		t, ok := pr.tablesAliasMap[alias]
 		if !ok {
 			return fmt.Errorf("alias '%s' does not map to any table expression", alias)
 		}
