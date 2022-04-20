@@ -178,7 +178,12 @@ func buildQuery(
 	return nil
 }
 
-func (v *QueryRewriteAstVisitor) GenerateSelectDML(dc drm.DRMConfig, cols []openapistackql.ColumnDescriptor, txnCtrlCtrs *dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (drm.PreparedStatementCtx, error) {
+func (v *QueryRewriteAstVisitor) GenerateSelectDML() (*drm.PreparedStatementCtx, error) {
+	dc := v.dc
+	cols := v.columnDescriptors
+	txnCtrlCtrs := v.baseCtrlCounters
+	selectSuffix := v.selectSuffix
+	rewrittenWhere := v.whereExprsStr
 	var q strings.Builder
 	var quotedColNames []string
 	var columns []drm.ColumnMetadata
@@ -231,12 +236,18 @@ func (v *QueryRewriteAstVisitor) GenerateSelectDML(dc drm.DRMConfig, cols []open
 	// write select expressions to execute
 	v.selectExprsStr = strings.Join(quotedColNames, ", ")
 
-	// q.WriteString(fmt.Sprintf(`SELECT %s FROM "%s" %s WHERE `, strings.Join(quotedColNames, ", "), dc.GetTableName(tabAnnotated.GetHeirarchyIdentifiers(), txnCtrlCtrs.DiscoveryGenerationId), aliasStr))
-
+	q.WriteString(fmt.Sprintf(`SELECT %s FROM `, strings.Join(quotedColNames, ", ")))
+	q.WriteString(v.fromStr)
+	if v.whereExprsStr != "" {
+		q.WriteString(" WHERE ")
+		q.WriteString(v.whereExprsStr)
+	}
 	q.WriteString(selectSuffix)
 
-	return drm.PreparedStatementCtx{
-		Query:                   q.String(),
+	query := q.String()
+
+	return &drm.PreparedStatementCtx{
+		Query:                   query,
 		GenIdControlColName:     genIdColName,
 		SessionIdControlColName: sessionIDColName,
 		TxnIdControlColName:     txnIdColName,
@@ -262,7 +273,9 @@ type QueryRewriteAstVisitor struct {
 	columnDescriptors    []openapistackql.ColumnDescriptor
 	//
 	selectExprsStr string
+	fromStr        string
 	whereExprsStr  string
+	selectSuffix   string
 }
 
 func (v *QueryRewriteAstVisitor) getCtrlCounters(discoveryGenerationID int) *dto.TxnControlCounters {
@@ -281,7 +294,7 @@ func NewQueryRewriteAstVisitor(
 	dc drm.DRMConfig,
 	txnCtrlCtrs *dto.TxnControlCounters,
 ) *QueryRewriteAstVisitor {
-	return &QueryRewriteAstVisitor{
+	rv := &QueryRewriteAstVisitor{
 		handlerCtx:           handlerCtx,
 		tables:               tables,
 		annotations:          annotations,
@@ -290,6 +303,7 @@ func NewQueryRewriteAstVisitor(
 		colRefs:              colRefs,
 		dc:                   dc,
 	}
+	return rv
 }
 
 func (v *QueryRewriteAstVisitor) GetTableMap() taxonomy.TblMap {
@@ -314,6 +328,7 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 
 	switch node := node.(type) {
 	case *sqlparser.Select:
+		v.selectSuffix = GenerateModifiedSelectSuffix(node)
 		var options string
 		addIf := func(b bool, s string) {
 			if b {
@@ -335,12 +350,21 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			node.Comments.Accept(v)
 		}
 		if node.SelectExprs != nil {
-			node.SelectExprs.Accept(v)
+			err = node.SelectExprs.Accept(v)
+			if err != nil {
+				return err
+			}
 		}
 		if node.From != nil {
 			err := node.From.Accept(v)
 			if err != nil {
 				return err
+			}
+			fromVis := NewDRMAstVisitor("", true)
+			if node.From != nil {
+				node.From.Accept(fromVis)
+				// v.tablesCited = fromVis.tablesCited
+				v.fromStr = fromVis.GetRewrittenQuery()
 			}
 		}
 		if node.Where != nil {
@@ -630,6 +654,12 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 	case sqlparser.Comments:
 
 	case sqlparser.SelectExprs:
+		for _, n := range node {
+			err = v.Visit(n)
+			if err != nil {
+				return err
+			}
+		}
 
 	case *sqlparser.StarExpr:
 		var tbl *taxonomy.ExtendedTableMetadata
@@ -655,9 +685,9 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		v.columnDescriptors = append(v.columnDescriptors, cols...)
 
 	case *sqlparser.AliasedExpr:
-		tbl, ok := v.tables[node]
-		if !ok {
-			return fmt.Errorf("could not locate table for expr '%v'", node)
+		tbl, err := v.tables.GetTableLoose(node)
+		if err != nil {
+			return err
 		}
 		schema, err := tbl.GetResponseSchema()
 		if err != nil {
@@ -695,6 +725,33 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 
 	case *sqlparser.AliasedTableExpr:
 		if node.Expr != nil {
+			switch node.Expr.(type) {
+			case sqlparser.TableName:
+				t, err := v.tables.GetTable(node)
+				if err != nil {
+					return err
+				}
+				pr, err := t.GetProviderStr()
+				if err != nil {
+					return err
+				}
+				sv, err := t.GetServiceStr()
+				if err != nil {
+					return err
+				}
+				rs, err := t.GetResourceStr()
+				if err != nil {
+					return err
+				}
+				replacementExpr := sqlparser.TableName{
+					Name:            sqlparser.NewTableIdent(rs),
+					Qualifier:       sqlparser.NewTableIdent(rs),
+					QualifierSecond: sqlparser.NewTableIdent(sv),
+					QualifierThird:  sqlparser.NewTableIdent(pr),
+				}
+				node.Expr = replacementExpr
+
+			}
 			// t, err := v.analyzeAliasedTable(node)
 			// if err != nil {
 			// 	return err

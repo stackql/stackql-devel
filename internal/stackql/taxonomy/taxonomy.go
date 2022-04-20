@@ -99,6 +99,34 @@ func (tm TblMap) GetTable(node sqlparser.SQLNode) (*ExtendedTableMetadata, error
 	return tbl, nil
 }
 
+func (tm TblMap) GetTableLoose(node sqlparser.SQLNode) (*ExtendedTableMetadata, error) {
+	tbl, ok := tm[node]
+	if ok {
+		return tbl, nil
+	}
+	searchAlias := ""
+	switch node := node.(type) {
+	case *sqlparser.AliasedExpr:
+		switch expr := node.Expr.(type) {
+		case *sqlparser.ColName:
+			searchAlias = expr.Qualifier.GetRawVal()
+		}
+	}
+	if searchAlias != "" {
+		for k, v := range tm {
+			switch k := k.(type) {
+			case *sqlparser.AliasedTableExpr:
+				alias := k.As.GetRawVal()
+				if searchAlias == alias {
+					return v, nil
+				}
+			}
+		}
+	}
+	return nil, fmt.Errorf("could not locate table for AST node: %v", node)
+
+}
+
 func (tm TblMap) SetTable(node sqlparser.SQLNode, table *ExtendedTableMetadata) {
 	tm[node] = table
 }

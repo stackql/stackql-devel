@@ -897,8 +897,13 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				drm.GetGoogleV1SQLiteConfig(),
 				tcc,
 			)
-			selCtx, ok := v.GetSelectContext()
-			if !ok {
+			err = v.Visit(pbi.GetStatement())
+			if err != nil {
+				return err
+			}
+			selCtx, err := v.GenerateSelectDML()
+			if err != nil {
+				return err
 			}
 			selBld := primitivebuilder.NewSingleSelect(p.PrimitiveBuilder.GetGraph(), handlerCtx, selCtx, nil)
 			bld := primitivebuilder.NewMultipleAcquireAndSelect(p.PrimitiveBuilder.GetGraph(), execSlice, selBld)
