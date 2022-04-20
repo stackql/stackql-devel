@@ -865,8 +865,10 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 			var execSlice []primitivebuilder.Builder
 			var tcc *dto.TxnControlCounters
 			for _, v := range annotations {
-				builder := primitivebuilder.NewSingleSelectAcquire(p.PrimitiveBuilder.GetGraph(), handlerCtx, v.TableMeta, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), nil)
-				execSlice = append(execSlice, builder)
+				pr, err := v.TableMeta.GetProvider()
+				if err != nil {
+					return err
+				}
 				prov, err := v.TableMeta.GetProviderObject()
 				if err != nil {
 					return err
@@ -875,16 +877,32 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				if err != nil {
 					return err
 				}
+				m, err := v.TableMeta.GetMethod()
+				if err != nil {
+					return err
+				}
 				anTab := util.NewAnnotatedTabulation(v.Schema.Tabulate(false), v.HIDs, v.TableMeta.Alias)
 				err = docparser.OpenapiStackQLTabulationsPersistor(prov, svc, []util.AnnotatedTabulation{anTab}, p.PrimitiveBuilder.GetSQLEngine(), prov.Name)
 				if err != nil {
 					return err
 				}
+				// router.GetAvailableParameters()
+				httpArmoury, err := httpbuild.BuildHTTPRequestCtxFromAnnotation(handlerCtx, v.Parameters, pr, m, svc, nil, nil)
+				if err != nil {
+					return err
+				}
+				v.TableMeta.HttpArmoury = httpArmoury
 				tableDTO, err := p.PrimitiveBuilder.GetDRMConfig().GetCurrentTable(v.HIDs, handlerCtx.SQLEngine)
 				if err != nil {
 					return err
 				}
 				tcc = dto.NewTxnControlCounters(p.PrimitiveBuilder.GetTxnCounterManager(), tableDTO.GetDiscoveryID())
+				insPsc, err := p.PrimitiveBuilder.GetDRMConfig().GenerateInsertDML(anTab, dto.NewTxnControlCounters(p.PrimitiveBuilder.GetTxnCounterManager(), tableDTO.GetDiscoveryID()))
+				if err != nil {
+					return err
+				}
+				builder := primitivebuilder.NewSingleSelectAcquire(p.PrimitiveBuilder.GetGraph(), handlerCtx, v.TableMeta, &insPsc, nil)
+				execSlice = append(execSlice, builder)
 			}
 			rewrittenWhereStr := astvisit.GenerateModifiedWhereClause(rewrittenWhere)
 			log.Debugf("rewrittenWhereStr = '%s'", rewrittenWhereStr)

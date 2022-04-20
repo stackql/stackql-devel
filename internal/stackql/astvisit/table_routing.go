@@ -36,6 +36,7 @@ func NewTableRouteAstVisitor(handlerCtx *handler.HandlerContext, router *parseru
 func obtainAnnotationCtx(
 	sqlEngine sqlengine.SQLEngine,
 	tbl *taxonomy.ExtendedTableMetadata,
+	parameters map[string]interface{},
 ) (taxonomy.AnnotationCtx, error) {
 	schema, err := tbl.GetResponseSchema()
 	if err != nil {
@@ -57,14 +58,15 @@ func obtainAnnotationCtx(
 		return taxonomy.AnnotationCtx{}, fmt.Errorf(unsuitableSchemaMsg)
 	}
 	hIds := dto.NewHeirarchyIdentifiers(provStr, svcStr, itemObjS.GetName(), "")
-	return taxonomy.AnnotationCtx{Schema: itemObjS, HIDs: hIds, TableMeta: tbl}, nil
+	return taxonomy.AnnotationCtx{Schema: itemObjS, HIDs: hIds, TableMeta: tbl, Parameters: parameters}, nil
 }
 
 func (v *TableRouteAstVisitor) addAnnotationCtx(
 	node sqlparser.SQLNode,
 	tbl *taxonomy.ExtendedTableMetadata,
+	parameters map[string]interface{},
 ) error {
-	ac, err := obtainAnnotationCtx(v.handlerCtx.SQLEngine, tbl)
+	ac, err := obtainAnnotationCtx(v.handlerCtx.SQLEngine, tbl, parameters)
 	if err != nil {
 		return err
 	}
@@ -73,31 +75,35 @@ func (v *TableRouteAstVisitor) addAnnotationCtx(
 	return nil
 }
 
-func (v *TableRouteAstVisitor) analyzeAliasedTable(tb *sqlparser.AliasedTableExpr) (*taxonomy.ExtendedTableMetadata, error) {
+func (v *TableRouteAstVisitor) analyzeAliasedTable(tb *sqlparser.AliasedTableExpr) (*taxonomy.ExtendedTableMetadata, map[string]interface{}, error) {
 	switch ex := tb.Expr.(type) {
 	case sqlparser.TableName:
 		err := v.router.Route(tb)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		tpc := v.router.GetAvailableParameters(tb)
 		hr, remainingParams, err := taxonomy.GetHeirarchyFromStatement(v.handlerCtx, tb, tpc.GetStringified())
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		reconstitutedRemainingParams, err := tpc.Reconstitute(remainingParams)
+		reconstitutedConsumedParams, err := tpc.ReconstituteConsumedParams(remainingParams)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		err = v.router.InvalidateParams(reconstitutedRemainingParams)
+		err = v.router.InvalidateParams(reconstitutedConsumedParams)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
+		}
+		abbreviatedConsumedMap, err := tpc.AbbreviateMap(reconstitutedConsumedParams)
+		if err != nil {
+			return nil, nil, err
 		}
 		m := taxonomy.NewExtendedTableMetadata(hr, taxonomy.GetAliasFromStatement(tb))
 		v.tables[ex] = m
-		return m, nil
+		return m, abbreviatedConsumedMap, nil
 	default:
-		return nil, fmt.Errorf("table of type '%T' not curently supported", ex)
+		return nil, nil, fmt.Errorf("table of type '%T' not curently supported", ex)
 	}
 }
 
@@ -472,7 +478,7 @@ func (v *TableRouteAstVisitor) Visit(node sqlparser.SQLNode) error {
 
 	case *sqlparser.AliasedTableExpr:
 		if node.Expr != nil {
-			t, err := v.analyzeAliasedTable(node)
+			t, params, err := v.analyzeAliasedTable(node)
 			if err != nil {
 				return err
 			}
@@ -481,7 +487,7 @@ func (v *TableRouteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			}
 			v.tableMetaSlice = append(v.tableMetaSlice, t)
 			v.tables[node] = t
-			err = v.addAnnotationCtx(node, t)
+			err = v.addAnnotationCtx(node, t, params)
 			if err != nil {
 				return err
 			}

@@ -31,11 +31,11 @@ func analyzeAliasedTable(handlerCtx *handler.HandlerContext, tb *sqlparser.Alias
 		if err != nil {
 			return nil, err
 		}
-		reconstitutedRemainingParams, err := tpc.Reconstitute(remainingParams)
+		reconstitutedConsumedParams, err := tpc.ReconstituteConsumedParams(remainingParams)
 		if err != nil {
 			return nil, err
 		}
-		err = router.InvalidateParams(reconstitutedRemainingParams)
+		err = router.InvalidateParams(reconstitutedConsumedParams)
 		if err != nil {
 			return nil, err
 		}

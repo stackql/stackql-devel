@@ -302,6 +302,7 @@ func NewQueryRewriteAstVisitor(
 		annotatedTabulations: make(taxonomy.AnnotatedTabulationMap),
 		colRefs:              colRefs,
 		dc:                   dc,
+		baseCtrlCounters:     txnCtrlCtrs,
 	}
 	return rv
 }
@@ -727,28 +728,11 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		if node.Expr != nil {
 			switch node.Expr.(type) {
 			case sqlparser.TableName:
-				t, err := v.tables.GetTable(node)
-				if err != nil {
-					return err
+				t, ok := v.annotations[node]
+				if !ok {
+					return fmt.Errorf("")
 				}
-				pr, err := t.GetProviderStr()
-				if err != nil {
-					return err
-				}
-				sv, err := t.GetServiceStr()
-				if err != nil {
-					return err
-				}
-				rs, err := t.GetResourceStr()
-				if err != nil {
-					return err
-				}
-				replacementExpr := sqlparser.TableName{
-					Name:            sqlparser.NewTableIdent(rs),
-					Qualifier:       sqlparser.NewTableIdent(rs),
-					QualifierSecond: sqlparser.NewTableIdent(sv),
-					QualifierThird:  sqlparser.NewTableIdent(pr),
-				}
+				replacementExpr := v.dc.GetParserTableName(t.HIDs, v.baseCtrlCounters.DiscoveryGenerationId)
 				node.Expr = replacementExpr
 
 			}
@@ -798,8 +782,14 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		}
 
 	case *sqlparser.JoinTableExpr:
-		node.LeftExpr.Accept(v)
-		node.LeftExpr.Accept(v)
+		err = node.LeftExpr.Accept(v)
+		if err != nil {
+			return err
+		}
+		err = node.RightExpr.Accept(v)
+		if err != nil {
+			return err
+		}
 
 	case *sqlparser.IndexHints:
 		if len(node.Indexes) == 0 {

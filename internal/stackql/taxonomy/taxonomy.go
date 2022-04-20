@@ -22,9 +22,10 @@ const (
 )
 
 type AnnotationCtx struct {
-	Schema    *openapistackql.Schema
-	HIDs      *dto.HeirarchyIdentifiers
-	TableMeta *ExtendedTableMetadata
+	Schema     *openapistackql.Schema
+	HIDs       *dto.HeirarchyIdentifiers
+	TableMeta  *ExtendedTableMetadata
+	Parameters map[string]interface{}
 }
 
 func (ex ExtendedTableMetadata) LookupSelectItemsKey() string {

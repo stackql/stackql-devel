@@ -557,14 +557,34 @@ func (tpc *TableParameterCoupling) GetStringified() map[string]interface{} {
 	return rv
 }
 
-func (tpc *TableParameterCoupling) Reconstitute(inputMap map[string]interface{}) (map[string]interface{}, error) {
+func (tpc *TableParameterCoupling) AbbreviateMap(verboseMap map[string]interface{}) (map[string]interface{}, error) {
 	rv := make(map[string]interface{})
-	for k, v := range inputMap {
+	for k, v := range tpc.paramMap {
+		_, ok := verboseMap[k.GetRawVal()]
+		if !ok || v == nil {
+			continue
+		}
+		rv[k.Name.GetRawVal()] = v
+	}
+	return rv, nil
+}
+
+func (tpc *TableParameterCoupling) ReconstituteConsumedParams(returnedMap map[string]interface{}) (map[string]interface{}, error) {
+	rv := make(map[string]interface{})
+	for k, v := range tpc.paramMap {
+		rv[k.GetRawVal()] = v
+	}
+	for k, v := range returnedMap {
 		key, ok := tpc.colMappings[k]
 		if !ok || v == nil {
 			return nil, fmt.Errorf("no reconstitution mapping for key = '%s'", k)
 		}
-		rv[key.GetRawVal()] = v
+		keyToDelete := key.GetRawVal()
+		_, ok = rv[keyToDelete]
+		if !ok {
+			return nil, fmt.Errorf("cannot process consumed params: attempt to delete non existing key")
+		}
+		delete(rv, keyToDelete)
 	}
 	return rv, nil
 }
