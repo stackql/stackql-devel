@@ -23,15 +23,19 @@ func analyzeAliasedTable(handlerCtx *handler.HandlerContext, tb *sqlparser.Alias
 	switch ex := tb.Expr.(type) {
 	case sqlparser.TableName:
 		err := router.Route(tb)
-		params := router.GetAvailableParameters(tb)
+		tpc := router.GetAvailableParameters(tb)
 		if err != nil {
 			return nil, err
 		}
-		hr, remainingParams, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, tb, params)
+		hr, remainingParams, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, tb, tpc.GetStringified())
 		if err != nil {
 			return nil, err
 		}
-		err = router.InvalidateParams(remainingParams)
+		reconstitutedRemainingParams, err := tpc.Reconstitute(remainingParams)
+		if err != nil {
+			return nil, err
+		}
+		err = router.InvalidateParams(reconstitutedRemainingParams)
 		if err != nil {
 			return nil, err
 		}

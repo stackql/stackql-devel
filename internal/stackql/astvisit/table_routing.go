@@ -81,12 +81,16 @@ func (v *TableRouteAstVisitor) analyzeAliasedTable(tb *sqlparser.AliasedTableExp
 		if err != nil {
 			return nil, err
 		}
-		params := v.router.GetAvailableParameters(tb)
-		hr, remainingParams, err := taxonomy.GetHeirarchyFromStatement(v.handlerCtx, tb, params)
+		tpc := v.router.GetAvailableParameters(tb)
+		hr, remainingParams, err := taxonomy.GetHeirarchyFromStatement(v.handlerCtx, tb, tpc.GetStringified())
 		if err != nil {
 			return nil, err
 		}
-		err = v.router.InvalidateParams(remainingParams)
+		reconstitutedRemainingParams, err := tpc.Reconstitute(remainingParams)
+		if err != nil {
+			return nil, err
+		}
+		err = v.router.InvalidateParams(reconstitutedRemainingParams)
 		if err != nil {
 			return nil, err
 		}
@@ -524,7 +528,7 @@ func (v *TableRouteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		if err != nil {
 			return err
 		}
-		err = node.LeftExpr.Accept(v)
+		err = node.RightExpr.Accept(v)
 		if err != nil {
 			return err
 		}

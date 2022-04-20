@@ -527,10 +527,68 @@ func NewParameterRouter(tablesAliasMap TableAliasMap, tableMap TableExprMap, par
 	}
 }
 
-func (pr *ParameterRouter) GetAvailableParameters(tb sqlparser.TableExpr) map[string]interface{} {
+type TableParameterCoupling struct {
+	paramMap    ParameterMap
+	colMappings map[string]*sqlparser.ColName
+}
+
+func NewTableParameterCoupling() *TableParameterCoupling {
+	return &TableParameterCoupling{
+		paramMap:    make(ParameterMap),
+		colMappings: make(map[string]*sqlparser.ColName),
+	}
+}
+
+func (tpc *TableParameterCoupling) Add(col *sqlparser.ColName, val interface{}) error {
+	tpc.paramMap[col] = val
+	_, ok := tpc.colMappings[col.Name.GetRawVal()]
+	if ok {
+		return fmt.Errorf("parameter '%s' already present", col.Name.GetRawVal())
+	}
+	tpc.colMappings[col.Name.GetRawVal()] = col
+	return nil
+}
+
+func (tpc *TableParameterCoupling) GetStringified() map[string]interface{} {
 	rv := make(map[string]interface{})
+	for k, v := range tpc.paramMap {
+		rv[k.Name.GetRawVal()] = v
+	}
+	return rv
+}
+
+func (tpc *TableParameterCoupling) Reconstitute(inputMap map[string]interface{}) (map[string]interface{}, error) {
+	rv := make(map[string]interface{})
+	for k, v := range inputMap {
+		key, ok := tpc.colMappings[k]
+		if !ok || v == nil {
+			return nil, fmt.Errorf("no reconstitution mapping for key = '%s'", k)
+		}
+		rv[key.GetRawVal()] = v
+	}
+	return rv, nil
+}
+
+func (pr *ParameterRouter) GetAvailableParameters(tb sqlparser.TableExpr) *TableParameterCoupling {
+	rv := NewTableParameterCoupling()
 	for k, v := range pr.paramMap {
 		key := k.GetRawVal()
+		tableAlias := k.Qualifier.GetRawVal()
+		foundTable, ok := pr.tablesAliasMap[tableAlias]
+		if ok && foundTable != tb {
+			continue
+		}
+		// if ok && foundTable == tb {
+		// 	switch foundTable := foundTable.(type) {
+		// 	case *sqlparser.AliasedTableExpr:
+		// 		switch expr := foundTable.Expr.(type) {
+		// 		case sqlparser.TableName:
+		// 			rewrittenKey := fmt.Sprintf("%s.%s", expr.GetRawVal(), k.Name.GetRawVal())
+		// 			rv[rewrittenKey] = v
+		// 			continue
+		// 		}
+		// 	}
+		// }
 		if pr.isInvalidated(key) {
 			continue
 		}
@@ -538,7 +596,7 @@ func (pr *ParameterRouter) GetAvailableParameters(tb sqlparser.TableExpr) map[st
 		if ok && ref != tb {
 			continue
 		}
-		rv[key] = v
+		rv.Add(k, v)
 	}
 	return rv
 }
