@@ -21,6 +21,12 @@ const (
 	defaultSelectItemsKEy = "items"
 )
 
+type AnnotationCtx struct {
+	Schema    *openapistackql.Schema
+	HIDs      *dto.HeirarchyIdentifiers
+	TableMeta *ExtendedTableMetadata
+}
+
 func (ex ExtendedTableMetadata) LookupSelectItemsKey() string {
 	if ex.HeirarchyObjects == nil {
 		return defaultSelectItemsKEy
@@ -81,7 +87,7 @@ func (ho *HeirarchyObjects) LookupSelectItemsKey() string {
 
 type TblMap map[sqlparser.SQLNode]*ExtendedTableMetadata
 
-type AnnotationCtxMap map[sqlparser.SQLNode]util.AnnotationCtx
+type AnnotationCtxMap map[sqlparser.SQLNode]AnnotationCtx
 
 type AnnotatedTabulationMap map[sqlparser.SQLNode]util.AnnotatedTabulation
 

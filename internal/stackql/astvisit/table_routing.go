@@ -13,7 +13,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
-	"github.com/stackql/stackql/internal/stackql/util"
 )
 
 type TableRouteAstVisitor struct {
@@ -22,7 +21,7 @@ type TableRouteAstVisitor struct {
 	tableMetaSlice  []*taxonomy.ExtendedTableMetadata
 	tables          taxonomy.TblMap
 	annotations     taxonomy.AnnotationCtxMap
-	annotationSlice []util.AnnotationCtx
+	annotationSlice []taxonomy.AnnotationCtx
 }
 
 func NewTableRouteAstVisitor(handlerCtx *handler.HandlerContext, router *parserutil.ParameterRouter) *TableRouteAstVisitor {
@@ -37,10 +36,10 @@ func NewTableRouteAstVisitor(handlerCtx *handler.HandlerContext, router *parseru
 func obtainAnnotationCtx(
 	sqlEngine sqlengine.SQLEngine,
 	tbl *taxonomy.ExtendedTableMetadata,
-) (util.AnnotationCtx, error) {
+) (taxonomy.AnnotationCtx, error) {
 	schema, err := tbl.GetResponseSchema()
 	if err != nil {
-		return util.AnnotationCtx{}, err
+		return taxonomy.AnnotationCtx{}, err
 	}
 	provStr, _ := tbl.GetProviderStr()
 	svcStr, _ := tbl.GetServiceStr()
@@ -52,13 +51,13 @@ func obtainAnnotationCtx(
 	var itemObjS *openapistackql.Schema
 	itemObjS, tbl.SelectItemsKey, err = schema.GetSelectSchema(tbl.LookupSelectItemsKey())
 	if err != nil {
-		return util.AnnotationCtx{}, fmt.Errorf(unsuitableSchemaMsg)
+		return taxonomy.AnnotationCtx{}, fmt.Errorf(unsuitableSchemaMsg)
 	}
 	if itemObjS == nil {
-		return util.AnnotationCtx{}, fmt.Errorf(unsuitableSchemaMsg)
+		return taxonomy.AnnotationCtx{}, fmt.Errorf(unsuitableSchemaMsg)
 	}
 	hIds := dto.NewHeirarchyIdentifiers(provStr, svcStr, itemObjS.GetName(), "")
-	return util.AnnotationCtx{Schema: itemObjS, HIDs: hIds}, nil
+	return taxonomy.AnnotationCtx{Schema: itemObjS, HIDs: hIds, TableMeta: tbl}, nil
 }
 
 func (v *TableRouteAstVisitor) addAnnotationCtx(
@@ -114,7 +113,7 @@ func (v *TableRouteAstVisitor) GetAnnotations() taxonomy.AnnotationCtxMap {
 	return v.annotations
 }
 
-func (v *TableRouteAstVisitor) GetAnnotationSlice() []util.AnnotationCtx {
+func (v *TableRouteAstVisitor) GetAnnotationSlice() []taxonomy.AnnotationCtx {
 	return v.annotationSlice
 }
 

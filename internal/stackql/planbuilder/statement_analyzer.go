@@ -9,6 +9,7 @@ import (
 
 	"github.com/stackql/stackql/internal/stackql/astvisit"
 	"github.com/stackql/stackql/internal/stackql/constants"
+	"github.com/stackql/stackql/internal/stackql/docparser"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
@@ -863,10 +864,23 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 		case *sqlparser.JoinTableExpr:
 			var execSlice []primitivebuilder.Builder
 			var tcc *dto.TxnControlCounters
-			for _, v := range tblz {
-				builder := primitivebuilder.NewSingleSelectAcquire(p.PrimitiveBuilder.GetGraph(), handlerCtx, v, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), nil)
+			for _, v := range annotations {
+				builder := primitivebuilder.NewSingleSelectAcquire(p.PrimitiveBuilder.GetGraph(), handlerCtx, v.TableMeta, p.PrimitiveBuilder.GetInsertPreparedStatementCtx(), nil)
 				execSlice = append(execSlice, builder)
-				tableDTO, err := p.PrimitiveBuilder.GetDRMConfig().GetCurrentTable(&v.HeirarchyObjects.HeirarchyIds, handlerCtx.SQLEngine)
+				prov, err := v.TableMeta.GetProviderObject()
+				if err != nil {
+					return err
+				}
+				svc, err := v.TableMeta.GetService()
+				if err != nil {
+					return err
+				}
+				anTab := util.NewAnnotatedTabulation(v.Schema.Tabulate(false), v.HIDs, v.TableMeta.Alias)
+				err = docparser.OpenapiStackQLTabulationsPersistor(prov, svc, []util.AnnotatedTabulation{anTab}, p.PrimitiveBuilder.GetSQLEngine(), prov.Name)
+				if err != nil {
+					return err
+				}
+				tableDTO, err := p.PrimitiveBuilder.GetDRMConfig().GetCurrentTable(v.HIDs, handlerCtx.SQLEngine)
 				if err != nil {
 					return err
 				}

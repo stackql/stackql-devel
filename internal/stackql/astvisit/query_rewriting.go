@@ -27,7 +27,7 @@ func (v *QueryRewriteAstVisitor) getSelectExprString(dc *drm.StaticDRMConfig, ta
 
 func (v *QueryRewriteAstVisitor) buildAcquireQueryCtx(
 	sqlEngine sqlengine.SQLEngine,
-	ac util.AnnotationCtx,
+	ac taxonomy.AnnotationCtx,
 	dc drm.DRMConfig,
 ) (*drm.PreparedStatementCtx, error) {
 	insertTabulation := ac.Schema.Tabulate(false)
@@ -49,7 +49,7 @@ func (v *QueryRewriteAstVisitor) buildAcquireQueryCtx(
 
 func (v *QueryRewriteAstVisitor) addAcquireQuery(
 	handlerCtx *handler.HandlerContext,
-	ac util.AnnotationCtx,
+	ac taxonomy.AnnotationCtx,
 	dc drm.DRMConfig,
 ) error {
 	acqCtx, err := v.buildAcquireQueryCtx(v.handlerCtx.SQLEngine, ac, v.handlerCtx.DrmConfig)
@@ -253,7 +253,7 @@ type QueryRewriteAstVisitor struct {
 	tables               taxonomy.TblMap
 	annotations          taxonomy.AnnotationCtxMap
 	annotatedTabulations taxonomy.AnnotatedTabulationMap
-	annotationSlice      []util.AnnotationCtx
+	annotationSlice      []taxonomy.AnnotationCtx
 	insertCtxSlice       []*drm.PreparedStatementCtx
 	selectCtx            *drm.PreparedStatementCtx
 	baseCtrlCounters     *dto.TxnControlCounters
@@ -276,7 +276,7 @@ func NewQueryRewriteAstVisitor(
 	handlerCtx *handler.HandlerContext,
 	tables taxonomy.TblMap,
 	annotations taxonomy.AnnotationCtxMap,
-	annotationSlice []util.AnnotationCtx,
+	annotationSlice []taxonomy.AnnotationCtx,
 	colRefs parserutil.ColTableMap,
 	dc drm.DRMConfig,
 	txnCtrlCtrs *dto.TxnControlCounters,
