@@ -907,7 +907,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				if err != nil {
 					return err
 				}
-				builder := primitivebuilder.NewSingleSelectAcquire(p.PrimitiveBuilder.GetGraph(), handlerCtx, v.TableMeta, &insPsc, nil)
+				builder := primitivebuilder.NewSingleSelectAcquire(p.PrimitiveBuilder.GetGraph(), handlerCtx, v.TableMeta, insPsc, nil)
 				execSlice = append(execSlice, builder)
 			}
 			rewrittenWhereStr := astvisit.GenerateModifiedWhereClause(rewrittenWhere)

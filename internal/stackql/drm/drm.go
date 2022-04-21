@@ -86,10 +86,18 @@ type PreparedStatementCtx struct {
 	NonControlColumns       []ColumnMetadata
 	CtrlColumnRepeats       int
 	txnCtrlCtrs             *dto.TxnControlCounters
+	selectTxnCtrlCtrs       []*dto.TxnControlCounters
 }
 
 func (ps *PreparedStatementCtx) GetGCCtrlCtrs() *dto.TxnControlCounters {
 	return ps.txnCtrlCtrs
+}
+
+func (ps *PreparedStatementCtx) GetAllGCCtrlCtrs() []*dto.TxnControlCounters {
+	var rv []*dto.TxnControlCounters
+	rv = append(rv, ps.txnCtrlCtrs)
+	rv = append(rv, ps.selectTxnCtrlCtrs...)
+	return rv
 }
 
 func NewPreparedStatementCtx(
@@ -182,8 +190,8 @@ type DRMConfig interface {
 	GetTableName(*dto.HeirarchyIdentifiers, int) string
 	GetTxnControlColumn() string
 	GetGenerationControlColumn() string
-	GenerateInsertDML(util.AnnotatedTabulation, *dto.TxnControlCounters) (PreparedStatementCtx, error)
-	GenerateSelectDML(util.AnnotatedTabulation, *dto.TxnControlCounters, string, string) (PreparedStatementCtx, error)
+	GenerateInsertDML(util.AnnotatedTabulation, *dto.TxnControlCounters) (*PreparedStatementCtx, error)
+	GenerateSelectDML(util.AnnotatedTabulation, *dto.TxnControlCounters, string, string) (*PreparedStatementCtx, error)
 	ExecuteInsertDML(sqlengine.SQLEngine, *PreparedStatementCtx, map[string]interface{}) (sql.Result, error)
 	QueryDML(sqlengine.SQLEngine, PreparedStatementParameterized) (*sql.Rows, error)
 }
@@ -355,7 +363,7 @@ func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, discover
 	return retVal
 }
 
-func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulation, tcc *dto.TxnControlCounters) (PreparedStatementCtx, error) {
+func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulation, tcc *dto.TxnControlCounters) (*PreparedStatementCtx, error) {
 	// log.Infoln(fmt.Sprintf("%v", tabulation))
 	var q strings.Builder
 	var quotedColNames, vals []string
@@ -381,21 +389,22 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 	}
 	q.WriteString(fmt.Sprintf(" (%s) ", strings.Join(quotedColNames, ", ")))
 	q.WriteString(fmt.Sprintf(" VALUES (%s) ", strings.Join(vals, ", ")))
-	return PreparedStatementCtx{
-			Query:                   q.String(),
-			GenIdControlColName:     genIdColName,
-			SessionIdControlColName: sessionIdColName,
-			TableNames:              []string{tableName},
-			TxnIdControlColName:     txnIdColName,
-			InsIdControlColName:     insIdColName,
-			NonControlColumns:       columns,
-			CtrlColumnRepeats:       1,
-			txnCtrlCtrs:             tcc,
-		},
+	return NewPreparedStatementCtx(
+			q.String(),
+			"",
+			genIdColName,
+			sessionIdColName,
+			[]string{tableName},
+			txnIdColName,
+			insIdColName,
+			columns,
+			1,
+			tcc,
+		),
 		nil
 }
 
-func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulation, txnCtrlCtrs *dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (PreparedStatementCtx, error) {
+func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulation, txnCtrlCtrs *dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (*PreparedStatementCtx, error) {
 	var q strings.Builder
 	var quotedColNames, quotedWhereColNames []string
 	var columns []ColumnMetadata
@@ -442,16 +451,18 @@ func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 	}
 	q.WriteString(selectSuffix)
 
-	return PreparedStatementCtx{
-		Query:                   q.String(),
-		GenIdControlColName:     genIdColName,
-		SessionIdControlColName: sessionIDColName,
-		TxnIdControlColName:     txnIdColName,
-		InsIdControlColName:     insIdColName,
-		NonControlColumns:       columns,
-		CtrlColumnRepeats:       1,
-		txnCtrlCtrs:             txnCtrlCtrs,
-	}, nil
+	return NewPreparedStatementCtx(
+		q.String(),
+		"",
+		genIdColName,
+		sessionIDColName,
+		nil,
+		txnIdColName,
+		insIdColName,
+		columns,
+		1,
+		txnCtrlCtrs,
+	), nil
 }
 
 func (dc *StaticDRMConfig) generateControlVarArgs(cp PreparedStatementParameterized) ([]interface{}, error) {

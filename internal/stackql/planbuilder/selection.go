@@ -76,8 +76,8 @@ func (p *primitiveGenerator) assembleUnarySelectionBuilder(
 	if err != nil {
 		return err
 	}
-	p.PrimitiveBuilder.SetInsertPreparedStatementCtx(&insPsc)
-	p.PrimitiveBuilder.SetSelectPreparedStatementCtx(&selPsc)
+	p.PrimitiveBuilder.SetInsertPreparedStatementCtx(insPsc)
+	p.PrimitiveBuilder.SetSelectPreparedStatementCtx(selPsc)
 	p.PrimitiveBuilder.SetColumnOrder(cols)
 	return nil
 }

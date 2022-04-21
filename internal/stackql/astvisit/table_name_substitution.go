@@ -44,7 +44,7 @@ func (v *TableNameSubstitutionAstVisitor) buildAcquireQueryCtx(
 	if err != nil {
 		return nil, err
 	}
-	return &insPsc, nil
+	return insPsc, nil
 }
 
 func (v *TableNameSubstitutionAstVisitor) addAcquireQuery(
@@ -140,7 +140,7 @@ func (v *TableNameSubstitutionAstVisitor) buildSelectQuery(
 	if err != nil {
 		return err
 	}
-	v.insertCtxSlice = append(v.insertCtxSlice, &insPsc)
+	v.insertCtxSlice = append(v.insertCtxSlice, insPsc)
 	return nil
 }
 
