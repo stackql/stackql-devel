@@ -28,6 +28,16 @@ func (tc *TxnControlCounters) CloneWithDiscoGenID(discoveryGenerationID int) *Tx
 	}
 }
 
+func (tc *TxnControlCounters) CloneAndIncrementInsertID() *TxnControlCounters {
+	return &TxnControlCounters{
+		GenId:                 tc.GenId,
+		SessionId:             tc.SessionId,
+		TxnId:                 tc.TxnId,
+		InsertId:              tc.InsertId + 1,
+		DiscoveryGenerationId: tc.DiscoveryGenerationId,
+	}
+}
+
 func (tc *TxnControlCounters) SetTxnId(ti int) {
 	tc.TxnId = ti
 }

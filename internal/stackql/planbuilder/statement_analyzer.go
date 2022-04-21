@@ -863,7 +863,9 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 		switch ft := node.From[0].(type) {
 		case *sqlparser.JoinTableExpr:
 			var execSlice []primitivebuilder.Builder
-			var tcc *dto.TxnControlCounters
+			var primaryTcc, tcc *dto.TxnControlCounters
+			var secondaryTccs []*dto.TxnControlCounters
+			var tableSlice []*taxonomy.ExtendedTableMetadata
 			for _, v := range annotations {
 				pr, err := v.TableMeta.GetProvider()
 				if err != nil {
@@ -902,6 +904,10 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				}
 				if tcc == nil {
 					tcc = dto.NewTxnControlCounters(p.PrimitiveBuilder.GetTxnCounterManager(), tableDTO.GetDiscoveryID())
+					primaryTcc = tcc
+				} else {
+					tcc = tcc.CloneAndIncrementInsertID()
+					secondaryTccs = append(secondaryTccs, tcc)
 				}
 				insPsc, err := p.PrimitiveBuilder.GetDRMConfig().GenerateInsertDML(anTab, tcc)
 				if err != nil {
@@ -909,17 +915,20 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				}
 				builder := primitivebuilder.NewSingleSelectAcquire(p.PrimitiveBuilder.GetGraph(), handlerCtx, v.TableMeta, insPsc, nil)
 				execSlice = append(execSlice, builder)
+				tableSlice = append(tableSlice, v.TableMeta)
 			}
 			rewrittenWhereStr := astvisit.GenerateModifiedWhereClause(rewrittenWhere)
 			log.Debugf("rewrittenWhereStr = '%s'", rewrittenWhereStr)
 			v := astvisit.NewQueryRewriteAstVisitor(
 				handlerCtx,
 				tblz,
+				tableSlice,
 				annotations,
 				annotationSlice,
 				colRefs,
 				drm.GetGoogleV1SQLiteConfig(),
-				tcc,
+				primaryTcc,
+				secondaryTccs,
 			)
 			err = v.Visit(pbi.GetStatement())
 			if err != nil {

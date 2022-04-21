@@ -220,7 +220,7 @@ func (v *QueryRewriteAstVisitor) GenerateSelectDML() (*drm.PreparedStatementCtx,
 	// controlWhereSubClause.WriteString("(")
 	var wq strings.Builder
 	var controlWhereComparisons []string
-	for _, v := range v.tables {
+	for _, v := range v.tableSlice {
 		gIDcn := fmt.Sprintf(`"%s"."%s"`, v.GetUniqueId(), genIdColName)
 		sIDcn := fmt.Sprintf(`"%s"."%s"`, v.GetUniqueId(), sessionIDColName)
 		tIDcn := fmt.Sprintf(`"%s"."%s"`, v.GetUniqueId(), txnIdColName)
@@ -258,23 +258,25 @@ func (v *QueryRewriteAstVisitor) GenerateSelectDML() (*drm.PreparedStatementCtx,
 		columns,
 		len(v.tables),
 		txnCtrlCtrs,
-		nil,
+		v.secondaryCtrlCounters,
 	), nil
 }
 
 type QueryRewriteAstVisitor struct {
-	handlerCtx           *handler.HandlerContext
-	dc                   drm.DRMConfig
-	tables               taxonomy.TblMap
-	annotations          taxonomy.AnnotationCtxMap
-	annotatedTabulations taxonomy.AnnotatedTabulationMap
-	annotationSlice      []taxonomy.AnnotationCtx
-	insertCtxSlice       []*drm.PreparedStatementCtx
-	selectCtx            *drm.PreparedStatementCtx
-	baseCtrlCounters     *dto.TxnControlCounters
-	colRefs              parserutil.ColTableMap
-	columnNames          []parserutil.ColumnHandle
-	columnDescriptors    []openapistackql.ColumnDescriptor
+	handlerCtx            *handler.HandlerContext
+	dc                    drm.DRMConfig
+	tables                taxonomy.TblMap
+	annotations           taxonomy.AnnotationCtxMap
+	annotatedTabulations  taxonomy.AnnotatedTabulationMap
+	annotationSlice       []taxonomy.AnnotationCtx
+	insertCtxSlice        []*drm.PreparedStatementCtx
+	selectCtx             *drm.PreparedStatementCtx
+	baseCtrlCounters      *dto.TxnControlCounters
+	secondaryCtrlCounters []*dto.TxnControlCounters
+	colRefs               parserutil.ColTableMap
+	columnNames           []parserutil.ColumnHandle
+	columnDescriptors     []openapistackql.ColumnDescriptor
+	tableSlice            []*taxonomy.ExtendedTableMetadata
 	//
 	selectExprsStr string
 	fromStr        string
@@ -292,21 +294,25 @@ func (v *QueryRewriteAstVisitor) getCtrlCounters(discoveryGenerationID int) *dto
 func NewQueryRewriteAstVisitor(
 	handlerCtx *handler.HandlerContext,
 	tables taxonomy.TblMap,
+	tableSlice []*taxonomy.ExtendedTableMetadata,
 	annotations taxonomy.AnnotationCtxMap,
 	annotationSlice []taxonomy.AnnotationCtx,
 	colRefs parserutil.ColTableMap,
 	dc drm.DRMConfig,
 	txnCtrlCtrs *dto.TxnControlCounters,
+	secondaryTccs []*dto.TxnControlCounters,
 ) *QueryRewriteAstVisitor {
 	rv := &QueryRewriteAstVisitor{
-		handlerCtx:           handlerCtx,
-		tables:               tables,
-		annotations:          annotations,
-		annotationSlice:      annotationSlice,
-		annotatedTabulations: make(taxonomy.AnnotatedTabulationMap),
-		colRefs:              colRefs,
-		dc:                   dc,
-		baseCtrlCounters:     txnCtrlCtrs,
+		handlerCtx:            handlerCtx,
+		tables:                tables,
+		tableSlice:            tableSlice,
+		annotations:           annotations,
+		annotationSlice:       annotationSlice,
+		annotatedTabulations:  make(taxonomy.AnnotatedTabulationMap),
+		colRefs:               colRefs,
+		dc:                    dc,
+		baseCtrlCounters:      txnCtrlCtrs,
+		secondaryCtrlCounters: secondaryTccs,
 	}
 	return rv
 }
