@@ -105,7 +105,7 @@ func (ps *PreparedStatementCtx) GetNonControlColumns() []ColumnMetadata {
 	return ps.nonControlColumns
 }
 
-func (ps *PreparedStatementCtx) GetAllGCCtrlCtrs() []*dto.TxnControlCounters {
+func (ps *PreparedStatementCtx) GetAllCtrlCtrs() []*dto.TxnControlCounters {
 	var rv []*dto.TxnControlCounters
 	rv = append(rv, ps.txnCtrlCtrs)
 	rv = append(rv, ps.selectTxnCtrlCtrs...)
@@ -483,13 +483,12 @@ func (dc *StaticDRMConfig) generateControlVarArgs(cp PreparedStatementParameteri
 	// log.Infoln(fmt.Sprintf("%v", ctx))
 	var varArgs []interface{}
 	if cp.controlArgsRequired {
-		i := 0
-		for i < cp.Ctx.ctrlColumnRepeats {
-			varArgs = append(varArgs, cp.Ctx.txnCtrlCtrs.GenId)
-			varArgs = append(varArgs, cp.Ctx.txnCtrlCtrs.SessionId)
-			varArgs = append(varArgs, cp.Ctx.txnCtrlCtrs.TxnId)
-			varArgs = append(varArgs, cp.Ctx.txnCtrlCtrs.InsertId)
-			i++
+		ctrSlice := cp.Ctx.GetAllCtrlCtrs()
+		for _, ctrs := range ctrSlice {
+			varArgs = append(varArgs, ctrs.GenId)
+			varArgs = append(varArgs, ctrs.SessionId)
+			varArgs = append(varArgs, ctrs.TxnId)
+			varArgs = append(varArgs, ctrs.InsertId)
 		}
 	}
 	return varArgs, nil
