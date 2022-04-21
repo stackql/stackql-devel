@@ -224,7 +224,7 @@ func (v *QueryRewriteAstVisitor) GenerateSelectDML() (*drm.PreparedStatementCtx,
 		gIDcn := fmt.Sprintf(`"%s"."%s"`, v.GetUniqueId(), genIdColName)
 		tIDcn := fmt.Sprintf(`"%s"."%s"`, v.GetUniqueId(), txnIdColName)
 		iIDcn := fmt.Sprintf(`"%s"."%s"`, v.GetUniqueId(), insIdColName)
-		controlWhereComparisons = append(controlWhereComparisons, fmt.Sprintf(`%s = ? AND %s = ? AND %s = ? AND %s = ?`, gIDcn, tIDcn, txnIdColName, iIDcn))
+		controlWhereComparisons = append(controlWhereComparisons, fmt.Sprintf(`%s = ? AND %s = ? AND %s = ?`, gIDcn, tIDcn, iIDcn))
 	}
 	controlWhereSubClause := fmt.Sprintf("( %s )", strings.Join(controlWhereComparisons, " AND "))
 	wq.WriteString(controlWhereSubClause)

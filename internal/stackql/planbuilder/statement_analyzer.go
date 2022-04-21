@@ -887,7 +887,11 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 					return err
 				}
 				// router.GetAvailableParameters()
-				httpArmoury, err := httpbuild.BuildHTTPRequestCtxFromAnnotation(handlerCtx, v.Parameters, pr, m, svc, nil, nil)
+				parametersCleaned, err := util.TransformSQLRawParameters(v.Parameters)
+				if err != nil {
+					return err
+				}
+				httpArmoury, err := httpbuild.BuildHTTPRequestCtxFromAnnotation(handlerCtx, parametersCleaned, pr, m, svc, nil, nil)
 				if err != nil {
 					return err
 				}
@@ -896,8 +900,10 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				if err != nil {
 					return err
 				}
-				tcc = dto.NewTxnControlCounters(p.PrimitiveBuilder.GetTxnCounterManager(), tableDTO.GetDiscoveryID())
-				insPsc, err := p.PrimitiveBuilder.GetDRMConfig().GenerateInsertDML(anTab, dto.NewTxnControlCounters(p.PrimitiveBuilder.GetTxnCounterManager(), tableDTO.GetDiscoveryID()))
+				if tcc == nil {
+					tcc = dto.NewTxnControlCounters(p.PrimitiveBuilder.GetTxnCounterManager(), tableDTO.GetDiscoveryID())
+				}
+				insPsc, err := p.PrimitiveBuilder.GetDRMConfig().GenerateInsertDML(anTab, tcc)
 				if err != nil {
 					return err
 				}
@@ -929,6 +935,9 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 			return nil
 		case *sqlparser.AliasedTableExpr:
 			tbl, err := tblz.GetTable(ft)
+			if err != nil {
+				return err
+			}
 			err = pChild.analyzeSelectDetail(handlerCtx, node, tbl, rewrittenWhere)
 			if err != nil {
 				return err

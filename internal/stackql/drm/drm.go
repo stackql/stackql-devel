@@ -93,7 +93,13 @@ func NewQueryOnlyPreparedStatementCtx(query string) *PreparedStatementCtx {
 }
 
 func (ps PreparedStatementCtx) GetGCHousekeepingQueries() string {
-	templateQuery := `INSERT INTO "__iql__.control.gc.txn_table_x_ref" (iql_generation_id, iql_session_id, iql_transaction_id, table_name) values(%d, %d, %d, '%s')`
+	templateQuery := `INSERT OR IGNORE INTO 
+	  "__iql__.control.gc.txn_table_x_ref" (
+			iql_generation_id, 
+			iql_session_id, 
+			iql_transaction_id, 
+			table_name
+		) values(%d, %d, %d, '%s')`
 	var housekeepingQueries []string
 	for _, table := range ps.TableNames {
 		housekeepingQueries = append(housekeepingQueries, fmt.Sprintf(templateQuery, ps.TxnCtrlCtrs.GenId, ps.TxnCtrlCtrs.SessionId, ps.TxnCtrlCtrs.TxnId, table))
