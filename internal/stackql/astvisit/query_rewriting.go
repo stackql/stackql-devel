@@ -247,16 +247,18 @@ func (v *QueryRewriteAstVisitor) GenerateSelectDML() (*drm.PreparedStatementCtx,
 
 	query := q.String()
 
-	return &drm.PreparedStatementCtx{
-		Query:                   query,
-		GenIdControlColName:     genIdColName,
-		SessionIdControlColName: sessionIDColName,
-		TxnIdControlColName:     txnIdColName,
-		InsIdControlColName:     insIdColName,
-		NonControlColumns:       columns,
-		CtrlColumnRepeats:       len(v.tables),
-		TxnCtrlCtrs:             txnCtrlCtrs,
-	}, nil
+	return drm.NewPreparedStatementCtx(
+		query,
+		"",
+		genIdColName,
+		sessionIDColName,
+		nil,
+		txnIdColName,
+		insIdColName,
+		columns,
+		len(v.tables),
+		txnCtrlCtrs,
+	), nil
 }
 
 type QueryRewriteAstVisitor struct {

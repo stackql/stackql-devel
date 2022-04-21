@@ -176,7 +176,7 @@ type Join struct {
 func NewSingleSelectAcquire(graph *primitivegraph.PrimitiveGraph, handlerCtx *handler.HandlerContext, tableMeta *taxonomy.ExtendedTableMetadata, insertCtx *drm.PreparedStatementCtx, rowSort func(map[string]map[string]interface{}) []string) Builder {
 	var tcc *dto.TxnControlCounters
 	if insertCtx != nil {
-		tcc = insertCtx.TxnCtrlCtrs
+		tcc = insertCtx.GetGCCtrlCtrs()
 	}
 	return &SingleSelectAcquire{
 		graph:                      graph,
@@ -196,7 +196,7 @@ func NewSingleSelect(graph *primitivegraph.PrimitiveGraph, handlerCtx *handler.H
 		rowSort:                    rowSort,
 		drmCfg:                     handlerCtx.DrmConfig,
 		selectPreparedStatementCtx: selectCtx,
-		txnCtrlCtr:                 selectCtx.TxnCtrlCtrs,
+		txnCtrlCtr:                 selectCtx.GetGCCtrlCtrs(),
 	}
 }
 
@@ -268,7 +268,7 @@ func (ss *SingleSelect) Build() error {
 	selectEx := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 
 		// select phase
-		log.Infoln(fmt.Sprintf("running select with control parameters: %v", ss.selectPreparedStatementCtx.TxnCtrlCtrs))
+		log.Infoln(fmt.Sprintf("running select with control parameters: %v", ss.selectPreparedStatementCtx.GetGCCtrlCtrs()))
 
 		return prepareGolangResult(ss.handlerCtx.SQLEngine, drm.NewPreparedStatementParameterized(ss.selectPreparedStatementCtx, nil, true), ss.selectPreparedStatementCtx.NonControlColumns, ss.drmCfg)
 	}
@@ -379,7 +379,7 @@ func (ss *SingleSelectAcquire) Build() error {
 		return err
 	}
 	ex := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
-		ss.graph.AddTxnControlCounters(*ss.insertPreparedStatementCtx.TxnCtrlCtrs)
+		ss.graph.AddTxnControlCounters(*ss.insertPreparedStatementCtx.GetGCCtrlCtrs())
 		mr := prov.InferMaxResultsElement(m)
 		if mr != nil {
 			// TODO: infer param position and act accordingly
@@ -449,7 +449,7 @@ func (ss *SingleSelectAcquire) Build() error {
 							}
 							if ok {
 
-								log.Infoln(fmt.Sprintf("running insert with control parameters: %v", ss.insertPreparedStatementCtx.TxnCtrlCtrs))
+								log.Infoln(fmt.Sprintf("running insert with control parameters: %v", ss.insertPreparedStatementCtx.GetGCCtrlCtrs()))
 								r, err := ss.drmCfg.ExecuteInsertDML(ss.handlerCtx.SQLEngine, ss.insertPreparedStatementCtx, item)
 								log.Infoln(fmt.Sprintf("insert result = %v, error = %v", r, err))
 								if err != nil {

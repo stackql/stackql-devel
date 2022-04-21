@@ -85,7 +85,37 @@ type PreparedStatementCtx struct {
 	InsIdControlColName     string
 	NonControlColumns       []ColumnMetadata
 	CtrlColumnRepeats       int
-	TxnCtrlCtrs             *dto.TxnControlCounters
+	txnCtrlCtrs             *dto.TxnControlCounters
+}
+
+func (ps *PreparedStatementCtx) GetGCCtrlCtrs() *dto.TxnControlCounters {
+	return ps.txnCtrlCtrs
+}
+
+func NewPreparedStatementCtx(
+	query string,
+	kind string,
+	genIdControlColName string,
+	sessionIdControlColName string,
+	tableNames []string,
+	txnIdControlColName string,
+	insIdControlColName string,
+	nonControlColumns []ColumnMetadata,
+	ctrlColumnRepeats int,
+	txnCtrlCtrs *dto.TxnControlCounters,
+) *PreparedStatementCtx {
+	return &PreparedStatementCtx{
+		Query:                   query,
+		Kind:                    kind,
+		GenIdControlColName:     genIdControlColName,
+		SessionIdControlColName: sessionIdControlColName,
+		TableNames:              tableNames,
+		TxnIdControlColName:     txnIdControlColName,
+		InsIdControlColName:     insIdControlColName,
+		NonControlColumns:       nonControlColumns,
+		CtrlColumnRepeats:       ctrlColumnRepeats,
+		txnCtrlCtrs:             txnCtrlCtrs,
+	}
 }
 
 func NewQueryOnlyPreparedStatementCtx(query string) *PreparedStatementCtx {
@@ -102,7 +132,7 @@ func (ps PreparedStatementCtx) GetGCHousekeepingQueries() string {
 		) values(%d, %d, %d, '%s')`
 	var housekeepingQueries []string
 	for _, table := range ps.TableNames {
-		housekeepingQueries = append(housekeepingQueries, fmt.Sprintf(templateQuery, ps.TxnCtrlCtrs.GenId, ps.TxnCtrlCtrs.SessionId, ps.TxnCtrlCtrs.TxnId, table))
+		housekeepingQueries = append(housekeepingQueries, fmt.Sprintf(templateQuery, ps.txnCtrlCtrs.GenId, ps.txnCtrlCtrs.SessionId, ps.txnCtrlCtrs.TxnId, table))
 	}
 	return strings.Join(housekeepingQueries, "; ")
 }
@@ -360,7 +390,7 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 			InsIdControlColName:     insIdColName,
 			NonControlColumns:       columns,
 			CtrlColumnRepeats:       1,
-			TxnCtrlCtrs:             tcc,
+			txnCtrlCtrs:             tcc,
 		},
 		nil
 }
@@ -420,7 +450,7 @@ func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 		InsIdControlColName:     insIdColName,
 		NonControlColumns:       columns,
 		CtrlColumnRepeats:       1,
-		TxnCtrlCtrs:             txnCtrlCtrs,
+		txnCtrlCtrs:             txnCtrlCtrs,
 	}, nil
 }
 
@@ -430,10 +460,10 @@ func (dc *StaticDRMConfig) generateControlVarArgs(cp PreparedStatementParameteri
 	if cp.controlArgsRequired {
 		i := 0
 		for i < cp.Ctx.CtrlColumnRepeats {
-			varArgs = append(varArgs, cp.Ctx.TxnCtrlCtrs.GenId)
-			varArgs = append(varArgs, cp.Ctx.TxnCtrlCtrs.SessionId)
-			varArgs = append(varArgs, cp.Ctx.TxnCtrlCtrs.TxnId)
-			varArgs = append(varArgs, cp.Ctx.TxnCtrlCtrs.InsertId)
+			varArgs = append(varArgs, cp.Ctx.txnCtrlCtrs.GenId)
+			varArgs = append(varArgs, cp.Ctx.txnCtrlCtrs.SessionId)
+			varArgs = append(varArgs, cp.Ctx.txnCtrlCtrs.TxnId)
+			varArgs = append(varArgs, cp.Ctx.txnCtrlCtrs.InsertId)
 			i++
 		}
 	}

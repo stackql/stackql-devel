@@ -80,6 +80,14 @@ stackql \
 
 ```
 
+Joins
+
+```
+select d1.name as n, d1.id, d2.id as d2_id from google.compute.disks d1 inner join google.compute.disks d2 on d1.id = d2.id where d1.project = 'lab-kr-network-01' and d1.zone = 'australia-southeast1-a' and d2.project = 'lab-kr-network-01' and d2.zone = 'australia-southeast1-a';
+
+select d1.name as n, d1.id, d2.id as d2_id from google.compute.disks d1 where d1.project = 'lab-kr-network-01' and d1.zone = 'australia-southeast1-a';
+```
+
 ### SHOW SERVICES
 
 ```

@@ -57,7 +57,7 @@ func (p *primitiveGenerator) assembleUnarySelectionBuilder(
 	if err != nil {
 		return err
 	}
-	p.PrimitiveBuilder.SetTxnCtrlCtrs(insPsc.TxnCtrlCtrs)
+	p.PrimitiveBuilder.SetTxnCtrlCtrs(insPsc.GetGCCtrlCtrs())
 	for _, col := range cols {
 		foundSchema := schema.FindByPath(col.Name, nil)
 		cc, ok := method.GetParameter(col.Name)
@@ -72,7 +72,7 @@ func (p *primitiveGenerator) assembleUnarySelectionBuilder(
 		log.Infoln(fmt.Sprintf("schema type = %T", schema))
 	}
 
-	selPsc, err := p.PrimitiveBuilder.GetDRMConfig().GenerateSelectDML(util.NewAnnotatedTabulation(selectTabulation, hIds, tbl.GetAlias()), insPsc.TxnCtrlCtrs, astvisit.GenerateModifiedSelectSuffix(node), astvisit.GenerateModifiedWhereClause(rewrittenWhere))
+	selPsc, err := p.PrimitiveBuilder.GetDRMConfig().GenerateSelectDML(util.NewAnnotatedTabulation(selectTabulation, hIds, tbl.GetAlias()), insPsc.GetGCCtrlCtrs(), astvisit.GenerateModifiedSelectSuffix(node), astvisit.GenerateModifiedWhereClause(rewrittenWhere))
 	if err != nil {
 		return err
 	}
