@@ -258,6 +258,7 @@ func (v *QueryRewriteAstVisitor) GenerateSelectDML() (*drm.PreparedStatementCtx,
 		columns,
 		len(v.tables),
 		txnCtrlCtrs,
+		nil,
 	), nil
 }
 

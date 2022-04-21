@@ -219,7 +219,7 @@ func (un *Union) Build() error {
 			i++
 			us.AddChild(i, drm.NewPreparedStatementParameterized(rhsElement, nil, true))
 		}
-		return prepareGolangResult(un.handlerCtx.SQLEngine, us, un.lhs.NonControlColumns, un.drmCfg)
+		return prepareGolangResult(un.handlerCtx.SQLEngine, us, un.lhs.GetNonControlColumns(), un.drmCfg)
 	}
 	graph := un.graph
 	unionNode := graph.CreatePrimitiveNode(NewLocalPrimitive(unionEx))
@@ -270,7 +270,7 @@ func (ss *SingleSelect) Build() error {
 		// select phase
 		log.Infoln(fmt.Sprintf("running select with control parameters: %v", ss.selectPreparedStatementCtx.GetGCCtrlCtrs()))
 
-		return prepareGolangResult(ss.handlerCtx.SQLEngine, drm.NewPreparedStatementParameterized(ss.selectPreparedStatementCtx, nil, true), ss.selectPreparedStatementCtx.NonControlColumns, ss.drmCfg)
+		return prepareGolangResult(ss.handlerCtx.SQLEngine, drm.NewPreparedStatementParameterized(ss.selectPreparedStatementCtx, nil, true), ss.selectPreparedStatementCtx.GetNonControlColumns(), ss.drmCfg)
 	}
 	graph := ss.graph
 	selectNode := graph.CreatePrimitiveNode(NewLocalPrimitive(selectEx))

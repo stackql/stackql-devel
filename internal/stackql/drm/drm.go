@@ -76,21 +76,33 @@ func NewColDescriptor(col openapistackql.ColumnDescriptor, relTypeStr string) Co
 }
 
 type PreparedStatementCtx struct {
-	Query                   string
-	Kind                    string // string annotation applicale only in some cases eg UNION [ALL]
-	GenIdControlColName     string
-	SessionIdControlColName string
+	query                   string
+	kind                    string // string annotation applicale only in some cases eg UNION [ALL]
+	genIdControlColName     string
+	sessionIdControlColName string
 	TableNames              []string
-	TxnIdControlColName     string
-	InsIdControlColName     string
-	NonControlColumns       []ColumnMetadata
-	CtrlColumnRepeats       int
+	txnIdControlColName     string
+	insIdControlColName     string
+	nonControlColumns       []ColumnMetadata
+	ctrlColumnRepeats       int
 	txnCtrlCtrs             *dto.TxnControlCounters
 	selectTxnCtrlCtrs       []*dto.TxnControlCounters
 }
 
+func (ps *PreparedStatementCtx) SetKind(kind string) {
+	ps.kind = kind
+}
+
+func (ps *PreparedStatementCtx) GetQuery() string {
+	return ps.query
+}
+
 func (ps *PreparedStatementCtx) GetGCCtrlCtrs() *dto.TxnControlCounters {
 	return ps.txnCtrlCtrs
+}
+
+func (ps *PreparedStatementCtx) GetNonControlColumns() []ColumnMetadata {
+	return ps.nonControlColumns
 }
 
 func (ps *PreparedStatementCtx) GetAllGCCtrlCtrs() []*dto.TxnControlCounters {
@@ -111,23 +123,25 @@ func NewPreparedStatementCtx(
 	nonControlColumns []ColumnMetadata,
 	ctrlColumnRepeats int,
 	txnCtrlCtrs *dto.TxnControlCounters,
+	secondaryCtrs []*dto.TxnControlCounters,
 ) *PreparedStatementCtx {
 	return &PreparedStatementCtx{
-		Query:                   query,
-		Kind:                    kind,
-		GenIdControlColName:     genIdControlColName,
-		SessionIdControlColName: sessionIdControlColName,
+		query:                   query,
+		kind:                    kind,
+		genIdControlColName:     genIdControlColName,
+		sessionIdControlColName: sessionIdControlColName,
 		TableNames:              tableNames,
-		TxnIdControlColName:     txnIdControlColName,
-		InsIdControlColName:     insIdControlColName,
-		NonControlColumns:       nonControlColumns,
-		CtrlColumnRepeats:       ctrlColumnRepeats,
+		txnIdControlColName:     txnIdControlColName,
+		insIdControlColName:     insIdControlColName,
+		nonControlColumns:       nonControlColumns,
+		ctrlColumnRepeats:       ctrlColumnRepeats,
 		txnCtrlCtrs:             txnCtrlCtrs,
+		selectTxnCtrlCtrs:       secondaryCtrs,
 	}
 }
 
 func NewQueryOnlyPreparedStatementCtx(query string) *PreparedStatementCtx {
-	return &PreparedStatementCtx{Query: query, CtrlColumnRepeats: 0}
+	return &PreparedStatementCtx{query: query, ctrlColumnRepeats: 0}
 }
 
 func (ps PreparedStatementCtx) GetGCHousekeepingQueries() string {
@@ -262,8 +276,6 @@ func (dc *StaticDRMConfig) GetGolangKind(discoType string) reflect.Kind {
 	}
 	return rv.GolangKind
 }
-
-// switch v := reflect.ValueOf(v); v.Kind()
 
 func (dc *StaticDRMConfig) GetGenerationControlColumn() string {
 	return dc.getGenerationControlColumn()
@@ -400,6 +412,7 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 			columns,
 			1,
 			tcc,
+			nil,
 		),
 		nil
 }
@@ -462,6 +475,7 @@ func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 		columns,
 		1,
 		txnCtrlCtrs,
+		nil,
 	), nil
 }
 
@@ -470,7 +484,7 @@ func (dc *StaticDRMConfig) generateControlVarArgs(cp PreparedStatementParameteri
 	var varArgs []interface{}
 	if cp.controlArgsRequired {
 		i := 0
-		for i < cp.Ctx.CtrlColumnRepeats {
+		for i < cp.Ctx.ctrlColumnRepeats {
 			varArgs = append(varArgs, cp.Ctx.txnCtrlCtrs.GenId)
 			varArgs = append(varArgs, cp.Ctx.txnCtrlCtrs.SessionId)
 			varArgs = append(varArgs, cp.Ctx.txnCtrlCtrs.TxnId)
@@ -482,7 +496,7 @@ func (dc *StaticDRMConfig) generateControlVarArgs(cp PreparedStatementParameteri
 }
 
 func (dc *StaticDRMConfig) generateVarArgs(cp PreparedStatementParameterized) (PreparedStatementArgs, error) {
-	retVal := NewPreparedStatementArgs(cp.Ctx.Query)
+	retVal := NewPreparedStatementArgs(cp.Ctx.GetQuery())
 	for i, child := range cp.children {
 		chidRv, err := dc.generateVarArgs(child)
 		if err != nil {
@@ -492,7 +506,7 @@ func (dc *StaticDRMConfig) generateVarArgs(cp PreparedStatementParameterized) (P
 	}
 	varArgs, _ := dc.generateControlVarArgs(cp)
 	if cp.args != nil && len(cp.args) > 0 {
-		for _, col := range cp.Ctx.NonControlColumns {
+		for _, col := range cp.Ctx.GetNonControlColumns() {
 			va, ok := cp.args[col.GetName()]
 			if !ok {
 				varArgs = append(varArgs, nil)

@@ -135,7 +135,7 @@ func (p *primitiveGenerator) analyzeUnion(pbi PlanBuilderInput) error {
 			return err
 		}
 		ctx := pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx()
-		ctx.Kind = rhsStmt.Type
+		ctx.SetKind(rhsStmt.Type)
 		selectStatementContexts = append(selectStatementContexts, ctx)
 	}
 
