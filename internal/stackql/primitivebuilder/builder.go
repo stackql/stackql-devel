@@ -285,6 +285,9 @@ func prepareGolangResult(sqlEngine sqlengine.SQLEngine, stmtCtx drm.PreparedStat
 		stmtCtx,
 	)
 	log.Infoln(fmt.Sprintf("select result = %v, error = %v", r, sqlErr))
+	if sqlErr != nil {
+		log.Errorf("select result = %v, error = %s", r, sqlErr.Error())
+	}
 	altKeys := make(map[string]map[string]interface{})
 	rawRows := make(map[int]map[int]interface{})
 	var ks []int
