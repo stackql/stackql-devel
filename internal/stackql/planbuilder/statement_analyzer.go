@@ -807,7 +807,8 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 						"",
 						"server",
 					)
-					pChild.PrimitiveBuilder.SetSymbol(k, colEntry)
+					uid := fmt.Sprintf("%s.%s", tbl.GetUniqueId(), k)
+					pChild.PrimitiveBuilder.SetSymbol(uid, colEntry)
 				}
 				break
 			}
@@ -866,7 +867,8 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 			var primaryTcc, tcc *dto.TxnControlCounters
 			var secondaryTccs []*dto.TxnControlCounters
 			var tableSlice []*taxonomy.ExtendedTableMetadata
-			for _, v := range annotations {
+			discoGenIDs := make(map[sqlparser.SQLNode]int)
+			for k, v := range annotations {
 				pr, err := v.TableMeta.GetProvider()
 				if err != nil {
 					return err
@@ -884,10 +886,11 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 					return err
 				}
 				anTab := util.NewAnnotatedTabulation(v.Schema.Tabulate(false), v.HIDs, v.TableMeta.Alias)
-				err = docparser.OpenapiStackQLTabulationsPersistor(prov, svc, []util.AnnotatedTabulation{anTab}, p.PrimitiveBuilder.GetSQLEngine(), prov.Name)
+				discoGenId, err := docparser.OpenapiStackQLTabulationsPersistor(prov, svc, []util.AnnotatedTabulation{anTab}, p.PrimitiveBuilder.GetSQLEngine(), prov.Name)
 				if err != nil {
 					return err
 				}
+				discoGenIDs[k] = discoGenId
 				// router.GetAvailableParameters()
 				parametersCleaned, err := util.TransformSQLRawParameters(v.Parameters)
 				if err != nil {
@@ -907,6 +910,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 					primaryTcc = tcc
 				} else {
 					tcc = tcc.CloneAndIncrementInsertID()
+					tcc.DiscoveryGenerationId = discoGenId
 					secondaryTccs = append(secondaryTccs, tcc)
 				}
 				insPsc, err := p.PrimitiveBuilder.GetDRMConfig().GenerateInsertDML(anTab, tcc)
@@ -924,6 +928,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				tblz,
 				tableSlice,
 				annotations,
+				discoGenIDs,
 				annotationSlice,
 				colRefs,
 				drm.GetGoogleV1SQLiteConfig(),

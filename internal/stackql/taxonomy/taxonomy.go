@@ -462,6 +462,14 @@ func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparse
 		if err != nil {
 			return nil, remainingParams, fmt.Errorf("could not find method in taxonomy: %s", err.Error())
 		}
+		for _, srv := range svcHdl.Servers {
+			for k, _ := range srv.Variables {
+				_, ok := remainingParams[k]
+				if ok {
+					delete(remainingParams, k)
+				}
+			}
+		}
 		method = meth
 		retVal.HeirarchyIds.MethodStr = methStr
 	}

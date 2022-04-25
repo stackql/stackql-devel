@@ -86,6 +86,38 @@ Joins
 select d1.name as n, d1.id, d2.id as d2_id from google.compute.disks d1 inner join google.compute.disks d2 on d1.id = d2.id where d1.project = 'lab-kr-network-01' and d1.zone = 'australia-southeast1-a' and d2.project = 'lab-kr-network-01' and d2.zone = 'australia-southeast1-a';
 
 select d1.name as n, d1.id, d2.id as d2_id from google.compute.disks d1 where d1.project = 'lab-kr-network-01' and d1.zone = 'australia-southeast1-a';
+
+
+select d1.name as n, d1.id, d2.id as d2_id from google.compute.disks d1 inner join google.compute.disks d2 on d1.id = d2.id where d1.project = 'lab-kr-network-01' and d1.zone = 'australia-southeast1-a' and d2.project = 'lab-kr-network-01' and d2.zone = 'australia-southeast1-a';
+
+select apps.label from okta.application.apps apps where subdomain = 'dev-79923018-admin';
+
+select d1.name, d1.id, d2.label as d2_id from google.compute.disks d1 inner join okta.application.apps d2 on d1.name = d2.label where d1.project = 'lab-kr-network-01' and d1.zone = 'australia-southeast1-a' and subdomain = 'dev-79923018-admin';
+
+select 
+  d1.name as n, 
+  d1.id, 
+  n1.description, 
+  s1.description as s1_description 
+from 
+  google.compute.disks d1 
+  inner join google.compute.networks n1 
+  on 
+    d1.name = n1.name 
+  inner join 
+  google.compute.subnetworks s1 
+  on 
+    d1.name = s1.name  
+where 
+  d1.project = 'lab-kr-network-01' and 
+  d1.zone = 'australia-southeast1-a' and 
+  n1.project = 'lab-kr-network-01' 
+  and s1.project = 'lab-kr-network-01' 
+  and s1.region = 'australia-southeast1'
+;
+
+select d1.name as n, d1.id, n1.description from google.compute.disks d1 inner join google.compute.networks n1 on d1.name = n1.name where d1.project = 'lab-kr-network-01' and d1.zone = 'australia-southeast1-a' and n1.project = 'lab-kr-network-01'
+
 ```
 
 ### SHOW SERVICES

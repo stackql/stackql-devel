@@ -267,6 +267,7 @@ type QueryRewriteAstVisitor struct {
 	dc                    drm.DRMConfig
 	tables                taxonomy.TblMap
 	annotations           taxonomy.AnnotationCtxMap
+	discoGenIDs           map[sqlparser.SQLNode]int
 	annotatedTabulations  taxonomy.AnnotatedTabulationMap
 	annotationSlice       []taxonomy.AnnotationCtx
 	insertCtxSlice        []*drm.PreparedStatementCtx
@@ -296,6 +297,7 @@ func NewQueryRewriteAstVisitor(
 	tables taxonomy.TblMap,
 	tableSlice []*taxonomy.ExtendedTableMetadata,
 	annotations taxonomy.AnnotationCtxMap,
+	discoGenIDs map[sqlparser.SQLNode]int,
 	annotationSlice []taxonomy.AnnotationCtx,
 	colRefs parserutil.ColTableMap,
 	dc drm.DRMConfig,
@@ -307,6 +309,7 @@ func NewQueryRewriteAstVisitor(
 		tables:                tables,
 		tableSlice:            tableSlice,
 		annotations:           annotations,
+		discoGenIDs:           discoGenIDs,
 		annotationSlice:       annotationSlice,
 		annotatedTabulations:  make(taxonomy.AnnotatedTabulationMap),
 		colRefs:               colRefs,
@@ -740,9 +743,13 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			case sqlparser.TableName:
 				t, ok := v.annotations[node]
 				if !ok {
-					return fmt.Errorf("")
+					return fmt.Errorf("could not infer annotated table")
 				}
-				replacementExpr := v.dc.GetParserTableName(t.HIDs, v.baseCtrlCounters.DiscoveryGenerationId)
+				dID, ok := v.discoGenIDs[node]
+				if !ok {
+					return fmt.Errorf("could not infer discovery generation ID")
+				}
+				replacementExpr := v.dc.GetParserTableName(t.HIDs, dID)
 				node.Expr = replacementExpr
 
 			}
