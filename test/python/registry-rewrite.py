@@ -82,7 +82,7 @@ if __name__ == '__main__':
       prov_args = ProviderArgs(
         prov_dir.path,
         os.path.join(args.destdir, prov_dir.name),
-        args.okta_default_port if prov_dir.name == 'okta' else args.default_port,
+        args.okta_port if prov_dir.name == 'okta' else args.default_port,
       ) 
       print(f'{prov_args.srcdir}, {prov_args.destdir}, {prov_args.port}')
       rewrite_provider(prov_args)
