@@ -44,9 +44,7 @@ func obtainAnnotationCtx(
 	}
 	provStr, _ := tbl.GetProviderStr()
 	svcStr, _ := tbl.GetServiceStr()
-	// rscStr, _ := tbl.GetResourceStr()
 	unsuitableSchemaMsg := "schema unsuitable for select query"
-	// log.Infoln(fmt.Sprintf("schema.ID = %v", schema.ID))
 	log.Infoln(fmt.Sprintf("schema.Items = %v", schema.Items))
 	log.Infoln(fmt.Sprintf("schema.Properties = %v", schema.Properties))
 	var itemObjS *openapistackql.Schema
@@ -582,21 +580,6 @@ func (v *TableRouteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		return node.Expr.Accept(v)
 
 	case *sqlparser.ComparisonExpr:
-		// switch lt := node.Left.(type) {
-		// case *sqlparser.ColName:
-		// 	switch rt := node.Right.(type) {
-		// 	case *sqlparser.SQLVal:
-		// 		v.tables[lt] = rt
-		// 	default:
-		// 	}
-		// default:
-		// 	switch rt := node.Right.(type) {
-		// 	case *sqlparser.SQLVal:
-		// 	case *sqlparser.ColName:
-		// 		// v.tables[rt] = lt
-		// 	default:
-		// 	}
-		// }
 		return nil
 
 	case *sqlparser.RangeCond:
@@ -638,7 +621,6 @@ func (v *TableRouteAstVisitor) Visit(node sqlparser.SQLNode) error {
 
 	case *sqlparser.UnaryExpr:
 		if _, unary := node.Expr.(*sqlparser.UnaryExpr); unary {
-			// They have same precedence so parenthesis is not required.
 			return nil
 		}
 

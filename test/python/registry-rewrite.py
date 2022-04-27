@@ -14,6 +14,7 @@ REPOSITORY_ROOT_DIR :str = os.path.abspath(os.path.join(CURDIR, '../..'))
 DEFAULT_SRC_DIR = os.path.join(TEST_ROOT_DIR, 'registry', 'src')
 DEFAULT_DST_DIR = os.path.join(TEST_ROOT_DIR, 'registry-mocked', 'src')
 DEFAULT_PORT = 1080
+OKTA_DEFAULT_PORT = 1090
 
 
 
@@ -31,9 +32,15 @@ parser.add_argument(
     help='directory containing config and cache'
 )
 parser.add_argument(
-    '--port',
+    '--default-port',
     type=int,
     default=DEFAULT_PORT,
+    help='directory containing config and cache'
+)
+parser.add_argument(
+    '--okta-port',
+    type=int,
+    default=OKTA_DEFAULT_PORT,
     help='directory containing config and cache'
 )
 
@@ -44,7 +51,7 @@ class ProviderArgs:
     self.destdir = destdir
     self.port    = port
 
-def rewrite_provider(args):
+def rewrite_provider(args :ProviderArgs):
     os.chdir(args.srcdir)
     for r, dz, fz in os.walk('.'):
       for d in dz:
@@ -75,7 +82,7 @@ if __name__ == '__main__':
       prov_args = ProviderArgs(
         prov_dir.path,
         os.path.join(args.destdir, prov_dir.name),
-        1090 if prov_dir.name == 'okta' else DEFAULT_PORT,
+        args.okta_default_port if prov_dir.name == 'okta' else args.default_port,
       ) 
       print(f'{prov_args.srcdir}, {prov_args.destdir}, {prov_args.port}')
       rewrite_provider(prov_args)

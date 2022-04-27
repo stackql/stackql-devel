@@ -165,9 +165,6 @@ func BuildHTTPRequestCtxFromAnnotation(handlerCtx *handler.HandlerContext, param
 	httpArmoury.RequestSchema = requestSchema
 	httpArmoury.ResponseSchema = responseSchema
 	paramMap := map[int]map[string]interface{}{0: parameters}
-	// if err != nil {
-	// 	return nil, err
-	// }
 	paramList, err := requests.SplitHttpParameters(prov, paramMap, m)
 	if err != nil {
 		return nil, err

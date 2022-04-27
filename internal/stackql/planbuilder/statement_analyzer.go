@@ -772,7 +772,6 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 
 	tblz := v.GetTableMap()
 	annotations := v.GetAnnotations()
-	annotationSlice := v.GetAnnotationSlice()
 	colRefs := pbi.GetColRefs()
 
 	for k, v := range tblz {
@@ -929,7 +928,6 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				tableSlice,
 				annotations,
 				discoGenIDs,
-				annotationSlice,
 				colRefs,
 				drm.GetGoogleV1SQLiteConfig(),
 				primaryTcc,

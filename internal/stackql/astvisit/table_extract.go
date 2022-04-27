@@ -414,19 +414,6 @@ func (v *TableExtractAstVisitor) Visit(node sqlparser.SQLNode) error {
 		if aliasStr != "" {
 			v.tableAiases[aliasStr] = node
 		}
-		// more stuff
-		// if node.Expr != nil {
-		// 	node.Expr.Accept(v)
-		// }
-		// if node.Partitions != nil {
-		// 	node.Partitions.Accept(v)
-		// }
-		// if !node.As.IsEmpty() {
-		// 	node.As.Accept(v)
-		// }
-		// if node.Hints != nil {
-		// 	node.Hints.Accept(v)
-		// }
 
 	case sqlparser.TableNames:
 		for _, n := range node {

@@ -598,17 +598,6 @@ func (pr *ParameterRouter) GetAvailableParameters(tb sqlparser.TableExpr) *Table
 		if ok && foundTable != tb {
 			continue
 		}
-		// if ok && foundTable == tb {
-		// 	switch foundTable := foundTable.(type) {
-		// 	case *sqlparser.AliasedTableExpr:
-		// 		switch expr := foundTable.Expr.(type) {
-		// 		case sqlparser.TableName:
-		// 			rewrittenKey := fmt.Sprintf("%s.%s", expr.GetRawVal(), k.Name.GetRawVal())
-		// 			rv[rewrittenKey] = v
-		// 			continue
-		// 		}
-		// 	}
-		// }
 		if pr.isInvalidated(key) {
 			continue
 		}
