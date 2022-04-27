@@ -47,6 +47,12 @@ Okta Apps Select Simple
     ...    ${SELECT_OKTA_APPS}
     ...    ${SELECT_OKTA_APPS_ASC_EXPECTED}
 
+Join GCP Okta Cross Provider
+    Should StackQL Exec Equal
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${SELECT_CONTRIVED_GCP_OKTA_JOIN}
+    ...    ${SELECT_CONTRIVED_GCP_OKTA_JOIN_EXPECTED}
+
 Basic Query mTLS Returns OK
     Should PG Client Inline Contain
     ...    ${PSQL_MTLS_CONN_STR}

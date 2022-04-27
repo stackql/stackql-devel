@@ -162,7 +162,7 @@
   },
   {
     "httpRequest": {
-      "path": "/v1/projects/testing-project/zones/australia-southeast1-b/disks"
+      "path": "/projects/testing-project/zones/australia-southeast1-b/disks"
     },
     "httpResponse": {
       "body": {
