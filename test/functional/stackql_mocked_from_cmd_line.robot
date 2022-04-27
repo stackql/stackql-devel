@@ -59,6 +59,12 @@ Join GCP Three Way
     ...    ${SELECT_CONTRIVED_GCP_THREE_WAY_JOIN}
     ...    ${SELECT_CONTRIVED_GCP_THREE_WAY_JOIN_EXPECTED}
 
+Join GCP Self
+    Should StackQL Exec Equal
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${SELECT_CONTRIVED_GCP_SELF_JOIN}
+    ...    ${SELECT_CONTRIVED_GCP_SELF_JOIN_EXPECTED}
+
 Basic Query mTLS Returns OK
     Should PG Client Inline Contain
     ...    ${PSQL_MTLS_CONN_STR}

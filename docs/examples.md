@@ -80,20 +80,18 @@ stackql \
 
 ```
 
-Joins
+### Joins
 
+Only inner joins suported for now.
+
+
+Self join:
+```sql
+select d1.name as n, d1.id, d2.id as d2_id from google.compute.disks d1 inner join google.compute.disks d2 on d1.id = d2.id where d1.project = 'testing-project' and d1.zone = 'australia-southeast1-b' and d2.project = 'testing-project' and d2.zone = 'australia-southeast1-b';
 ```
-select d1.name as n, d1.id, d2.id as d2_id from google.compute.disks d1 inner join google.compute.disks d2 on d1.id = d2.id where d1.project = 'lab-kr-network-01' and d1.zone = 'australia-southeast1-a' and d2.project = 'lab-kr-network-01' and d2.zone = 'australia-southeast1-a';
 
-select d1.name as n, d1.id, d2.id as d2_id from google.compute.disks d1 where d1.project = 'lab-kr-network-01' and d1.zone = 'australia-southeast1-a';
-
-
-select d1.name as n, d1.id, d2.id as d2_id from google.compute.disks d1 inner join google.compute.disks d2 on d1.id = d2.id where d1.project = 'lab-kr-network-01' and d1.zone = 'australia-southeast1-a' and d2.project = 'lab-kr-network-01' and d2.zone = 'australia-southeast1-a';
-
-select apps.label from okta.application.apps apps where subdomain = 'dev-79923018-admin';
-
-select d1.name, d1.id, d2.label as d2_id from google.compute.disks d1 inner join okta.application.apps d2 on d1.name = d2.label where d1.project = 'lab-kr-network-01' and d1.zone = 'australia-southeast1-a' and subdomain = 'dev-79923018-admin';
-
+Three way join:
+```sql
 select 
   d1.name as n, 
   d1.id, 
@@ -109,15 +107,17 @@ from
   on 
     d1.name = s1.name  
 where 
-  d1.project = 'lab-kr-network-01' and 
-  d1.zone = 'australia-southeast1-a' and 
-  n1.project = 'lab-kr-network-01' 
-  and s1.project = 'lab-kr-network-01' 
+  d1.project = 'testing-project' and 
+  d1.zone = 'australia-southeast1-b' and 
+  n1.project = 'testing-project' 
+  and s1.project = 'testing-project' 
   and s1.region = 'australia-southeast1'
 ;
+```
 
-select d1.name as n, d1.id, n1.description from google.compute.disks d1 inner join google.compute.networks n1 on d1.name = n1.name where d1.project = 'lab-kr-network-01' and d1.zone = 'australia-southeast1-a' and n1.project = 'lab-kr-network-01'
-
+Cross-provider join:
+```sql
+select d1.name, d1.id, d2.name as d2_name, d2.status, d2.label, d2.id as d2_id from google.compute.disks d1 inner join okta.application.apps d2 on d1.name = d2.label where d1.project = 'testing-project' and d1.zone = 'australia-southeast1-b' and d2.subdomain = 'my-subdomain' order by d1.name;
 ```
 
 ### SHOW SERVICES
