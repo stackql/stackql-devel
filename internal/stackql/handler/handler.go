@@ -105,6 +105,9 @@ func GetRegistry(runtimeCtx dto.RuntimeCtx) (openapistackql.RegistryAPI, error) 
 
 func getRegistry(runtimeCtx dto.RuntimeCtx) (openapistackql.RegistryAPI, error) {
 	var rc openapistackql.RegistryConfig
+	if runtimeCtx.RegistryRaw == "" {
+		runtimeCtx.RegistryRaw = "{}"
+	}
 	err := yaml.Unmarshal([]byte(runtimeCtx.RegistryRaw), &rc)
 	if err != nil {
 		return nil, err
