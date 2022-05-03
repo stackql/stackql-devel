@@ -123,6 +123,9 @@ func getRegistry(runtimeCtx dto.RuntimeCtx) (openapistackql.RegistryAPI, error) 
 func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucache.LRUCache, sqlEng sqlengine.SQLEngine) (HandlerContext, error) {
 
 	ac := make(map[string]*dto.AuthCtx)
+	if runtimeCtx.AuthRaw == "" {
+		runtimeCtx.AuthRaw = "{}"
+	}
 	err := yaml.Unmarshal([]byte(runtimeCtx.AuthRaw), ac)
 	if err != nil {
 		return HandlerContext{}, err
