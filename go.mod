@@ -3,6 +3,7 @@ module github.com/stackql/stackql
 go 1.18
 
 require (
+	github.com/aws/aws-sdk-go v1.28.8
 	github.com/fatih/color v1.13.0
 	github.com/getkin/kin-openapi v0.88.0
 	github.com/google/go-jsonnet v0.17.0
@@ -42,6 +43,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
+	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
