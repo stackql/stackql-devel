@@ -1,6 +1,7 @@
 package httpbuild
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -143,13 +144,29 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 	return &httpArmoury, nil
 }
 
+func awsContextHousekeeping(ctx context.Context, svc *openapistackql.Service, parameters map[string]interface{}) context.Context {
+	ctx = context.WithValue(ctx, "service", svc.GetName())
+	if region, ok := parameters["region"]; ok {
+		if regionStr, ok := region.(string); ok {
+			ctx = context.WithValue(ctx, "region", regionStr)
+		}
+	}
+	return ctx
+}
+
 func getRequest(svc *openapistackql.Service, method *openapistackql.OperationStore, httpParams *dto.HttpParameters) (*http.Request, error) {
 	params, err := httpParams.ToFlatMap()
+	if err != nil {
+		return nil, err
+	}
 	validationParams, err := method.Parameterize(svc, params, httpParams.RequestBody)
 	if err != nil {
 		return nil, err
 	}
-	return validationParams.Request, nil
+	request := validationParams.Request
+	ctx := awsContextHousekeeping(request.Context(), svc, params)
+	request = request.WithContext(ctx)
+	return request, nil
 }
 
 func BuildHTTPRequestCtxFromAnnotation(handlerCtx *handler.HandlerContext, parameters map[string]interface{}, prov provider.IProvider, m *openapistackql.OperationStore, svc *openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext *ExecContext) (*HTTPArmoury, error) {
