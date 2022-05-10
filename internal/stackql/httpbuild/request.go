@@ -102,7 +102,7 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 			pm.Header["Content-Type"] = []string{m.Request.BodyMediaType}
 		}
 		if m.Response != nil {
-			if m.Response.BodyMediaType != "" {
+			if m.Response.BodyMediaType != "" && prov.GetProviderString() != "aws" {
 				pm.Header["Accept"] = []string{m.Response.BodyMediaType}
 			}
 		}
@@ -118,6 +118,9 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 		switch node := node.(type) {
 		case *sqlparser.Delete, *sqlparser.Exec, *sqlparser.Insert, *sqlparser.Select:
 			baseRequestCtx, err = getRequest(svc, m, p.Parameters)
+			if err != nil {
+				return nil, err
+			}
 			for k, v := range p.Header {
 				for _, vi := range v {
 					baseRequestCtx.Header.Set(k, vi)
@@ -207,7 +210,7 @@ func BuildHTTPRequestCtxFromAnnotation(handlerCtx *handler.HandlerContext, param
 			pm.Header["Content-Type"] = []string{m.Request.BodyMediaType}
 		}
 		if m.Response != nil {
-			if m.Response.BodyMediaType != "" {
+			if m.Response.BodyMediaType != "" && prov.GetProviderString() != "aws" {
 				pm.Header["Accept"] = []string{m.Response.BodyMediaType}
 			}
 		}

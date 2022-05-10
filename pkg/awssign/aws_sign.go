@@ -3,6 +3,7 @@ package awssign
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -51,12 +52,15 @@ func (t *AwsSignTransport) RoundTrip(req *http.Request) (*http.Response, error) 
 	if !ok {
 		return nil, fmt.Errorf("unsupported type for AWS region: '%T'", rgn)
 	}
-	body, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		return nil, err
+	var rs io.ReadSeeker
+	if req.Body != nil {
+		body, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			return nil, err
+		}
+		rs = bytes.NewReader(body)
 	}
-	rs := bytes.NewReader(body)
-	_, err = t.signer.Sign(
+	_, err := t.signer.Sign(
 		req,
 		rs,
 		svcStr,
