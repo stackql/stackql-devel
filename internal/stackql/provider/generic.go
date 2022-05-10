@@ -71,6 +71,8 @@ func (gp *GenericProvider) inferAuthType(authCtx dto.AuthCtx, authTypeRequested 
 		return dto.AuthInteractiveStr
 	case dto.AuthNullStr:
 		return dto.AuthNullStr
+	case dto.AuthAWSSigningv4Str:
+		return dto.AuthAWSSigningv4Str
 	}
 	if authCtx.KeyFilePath != "" || authCtx.KeyEnvVar != "" {
 		return dto.AuthServiceAccountStr
