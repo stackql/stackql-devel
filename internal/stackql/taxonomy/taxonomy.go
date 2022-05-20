@@ -83,7 +83,7 @@ func (ho *HeirarchyObjects) LookupSelectItemsKey() string {
 			return "bindings"
 		}
 	}
-	return "items"
+	return defaultSelectItemsKEy
 }
 
 type TblMap map[sqlparser.SQLNode]*ExtendedTableMetadata

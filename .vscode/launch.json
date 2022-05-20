@@ -405,7 +405,20 @@
         "exec",
         "--registry=${input:registryString}",
         "--auth=${input:authString}",
-        "select volumeId from aws.ec2.volumes where region = 'ap-southeast-1';"
+        "select * from aws.ec2.volumes where region = 'ap-southeast-1';"
+      ],
+    },
+    {
+      "name": "DEBUG k8s exec node list ... ;",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
+      "args": [
+        "exec",
+        "--registry=${input:registryString}",
+        "--auth=${input:authString}",
+        "exec /*+ SHOWRESULTS */ k8s.core_v1.Node.listCoreV1Node @server_address='35.244.65.136';"
       ],
     },
     {
