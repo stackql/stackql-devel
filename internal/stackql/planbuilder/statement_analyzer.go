@@ -625,6 +625,7 @@ func (p *primitiveGenerator) analyzeExec(pbi PlanBuilderInput) error {
 	tbl, err := p.analyzeUnaryExec(handlerCtx, node, nil, nil)
 	if err != nil {
 		log.Infoln(fmt.Sprintf("error analyzing EXEC as selection: '%s'", err.Error()))
+		return err
 	} else {
 		m, err := tbl.GetMethod()
 		if err != nil {
