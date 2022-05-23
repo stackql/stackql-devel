@@ -890,7 +890,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 	// END TODO
 	if len(node.From) == 1 {
 		switch ft := node.From[0].(type) {
-		case *sqlparser.JoinTableExpr:
+		case *sqlparser.JoinTableExpr, *sqlparser.AliasedTableExpr:
 			var execSlice []primitivebuilder.Builder
 			var primaryTcc, tcc *dto.TxnControlCounters
 			var secondaryTccs []*dto.TxnControlCounters
@@ -973,19 +973,20 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 			selBld := primitivebuilder.NewSingleSelect(p.PrimitiveBuilder.GetGraph(), handlerCtx, selCtx, nil)
 			bld := primitivebuilder.NewMultipleAcquireAndSelect(p.PrimitiveBuilder.GetGraph(), execSlice, selBld)
 			pChild.PrimitiveBuilder.SetBuilder(bld)
+			p.PrimitiveBuilder.SetSelectPreparedStatementCtx(selCtx)
 			return nil
-		case *sqlparser.AliasedTableExpr:
-			tbl, err := tblz.GetTable(ft)
-			if err != nil {
-				return err
-			}
-			err = pChild.analyzeSelectDetail(handlerCtx, node, tbl, rewrittenWhere)
-			if err != nil {
-				return err
-			}
-			pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveBuilder.GetGraph(), p.PrimitiveBuilder.GetTxnCtrlCtrs(), handlerCtx, tbl, pChild.PrimitiveBuilder.GetInsertPreparedStatementCtx(), pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
-			p.PrimitiveBuilder.SetSelectPreparedStatementCtx(pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx())
-			return nil
+		// case *sqlparser.AliasedTableExpr:
+		// 	tbl, err := tblz.GetTable(ft)
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// 	err = pChild.analyzeSelectDetail(handlerCtx, node, tbl, rewrittenWhere)
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// 	pChild.PrimitiveBuilder.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveBuilder.GetGraph(), p.PrimitiveBuilder.GetTxnCtrlCtrs(), handlerCtx, tbl, pChild.PrimitiveBuilder.GetInsertPreparedStatementCtx(), pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx(), nil))
+		// 	p.PrimitiveBuilder.SetSelectPreparedStatementCtx(pChild.PrimitiveBuilder.GetSelectPreparedStatementCtx())
+		// 	return nil
 		case *sqlparser.ExecSubquery:
 			cols, err := parserutil.ExtractSelectColumnNames(node)
 			if err != nil {

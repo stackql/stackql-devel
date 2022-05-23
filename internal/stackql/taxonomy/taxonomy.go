@@ -100,6 +100,23 @@ func (tm TblMap) GetTable(node sqlparser.SQLNode) (*ExtendedTableMetadata, error
 	return tbl, nil
 }
 
+func (tm TblMap) getUniqueCount() int {
+	found := make(map[*ExtendedTableMetadata]struct{})
+	for _, v := range tm {
+		if _, ok := found[v]; !ok {
+			found[v] = struct{}{}
+		}
+	}
+	return len(found)
+}
+
+func (tm TblMap) getFirst() (*ExtendedTableMetadata, bool) {
+	for _, v := range tm {
+		return v, true
+	}
+	return nil, false
+}
+
 func (tm TblMap) GetTableLoose(node sqlparser.SQLNode) (*ExtendedTableMetadata, error) {
 	tbl, ok := tm[node]
 	if ok {
@@ -124,8 +141,12 @@ func (tm TblMap) GetTableLoose(node sqlparser.SQLNode) (*ExtendedTableMetadata, 
 			}
 		}
 	}
+	if searchAlias == "" && tm.getUniqueCount() == 1 {
+		if first, ok := tm.getFirst(); ok {
+			return first, nil
+		}
+	}
 	return nil, fmt.Errorf("could not locate table for AST node: %v", node)
-
 }
 
 func (tm TblMap) SetTable(node sqlparser.SQLNode, table *ExtendedTableMetadata) {
@@ -156,6 +177,13 @@ func (ex ExtendedTableMetadata) isSimple() bool {
 }
 
 func (ex ExtendedTableMetadata) GetUniqueId() string {
+	if ex.Alias != "" {
+		return ex.Alias
+	}
+	return ex.HeirarchyObjects.GetTableName()
+}
+
+func (ex ExtendedTableMetadata) GetQueryUniqueId() string {
 	if ex.Alias != "" {
 		return ex.Alias
 	}
