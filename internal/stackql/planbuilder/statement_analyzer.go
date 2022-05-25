@@ -913,7 +913,17 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				if err != nil {
 					return err
 				}
-				anTab := util.NewAnnotatedTabulation(v.Schema.Tabulate(false), v.HIDs, v.TableMeta.Alias)
+				tab := v.Schema.Tabulate(false)
+				_, mediaType, err := m.GetResponseBodySchemaAndMediaType()
+				if err != nil {
+					return err
+				}
+				switch mediaType {
+				case openapistackql.MediaTypeTextXML, openapistackql.MediaTypeXML:
+					tab = tab.RenameColumnsToXml()
+				}
+				anTab := util.NewAnnotatedTabulation(tab, v.HIDs, v.TableMeta.Alias)
+
 				discoGenId, err := docparser.OpenapiStackQLTabulationsPersistor(prov, svc, []util.AnnotatedTabulation{anTab}, p.PrimitiveBuilder.GetSQLEngine(), prov.Name)
 				if err != nil {
 					return err
