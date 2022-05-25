@@ -149,7 +149,6 @@ func (v *QueryRewriteAstVisitor) GenerateSelectDML() (*drm.PreparedStatementCtx,
 	q.WriteString(selectSuffix)
 
 	query := q.String()
-
 	return drm.NewPreparedStatementCtx(
 		query,
 		"",
