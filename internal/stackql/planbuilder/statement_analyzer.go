@@ -1026,7 +1026,7 @@ func (p *primitiveGenerator) analyzeSelectDetail(handlerCtx *handler.HandlerCont
 		return err
 	}
 
-	responseSchema, err := tbl.GetResponseSchema()
+	responseSchema, _, err := tbl.GetResponseSchemaAndMediaType()
 	if err != nil {
 		return err
 	}
@@ -1111,7 +1111,7 @@ func (p *primitiveGenerator) analyzeTableExpr(handlerCtx *handler.HandlerContext
 	if err != nil {
 		return nil, err
 	}
-	method, err := tbl.GetMethod()
+	_, err = tbl.GetMethod()
 	if err != nil {
 		return nil, err
 	}
@@ -1123,13 +1123,13 @@ func (p *primitiveGenerator) analyzeTableExpr(handlerCtx *handler.HandlerContext
 	if err != nil {
 		return nil, err
 	}
-	schema := method.Response.Schema
+	itemObjS, selectItemsKey, err := tbl.GetSelectSchemaAndObjectPath()
+	// rscStr, _ := tbl.GetResourceStr()
 	unsuitableSchemaMsg := "schema unsuitable for select query"
-	// log.Infoln(fmt.Sprintf("schema.ID = %v", schema.ID))
-	log.Infoln(fmt.Sprintf("schema.Items = %v", schema.Items))
-	log.Infoln(fmt.Sprintf("schema.Properties = %v", schema.Properties))
-	var itemObjS *openapistackql.Schema
-	itemObjS, tbl.SelectItemsKey, err = schema.GetSelectSchema(tbl.LookupSelectItemsKey())
+	if err != nil {
+		return nil, fmt.Errorf(unsuitableSchemaMsg)
+	}
+	tbl.SelectItemsKey = selectItemsKey
 	if itemObjS == nil || err != nil {
 		return nil, fmt.Errorf(unsuitableSchemaMsg)
 	}
@@ -1281,7 +1281,7 @@ func (p *primitiveGenerator) analyzeDelete(pbi PlanBuilderInput) error {
 	if err != nil {
 		return err
 	}
-	schema, err := method.GetResponseBodySchema()
+	schema, _, err := method.GetResponseBodySchemaAndMediaType()
 	if err != nil {
 		log.Infof("no response schema for delete: %s \n", err.Error())
 	}
