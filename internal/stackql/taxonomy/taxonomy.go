@@ -46,7 +46,7 @@ func (ho *HeirarchyObjects) LookupSelectItemsKey() string {
 	if sk := method.GetSelectItemsKey(); sk != "" {
 		return sk
 	}
-	responseSchema, err := method.GetResponseBodySchema()
+	responseSchema, _, err := method.GetResponseBodySchemaAndMediaType()
 	if responseSchema == nil || err != nil {
 		return ""
 	}
@@ -229,19 +229,31 @@ func (ex ExtendedTableMetadata) getMethod() (*openapistackql.OperationStore, err
 	return ex.HeirarchyObjects.Method, nil
 }
 
-func (ex ExtendedTableMetadata) GetResponseSchema() (*openapistackql.Schema, error) {
-	if ex.isSimple() {
-		return ex.HeirarchyObjects.GetResponseSchema()
-	}
-	return nil, fmt.Errorf("subqueries currently not supported")
+func (ex ExtendedTableMetadata) GetSelectSchemaAndObjectPath() (*openapistackql.Schema, string, error) {
+	return ex.HeirarchyObjects.GetSelectSchemaAndObjectPath()
 }
 
-func (ho *HeirarchyObjects) GetResponseSchema() (*openapistackql.Schema, error) {
+func (ex ExtendedTableMetadata) GetResponseSchemaAndMediaType() (*openapistackql.Schema, string, error) {
+	if ex.isSimple() {
+		return ex.HeirarchyObjects.GetResponseSchemaAndMediaType()
+	}
+	return nil, "", fmt.Errorf("subqueries currently not supported")
+}
+
+func (ho *HeirarchyObjects) GetResponseSchemaAndMediaType() (*openapistackql.Schema, string, error) {
 	m := ho.Method
 	if m == nil {
-		return nil, fmt.Errorf("method is nil")
+		return nil, "", fmt.Errorf("method is nil")
 	}
-	return m.GetResponseBodySchema()
+	return m.GetResponseBodySchemaAndMediaType()
+}
+
+func (ho *HeirarchyObjects) GetSelectSchemaAndObjectPath() (*openapistackql.Schema, string, error) {
+	m := ho.Method
+	if m == nil {
+		return nil, "", fmt.Errorf("method is nil")
+	}
+	return m.GetSelectSchemaAndObjectPath()
 }
 
 func (ex ExtendedTableMetadata) GetRequestSchema() (*openapistackql.Schema, error) {
@@ -326,19 +338,17 @@ func (ho *HeirarchyObjects) GetObjectSchema() (*openapistackql.Schema, error) {
 }
 
 func (ho *HeirarchyObjects) getObjectSchema() (*openapistackql.Schema, error) {
-	return ho.Method.GetResponseBodySchema()
+	rv, _, err := ho.Method.GetResponseBodySchemaAndMediaType()
+	return rv, err
 }
 
 func (ho *HeirarchyObjects) GetSelectableObjectSchema() (*openapistackql.Schema, error) {
-	responseObj, err := ho.getObjectSchema()
+	unsuitableSchemaMsg := "schema unsuitable for select query"
+	itemObjS, _, err := ho.Method.GetSelectSchemaAndObjectPath()
+	// rscStr, _ := tbl.GetResourceStr()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(unsuitableSchemaMsg)
 	}
-	itemsKey := ho.Method.Response.ObjectKey
-	if itemsKey == "" {
-		itemsKey = ho.LookupSelectItemsKey()
-	}
-	itemObjS, _, err := responseObj.GetSelectSchema(itemsKey)
 	if itemObjS == nil || err != nil {
 		return nil, fmt.Errorf("could not locate dml object for response type '%v'", ho.Method.Response.ObjectKey)
 	}

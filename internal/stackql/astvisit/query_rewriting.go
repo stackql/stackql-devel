@@ -50,15 +50,13 @@ func (v *QueryRewriteAstVisitor) buildAcquireQueryCtx(
 func (v *QueryRewriteAstVisitor) getStarColumns(
 	tbl *taxonomy.ExtendedTableMetadata,
 ) ([]openapistackql.ColumnDescriptor, error) {
-	schema, err := tbl.GetResponseSchema()
+	schema, _, err := tbl.GetResponseSchemaAndMediaType()
 	if err != nil {
 		return nil, err
 	}
+	itemObjS, selectItemsKey, err := tbl.GetSelectSchemaAndObjectPath()
+	tbl.SelectItemsKey = selectItemsKey
 	unsuitableSchemaMsg := "schema unsuitable for select query"
-	log.Infoln(fmt.Sprintf("schema.Items = %v", schema.Items))
-	log.Infoln(fmt.Sprintf("schema.Properties = %v", schema.Properties))
-	var itemObjS *openapistackql.Schema
-	itemObjS, tbl.SelectItemsKey, err = schema.GetSelectSchema(tbl.LookupSelectItemsKey())
 	if err != nil {
 		return nil, fmt.Errorf(unsuitableSchemaMsg)
 	}
@@ -601,7 +599,7 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		if err != nil {
 			return err
 		}
-		schema, err := tbl.GetResponseSchema()
+		schema, _, err := tbl.GetResponseSchemaAndMediaType()
 		if err != nil {
 			return err
 		}
