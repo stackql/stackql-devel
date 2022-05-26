@@ -66,30 +66,6 @@ servers:
           - me-south-1
         default: us-east-1
     description: The Amazon EC2 multi-region endpoint
-  - url: http://ec2.amazonaws.com
-    variables: {}
-    description: The general Amazon EC2 endpoint for US East (N. Virginia)
-  - url: https://ec2.amazonaws.com
-    variables: {}
-    description: The general Amazon EC2 endpoint for US East (N. Virginia)
-  - url: http://ec2.{region}.amazonaws.com.cn
-    variables:
-      region:
-        description: The AWS region
-        enum:
-          - cn-north-1
-          - cn-northwest-1
-        default: cn-north-1
-    description: The Amazon EC2 endpoint for China (Beijing) and China (Ningxia)
-  - url: https://ec2.{region}.amazonaws.com.cn
-    variables:
-      region:
-        description: The AWS region
-        enum:
-          - cn-north-1
-          - cn-northwest-1
-        default: cn-north-1
-    description: The Amazon EC2 endpoint for China (Beijing) and China (Ningxia)
 x-hasEquivalentPaths: true
 paths:
   /?Action=DescribeVolumes&Version=2016-11-15:
