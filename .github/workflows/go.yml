@@ -202,6 +202,7 @@ jobs:
     - name: Generate rewritten registry for simulations
       run: |
         python3 test/python/registry-rewrite.py
+        cp -r test/registry-hardcoded/src/aws test/registry-mocked/src/
       
     - name: Get dependencies
       run: |
