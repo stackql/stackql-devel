@@ -268,6 +268,10 @@ jobs:
       if: success()
       run: |
         robot test/robot/functional
+
+    - name: Output from robot mocked functional tests
+      if: always()
+      run: |
         echo "output..."
         cat /home/runner/work/stackql-devel/stackql-devel/output.xml
         echo
