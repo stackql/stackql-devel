@@ -268,7 +268,9 @@ jobs:
       if: success()
       run: |
         robot test/robot/functional
-        cat output.xml
+        echo "output..."
+        cat /home/runner/work/stackql-devel/stackql-devel/output.xml
+        echo
     
     - name: Run robot integration tests
       if: success() && startsWith(${{ steps.git_ref_parse.outputs.SOURCE_TAG }}, 'build-release')
