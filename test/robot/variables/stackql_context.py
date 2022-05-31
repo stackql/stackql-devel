@@ -80,7 +80,7 @@ _AUTH_CFG={
   },
   "github": { 
     "type": "basic", 
-    "credentialsenvvar": "GITHUB_CREDS" 
+    "credentialsenvvar": "GITHUB_SECRET_KEY" 
   }
 }
 STACKQL_PG_SERVER_KEY_PATH   :str = os.path.abspath(os.path.join(REPOSITORY_ROOT, "test", "server", "mtls", "credentials", "pg_server_key.pem"))
