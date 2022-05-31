@@ -204,6 +204,34 @@
         "describe github.repos.pages;"
       ],
     },
+    // describe github.repos.statistics_code_frequency;
+    {
+      "name": "DEBUG describe github.repos.statistics_code_frequency;",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
+      "args": [
+        "exec",
+        "--registry=${input:registryString}",
+        "--auth=${input:authString}",
+        "describe github.repos.statistics_code_frequency;"
+      ],
+    },
+    // select id from  github.repos.repos where org = 'stackql';
+    {
+      "name": "DEBUG select id from  github.repos.repos where org = 'stackql';",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
+      "args": [
+        "exec",
+        "--registry=${input:registryString}",
+        "--auth=${input:authString}",
+        "select id from  github.repos.repos where org = 'stackql';"
+      ],
+    },
     {
       "name": "DEBUG authenticated select github.usrs.users ... ;",
       "type": "go",
