@@ -695,6 +695,14 @@ github.com/stackql/go-openapistackql v0.0.7-gamma24 h1:ryIAeqCT55wg39/mAKyl5PCfq
 github.com/stackql/go-openapistackql v0.0.7-gamma24/go.mod h1:eh1rztQzASRLNc4lhGEsPcGQdMUA6N0zzUyQ21djjzY=
 github.com/stackql/go-openapistackql v0.0.7-gamma25 h1:kUj5OqdkxaYNMKugEk4qXoV3VZ1ZS+izmG/3OP/7+Ik=
 github.com/stackql/go-openapistackql v0.0.7-gamma25/go.mod h1:eh1rztQzASRLNc4lhGEsPcGQdMUA6N0zzUyQ21djjzY=
+github.com/stackql/go-openapistackql v0.0.8-alpha01 h1:Fy6UmZn2r+ZReUR+GDzvjhdgNCEDh66dBvF0PxuNVMU=
+github.com/stackql/go-openapistackql v0.0.8-alpha01/go.mod h1:EmwsXQRcFKKJ+9rHpyLq73k62U5LC+9PCdPTZg3cEBg=
+github.com/stackql/go-openapistackql v0.0.8-alpha02 h1:JfcK2JMzzdo7mFra4/Mh4AqIa7i0pUtxL3dVIIH95uI=
+github.com/stackql/go-openapistackql v0.0.8-alpha02/go.mod h1:EmwsXQRcFKKJ+9rHpyLq73k62U5LC+9PCdPTZg3cEBg=
+github.com/stackql/go-openapistackql v0.0.8-alpha03 h1:btyE2jSGehjPLcVRawo8aX1DtxNoVGVtRvIjCdI8rYY=
+github.com/stackql/go-openapistackql v0.0.8-alpha03/go.mod h1:EmwsXQRcFKKJ+9rHpyLq73k62U5LC+9PCdPTZg3cEBg=
+github.com/stackql/go-openapistackql v0.0.8-alpha04 h1:3cYMmcYNqFXKeLh6cTs+SdIg0lk43qr9xI9nnJDcg90=
+github.com/stackql/go-openapistackql v0.0.8-alpha04/go.mod h1:EmwsXQRcFKKJ+9rHpyLq73k62U5LC+9PCdPTZg3cEBg=
 github.com/stackql/go-spew v1.1.3-alpha24 h1:yNmgWU+OKU8SvlQ0umiQWWgWS6C5U1GuRMlYfQgbmJA=
 github.com/stackql/go-spew v1.1.3-alpha24/go.mod h1:o2MPqg2ee1PN4SxAh9zQSJJmKKFJjpro9pejdK7dXWk=
 github.com/stackql/go-sqlite3 v0.0.1-stackqlrc01 h1:q+LfCfPrIqqG5+v9T5xjyYzOEBB4i77Ek10Lzwyd0D4=
