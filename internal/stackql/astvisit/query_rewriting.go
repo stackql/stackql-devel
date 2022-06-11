@@ -202,6 +202,7 @@ func NewQueryRewriteAstVisitor(
 	dc drm.DRMConfig,
 	txnCtrlCtrs *dto.TxnControlCounters,
 	secondaryTccs []*dto.TxnControlCounters,
+	rewrittenWhere string,
 ) *QueryRewriteAstVisitor {
 	rv := &QueryRewriteAstVisitor{
 		handlerCtx:            handlerCtx,
@@ -214,6 +215,7 @@ func NewQueryRewriteAstVisitor(
 		dc:                    dc,
 		baseCtrlCounters:      txnCtrlCtrs,
 		secondaryCtrlCounters: secondaryTccs,
+		whereExprsStr:         rewrittenWhere,
 	}
 	return rv
 }
@@ -737,7 +739,13 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		return node.Expr.Accept(v)
 
 	case *sqlparser.ComparisonExpr:
-		return nil
+		switch left := node.Left.(type) {
+		case *sqlparser.ColName:
+			if b, ok := left.Metadata.(bool); ok && b {
+				buf := sqlparser.NewTrackedBuffer(nil)
+				node.Format(buf)
+			}
+		}
 
 	case *sqlparser.RangeCond:
 

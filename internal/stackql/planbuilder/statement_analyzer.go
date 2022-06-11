@@ -795,6 +795,11 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 
 	err = v.Visit(pbi.GetStatement())
 
+	// add a where rewriter
+	// obtain a new where clause tree
+	// then plug this into the final query rewriter
+	// either as a string or tree
+
 	if err != nil {
 		return err
 	}
@@ -971,6 +976,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				drm.GetGoogleV1SQLiteConfig(),
 				primaryTcc,
 				secondaryTccs,
+				rewrittenWhereStr,
 			)
 			err = v.Visit(pbi.GetStatement())
 			if err != nil {
