@@ -95,7 +95,7 @@ func (v *TableRouteAstVisitor) analyzeAliasedTable(tb *sqlparser.AliasedTableExp
 			return nil, nil, err
 		}
 		m := taxonomy.NewExtendedTableMetadata(hr, taxonomy.GetAliasFromStatement(tb))
-		v.tables[ex] = m
+		// v.tables[ex] = m
 		return m, abbreviatedConsumedMap, nil
 	default:
 		return nil, nil, fmt.Errorf("table of type '%T' not curently supported", ex)
