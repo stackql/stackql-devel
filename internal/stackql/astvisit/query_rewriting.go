@@ -598,7 +598,7 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 	case *sqlparser.AliasedExpr:
 		tbl, err := v.tables.GetTableLoose(node)
 		if err != nil {
-			return err
+			return v.Visit(node.Expr)
 		}
 		schema, _, err := tbl.GetResponseSchemaAndMediaType()
 		if err != nil {
