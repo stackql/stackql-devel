@@ -5,7 +5,9 @@ import os
 
 _exe_name = 'stackql'
 
+IS_WINDOWS = '0'
 if os.name == 'nt':
+  IS_WINDOWS = '1'
   _exe_name = _exe_name + '.exe'
 
 REPOSITORY_ROOT = os.path.abspath(os.path.join(__file__, '..', '..', '..', '..'))
@@ -244,7 +246,7 @@ SELECT_GOOGLE_CLOUDRESOURCEMANAGER_IAMPOLICY_FILTERED_EXPECTED = get_output_from
 
 SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS :str =  "SELECT i.zone, i.name, i.machineType, i.deletionProtection, '[{\"subnetwork\":\"' || JSON_EXTRACT(i.networkInterfaces, '$[0].subnetwork') || '\"}]', '[{\"boot\": true, \"initializeParams\": { \"diskSizeGb\": \"' || JSON_EXTRACT(i.disks, '$[0].diskSizeGb') || '\", \"sourceImage\": \"' || d.sourceImage || '\"}}]', i.labels FROM google.compute.instances i INNER JOIN google.compute.disks d ON i.name = d.name WHERE i.project = 'testing-project' AND i.zone = 'australia-southeast1-a' AND d.project = 'testing-project' AND d.zone = 'australia-southeast1-a' AND i.name LIKE '%' order by i.name DESC;"
 if os.name == 'nt':
-  SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS =  SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS.replace("||", "^|^|")
+  SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS =  SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS.replace("||", "^|^|").replace("\"", "^\"")
 
 SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'google', 'joins', 'disks-instances-rewritten.txt'))
 
