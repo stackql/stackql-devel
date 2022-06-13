@@ -598,7 +598,15 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 	case *sqlparser.AliasedExpr:
 		tbl, err := v.tables.GetTableLoose(node)
 		if err != nil {
-			return v.Visit(node.Expr)
+			err := v.Visit(node.Expr)
+			if err != nil {
+				return err
+			}
+			col := parserutil.InferColNameFromExpr(node)
+			v.columnNames = append(v.columnNames, col)
+			cd := openapistackql.NewColumnDescriptor(col.Alias, col.Name, col.DecoratedColumn, nil, col.Val)
+			v.columnDescriptors = append(v.columnDescriptors, cd)
+			return nil
 		}
 		schema, _, err := tbl.GetResponseSchemaAndMediaType()
 		if err != nil {
