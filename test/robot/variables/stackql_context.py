@@ -236,6 +236,12 @@ SELECT_GOOGLE_CLOUDRESOURCEMANAGER_IAMPOLICY = "SELECT role, members, condition 
 
 SELECT_GOOGLE_CLOUDRESOURCEMANAGER_IAMPOLICY_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'google', 'cloudresourcemanager', 'projects-getiampolicy-roles-asc.txt'))
 
+SELECT_GOOGLE_CLOUDRESOURCEMANAGER_IAMPOLICY_LIKE_FILTERED = "SELECT role, members, condition from google.cloudresourcemanager.project_iam_policies where projectsId = 'testproject' and role like '%owner' order by role asc;"
+
+SELECT_GOOGLE_CLOUDRESOURCEMANAGER_IAMPOLICY_COMPARISON_FILTERED = "SELECT role, members, condition from google.cloudresourcemanager.project_iam_policies where projectsId = 'testproject' and role = 'roles/owner' order by role asc;"
+
+SELECT_GOOGLE_CLOUDRESOURCEMANAGER_IAMPOLICY_FILTERED_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'google', 'cloudresourcemanager', 'projects-getiampolicy-roles-asc-filtered.txt'))
+
 SELECT_K8S_NODES_ASC = f"select name, uid, creationTimestamp from k8s.core_v1.node where cluster_addr = '127.0.0.1:{MOCKSERVER_PORT_K8S}' order by name asc;"
 SELECT_K8S_NODES_ASC_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'k8s', 'select-nodes-asc.txt'))
 
