@@ -94,6 +94,12 @@ GitHub Repository IDs Select
     ...    ${SELECT_GITHUB_REPOS_IDS_ASC}
     ...    ${SELECT_GITHUB_REPOS_IDS_ASC_EXPECTED}
 
+Filter on Implicit Selectable Object
+    Should StackQL Exec Equal
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${SELECT_GITHUB_REPOS_FILTERED_SINGLE}
+    ...    ${SELECT_GITHUB_REPOS_FILTERED_SINGLE_EXPECTED}
+
 Join GCP Okta Cross Provider
     Should StackQL Exec Equal
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
