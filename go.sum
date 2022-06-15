@@ -735,6 +735,8 @@ github.com/stackql/vitess v0.0.11-alpha08 h1:B0M9djqTnDzmEoI+Pvt6UIxFY3dJVfKqjB7
 github.com/stackql/vitess v0.0.11-alpha08/go.mod h1:6aOZHbgHclTasEGZvrdoWfca6Y4XJfemKMqwnDL/klI=
 github.com/stackql/vitess v0.0.11-alpha09 h1:vpI55oyqS6lsg5DlhGVoE/2s6gjCgCHaaUBKYG6VUwQ=
 github.com/stackql/vitess v0.0.11-alpha09/go.mod h1:6aOZHbgHclTasEGZvrdoWfca6Y4XJfemKMqwnDL/klI=
+github.com/stackql/vitess v0.0.11-alpha10 h1:DxgLWv3mHa9W6RsKU7FLI24W8ojF9op9kaS2P5640OQ=
+github.com/stackql/vitess v0.0.11-alpha10/go.mod h1:6aOZHbgHclTasEGZvrdoWfca6Y4XJfemKMqwnDL/klI=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.2.0/go.mod h1:qt09Ya8vawLte6SNmTgCsAVtYtaKzEcn8ATUoHMkEqE=

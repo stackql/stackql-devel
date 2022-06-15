@@ -106,6 +106,12 @@ Join GCP Okta Cross Provider
     ...    ${SELECT_CONTRIVED_GCP_OKTA_JOIN}
     ...    ${SELECT_CONTRIVED_GCP_OKTA_JOIN_EXPECTED}
 
+Join GCP Okta Cross Provider JSON Dpendent Keyword in Table Name
+    Should StackQL Exec Equal
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${SELECT_CONTRIVED_GCP_GITHUB_JSON_DEPENDENT_JOIN}
+    ...    ${SELECT_CONTRIVED_GCP_GITHUB_JSON_DEPENDENT_JOIN_EXPECTED}
+
 Join GCP Three Way
     Should StackQL Exec Equal
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
