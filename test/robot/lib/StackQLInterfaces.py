@@ -139,10 +139,10 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     k8s_secret_str :str,
     registry_cfg_str :str, 
     auth_cfg_str :str,
+    query,
     expected_output :str,
     stdout_tmp_file :str,
   ):
-    _SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS :bytes =  b"""SELECT i.zone, i.name, i.machineType, i.deletionProtection, '[{"subnetwork":"' || JSON_EXTRACT(i.networkInterfaces, '$[0].subnetwork') || '"}]', '[{"boot": true, "initializeParams": { "diskSizeGb": "' || JSON_EXTRACT(i.disks, '$[0].diskSizeGb') || '", "sourceImage": "' || d.sourceImage || '"}}]', i.labels FROM google.compute.instances i INNER JOIN google.compute.disks d ON i.name = d.name WHERE i.project = 'testing-project' AND i.zone = 'australia-southeast1-a' AND d.project = 'testing-project' AND d.zone = 'australia-southeast1-a' AND i.name LIKE '%' order by i.name DESC;"""
     result = self._run_stackql_exec_command(
       stackql_exe, 
       okta_secret_str,
@@ -150,7 +150,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
       k8s_secret_str,
       registry_cfg_str, 
       auth_cfg_str, 
-      _SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS,
+      query,
       **{"stdout": stdout_tmp_file }
     )
     return self.should_be_equal(result.stdout, expected_output)

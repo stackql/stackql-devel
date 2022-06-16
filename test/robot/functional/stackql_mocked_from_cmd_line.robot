@@ -89,6 +89,7 @@ Google Join Plus String Concatenated Select Expressions
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS}
     ...    ${SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS_EXPECTED}
     ...    ${CURDIR}/tmp/Google-Join-Plus-String-Concatenated-Select-Expressions.tmp
 
@@ -230,7 +231,7 @@ Registry List All
     ...    ${OKTA_SECRET_STR}
     ...    ${GITHUB_SECRET_STR}
     ...    ${K8S_SECRET_STR}
-    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${REGISTRY_MOCKED_CFG_STR}
     ...    ${AUTH_CFG_STR}
     ...    ${REGISTRY_LIST} 
     ...    ${REGISTRY_LIST_EXPECTED}
@@ -241,7 +242,7 @@ Registry List Google Provider
     ...    ${OKTA_SECRET_STR}
     ...    ${GITHUB_SECRET_STR}
     ...    ${K8S_SECRET_STR}
-    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${REGISTRY_MOCKED_CFG_STR}
     ...    ${AUTH_CFG_STR}
     ...    ${REGISTRY_GOOGLE_PROVIDER_LIST} 
     ...    ${REGISTRY_GOOGLE_PROVIDER_LIST_EXPECTED}
