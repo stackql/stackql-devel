@@ -52,7 +52,8 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     k8s_secret_str :str,
     registry_cfg_str :str, 
     auth_cfg_str :str, 
-    query
+    query,
+    **cfg
   ):
     self.set_environment_variable("OKTA_SECRET_KEY", okta_secret_str)
     self.set_environment_variable("GITHUB_SECRET_KEY", github_secret_str)
@@ -63,7 +64,8 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
       f"--registry={registry_cfg_str}",
       f"--auth={auth_cfg_str}",
       "--tls.allowInsecure=true",
-      query
+      query,
+      **cfg
     )
     self.log(res.stdout)
     self.log(res.stderr)
@@ -131,7 +133,8 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     k8s_secret_str :str,
     registry_cfg_str :str, 
     auth_cfg_str :str,
-    expected_output :str
+    expected_output :str,
+    stdout_tmp_file :str,
   ):
     _SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS :bytes =  b"""SELECT i.zone, i.name, i.machineType, i.deletionProtection, '[{"subnetwork":"' || JSON_EXTRACT(i.networkInterfaces, '$[0].subnetwork') || '"}]', '[{"boot": true, "initializeParams": { "diskSizeGb": "' || JSON_EXTRACT(i.disks, '$[0].diskSizeGb') || '", "sourceImage": "' || d.sourceImage || '"}}]', i.labels FROM google.compute.instances i INNER JOIN google.compute.disks d ON i.name = d.name WHERE i.project = 'testing-project' AND i.zone = 'australia-southeast1-a' AND d.project = 'testing-project' AND d.zone = 'australia-southeast1-a' AND i.name LIKE '%' order by i.name DESC;"""
     if os.name == 'nt':
@@ -143,6 +146,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
       k8s_secret_str,
       registry_cfg_str, 
       auth_cfg_str, 
-      _SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS
+      _SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS,
+      **{"stdout": stdout_tmp_file }
     )
     return self.should_be_equal(result.stdout, expected_output)

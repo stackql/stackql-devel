@@ -60,6 +60,7 @@ Google Join Plus String Concatenated Select Expressions
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
     ...    ${SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS_EXPECTED}
+    ...    ${CURDIR}/tmp/Google-Join-Plus-String-Concatenated-Select-Expressions.tmp
 
 Google AcceleratorTypes SQL verb pre changeover
     Should StackQL Exec Equal
