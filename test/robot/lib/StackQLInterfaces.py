@@ -53,6 +53,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     registry_cfg_str :str, 
     auth_cfg_str :str, 
     query,
+    *args,
     **cfg
   ):
     self.set_environment_variable("OKTA_SECRET_KEY", okta_secret_str)
@@ -65,6 +66,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
       f"--auth={auth_cfg_str}",
       "--tls.allowInsecure=true",
       query,
+      *args,
       **cfg
     )
     self.log(res.stdout)
@@ -83,7 +85,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
   
   @keyword
   def should_PG_client_inline_contain(self, curdir :str, psql_exe :str, psql_conn_str :str, query :str, expected_output :str):
-    result =    self._run_PG_client_command(
+    result = self._run_PG_client_command(
       curdir,
       psql_exe,
       psql_conn_str,
@@ -102,7 +104,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     return self.should_be_equal(result.stdout, expected_output)
   
   @keyword
-  def should_stackql_inline_equal(
+  def should_stackql_exec_inline_equal(
     self, 
     stackql_exe :str, 
     okta_secret_str :str,
@@ -111,7 +113,9 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     registry_cfg_str :str, 
     auth_cfg_str :str, 
     query :str,
-    expected_output :str
+    expected_output :str,
+    *args,
+    **cfg
   ):
     result = self._run_stackql_exec_command(
       stackql_exe, 
@@ -121,6 +125,8 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
       registry_cfg_str, 
       auth_cfg_str, 
       query,
+      *args,
+      **cfg
     )
     return self.should_be_equal(result.stdout, expected_output)
 
@@ -137,8 +143,6 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     stdout_tmp_file :str,
   ):
     _SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS :bytes =  b"""SELECT i.zone, i.name, i.machineType, i.deletionProtection, '[{"subnetwork":"' || JSON_EXTRACT(i.networkInterfaces, '$[0].subnetwork') || '"}]', '[{"boot": true, "initializeParams": { "diskSizeGb": "' || JSON_EXTRACT(i.disks, '$[0].diskSizeGb') || '", "sourceImage": "' || d.sourceImage || '"}}]', i.labels FROM google.compute.instances i INNER JOIN google.compute.disks d ON i.name = d.name WHERE i.project = 'testing-project' AND i.zone = 'australia-southeast1-a' AND d.project = 'testing-project' AND d.zone = 'australia-southeast1-a' AND i.name LIKE '%' order by i.name DESC;"""
-    if os.name == 'nt':
-      _SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS =  _SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS
     result = self._run_stackql_exec_command(
       stackql_exe, 
       okta_secret_str,
