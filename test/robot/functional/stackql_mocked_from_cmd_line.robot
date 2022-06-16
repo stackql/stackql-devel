@@ -52,14 +52,13 @@ Google Select Project IAM Policy Filtered And Verify Where Filtering
     ...    ${SELECT_GOOGLE_CLOUDRESOURCEMANAGER_IAMPOLICY_FILTERED_EXPECTED}
 
 Google Join Plus String Concatenated Select Expressions
-    Should Stackql Inline Equal    
+    should horrid query stackql inline equal
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
     ...    ${GITHUB_SECRET_STR}
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
-    ...    ${SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS}
     ...    ${SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS_EXPECTED}
 
 Google AcceleratorTypes SQL verb pre changeover
