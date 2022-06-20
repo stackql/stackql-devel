@@ -106,6 +106,16 @@ func ExtractParamsFromWhereClause(node *sqlparser.Where) parserutil.ParameterMap
 	return v.GetParameters()
 }
 
+// func ExtractParamsFromInsertColumns(node *sqlparser.Insert) (map[string]string, error) {
+// 	v := NewParamAstVisitor("", false)
+// 	if node != nil && len(node.Columns) > 0 && node.Rows != nil {
+// 		node.Accept(v)
+// 	} else {
+// 		return parserutil.ParameterMap{}
+// 	}
+// 	return nil, nil
+// }
+
 func ExtractProviderStrings(node sqlparser.SQLNode) []string {
 	v := NewDRMAstVisitor("", true)
 	node.Accept(v)

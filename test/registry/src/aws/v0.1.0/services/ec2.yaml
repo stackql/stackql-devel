@@ -40414,6 +40414,13 @@ components:
       name: volumes
       title: volumes
       methods:
+        create:
+          operation:
+            $ref: '#/paths/~1?Action=CreateVolume&Version=2016-11-15/get'
+          response:
+            mediaType: text/xml
+            openAPIDocKey: '200'
+            objectKey: '/CreateVolumeResponse'
         describeVolumes:
           operation:
             $ref: '#/paths/~1?Action=DescribeVolumes&Version=2016-11-15/get'
@@ -40424,7 +40431,8 @@ components:
       sqlVerbs:
         select:
           - $ref: '#/components/x-stackQL-resources/volumes/methods/describeVolumes'
-        insert: []
+        insert:
+          - $ref: '#/components/x-stackQL-resources/volumes/methods/create'
         update: []
         delete: []
   parameters:
@@ -42110,10 +42118,12 @@ components:
           allOf:
             - $ref: '#/components/schemas/VolumeAttachmentList'
             - description: Information about the volume attachments.
-        availabilityZone:
+        AvailabilityZone:
           allOf:
             - $ref: '#/components/schemas/String'
             - description: The Availability Zone for the volume.
+            - xml:
+                name: 'availabilityZone'
         createTime:
           allOf:
             - $ref: '#/components/schemas/DateTime'
@@ -54757,7 +54767,7 @@ components:
         - AvailabilityZone
       title: CreateVolumeRequest
       properties:
-        undefined:
+        AvailabilityZone:
           allOf:
             - $ref: '#/components/schemas/String'
             - description: The Availability Zone in which to create the volume.

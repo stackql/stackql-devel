@@ -551,6 +551,10 @@ func (v *ParamAstVisitor) Visit(node sqlparser.SQLNode) error {
 		}
 		prefix := "("
 		for _, n := range node {
+			err := n.Accept(v)
+			if err != nil {
+				return err
+			}
 			buf.AstPrintf(node, "%s%v", prefix, n)
 			prefix = ", "
 		}
