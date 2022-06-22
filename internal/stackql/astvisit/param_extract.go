@@ -15,7 +15,7 @@ type ParamAstVisitor struct {
 
 func NewParamAstVisitor(iDColumnName string, shouldCollectTables bool) *ParamAstVisitor {
 	return &ParamAstVisitor{
-		params: make(parserutil.ParameterMap),
+		params: parserutil.NewParameterMap(),
 	}
 }
 
@@ -25,8 +25,8 @@ func (v *ParamAstVisitor) GetParameters() parserutil.ParameterMap {
 
 func (v *ParamAstVisitor) GetStringifiedParameters() map[string]interface{} {
 	rv := make(map[string]interface{})
-	for k, v := range v.params {
-		rv[k.GetRawVal()] = v
+	for k, v := range v.params.GetMap() {
+		rv[k.String()] = v
 	}
 	return rv
 }
@@ -683,20 +683,28 @@ func (v *ParamAstVisitor) Visit(node sqlparser.SQLNode) error {
 		case *sqlparser.ColName:
 			switch rt := node.Right.(type) {
 			case *sqlparser.SQLVal:
-				v.params[lt] = parserutil.ParameterMetadata{
+				k, err := parserutil.NewColumnarReference(lt)
+				if err != nil {
+					return err
+				}
+				v.params.Set(k, parserutil.IParameterMetadata{
 					Parent: node,
 					Val:    rt,
-				}
+				})
 			default:
 			}
 		default:
 			switch rt := node.Right.(type) {
 			case *sqlparser.SQLVal:
 			case *sqlparser.ColName:
-				v.params[rt] = parserutil.ParameterMetadata{
+				k, err := parserutil.NewColumnarReference(rt)
+				if err != nil {
+					return err
+				}
+				v.params.Set(k, parserutil.IParameterMetadata{
 					Parent: node,
 					Val:    lt,
-				}
+				})
 			default:
 			}
 		}

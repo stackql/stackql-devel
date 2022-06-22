@@ -1030,6 +1030,14 @@ func (p *primitiveGenerator) analyzeInsert(pbi PlanBuilderInput) error {
 	if !ok {
 		return fmt.Errorf("could not cast node of type '%T' to required Insert", pbi.GetStatement())
 	}
+	/*  TODO:
+	      Extract placeholder parameters from query and use same to
+				find Heirarchy.
+				Possibly use map[string]struct{} for empty params.
+				See if:
+				  a) this pattern can generalise to all CRUD methods.
+					b) new `inferHeirarchyAndPersist` and/or `GetHeirarchyFromStatement` methods is required to prevent regressions.
+	*/
 	err := p.inferHeirarchyAndPersist(handlerCtx, node, nil)
 	if err != nil {
 		return err
@@ -1113,7 +1121,7 @@ func (p *primitiveGenerator) analyzeDelete(pbi PlanBuilderInput) error {
 	p.parseComments(node.Comments)
 	paramMap := astvisit.ExtractParamsFromWhereClause(node.Where)
 
-	err := p.inferHeirarchyAndPersist(handlerCtx, node, paramMap.ToStringMap())
+	err := p.inferHeirarchyAndPersist(handlerCtx, node, paramMap.GetStringified())
 	if err != nil {
 		return err
 	}
