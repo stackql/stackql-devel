@@ -970,7 +970,10 @@ func (v *PlaceholderParamAstVisitor) Visit(node sqlparser.SQLNode) error {
 		if err != nil {
 			return err
 		}
-		v.params.Set(k, parserutil.NewPlaceholderParameterMetadata())
+		err = v.params.Set(k, parserutil.NewPlaceholderParameterMetadata())
+		if err != nil {
+			return err
+		}
 		sqlparser.FormatID(buf, node.GetRawVal(), node.Lowered(), node.GetAtCount())
 
 	case sqlparser.TableIdent:

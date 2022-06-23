@@ -630,13 +630,13 @@ func (pm IParameterMap) GetAbbreviatedStringified() map[string]interface{} {
 }
 
 func (pm IParameterMap) Set(k ColumnarReference, v ParameterMetadata) error {
-	switch k.Value().(type) {
+	switch t := k.Value().(type) {
 	case *sqlparser.ColName:
 		pm.m[k] = v
-	case sqlparser.ColIdent:
+	case *sqlparser.ColIdent:
 		pm.m[k] = v
 	default:
-		return fmt.Errorf("parameter map cannot support key type = '%T'", k)
+		return fmt.Errorf("parameter map cannot support key type = '%T'", t)
 	}
 	return nil
 }
@@ -645,7 +645,7 @@ func (pm IParameterMap) getStringKey(k interface{}) string {
 	switch k := k.(type) {
 	case *sqlparser.ColName:
 		return k.GetRawVal()
-	case sqlparser.ColIdent:
+	case *sqlparser.ColIdent:
 		return k.GetRawVal()
 	default:
 		return fmt.Sprintf("%v", k)
@@ -657,7 +657,7 @@ func (pm IParameterMap) Get(k ColumnarReference) (ParameterMetadata, bool) {
 	case *sqlparser.ColName:
 		rv, ok := pm.m[k]
 		return rv, ok
-	case sqlparser.ColIdent:
+	case *sqlparser.ColIdent:
 		rv, ok := pm.m[k]
 		return rv, ok
 	default:
