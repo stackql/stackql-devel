@@ -485,15 +485,36 @@ type ParameterMetadata interface {
 	GetVal() interface{}
 }
 
-type IParameterMetadata struct {
+type IComparisonParameterMetadata struct {
 	Parent *sqlparser.ComparisonExpr
 	Val    interface{}
 }
 
-func (pm IParameterMetadata) iParameterMetadata() {}
+type IPlaceholderParameterMetadata struct {
+	placeholderVal struct{}
+}
 
-func (pm IParameterMetadata) GetVal() interface{} {
+func NewComparisonParameterMetadata(parent *sqlparser.ComparisonExpr, val interface{}) ParameterMetadata {
+	return IComparisonParameterMetadata{
+		Parent: parent,
+		Val:    val,
+	}
+}
+
+func NewPlaceholderParameterMetadata() ParameterMetadata {
+	return IPlaceholderParameterMetadata{}
+}
+
+func (pm IComparisonParameterMetadata) iParameterMetadata() {}
+
+func (pm IComparisonParameterMetadata) GetVal() interface{} {
 	return pm.Val
+}
+
+func (pm IPlaceholderParameterMetadata) iParameterMetadata() {}
+
+func (pm IPlaceholderParameterMetadata) GetVal() interface{} {
+	return pm.placeholderVal
 }
 
 // ParameterMap type is an abstraction
