@@ -118,7 +118,7 @@ func (p *primitiveGenerator) analyzeUnion(pbi PlanBuilderInput) error {
 		return err
 	}
 	pChild := p.addChildPrimitiveGenerator(node.FirstStatement, leaf)
-	err = pChild.analyzeSelectStatement(NewPlanBuilderInput(handlerCtx, node.FirstStatement, nil, nil, nil, nil))
+	err = pChild.analyzeSelectStatement(NewPlanBuilderInput(handlerCtx, node.FirstStatement, nil, nil, nil, nil, nil))
 	if err != nil {
 		return err
 	}
@@ -130,7 +130,7 @@ func (p *primitiveGenerator) analyzeUnion(pbi PlanBuilderInput) error {
 			return err
 		}
 		pChild := p.addChildPrimitiveGenerator(rhsStmt.Statement, leaf)
-		err = pChild.analyzeSelectStatement(NewPlanBuilderInput(handlerCtx, rhsStmt.Statement, nil, nil, nil, nil))
+		err = pChild.analyzeSelectStatement(NewPlanBuilderInput(handlerCtx, rhsStmt.Statement, nil, nil, nil, nil, nil))
 		if err != nil {
 			return err
 		}
@@ -1038,7 +1038,7 @@ func (p *primitiveGenerator) analyzeInsert(pbi PlanBuilderInput) error {
 				  a) this pattern can generalise to all CRUD methods.
 					b) new `inferHeirarchyAndPersist` and/or `GetHeirarchyFromStatement` methods is required to prevent regressions.
 	*/
-	err := p.inferHeirarchyAndPersist(handlerCtx, node, nil)
+	err := p.inferHeirarchyAndPersist(handlerCtx, node, pbi.paramsPlaceheld.GetStringified())
 	if err != nil {
 		return err
 	}

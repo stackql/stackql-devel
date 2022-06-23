@@ -582,8 +582,11 @@ func (pk IColumnarReference) iColumnarReference() {}
 
 func NewColumnarReference(k interface{}) (ColumnarReference, error) {
 	switch k := k.(type) {
-	case *sqlparser.ColName, sqlparser.ColIdent:
+	case *sqlparser.ColName:
 		return IColumnarReference{k: k}, nil
+	case sqlparser.ColIdent:
+		kp := &k
+		return IColumnarReference{k: kp}, nil
 	default:
 		return nil, fmt.Errorf("cannot accomodate columnar reference for type = '%T'", k)
 	}
