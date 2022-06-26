@@ -317,7 +317,7 @@ func PrepareResultSet(payload dto.PrepareResultSetDTO) dto.ExecutorOutput {
 }
 
 func EmptyProtectResultSet(rv dto.ExecutorOutput, columns []string) dto.ExecutorOutput {
-	if len(rv.GetRawResult()) == 0 {
+	if rv.GetRawResult().IsNil() {
 		resVal := &sqltypes.Result{
 			Fields: make([]*querypb.Field, len(columns)),
 		}
