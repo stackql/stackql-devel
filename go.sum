@@ -739,6 +739,14 @@ github.com/stackql/go-openapistackql v0.0.8-alpha24 h1:UZ/ZW8rHYA50WBvurLwJHzQ+F
 github.com/stackql/go-openapistackql v0.0.8-alpha24/go.mod h1:EmwsXQRcFKKJ+9rHpyLq73k62U5LC+9PCdPTZg3cEBg=
 github.com/stackql/go-openapistackql v0.0.8-alpha25 h1:ACbw9dx34J5dlSn0Vz6hZYoz2SB94W+yUJmsWMkVar4=
 github.com/stackql/go-openapistackql v0.0.8-alpha25/go.mod h1:EmwsXQRcFKKJ+9rHpyLq73k62U5LC+9PCdPTZg3cEBg=
+github.com/stackql/go-openapistackql v0.0.8-alpha26 h1:W8Sfb1X95mR+a5Zqo1tcOg3zQOps1kQttjfnyP3NeYY=
+github.com/stackql/go-openapistackql v0.0.8-alpha26/go.mod h1:EmwsXQRcFKKJ+9rHpyLq73k62U5LC+9PCdPTZg3cEBg=
+github.com/stackql/go-openapistackql v0.0.8-alpha27 h1:xpea0LWQ+twhso+j5nfl9ZEXQ7baXP4Wxg7HCN65l1Y=
+github.com/stackql/go-openapistackql v0.0.8-alpha27/go.mod h1:EmwsXQRcFKKJ+9rHpyLq73k62U5LC+9PCdPTZg3cEBg=
+github.com/stackql/go-openapistackql v0.0.8-alpha28 h1:oMSH71s4xg2u1QEUgBbUv4fQrzKZ9F8gVXPKqU/shec=
+github.com/stackql/go-openapistackql v0.0.8-alpha28/go.mod h1:EmwsXQRcFKKJ+9rHpyLq73k62U5LC+9PCdPTZg3cEBg=
+github.com/stackql/go-openapistackql v0.0.8-alpha30 h1:xWyCGQ14IT43l/hMc7d6koQn/3slKKwJhq+s4aJ+GAM=
+github.com/stackql/go-openapistackql v0.0.8-alpha30/go.mod h1:EmwsXQRcFKKJ+9rHpyLq73k62U5LC+9PCdPTZg3cEBg=
 github.com/stackql/go-spew v1.1.3-alpha24 h1:yNmgWU+OKU8SvlQ0umiQWWgWS6C5U1GuRMlYfQgbmJA=
 github.com/stackql/go-spew v1.1.3-alpha24/go.mod h1:o2MPqg2ee1PN4SxAh9zQSJJmKKFJjpro9pejdK7dXWk=
 github.com/stackql/go-sqlite3 v0.0.1-stackqlrc01 h1:q+LfCfPrIqqG5+v9T5xjyYzOEBB4i77Ek10Lzwyd0D4=

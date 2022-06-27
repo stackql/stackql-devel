@@ -430,13 +430,14 @@ func (ss *SingleSelectAcquire) Build() error {
 				if apiErr != nil {
 					return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, nil, nil, ss.rowSort, apiErr, nil))
 				}
-				target, err := m.ProcessResponse(response)
+				res, err := m.ProcessResponse(response)
 				if err != nil {
 					return dto.NewErroneousExecutorOutput(err)
 				}
-				log.Infoln(fmt.Sprintf("target = %v", target))
+				log.Infoln(fmt.Sprintf("target = %v", res))
 				var items interface{}
 				var ok bool
+				target := res.GetProcessedBody()
 				switch pl := target.(type) {
 				// add case for xml object,
 				case map[string]interface{}:
