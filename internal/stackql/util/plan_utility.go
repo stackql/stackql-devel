@@ -307,13 +307,17 @@ func PrepareResultSet(payload dto.PrepareResultSetDTO) dto.ExecutorOutput {
 			}
 		}
 	}
-	return dto.NewExecutorOutput(
-		sqldata.NewSimpleSQLResultStream(sqldata.NewSQLResult(columns, 0, 0, rows)),
+	resultStream := sqldata.NewChannelSQLResultStream()
+	rv := dto.NewExecutorOutput(
+		resultStream,
 		payload.OutputBody,
 		payload.RawRows,
 		payload.Msg,
 		payload.Err,
 	)
+	resultStream.Write(sqldata.NewSQLResult(columns, 0, 0, rows))
+	resultStream.Close()
+	return rv
 }
 
 func EmptyProtectResultSet(rv dto.ExecutorOutput, columns []string) dto.ExecutorOutput {

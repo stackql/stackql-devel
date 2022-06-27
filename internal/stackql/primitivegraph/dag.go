@@ -1,6 +1,7 @@
 package primitivegraph
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/stackql/stackql/internal/stackql/drm"
@@ -11,12 +12,16 @@ import (
 
 	"gonum.org/v1/gonum/graph/simple"
 	"gonum.org/v1/gonum/graph/topo"
+
+	"golang.org/x/sync/errgroup"
 )
 
 type PrimitiveGraph struct {
 	g                      *simple.WeightedDirectedGraph
 	sorted                 []graph.Node
 	txnControlCounterSlice []dto.TxnControlCounters
+	errGroup               *errgroup.Group
+	errGroupCtx            context.Context
 }
 
 func (pg *PrimitiveGraph) AddTxnControlCounters(t dto.TxnControlCounters) {
@@ -39,13 +44,19 @@ func (pr *PrimitiveGraph) GetInputFromAlias(string) (dto.ExecutorOutput, bool) {
 func (pg *PrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) dto.ExecutorOutput {
 	var output dto.ExecutorOutput = dto.NewExecutorOutput(nil, nil, nil, nil, fmt.Errorf("empty execution graph"))
 	for _, node := range pg.sorted {
+		outChan := make(chan dto.ExecutorOutput, 1)
 		switch node := node.(type) {
 		case PrimitiveNode:
-			output = node.Primitive.Execute(ctx)
-			if output.Err != nil {
-				return output
-			}
+			pg.errGroup.Go(
+				func() error {
+					output := node.Primitive.Execute(ctx)
+					outChan <- output
+					close(outChan)
+					return output.Err
+				},
+			)
 			destinationNodes := pg.g.From(node.ID())
+			output = <-outChan
 			for {
 				if !destinationNodes.Next() {
 					break
@@ -59,6 +70,9 @@ func (pg *PrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) dto.ExecutorOutpu
 		default:
 			dto.NewExecutorOutput(nil, nil, nil, nil, fmt.Errorf("unknown execution primitive type: '%T'", node))
 		}
+	}
+	if err := pg.errGroup.Wait(); err != nil {
+		return dto.NewExecutorOutput(nil, nil, nil, nil, err)
 	}
 	return output
 }
@@ -123,7 +137,13 @@ func (pn PrimitiveNode) SetInputAlias(alias string, id int64) error {
 }
 
 func NewPrimitiveGraph() *PrimitiveGraph {
-	return &PrimitiveGraph{g: simple.NewWeightedDirectedGraph(0.0, 0.0)}
+	eg, egCtx := errgroup.WithContext(context.Background())
+	eg.SetLimit(20)
+	return &PrimitiveGraph{
+		g:           simple.NewWeightedDirectedGraph(0.0, 0.0),
+		errGroup:    eg,
+		errGroupCtx: egCtx,
+	}
 }
 
 func (pg *PrimitiveGraph) NewDependency(from PrimitiveNode, to PrimitiveNode, weight float64) {
