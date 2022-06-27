@@ -2,6 +2,81 @@
   {
     "httpRequest": {
       "headers": {
+        "accept": [ "application/json" ]
+      },
+      "method": "GET",
+      "path": "/repos/dummyorg/dummyapp.io/branches"
+    },
+    "httpResponse": {
+      "headers": {
+        "content-type": [ "application/json; charset=utf-8" ],
+        "link": [
+          "<https://localhost:1093/repositories/000000001/branches?page=2>; rel=\"next\"", 
+          "<https://localhost:1093/repositories/000000001/branches?page=2>; rel=\"last\""
+        ]
+      },
+      "body": [
+        {
+          "name": "bugfix/nil-check",
+          "commit": {
+            "sha": "cfd67a0711523f731de1f3d4d088a15f7e930c90",
+            "url": "https://api.github.com/repos/dummyorg/dummyapp.io/commits/cfd67a0711523f731de1f3d4d088a15f7e930c90"
+          },
+          "protected": false
+        },
+        {
+          "name": "bugfix/select-schema-default",
+          "commit": {
+            "sha": "8a6406b49f72bca575321bdae4b13645a64e5072",
+            "url": "https://api.github.com/repos/dummyorg/dummyapp.io/commits/8a6406b49f72bca575321bdae4b13645a64e5072"
+          },
+          "protected": false
+        }
+      ]
+    }
+  },
+  {
+    "httpRequest": {
+      "headers": {
+        "accept": [ "application/json" ]
+      },
+      "method": "GET",
+      "path": "/repositories/000000001/branches",
+      "queryStringParameters": { 
+        "page": [ "2" ]
+      }
+    },
+    "httpResponse": {
+      "headers": {
+        "content-type": [ "application/json; charset=utf-8" ],
+        "link": [
+          "<https://localhost:1093/repositories/000000001/branches?page=1>; rel=\"prev\"", 
+          "<https://localhost:1093/repositories/000000001/branches?page=1>; rel=\"first\""
+        ]
+      },
+      "body": [
+        {
+          "name": "feature/flow-control",
+          "commit": {
+            "sha": "5b44c87f9f87780c6ebe9e8f4553012dfe3a7eaf",
+            "url": "https://api.github.com/repos/dummyorg/dummyapp.io/commits/5b44c87f9f87780c6ebe9e8f4553012dfe3a7eaf"
+          },
+          "protected": false
+        },
+        {
+          "name": "feature/flow-control-rebased",
+          "commit": {
+            "sha": "dac410339bb132a9b66242c4d2ef93a8c10f0b2e",
+            "url": "https://api.github.com/repos/dummyorg/dummyapp.io/commits/dac410339bb132a9b66242c4d2ef93a8c10f0b2e"
+          },
+          "protected": false
+        }
+      ]
+    }
+  },
+  {
+    "httpRequest": {
+      "headers": {
         "accept": [ "application/scim+json" ]
       },
       "method": "GET",
