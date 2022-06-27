@@ -86,11 +86,13 @@ const (
 	PathParam
 	Header
 	BodyAttribute
+	RequestString
 )
 
 type HTTPElement struct {
-	Type HTTPElementType
-	Name string
+	Type        HTTPElementType
+	Name        string
+	Transformer func(interface{}) (interface{}, error)
 }
 
 type AuthCtx struct {

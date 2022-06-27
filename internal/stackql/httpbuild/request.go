@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
@@ -45,11 +46,23 @@ func (hap HTTPArmouryParameters) ToFlatMap() (map[string]interface{}, error) {
 	return make(map[string]interface{}), nil
 }
 
-func (hap HTTPArmouryParameters) SetNextPage() (map[string]interface{}, error) {
-	if hap.Parameters != nil {
-		return hap.Parameters.ToFlatMap()
+func (hap HTTPArmouryParameters) SetNextPage(token string, tokenKey *dto.HTTPElement) error {
+	switch tokenKey.Type {
+	case dto.QueryParam:
+		q := hap.Request.URL.Query()
+		q.Set(tokenKey.Name, token)
+		hap.Request.URL.RawQuery = q.Encode()
+		return nil
+	case dto.RequestString:
+		u, err := url.Parse(token)
+		if err != nil {
+			return err
+		}
+		hap.Request.URL = u
+		return nil
+	default:
+		return fmt.Errorf("cannot accomodate pagaination for http element type = %+v", tokenKey.Type)
 	}
-	return make(map[string]interface{}), nil
 }
 
 type HTTPArmoury struct {
