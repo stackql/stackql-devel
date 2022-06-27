@@ -136,9 +136,9 @@ func (pn PrimitiveNode) SetInputAlias(alias string, id int64) error {
 	return pn.Primitive.SetInputAlias(alias, id)
 }
 
-func NewPrimitiveGraph() *PrimitiveGraph {
+func NewPrimitiveGraph(concurrencyLimit int) *PrimitiveGraph {
 	eg, egCtx := errgroup.WithContext(context.Background())
-	eg.SetLimit(20)
+	eg.SetLimit(concurrencyLimit)
 	return &PrimitiveGraph{
 		g:           simple.NewWeightedDirectedGraph(0.0, 0.0),
 		errGroup:    eg,
@@ -152,7 +152,7 @@ func (pg *PrimitiveGraph) NewDependency(from PrimitiveNode, to PrimitiveNode, we
 }
 
 func SingletonPrimitiveGraph(pr primitive.IPrimitive) *PrimitiveGraph {
-	gr := NewPrimitiveGraph()
+	gr := NewPrimitiveGraph(1)
 	gr.CreatePrimitiveNode(pr)
 	return gr
 }

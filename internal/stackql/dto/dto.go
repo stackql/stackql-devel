@@ -24,6 +24,7 @@ const (
 	DefaultColorScheme              string = DarkColorScheme
 	DefaultWindowsColorScheme       string = NullColorScheme
 	DryRunFlagKey                   string = "dryrun"
+	ExecutionConcurrencyLimitKey    string = "execution.concurrency.limit"
 	AuthCtxKey                      string = "auth"
 	APIRequestTimeoutKey            string = "apirequesttimeout"
 	CacheKeyCountKey                string = "cachekeycount"
@@ -191,6 +192,7 @@ type RuntimeCtx struct {
 	Delimiter                    string
 	DryRunFlag                   bool
 	ErrorPresentation            string
+	ExecutionConcurrencyLimit    int
 	HTTPLogEnabled               bool
 	HTTPMaxResults               int
 	HTTPProxyHost                string
@@ -279,6 +281,8 @@ func (rc *RuntimeCtx) Set(key string, val string) error {
 		retVal = setBool(&rc.DryRunFlag, val)
 	case ErrorPresentationKey:
 		rc.ErrorPresentation = val
+	case ExecutionConcurrencyLimitKey:
+		retVal = setInt(&rc.ExecutionConcurrencyLimit, val)
 	case HTTPLogEnabledKey:
 		retVal = setBool(&rc.HTTPLogEnabled, val)
 	case HTTPMaxResultsKey:
