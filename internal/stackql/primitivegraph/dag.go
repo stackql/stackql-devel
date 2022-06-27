@@ -150,9 +150,3 @@ func (pg *PrimitiveGraph) NewDependency(from PrimitiveNode, to PrimitiveNode, we
 	e := pg.g.NewWeightedEdge(from, to, weight)
 	pg.g.SetWeightedEdge(e)
 }
-
-func SingletonPrimitiveGraph(pr primitive.IPrimitive) *PrimitiveGraph {
-	gr := NewPrimitiveGraph(1)
-	gr.CreatePrimitiveNode(pr)
-	return gr
-}
