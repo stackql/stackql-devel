@@ -45,6 +45,13 @@ func (hap HTTPArmouryParameters) ToFlatMap() (map[string]interface{}, error) {
 	return make(map[string]interface{}), nil
 }
 
+func (hap HTTPArmouryParameters) SetNextPage() (map[string]interface{}, error) {
+	if hap.Parameters != nil {
+		return hap.Parameters.ToFlatMap()
+	}
+	return make(map[string]interface{}), nil
+}
+
 type HTTPArmoury struct {
 	RequestParams  []HTTPArmouryParameters
 	RequestSchema  *openapistackql.Schema

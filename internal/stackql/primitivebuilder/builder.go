@@ -424,8 +424,8 @@ func (ss *SingleSelectAcquire) Build() error {
 		for _, reqCtx := range ss.tableMeta.HttpArmoury.RequestParams {
 			response, apiErr := httpmiddleware.HttpApiCallFromRequest(*(ss.handlerCtx), prov, reqCtx.Request.Clone(reqCtx.Request.Context()))
 			housekeepingDone := false
-			npt := prov.InferNextPageResponseElement(ss.tableMeta.HeirarchyObjects.Method)
-			nptKey := prov.InferNextPageRequestElement(ss.tableMeta.HeirarchyObjects.Method)
+			npt := prov.InferNextPageResponseElement(ss.tableMeta.HeirarchyObjects.Heirarchy)
+			nptKey := prov.InferNextPageRequestElement(ss.tableMeta.HeirarchyObjects.Heirarchy)
 			for {
 				if apiErr != nil {
 					return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, nil, nil, ss.rowSort, apiErr, nil))

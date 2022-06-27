@@ -390,14 +390,14 @@ func (gp *GenericProvider) InferMaxResultsElement(*openapistackql.OperationStore
 	}
 }
 
-func (gp *GenericProvider) InferNextPageRequestElement(*openapistackql.OperationStore) *dto.HTTPElement {
+func (gp *GenericProvider) InferNextPageRequestElement(dto.Heirarchy) *dto.HTTPElement {
 	return &dto.HTTPElement{
 		Type: dto.QueryParam,
 		Name: "pageToken",
 	}
 }
 
-func (gp *GenericProvider) InferNextPageResponseElement(*openapistackql.OperationStore) *dto.HTTPElement {
+func (gp *GenericProvider) InferNextPageResponseElement(ho dto.Heirarchy) *dto.HTTPElement {
 	return &dto.HTTPElement{
 		Type: dto.BodyAttribute,
 		Name: "nextPageToken",
