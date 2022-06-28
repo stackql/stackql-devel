@@ -8,7 +8,7 @@
       "path": "/repos/dummyorg/dummyapp.io/tags"
     },
     "httpResponseTemplate": {
-      "template": "#set($thisPage = \"#if($!request.queryStringParameters.page[0])$!request.queryStringParameters.page[0]#{else}1#end\") \n#set($maxPage = 20) \n#set($Integer = 0) \n#set($nextPage = $Integer.parseInt($thisPage) + 1) \n{ 'statusCode': 200, 'headers': { 'Datetime': [ $!now_iso_8601 ], Next-Page: [ '$!request.queryStringParameters.page[0]' ], Calc-Page: [ '$!thisPage', '$!nextPage' ], Link: [ #if(($nextPage) && ($nextPage < $maxPage)) '<https://localhost:1093/repositories/000000001/tags?page=$!nextPage>; rel=\"next\"', #end '<https://localhost:1093/repositories/000000001/tags?page=$!maxPage>; rel=\"last\"' ] }, 'body': { \"method\": \"yo-$!request.method\", 'path': '$!request.path', 'body': { 'a': 'b' } } }",
+      "template": "#set($thisPage = \"#if($!request.queryStringParameters.page[0])$!request.queryStringParameters.page[0]#{else}1#end\") \n#set($maxPage = 20) \n#set($Integer = 0) \n#set($nextPage = $Integer.parseInt($thisPage) + 1) \n{ 'statusCode': 200, 'headers': { 'Datetime': [ $!now_iso_8601 ], Next-Page: [ '$!request.queryStringParameters.page[0]' ], Calc-Page: [ '$!thisPage', '$!nextPage' ], Link: [ #if(($nextPage) && ($nextPage < $maxPage)) '<https://localhost:1093/repositories/000000001/tags?page=$!nextPage>; rel=\"next\"', #end '<https://localhost:1093/repositories/000000001/tags?page=$!maxPage>; rel=\"last\"' ] }, 'body': { \"method\": \"yo-$!request.method\", 'path': '${request.path}-some-path', 'body': { 'a': 'b' } } }",
       "templateType": "VELOCITY"
     }
   },
