@@ -1,4 +1,17 @@
-[
+[  
+  {
+    "httpRequest": {
+      "headers": {
+        "accept": [ "application/json" ]
+      },
+      "method": "GET",
+      "path": "/repos/dummyorg/dummyapp.io/tags"
+    },
+    "httpResponseTemplate": {
+      "template": "{ 'statusCode': 200, 'headers': { 'Datetime': [ '$!now_iso_8601' ], Link: [ '<https://localhost:1093/repositories/000000001/tags?page=$!request.queryParameters.page>; rel=\"next\"', '<https://localhost:1093/repositories/000000001/tags?page=20>; rel=\"last\"' ] }, 'body': { 'method': '$!request.method', 'path': '$!request.path', 'body': { 'a': 'b' } } }",
+      "templateType": "VELOCITY"
+    }
+  },
   {
     "httpRequest": {
       "headers": {
