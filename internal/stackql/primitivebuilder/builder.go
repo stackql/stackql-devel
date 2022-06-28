@@ -496,11 +496,11 @@ func (ss *SingleSelectAcquire) Build() error {
 				if tk == "" {
 					break
 				}
-				err = reqCtx.SetNextPage(tk, nptKey)
+				req, err := reqCtx.SetNextPage(tk, nptKey)
 				if err != nil {
 					return dto.NewErroneousExecutorOutput(err)
 				}
-				response, apiErr = httpmiddleware.HttpApiCallFromRequest(*(ss.handlerCtx), prov, reqCtx.Request)
+				response, apiErr = httpmiddleware.HttpApiCallFromRequest(*(ss.handlerCtx), prov, req)
 			}
 			if reqCtx.Request != nil {
 				q := reqCtx.Request.URL.Query()

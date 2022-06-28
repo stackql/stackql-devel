@@ -46,22 +46,23 @@ func (hap HTTPArmouryParameters) ToFlatMap() (map[string]interface{}, error) {
 	return make(map[string]interface{}), nil
 }
 
-func (hap HTTPArmouryParameters) SetNextPage(token string, tokenKey *dto.HTTPElement) error {
+func (hap HTTPArmouryParameters) SetNextPage(token string, tokenKey *dto.HTTPElement) (*http.Request, error) {
+	rv := hap.Request.Clone(hap.Request.Context())
 	switch tokenKey.Type {
 	case dto.QueryParam:
 		q := hap.Request.URL.Query()
 		q.Set(tokenKey.Name, token)
-		hap.Request.URL.RawQuery = q.Encode()
-		return nil
+		rv.URL.RawQuery = q.Encode()
+		return rv, nil
 	case dto.RequestString:
 		u, err := url.Parse(token)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		hap.Request.URL = u
-		return nil
+		rv.URL = u
+		return rv, nil
 	default:
-		return fmt.Errorf("cannot accomodate pagaination for http element type = %+v", tokenKey.Type)
+		return nil, fmt.Errorf("cannot accomodate pagaination for http element type = %+v", tokenKey.Type)
 	}
 }
 

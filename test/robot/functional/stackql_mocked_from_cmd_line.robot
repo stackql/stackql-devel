@@ -181,6 +181,17 @@ GitHub Branch Names Paginated Select
     ...    ${SELECT_GITHUB_BRANCHES_NAMES_DESC}
     ...    ${SELECT_GITHUB_BRANCHES_NAMES_DESC_EXPECTED}
 
+GitHub Tags Paginated Count
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SELECT_GITHUB_TAGS_COUNT}
+    ...    ${SELECT_GITHUB_TAGS_COUNT_EXPECTED}
+
 GitHub Repository IDs Select
     Should StackQL Exec Inline Equal
     ...    ${STACKQL_EXE}
