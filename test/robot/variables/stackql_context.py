@@ -195,6 +195,7 @@ PSQL_UNENCRYPTED_CONN_STR :str = f"host={PSQL_CLIENT_HOST} port={PG_SRV_PORT_UNE
 SELECT_CONTAINER_SUBNET_AGG_DESC = "select ipCidrRange, sum(5) cc  from  google.container.`projects.aggregated.usableSubnetworks` where projectsId = 'testing-project' group by \"ipCidrRange\" having sum(5) >= 5 order by ipCidrRange desc;"
 SELECT_CONTAINER_SUBNET_AGG_ASC = "select ipCidrRange, sum(5) cc  from  google.container.`projects.aggregated.usableSubnetworks` where projectsId = 'testing-project' group by \"ipCidrRange\" having sum(5) >= 5 order by ipCidrRange asc;"
 SELECT_ACCELERATOR_TYPES_DESC = "select  kind, name  from  google.compute.acceleratorTypes where project = 'testing-project' and zone = 'australia-southeast1-a' order by name desc;"
+SELECT_MACHINE_TYPES_DESC = "select name from google.compute.machineTypes where project = 'testing-project' and zone = 'australia-southeast1-a' order by name desc;"
 
 SELECT_AWS_VOLUMES = "select VolumeId, Encrypted, Size from aws.ec2.volumes where region = 'ap-southeast-1' order by VolumeId asc;"
 CREATE_AWS_VOLUME = "insert into aws.ec2.volumes(AvailabilityZone, Size, region) select 'ap-southeast-1a', 10, 'ap-southeast-1';"
@@ -229,6 +230,8 @@ SELECT_CONTRIVED_GCP_GITHUB_JSON_DEPENDENT_JOIN = "SELECT i.name as instance_nam
 SELECT_CONTRIVED_GCP_GITHUB_JSON_DEPENDENT_JOIN_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'joins', 'inner', 'gcp-github-labelled-instances-commits.txt'))
 
 SELECT_ACCELERATOR_TYPES_DESC_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'simple-select', 'compute-accelerator-type', 'select-zone-list-desc.txt'))
+
+SELECT_MACHINE_TYPES_DESC_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'google', 'compute', 'instance-type-list-names-paginated-desc.txt'))
 
 SELECT_OKTA_APPS_ASC_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'simple-select', 'okta', 'apps', 'select-apps-asc.txt'))
 
