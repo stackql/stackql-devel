@@ -66,10 +66,48 @@ func (hap HTTPArmouryParameters) SetNextPage(token string, tokenKey *dto.HTTPEle
 	}
 }
 
-type HTTPArmoury struct {
+type HTTPArmoury interface {
+	AddRequestParams(HTTPArmouryParameters)
+	GetRequestParams() []HTTPArmouryParameters
+	GetRequestSchema() *openapistackql.Schema
+	GetResponseSchema() *openapistackql.Schema
+	SetRequestParams([]HTTPArmouryParameters)
+	SetRequestSchema(*openapistackql.Schema)
+	SetResponseSchema(*openapistackql.Schema)
+}
+
+type IHTTPArmoury struct {
 	RequestParams  []HTTPArmouryParameters
 	RequestSchema  *openapistackql.Schema
 	ResponseSchema *openapistackql.Schema
+}
+
+func (ih *IHTTPArmoury) GetRequestParams() []HTTPArmouryParameters {
+	return ih.RequestParams
+}
+
+func (ih *IHTTPArmoury) SetRequestParams(ps []HTTPArmouryParameters) {
+	ih.RequestParams = ps
+}
+
+func (ih *IHTTPArmoury) AddRequestParams(p HTTPArmouryParameters) {
+	ih.RequestParams = append(ih.RequestParams, p)
+}
+
+func (ih *IHTTPArmoury) SetRequestSchema(s *openapistackql.Schema) {
+	ih.RequestSchema = s
+}
+
+func (ih *IHTTPArmoury) SetResponseSchema(s *openapistackql.Schema) {
+	ih.ResponseSchema = s
+}
+
+func (ih *IHTTPArmoury) GetRequestSchema() *openapistackql.Schema {
+	return ih.RequestSchema
+}
+
+func (ih *IHTTPArmoury) GetResponseSchema() *openapistackql.Schema {
+	return ih.ResponseSchema
 }
 
 func NewHTTPArmouryParameters() HTTPArmouryParameters {
@@ -79,10 +117,10 @@ func NewHTTPArmouryParameters() HTTPArmouryParameters {
 }
 
 func NewHTTPArmoury() HTTPArmoury {
-	return HTTPArmoury{}
+	return &IHTTPArmoury{}
 }
 
-func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, prov provider.IProvider, m *openapistackql.OperationStore, svc *openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext *ExecContext) (*HTTPArmoury, error) {
+func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, prov provider.IProvider, m *openapistackql.OperationStore, svc *openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext *ExecContext) (HTTPArmoury, error) {
 	var err error
 	httpArmoury := NewHTTPArmoury()
 	var requestSchema, responseSchema *openapistackql.Schema
@@ -92,8 +130,8 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 	if m.Response != nil && m.Response.Schema != nil {
 		responseSchema = m.Response.Schema
 	}
-	httpArmoury.RequestSchema = requestSchema
-	httpArmoury.ResponseSchema = responseSchema
+	httpArmoury.SetRequestSchema(requestSchema)
+	httpArmoury.SetResponseSchema(responseSchema)
 	paramMap, err := util.ExtractSQLNodeParams(node, insertValOnlyRows)
 	if err != nil {
 		return nil, err
@@ -128,9 +166,10 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 			}
 		}
 		pm.Parameters = params
-		httpArmoury.RequestParams = append(httpArmoury.RequestParams, pm)
+		httpArmoury.AddRequestParams(pm)
 	}
-	for i, param := range httpArmoury.RequestParams {
+	secondPassParams := httpArmoury.GetRequestParams()
+	for i, param := range secondPassParams {
 		p := param
 		if len(p.Parameters.RequestBody) == 0 {
 			p.Parameters.RequestBody = nil
@@ -160,12 +199,13 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 			// handlerCtx.OutErrFile.Write([]byte(fmt.Sprintln(fmt.Sprintf("http request url: %s", url))))
 		}
 		log.Infoln(fmt.Sprintf("post transform: httpArmoury.RequestParams[%d] = %s", i, string(p.BodyBytes)))
-		httpArmoury.RequestParams[i] = p
+		secondPassParams[i] = p
 	}
+	httpArmoury.SetRequestParams(secondPassParams)
 	if err != nil {
 		return nil, err
 	}
-	return &httpArmoury, nil
+	return httpArmoury, nil
 }
 
 func awsContextHousekeeping(ctx context.Context, svc *openapistackql.Service, parameters map[string]interface{}) context.Context {
@@ -193,7 +233,7 @@ func getRequest(svc *openapistackql.Service, method *openapistackql.OperationSto
 	return request, nil
 }
 
-func BuildHTTPRequestCtxFromAnnotation(handlerCtx *handler.HandlerContext, parameters map[string]interface{}, prov provider.IProvider, m *openapistackql.OperationStore, svc *openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext *ExecContext) (*HTTPArmoury, error) {
+func BuildHTTPRequestCtxFromAnnotation(handlerCtx *handler.HandlerContext, parameters map[string]interface{}, prov provider.IProvider, m *openapistackql.OperationStore, svc *openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext *ExecContext) (HTTPArmoury, error) {
 	var err error
 	httpArmoury := NewHTTPArmoury()
 	var requestSchema, responseSchema *openapistackql.Schema
@@ -203,8 +243,8 @@ func BuildHTTPRequestCtxFromAnnotation(handlerCtx *handler.HandlerContext, param
 	if m.Response != nil && m.Response.Schema != nil {
 		responseSchema = m.Response.Schema
 	}
-	httpArmoury.RequestSchema = requestSchema
-	httpArmoury.ResponseSchema = responseSchema
+	httpArmoury.SetRequestSchema(requestSchema)
+	httpArmoury.SetResponseSchema(responseSchema)
 	paramMap := map[int]map[string]interface{}{0: parameters}
 	paramList, err := requests.SplitHttpParameters(prov, paramMap, m)
 	if err != nil {
@@ -236,9 +276,10 @@ func BuildHTTPRequestCtxFromAnnotation(handlerCtx *handler.HandlerContext, param
 			}
 		}
 		pm.Parameters = params
-		httpArmoury.RequestParams = append(httpArmoury.RequestParams, pm)
+		httpArmoury.AddRequestParams(pm)
 	}
-	for i, param := range httpArmoury.RequestParams {
+	secondPassParams := httpArmoury.GetRequestParams()
+	for i, param := range secondPassParams {
 		p := param
 		if len(p.Parameters.RequestBody) == 0 {
 			p.Parameters.RequestBody = nil
@@ -261,10 +302,11 @@ func BuildHTTPRequestCtxFromAnnotation(handlerCtx *handler.HandlerContext, param
 			// handlerCtx.OutErrFile.Write([]byte(fmt.Sprintln(fmt.Sprintf("http request url: %s", url))))
 		}
 		log.Infoln(fmt.Sprintf("post transform: httpArmoury.RequestParams[%d] = %s", i, string(p.BodyBytes)))
-		httpArmoury.RequestParams[i] = p
+		secondPassParams[i] = p
 	}
+	httpArmoury.SetRequestParams(secondPassParams)
 	if err != nil {
 		return nil, err
 	}
-	return &httpArmoury, nil
+	return httpArmoury, nil
 }

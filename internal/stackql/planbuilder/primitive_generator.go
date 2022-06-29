@@ -471,7 +471,7 @@ func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext,
 		var target map[string]interface{}
 
 		var zeroArityExecutors []func() dto.ExecutorOutput
-		for _, r := range httpArmoury.RequestParams {
+		for _, r := range httpArmoury.GetRequestParams() {
 			req := r
 			zeroArityEx := func() dto.ExecutorOutput {
 				// log.Infoln(fmt.Sprintf("req.BodyBytes = %s", string(req.BodyBytes)))
@@ -642,7 +642,7 @@ func (pb *primitiveGenerator) deleteExecutor(handlerCtx *handler.HandlerContext,
 		var target map[string]interface{}
 		var err error
 		keys := make(map[string]map[string]interface{})
-		for _, req := range tbl.HttpArmoury.RequestParams {
+		for _, req := range tbl.HttpArmoury.GetRequestParams() {
 			response, apiErr := httpmiddleware.HttpApiCallFromRequest(*handlerCtx, prov, req.Request)
 			if apiErr != nil {
 				return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil))
@@ -744,7 +744,7 @@ func (pb *primitiveGenerator) execExecutor(handlerCtx *handler.HandlerContext, n
 		var err error
 		var columnOrder []string
 		keys := make(map[string]map[string]interface{})
-		for i, req := range tbl.HttpArmoury.RequestParams {
+		for i, req := range tbl.HttpArmoury.GetRequestParams() {
 			response, apiErr := httpmiddleware.HttpApiCallFromRequest(*handlerCtx, prov, req.Request)
 			if apiErr != nil {
 				return util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil))

@@ -159,7 +159,7 @@ type ExtendedTableMetadata struct {
 	HeirarchyObjects    *HeirarchyObjects
 	RequiredParameters  map[string]openapistackql.Parameter
 	IsLocallyExecutable bool
-	HttpArmoury         *httpbuild.HTTPArmoury
+	HttpArmoury         httpbuild.HTTPArmoury
 	SelectItemsKey      string
 	Alias               string
 }
@@ -296,7 +296,7 @@ func (ex ExtendedTableMetadata) GetMethodStr() (string, error) {
 	return ex.HeirarchyObjects.HeirarchyIds.MethodStr, nil
 }
 
-func (ex ExtendedTableMetadata) GetHTTPArmoury() (*httpbuild.HTTPArmoury, error) {
+func (ex ExtendedTableMetadata) GetHTTPArmoury() (httpbuild.HTTPArmoury, error) {
 	return ex.HttpArmoury, nil
 }
 
