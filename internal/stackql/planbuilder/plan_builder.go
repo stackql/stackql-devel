@@ -33,7 +33,7 @@ func isPlanCacheEnabled() bool {
 	return strings.ToLower(PlanCacheEnabled) != "false"
 }
 
-type PlanBuilderInput struct {
+type IPlanBuilderInput struct {
 	handlerCtx             *handler.HandlerContext
 	stmt                   sqlparser.SQLNode
 	colRefs                parserutil.ColTableMap
@@ -52,7 +52,7 @@ func NewPlanBuilderInput(
 	colRefs parserutil.ColTableMap,
 	paramsPlaceheld parserutil.ParameterMap,
 ) PlanBuilderInput {
-	rv := PlanBuilderInput{
+	rv := &IPlanBuilderInput{
 		handlerCtx:             handlerCtx,
 		stmt:                   stmt,
 		tables:                 tables,
@@ -67,92 +67,114 @@ func NewPlanBuilderInput(
 	return rv
 }
 
-func (pbi PlanBuilderInput) GetStatement() sqlparser.SQLNode {
+func (pbi *IPlanBuilderInput) GetStatement() sqlparser.SQLNode {
 	return pbi.stmt
 }
 
-func (pbi PlanBuilderInput) GetPlaceholderParams() parserutil.ParameterMap {
+func (pbi *IPlanBuilderInput) GetPlaceholderParams() parserutil.ParameterMap {
 	return pbi.paramsPlaceheld
 }
 
-func (pbi PlanBuilderInput) GetAssignedAliasedColumns() map[sqlparser.TableName]sqlparser.TableExpr {
+func (pbi *IPlanBuilderInput) GetAssignedAliasedColumns() map[sqlparser.TableName]sqlparser.TableExpr {
 	return pbi.assignedAliasedColumns
 }
 
-func (pbi PlanBuilderInput) GetAliasedTables() parserutil.TableAliasMap {
+func (pbi *IPlanBuilderInput) GetAliasedTables() parserutil.TableAliasMap {
 	return pbi.aliasedTables
 }
 
-func (pbi PlanBuilderInput) GetColRefs() parserutil.ColTableMap {
+func (pbi *IPlanBuilderInput) GetColRefs() parserutil.ColTableMap {
 	return pbi.colRefs
 }
 
-func (pbi PlanBuilderInput) GetTableExprs() sqlparser.TableExprs {
+func (pbi *IPlanBuilderInput) GetTableExprs() sqlparser.TableExprs {
 	return pbi.tables
 }
 
-func (pbi PlanBuilderInput) GetAuth() (*sqlparser.Auth, bool) {
+func (pbi *IPlanBuilderInput) GetAuth() (*sqlparser.Auth, bool) {
 	rv, ok := pbi.stmt.(*sqlparser.Auth)
 	return rv, ok
 }
 
-func (pbi PlanBuilderInput) GetAuthRevoke() (*sqlparser.AuthRevoke, bool) {
+func (pbi *IPlanBuilderInput) GetAuthRevoke() (*sqlparser.AuthRevoke, bool) {
 	rv, ok := pbi.stmt.(*sqlparser.AuthRevoke)
 	return rv, ok
 }
 
-func (pbi PlanBuilderInput) GetDelete() (*sqlparser.Delete, bool) {
+func (pbi *IPlanBuilderInput) GetDelete() (*sqlparser.Delete, bool) {
 	rv, ok := pbi.stmt.(*sqlparser.Delete)
 	return rv, ok
 }
 
-func (pbi PlanBuilderInput) GetDescribeTable() (*sqlparser.DescribeTable, bool) {
+func (pbi *IPlanBuilderInput) GetDescribeTable() (*sqlparser.DescribeTable, bool) {
 	rv, ok := pbi.stmt.(*sqlparser.DescribeTable)
 	return rv, ok
 }
 
-func (pbi PlanBuilderInput) GetExec() (*sqlparser.Exec, bool) {
+func (pbi *IPlanBuilderInput) GetExec() (*sqlparser.Exec, bool) {
 	rv, ok := pbi.stmt.(*sqlparser.Exec)
 	return rv, ok
 }
 
-func (pbi PlanBuilderInput) GetInsert() (*sqlparser.Insert, bool) {
+func (pbi *IPlanBuilderInput) GetInsert() (*sqlparser.Insert, bool) {
 	rv, ok := pbi.stmt.(*sqlparser.Insert)
 	return rv, ok
 }
 
-func (pbi PlanBuilderInput) GetRegistry() (*sqlparser.Registry, bool) {
+func (pbi *IPlanBuilderInput) GetRegistry() (*sqlparser.Registry, bool) {
 	rv, ok := pbi.stmt.(*sqlparser.Registry)
 	return rv, ok
 }
 
-func (pbi PlanBuilderInput) GetSelect() (*sqlparser.Select, bool) {
+func (pbi *IPlanBuilderInput) GetSelect() (*sqlparser.Select, bool) {
 	rv, ok := pbi.stmt.(*sqlparser.Select)
 	return rv, ok
 }
 
-func (pbi PlanBuilderInput) GetShow() (*sqlparser.Show, bool) {
+func (pbi *IPlanBuilderInput) GetShow() (*sqlparser.Show, bool) {
 	rv, ok := pbi.stmt.(*sqlparser.Show)
 	return rv, ok
 }
 
-func (pbi PlanBuilderInput) GetSleep() (*sqlparser.Sleep, bool) {
+func (pbi *IPlanBuilderInput) GetSleep() (*sqlparser.Sleep, bool) {
 	rv, ok := pbi.stmt.(*sqlparser.Sleep)
 	return rv, ok
 }
 
-func (pbi PlanBuilderInput) GetUnion() (*sqlparser.Union, bool) {
+func (pbi *IPlanBuilderInput) GetUnion() (*sqlparser.Union, bool) {
 	rv, ok := pbi.stmt.(*sqlparser.Union)
 	return rv, ok
 }
 
-func (pbi PlanBuilderInput) GetUse() (*sqlparser.Use, bool) {
+func (pbi *IPlanBuilderInput) GetUse() (*sqlparser.Use, bool) {
 	rv, ok := pbi.stmt.(*sqlparser.Use)
 	return rv, ok
 }
 
-func (pbi PlanBuilderInput) GetHandlerCtx() *handler.HandlerContext {
+func (pbi *IPlanBuilderInput) GetHandlerCtx() *handler.HandlerContext {
 	return pbi.handlerCtx
+}
+
+type PlanBuilderInput interface {
+	GetAliasedTables() parserutil.TableAliasMap
+	GetAuth() (*sqlparser.Auth, bool)
+	GetAuthRevoke() (*sqlparser.AuthRevoke, bool)
+	GetAssignedAliasedColumns() map[sqlparser.TableName]sqlparser.TableExpr
+	GetColRefs() parserutil.ColTableMap
+	GetDelete() (*sqlparser.Delete, bool)
+	GetDescribeTable() (*sqlparser.DescribeTable, bool)
+	GetExec() (*sqlparser.Exec, bool)
+	GetHandlerCtx() *handler.HandlerContext
+	GetInsert() (*sqlparser.Insert, bool)
+	GetPlaceholderParams() parserutil.ParameterMap
+	GetRegistry() (*sqlparser.Registry, bool)
+	GetSelect() (*sqlparser.Select, bool)
+	GetShow() (*sqlparser.Show, bool)
+	GetSleep() (*sqlparser.Sleep, bool)
+	GetStatement() sqlparser.SQLNode
+	GetTableExprs() sqlparser.TableExprs
+	GetUnion() (*sqlparser.Union, bool)
+	GetUse() (*sqlparser.Use, bool)
 }
 
 type planGraphBuilder struct {

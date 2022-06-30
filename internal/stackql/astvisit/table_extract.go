@@ -9,6 +9,10 @@ import (
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 )
 
+// First pass on the AST.
+// Extracts:
+//   - parser objects representing tables.
+//   - mapping of string aliases to tables.
 type TableExtractAstVisitor struct {
 	tables      sqlparser.TableExprs
 	tableAiases parserutil.TableAliasMap

@@ -791,7 +791,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 		pbi.GetColRefs(),
 	)
 
-	v := astvisit.NewTableRouteAstVisitor(pbi.handlerCtx, router)
+	v := astvisit.NewTableRouteAstVisitor(pbi.GetHandlerCtx(), router)
 
 	err = v.Visit(pbi.GetStatement())
 
@@ -1032,7 +1032,7 @@ func (p *primitiveGenerator) analyzeInsert(pbi PlanBuilderInput) error {
 	if !ok {
 		return fmt.Errorf("could not cast node of type '%T' to required Insert", pbi.GetStatement())
 	}
-	err := p.inferHeirarchyAndPersist(handlerCtx, node, pbi.paramsPlaceheld.GetStringified())
+	err := p.inferHeirarchyAndPersist(handlerCtx, node, pbi.GetPlaceholderParams().GetStringified())
 	if err != nil {
 		return err
 	}
