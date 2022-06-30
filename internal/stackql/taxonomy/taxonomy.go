@@ -28,6 +28,9 @@ type AnnotationCtx struct {
 	Parameters map[string]interface{}
 }
 
+func (ac AnnotationCtx) LinkParameterValues() {
+}
+
 func (ex ExtendedTableMetadata) LookupSelectItemsKey() string {
 	if ex.HeirarchyObjects == nil {
 		return defaultSelectItemsKEy
@@ -89,6 +92,41 @@ func (ho *HeirarchyObjects) LookupSelectItemsKey() string {
 type TblMap map[sqlparser.SQLNode]*ExtendedTableMetadata
 
 type AnnotationCtxMap map[sqlparser.SQLNode]AnnotationCtx
+
+func (am AnnotationCtxMap) AssignParams() error {
+	rv := make(map[string]interface{})
+	for k, v := range am {
+		for p, pVal := range v.Parameters {
+			switch pVal.(type) {
+			case *sqlparser.ColName:
+			}
+			aliasedName, ok := k.(*sqlparser.AliasedTableExpr)
+			if !ok {
+				continue
+			}
+			tableAlias := aliasedName.As.GetRawVal()
+			nk := fmt.Sprintf("%s.%s", tableAlias, p)
+			rv[nk] = pVal
+		}
+	}
+	return nil
+}
+
+func (am AnnotationCtxMap) GetStringParams() map[string]interface{} {
+	rv := make(map[string]interface{})
+	for k, v := range am {
+		for p, pVal := range v.Parameters {
+			aliasedName, ok := k.(*sqlparser.AliasedTableExpr)
+			if !ok {
+				continue
+			}
+			tableAlias := aliasedName.As.GetRawVal()
+			nk := fmt.Sprintf("%s.%s", tableAlias, p)
+			rv[nk] = pVal
+		}
+	}
+	return rv
+}
 
 type AnnotatedTabulationMap map[sqlparser.SQLNode]util.AnnotatedTabulation
 

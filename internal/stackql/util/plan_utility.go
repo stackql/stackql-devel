@@ -112,6 +112,17 @@ func ExtractSQLNodeParams(statement sqlparser.SQLNode, insertValOnlyRows map[int
 func TransformSQLRawParameters(input map[string]interface{}) (map[string]interface{}, error) {
 	rv := make(map[string]interface{})
 	for k, v := range input {
+		switch v := v.(type) {
+		case *sqlparser.FuncExpr:
+			log.Infof("%v\n", v)
+			continue
+		case parserutil.ParameterMetadata:
+			switch t := v.GetVal().(type) {
+			case *sqlparser.FuncExpr:
+				log.Infof("%v\n", t)
+				continue
+			}
+		}
 		r, err := extractRaw(v)
 		if err != nil {
 			return nil, err

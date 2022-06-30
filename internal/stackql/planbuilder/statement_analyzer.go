@@ -283,9 +283,7 @@ func (pb *primitiveGenerator) traverseWhereFilter(node sqlparser.SQLNode, requir
 		if rhErr != nil {
 			return nil, nil, rhErr
 		}
-		for _, v := range rParams {
-			lParams = append(lParams, v)
-		}
+		lParams = append(lParams, rParams...)
 		return &sqlparser.AndExpr{Left: lhs, Right: rhs}, lParams, nil
 	case *sqlparser.OrExpr:
 		log.Infoln("complex OR expr detected")
@@ -297,9 +295,7 @@ func (pb *primitiveGenerator) traverseWhereFilter(node sqlparser.SQLNode, requir
 		if rhErr != nil {
 			return nil, nil, rhErr
 		}
-		for _, v := range rParams {
-			lParams = append(lParams, v)
-		}
+		lParams = append(lParams, rParams...)
 		return &sqlparser.OrExpr{Left: lhs, Right: rhs}, lParams, nil
 	case *sqlparser.FuncExpr:
 		return nil, nil, fmt.Errorf("unsupported constraint in openapistackql filter: %v", sqlparser.String(node))
@@ -311,7 +307,6 @@ func (pb *primitiveGenerator) traverseWhereFilter(node sqlparser.SQLNode, requir
 	default:
 		return nil, nil, fmt.Errorf("unsupported constraint in openapistackql filter: %v", sqlparser.String(node))
 	}
-	return nil, nil, fmt.Errorf("unsupported constraint in openapistackql filter: %v", sqlparser.String(node))
 }
 
 func (pb *primitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sqlparser.ComparisonExpr, requiredParameters, optionalParameters *suffix.ParameterSuffixMap) (sqlparser.Expr, string, error) {
@@ -422,14 +417,7 @@ func (pb *primitiveGenerator) resolveMethods(where *sqlparser.Where) error {
 	return nil
 }
 
-func (pb *primitiveGenerator) extractParamsFromWhere(where *sqlparser.Where) (map[string]interface{}, error) {
-	if where == nil {
-		return map[string]interface{}{}, nil
-	}
-	return map[string]interface{}{}, nil
-}
-
-func (pb *primitiveGenerator) analyzeWhere(where *sqlparser.Where) (*sqlparser.Where, []string, error) {
+func (pb *primitiveGenerator) analyzeWhere(where *sqlparser.Where, existingParams map[string]interface{}) (*sqlparser.Where, []string, error) {
 	requiredParameters := suffix.NewParameterSuffixMap()
 	remainingRequiredParameters := suffix.NewParameterSuffixMap()
 	optionalParameters := suffix.NewParameterSuffixMap()
@@ -474,6 +462,10 @@ func (pb *primitiveGenerator) analyzeWhere(where *sqlparser.Where) (*sqlparser.W
 
 	for l, w := range requiredParameters.GetAll() {
 		remainingRequiredParameters.Put(l, w)
+	}
+
+	for k := range existingParams {
+		remainingRequiredParameters.Delete(k)
 	}
 
 	if remainingRequiredParameters.Size() > 0 {
@@ -788,9 +780,16 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 	var pChild *primitiveGenerator
 	var err error
 
-	paramMap := astvisit.ExtractParamsFromWhereClause(node.Where)
+	whereParamMap := astvisit.ExtractParamsFromWhereClause(node.Where)
+	onParamMap := astvisit.ExtractParamsFromFromClause(node.From)
 
-	router := parserutil.NewParameterRouter(pbi.GetAliasedTables(), pbi.GetAssignedAliasedColumns(), paramMap, pbi.GetColRefs())
+	router := parserutil.NewParameterRouter(
+		pbi.GetAliasedTables(),
+		pbi.GetAssignedAliasedColumns(),
+		whereParamMap,
+		onParamMap,
+		pbi.GetColRefs(),
+	)
 
 	v := astvisit.NewTableRouteAstVisitor(pbi.handlerCtx, router)
 
@@ -802,6 +801,8 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 
 	tblz := v.GetTableMap()
 	annotations := v.GetAnnotations()
+	annotations.AssignParams()
+	existingParams := annotations.GetStringParams()
 	colRefs := pbi.GetColRefs()
 
 	for k, v := range tblz {
@@ -879,7 +880,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 		case *sqlparser.ExecSubquery:
 			log.Infoln(fmt.Sprintf("%v", ft))
 		default:
-			rewrittenWhere, paramsPresent, err = p.analyzeWhere(node.Where)
+			rewrittenWhere, paramsPresent, err = p.analyzeWhere(node.Where, existingParams)
 			if err != nil {
 				return err
 			}
@@ -897,24 +898,24 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 			var secondaryTccs []*dto.TxnControlCounters
 			var tableSlice []*taxonomy.ExtendedTableMetadata
 			discoGenIDs := make(map[sqlparser.SQLNode]int)
-			for k, v := range annotations {
-				pr, err := v.TableMeta.GetProvider()
+			for k, va := range annotations {
+				pr, err := va.TableMeta.GetProvider()
 				if err != nil {
 					return err
 				}
-				prov, err := v.TableMeta.GetProviderObject()
+				prov, err := va.TableMeta.GetProviderObject()
 				if err != nil {
 					return err
 				}
-				svc, err := v.TableMeta.GetService()
+				svc, err := va.TableMeta.GetService()
 				if err != nil {
 					return err
 				}
-				m, err := v.TableMeta.GetMethod()
+				m, err := va.TableMeta.GetMethod()
 				if err != nil {
 					return err
 				}
-				tab := v.Schema.Tabulate(false)
+				tab := va.Schema.Tabulate(false)
 				_, mediaType, err := m.GetResponseBodySchemaAndMediaType()
 				if err != nil {
 					return err
@@ -923,7 +924,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				case media.MediaTypeTextXML, media.MediaTypeXML:
 					tab = tab.RenameColumnsToXml()
 				}
-				anTab := util.NewAnnotatedTabulation(tab, v.HIDs, v.TableMeta.Alias)
+				anTab := util.NewAnnotatedTabulation(tab, va.HIDs, va.TableMeta.Alias)
 
 				discoGenId, err := docparser.OpenapiStackQLTabulationsPersistor(prov, svc, []util.AnnotatedTabulation{anTab}, p.PrimitiveBuilder.GetSQLEngine(), prov.Name)
 				if err != nil {
@@ -931,7 +932,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				}
 				discoGenIDs[k] = discoGenId
 				// router.GetAvailableParameters()
-				parametersCleaned, err := util.TransformSQLRawParameters(v.Parameters)
+				parametersCleaned, err := util.TransformSQLRawParameters(va.Parameters)
 				if err != nil {
 					return err
 				}
@@ -939,8 +940,8 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				if err != nil {
 					return err
 				}
-				v.TableMeta.HttpArmoury = httpArmoury
-				tableDTO, err := p.PrimitiveBuilder.GetDRMConfig().GetCurrentTable(v.HIDs, handlerCtx.SQLEngine)
+				va.TableMeta.HttpArmoury = httpArmoury
+				tableDTO, err := p.PrimitiveBuilder.GetDRMConfig().GetCurrentTable(va.HIDs, handlerCtx.SQLEngine)
 				if err != nil {
 					return err
 				}
@@ -956,9 +957,9 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				if err != nil {
 					return err
 				}
-				builder := primitivebuilder.NewSingleSelectAcquire(p.PrimitiveBuilder.GetGraph(), handlerCtx, v.TableMeta, insPsc, nil)
+				builder := primitivebuilder.NewSingleSelectAcquire(p.PrimitiveBuilder.GetGraph(), handlerCtx, va.TableMeta, insPsc, nil)
 				execSlice = append(execSlice, builder)
-				tableSlice = append(tableSlice, v.TableMeta)
+				tableSlice = append(tableSlice, va.TableMeta)
 			}
 			rewrittenWhereStr := astvisit.GenerateModifiedWhereClause(rewrittenWhere)
 			log.Debugf("rewrittenWhereStr = '%s'", rewrittenWhereStr)
@@ -1154,7 +1155,7 @@ func (p *primitiveGenerator) analyzeDelete(pbi PlanBuilderInput) error {
 		log.Infof("no response schema for delete: %s \n", err.Error())
 	}
 	if schema != nil {
-		_, _, whereErr := p.analyzeWhere(node.Where)
+		_, _, whereErr := p.analyzeWhere(node.Where, make(map[string]interface{}))
 		if whereErr != nil {
 			return whereErr
 		}

@@ -163,7 +163,6 @@
         "select id, name from github.repos.repos where org = 'stackql' and name = 'cloudy-redirect-app';"
       ],
     },
-    // select u.name, u.login, u.two_factor_authentication AS is_two_fa_enabled from github.orgs.members om inner join github.users.users u on om.login = u.login AND u.username = u.login where om.org = 'stackql';
     {
       "name": "DEBUG join ON param... ;",
       "type": "go",
@@ -174,7 +173,7 @@
         "exec",
         "--registry=${input:registryString}",
         "--auth=${input:authString}",
-        "select u.name, u.login, u.two_factor_authentication AS is_two_fa_enabled from github.orgs.members om inner join github.users.users u on om.login = u.login AND u.username = u.login where om.org = 'stackql';"
+        "select u.name, u.login, u.two_factor_authentication AS is_two_fa_enabled from github.orgs.members om inner join github.users.users u on om.login = u.login AND u.username = om.login where om.org = 'stackql';"
       ],
     },
     {

@@ -16,14 +16,14 @@ import (
 
 type TableRouteAstVisitor struct {
 	handlerCtx      *handler.HandlerContext
-	router          *parserutil.ParameterRouter
+	router          parserutil.ParameterRouter
 	tableMetaSlice  []*taxonomy.ExtendedTableMetadata
 	tables          taxonomy.TblMap
 	annotations     taxonomy.AnnotationCtxMap
 	annotationSlice []taxonomy.AnnotationCtx
 }
 
-func NewTableRouteAstVisitor(handlerCtx *handler.HandlerContext, router *parserutil.ParameterRouter) *TableRouteAstVisitor {
+func NewTableRouteAstVisitor(handlerCtx *handler.HandlerContext, router parserutil.ParameterRouter) *TableRouteAstVisitor {
 	return &TableRouteAstVisitor{
 		handlerCtx:  handlerCtx,
 		router:      router,
@@ -486,8 +486,6 @@ func (v *TableRouteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			if err != nil {
 				return err
 			}
-
-			// node.Expr.Accept(v)
 		}
 		if node.Partitions != nil {
 			node.Partitions.Accept(v)

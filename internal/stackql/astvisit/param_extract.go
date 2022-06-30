@@ -625,6 +625,7 @@ func (v *ParamAstVisitor) Visit(node sqlparser.SQLNode) error {
 	case *sqlparser.JoinTableExpr:
 		node.LeftExpr.Accept(v)
 		node.LeftExpr.Accept(v)
+		node.Condition.On.Accept(v)
 		buf.AstPrintf(node, "%v %s %v%v", node.LeftExpr, node.Join, node.RightExpr, node.Condition)
 
 	case *sqlparser.IndexHints:
@@ -690,6 +691,23 @@ func (v *ParamAstVisitor) Visit(node sqlparser.SQLNode) error {
 				v.params.Set(k, parserutil.NewComparisonParameterMetadata(
 					node,
 					rt,
+				))
+			case *sqlparser.ColName:
+				k, err := parserutil.NewColumnarReference(lt)
+				if err != nil {
+					return err
+				}
+				v.params.Set(k, parserutil.NewComparisonParameterMetadata(
+					node,
+					rt,
+				))
+				kr, err := parserutil.NewColumnarReference(rt)
+				if err != nil {
+					return err
+				}
+				v.params.Set(kr, parserutil.NewComparisonParameterMetadata(
+					node,
+					lt,
 				))
 			default:
 			}
