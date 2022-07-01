@@ -50,7 +50,7 @@ func (ss *SingleSelect) Build() error {
 		return prepareGolangResult(ss.handlerCtx.SQLEngine, ss.handlerCtx.OutErrFile, drm.NewPreparedStatementParameterized(ss.selectPreparedStatementCtx, nil, true), ss.selectPreparedStatementCtx.GetNonControlColumns(), ss.drmCfg)
 	}
 	graph := ss.graph
-	selectNode := graph.CreatePrimitiveNode(NewLocalPrimitive(selectEx))
+	selectNode := graph.CreatePrimitiveNode(primitive.NewLocalPrimitive(selectEx))
 	ss.root = selectNode
 
 	return nil

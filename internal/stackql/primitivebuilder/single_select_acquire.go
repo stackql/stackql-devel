@@ -174,7 +174,7 @@ func (ss *SingleSelectAcquire) Build() error {
 	prep := func() *drm.PreparedStatementCtx {
 		return ss.insertPreparedStatementCtx
 	}
-	insertPrim := NewHTTPRestPrimitive(
+	insertPrim := primitive.NewHTTPRestPrimitive(
 		prov,
 		ex,
 		prep,

@@ -2,6 +2,7 @@ package primitivebuilder
 
 import (
 	"github.com/stackql/stackql/internal/stackql/dto"
+	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 )
@@ -33,7 +34,7 @@ func (db *DiamondBuilder) Build() error {
 			return err
 		}
 	}
-	db.root = db.graph.CreatePrimitiveNode(NewPassThroughPrimitive(db.sqlEngine, db.graph.GetTxnControlCounterSlice(), false))
+	db.root = db.graph.CreatePrimitiveNode(primitive.NewPassThroughPrimitive(db.sqlEngine, db.graph.GetTxnControlCounterSlice(), false))
 	if db.parentBuilder != nil {
 		err := db.parentBuilder.Build()
 		if err != nil {
@@ -42,7 +43,7 @@ func (db *DiamondBuilder) Build() error {
 		db.tailRoot = db.parentBuilder.GetRoot()
 		db.tailTail = db.parentBuilder.GetTail()
 	} else {
-		db.tailRoot = db.graph.CreatePrimitiveNode(NewPassThroughPrimitive(db.sqlEngine, db.graph.GetTxnControlCounterSlice(), db.shouldCollectGarbage))
+		db.tailRoot = db.graph.CreatePrimitiveNode(primitive.NewPassThroughPrimitive(db.sqlEngine, db.graph.GetTxnControlCounterSlice(), db.shouldCollectGarbage))
 		db.tailTail = db.tailRoot
 	}
 	for _, child := range db.children {

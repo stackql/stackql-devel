@@ -30,7 +30,7 @@ func (un *Union) Build() error {
 		return prepareGolangResult(un.handlerCtx.SQLEngine, un.handlerCtx.OutErrFile, us, un.lhs.GetNonControlColumns(), un.drmCfg)
 	}
 	graph := un.graph
-	unionNode := graph.CreatePrimitiveNode(NewLocalPrimitive(unionEx))
+	unionNode := graph.CreatePrimitiveNode(primitive.NewLocalPrimitive(unionEx))
 	un.root = unionNode
 	return nil
 }

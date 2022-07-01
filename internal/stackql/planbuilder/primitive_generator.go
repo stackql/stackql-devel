@@ -37,7 +37,7 @@ import (
 type primitiveGenerator struct {
 	Parent           *primitiveGenerator
 	Children         []*primitiveGenerator
-	PrimitiveBuilder *primitivebuilder.PrimitiveBuilder
+	PrimitiveBuilder primitivebuilder.PrimitiveBuilder
 }
 
 func newRootPrimitiveGenerator(ast sqlparser.SQLNode, handlerCtx *handler.HandlerContext, graph *primitivegraph.PrimitiveGraph) *primitiveGenerator {
@@ -441,7 +441,7 @@ func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext,
 	if err != nil {
 		return nil, err
 	}
-	insertPrimitive := primitivebuilder.NewHTTPRestPrimitive(
+	insertPrimitive := primitive.NewHTTPRestPrimitive(
 		prov,
 		nil,
 		nil,
@@ -535,7 +535,7 @@ func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext,
 		}
 		for _, eI := range zeroArityExecutors {
 			execInstance := eI
-			dependentInsertPrimitive := primitivebuilder.NewHTTPRestPrimitive(
+			dependentInsertPrimitive := primitive.NewHTTPRestPrimitive(
 				prov,
 				nil,
 				nil,
@@ -566,7 +566,7 @@ func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext,
 }
 
 func (pb *primitiveGenerator) localSelectExecutor(handlerCtx *handler.HandlerContext, node *sqlparser.Select, rowSort func(map[string]map[string]interface{}) []string) (primitive.IPrimitive, error) {
-	return primitivebuilder.NewLocalPrimitive(
+	return primitive.NewLocalPrimitive(
 		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 			var columnOrder []string
 			keys := make(map[string]map[string]interface{})
@@ -594,7 +594,7 @@ func (pb *primitiveGenerator) localSelectExecutor(handlerCtx *handler.HandlerCon
 }
 
 func (pb *primitiveGenerator) insertableValsExecutor(handlerCtx *handler.HandlerContext, vals map[int]map[int]interface{}) (primitive.IPrimitive, error) {
-	return primitivebuilder.NewLocalPrimitive(
+	return primitive.NewLocalPrimitive(
 		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 			keys := make(map[string]map[string]interface{})
 			row := make(map[string]interface{})
@@ -680,7 +680,7 @@ func (pb *primitiveGenerator) deleteExecutor(handlerCtx *handler.HandlerContext,
 		}
 		return pb.generateResultIfNeededfunc(keys, target, &msgs, err)
 	}
-	deletePrimitive := primitivebuilder.NewHTTPRestPrimitive(
+	deletePrimitive := primitive.NewHTTPRestPrimitive(
 		prov,
 		ex,
 		nil,
@@ -786,7 +786,7 @@ func (pb *primitiveGenerator) execExecutor(handlerCtx *handler.HandlerContext, n
 		}
 		return pb.generateResultIfNeededfunc(keys, target, &msgs, err)
 	}
-	execPrimitive := primitivebuilder.NewHTTPRestPrimitive(
+	execPrimitive := primitive.NewHTTPRestPrimitive(
 		prov,
 		ex,
 		nil,

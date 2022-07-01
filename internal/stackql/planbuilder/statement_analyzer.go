@@ -1265,7 +1265,7 @@ func (p *primitiveGenerator) analyzeSleep(pbi PlanBuilderInput) error {
 	graph := p.PrimitiveBuilder.GetGraph()
 	p.PrimitiveBuilder.SetRoot(
 		graph.CreatePrimitiveNode(
-			primitivebuilder.NewLocalPrimitive(
+			primitive.NewLocalPrimitive(
 				func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 					time.Sleep(time.Duration(sleepDuration) * time.Millisecond)
 					msgs := dto.BackendMessages{

@@ -15,7 +15,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/plan"
 	"github.com/stackql/stackql/internal/stackql/primitive"
-	"github.com/stackql/stackql/internal/stackql/primitivebuilder"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/util"
 
@@ -272,7 +271,7 @@ func (pgb *planGraphBuilder) handleAuth(pbi PlanBuilderInput) error {
 	if authErr != nil {
 		return authErr
 	}
-	pr := primitivebuilder.NewMetaDataPrimitive(
+	pr := primitive.NewMetaDataPrimitive(
 		prov,
 		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 			authType := strings.ToLower(node.Type)
@@ -309,7 +308,7 @@ func (pgb *planGraphBuilder) handleAuthRevoke(pbi PlanBuilderInput) error {
 	if authErr != nil {
 		return authErr
 	}
-	pr := primitivebuilder.NewMetaDataPrimitive(
+	pr := primitive.NewMetaDataPrimitive(
 		prov,
 		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 			return dto.NewExecutorOutput(nil, nil, nil, nil, prov.AuthRevoke(authCtx))
@@ -339,7 +338,7 @@ func (pgb *planGraphBuilder) handleDescribe(pbi PlanBuilderInput) error {
 	}
 	var extended bool = strings.TrimSpace(strings.ToUpper(node.Extended)) == "EXTENDED"
 	var full bool = strings.TrimSpace(strings.ToUpper(node.Full)) == "FULL"
-	pr := primitivebuilder.NewMetaDataPrimitive(
+	pr := primitive.NewMetaDataPrimitive(
 		prov,
 		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 			return primitiveGenerator.describeInstructionExecutor(handlerCtx, md, extended, full)
@@ -385,7 +384,7 @@ func (pgb *planGraphBuilder) handleSelect(pbi PlanBuilderInput) (*primitivegraph
 		tail := builder.GetTail()
 		return &root, &tail, nil
 	}
-	pr := primitivebuilder.NewLocalPrimitive(nil)
+	pr := primitive.NewLocalPrimitive(nil)
 	rv := pgb.planGraph.CreatePrimitiveNode(pr)
 	return &rv, &rv, nil
 }
@@ -438,7 +437,7 @@ func (pgb *planGraphBuilder) handleDelete(pbi PlanBuilderInput) error {
 		pgb.planGraph.CreatePrimitiveNode(pr)
 		return nil
 	} else {
-		pr := primitivebuilder.NewHTTPRestPrimitive(nil, nil, nil, nil)
+		pr := primitive.NewHTTPRestPrimitive(nil, nil, nil, nil)
 		pgb.planGraph.CreatePrimitiveNode(pr)
 		return nil
 	}
@@ -460,7 +459,7 @@ func (pgb *planGraphBuilder) handleRegistry(pbi PlanBuilderInput) error {
 	if err != nil {
 		return err
 	}
-	pr := primitivebuilder.NewLocalPrimitive(
+	pr := primitive.NewLocalPrimitive(
 		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 			switch at := strings.ToLower(node.ActionType); at {
 			case "pull":
@@ -568,7 +567,7 @@ func (pgb *planGraphBuilder) handleInsert(pbi PlanBuilderInput) error {
 		pgb.planGraph.NewDependency(*selectPrimitiveNode, prNode, 1.0)
 		return nil
 	} else {
-		pr := primitivebuilder.NewHTTPRestPrimitive(nil, nil, nil, nil)
+		pr := primitive.NewHTTPRestPrimitive(nil, nil, nil, nil)
 		pgb.planGraph.CreatePrimitiveNode(pr)
 		return nil
 	}
@@ -593,7 +592,7 @@ func (pgb *planGraphBuilder) handleExec(pbi PlanBuilderInput) error {
 		}
 		return nil
 	}
-	pr := primitivebuilder.NewHTTPRestPrimitive(nil, nil, nil, nil)
+	pr := primitive.NewHTTPRestPrimitive(nil, nil, nil, nil)
 	pgb.planGraph.CreatePrimitiveNode(pr)
 	return nil
 }
@@ -609,7 +608,7 @@ func (pgb *planGraphBuilder) handleShow(pbi PlanBuilderInput) error {
 	if err != nil {
 		return err
 	}
-	pr := primitivebuilder.NewMetaDataPrimitive(
+	pr := primitive.NewMetaDataPrimitive(
 		primitiveGenerator.PrimitiveBuilder.GetProvider(),
 		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 			return primitiveGenerator.showInstructionExecutor(node, handlerCtx)
@@ -643,7 +642,7 @@ func (pgb *planGraphBuilder) handleUse(pbi PlanBuilderInput) error {
 	if err != nil {
 		return err
 	}
-	pr := primitivebuilder.NewMetaDataPrimitive(
+	pr := primitive.NewMetaDataPrimitive(
 		primitiveGenerator.PrimitiveBuilder.GetProvider(),
 		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 			handlerCtx.CurrentProvider = node.DBName.GetRawVal()
@@ -654,7 +653,7 @@ func (pgb *planGraphBuilder) handleUse(pbi PlanBuilderInput) error {
 }
 
 func createErroneousPlan(handlerCtx *handler.HandlerContext, qPlan *plan.Plan, rowSort func(map[string]map[string]interface{}) []string, err error) (*plan.Plan, error) {
-	qPlan.Instructions = primitivebuilder.NewLocalPrimitive(func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+	qPlan.Instructions = primitive.NewLocalPrimitive(func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 		return util.PrepareResultSet(
 			dto.PrepareResultSetDTO{
 				OutputBody:  nil,
