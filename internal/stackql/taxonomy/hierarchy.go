@@ -183,6 +183,11 @@ func GetAliasFromStatement(node sqlparser.SQLNode) string {
 	}
 }
 
+// Hierarchy inference function.
+// Returns:
+//   - Hierarchy
+//   - Supplied parameters that are **not** consumed in Hierarchy inference
+//   - Error if applicable.
 func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, parameters map[string]interface{}) (*HeirarchyObjects, map[string]interface{}, error) {
 	var hIds *dto.HeirarchyIdentifiers
 	remainingParams := make(map[string]interface{})

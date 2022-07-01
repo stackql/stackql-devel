@@ -39,21 +39,21 @@ func obtainAnnotationCtx(
 ) (taxonomy.AnnotationCtx, error) {
 	schema, mediaType, err := tbl.GetResponseSchemaAndMediaType()
 	if err != nil {
-		return taxonomy.AnnotationCtx{}, err
+		return nil, err
 	}
 	itemObjS, selectItemsKey, err := schema.GetSelectSchema(tbl.LookupSelectItemsKey(), mediaType)
 	unsuitableSchemaMsg := "schema unsuitable for select query"
 	if err != nil {
-		return taxonomy.AnnotationCtx{}, fmt.Errorf(unsuitableSchemaMsg)
+		return nil, fmt.Errorf(unsuitableSchemaMsg)
 	}
 	tbl.SelectItemsKey = selectItemsKey
 	provStr, _ := tbl.GetProviderStr()
 	svcStr, _ := tbl.GetServiceStr()
 	if itemObjS == nil {
-		return taxonomy.AnnotationCtx{}, fmt.Errorf(unsuitableSchemaMsg)
+		return nil, fmt.Errorf(unsuitableSchemaMsg)
 	}
 	hIds := dto.NewHeirarchyIdentifiers(provStr, svcStr, itemObjS.GetName(), "")
-	return taxonomy.AnnotationCtx{Schema: itemObjS, HIDs: hIds, TableMeta: tbl, Parameters: parameters}, nil
+	return taxonomy.NewStandardAnnotationCtx(itemObjS, hIds, tbl, parameters), nil
 }
 
 func (v *TableRouteAstVisitor) addAnnotationCtx(
