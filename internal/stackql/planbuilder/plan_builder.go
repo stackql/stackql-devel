@@ -328,7 +328,7 @@ func (pgb *planGraphBuilder) handleDescribe(pbi PlanBuilderInput) error {
 	if err != nil {
 		return err
 	}
-	md, err := primitiveGenerator.PrimitiveBuilder.GetTable(node)
+	md, err := primitiveGenerator.PrimitiveComposer.GetTable(node)
 	if err != nil {
 		return err
 	}
@@ -361,7 +361,7 @@ func (pgb *planGraphBuilder) handleSelect(pbi PlanBuilderInput) (*primitivegraph
 			return nil, nil, err
 		}
 		isLocallyExecutable := true
-		for _, val := range primitiveGenerator.PrimitiveBuilder.GetTables() {
+		for _, val := range primitiveGenerator.PrimitiveComposer.GetTables() {
 			isLocallyExecutable = isLocallyExecutable && val.IsLocallyExecutable
 		}
 		if isLocallyExecutable {
@@ -372,10 +372,10 @@ func (pgb *planGraphBuilder) handleSelect(pbi PlanBuilderInput) (*primitivegraph
 			rv := pgb.planGraph.CreatePrimitiveNode(pr)
 			return &rv, &rv, nil
 		}
-		if primitiveGenerator.PrimitiveBuilder.GetBuilder() == nil {
+		if primitiveGenerator.PrimitiveComposer.GetBuilder() == nil {
 			return nil, nil, fmt.Errorf("builder not created for select, cannot proceed")
 		}
-		builder := primitiveGenerator.PrimitiveBuilder.GetBuilder()
+		builder := primitiveGenerator.PrimitiveComposer.GetBuilder()
 		err = builder.Build()
 		if err != nil {
 			return nil, nil, err
@@ -402,13 +402,13 @@ func (pgb *planGraphBuilder) handleUnion(pbi PlanBuilderInput) (*primitivegraph.
 		return nil, nil, err
 	}
 	isLocallyExecutable := true
-	for _, val := range primitiveGenerator.PrimitiveBuilder.GetTables() {
+	for _, val := range primitiveGenerator.PrimitiveComposer.GetTables() {
 		isLocallyExecutable = isLocallyExecutable && val.IsLocallyExecutable
 	}
-	if primitiveGenerator.PrimitiveBuilder.GetBuilder() == nil {
+	if primitiveGenerator.PrimitiveComposer.GetBuilder() == nil {
 		return nil, nil, fmt.Errorf("builder not created for union, cannot proceed")
 	}
-	builder := primitiveGenerator.PrimitiveBuilder.GetBuilder()
+	builder := primitiveGenerator.PrimitiveComposer.GetBuilder()
 	err = builder.Build()
 	if err != nil {
 		return nil, nil, err
@@ -609,7 +609,7 @@ func (pgb *planGraphBuilder) handleShow(pbi PlanBuilderInput) error {
 		return err
 	}
 	pr := primitive.NewMetaDataPrimitive(
-		primitiveGenerator.PrimitiveBuilder.GetProvider(),
+		primitiveGenerator.PrimitiveComposer.GetProvider(),
 		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 			return primitiveGenerator.showInstructionExecutor(node, handlerCtx)
 		})
@@ -643,7 +643,7 @@ func (pgb *planGraphBuilder) handleUse(pbi PlanBuilderInput) error {
 		return err
 	}
 	pr := primitive.NewMetaDataPrimitive(
-		primitiveGenerator.PrimitiveBuilder.GetProvider(),
+		primitiveGenerator.PrimitiveComposer.GetProvider(),
 		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 			handlerCtx.CurrentProvider = node.DBName.GetRawVal()
 			return dto.NewExecutorOutput(nil, nil, nil, nil, nil)

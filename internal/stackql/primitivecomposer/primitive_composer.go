@@ -1,9 +1,10 @@
-package primitivebuilder
+package primitivecomposer
 
 import (
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
+	"github.com/stackql/stackql/internal/stackql/primitivebuilder"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/provider"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
@@ -17,11 +18,11 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-type PrimitiveBuilder interface {
-	AddChild(val PrimitiveBuilder)
+type PrimitiveComposer interface {
+	AddChild(val PrimitiveComposer)
 	GetAst() sqlparser.SQLNode
-	GetBuilder() Builder
-	GetChildren() []PrimitiveBuilder
+	GetBuilder() primitivebuilder.Builder
+	GetChildren() []PrimitiveComposer
 	GetColumnOrder() []string
 	GetCommentDirectives() sqlparser.CommentDirectives
 	GetDRMConfig() drm.DRMConfig
@@ -29,7 +30,7 @@ type PrimitiveBuilder interface {
 	GetInsertPreparedStatementCtx() *drm.PreparedStatementCtx
 	GetInsertValOnlyRows() map[int]map[int]interface{}
 	GetLikeAbleColumns() []string
-	GetParent() PrimitiveBuilder
+	GetParent() PrimitiveComposer
 	GetProvider() provider.IProvider
 	GetRoot() primitivegraph.PrimitiveNode
 	GetSelectPreparedStatementCtx() *drm.PreparedStatementCtx
@@ -45,9 +46,9 @@ type PrimitiveBuilder interface {
 	GetValOnlyColKeys() []int
 	GetWhere() *sqlparser.Where
 	IsAwait() bool
-	NewChildPrimitiveBuilder(ast sqlparser.SQLNode) PrimitiveBuilder
+	NewChildPrimitiveBuilder(ast sqlparser.SQLNode) PrimitiveComposer
 	SetAwait(await bool)
-	SetBuilder(builder Builder)
+	SetBuilder(builder primitivebuilder.Builder)
 	SetColumnOrder(co []parserutil.ColumnHandle)
 	SetColVisited(colname string, isVisited bool)
 	SetCommentDirectives(dirs sqlparser.CommentDirectives)
@@ -66,16 +67,16 @@ type PrimitiveBuilder interface {
 	ShouldCollectGarbage() bool
 }
 
-type StandardPrimitiveBuilder struct {
-	parent PrimitiveBuilder
+type StandardPrimitiveComposer struct {
+	parent PrimitiveComposer
 
-	children []PrimitiveBuilder
+	children []PrimitiveComposer
 
 	await bool
 
 	ast sqlparser.SQLNode
 
-	builder Builder
+	builder primitivebuilder.Builder
 
 	graph *primitivegraph.PrimitiveGraph
 
@@ -112,81 +113,81 @@ type StandardPrimitiveBuilder struct {
 	sqlEngine sqlengine.SQLEngine
 }
 
-func (pb *StandardPrimitiveBuilder) ShouldCollectGarbage() bool {
+func (pb *StandardPrimitiveComposer) ShouldCollectGarbage() bool {
 	return pb.parent == nil
 }
 
-func (pb *StandardPrimitiveBuilder) SetTxnCtrlCtrs(tc *dto.TxnControlCounters) {
+func (pb *StandardPrimitiveComposer) SetTxnCtrlCtrs(tc *dto.TxnControlCounters) {
 	pb.txnCtrlCtrs = tc
 }
 
-func (pb *StandardPrimitiveBuilder) GetTxnCtrlCtrs() *dto.TxnControlCounters {
+func (pb *StandardPrimitiveComposer) GetTxnCtrlCtrs() *dto.TxnControlCounters {
 	return pb.txnCtrlCtrs
 }
 
-func (pb *StandardPrimitiveBuilder) GetGraph() *primitivegraph.PrimitiveGraph {
+func (pb *StandardPrimitiveComposer) GetGraph() *primitivegraph.PrimitiveGraph {
 	return pb.graph
 }
 
-func (pb *StandardPrimitiveBuilder) GetParent() PrimitiveBuilder {
+func (pb *StandardPrimitiveComposer) GetParent() PrimitiveComposer {
 	return pb.parent
 }
 
-func (pb *StandardPrimitiveBuilder) GetChildren() []PrimitiveBuilder {
+func (pb *StandardPrimitiveComposer) GetChildren() []PrimitiveComposer {
 	return pb.children
 }
 
-func (pb *StandardPrimitiveBuilder) AddChild(val PrimitiveBuilder) {
+func (pb *StandardPrimitiveComposer) AddChild(val PrimitiveComposer) {
 	pb.children = append(pb.children, val)
 }
 
-func (pb *StandardPrimitiveBuilder) GetSymbol(k interface{}) (symtab.SymTabEntry, error) {
+func (pb *StandardPrimitiveComposer) GetSymbol(k interface{}) (symtab.SymTabEntry, error) {
 	return pb.symTab.GetSymbol(k)
 }
 
-func (pb *StandardPrimitiveBuilder) GetSymTab() symtab.SymTab {
+func (pb *StandardPrimitiveComposer) GetSymTab() symtab.SymTab {
 	return pb.symTab
 }
 
-func (pb *StandardPrimitiveBuilder) SetSymbol(k interface{}, v symtab.SymTabEntry) error {
+func (pb *StandardPrimitiveComposer) SetSymbol(k interface{}, v symtab.SymTabEntry) error {
 	return pb.symTab.SetSymbol(k, v)
 }
 
-func (pb *StandardPrimitiveBuilder) GetWhere() *sqlparser.Where {
+func (pb *StandardPrimitiveComposer) GetWhere() *sqlparser.Where {
 	return pb.where
 }
 
-func (pb *StandardPrimitiveBuilder) SetWhere(where *sqlparser.Where) {
+func (pb *StandardPrimitiveComposer) SetWhere(where *sqlparser.Where) {
 	pb.where = where
 }
 
-func (pb *StandardPrimitiveBuilder) GetAst() sqlparser.SQLNode {
+func (pb *StandardPrimitiveComposer) GetAst() sqlparser.SQLNode {
 	return pb.ast
 }
 
-func (pb *StandardPrimitiveBuilder) GetTxnCounterManager() *txncounter.TxnCounterManager {
+func (pb *StandardPrimitiveComposer) GetTxnCounterManager() *txncounter.TxnCounterManager {
 	return pb.txnCounterManager
 }
 
-func (pb *StandardPrimitiveBuilder) NewChildPrimitiveBuilder(ast sqlparser.SQLNode) PrimitiveBuilder {
-	child := NewPrimitiveBuilder(pb, ast, pb.drmConfig, pb.txnCounterManager, pb.graph, pb.tables, pb.symTab, pb.sqlEngine)
+func (pb *StandardPrimitiveComposer) NewChildPrimitiveBuilder(ast sqlparser.SQLNode) PrimitiveComposer {
+	child := NewPrimitiveComposer(pb, ast, pb.drmConfig, pb.txnCounterManager, pb.graph, pb.tables, pb.symTab, pb.sqlEngine)
 	pb.children = append(pb.children, child)
 	return child
 }
 
-func (pb *StandardPrimitiveBuilder) GetInsertValOnlyRows() map[int]map[int]interface{} {
+func (pb *StandardPrimitiveComposer) GetInsertValOnlyRows() map[int]map[int]interface{} {
 	return pb.insertValOnlyRows
 }
 
-func (pb *StandardPrimitiveBuilder) SetInsertValOnlyRows(m map[int]map[int]interface{}) {
+func (pb *StandardPrimitiveComposer) SetInsertValOnlyRows(m map[int]map[int]interface{}) {
 	pb.insertValOnlyRows = m
 }
 
-func (pb *StandardPrimitiveBuilder) GetColumnOrder() []string {
+func (pb *StandardPrimitiveComposer) GetColumnOrder() []string {
 	return pb.columnOrder
 }
 
-func (pb *StandardPrimitiveBuilder) SetColumnOrder(co []parserutil.ColumnHandle) {
+func (pb *StandardPrimitiveComposer) SetColumnOrder(co []parserutil.ColumnHandle) {
 	var colOrd []string
 	for _, v := range co {
 		colOrd = append(colOrd, v.Name)
@@ -194,31 +195,31 @@ func (pb *StandardPrimitiveBuilder) SetColumnOrder(co []parserutil.ColumnHandle)
 	pb.columnOrder = colOrd
 }
 
-func (pb *StandardPrimitiveBuilder) GetRoot() primitivegraph.PrimitiveNode {
+func (pb *StandardPrimitiveComposer) GetRoot() primitivegraph.PrimitiveNode {
 	return pb.root
 }
 
-func (pb *StandardPrimitiveBuilder) SetRoot(root primitivegraph.PrimitiveNode) {
+func (pb *StandardPrimitiveComposer) SetRoot(root primitivegraph.PrimitiveNode) {
 	pb.root = root
 }
 
-func (pb *StandardPrimitiveBuilder) GetCommentDirectives() sqlparser.CommentDirectives {
+func (pb *StandardPrimitiveComposer) GetCommentDirectives() sqlparser.CommentDirectives {
 	return pb.commentDirectives
 }
 
-func (pb *StandardPrimitiveBuilder) SetCommentDirectives(dirs sqlparser.CommentDirectives) {
+func (pb *StandardPrimitiveComposer) SetCommentDirectives(dirs sqlparser.CommentDirectives) {
 	pb.commentDirectives = dirs
 }
 
-func (pb *StandardPrimitiveBuilder) GetLikeAbleColumns() []string {
+func (pb *StandardPrimitiveComposer) GetLikeAbleColumns() []string {
 	return pb.likeAbleColumns
 }
 
-func (pb *StandardPrimitiveBuilder) SetLikeAbleColumns(cols []string) {
+func (pb *StandardPrimitiveComposer) SetLikeAbleColumns(cols []string) {
 	pb.likeAbleColumns = cols
 }
 
-func (pb *StandardPrimitiveBuilder) GetValOnlyColKeys() []int {
+func (pb *StandardPrimitiveComposer) GetValOnlyColKeys() []int {
 	keys := make([]int, 0, len(pb.valOnlyCols))
 	for k := range pb.valOnlyCols {
 		keys = append(keys, k)
@@ -226,100 +227,100 @@ func (pb *StandardPrimitiveBuilder) GetValOnlyColKeys() []int {
 	return keys
 }
 
-func (pb *StandardPrimitiveBuilder) GetValOnlyCol(key int) map[string]interface{} {
+func (pb *StandardPrimitiveComposer) GetValOnlyCol(key int) map[string]interface{} {
 	return pb.valOnlyCols[key]
 }
 
-func (pb *StandardPrimitiveBuilder) SetValOnlyCols(m map[int]map[string]interface{}) {
+func (pb *StandardPrimitiveComposer) SetValOnlyCols(m map[int]map[string]interface{}) {
 	pb.valOnlyCols = m
 }
 
-func (pb *StandardPrimitiveBuilder) SetColVisited(colname string, isVisited bool) {
+func (pb *StandardPrimitiveComposer) SetColVisited(colname string, isVisited bool) {
 	pb.colsVisited[colname] = isVisited
 }
 
-func (pb *StandardPrimitiveBuilder) GetTableFilter() func(openapistackql.ITable) (openapistackql.ITable, error) {
+func (pb *StandardPrimitiveComposer) GetTableFilter() func(openapistackql.ITable) (openapistackql.ITable, error) {
 	return pb.tableFilter
 }
 
-func (pb *StandardPrimitiveBuilder) SetTableFilter(tableFilter func(openapistackql.ITable) (openapistackql.ITable, error)) {
+func (pb *StandardPrimitiveComposer) SetTableFilter(tableFilter func(openapistackql.ITable) (openapistackql.ITable, error)) {
 	pb.tableFilter = tableFilter
 }
 
-func (pb *StandardPrimitiveBuilder) SetInsertPreparedStatementCtx(ctx *drm.PreparedStatementCtx) {
+func (pb *StandardPrimitiveComposer) SetInsertPreparedStatementCtx(ctx *drm.PreparedStatementCtx) {
 	pb.insertPreparedStatementCtx = ctx
 }
 
-func (pb *StandardPrimitiveBuilder) GetInsertPreparedStatementCtx() *drm.PreparedStatementCtx {
+func (pb *StandardPrimitiveComposer) GetInsertPreparedStatementCtx() *drm.PreparedStatementCtx {
 	return pb.insertPreparedStatementCtx
 }
 
-func (pb *StandardPrimitiveBuilder) SetSelectPreparedStatementCtx(ctx *drm.PreparedStatementCtx) {
+func (pb *StandardPrimitiveComposer) SetSelectPreparedStatementCtx(ctx *drm.PreparedStatementCtx) {
 	pb.selectPreparedStatementCtx = ctx
 }
 
-func (pb *StandardPrimitiveBuilder) GetSelectPreparedStatementCtx() *drm.PreparedStatementCtx {
+func (pb *StandardPrimitiveComposer) GetSelectPreparedStatementCtx() *drm.PreparedStatementCtx {
 	return pb.selectPreparedStatementCtx
 }
 
-func (pb *StandardPrimitiveBuilder) GetProvider() provider.IProvider {
+func (pb *StandardPrimitiveComposer) GetProvider() provider.IProvider {
 	return pb.prov
 }
 
-func (pb *StandardPrimitiveBuilder) SetProvider(prov provider.IProvider) {
+func (pb *StandardPrimitiveComposer) SetProvider(prov provider.IProvider) {
 	pb.prov = prov
 }
 
-func (pb *StandardPrimitiveBuilder) GetBuilder() Builder {
+func (pb *StandardPrimitiveComposer) GetBuilder() primitivebuilder.Builder {
 	if pb.children == nil || len(pb.children) == 0 {
 		return pb.builder
 	}
-	var builders []Builder
+	var builders []primitivebuilder.Builder
 	for _, child := range pb.children {
 		if bldr := child.GetBuilder(); bldr != nil {
 			builders = append(builders, bldr)
 		}
 	}
 	if true {
-		return NewDiamondBuilder(pb.builder, builders, pb.graph, pb.sqlEngine, pb.ShouldCollectGarbage())
+		return primitivebuilder.NewDiamondBuilder(pb.builder, builders, pb.graph, pb.sqlEngine, pb.ShouldCollectGarbage())
 	}
-	return NewSubTreeBuilder(builders)
+	return primitivebuilder.NewSubTreeBuilder(builders)
 }
 
-func (pb *StandardPrimitiveBuilder) SetBuilder(builder Builder) {
+func (pb *StandardPrimitiveComposer) SetBuilder(builder primitivebuilder.Builder) {
 	pb.builder = builder
 }
 
-func (pb *StandardPrimitiveBuilder) IsAwait() bool {
+func (pb *StandardPrimitiveComposer) IsAwait() bool {
 	return pb.await
 }
 
-func (pb *StandardPrimitiveBuilder) SetAwait(await bool) {
+func (pb *StandardPrimitiveComposer) SetAwait(await bool) {
 	pb.await = await
 }
 
-func (pb *StandardPrimitiveBuilder) GetTable(node sqlparser.SQLNode) (*taxonomy.ExtendedTableMetadata, error) {
+func (pb *StandardPrimitiveComposer) GetTable(node sqlparser.SQLNode) (*taxonomy.ExtendedTableMetadata, error) {
 	return pb.tables.GetTable(node)
 }
 
-func (pb *StandardPrimitiveBuilder) SetTable(node sqlparser.SQLNode, table *taxonomy.ExtendedTableMetadata) {
+func (pb *StandardPrimitiveComposer) SetTable(node sqlparser.SQLNode, table *taxonomy.ExtendedTableMetadata) {
 	pb.tables.SetTable(node, table)
 }
 
-func (pb *StandardPrimitiveBuilder) GetTables() taxonomy.TblMap {
+func (pb *StandardPrimitiveComposer) GetTables() taxonomy.TblMap {
 	return pb.tables
 }
 
-func (pb *StandardPrimitiveBuilder) GetDRMConfig() drm.DRMConfig {
+func (pb *StandardPrimitiveComposer) GetDRMConfig() drm.DRMConfig {
 	return pb.drmConfig
 }
 
-func (pb *StandardPrimitiveBuilder) GetSQLEngine() sqlengine.SQLEngine {
+func (pb *StandardPrimitiveComposer) GetSQLEngine() sqlengine.SQLEngine {
 	return pb.sqlEngine
 }
 
-func NewPrimitiveBuilder(parent PrimitiveBuilder, ast sqlparser.SQLNode, drmConfig drm.DRMConfig, txnCtrMgr *txncounter.TxnCounterManager, graph *primitivegraph.PrimitiveGraph, tblMap taxonomy.TblMap, symTab symtab.SymTab, sqlEngine sqlengine.SQLEngine) PrimitiveBuilder {
-	return &StandardPrimitiveBuilder{
+func NewPrimitiveComposer(parent PrimitiveComposer, ast sqlparser.SQLNode, drmConfig drm.DRMConfig, txnCtrMgr *txncounter.TxnCounterManager, graph *primitivegraph.PrimitiveGraph, tblMap taxonomy.TblMap, symTab symtab.SymTab, sqlEngine sqlengine.SQLEngine) PrimitiveComposer {
+	return &StandardPrimitiveComposer{
 		parent:            parent,
 		ast:               ast,
 		drmConfig:         drmConfig,

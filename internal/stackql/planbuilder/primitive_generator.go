@@ -16,7 +16,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/iqlutil"
 	"github.com/stackql/stackql/internal/stackql/metadatavisitors"
 	"github.com/stackql/stackql/internal/stackql/primitive"
-	"github.com/stackql/stackql/internal/stackql/primitivebuilder"
+	"github.com/stackql/stackql/internal/stackql/primitivecomposer"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/relational"
 	"github.com/stackql/stackql/internal/stackql/symtab"
@@ -35,21 +35,21 @@ import (
 )
 
 type primitiveGenerator struct {
-	Parent           *primitiveGenerator
-	Children         []*primitiveGenerator
-	PrimitiveBuilder primitivebuilder.PrimitiveBuilder
+	Parent            *primitiveGenerator
+	Children          []*primitiveGenerator
+	PrimitiveComposer primitivecomposer.PrimitiveComposer
 }
 
 func newRootPrimitiveGenerator(ast sqlparser.SQLNode, handlerCtx *handler.HandlerContext, graph *primitivegraph.PrimitiveGraph) *primitiveGenerator {
 	tblMap := make(taxonomy.TblMap)
 	symTab := symtab.NewHashMapTreeSymTab()
 	return &primitiveGenerator{
-		PrimitiveBuilder: primitivebuilder.NewPrimitiveBuilder(nil, ast, handlerCtx.DrmConfig, handlerCtx.TxnCounterMgr, graph, tblMap, symTab, handlerCtx.SQLEngine),
+		PrimitiveComposer: primitivecomposer.NewPrimitiveComposer(nil, ast, handlerCtx.DrmConfig, handlerCtx.TxnCounterMgr, graph, tblMap, symTab, handlerCtx.SQLEngine),
 	}
 }
 
 func (pb *primitiveGenerator) addChildPrimitiveGenerator(ast sqlparser.SQLNode, leaf symtab.SymTab) *primitiveGenerator {
-	tables := pb.PrimitiveBuilder.GetTables()
+	tables := pb.PrimitiveComposer.GetTables()
 	switch node := ast.(type) {
 	case sqlparser.Statement:
 		log.Infoln(fmt.Sprintf("creating new table map for node = %v", node))
@@ -57,19 +57,19 @@ func (pb *primitiveGenerator) addChildPrimitiveGenerator(ast sqlparser.SQLNode, 
 	}
 	retVal := &primitiveGenerator{
 		Parent: pb,
-		PrimitiveBuilder: primitivebuilder.NewPrimitiveBuilder(
-			pb.PrimitiveBuilder,
+		PrimitiveComposer: primitivecomposer.NewPrimitiveComposer(
+			pb.PrimitiveComposer,
 			ast,
-			pb.PrimitiveBuilder.GetDRMConfig(),
-			pb.PrimitiveBuilder.GetTxnCounterManager(),
-			pb.PrimitiveBuilder.GetGraph(),
+			pb.PrimitiveComposer.GetDRMConfig(),
+			pb.PrimitiveComposer.GetTxnCounterManager(),
+			pb.PrimitiveComposer.GetGraph(),
 			tables,
 			leaf,
-			pb.PrimitiveBuilder.GetSQLEngine(),
+			pb.PrimitiveComposer.GetSQLEngine(),
 		),
 	}
 	pb.Children = append(pb.Children, retVal)
-	pb.PrimitiveBuilder.AddChild(retVal.PrimitiveBuilder)
+	pb.PrimitiveComposer.AddChild(retVal.PrimitiveComposer)
 	return retVal
 }
 
@@ -122,7 +122,7 @@ func (pb *primitiveGenerator) comparisonExprToFilterFunc(table openapistackql.IT
 			return nil, err
 		}
 		retVal = relational.ConstructLikePredicateFilter(colName, likeRegexp, expr.Operator == sqlparser.NotLikeStr)
-		pb.PrimitiveBuilder.SetColVisited(colName, true)
+		pb.PrimitiveComposer.SetColVisited(colName, true)
 		return retVal, nil
 	}
 	operatorPredicate, preErr := relational.GetOperatorPredicate(expr.Operator)
@@ -131,7 +131,7 @@ func (pb *primitiveGenerator) comparisonExprToFilterFunc(table openapistackql.IT
 		return nil, preErr
 	}
 
-	pb.PrimitiveBuilder.SetColVisited(colName, true)
+	pb.PrimitiveComposer.SetColVisited(colName, true)
 	return relational.ConstructTablePredicateFilter(colName, resolved, operatorPredicate), nil
 }
 
@@ -220,20 +220,20 @@ func (pb *primitiveGenerator) inferProviderForShow(node *sqlparser.Show, handler
 		if err != nil {
 			return err
 		}
-		pb.PrimitiveBuilder.SetProvider(prov)
+		pb.PrimitiveComposer.SetProvider(prov)
 	case "INSERT":
 		prov, err := handlerCtx.GetProvider(node.OnTable.QualifierSecond.GetRawVal())
 		if err != nil {
 			return err
 		}
-		pb.PrimitiveBuilder.SetProvider(prov)
+		pb.PrimitiveComposer.SetProvider(prov)
 
 	case "METHODS":
 		prov, err := handlerCtx.GetProvider(node.OnTable.QualifierSecond.GetRawVal())
 		if err != nil {
 			return err
 		}
-		pb.PrimitiveBuilder.SetProvider(prov)
+		pb.PrimitiveComposer.SetProvider(prov)
 	case "PROVIDERS":
 		// no provider, might create some dummy object dunno
 	case "RESOURCES":
@@ -241,13 +241,13 @@ func (pb *primitiveGenerator) inferProviderForShow(node *sqlparser.Show, handler
 		if err != nil {
 			return err
 		}
-		pb.PrimitiveBuilder.SetProvider(prov)
+		pb.PrimitiveComposer.SetProvider(prov)
 	case "SERVICES":
 		prov, err := handlerCtx.GetProvider(node.OnTable.Name.GetRawVal())
 		if err != nil {
 			return err
 		}
-		pb.PrimitiveBuilder.SetProvider(prov)
+		pb.PrimitiveComposer.SetProvider(prov)
 	default:
 		return fmt.Errorf("unsuported node type: '%s'", node.Type)
 	}
@@ -266,10 +266,10 @@ func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, hand
 	case "AUTH":
 		log.Infoln(fmt.Sprintf("Show For node.Type = '%s'", node.Type))
 		if err == nil {
-			authCtx, err := handlerCtx.GetAuthContext(pb.PrimitiveBuilder.GetProvider().GetProviderString())
+			authCtx, err := handlerCtx.GetAuthContext(pb.PrimitiveComposer.GetProvider().GetProviderString())
 			if err == nil {
 				var authMeta *openapistackql.AuthMetadata
-				authMeta, err = pb.PrimitiveBuilder.GetProvider().ShowAuth(authCtx)
+				authMeta, err = pb.PrimitiveComposer.GetProvider().ShowAuth(authCtx)
 				if err == nil {
 					keys = map[string]map[string]interface{}{
 						"1": authMeta.ToMap(),
@@ -285,7 +285,7 @@ func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, hand
 			constants.DefaultPrettyPrintBaseIndent,
 			"'",
 		)
-		tbl, err := pb.PrimitiveBuilder.GetTable(node)
+		tbl, err := pb.PrimitiveComposer.GetTable(node)
 		if err != nil {
 			return util.GenerateSimpleErroneousOutput(err)
 		}
@@ -299,7 +299,7 @@ func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, hand
 			return util.GenerateSimpleErroneousOutput(err)
 		}
 		pp := prettyprint.NewPrettyPrinter(ppCtx)
-		requiredOnly := pb.PrimitiveBuilder.GetCommentDirectives() != nil && pb.PrimitiveBuilder.GetCommentDirectives().IsSet("REQUIRED")
+		requiredOnly := pb.PrimitiveComposer.GetCommentDirectives() != nil && pb.PrimitiveComposer.GetCommentDirectives().IsSet("REQUIRED")
 		insertStmt, err := metadatavisitors.ToInsertStatement(node.Columns, meth, svc, extended, pp, requiredOnly)
 		tableName, _ := tbl.GetTableName()
 		if err != nil {
@@ -313,9 +313,9 @@ func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, hand
 		}
 	case "METHODS":
 		var rsc *openapistackql.Resource
-		rsc, err = pb.PrimitiveBuilder.GetProvider().GetResource(node.OnTable.Qualifier.GetRawVal(), node.OnTable.Name.GetRawVal(), handlerCtx.RuntimeContext)
+		rsc, err = pb.PrimitiveComposer.GetProvider().GetResource(node.OnTable.Qualifier.GetRawVal(), node.OnTable.Name.GetRawVal(), handlerCtx.RuntimeContext)
 		methods := rsc.GetMethodsMatched()
-		tbl, err := pb.PrimitiveBuilder.GetTable(node.OnTable)
+		tbl, err := pb.PrimitiveComposer.GetTable(node.OnTable)
 		var filter func(openapistackql.ITable) (openapistackql.ITable, error)
 		if err != nil {
 			log.Infoln(fmt.Sprintf("table and therefore filter not found for AST, shall procede nil filter"))
@@ -354,7 +354,7 @@ func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, hand
 			return prepareErroneousResultSet(keys, columnOrder, fmt.Errorf("no service designated from which to resolve resources"))
 		}
 		var resources map[string]*openapistackql.Resource
-		resources, err = pb.PrimitiveBuilder.GetProvider().GetResourcesRedacted(svcName, handlerCtx.RuntimeContext, extended)
+		resources, err = pb.PrimitiveComposer.GetProvider().GetResourcesRedacted(svcName, handlerCtx.RuntimeContext, extended)
 		if err != nil {
 			return prepareErroneousResultSet(keys, columnOrder, err)
 		}
@@ -363,7 +363,7 @@ func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, hand
 		if err != nil {
 			log.Infoln(fmt.Sprintf("table and therefore filter not found for AST, shall procede nil filter"))
 		} else {
-			filter = pb.PrimitiveBuilder.GetTableFilter()
+			filter = pb.PrimitiveComposer.GetTableFilter()
 		}
 		resources, err = filterResources(resources, filter)
 		if err != nil {
@@ -374,14 +374,14 @@ func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, hand
 			keys[k] = v.ToMap(extended)
 		}
 	case "SERVICES":
-		log.Infoln(fmt.Sprintf("Show For node.Type = '%s': Displaying services for provider = '%s'", node.Type, pb.PrimitiveBuilder.GetProvider().GetProviderString()))
+		log.Infoln(fmt.Sprintf("Show For node.Type = '%s': Displaying services for provider = '%s'", node.Type, pb.PrimitiveComposer.GetProvider().GetProviderString()))
 		var services map[string]*openapistackql.ProviderService
-		services, err = pb.PrimitiveBuilder.GetProvider().GetProviderServicesRedacted(handlerCtx.RuntimeContext, extended)
+		services, err = pb.PrimitiveComposer.GetProvider().GetProviderServicesRedacted(handlerCtx.RuntimeContext, extended)
 		if err != nil {
 			return prepareErroneousResultSet(keys, columnOrder, err)
 		}
 		columnOrder = openapistackql.GetServicesHeader(extended)
-		services, err = filterServices(services, pb.PrimitiveBuilder.GetTableFilter(), handlerCtx.RuntimeContext.UseNonPreferredAPIs)
+		services, err = filterServices(services, pb.PrimitiveComposer.GetTableFilter(), handlerCtx.RuntimeContext.UseNonPreferredAPIs)
 		if err != nil {
 			return prepareErroneousResultSet(keys, columnOrder, err)
 		}
@@ -421,7 +421,7 @@ func (pb *primitiveGenerator) describeInstructionExecutor(handlerCtx *handler.Ha
 }
 
 func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext, node *sqlparser.Insert, rowSort func(map[string]map[string]interface{}) []string) (primitive.IPrimitive, error) {
-	tbl, err := pb.PrimitiveBuilder.GetTable(node)
+	tbl, err := pb.PrimitiveComposer.GetTable(node)
 	if err != nil {
 		return nil, err
 	}
@@ -516,7 +516,7 @@ func (pb *primitiveGenerator) insertExecutor(handlerCtx *handler.HandlerContext,
 		}
 		resultSet := dto.NewErroneousExecutorOutput(fmt.Errorf("no executions detected"))
 		msgs := dto.BackendMessages{}
-		if !pb.PrimitiveBuilder.IsAwait() {
+		if !pb.PrimitiveComposer.IsAwait() {
 			for _, ei := range zeroArityExecutors {
 				execInstance := ei
 				resultSet = execInstance()
@@ -571,8 +571,8 @@ func (pb *primitiveGenerator) localSelectExecutor(handlerCtx *handler.HandlerCon
 			var columnOrder []string
 			keys := make(map[string]map[string]interface{})
 			row := make(map[string]interface{})
-			for idx := range pb.PrimitiveBuilder.GetValOnlyColKeys() {
-				col := pb.PrimitiveBuilder.GetValOnlyCol(idx)
+			for idx := range pb.PrimitiveComposer.GetValOnlyColKeys() {
+				col := pb.PrimitiveComposer.GetValOnlyCol(idx)
 				if col != nil {
 					var alias string
 					var val interface{}
@@ -626,7 +626,7 @@ func (pb *primitiveGenerator) insertableValsExecutor(handlerCtx *handler.Handler
 }
 
 func (pb *primitiveGenerator) deleteExecutor(handlerCtx *handler.HandlerContext, node *sqlparser.Delete) (primitive.IPrimitive, error) {
-	tbl, err := pb.PrimitiveBuilder.GetTable(node)
+	tbl, err := pb.PrimitiveComposer.GetTable(node)
 	if err != nil {
 		return nil, err
 	}
@@ -686,7 +686,7 @@ func (pb *primitiveGenerator) deleteExecutor(handlerCtx *handler.HandlerContext,
 		nil,
 		nil,
 	)
-	if !pb.PrimitiveBuilder.IsAwait() {
+	if !pb.PrimitiveComposer.IsAwait() {
 		return deletePrimitive, nil
 	}
 	return pb.composeAsyncMonitor(handlerCtx, deletePrimitive, tbl)
@@ -709,7 +709,7 @@ func generateSuccessMessagesFromHeirarchy(meta *taxonomy.ExtendedTableMetadata) 
 }
 
 func (pb *primitiveGenerator) isShowResults() bool {
-	return pb.PrimitiveBuilder.GetCommentDirectives() != nil && pb.PrimitiveBuilder.GetCommentDirectives().IsSet("SHOWRESULTS")
+	return pb.PrimitiveComposer.GetCommentDirectives() != nil && pb.PrimitiveComposer.GetCommentDirectives().IsSet("SHOWRESULTS")
 }
 
 func (pb *primitiveGenerator) generateResultIfNeededfunc(resultMap map[string]map[string]interface{}, body map[string]interface{}, msg *dto.BackendMessages, err error) dto.ExecutorOutput {
@@ -720,15 +720,15 @@ func (pb *primitiveGenerator) generateResultIfNeededfunc(resultMap map[string]ma
 }
 
 func (pb *primitiveGenerator) execExecutor(handlerCtx *handler.HandlerContext, node *sqlparser.Exec) (primitivegraph.PrimitiveNode, error) {
-	if pb.isShowResults() && pb.PrimitiveBuilder.GetBuilder() != nil {
-		err := pb.PrimitiveBuilder.GetBuilder().Build()
+	if pb.isShowResults() && pb.PrimitiveComposer.GetBuilder() != nil {
+		err := pb.PrimitiveComposer.GetBuilder().Build()
 		if err != nil {
 			return primitivegraph.PrimitiveNode{}, err
 		}
-		return pb.PrimitiveBuilder.GetBuilder().GetRoot(), nil
+		return pb.PrimitiveComposer.GetBuilder().GetRoot(), nil
 	}
 	var target map[string]interface{}
-	tbl, err := pb.PrimitiveBuilder.GetTable(node)
+	tbl, err := pb.PrimitiveComposer.GetTable(node)
 	if err != nil {
 		return primitivegraph.PrimitiveNode{}, err
 	}
@@ -792,8 +792,8 @@ func (pb *primitiveGenerator) execExecutor(handlerCtx *handler.HandlerContext, n
 		nil,
 		nil,
 	)
-	graph := pb.PrimitiveBuilder.GetGraph()
-	if !pb.PrimitiveBuilder.IsAwait() {
+	graph := pb.PrimitiveComposer.GetGraph()
+	if !pb.PrimitiveComposer.IsAwait() {
 		return graph.CreatePrimitiveNode(execPrimitive), nil
 	}
 	pr, err := pb.composeAsyncMonitor(handlerCtx, execPrimitive, tbl)
@@ -823,7 +823,7 @@ func (pb *primitiveGenerator) composeAsyncMonitor(handlerCtx *handler.HandlerCon
 		handlerCtx.Outfile,
 		handlerCtx.OutErrFile,
 	)
-	primitive, err := asm.GetMonitorPrimitive(meta.HeirarchyObjects, precursor, pl, pb.PrimitiveBuilder.GetCommentDirectives())
+	primitive, err := asm.GetMonitorPrimitive(meta.HeirarchyObjects, precursor, pl, pb.PrimitiveComposer.GetCommentDirectives())
 	if err != nil {
 		return nil, err
 	}
