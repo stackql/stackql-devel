@@ -10,12 +10,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 )
 
-// Accepts slice of parser table objects
-// extracted from previous analysis.
-// Extracts:
-//   - Col Refs; mapping columnar objects to tables.
-//   - Alias Map; mapping the "TableName" objects
-//     defining aliases to table objects.
 type TableAliasAstVisitor struct {
 	aliasedColumns parserutil.TableExprMap
 	aliasMap       parserutil.TableAliasMap

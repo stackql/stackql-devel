@@ -710,6 +710,7 @@ func BuildPlanFromContext(handlerCtx *handler.HandlerContext) (*plan.Plan, error
 			return nil, createInstructionError
 		}
 	} else {
+		// First pass AST analysis; extract provider strings for auth.
 		provStrSlice := astvisit.ExtractProviderStrings(result.AST)
 		for _, p := range provStrSlice {
 			_, err := handlerCtx.GetProvider(p)
@@ -722,12 +723,29 @@ func BuildPlanFromContext(handlerCtx *handler.HandlerContext) (*plan.Plan, error
 		}
 
 		ast := result.AST
+
+		// Second pass AST analysis; extract provider strings for auth.
+		// Extracts:
+		//   - parser objects representing tables.
+		//   - mapping of string aliases to tables.
 		tVis := astvisit.NewTableExtractAstVisitor()
 		tVis.Visit(ast)
 
+		// Third pass AST analysis.
+		// Accepts slice of parser table objects
+		// extracted from previous analysis.
+		// Extracts:
+		//   - Col Refs; mapping columnar objects to tables.
+		//   - Alias Map; mapping the "TableName" objects
+		//     defining aliases to table objects.
 		aVis := astvisit.NewTableAliasAstVisitor(tVis.GetTables())
 		aVis.Visit(ast)
 
+		// Fourth pass AST analysis.
+		// Extracts:
+		//   - Columnar parameters with null values.
+		//     Useful for method matching.
+		//     Especially for "Insert" queries.
 		tpv := astvisit.NewPlaceholderParamAstVisitor("", false)
 		tpv.Visit(ast)
 

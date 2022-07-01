@@ -780,9 +780,23 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 	var pChild *primitiveGenerator
 	var err error
 
+	// BLOCK  ParameterHierarchy
+	// The AST analysis passes extract parameters
+	// prior to the assembly of hierarchies.
+	// This is a chicken and egg scenario:
+	//   - we need hierarchies a priori for temporal
+	//     dependencies between tables.
+	//   - we need paramters to determine hierarchy (for now).
+	//   - parameters may refer to tables and we want to reference
+	//     this for semantic analysis and later temporal sequencing,
+	//     data flow semantics.
+	//   - TODO: so... will need to split this up into multiple passes;
+	//     parameters will need to have Hierarchies attached after they are inferred.
+	//     Then semantic anlaysis and data flow can be instrumented.
 	whereParamMap := astvisit.ExtractParamsFromWhereClause(node.Where)
 	onParamMap := astvisit.ExtractParamsFromFromClause(node.From)
 
+	// TODO: There is god awful object <-> namespacing inside here: abstract it.
 	router := parserutil.NewParameterRouter(
 		pbi.GetAliasedTables(),
 		pbi.GetAssignedAliasedColumns(),
@@ -791,6 +805,8 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 		pbi.GetColRefs(),
 	)
 
+	// TODO: Do the proper SOLID treatment on router, etc.
+	// Might need to split into multiple passes.
 	v := astvisit.NewTableRouteAstVisitor(pbi.GetHandlerCtx(), router)
 
 	err = v.Visit(pbi.GetStatement())
@@ -804,6 +820,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 	annotations.AssignParams()
 	existingParams := annotations.GetStringParams()
 	colRefs := pbi.GetColRefs()
+	// END_BLOCK  ParameterHierarchy
 
 	for k, v := range tblz {
 		p.PrimitiveBuilder.SetTable(k, v)
@@ -872,7 +889,11 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 			}
 		}
 	}
+
+	// BLOCK REWRITE_WHERE
 	// TODO: fix this hack
+	// might make sense to implement an "all in one"
+	// query rewrite as an AST visitor.
 	var rewrittenWhere *sqlparser.Where
 	var paramsPresent []string
 	if len(node.From) == 1 {
@@ -888,8 +909,8 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 		}
 	}
 	log.Debugf("len(paramsPresent) = %d\n", len(paramsPresent))
+	// END_BLOCK REWRITE_WHERE
 
-	// END TODO
 	if len(node.From) == 1 {
 		switch ft := node.From[0].(type) {
 		case *sqlparser.JoinTableExpr, *sqlparser.AliasedTableExpr:
@@ -898,6 +919,9 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 			var secondaryTccs []*dto.TxnControlCounters
 			var tableSlice []*taxonomy.ExtendedTableMetadata
 			discoGenIDs := make(map[sqlparser.SQLNode]int)
+			// BLOCK ANNOTATION_TRAVERSE
+			// TODO: annotations need to be ordered
+			//       and data dependencies need to be modelled.
 			for k, va := range annotations {
 				pr, err := va.TableMeta.GetProvider()
 				if err != nil {
@@ -931,7 +955,6 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 					return err
 				}
 				discoGenIDs[k] = discoGenId
-				// router.GetAvailableParameters()
 				parametersCleaned, err := util.TransformSQLRawParameters(va.Parameters)
 				if err != nil {
 					return err
@@ -957,6 +980,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				if err != nil {
 					return err
 				}
+				// END_BLOCK ANNOTATION_TRAVERSE
 				builder := primitivebuilder.NewSingleSelectAcquire(p.PrimitiveBuilder.GetGraph(), handlerCtx, va.TableMeta, insPsc, nil)
 				execSlice = append(execSlice, builder)
 				tableSlice = append(tableSlice, va.TableMeta)

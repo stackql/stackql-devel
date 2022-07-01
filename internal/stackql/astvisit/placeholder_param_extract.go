@@ -9,7 +9,7 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-// Extracts "parameters" for subsequent analyses.
+// Extracts "parameters" with null values for subsequent analyses.
 type PlaceholderParamAstVisitor struct {
 	params parserutil.ParameterMap
 }

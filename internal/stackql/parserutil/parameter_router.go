@@ -15,12 +15,15 @@ import (
 // The storage medium for constituents is abstracted.
 // As of now this is a multi stage object, violates Single functionality.
 type ParameterRouter interface {
+
 	// Obtains parameters that are unammbiguous (eg: aliased, unique col name)
 	// or potential matches for a supplied table.
 	GetAvailableParameters(tb sqlparser.TableExpr) *TableParameterCoupling
+
 	// Records the fact that parameters have been assigned to a table and
 	// cannot be used elsewhere.
 	InvalidateParams(params map[string]interface{}) error
+
 	// First pass, tentative assignment of columnar objects
 	// to tables.
 	Route(tb sqlparser.TableExpr) error
