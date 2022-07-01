@@ -28,9 +28,6 @@ type AnnotationCtx struct {
 	Parameters map[string]interface{}
 }
 
-func (ac AnnotationCtx) LinkParameterValues() {
-}
-
 func (ex ExtendedTableMetadata) LookupSelectItemsKey() string {
 	if ex.HeirarchyObjects == nil {
 		return defaultSelectItemsKEy

@@ -487,53 +487,53 @@ type ParameterMetadata interface {
 	SetTable(sqlparser.SQLNode) error
 }
 
-type IComparisonParameterMetadata struct {
+type StandardComparisonParameterMetadata struct {
 	Parent *sqlparser.ComparisonExpr
 	Val    interface{}
 	table  sqlparser.SQLNode
 }
 
-type IPlaceholderParameterMetadata struct {
+type PlaceholderParameterMetadata struct {
 	placeholderVal struct{}
 }
 
 func NewComparisonParameterMetadata(parent *sqlparser.ComparisonExpr, val interface{}) ParameterMetadata {
-	return &IComparisonParameterMetadata{
+	return &StandardComparisonParameterMetadata{
 		Parent: parent,
 		Val:    val,
 	}
 }
 
 func NewPlaceholderParameterMetadata() ParameterMetadata {
-	return IPlaceholderParameterMetadata{}
+	return PlaceholderParameterMetadata{}
 }
 
-func (pm *IComparisonParameterMetadata) iParameterMetadata() {}
+func (pm *StandardComparisonParameterMetadata) iParameterMetadata() {}
 
-func (pm *IComparisonParameterMetadata) GetVal() interface{} {
+func (pm *StandardComparisonParameterMetadata) GetVal() interface{} {
 	return pm.Val
 }
 
-func (pm *IComparisonParameterMetadata) GetTable() sqlparser.SQLNode {
+func (pm *StandardComparisonParameterMetadata) GetTable() sqlparser.SQLNode {
 	return pm.table
 }
 
-func (pm *IComparisonParameterMetadata) SetTable(tb sqlparser.SQLNode) error {
+func (pm *StandardComparisonParameterMetadata) SetTable(tb sqlparser.SQLNode) error {
 	pm.table = tb
 	return nil
 }
 
-func (pm IPlaceholderParameterMetadata) iParameterMetadata() {}
+func (pm PlaceholderParameterMetadata) iParameterMetadata() {}
 
-func (pm IPlaceholderParameterMetadata) GetVal() interface{} {
+func (pm PlaceholderParameterMetadata) GetVal() interface{} {
 	return pm.placeholderVal
 }
 
-func (pm IPlaceholderParameterMetadata) GetTable() sqlparser.SQLNode {
+func (pm PlaceholderParameterMetadata) GetTable() sqlparser.SQLNode {
 	return nil
 }
 
-func (pm IPlaceholderParameterMetadata) SetTable(tb sqlparser.SQLNode) error {
+func (pm PlaceholderParameterMetadata) SetTable(tb sqlparser.SQLNode) error {
 	return fmt.Errorf("placeholder parameter metadata does not support set table")
 }
 

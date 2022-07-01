@@ -76,37 +76,37 @@ type HTTPArmoury interface {
 	SetResponseSchema(*openapistackql.Schema)
 }
 
-type IHTTPArmoury struct {
+type StandardHTTPArmoury struct {
 	RequestParams  []HTTPArmouryParameters
 	RequestSchema  *openapistackql.Schema
 	ResponseSchema *openapistackql.Schema
 }
 
-func (ih *IHTTPArmoury) GetRequestParams() []HTTPArmouryParameters {
+func (ih *StandardHTTPArmoury) GetRequestParams() []HTTPArmouryParameters {
 	return ih.RequestParams
 }
 
-func (ih *IHTTPArmoury) SetRequestParams(ps []HTTPArmouryParameters) {
+func (ih *StandardHTTPArmoury) SetRequestParams(ps []HTTPArmouryParameters) {
 	ih.RequestParams = ps
 }
 
-func (ih *IHTTPArmoury) AddRequestParams(p HTTPArmouryParameters) {
+func (ih *StandardHTTPArmoury) AddRequestParams(p HTTPArmouryParameters) {
 	ih.RequestParams = append(ih.RequestParams, p)
 }
 
-func (ih *IHTTPArmoury) SetRequestSchema(s *openapistackql.Schema) {
+func (ih *StandardHTTPArmoury) SetRequestSchema(s *openapistackql.Schema) {
 	ih.RequestSchema = s
 }
 
-func (ih *IHTTPArmoury) SetResponseSchema(s *openapistackql.Schema) {
+func (ih *StandardHTTPArmoury) SetResponseSchema(s *openapistackql.Schema) {
 	ih.ResponseSchema = s
 }
 
-func (ih *IHTTPArmoury) GetRequestSchema() *openapistackql.Schema {
+func (ih *StandardHTTPArmoury) GetRequestSchema() *openapistackql.Schema {
 	return ih.RequestSchema
 }
 
-func (ih *IHTTPArmoury) GetResponseSchema() *openapistackql.Schema {
+func (ih *StandardHTTPArmoury) GetResponseSchema() *openapistackql.Schema {
 	return ih.ResponseSchema
 }
 
@@ -117,7 +117,7 @@ func NewHTTPArmouryParameters() HTTPArmouryParameters {
 }
 
 func NewHTTPArmoury() HTTPArmoury {
-	return &IHTTPArmoury{}
+	return &StandardHTTPArmoury{}
 }
 
 func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, prov provider.IProvider, m *openapistackql.OperationStore, svc *openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext *ExecContext) (HTTPArmoury, error) {

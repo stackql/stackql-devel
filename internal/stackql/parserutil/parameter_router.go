@@ -29,7 +29,7 @@ type ParameterRouter interface {
 	Route(tb sqlparser.TableExpr) error
 }
 
-type IParameterRouter struct {
+type StandardParameterRouter struct {
 	tablesAliasMap    TableAliasMap
 	tableMap          TableExprMap
 	onParamMap        ParameterMap
@@ -39,7 +39,7 @@ type IParameterRouter struct {
 }
 
 func NewParameterRouter(tablesAliasMap TableAliasMap, tableMap TableExprMap, whereParamMap ParameterMap, onParamMap ParameterMap, colRefs ColTableMap) ParameterRouter {
-	return &IParameterRouter{
+	return &StandardParameterRouter{
 		tablesAliasMap:    tablesAliasMap,
 		tableMap:          tableMap,
 		whereParamMap:     whereParamMap,
@@ -49,7 +49,7 @@ func NewParameterRouter(tablesAliasMap TableAliasMap, tableMap TableExprMap, whe
 	}
 }
 
-func (pr *IParameterRouter) GetAvailableParameters(tb sqlparser.TableExpr) *TableParameterCoupling {
+func (pr *StandardParameterRouter) GetAvailableParameters(tb sqlparser.TableExpr) *TableParameterCoupling {
 	rv := NewTableParameterCoupling()
 	for k, v := range pr.whereParamMap.GetMap() {
 		key := k.String()
@@ -97,7 +97,7 @@ func (pr *IParameterRouter) GetAvailableParameters(tb sqlparser.TableExpr) *Tabl
 	return rv
 }
 
-func (pr *IParameterRouter) InvalidateParams(params map[string]interface{}) error {
+func (pr *StandardParameterRouter) InvalidateParams(params map[string]interface{}) error {
 	for k, v := range params {
 		err := pr.invalidate(k, v)
 		if err != nil {
@@ -107,12 +107,12 @@ func (pr *IParameterRouter) InvalidateParams(params map[string]interface{}) erro
 	return nil
 }
 
-func (pr *IParameterRouter) isInvalidated(key string) bool {
+func (pr *StandardParameterRouter) isInvalidated(key string) bool {
 	_, ok := pr.invalidatedParams[key]
 	return ok
 }
 
-func (pr *IParameterRouter) invalidate(key string, val interface{}) error {
+func (pr *StandardParameterRouter) invalidate(key string, val interface{}) error {
 	if pr.isInvalidated(key) {
 		return fmt.Errorf("parameter '%s' already invalidated", key)
 	}
@@ -124,7 +124,7 @@ func (pr *IParameterRouter) invalidate(key string, val interface{}) error {
 // parser table object.
 // Columnar input may come from either where clause
 // or on conditions.
-func (pr *IParameterRouter) Route(tb sqlparser.TableExpr) error {
+func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr) error {
 	for k, v := range pr.whereParamMap.GetMap() {
 		log.Infof("%v\n", v)
 		alias := k.Alias()
