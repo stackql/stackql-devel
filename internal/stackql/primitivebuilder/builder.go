@@ -21,8 +21,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var ()
-
 type Builder interface {
 	Build() error
 
