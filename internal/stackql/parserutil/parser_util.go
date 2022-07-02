@@ -544,6 +544,8 @@ type ParameterMap interface {
 	iParameterMap()
 	Set(ColumnarReference, ParameterMetadata) error
 	Get(ColumnarReference) (ParameterMetadata, bool)
+	Delete(ColumnarReference) bool
+	GetByString(string) (ColumnarReference, ParameterMetadata, bool)
 	GetMap() map[ColumnarReference]ParameterMetadata
 	GetStringified() map[string]interface{}
 	GetAbbreviatedStringified() map[string]interface{}
@@ -644,6 +646,24 @@ func NewParameterMap() ParameterMap {
 }
 
 func (pm IParameterMap) iParameterMap() {}
+
+func (pm IParameterMap) GetByString(s string) (ColumnarReference, ParameterMetadata, bool) {
+	for k, v := range pm.m {
+		if k.GetStringKey() == s {
+			return k, v, true
+		}
+	}
+	return nil, nil, false
+}
+
+func (pm IParameterMap) Delete(k ColumnarReference) bool {
+	_, ok := pm.m[k]
+	if ok {
+		delete(pm.m, k)
+		return true
+	}
+	return false
+}
 
 func (pm IParameterMap) GetMap() map[ColumnarReference]ParameterMetadata {
 	return pm.m

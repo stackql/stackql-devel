@@ -17,8 +17,9 @@ const (
 type TableParameterCoupling interface {
 	AbbreviateMap(map[string]interface{}) (map[string]interface{}, error)
 	Add(ColumnarReference, ParameterMetadata, ParamSourceType) error
+	Delete(ColumnarReference) bool
 	GetStringified() map[string]interface{}
-	ReconstituteConsumedParams(map[string]interface{}) (map[string]interface{}, error)
+	ReconstituteConsumedParams(map[string]interface{}) (TableParameterCoupling, error)
 }
 
 type StandardTableParameterCoupling struct {
@@ -50,6 +51,10 @@ func (tpc *StandardTableParameterCoupling) Add(col ColumnarReference, val Parame
 	return nil
 }
 
+func (tpc *StandardTableParameterCoupling) Delete(col ColumnarReference) bool {
+	return tpc.paramMap.Delete(col)
+}
+
 func (tpc *StandardTableParameterCoupling) GetStringified() map[string]interface{} {
 	return tpc.paramMap.GetAbbreviatedStringified()
 }
@@ -58,8 +63,14 @@ func (tpc *StandardTableParameterCoupling) AbbreviateMap(verboseMap map[string]i
 	return tpc.paramMap.GetAbbreviatedStringified(), nil
 }
 
-func (tpc *StandardTableParameterCoupling) ReconstituteConsumedParams(returnedMap map[string]interface{}) (map[string]interface{}, error) {
-	rv := tpc.paramMap.GetStringified()
+func (tpc *StandardTableParameterCoupling) ReconstituteConsumedParams(
+	returnedMap map[string]interface{},
+) (TableParameterCoupling, error) {
+	retVal := NewTableParameterCoupling()
+	m := tpc.paramMap.GetMap()
+	for k, v := range m {
+		retVal.Add(k, v, k.SourceType())
+	}
 	for k, v := range returnedMap {
 		key, ok := tpc.colMappings[k]
 		if !ok || v == nil {
@@ -69,12 +80,15 @@ func (tpc *StandardTableParameterCoupling) ReconstituteConsumedParams(returnedMa
 		case *sqlparser.ColName:
 			kv.Metadata = true
 		}
-		keyToDelete := key.String()
-		_, ok = rv[keyToDelete]
+		kt, _, ok := tpc.paramMap.GetByString(key.String())
+		if !ok {
+			return nil, fmt.Errorf("cannot process consumed params: attempt to locate non existing key")
+		}
+		ok = retVal.Delete(kt)
 		if !ok {
 			return nil, fmt.Errorf("cannot process consumed params: attempt to delete non existing key")
 		}
-		delete(rv, keyToDelete)
+
 	}
-	return rv, nil
+	return retVal, nil
 }
