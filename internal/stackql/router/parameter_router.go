@@ -21,11 +21,11 @@ type ParameterRouter interface {
 
 	// Obtains parameters that are unammbiguous (eg: aliased, unique col name)
 	// or potential matches for a supplied table.
-	GetAvailableParameters(tb sqlparser.TableExpr) *parserutil.TableParameterCoupling
+	// getAvailableParameters(tb sqlparser.TableExpr) *parserutil.TableParameterCoupling
 
 	// Records the fact that parameters have been assigned to a table and
 	// cannot be used elsewhere.
-	InvalidateParams(params map[string]interface{}) error
+	// invalidateParams(params map[string]interface{}) error
 
 	// First pass, tentative assignment of columnar objects
 	// to tables.
@@ -41,7 +41,13 @@ type StandardParameterRouter struct {
 	invalidatedParams map[string]interface{}
 }
 
-func NewParameterRouter(tablesAliasMap parserutil.TableAliasMap, tableMap parserutil.TableExprMap, whereParamMap parserutil.ParameterMap, onParamMap parserutil.ParameterMap, colRefs parserutil.ColTableMap) ParameterRouter {
+func NewParameterRouter(
+	tablesAliasMap parserutil.TableAliasMap,
+	tableMap parserutil.TableExprMap,
+	whereParamMap parserutil.ParameterMap,
+	onParamMap parserutil.ParameterMap,
+	colRefs parserutil.ColTableMap,
+) ParameterRouter {
 	return &StandardParameterRouter{
 		tablesAliasMap:    tablesAliasMap,
 		tableMap:          tableMap,
@@ -52,7 +58,7 @@ func NewParameterRouter(tablesAliasMap parserutil.TableAliasMap, tableMap parser
 	}
 }
 
-func (pr *StandardParameterRouter) GetAvailableParameters(tb sqlparser.TableExpr) *parserutil.TableParameterCoupling {
+func (pr *StandardParameterRouter) getAvailableParameters(tb sqlparser.TableExpr) *parserutil.TableParameterCoupling {
 	rv := parserutil.NewTableParameterCoupling()
 	for k, v := range pr.whereParamMap.GetMap() {
 		key := k.String()
@@ -100,7 +106,7 @@ func (pr *StandardParameterRouter) GetAvailableParameters(tb sqlparser.TableExpr
 	return rv
 }
 
-func (pr *StandardParameterRouter) InvalidateParams(params map[string]interface{}) error {
+func (pr *StandardParameterRouter) invalidateParams(params map[string]interface{}) error {
 	for k, v := range params {
 		err := pr.invalidate(k, v)
 		if err != nil {
@@ -164,7 +170,27 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 			pr.colRefs[k] = t
 		}
 	}
-	tpc := pr.GetAvailableParameters(tb)
+	// These are "available parameters"
+	tpc := pr.getAvailableParameters(tb)
+	// After executing GetHeirarchyFromStatement(), we know:
+	//   - Any remaining param is not required.
+	//   - Any "on" param that was consumed:
+	//      - Can / must be from removed join conditions in a rewrite. [Requires Join in router for later rewrite].
+	//      - Defines a sequencing and data flow dependency unless RHS is a literal. [Create new object to represent].
+	// TODO: In order to do this, we can, for each table:
+	//   1. Subtract the remaining parameters returned by GetHeirarchyFromStatement()
+	//      from the available parameters.  Will need reversible string to object translation.
+	//   2. Identify "on" parameters that were consumed as per item #1.
+	//      We are free to change the "table parameter couopling" API to accomodate
+	//      items #1 and #2.
+	//   3. If #2 is consumed, then tag the "on" comparison as being incident to the table.  Probably some
+	//      new data structure to accomodate this.
+	// And then, once all tables are done and also therefore, all hierarchies are present:
+	//   a) Assign all remaining on parameters based on schema.
+	//   b) Represent assignments as edges from table to on condition.
+	//   d) Throw error for disallowed scenarios:
+	//      - Dual outgoing from ON object.
+	//   e) Catalogue and return dataflows (somehow)
 	hr, remainingParams, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, tb, tpc.GetStringified())
 	log.Infof("hr = '%+v', remainingParams = '%+v', err = '%+v'", hr, remainingParams, err)
 	if err != nil {
