@@ -1,9 +1,12 @@
-package parserutil
+package router
 
 import (
 	"fmt"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/stackql/stackql/internal/stackql/handler"
+	"github.com/stackql/stackql/internal/stackql/parserutil"
+	"github.com/stackql/stackql/internal/stackql/taxonomy"
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
@@ -18,7 +21,7 @@ type ParameterRouter interface {
 
 	// Obtains parameters that are unammbiguous (eg: aliased, unique col name)
 	// or potential matches for a supplied table.
-	GetAvailableParameters(tb sqlparser.TableExpr) *TableParameterCoupling
+	GetAvailableParameters(tb sqlparser.TableExpr) *parserutil.TableParameterCoupling
 
 	// Records the fact that parameters have been assigned to a table and
 	// cannot be used elsewhere.
@@ -26,19 +29,19 @@ type ParameterRouter interface {
 
 	// First pass, tentative assignment of columnar objects
 	// to tables.
-	Route(tb sqlparser.TableExpr) error
+	Route(tb sqlparser.TableExpr, handler *handler.HandlerContext) (*taxonomy.ExtendedTableMetadata, map[string]interface{}, error)
 }
 
 type StandardParameterRouter struct {
-	tablesAliasMap    TableAliasMap
-	tableMap          TableExprMap
-	onParamMap        ParameterMap
-	whereParamMap     ParameterMap
-	colRefs           ColTableMap
+	tablesAliasMap    parserutil.TableAliasMap
+	tableMap          parserutil.TableExprMap
+	onParamMap        parserutil.ParameterMap
+	whereParamMap     parserutil.ParameterMap
+	colRefs           parserutil.ColTableMap
 	invalidatedParams map[string]interface{}
 }
 
-func NewParameterRouter(tablesAliasMap TableAliasMap, tableMap TableExprMap, whereParamMap ParameterMap, onParamMap ParameterMap, colRefs ColTableMap) ParameterRouter {
+func NewParameterRouter(tablesAliasMap parserutil.TableAliasMap, tableMap parserutil.TableExprMap, whereParamMap parserutil.ParameterMap, onParamMap parserutil.ParameterMap, colRefs parserutil.ColTableMap) ParameterRouter {
 	return &StandardParameterRouter{
 		tablesAliasMap:    tablesAliasMap,
 		tableMap:          tableMap,
@@ -49,8 +52,8 @@ func NewParameterRouter(tablesAliasMap TableAliasMap, tableMap TableExprMap, whe
 	}
 }
 
-func (pr *StandardParameterRouter) GetAvailableParameters(tb sqlparser.TableExpr) *TableParameterCoupling {
-	rv := NewTableParameterCoupling()
+func (pr *StandardParameterRouter) GetAvailableParameters(tb sqlparser.TableExpr) *parserutil.TableParameterCoupling {
+	rv := parserutil.NewTableParameterCoupling()
 	for k, v := range pr.whereParamMap.GetMap() {
 		key := k.String()
 		tableAlias := k.Alias()
@@ -124,7 +127,7 @@ func (pr *StandardParameterRouter) invalidate(key string, val interface{}) error
 // parser table object.
 // Columnar input may come from either where clause
 // or on conditions.
-func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr) error {
+func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *handler.HandlerContext) (*taxonomy.ExtendedTableMetadata, map[string]interface{}, error) {
 	for k, v := range pr.whereParamMap.GetMap() {
 		log.Infof("%v\n", v)
 		alias := k.Alias()
@@ -133,12 +136,12 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr) error {
 		}
 		t, ok := pr.tablesAliasMap[alias]
 		if !ok {
-			return fmt.Errorf("alias '%s' does not map to any table expression", alias)
+			return nil, nil, fmt.Errorf("alias '%s' does not map to any table expression", alias)
 		}
 		if t == tb {
 			ref, ok := pr.colRefs[k]
 			if ok && ref != t {
-				return fmt.Errorf("failed parameter routing, cannot re-assign")
+				return nil, nil, fmt.Errorf("failed parameter routing, cannot re-assign")
 			}
 			pr.colRefs[k] = t
 		}
@@ -151,15 +154,30 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr) error {
 		}
 		t, ok := pr.tablesAliasMap[alias]
 		if !ok {
-			return fmt.Errorf("alias '%s' does not map to any table expression", alias)
+			return nil, nil, fmt.Errorf("alias '%s' does not map to any table expression", alias)
 		}
 		if t == tb {
 			ref, ok := pr.colRefs[k]
 			if ok && ref != t {
-				return fmt.Errorf("failed parameter routing, cannot re-assign")
+				return nil, nil, fmt.Errorf("failed parameter routing, cannot re-assign")
 			}
 			pr.colRefs[k] = t
 		}
 	}
-	return nil
+	tpc := pr.GetAvailableParameters(tb)
+	hr, remainingParams, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, tb, tpc.GetStringified())
+	log.Infof("hr = '%+v', remainingParams = '%+v', err = '%+v'", hr, remainingParams, err)
+	if err != nil {
+		return nil, nil, err
+	}
+	reconstitutedConsumedParams, err := tpc.ReconstituteConsumedParams(remainingParams)
+	if err != nil {
+		return nil, nil, err
+	}
+	abbreviatedConsumedMap, err := tpc.AbbreviateMap(reconstitutedConsumedParams)
+	if err != nil {
+		return nil, nil, err
+	}
+	m := taxonomy.NewExtendedTableMetadata(hr, taxonomy.GetAliasFromStatement(tb))
+	return m, abbreviatedConsumedMap, nil
 }

@@ -21,6 +21,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/primitivebuilder"
 	"github.com/stackql/stackql/internal/stackql/provider"
 	"github.com/stackql/stackql/internal/stackql/relational"
+	"github.com/stackql/stackql/internal/stackql/router"
 	"github.com/stackql/stackql/internal/stackql/suffix"
 	"github.com/stackql/stackql/internal/stackql/symtab"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
@@ -797,7 +798,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 	onParamMap := astvisit.ExtractParamsFromFromClause(node.From)
 
 	// TODO: There is god awful object <-> namespacing inside here: abstract it.
-	router := parserutil.NewParameterRouter(
+	router := router.NewParameterRouter(
 		pbi.GetAliasedTables(),
 		pbi.GetAssignedAliasedColumns(),
 		whereParamMap,

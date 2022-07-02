@@ -7,56 +7,28 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/router"
-	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 )
 
-type TableRouteAstVisitor struct {
+type SequenceAstVisitor struct {
 	handlerCtx      *handler.HandlerContext
-	router          router.ParameterRouter
-	tableMetaSlice  []*taxonomy.ExtendedTableMetadata
 	tables          taxonomy.TblMap
+	router          router.ParameterRouter
 	annotations     taxonomy.AnnotationCtxMap
 	annotationSlice []taxonomy.AnnotationCtx
 }
 
-func NewTableRouteAstVisitor(handlerCtx *handler.HandlerContext, router router.ParameterRouter) *TableRouteAstVisitor {
-	return &TableRouteAstVisitor{
+func NewSequenceAstVisitor(handlerCtx *handler.HandlerContext, tables taxonomy.TblMap, annotations taxonomy.AnnotationCtxMap) *SequenceAstVisitor {
+	return &SequenceAstVisitor{
 		handlerCtx:  handlerCtx,
-		router:      router,
-		tables:      make(taxonomy.TblMap),
-		annotations: make(taxonomy.AnnotationCtxMap),
+		tables:      tables,
+		annotations: annotations,
 	}
 }
 
-func obtainAnnotationCtx(
-	sqlEngine sqlengine.SQLEngine,
-	tbl *taxonomy.ExtendedTableMetadata,
-	parameters map[string]interface{},
-) (taxonomy.AnnotationCtx, error) {
-	schema, mediaType, err := tbl.GetResponseSchemaAndMediaType()
-	if err != nil {
-		return nil, err
-	}
-	itemObjS, selectItemsKey, err := schema.GetSelectSchema(tbl.LookupSelectItemsKey(), mediaType)
-	unsuitableSchemaMsg := "schema unsuitable for select query"
-	if err != nil {
-		return nil, fmt.Errorf(unsuitableSchemaMsg)
-	}
-	tbl.SelectItemsKey = selectItemsKey
-	provStr, _ := tbl.GetProviderStr()
-	svcStr, _ := tbl.GetServiceStr()
-	if itemObjS == nil {
-		return nil, fmt.Errorf(unsuitableSchemaMsg)
-	}
-	hIds := dto.NewHeirarchyIdentifiers(provStr, svcStr, itemObjS.GetName(), "")
-	return taxonomy.NewStandardAnnotationCtx(itemObjS, hIds, tbl, parameters), nil
-}
-
-func (v *TableRouteAstVisitor) addAnnotationCtx(
+func (v *SequenceAstVisitor) addAnnotationCtx(
 	node sqlparser.SQLNode,
 	tbl *taxonomy.ExtendedTableMetadata,
 	parameters map[string]interface{},
@@ -70,7 +42,7 @@ func (v *TableRouteAstVisitor) addAnnotationCtx(
 	return nil
 }
 
-func (v *TableRouteAstVisitor) analyzeAliasedTable(tb *sqlparser.AliasedTableExpr) (*taxonomy.ExtendedTableMetadata, map[string]interface{}, error) {
+func (v *SequenceAstVisitor) analyzeAliasedTable(tb *sqlparser.AliasedTableExpr) (*taxonomy.ExtendedTableMetadata, map[string]interface{}, error) {
 	switch ex := tb.Expr.(type) {
 	case sqlparser.TableName:
 		return v.router.Route(tb, v.handlerCtx)
@@ -79,23 +51,23 @@ func (v *TableRouteAstVisitor) analyzeAliasedTable(tb *sqlparser.AliasedTableExp
 	}
 }
 
-func (v *TableRouteAstVisitor) GetTableMetaArray() []*taxonomy.ExtendedTableMetadata {
-	return v.tableMetaSlice
+func (v *SequenceAstVisitor) GetTableMetaArray() []*taxonomy.ExtendedTableMetadata {
+	return nil
 }
 
-func (v *TableRouteAstVisitor) GetTableMap() taxonomy.TblMap {
+func (v *SequenceAstVisitor) GetTableMap() taxonomy.TblMap {
 	return v.tables
 }
 
-func (v *TableRouteAstVisitor) GetAnnotations() taxonomy.AnnotationCtxMap {
+func (v *SequenceAstVisitor) GetAnnotations() taxonomy.AnnotationCtxMap {
 	return v.annotations
 }
 
-func (v *TableRouteAstVisitor) GetAnnotationSlice() []taxonomy.AnnotationCtx {
+func (v *SequenceAstVisitor) GetAnnotationSlice() []taxonomy.AnnotationCtx {
 	return v.annotationSlice
 }
 
-func (v *TableRouteAstVisitor) Visit(node sqlparser.SQLNode) error {
+func (v *SequenceAstVisitor) Visit(node sqlparser.SQLNode) error {
 	var err error
 
 	switch node := node.(type) {
@@ -457,7 +429,7 @@ func (v *TableRouteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			if t == nil {
 				return fmt.Errorf("nil table returned")
 			}
-			v.tableMetaSlice = append(v.tableMetaSlice, t)
+			// v.tableMetaSlice = append(v.tableMetaSlice, t)
 			v.tables[node] = t
 			err = v.addAnnotationCtx(node, t, params)
 			if err != nil {
