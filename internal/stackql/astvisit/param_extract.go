@@ -684,7 +684,7 @@ func (v *ParamAstVisitor) Visit(node sqlparser.SQLNode) error {
 		case *sqlparser.ColName:
 			switch rt := node.Right.(type) {
 			case *sqlparser.SQLVal:
-				k, err := parserutil.NewColumnarReference(lt)
+				k, err := parserutil.NewUnknownTypeColumnarReference(lt)
 				if err != nil {
 					return err
 				}
@@ -693,7 +693,7 @@ func (v *ParamAstVisitor) Visit(node sqlparser.SQLNode) error {
 					rt,
 				))
 			case *sqlparser.ColName:
-				k, err := parserutil.NewColumnarReference(lt)
+				k, err := parserutil.NewUnknownTypeColumnarReference(lt)
 				if err != nil {
 					return err
 				}
@@ -701,7 +701,7 @@ func (v *ParamAstVisitor) Visit(node sqlparser.SQLNode) error {
 					node,
 					rt,
 				))
-				kr, err := parserutil.NewColumnarReference(rt)
+				kr, err := parserutil.NewUnknownTypeColumnarReference(rt)
 				if err != nil {
 					return err
 				}
@@ -715,7 +715,7 @@ func (v *ParamAstVisitor) Visit(node sqlparser.SQLNode) error {
 			switch rt := node.Right.(type) {
 			case *sqlparser.SQLVal:
 			case *sqlparser.ColName:
-				k, err := parserutil.NewColumnarReference(rt)
+				k, err := parserutil.NewUnknownTypeColumnarReference(rt)
 				if err != nil {
 					return err
 				}

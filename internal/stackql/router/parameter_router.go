@@ -58,7 +58,7 @@ func NewParameterRouter(
 	}
 }
 
-func (pr *StandardParameterRouter) getAvailableParameters(tb sqlparser.TableExpr) *parserutil.TableParameterCoupling {
+func (pr *StandardParameterRouter) getAvailableParameters(tb sqlparser.TableExpr) parserutil.TableParameterCoupling {
 	rv := parserutil.NewTableParameterCoupling()
 	for k, v := range pr.whereParamMap.GetMap() {
 		key := k.String()
@@ -74,7 +74,7 @@ func (pr *StandardParameterRouter) getAvailableParameters(tb sqlparser.TableExpr
 		if ok && ref != tb {
 			continue
 		}
-		rv.Add(k, v)
+		rv.Add(k, v, parserutil.WhereParam)
 	}
 	for k, v := range pr.onParamMap.GetMap() {
 		key := k.String()
@@ -101,7 +101,7 @@ func (pr *StandardParameterRouter) getAvailableParameters(tb sqlparser.TableExpr
 				//
 			}
 		}
-		rv.Add(k, v)
+		rv.Add(k, v, parserutil.JoinOnParam)
 	}
 	return rv
 }
@@ -181,7 +181,7 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 	//   1. Subtract the remaining parameters returned by GetHeirarchyFromStatement()
 	//      from the available parameters.  Will need reversible string to object translation.
 	//   2. Identify "on" parameters that were consumed as per item #1.
-	//      We are free to change the "table parameter couopling" API to accomodate
+	//      We are free to change the "table parameter coupling" API to accomodate
 	//      items #1 and #2.
 	//   3. If #2 is consumed, then tag the "on" comparison as being incident to the table.  Probably some
 	//      new data structure to accomodate this.

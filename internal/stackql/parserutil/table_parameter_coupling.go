@@ -6,20 +6,39 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-type TableParameterCoupling struct {
+type ParamSourceType int
+
+const (
+	UnknownParam ParamSourceType = iota
+	WhereParam
+	JoinOnParam
+)
+
+type TableParameterCoupling interface {
+	AbbreviateMap(map[string]interface{}) (map[string]interface{}, error)
+	Add(ColumnarReference, ParameterMetadata, ParamSourceType) error
+	GetStringified() map[string]interface{}
+	ReconstituteConsumedParams(map[string]interface{}) (map[string]interface{}, error)
+}
+
+type StandardTableParameterCoupling struct {
 	paramMap    ParameterMap
 	colMappings map[string]ColumnarReference
 }
 
-func NewTableParameterCoupling() *TableParameterCoupling {
-	return &TableParameterCoupling{
+func NewTableParameterCoupling() TableParameterCoupling {
+	return &StandardTableParameterCoupling{
 		paramMap:    NewParameterMap(),
 		colMappings: make(map[string]ColumnarReference),
 	}
 }
 
-func (tpc *TableParameterCoupling) Add(col ColumnarReference, val ParameterMetadata) error {
-	err := tpc.paramMap.Set(col, val)
+func (tpc *StandardTableParameterCoupling) Add(col ColumnarReference, val ParameterMetadata, paramType ParamSourceType) error {
+	colTyped, err := NewColumnarReference(col.Value(), paramType)
+	if err != nil {
+		return err
+	}
+	err = tpc.paramMap.Set(colTyped, val)
 	if err != nil {
 		return err
 	}
@@ -31,15 +50,15 @@ func (tpc *TableParameterCoupling) Add(col ColumnarReference, val ParameterMetad
 	return nil
 }
 
-func (tpc *TableParameterCoupling) GetStringified() map[string]interface{} {
+func (tpc *StandardTableParameterCoupling) GetStringified() map[string]interface{} {
 	return tpc.paramMap.GetAbbreviatedStringified()
 }
 
-func (tpc *TableParameterCoupling) AbbreviateMap(verboseMap map[string]interface{}) (map[string]interface{}, error) {
+func (tpc *StandardTableParameterCoupling) AbbreviateMap(verboseMap map[string]interface{}) (map[string]interface{}, error) {
 	return tpc.paramMap.GetAbbreviatedStringified(), nil
 }
 
-func (tpc *TableParameterCoupling) ReconstituteConsumedParams(returnedMap map[string]interface{}) (map[string]interface{}, error) {
+func (tpc *StandardTableParameterCoupling) ReconstituteConsumedParams(returnedMap map[string]interface{}) (map[string]interface{}, error) {
 	rv := tpc.paramMap.GetStringified()
 	for k, v := range returnedMap {
 		key, ok := tpc.colMappings[k]

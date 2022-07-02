@@ -556,14 +556,21 @@ type ParameterMap interface {
 // and request routing.
 type ColumnarReference interface {
 	iColumnarReference()
+	GetStringKey() string
 	Value() interface{}
 	Alias() string
 	String() string
 	Name() string
+	SourceType() ParamSourceType
 }
 
 type IColumnarReference struct {
-	k interface{}
+	k          interface{}
+	sourceType ParamSourceType
+}
+
+func (cr IColumnarReference) SourceType() ParamSourceType {
+	return cr.sourceType
 }
 
 func (cr IColumnarReference) Value() interface{} {
@@ -605,14 +612,22 @@ func (cr IColumnarReference) String() string {
 
 func (pk IColumnarReference) iColumnarReference() {}
 
+func NewUnknownTypeColumnarReference(k interface{}) (ColumnarReference, error) {
+	return newColumnarReference(k, UnknownParam)
+}
+
+func NewColumnarReference(k interface{}, sourceType ParamSourceType) (ColumnarReference, error) {
+	return newColumnarReference(k, sourceType)
+}
+
 // Enforces supported underlying data invariant.
-func NewColumnarReference(k interface{}) (ColumnarReference, error) {
+func newColumnarReference(k interface{}, sourceType ParamSourceType) (ColumnarReference, error) {
 	switch k := k.(type) {
 	case *sqlparser.ColName:
-		return IColumnarReference{k: k}, nil
+		return IColumnarReference{k: k, sourceType: sourceType}, nil
 	case sqlparser.ColIdent:
 		kp := &k
-		return IColumnarReference{k: kp}, nil
+		return IColumnarReference{k: kp, sourceType: sourceType}, nil
 	default:
 		return nil, fmt.Errorf("cannot accomodate columnar reference for type = '%T'", k)
 	}
@@ -637,7 +652,7 @@ func (pm IParameterMap) GetMap() map[ColumnarReference]ParameterMetadata {
 func (pm IParameterMap) GetStringified() map[string]interface{} {
 	rv := make(map[string]interface{})
 	for k, v := range pm.m {
-		rv[pm.getStringKey(k)] = v
+		rv[k.GetStringKey()] = v
 	}
 	return rv
 }
@@ -645,11 +660,14 @@ func (pm IParameterMap) GetStringified() map[string]interface{} {
 func (pm IParameterMap) GetAbbreviatedStringified() map[string]interface{} {
 	rv := make(map[string]interface{})
 	for k, v := range pm.m {
-		switch k := k.Value().(type) {
+		if k.SourceType() == JoinOnParam {
+			continue
+		}
+		switch kv := k.Value().(type) {
 		case *sqlparser.ColName:
-			rv[k.Name.GetRawVal()] = v
+			rv[kv.Name.GetRawVal()] = v
 		default:
-			rv[pm.getStringKey(k)] = v
+			rv[k.GetStringKey()] = v
 		}
 	}
 	return rv
@@ -667,8 +685,8 @@ func (pm IParameterMap) Set(k ColumnarReference, v ParameterMetadata) error {
 	return nil
 }
 
-func (pm IParameterMap) getStringKey(k interface{}) string {
-	switch k := k.(type) {
+func (cr IColumnarReference) GetStringKey() string {
+	switch k := cr.k.(type) {
 	case *sqlparser.ColName:
 		return k.GetRawVal()
 	case *sqlparser.ColIdent:
@@ -699,7 +717,7 @@ type ColTableMap map[ColumnarReference]sqlparser.TableExpr
 func (tm IParameterMap) ToStringMap() map[string]interface{} {
 	rv := make(map[string]interface{})
 	for k, v := range tm.m {
-		rv[tm.getStringKey(k)] = v
+		rv[k.GetStringKey()] = v
 	}
 	return rv
 }
