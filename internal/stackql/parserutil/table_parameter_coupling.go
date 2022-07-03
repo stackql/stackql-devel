@@ -19,6 +19,7 @@ type TableParameterCoupling interface {
 	Add(ColumnarReference, ParameterMetadata, ParamSourceType) error
 	Delete(ColumnarReference) bool
 	GetOnCoupling() TableParameterCoupling
+	GetAllParameters() []ParameterMapKeyVal
 	GetStringified() map[string]interface{}
 	ReconstituteConsumedParams(map[string]interface{}) (TableParameterCoupling, error)
 }
@@ -33,6 +34,10 @@ func NewTableParameterCoupling() TableParameterCoupling {
 		paramMap:    NewParameterMap(),
 		colMappings: make(map[string]ColumnarReference),
 	}
+}
+
+func (tpc *StandardTableParameterCoupling) GetAllParameters() []ParameterMapKeyVal {
+	return tpc.paramMap.GetAll()
 }
 
 func (tpc *StandardTableParameterCoupling) Add(col ColumnarReference, val ParameterMetadata, paramType ParamSourceType) error {

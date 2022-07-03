@@ -33,12 +33,13 @@ type ParameterRouter interface {
 }
 
 type StandardParameterRouter struct {
-	tablesAliasMap    parserutil.TableAliasMap
-	tableMap          parserutil.TableExprMap
-	onParamMap        parserutil.ParameterMap
-	whereParamMap     parserutil.ParameterMap
-	colRefs           parserutil.ColTableMap
-	invalidatedParams map[string]interface{}
+	tablesAliasMap        parserutil.TableAliasMap
+	tableMap              parserutil.TableExprMap
+	onParamMap            parserutil.ParameterMap
+	whereParamMap         parserutil.ParameterMap
+	colRefs               parserutil.ColTableMap
+	onConditionsToRewrite []*sqlparser.ComparisonExpr
+	invalidatedParams     map[string]interface{}
 }
 
 func NewParameterRouter(
@@ -178,23 +179,23 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 	//      - Can / must be from removed join conditions in a rewrite. [Requires Join in router for later rewrite].
 	//      - Defines a sequencing and data flow dependency unless RHS is a literal. [Create new object to represent].
 	// TODO: In order to do this, we can, for each table:
-	//   1. Subtract the remaining parameters returned by GetHeirarchyFromStatement()
+	//   1. [*] Subtract the remaining parameters returned by GetHeirarchyFromStatement()
 	//      from the available parameters.  Will need reversible string to object translation.
-	//   2. Identify "on" parameters that were consumed as per item #1.
+	//   2. [*] Identify "on" parameters that were consumed as per item #1.
 	//      We are free to change the "table parameter coupling" API to accomodate
 	//      items #1 and #2.
-	//   3. If #2 is consumed, then:
-	//        - Tag the "on" comparison as being incident to the table.
-	//        - Tag the "on" comparison for later rewrite to NOP.
+	//   3. [ ] If #2 is consumed, then:
+	//        - [ ] Tag the "on" comparison as being incident to the table.
+	//        - [ ] Tag the "on" comparison for later rewrite to NOP.
 	//      Probably some
 	//      new data structure to accomodate this.
 	// And then, once all tables are done and also therefore, all hierarchies are present:
-	//   a) Assign all remaining on parameters based on schema.
-	//   b) Represent assignments as edges from table to on condition.
-	//   d) Throw error for disallowed scenarios:
-	//      - Dual outgoing from ON object.
-	//   e) REwrite NOP on clauses.
-	//   f) Catalogue and return dataflows (somehow)
+	//   a) [ ] Assign all remaining on parameters based on schema.
+	//   b) [ ] Represent assignments as edges from table to on condition.
+	//   d) [ ] Throw error for disallowed scenarios:
+	//        - Dual outgoing from ON object.
+	//   e) [ ] Rewrite NOP on clauses.
+	//   f) [ ] Catalogue and return dataflows (somehow)
 	stringParams := tpc.GetStringified()
 	hr, remainingParams, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, tb, stringParams)
 	log.Infof("hr = '%+v', remainingParams = '%+v', err = '%+v'", hr, remainingParams, err)
@@ -210,7 +211,14 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 		return nil, nil, err
 	}
 	onConsumed := reconstitutedConsumedParams.GetOnCoupling()
+	pms := onConsumed.GetAllParameters()
 	log.Infof("onConsumed = '%+v'", onConsumed)
+	for _, kv := range pms {
+		// In this stanza:
+		//   1. mark comarisons for rewriting
+		//   2. some sequencing data to be stored
+		log.Infof("%v", kv)
+	}
 	m := taxonomy.NewExtendedTableMetadata(hr, taxonomy.GetAliasFromStatement(tb))
 	return m, abbreviatedConsumedMap, nil
 }
