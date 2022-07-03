@@ -183,15 +183,20 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 	//   2. Identify "on" parameters that were consumed as per item #1.
 	//      We are free to change the "table parameter coupling" API to accomodate
 	//      items #1 and #2.
-	//   3. If #2 is consumed, then tag the "on" comparison as being incident to the table.  Probably some
+	//   3. If #2 is consumed, then:
+	//        - Tag the "on" comparison as being incident to the table.
+	//        - Tag the "on" comparison for later rewrite to NOP.
+	//      Probably some
 	//      new data structure to accomodate this.
 	// And then, once all tables are done and also therefore, all hierarchies are present:
 	//   a) Assign all remaining on parameters based on schema.
 	//   b) Represent assignments as edges from table to on condition.
 	//   d) Throw error for disallowed scenarios:
 	//      - Dual outgoing from ON object.
-	//   e) Catalogue and return dataflows (somehow)
-	hr, remainingParams, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, tb, tpc.GetStringified())
+	//   e) REwrite NOP on clauses.
+	//   f) Catalogue and return dataflows (somehow)
+	stringParams := tpc.GetStringified()
+	hr, remainingParams, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, tb, stringParams)
 	log.Infof("hr = '%+v', remainingParams = '%+v', err = '%+v'", hr, remainingParams, err)
 	if err != nil {
 		return nil, nil, err
@@ -204,6 +209,8 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 	if err != nil {
 		return nil, nil, err
 	}
+	onConsumed := reconstitutedConsumedParams.GetOnCoupling()
+	log.Infof("onConsumed = '%+v'", onConsumed)
 	m := taxonomy.NewExtendedTableMetadata(hr, taxonomy.GetAliasFromStatement(tb))
 	return m, abbreviatedConsumedMap, nil
 }

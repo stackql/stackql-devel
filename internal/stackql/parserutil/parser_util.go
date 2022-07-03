@@ -545,10 +545,15 @@ type ParameterMap interface {
 	Set(ColumnarReference, ParameterMetadata) error
 	Get(ColumnarReference) (ParameterMetadata, bool)
 	Delete(ColumnarReference) bool
-	GetByString(string) (ColumnarReference, ParameterMetadata, bool)
+	GetByString(string) ([]ParameterMapKeyVal, bool)
 	GetMap() map[ColumnarReference]ParameterMetadata
 	GetStringified() map[string]interface{}
 	GetAbbreviatedStringified() map[string]interface{}
+}
+
+type ParameterMapKeyVal struct {
+	K ColumnarReference
+	V ParameterMetadata
 }
 
 // An abstract data type where the
@@ -647,13 +652,14 @@ func NewParameterMap() ParameterMap {
 
 func (pm IParameterMap) iParameterMap() {}
 
-func (pm IParameterMap) GetByString(s string) (ColumnarReference, ParameterMetadata, bool) {
+func (pm IParameterMap) GetByString(s string) ([]ParameterMapKeyVal, bool) {
+	var retVal []ParameterMapKeyVal
 	for k, v := range pm.m {
 		if k.GetStringKey() == s {
-			return k, v, true
+			retVal = append(retVal, ParameterMapKeyVal{K: k, V: v})
 		}
 	}
-	return nil, nil, false
+	return retVal, true
 }
 
 func (pm IParameterMap) Delete(k ColumnarReference) bool {
@@ -681,7 +687,7 @@ func (pm IParameterMap) GetAbbreviatedStringified() map[string]interface{} {
 	rv := make(map[string]interface{})
 	for k, v := range pm.m {
 		if k.SourceType() == JoinOnParam {
-			continue
+			// continue
 		}
 		switch kv := k.Value().(type) {
 		case *sqlparser.ColName:

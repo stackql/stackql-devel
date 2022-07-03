@@ -18,6 +18,7 @@ type TableParameterCoupling interface {
 	AbbreviateMap(map[string]interface{}) (map[string]interface{}, error)
 	Add(ColumnarReference, ParameterMetadata, ParamSourceType) error
 	Delete(ColumnarReference) bool
+	GetOnCoupling() TableParameterCoupling
 	GetStringified() map[string]interface{}
 	ReconstituteConsumedParams(map[string]interface{}) (TableParameterCoupling, error)
 }
@@ -63,14 +64,30 @@ func (tpc *StandardTableParameterCoupling) AbbreviateMap(verboseMap map[string]i
 	return tpc.paramMap.GetAbbreviatedStringified(), nil
 }
 
-func (tpc *StandardTableParameterCoupling) ReconstituteConsumedParams(
-	returnedMap map[string]interface{},
-) (TableParameterCoupling, error) {
+func (tpc *StandardTableParameterCoupling) GetOnCoupling() TableParameterCoupling {
+	retVal := NewTableParameterCoupling()
+	m := tpc.paramMap.GetMap()
+	for k, v := range m {
+		if k.SourceType() == JoinOnParam {
+			retVal.Add(k, v, k.SourceType())
+		}
+	}
+	return retVal
+}
+
+func (tpc *StandardTableParameterCoupling) clone() TableParameterCoupling {
 	retVal := NewTableParameterCoupling()
 	m := tpc.paramMap.GetMap()
 	for k, v := range m {
 		retVal.Add(k, v, k.SourceType())
 	}
+	return retVal
+}
+
+func (tpc *StandardTableParameterCoupling) ReconstituteConsumedParams(
+	returnedMap map[string]interface{},
+) (TableParameterCoupling, error) {
+	retVal := tpc.clone()
 	for k, v := range returnedMap {
 		key, ok := tpc.colMappings[k]
 		if !ok || v == nil {
@@ -80,13 +97,15 @@ func (tpc *StandardTableParameterCoupling) ReconstituteConsumedParams(
 		case *sqlparser.ColName:
 			kv.Metadata = true
 		}
-		kt, _, ok := tpc.paramMap.GetByString(key.String())
+		kv, ok := tpc.paramMap.GetByString(key.String())
 		if !ok {
 			return nil, fmt.Errorf("cannot process consumed params: attempt to locate non existing key")
 		}
-		ok = retVal.Delete(kt)
-		if !ok {
-			return nil, fmt.Errorf("cannot process consumed params: attempt to delete non existing key")
+		for _, kt := range kv {
+			ok = retVal.Delete(kt.K)
+			if !ok {
+				return nil, fmt.Errorf("cannot process consumed params: attempt to delete non existing key")
+			}
 		}
 
 	}
