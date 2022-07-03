@@ -15,7 +15,7 @@ const (
 )
 
 type TableParameterCoupling interface {
-	AbbreviateMap(map[string]interface{}) (map[string]interface{}, error)
+	AbbreviateMap() (map[string]interface{}, error)
 	Add(ColumnarReference, ParameterMetadata, ParamSourceType) error
 	Delete(ColumnarReference) bool
 	GetOnCoupling() TableParameterCoupling
@@ -60,7 +60,7 @@ func (tpc *StandardTableParameterCoupling) GetStringified() map[string]interface
 	return tpc.paramMap.GetAbbreviatedStringified()
 }
 
-func (tpc *StandardTableParameterCoupling) AbbreviateMap(verboseMap map[string]interface{}) (map[string]interface{}, error) {
+func (tpc *StandardTableParameterCoupling) AbbreviateMap() (map[string]interface{}, error) {
 	return tpc.paramMap.GetAbbreviatedStringified(), nil
 }
 

@@ -205,7 +205,7 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 	if err != nil {
 		return nil, nil, err
 	}
-	abbreviatedConsumedMap, err := tpc.AbbreviateMap(reconstitutedConsumedParams.GetStringified())
+	abbreviatedConsumedMap, err := reconstitutedConsumedParams.AbbreviateMap()
 	if err != nil {
 		return nil, nil, err
 	}
