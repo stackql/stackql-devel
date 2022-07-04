@@ -65,16 +65,30 @@
       ],
     },
     {
-      "name": "Debug \"DESCRIBE google.compute.instances;\" -- prebuilt with cmake",
+      "name": "Debug \"DESCRIBE google.fcmdata.delivery_data;\" -- prebuilt with cmake",
       "type": "go",
       "request": "launch",
       "mode": "debug",
       "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
-        "DESCRIBE google.compute.instances;", // "--offline"
+        "--registry=${input:registryString}",
+        "DESCRIBE google.fcmdata.delivery_data;", // "--offline"
       ],
     },
+    {
+      "name": "Debug \"DESCRIBE google.compute.health_checks_aggregated;\" -- prebuilt with cmake",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
+      "args": [
+        "exec",
+        "--registry=${input:registryString}",
+        "DESCRIBE google.compute.health_checks_aggregated;", // "--offline"
+      ],
+    },
+    // select id, name from google.storage.buckets where project = 'lab-kr-network-01';
     {
       "name": "Debug \"DESCRIBE k8s.core_v1.Node ;\" ",
       "type": "go",
@@ -135,6 +149,20 @@
         "--registry=${input:registryString}",
         "--auth=${input:authString}",
         "select  kind, name  from  google.compute.acceleratorTypes where project = '${input:gcpProject}' and zone = 'australia-southeast1-a' order by name desc;"
+      ],
+    },
+    // select id, name from google.storage.buckets where project = 'lab-kr-network-01';
+    {
+      "name": "DEBUG select compute.storage.buckets ... ;",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
+      "args": [
+        "exec",
+        "--registry=${input:registryString}",
+        "--auth=${input:authString}",
+        "select id, name from google.storage.buckets where project = '${input:gcpProject}';"
       ],
     },
     {

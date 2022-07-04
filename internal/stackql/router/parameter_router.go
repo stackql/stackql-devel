@@ -33,13 +33,15 @@ type ParameterRouter interface {
 }
 
 type StandardParameterRouter struct {
-	tablesAliasMap        parserutil.TableAliasMap
-	tableMap              parserutil.TableExprMap
-	onParamMap            parserutil.ParameterMap
-	whereParamMap         parserutil.ParameterMap
-	colRefs               parserutil.ColTableMap
-	onConditionsToRewrite []*sqlparser.ComparisonExpr
-	invalidatedParams     map[string]interface{}
+	tablesAliasMap                parserutil.TableAliasMap
+	tableMap                      parserutil.TableExprMap
+	onParamMap                    parserutil.ParameterMap
+	whereParamMap                 parserutil.ParameterMap
+	colRefs                       parserutil.ColTableMap
+	onConditionsToRewrite         map[*sqlparser.ComparisonExpr]struct{}
+	comparisonToTableDependencies parserutil.ComparisonTableMap
+	tableToMetadata               map[sqlparser.TableExpr]*taxonomy.ExtendedTableMetadata
+	invalidatedParams             map[string]interface{}
 }
 
 func NewParameterRouter(
@@ -50,12 +52,15 @@ func NewParameterRouter(
 	colRefs parserutil.ColTableMap,
 ) ParameterRouter {
 	return &StandardParameterRouter{
-		tablesAliasMap:    tablesAliasMap,
-		tableMap:          tableMap,
-		whereParamMap:     whereParamMap,
-		onParamMap:        onParamMap,
-		colRefs:           colRefs,
-		invalidatedParams: make(map[string]interface{}),
+		tablesAliasMap:                tablesAliasMap,
+		tableMap:                      tableMap,
+		whereParamMap:                 whereParamMap,
+		onParamMap:                    onParamMap,
+		colRefs:                       colRefs,
+		invalidatedParams:             make(map[string]interface{}),
+		onConditionsToRewrite:         make(map[*sqlparser.ComparisonExpr]struct{}),
+		comparisonToTableDependencies: make(parserutil.ComparisonTableMap),
+		tableToMetadata:               make(map[sqlparser.TableExpr]*taxonomy.ExtendedTableMetadata),
 	}
 }
 
@@ -184,9 +189,9 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 	//   2. [*] Identify "on" parameters that were consumed as per item #1.
 	//      We are free to change the "table parameter coupling" API to accomodate
 	//      items #1 and #2.
-	//   3. [ ] If #2 is consumed, then:
-	//        - [ ] Tag the "on" comparison as being incident to the table.
-	//        - [ ] Tag the "on" comparison for later rewrite to NOP.
+	//   3. [*] If #2 is consumed, then:
+	//        - [*] Tag the "on" comparison as being incident to the table.
+	//        - [*] Tag the "on" comparison for later rewrite to NOP.
 	//      Probably some
 	//      new data structure to accomodate this.
 	// And then, once all tables are done and also therefore, all hierarchies are present:
@@ -215,10 +220,29 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 	log.Infof("onConsumed = '%+v'", onConsumed)
 	for _, kv := range pms {
 		// In this stanza:
-		//   1. mark comarisons for rewriting
-		//   2. some sequencing data to be stored
+		//   1. [*] mark comparisons for rewriting
+		//   2. [*] some sequencing data to be stored
+		p := kv.V.GetParent()
+		pr.onConditionsToRewrite[p] = struct{}{}
+		pr.comparisonToTableDependencies[p] = tb
+		// this can be done, not sure if it is the best way
+		// rewriteComparisonExpr(p)
 		log.Infof("%v", kv)
 	}
 	m := taxonomy.NewExtendedTableMetadata(hr, taxonomy.GetAliasFromStatement(tb))
+	// store relationsship from sqlparser table expression to
+	// hierarchy.  This enables e2e relationship
+	// from expression to hierarchy.
+	// eg: "on" clause to openapi method
+	pr.tableToMetadata[tb] = m
 	return m, abbreviatedConsumedMap, nil
+}
+
+func rewriteComparisonExpr(ex *sqlparser.ComparisonExpr) {
+	ex = &sqlparser.ComparisonExpr{
+		Left:     &sqlparser.SQLVal{Type: sqlparser.IntVal, Val: []byte("1")},
+		Right:    &sqlparser.SQLVal{Type: sqlparser.IntVal, Val: []byte("1")},
+		Operator: ex.Operator,
+		Escape:   ex.Escape,
+	}
 }

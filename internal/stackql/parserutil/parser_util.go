@@ -441,7 +441,6 @@ func ExtractTableNameFromTableExpr(tableExpr sqlparser.TableExpr) (*sqlparser.Ta
 	default:
 		return nil, fmt.Errorf("could not extract table name from TableExpr of type %T", table)
 	}
-	return nil, fmt.Errorf("could not extract table name from TableExpr")
 }
 
 func ExtractSingleTableFromTableExprs(tableExprs sqlparser.TableExprs) (*sqlparser.TableName, error) {
@@ -471,6 +470,8 @@ type TableExprMap map[sqlparser.TableName]sqlparser.TableExpr
 
 type TableAliasMap map[string]sqlparser.TableExpr
 
+type ComparisonTableMap map[*sqlparser.ComparisonExpr]sqlparser.TableExpr
+
 func (tem TableExprMap) GetByAlias(alias string) (sqlparser.TableExpr, bool) {
 	for k, v := range tem {
 		if k.GetRawVal() == alias {
@@ -482,6 +483,7 @@ func (tem TableExprMap) GetByAlias(alias string) (sqlparser.TableExpr, bool) {
 
 type ParameterMetadata interface {
 	iParameterMetadata()
+	GetParent() *sqlparser.ComparisonExpr
 	GetVal() interface{}
 	GetTable() sqlparser.SQLNode
 	SetTable(sqlparser.SQLNode) error
@@ -510,6 +512,10 @@ func NewPlaceholderParameterMetadata() ParameterMetadata {
 
 func (pm *StandardComparisonParameterMetadata) iParameterMetadata() {}
 
+func (pm *StandardComparisonParameterMetadata) GetParent() *sqlparser.ComparisonExpr {
+	return pm.Parent
+}
+
 func (pm *StandardComparisonParameterMetadata) GetVal() interface{} {
 	return pm.Val
 }
@@ -527,6 +533,10 @@ func (pm PlaceholderParameterMetadata) iParameterMetadata() {}
 
 func (pm PlaceholderParameterMetadata) GetVal() interface{} {
 	return pm.placeholderVal
+}
+
+func (pm PlaceholderParameterMetadata) GetParent() *sqlparser.ComparisonExpr {
+	return nil
 }
 
 func (pm PlaceholderParameterMetadata) GetTable() sqlparser.SQLNode {
