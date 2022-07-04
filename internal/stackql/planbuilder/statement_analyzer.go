@@ -823,6 +823,15 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 	colRefs := pbi.GetColRefs()
 	// END_BLOCK  ParameterHierarchy
 
+	// BLOCK  SequencingAccrual
+	dataFlows, err := router.GetOnConditionDataFlows()
+	log.Debugf("%v\n", dataFlows)
+	// END_BLOCK  SequencingAccrual
+
+	if err != nil {
+		return err
+	}
+
 	for k, v := range tblz {
 		p.PrimitiveComposer.SetTable(k, v)
 	}

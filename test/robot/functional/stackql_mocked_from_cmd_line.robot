@@ -238,7 +238,7 @@ Join GCP Okta Cross Provider
     ...    ${SELECT_CONTRIVED_GCP_OKTA_JOIN}
     ...    ${SELECT_CONTRIVED_GCP_OKTA_JOIN_EXPECTED}
 
-Join GCP Okta Cross Provider JSON Dpendent Keyword in Table Name
+Join GCP Okta Cross Provider JSON Dependent Keyword in Table Name
     Should StackQL Exec Inline Equal
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}

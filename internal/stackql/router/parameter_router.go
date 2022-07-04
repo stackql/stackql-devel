@@ -27,9 +27,25 @@ type ParameterRouter interface {
 	// cannot be used elsewhere.
 	// invalidateParams(params map[string]interface{}) error
 
-	// First pass, tentative assignment of columnar objects
-	// to tables.
+	// First pass assignment of columnar objects
+	// to tables, only for HTTP method parameters.  All data accrual is done herein:
+	//   - SQL parser table objects mapped to hierarchy.
+	//   - Data flow dependencies identified and persisted.
+	//   - Hierarchies may be persisted for analysis.
+	// Detects bi-directional data flow errors and returns error if so.
+	// Returns:
+	//   - Hierarchy.
+	//   - Columnar objects definitely assigned as HTTP method parameters.
+	//   - Error if applicable.
 	Route(tb sqlparser.TableExpr, handler *handler.HandlerContext) (*taxonomy.ExtendedTableMetadata, map[string]interface{}, error)
+
+	// Detects:
+	//   - Dependency cycle.
+	AnalyzeDependencies() error
+
+	GetOnConditionsToRewrite() map[*sqlparser.ComparisonExpr]struct{}
+
+	GetOnConditionDataFlows() (map[*taxonomy.ExtendedTableMetadata]*taxonomy.ExtendedTableMetadata, error)
 }
 
 type StandardParameterRouter struct {
@@ -38,8 +54,8 @@ type StandardParameterRouter struct {
 	onParamMap                    parserutil.ParameterMap
 	whereParamMap                 parserutil.ParameterMap
 	colRefs                       parserutil.ColTableMap
-	onConditionsToRewrite         map[*sqlparser.ComparisonExpr]struct{}
 	comparisonToTableDependencies parserutil.ComparisonTableMap
+	tableToComparisonDependencies parserutil.ComparisonTableMap
 	tableToMetadata               map[sqlparser.TableExpr]*taxonomy.ExtendedTableMetadata
 	invalidatedParams             map[string]interface{}
 }
@@ -58,10 +74,90 @@ func NewParameterRouter(
 		onParamMap:                    onParamMap,
 		colRefs:                       colRefs,
 		invalidatedParams:             make(map[string]interface{}),
-		onConditionsToRewrite:         make(map[*sqlparser.ComparisonExpr]struct{}),
 		comparisonToTableDependencies: make(parserutil.ComparisonTableMap),
+		tableToComparisonDependencies: make(parserutil.ComparisonTableMap),
 		tableToMetadata:               make(map[sqlparser.TableExpr]*taxonomy.ExtendedTableMetadata),
 	}
+}
+
+func (pr *StandardParameterRouter) AnalyzeDependencies() error {
+	// for k, v := range pr.comparisonToTableDependencies {
+	// }
+	return nil
+}
+
+func (pr *StandardParameterRouter) GetOnConditionsToRewrite() map[*sqlparser.ComparisonExpr]struct{} {
+	rv := make(map[*sqlparser.ComparisonExpr]struct{})
+	for k, _ := range pr.comparisonToTableDependencies {
+		rv[k] = struct{}{}
+	}
+	return rv
+}
+
+func (pr *StandardParameterRouter) extractDataFlowDependency(input sqlparser.Expr) (*taxonomy.ExtendedTableMetadata, error) {
+	switch l := input.(type) {
+	case *sqlparser.ColName:
+		// leave unknown for now -- bit of a mess
+		ref, err := parserutil.NewColumnarReference(l, parserutil.UnknownParam)
+		if err != nil {
+			return nil, err
+		}
+		tb, ok := pr.colRefs[ref]
+		if !ok {
+			return nil, fmt.Errorf("unassigned column in ON condition dataflow; please alias column '%s'", l.GetRawVal())
+		}
+		hr, ok := pr.tableToMetadata[tb]
+		if !ok {
+			return nil, fmt.Errorf("cannot assign hierarchy for column '%s'", l.GetRawVal())
+		}
+		return hr, nil
+	default:
+		return nil, fmt.Errorf("cannot accomodate ON condition of type = '%T'", l)
+	}
+}
+
+func (pr *StandardParameterRouter) GetOnConditionDataFlows() (map[*taxonomy.ExtendedTableMetadata]*taxonomy.ExtendedTableMetadata, error) {
+	rv := make(map[*taxonomy.ExtendedTableMetadata]*taxonomy.ExtendedTableMetadata)
+	for k, v := range pr.comparisonToTableDependencies {
+		selfTableCited := false
+		v2, ok := pr.tableToMetadata[v]
+		if !ok {
+			return nil, fmt.Errorf("table expression '%s' has not been assigned to hierarchy", sqlparser.String(v))
+		}
+		var dependency *taxonomy.ExtendedTableMetadata
+		switch l := k.Left.(type) {
+		case *sqlparser.ColName:
+			lhr, err := pr.extractDataFlowDependency(l)
+			if err != nil {
+				return nil, err
+			}
+			if v2 == lhr {
+				selfTableCited = true
+			} else {
+				dependency = lhr
+			}
+		}
+		switch r := k.Right.(type) {
+		case *sqlparser.ColName:
+			rhr, err := pr.extractDataFlowDependency(r)
+			if err != nil {
+				return nil, err
+			}
+			if v2 == rhr {
+				if selfTableCited {
+					return nil, fmt.Errorf("table join ON comparison '%s' is self referencing", sqlparser.String(k))
+				}
+				selfTableCited = true
+			} else {
+				dependency = rhr
+			}
+		}
+		if !selfTableCited {
+			return nil, fmt.Errorf("table join ON comparison '%s' referencing incomplete", sqlparser.String(k))
+		}
+		rv[dependency] = v2
+	}
+	return rv, nil
 }
 
 func (pr *StandardParameterRouter) getAvailableParameters(tb sqlparser.TableExpr) parserutil.TableParameterCoupling {
@@ -223,14 +319,17 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 		//   1. [*] mark comparisons for rewriting
 		//   2. [*] some sequencing data to be stored
 		p := kv.V.GetParent()
-		pr.onConditionsToRewrite[p] = struct{}{}
+		existingTable, ok := pr.comparisonToTableDependencies[p]
+		if ok {
+			return nil, nil, fmt.Errorf("data flow violation detected: ON comparison expression '%s' is a  dependency for tables '%s' and '%s'", sqlparser.String(p), sqlparser.String(existingTable), sqlparser.String(tb))
+		}
 		pr.comparisonToTableDependencies[p] = tb
 		// this can be done, not sure if it is the best way
 		// rewriteComparisonExpr(p)
 		log.Infof("%v", kv)
 	}
 	m := taxonomy.NewExtendedTableMetadata(hr, taxonomy.GetAliasFromStatement(tb))
-	// store relationsship from sqlparser table expression to
+	// store relationship from sqlparser table expression to
 	// hierarchy.  This enables e2e relationship
 	// from expression to hierarchy.
 	// eg: "on" clause to openapi method
