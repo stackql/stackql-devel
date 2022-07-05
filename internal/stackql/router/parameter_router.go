@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/stackql/stackql/internal/stackql/dataflow"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
@@ -45,7 +46,7 @@ type ParameterRouter interface {
 
 	GetOnConditionsToRewrite() map[*sqlparser.ComparisonExpr]struct{}
 
-	GetOnConditionDataFlows() (map[*taxonomy.ExtendedTableMetadata]*taxonomy.ExtendedTableMetadata, error)
+	GetOnConditionDataFlows() (dataflow.DataFlowCollection, error)
 }
 
 type StandardParameterRouter struct {
@@ -94,68 +95,90 @@ func (pr *StandardParameterRouter) GetOnConditionsToRewrite() map[*sqlparser.Com
 	return rv
 }
 
-func (pr *StandardParameterRouter) extractDataFlowDependency(input sqlparser.Expr) (*taxonomy.ExtendedTableMetadata, error) {
+func (pr *StandardParameterRouter) extractDataFlowDependency(input sqlparser.Expr) (*taxonomy.ExtendedTableMetadata, sqlparser.TableExpr, error) {
 	switch l := input.(type) {
 	case *sqlparser.ColName:
 		// leave unknown for now -- bit of a mess
 		ref, err := parserutil.NewColumnarReference(l, parserutil.UnknownParam)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		tb, ok := pr.colRefs[ref]
 		if !ok {
-			return nil, fmt.Errorf("unassigned column in ON condition dataflow; please alias column '%s'", l.GetRawVal())
+			return nil, nil, fmt.Errorf("unassigned column in ON condition dataflow; please alias column '%s'", l.GetRawVal())
 		}
 		hr, ok := pr.tableToMetadata[tb]
 		if !ok {
-			return nil, fmt.Errorf("cannot assign hierarchy for column '%s'", l.GetRawVal())
+			return nil, nil, fmt.Errorf("cannot assign hierarchy for column '%s'", l.GetRawVal())
 		}
-		return hr, nil
+		return hr, tb, nil
 	default:
-		return nil, fmt.Errorf("cannot accomodate ON condition of type = '%T'", l)
+		return nil, nil, fmt.Errorf("cannot accomodate ON condition of type = '%T'", l)
 	}
 }
 
-func (pr *StandardParameterRouter) GetOnConditionDataFlows() (map[*taxonomy.ExtendedTableMetadata]*taxonomy.ExtendedTableMetadata, error) {
-	rv := make(map[*taxonomy.ExtendedTableMetadata]*taxonomy.ExtendedTableMetadata)
-	for k, v := range pr.comparisonToTableDependencies {
+func (pr *StandardParameterRouter) GetOnConditionDataFlows() (dataflow.DataFlowCollection, error) {
+	rv := dataflow.NewStandardDataFlowCollection()
+	for k, destinationTable := range pr.comparisonToTableDependencies {
 		selfTableCited := false
-		v2, ok := pr.tableToMetadata[v]
+		destHierarchy, ok := pr.tableToMetadata[destinationTable]
 		if !ok {
-			return nil, fmt.Errorf("table expression '%s' has not been assigned to hierarchy", sqlparser.String(v))
+			return nil, fmt.Errorf("table expression '%s' has not been assigned to hierarchy", sqlparser.String(destinationTable))
 		}
+		var dependencyTable sqlparser.TableExpr
 		var dependency *taxonomy.ExtendedTableMetadata
+		var destColumn *sqlparser.ColName
+		var srcExpr sqlparser.Expr
 		switch l := k.Left.(type) {
 		case *sqlparser.ColName:
-			lhr, err := pr.extractDataFlowDependency(l)
+			lhr, candidateTable, err := pr.extractDataFlowDependency(l)
 			if err != nil {
 				return nil, err
 			}
-			if v2 == lhr {
+			if destHierarchy == lhr {
 				selfTableCited = true
+				destColumn = l
+				srcExpr = k.Right
 			} else {
 				dependency = lhr
+				dependencyTable = candidateTable
+				srcExpr = k.Left
 			}
 		}
 		switch r := k.Right.(type) {
 		case *sqlparser.ColName:
-			rhr, err := pr.extractDataFlowDependency(r)
+			rhr, candidateTable, err := pr.extractDataFlowDependency(r)
 			if err != nil {
 				return nil, err
 			}
-			if v2 == rhr {
+			if destHierarchy == rhr {
 				if selfTableCited {
 					return nil, fmt.Errorf("table join ON comparison '%s' is self referencing", sqlparser.String(k))
 				}
 				selfTableCited = true
+				destColumn = r
 			} else {
 				dependency = rhr
+				dependencyTable = candidateTable
 			}
 		}
 		if !selfTableCited {
 			return nil, fmt.Errorf("table join ON comparison '%s' referencing incomplete", sqlparser.String(k))
 		}
-		rv[dependency] = v2
+		// rv[dependency] = destHierarchy
+
+		srcVertex := dataflow.NewStandardDataFlowVertex(dependency, dependencyTable)
+		destVertex := dataflow.NewStandardDataFlowVertex(destHierarchy, destinationTable)
+
+		e := dataflow.NewStandardDataFlowEdge(
+			srcVertex,
+			destVertex,
+			k,
+			srcExpr,
+			destColumn,
+		)
+		rv.AddEdge(e)
+		log.Infof("%v\n", e)
 	}
 	return rv, nil
 }
