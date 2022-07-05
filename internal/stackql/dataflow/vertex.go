@@ -9,15 +9,15 @@ type DataFlowVertex interface {
 }
 
 type StandardDataFlowVertex struct {
-	hierarchy *taxonomy.ExtendedTableMetadata
-	tableExpr sqlparser.TableExpr
+	annotation taxonomy.AnnotationCtx
+	tableExpr  sqlparser.TableExpr
 }
 
 func NewStandardDataFlowVertex(
-	hierarchy *taxonomy.ExtendedTableMetadata,
+	annotation taxonomy.AnnotationCtx,
 	tableExpr sqlparser.TableExpr) DataFlowVertex {
 	return &StandardDataFlowVertex{
-		hierarchy: hierarchy,
-		tableExpr: tableExpr,
+		annotation: annotation,
+		tableExpr:  tableExpr,
 	}
 }

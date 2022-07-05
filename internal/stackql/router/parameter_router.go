@@ -57,7 +57,7 @@ type StandardParameterRouter struct {
 	colRefs                       parserutil.ColTableMap
 	comparisonToTableDependencies parserutil.ComparisonTableMap
 	tableToComparisonDependencies parserutil.ComparisonTableMap
-	tableToMetadata               map[sqlparser.TableExpr]*taxonomy.ExtendedTableMetadata
+	tableToAnnotationCtx          map[sqlparser.TableExpr]taxonomy.AnnotationCtx
 	invalidatedParams             map[string]interface{}
 }
 
@@ -77,7 +77,7 @@ func NewParameterRouter(
 		invalidatedParams:             make(map[string]interface{}),
 		comparisonToTableDependencies: make(parserutil.ComparisonTableMap),
 		tableToComparisonDependencies: make(parserutil.ComparisonTableMap),
-		tableToMetadata:               make(map[sqlparser.TableExpr]*taxonomy.ExtendedTableMetadata),
+		tableToAnnotationCtx:          make(map[sqlparser.TableExpr]taxonomy.AnnotationCtx),
 	}
 }
 
@@ -95,7 +95,7 @@ func (pr *StandardParameterRouter) GetOnConditionsToRewrite() map[*sqlparser.Com
 	return rv
 }
 
-func (pr *StandardParameterRouter) extractDataFlowDependency(input sqlparser.Expr) (*taxonomy.ExtendedTableMetadata, sqlparser.TableExpr, error) {
+func (pr *StandardParameterRouter) extractDataFlowDependency(input sqlparser.Expr) (taxonomy.AnnotationCtx, sqlparser.TableExpr, error) {
 	switch l := input.(type) {
 	case *sqlparser.ColName:
 		// leave unknown for now -- bit of a mess
@@ -107,7 +107,7 @@ func (pr *StandardParameterRouter) extractDataFlowDependency(input sqlparser.Exp
 		if !ok {
 			return nil, nil, fmt.Errorf("unassigned column in ON condition dataflow; please alias column '%s'", l.GetRawVal())
 		}
-		hr, ok := pr.tableToMetadata[tb]
+		hr, ok := pr.tableToAnnotationCtx[tb]
 		if !ok {
 			return nil, nil, fmt.Errorf("cannot assign hierarchy for column '%s'", l.GetRawVal())
 		}
@@ -121,12 +121,12 @@ func (pr *StandardParameterRouter) GetOnConditionDataFlows() (dataflow.DataFlowC
 	rv := dataflow.NewStandardDataFlowCollection()
 	for k, destinationTable := range pr.comparisonToTableDependencies {
 		selfTableCited := false
-		destHierarchy, ok := pr.tableToMetadata[destinationTable]
+		destHierarchy, ok := pr.tableToAnnotationCtx[destinationTable]
 		if !ok {
 			return nil, fmt.Errorf("table expression '%s' has not been assigned to hierarchy", sqlparser.String(destinationTable))
 		}
 		var dependencyTable sqlparser.TableExpr
-		var dependency *taxonomy.ExtendedTableMetadata
+		var dependency taxonomy.AnnotationCtx
 		var destColumn *sqlparser.ColName
 		var srcExpr sqlparser.Expr
 		switch l := k.Left.(type) {
@@ -356,8 +356,8 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 	// hierarchy.  This enables e2e relationship
 	// from expression to hierarchy.
 	// eg: "on" clause to openapi method
-	pr.tableToMetadata[tb] = m
 	ac, err := obtainAnnotationCtx(handlerCtx.SQLEngine, m, abbreviatedConsumedMap)
+	pr.tableToAnnotationCtx[tb] = ac
 	return ac, err
 }
 

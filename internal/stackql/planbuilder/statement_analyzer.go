@@ -990,10 +990,10 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				if err != nil {
 					return err
 				}
-				// END_BLOCK ANNOTATION_TRAVERSE
 				builder := primitivebuilder.NewSingleSelectAcquire(p.PrimitiveComposer.GetGraph(), handlerCtx, va.GetTableMeta(), insPsc, nil)
 				execSlice = append(execSlice, builder)
 				tableSlice = append(tableSlice, va.GetTableMeta())
+				// END_BLOCK ANNOTATION_TRAVERSE
 			}
 			rewrittenWhereStr := astvisit.GenerateModifiedWhereClause(rewrittenWhere)
 			log.Debugf("rewrittenWhereStr = '%s'", rewrittenWhereStr)
