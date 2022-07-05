@@ -9,7 +9,7 @@ import (
 
 	"github.com/stackql/stackql/internal/stackql/astvisit"
 	"github.com/stackql/stackql/internal/stackql/constants"
-	"github.com/stackql/stackql/internal/stackql/docparser"
+	"github.com/stackql/stackql/internal/stackql/dependencyplanner"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
@@ -28,7 +28,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/util"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
-	"github.com/stackql/go-openapistackql/pkg/media"
 
 	"vitess.io/vitess/go/vt/sqlparser"
 
@@ -924,101 +923,21 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 	if len(node.From) == 1 {
 		switch ft := node.From[0].(type) {
 		case *sqlparser.JoinTableExpr, *sqlparser.AliasedTableExpr:
-			var execSlice []primitivebuilder.Builder
-			var primaryTcc, tcc *dto.TxnControlCounters
-			var secondaryTccs []*dto.TxnControlCounters
-			var tableSlice []*taxonomy.ExtendedTableMetadata
-			discoGenIDs := make(map[sqlparser.SQLNode]int)
-			// BLOCK ANNOTATION_TRAVERSE
-			// TODO: annotations need to be ordered
-			//       and data dependencies need to be modelled.
-			for k, va := range annotations {
-				pr, err := va.GetTableMeta().GetProvider()
-				if err != nil {
-					return err
-				}
-				prov, err := va.GetTableMeta().GetProviderObject()
-				if err != nil {
-					return err
-				}
-				svc, err := va.GetTableMeta().GetService()
-				if err != nil {
-					return err
-				}
-				m, err := va.GetTableMeta().GetMethod()
-				if err != nil {
-					return err
-				}
-				tab := va.GetSchema().Tabulate(false)
-				_, mediaType, err := m.GetResponseBodySchemaAndMediaType()
-				if err != nil {
-					return err
-				}
-				switch mediaType {
-				case media.MediaTypeTextXML, media.MediaTypeXML:
-					tab = tab.RenameColumnsToXml()
-				}
-				anTab := util.NewAnnotatedTabulation(tab, va.GetHIDs(), va.GetTableMeta().Alias)
-
-				discoGenId, err := docparser.OpenapiStackQLTabulationsPersistor(prov, svc, []util.AnnotatedTabulation{anTab}, p.PrimitiveComposer.GetSQLEngine(), prov.Name)
-				if err != nil {
-					return err
-				}
-				discoGenIDs[k] = discoGenId
-				parametersCleaned, err := util.TransformSQLRawParameters(va.GetParameters())
-				if err != nil {
-					return err
-				}
-				httpArmoury, err := httpbuild.BuildHTTPRequestCtxFromAnnotation(handlerCtx, parametersCleaned, pr, m, svc, nil, nil)
-				if err != nil {
-					return err
-				}
-				va.GetTableMeta().HttpArmoury = httpArmoury
-				tableDTO, err := p.PrimitiveComposer.GetDRMConfig().GetCurrentTable(va.GetHIDs(), handlerCtx.SQLEngine)
-				if err != nil {
-					return err
-				}
-				if tcc == nil {
-					tcc = dto.NewTxnControlCounters(p.PrimitiveComposer.GetTxnCounterManager(), tableDTO.GetDiscoveryID())
-					primaryTcc = tcc
-				} else {
-					tcc = tcc.CloneAndIncrementInsertID()
-					tcc.DiscoveryGenerationId = discoGenId
-					secondaryTccs = append(secondaryTccs, tcc)
-				}
-				insPsc, err := p.PrimitiveComposer.GetDRMConfig().GenerateInsertDML(anTab, tcc)
-				if err != nil {
-					return err
-				}
-				builder := primitivebuilder.NewSingleSelectAcquire(p.PrimitiveComposer.GetGraph(), handlerCtx, va.GetTableMeta(), insPsc, nil)
-				execSlice = append(execSlice, builder)
-				tableSlice = append(tableSlice, va.GetTableMeta())
-				// END_BLOCK ANNOTATION_TRAVERSE
-			}
-			rewrittenWhereStr := astvisit.GenerateModifiedWhereClause(rewrittenWhere)
-			log.Debugf("rewrittenWhereStr = '%s'", rewrittenWhereStr)
-			v := astvisit.NewQueryRewriteAstVisitor(
+			dp := dependencyplanner.NewStandardDependencyPlanner(
 				handlerCtx,
-				tblz,
-				tableSlice,
 				annotations,
-				discoGenIDs,
 				colRefs,
-				drm.GetGoogleV1SQLiteConfig(),
-				primaryTcc,
-				secondaryTccs,
-				rewrittenWhereStr,
+				rewrittenWhere,
+				pbi.GetStatement(),
+				tblz,
+				p.PrimitiveComposer,
 			)
-			err = v.Visit(pbi.GetStatement())
+			err = dp.Plan()
 			if err != nil {
 				return err
 			}
-			selCtx, err := v.GenerateSelectDML()
-			if err != nil {
-				return err
-			}
-			selBld := primitivebuilder.NewSingleSelect(p.PrimitiveComposer.GetGraph(), handlerCtx, selCtx, nil)
-			bld := primitivebuilder.NewMultipleAcquireAndSelect(p.PrimitiveComposer.GetGraph(), execSlice, selBld)
+			bld := dp.GetBldr()
+			selCtx := dp.GetSelectCtx()
 			pChild.PrimitiveComposer.SetBuilder(bld)
 			p.PrimitiveComposer.SetSelectPreparedStatementCtx(selCtx)
 			return nil

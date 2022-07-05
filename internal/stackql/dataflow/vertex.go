@@ -6,6 +6,7 @@ import (
 )
 
 type DataFlowVertex interface {
+	DataFlowUnit
 }
 
 type StandardDataFlowVertex struct {
@@ -21,3 +22,5 @@ func NewStandardDataFlowVertex(
 		tableExpr:  tableExpr,
 	}
 }
+
+func (dv *StandardDataFlowVertex) iDataFlowUnit() {}

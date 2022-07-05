@@ -5,6 +5,8 @@ import (
 )
 
 type DataFlowEdge interface {
+	GetDest() DataFlowVertex
+	GetSource() DataFlowVertex
 }
 
 type StandardDataFlowEdge struct {
@@ -28,4 +30,12 @@ func NewStandardDataFlowEdge(
 		sourceExpr:     sourceExpr,
 		destColumn:     destColumn,
 	}
+}
+
+func (de *StandardDataFlowEdge) GetSource() DataFlowVertex {
+	return de.source
+}
+
+func (de *StandardDataFlowEdge) GetDest() DataFlowVertex {
+	return de.dest
 }
