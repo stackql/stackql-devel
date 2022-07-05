@@ -7,9 +7,12 @@ import (
 
 type DataFlowVertex interface {
 	DataFlowUnit
+	GetAnnotation() taxonomy.AnnotationCtx
+	GetTableExpr() sqlparser.TableExpr
 }
 
 type StandardDataFlowVertex struct {
+	collection DataFlowCollection
 	annotation taxonomy.AnnotationCtx
 	tableExpr  sqlparser.TableExpr
 }
@@ -24,3 +27,11 @@ func NewStandardDataFlowVertex(
 }
 
 func (dv *StandardDataFlowVertex) iDataFlowUnit() {}
+
+func (dv *StandardDataFlowVertex) GetAnnotation() taxonomy.AnnotationCtx {
+	return dv.annotation
+}
+
+func (dv *StandardDataFlowVertex) GetTableExpr() sqlparser.TableExpr {
+	return dv.tableExpr
+}

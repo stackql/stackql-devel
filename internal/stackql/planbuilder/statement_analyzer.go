@@ -925,7 +925,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 		case *sqlparser.JoinTableExpr, *sqlparser.AliasedTableExpr:
 			dp := dependencyplanner.NewStandardDependencyPlanner(
 				handlerCtx,
-				annotations,
+				dataFlows,
 				colRefs,
 				rewrittenWhere,
 				pbi.GetStatement(),

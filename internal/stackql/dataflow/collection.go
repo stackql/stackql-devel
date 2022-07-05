@@ -6,6 +6,10 @@ type DataFlowUnit interface {
 
 type DataFlowCollection interface {
 	AddEdge(e DataFlowEdge) error
+	AddVertex(v DataFlowVertex)
+	GetAllUnits() []DataFlowUnit
+	InDegree(v DataFlowVertex) int
+	OutDegree(v DataFlowVertex) int
 }
 
 func NewStandardDataFlowCollection() DataFlowCollection {
@@ -26,6 +30,34 @@ func (dc *StandardDataFlowCollection) AddEdge(e DataFlowEdge) error {
 	return nil
 }
 
+func (dc *StandardDataFlowCollection) AddVertex(v DataFlowVertex) {
+	dc.vertices[v] = struct{}{}
+}
+
 func (dc *StandardDataFlowCollection) GetAllUnits() []DataFlowUnit {
-	return nil
+	var rv []DataFlowUnit
+	for vert := range dc.vertices {
+		rv = append(rv, vert)
+	}
+	return rv
+}
+
+func (dc *StandardDataFlowCollection) InDegree(v DataFlowVertex) int {
+	inDegree := 0
+	for _, e := range dc.edges {
+		if e.GetDest() == v {
+			inDegree++
+		}
+	}
+	return inDegree
+}
+
+func (dc *StandardDataFlowCollection) OutDegree(v DataFlowVertex) int {
+	outDegree := 0
+	for _, e := range dc.edges {
+		if e.GetSource() == v {
+			outDegree++
+		}
+	}
+	return outDegree
 }

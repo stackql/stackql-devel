@@ -180,6 +180,9 @@ func (pr *StandardParameterRouter) GetOnConditionDataFlows() (dataflow.DataFlowC
 		rv.AddEdge(e)
 		log.Infof("%v\n", e)
 	}
+	for k, v := range pr.tableToAnnotationCtx {
+		rv.AddVertex(dataflow.NewStandardDataFlowVertex(v, k))
+	}
 	return rv, nil
 }
 
@@ -317,7 +320,7 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 	//   a) [ ] Assign all remaining on parameters based on schema.
 	//   b) [ ] Represent assignments as edges from table to on condition.
 	//   d) [ ] Throw error for disallowed scenarios:
-	//        - Dual outgoing from ON object.
+	//          - Dual outgoing from ON object.
 	//   e) [ ] Rewrite NOP on clauses.
 	//   f) [ ] Catalogue and return dataflows (somehow)
 	stringParams := tpc.GetStringified()
