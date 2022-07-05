@@ -324,7 +324,14 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 	//   e) [ ] Rewrite NOP on clauses.
 	//   f) [ ] Catalogue and return dataflows (somehow)
 	stringParams := tpc.GetStringified()
-	hr, remainingParams, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, tb, stringParams)
+	notOnParams := tpc.GetNotOnCoupling()
+	notOnStringParams := notOnParams.GetStringified()
+	hr, remainingParams, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, tb, notOnStringParams)
+	if err != nil {
+		hr, remainingParams, err = taxonomy.GetHeirarchyFromStatement(handlerCtx, tb, stringParams)
+	} else {
+		tpc = notOnParams
+	}
 	log.Infof("hr = '%+v', remainingParams = '%+v', err = '%+v'", hr, remainingParams, err)
 	if err != nil {
 		return nil, err

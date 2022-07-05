@@ -19,6 +19,7 @@ type TableParameterCoupling interface {
 	Add(ColumnarReference, ParameterMetadata, ParamSourceType) error
 	Delete(ColumnarReference) bool
 	GetOnCoupling() TableParameterCoupling
+	GetNotOnCoupling() TableParameterCoupling
 	GetAllParameters() []ParameterMapKeyVal
 	GetStringified() map[string]interface{}
 	ReconstituteConsumedParams(map[string]interface{}) (TableParameterCoupling, error)
@@ -74,6 +75,17 @@ func (tpc *StandardTableParameterCoupling) GetOnCoupling() TableParameterCouplin
 	m := tpc.paramMap.GetMap()
 	for k, v := range m {
 		if k.SourceType() == JoinOnParam {
+			retVal.Add(k, v, k.SourceType())
+		}
+	}
+	return retVal
+}
+
+func (tpc *StandardTableParameterCoupling) GetNotOnCoupling() TableParameterCoupling {
+	retVal := NewTableParameterCoupling()
+	m := tpc.paramMap.GetMap()
+	for k, v := range m {
+		if k.SourceType() != JoinOnParam {
 			retVal.Add(k, v, k.SourceType())
 		}
 	}
