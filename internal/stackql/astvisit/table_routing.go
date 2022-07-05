@@ -7,10 +7,8 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/router"
-	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 )
 
@@ -32,50 +30,12 @@ func NewTableRouteAstVisitor(handlerCtx *handler.HandlerContext, router router.P
 	}
 }
 
-func obtainAnnotationCtx(
-	sqlEngine sqlengine.SQLEngine,
-	tbl *taxonomy.ExtendedTableMetadata,
-	parameters map[string]interface{},
-) (taxonomy.AnnotationCtx, error) {
-	schema, mediaType, err := tbl.GetResponseSchemaAndMediaType()
-	if err != nil {
-		return nil, err
-	}
-	itemObjS, selectItemsKey, err := schema.GetSelectSchema(tbl.LookupSelectItemsKey(), mediaType)
-	unsuitableSchemaMsg := "schema unsuitable for select query"
-	if err != nil {
-		return nil, fmt.Errorf(unsuitableSchemaMsg)
-	}
-	tbl.SelectItemsKey = selectItemsKey
-	provStr, _ := tbl.GetProviderStr()
-	svcStr, _ := tbl.GetServiceStr()
-	if itemObjS == nil {
-		return nil, fmt.Errorf(unsuitableSchemaMsg)
-	}
-	hIds := dto.NewHeirarchyIdentifiers(provStr, svcStr, itemObjS.GetName(), "")
-	return taxonomy.NewStandardAnnotationCtx(itemObjS, hIds, tbl, parameters), nil
-}
-
-func (v *TableRouteAstVisitor) addAnnotationCtx(
-	node sqlparser.SQLNode,
-	tbl *taxonomy.ExtendedTableMetadata,
-	parameters map[string]interface{},
-) error {
-	ac, err := obtainAnnotationCtx(v.handlerCtx.SQLEngine, tbl, parameters)
-	if err != nil {
-		return err
-	}
-	v.annotations[node] = ac
-	v.annotationSlice = append(v.annotationSlice, ac)
-	return nil
-}
-
-func (v *TableRouteAstVisitor) analyzeAliasedTable(tb *sqlparser.AliasedTableExpr) (*taxonomy.ExtendedTableMetadata, map[string]interface{}, error) {
+func (v *TableRouteAstVisitor) analyzeAliasedTable(tb *sqlparser.AliasedTableExpr) (taxonomy.AnnotationCtx, error) {
 	switch ex := tb.Expr.(type) {
 	case sqlparser.TableName:
 		return v.router.Route(tb, v.handlerCtx)
 	default:
-		return nil, nil, fmt.Errorf("table of type '%T' not curently supported", ex)
+		return nil, fmt.Errorf("table of type '%T' not curently supported", ex)
 	}
 }
 
@@ -450,19 +410,18 @@ func (v *TableRouteAstVisitor) Visit(node sqlparser.SQLNode) error {
 
 	case *sqlparser.AliasedTableExpr:
 		if node.Expr != nil {
-			t, params, err := v.analyzeAliasedTable(node)
+			annotation, err := v.analyzeAliasedTable(node)
 			if err != nil {
 				return err
 			}
+			v.annotations[node] = annotation
+			v.annotationSlice = append(v.annotationSlice, annotation)
+			t := annotation.GetTableMeta()
 			if t == nil {
 				return fmt.Errorf("nil table returned")
 			}
 			v.tableMetaSlice = append(v.tableMetaSlice, t)
 			v.tables[node] = t
-			err = v.addAnnotationCtx(node, t, params)
-			if err != nil {
-				return err
-			}
 		}
 		if node.Partitions != nil {
 			node.Partitions.Accept(v)

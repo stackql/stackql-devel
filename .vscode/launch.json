@@ -908,14 +908,15 @@
       ],
     },
     {
-      "name": "Launch exec \"COMPLEX INSERT ... ;\" -- prebuilt with cmake",
+      "name": "Debug exec \"COMPLEX INSERT ... ;\" -- prebuilt with cmake",
       "type": "go",
       "request": "launch",
-      "mode": "exec",
-      "program": "${workspaceFolder}/build/stackql",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
         "--auth=${input:authString}",
+        "--registry=${input:registryString}",
         "insert into google.compute.disks(project, zone, data__name) SELECT '${input:gcpProject}', 'australia-southeast1-a', name || '-newzy2' as name from google.compute.disks where project = '${input:gcpProject}' and zone =  'australia-southeast1-a' limit 2;",
         "-o",
         "json"

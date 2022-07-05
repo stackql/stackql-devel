@@ -38,7 +38,7 @@ type ParameterRouter interface {
 	//   - Hierarchy.
 	//   - Columnar objects definitely assigned as HTTP method parameters.
 	//   - Error if applicable.
-	Route(tb sqlparser.TableExpr, handler *handler.HandlerContext) (*taxonomy.ExtendedTableMetadata, map[string]interface{}, error)
+	Route(tb sqlparser.TableExpr, handler *handler.HandlerContext) (taxonomy.AnnotationCtx, error)
 
 	// Detects:
 	//   - Dependency cycle.
@@ -258,7 +258,7 @@ func (pr *StandardParameterRouter) invalidate(key string, val interface{}) error
 // parser table object.
 // Columnar input may come from either where clause
 // or on conditions.
-func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *handler.HandlerContext) (*taxonomy.ExtendedTableMetadata, map[string]interface{}, error) {
+func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *handler.HandlerContext) (taxonomy.AnnotationCtx, error) {
 	for k, v := range pr.whereParamMap.GetMap() {
 		log.Infof("%v\n", v)
 		alias := k.Alias()
@@ -267,12 +267,12 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 		}
 		t, ok := pr.tablesAliasMap[alias]
 		if !ok {
-			return nil, nil, fmt.Errorf("alias '%s' does not map to any table expression", alias)
+			return nil, fmt.Errorf("alias '%s' does not map to any table expression", alias)
 		}
 		if t == tb {
 			ref, ok := pr.colRefs[k]
 			if ok && ref != t {
-				return nil, nil, fmt.Errorf("failed parameter routing, cannot re-assign")
+				return nil, fmt.Errorf("failed parameter routing, cannot re-assign")
 			}
 			pr.colRefs[k] = t
 		}
@@ -285,12 +285,12 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 		}
 		t, ok := pr.tablesAliasMap[alias]
 		if !ok {
-			return nil, nil, fmt.Errorf("alias '%s' does not map to any table expression", alias)
+			return nil, fmt.Errorf("alias '%s' does not map to any table expression", alias)
 		}
 		if t == tb {
 			ref, ok := pr.colRefs[k]
 			if ok && ref != t {
-				return nil, nil, fmt.Errorf("failed parameter routing, cannot re-assign")
+				return nil, fmt.Errorf("failed parameter routing, cannot re-assign")
 			}
 			pr.colRefs[k] = t
 		}
@@ -324,15 +324,15 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 	hr, remainingParams, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, tb, stringParams)
 	log.Infof("hr = '%+v', remainingParams = '%+v', err = '%+v'", hr, remainingParams, err)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	reconstitutedConsumedParams, err := tpc.ReconstituteConsumedParams(remainingParams)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	abbreviatedConsumedMap, err := reconstitutedConsumedParams.AbbreviateMap()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	onConsumed := reconstitutedConsumedParams.GetOnCoupling()
 	pms := onConsumed.GetAllParameters()
@@ -344,7 +344,7 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 		p := kv.V.GetParent()
 		existingTable, ok := pr.comparisonToTableDependencies[p]
 		if ok {
-			return nil, nil, fmt.Errorf("data flow violation detected: ON comparison expression '%s' is a  dependency for tables '%s' and '%s'", sqlparser.String(p), sqlparser.String(existingTable), sqlparser.String(tb))
+			return nil, fmt.Errorf("data flow violation detected: ON comparison expression '%s' is a  dependency for tables '%s' and '%s'", sqlparser.String(p), sqlparser.String(existingTable), sqlparser.String(tb))
 		}
 		pr.comparisonToTableDependencies[p] = tb
 		// this can be done, not sure if it is the best way
@@ -357,7 +357,8 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 	// from expression to hierarchy.
 	// eg: "on" clause to openapi method
 	pr.tableToMetadata[tb] = m
-	return m, abbreviatedConsumedMap, nil
+	ac, err := obtainAnnotationCtx(handlerCtx.SQLEngine, m, abbreviatedConsumedMap)
+	return ac, err
 }
 
 func rewriteComparisonExpr(ex *sqlparser.ComparisonExpr) {

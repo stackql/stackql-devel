@@ -28,26 +28,12 @@ func NewSequenceAstVisitor(handlerCtx *handler.HandlerContext, tables taxonomy.T
 	}
 }
 
-func (v *SequenceAstVisitor) addAnnotationCtx(
-	node sqlparser.SQLNode,
-	tbl *taxonomy.ExtendedTableMetadata,
-	parameters map[string]interface{},
-) error {
-	ac, err := obtainAnnotationCtx(v.handlerCtx.SQLEngine, tbl, parameters)
-	if err != nil {
-		return err
-	}
-	v.annotations[node] = ac
-	v.annotationSlice = append(v.annotationSlice, ac)
-	return nil
-}
-
-func (v *SequenceAstVisitor) analyzeAliasedTable(tb *sqlparser.AliasedTableExpr) (*taxonomy.ExtendedTableMetadata, map[string]interface{}, error) {
+func (v *SequenceAstVisitor) analyzeAliasedTable(tb *sqlparser.AliasedTableExpr) (taxonomy.AnnotationCtx, error) {
 	switch ex := tb.Expr.(type) {
 	case sqlparser.TableName:
 		return v.router.Route(tb, v.handlerCtx)
 	default:
-		return nil, nil, fmt.Errorf("table of type '%T' not curently supported", ex)
+		return nil, fmt.Errorf("table of type '%T' not curently supported", ex)
 	}
 }
 
@@ -422,19 +408,17 @@ func (v *SequenceAstVisitor) Visit(node sqlparser.SQLNode) error {
 
 	case *sqlparser.AliasedTableExpr:
 		if node.Expr != nil {
-			t, params, err := v.analyzeAliasedTable(node)
+			annotation, err := v.analyzeAliasedTable(node)
 			if err != nil {
 				return err
 			}
+			v.annotations[node] = annotation
+			v.annotationSlice = append(v.annotationSlice, annotation)
+			t := annotation.GetTableMeta()
 			if t == nil {
 				return fmt.Errorf("nil table returned")
 			}
 			// v.tableMetaSlice = append(v.tableMetaSlice, t)
-			v.tables[node] = t
-			err = v.addAnnotationCtx(node, t, params)
-			if err != nil {
-				return err
-			}
 		}
 		if node.Partitions != nil {
 			node.Partitions.Accept(v)
