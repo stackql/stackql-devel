@@ -29,5 +29,5 @@ func obtainAnnotationCtx(
 		return nil, fmt.Errorf(unsuitableSchemaMsg)
 	}
 	hIds := dto.NewHeirarchyIdentifiers(provStr, svcStr, itemObjS.GetName(), "")
-	return taxonomy.NewStandardAnnotationCtx(itemObjS, hIds, tbl, parameters), nil
+	return taxonomy.NewStaticStandardAnnotationCtx(itemObjS, hIds, tbl, parameters), nil
 }

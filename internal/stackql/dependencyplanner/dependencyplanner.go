@@ -10,7 +10,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
-	"github.com/stackql/stackql/internal/stackql/httpbuild"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/primitivebuilder"
 	"github.com/stackql/stackql/internal/stackql/primitivecomposer"
@@ -137,51 +136,62 @@ func (dp *StandardDependencyPlanner) Plan() error {
 	return nil
 }
 
-func (dp *StandardDependencyPlanner) processOrphan(k sqlparser.SQLNode, va taxonomy.AnnotationCtx) error {
-	pr, err := va.GetTableMeta().GetProvider()
+func (dp *StandardDependencyPlanner) processOrphan(sqlNode sqlparser.SQLNode, annotationCtx taxonomy.AnnotationCtx) error {
+	insPsc, err := dp.processAcquire(sqlNode, annotationCtx)
 	if err != nil {
 		return err
 	}
-	prov, err := va.GetTableMeta().GetProviderObject()
+	builder := primitivebuilder.NewSingleSelectAcquire(dp.primitiveComposer.GetGraph(), dp.handlerCtx, annotationCtx.GetTableMeta(), insPsc, nil)
+	dp.execSlice = append(dp.execSlice, builder)
+	dp.tableSlice = append(dp.tableSlice, annotationCtx.GetTableMeta())
+	return nil
+}
+
+func (dp *StandardDependencyPlanner) processAcquire(sqlNode sqlparser.SQLNode, annotationCtx taxonomy.AnnotationCtx) (*drm.PreparedStatementCtx, error) {
+	pr, err := annotationCtx.GetTableMeta().GetProvider()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	svc, err := va.GetTableMeta().GetService()
+	prov, err := annotationCtx.GetTableMeta().GetProviderObject()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	m, err := va.GetTableMeta().GetMethod()
+	svc, err := annotationCtx.GetTableMeta().GetService()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	tab := va.GetSchema().Tabulate(false)
+	m, err := annotationCtx.GetTableMeta().GetMethod()
+	if err != nil {
+		return nil, err
+	}
+	tab := annotationCtx.GetSchema().Tabulate(false)
 	_, mediaType, err := m.GetResponseBodySchemaAndMediaType()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	switch mediaType {
 	case media.MediaTypeTextXML, media.MediaTypeXML:
 		tab = tab.RenameColumnsToXml()
 	}
-	anTab := util.NewAnnotatedTabulation(tab, va.GetHIDs(), va.GetTableMeta().Alias)
+	anTab := util.NewAnnotatedTabulation(tab, annotationCtx.GetHIDs(), annotationCtx.GetTableMeta().Alias)
 
 	discoGenId, err := docparser.OpenapiStackQLTabulationsPersistor(prov, svc, []util.AnnotatedTabulation{anTab}, dp.primitiveComposer.GetSQLEngine(), prov.Name)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	dp.discoGenIDs[k] = discoGenId
-	parametersCleaned, err := util.TransformSQLRawParameters(va.GetParameters())
+	dp.discoGenIDs[sqlNode] = discoGenId
+	err = annotationCtx.Prepare(
+		dp.handlerCtx,
+		pr,
+		m,
+		svc,
+	)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	httpArmoury, err := httpbuild.BuildHTTPRequestCtxFromAnnotation(dp.handlerCtx, parametersCleaned, pr, m, svc, nil, nil)
+	tableDTO, err := dp.primitiveComposer.GetDRMConfig().GetCurrentTable(annotationCtx.GetHIDs(), dp.handlerCtx.SQLEngine)
 	if err != nil {
-		return err
-	}
-	va.GetTableMeta().HttpArmoury = httpArmoury
-	tableDTO, err := dp.primitiveComposer.GetDRMConfig().GetCurrentTable(va.GetHIDs(), dp.handlerCtx.SQLEngine)
-	if err != nil {
-		return err
+		return nil, err
 	}
 	if dp.tcc == nil {
 		dp.tcc = dto.NewTxnControlCounters(dp.primitiveComposer.GetTxnCounterManager(), tableDTO.GetDiscoveryID())
@@ -192,11 +202,5 @@ func (dp *StandardDependencyPlanner) processOrphan(k sqlparser.SQLNode, va taxon
 		dp.secondaryTccs = append(dp.secondaryTccs, dp.tcc)
 	}
 	insPsc, err := dp.primitiveComposer.GetDRMConfig().GenerateInsertDML(anTab, dp.tcc)
-	if err != nil {
-		return err
-	}
-	builder := primitivebuilder.NewSingleSelectAcquire(dp.primitiveComposer.GetGraph(), dp.handlerCtx, va.GetTableMeta(), insPsc, nil)
-	dp.execSlice = append(dp.execSlice, builder)
-	dp.tableSlice = append(dp.tableSlice, va.GetTableMeta())
-	return nil
+	return insPsc, err
 }
