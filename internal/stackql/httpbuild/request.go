@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/provider"
 	"github.com/stackql/stackql/internal/stackql/requests"
+	"github.com/stackql/stackql/internal/stackql/streaming"
 	"github.com/stackql/stackql/internal/stackql/util"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
@@ -233,7 +235,7 @@ func getRequest(svc *openapistackql.Service, method *openapistackql.OperationSto
 	return request, nil
 }
 
-func BuildHTTPRequestCtxFromAnnotation(handlerCtx *handler.HandlerContext, parameters map[string]interface{}, prov provider.IProvider, m *openapistackql.OperationStore, svc *openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext *ExecContext) (HTTPArmoury, error) {
+func BuildHTTPRequestCtxFromAnnotation(handlerCtx *handler.HandlerContext, parameters streaming.MapStream, prov provider.IProvider, m *openapistackql.OperationStore, svc *openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext *ExecContext) (HTTPArmoury, error) {
 	var err error
 	httpArmoury := NewHTTPArmoury()
 	var requestSchema, responseSchema *openapistackql.Schema
@@ -245,7 +247,22 @@ func BuildHTTPRequestCtxFromAnnotation(handlerCtx *handler.HandlerContext, param
 	}
 	httpArmoury.SetRequestSchema(requestSchema)
 	httpArmoury.SetResponseSchema(responseSchema)
-	paramMap := map[int]map[string]interface{}{0: parameters}
+
+	paramMap := make(map[int]map[string]interface{})
+	i := 0
+	for {
+		out, err := parameters.Read()
+		for _, m := range out {
+			paramMap[i] = m
+			i++
+		}
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
 	paramList, err := requests.SplitHttpParameters(prov, paramMap, m)
 	if err != nil {
 		return nil, err

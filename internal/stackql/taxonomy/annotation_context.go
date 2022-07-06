@@ -8,6 +8,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/httpbuild"
 	"github.com/stackql/stackql/internal/stackql/provider"
+	"github.com/stackql/stackql/internal/stackql/streaming"
 	"github.com/stackql/stackql/internal/stackql/util"
 )
 
@@ -53,14 +54,22 @@ func (ac *StandardAnnotationCtx) Prepare(
 	opStore *openapistackql.OperationStore,
 	svc *openapistackql.Service,
 ) error {
+	var stream streaming.MapStream
 	if ac.isDynamic {
 		return fmt.Errorf("dynamic parameterinference not yet supported")
+	} else {
+		parametersCleaned, err := util.TransformSQLRawParameters(ac.GetParameters())
+		if err != nil {
+			return err
+		}
+		stream = streaming.NewStandardMapStream()
+		stream.Write(
+			[]map[string]interface{}{
+				parametersCleaned,
+			},
+		)
 	}
-	parametersCleaned, err := util.TransformSQLRawParameters(ac.GetParameters())
-	if err != nil {
-		return err
-	}
-	httpArmoury, err := httpbuild.BuildHTTPRequestCtxFromAnnotation(handlerCtx, parametersCleaned, pr, opStore, svc, nil, nil)
+	httpArmoury, err := httpbuild.BuildHTTPRequestCtxFromAnnotation(handlerCtx, stream, pr, opStore, svc, nil, nil)
 	if err != nil {
 		return err
 	}
