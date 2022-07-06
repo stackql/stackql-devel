@@ -12,6 +12,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/httpmiddleware"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
+	"github.com/stackql/stackql/internal/stackql/streaming"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 	"github.com/stackql/stackql/internal/stackql/util"
 )
@@ -29,12 +30,23 @@ type SingleSelectAcquire struct {
 	txnCtrlCtr                 *dto.TxnControlCounters
 	rowSort                    func(map[string]map[string]interface{}) []string
 	root                       primitivegraph.PrimitiveNode
+	stream                     streaming.MapStream
 }
 
-func NewSingleSelectAcquire(graph *primitivegraph.PrimitiveGraph, handlerCtx *handler.HandlerContext, tableMeta *taxonomy.ExtendedTableMetadata, insertCtx *drm.PreparedStatementCtx, rowSort func(map[string]map[string]interface{}) []string) Builder {
+func NewSingleSelectAcquire(
+	graph *primitivegraph.PrimitiveGraph,
+	handlerCtx *handler.HandlerContext,
+	tableMeta *taxonomy.ExtendedTableMetadata,
+	insertCtx *drm.PreparedStatementCtx,
+	rowSort func(map[string]map[string]interface{}) []string,
+	stream streaming.MapStream,
+) Builder {
 	var tcc *dto.TxnControlCounters
 	if insertCtx != nil {
 		tcc = insertCtx.GetGCCtrlCtrs()
+	}
+	if stream == nil {
+		stream = streaming.NewNopMapStream()
 	}
 	return &SingleSelectAcquire{
 		graph:                      graph,
@@ -44,6 +56,7 @@ func NewSingleSelectAcquire(graph *primitivegraph.PrimitiveGraph, handlerCtx *ha
 		drmCfg:                     handlerCtx.DrmConfig,
 		insertPreparedStatementCtx: insertCtx,
 		txnCtrlCtr:                 tcc,
+		stream:                     stream,
 	}
 }
 
@@ -123,6 +136,10 @@ func (ss *SingleSelectAcquire) Build() error {
 
 				if ok {
 					iArr, err := castItemsArray(items)
+					if err != nil {
+						return dto.NewErroneousExecutorOutput(err)
+					}
+					err = ss.stream.Write(iArr)
 					if err != nil {
 						return dto.NewErroneousExecutorOutput(err)
 					}

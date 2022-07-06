@@ -17,7 +17,7 @@ type SingleAcquireAndSelect struct {
 func NewSingleAcquireAndSelect(graph *primitivegraph.PrimitiveGraph, txnControlCounters *dto.TxnControlCounters, handlerCtx *handler.HandlerContext, tableMeta *taxonomy.ExtendedTableMetadata, insertCtx *drm.PreparedStatementCtx, selectCtx *drm.PreparedStatementCtx, rowSort func(map[string]map[string]interface{}) []string) Builder {
 	return &SingleAcquireAndSelect{
 		graph:          graph,
-		acquireBuilder: NewSingleSelectAcquire(graph, handlerCtx, tableMeta, insertCtx, rowSort),
+		acquireBuilder: NewSingleSelectAcquire(graph, handlerCtx, tableMeta, insertCtx, rowSort, nil),
 		selectBuilder:  NewSingleSelect(graph, handlerCtx, selectCtx, rowSort),
 	}
 }

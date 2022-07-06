@@ -141,7 +141,7 @@ func (dp *StandardDependencyPlanner) processOrphan(sqlNode sqlparser.SQLNode, an
 	if err != nil {
 		return err
 	}
-	builder := primitivebuilder.NewSingleSelectAcquire(dp.primitiveComposer.GetGraph(), dp.handlerCtx, annotationCtx.GetTableMeta(), insPsc, nil)
+	builder := primitivebuilder.NewSingleSelectAcquire(dp.primitiveComposer.GetGraph(), dp.handlerCtx, annotationCtx.GetTableMeta(), insPsc, nil, nil)
 	dp.execSlice = append(dp.execSlice, builder)
 	dp.tableSlice = append(dp.tableSlice, annotationCtx.GetTableMeta())
 	return nil

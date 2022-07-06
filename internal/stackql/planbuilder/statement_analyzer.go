@@ -625,7 +625,7 @@ func (p *primitiveGenerator) analyzeExec(pbi PlanBuilderInput) error {
 			return err
 		}
 		if m.IsNullary() && !p.PrimitiveComposer.IsAwait() {
-			p.PrimitiveComposer.SetBuilder(primitivebuilder.NewSingleSelectAcquire(p.PrimitiveComposer.GetGraph(), handlerCtx, tbl, p.PrimitiveComposer.GetInsertPreparedStatementCtx(), nil))
+			p.PrimitiveComposer.SetBuilder(primitivebuilder.NewSingleSelectAcquire(p.PrimitiveComposer.GetGraph(), handlerCtx, tbl, p.PrimitiveComposer.GetInsertPreparedStatementCtx(), nil, nil))
 			return nil
 		}
 		p.PrimitiveComposer.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(p.PrimitiveComposer.GetGraph(), p.PrimitiveComposer.GetTxnCtrlCtrs(), handlerCtx, tbl, p.PrimitiveComposer.GetInsertPreparedStatementCtx(), p.PrimitiveComposer.GetSelectPreparedStatementCtx(), nil))
