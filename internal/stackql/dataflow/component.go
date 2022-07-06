@@ -31,12 +31,15 @@ func NewStandardDataFlowWeaklyConnectedComponent(
 		idsVisited: map[int64]struct{}{
 			root.ID(): {},
 		},
+		orderedNodes: []graph.Node{
+			root,
+		},
 	}
 }
 
 func (wc *StandardDataFlowWeaklyConnectedComponent) Analyze() error {
 	for _, node := range wc.collection.sorted {
-		incidentNodes := wc.collection.g.From(node.ID())
+		incidentNodes := wc.collection.g.To(node.ID())
 		for {
 			itemPresent := incidentNodes.Next()
 			if !itemPresent {
