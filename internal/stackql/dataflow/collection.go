@@ -7,6 +7,8 @@ import (
 	"gonum.org/v1/gonum/graph/simple"
 	"gonum.org/v1/gonum/graph/topo"
 	"vitess.io/vitess/go/vt/sqlparser"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type DataFlowUnit interface {
@@ -33,12 +35,14 @@ func NewStandardDataFlowCollection() DataFlowCollection {
 }
 
 type StandardDataFlowCollection struct {
-	maxId                 int64
-	g                     *simple.WeightedDirectedGraph
-	sorted                []graph.Node
-	vertices              map[DataFlowVertex]struct{}
-	verticesForTableExprs map[sqlparser.TableExpr]struct{}
-	edges                 []DataFlowEdge
+	maxId                  int64
+	g                      *simple.WeightedDirectedGraph
+	sorted                 []graph.Node
+	orphans                []DataFlowVertex
+	weaklyConnnectedGraphs []DataFlowWeaklyConnectedComponent
+	vertices               map[DataFlowVertex]struct{}
+	verticesForTableExprs  map[sqlparser.TableExpr]struct{}
+	edges                  []DataFlowEdge
 }
 
 func (dc *StandardDataFlowCollection) GetNextID() int64 {
@@ -67,6 +71,10 @@ func (dc *StandardDataFlowCollection) AddVertex(v DataFlowVertex) {
 func (dc *StandardDataFlowCollection) Sort() error {
 	var err error
 	dc.sorted, err = topo.Sort(dc.g)
+	if err != nil {
+		return err
+	}
+	err = dc.Optimise()
 	return err
 }
 
@@ -80,13 +88,11 @@ func (dc *StandardDataFlowCollection) Vertices() []DataFlowVertex {
 
 func (dc *StandardDataFlowCollection) GetAllUnits() ([]DataFlowUnit, error) {
 	var rv []DataFlowUnit
-	for _, vert := range dc.sorted {
-		switch vert := vert.(type) {
-		case DataFlowUnit:
-			rv = append(rv, vert)
-		default:
-			return nil, fmt.Errorf("cannot accomodate data flow unit of type = '%T'", vert)
-		}
+	for _, orphan := range dc.orphans {
+		rv = append(rv, orphan)
+	}
+	for _, component := range dc.weaklyConnnectedGraphs {
+		rv = append(rv, component)
 	}
 	return rv, nil
 }
@@ -109,4 +115,30 @@ func (dc *StandardDataFlowCollection) OutDegree(v DataFlowVertex) int {
 		}
 	}
 	return outDegree
+}
+
+func (dc *StandardDataFlowCollection) Optimise() error {
+	for _, node := range dc.sorted {
+		switch node := node.(type) {
+		case DataFlowVertex:
+			log.Debugf("%v\n", node)
+			inDegree := dc.g.To(node.ID()).Len()
+			outDegree := dc.g.From(node.ID()).Len()
+			if inDegree == 0 && outDegree == 0 {
+				dc.orphans = append(dc.orphans, node)
+				continue
+			}
+			if inDegree == 0 && outDegree != 0 {
+				component := NewStandardDataFlowWeaklyConnectedComponent(dc, node)
+				err := component.Analyze()
+				if err != nil {
+					return err
+				}
+				dc.weaklyConnnectedGraphs = append(dc.weaklyConnnectedGraphs, component)
+			}
+		default:
+			return fmt.Errorf("cannot accomodate dataflow element of type = '%t'", node)
+		}
+	}
+	return nil
 }
