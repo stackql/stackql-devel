@@ -167,8 +167,8 @@ func (pr *StandardParameterRouter) GetOnConditionDataFlows() (dataflow.DataFlowC
 		}
 		// rv[dependency] = destHierarchy
 
-		srcVertex := dataflow.NewStandardDataFlowVertex(dependency, dependencyTable)
-		destVertex := dataflow.NewStandardDataFlowVertex(destHierarchy, destinationTable)
+		srcVertex := dataflow.NewStandardDataFlowVertex(dependency, dependencyTable, rv.GetNextID())
+		destVertex := dataflow.NewStandardDataFlowVertex(destHierarchy, destinationTable, rv.GetNextID())
 
 		e := dataflow.NewStandardDataFlowEdge(
 			srcVertex,
@@ -181,7 +181,7 @@ func (pr *StandardParameterRouter) GetOnConditionDataFlows() (dataflow.DataFlowC
 		log.Infof("%v\n", e)
 	}
 	for k, v := range pr.tableToAnnotationCtx {
-		rv.AddVertex(dataflow.NewStandardDataFlowVertex(v, k))
+		rv.AddVertex(dataflow.NewStandardDataFlowVertex(v, k, rv.GetNextID()))
 	}
 	return rv, nil
 }
@@ -261,6 +261,7 @@ func (pr *StandardParameterRouter) invalidate(key string, val interface{}) error
 // parser table object.
 // Columnar input may come from either where clause
 // or on conditions.
+// TODO: Get rid of the dead set mess that is where paramters in preference.
 func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *handler.HandlerContext) (taxonomy.AnnotationCtx, error) {
 	for k, v := range pr.whereParamMap.GetMap() {
 		log.Infof("%v\n", v)
@@ -330,6 +331,8 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 	if err != nil {
 		hr, remainingParams, err = taxonomy.GetHeirarchyFromStatement(handlerCtx, tb, stringParams)
 	} else {
+		// if the where pearamters are sufficient, then need to switch
+		// the Table - Paramater coupling object
 		tpc = notOnParams
 	}
 	log.Infof("hr = '%+v', remainingParams = '%+v', err = '%+v'", hr, remainingParams, err)

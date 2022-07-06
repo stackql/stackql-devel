@@ -1,10 +1,12 @@
 package dataflow
 
 import (
+	"gonum.org/v1/gonum/graph"
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
 type DataFlowEdge interface {
+	graph.WeightedEdge
 	GetDest() DataFlowVertex
 	GetSource() DataFlowVertex
 }
@@ -30,6 +32,25 @@ func NewStandardDataFlowEdge(
 		sourceExpr:     sourceExpr,
 		destColumn:     destColumn,
 	}
+}
+
+func (de *StandardDataFlowEdge) From() graph.Node {
+	return de.source
+}
+
+func (de *StandardDataFlowEdge) To() graph.Node {
+	return de.dest
+}
+
+func (de *StandardDataFlowEdge) ReversedEdge() graph.Edge {
+	// Reversal is invalid given the assymetric
+	// expressions, therefore returning unaltered
+	// as per library recommmendation.
+	return de
+}
+
+func (de *StandardDataFlowEdge) Weight() float64 {
+	return 1.0
 }
 
 func (de *StandardDataFlowEdge) GetSource() DataFlowVertex {

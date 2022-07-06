@@ -77,7 +77,15 @@ func (dp *StandardDependencyPlanner) GetSelectCtx() *drm.PreparedStatementCtx {
 
 func (dp *StandardDependencyPlanner) Plan() error {
 	annMap := make(taxonomy.AnnotationCtxMap)
-	for _, unit := range dp.dataflowCollection.GetAllUnits() {
+	err := dp.dataflowCollection.Sort()
+	if err != nil {
+		return err
+	}
+	units, err := dp.dataflowCollection.GetAllUnits()
+	if err != nil {
+		return err
+	}
+	for _, unit := range units {
 		switch unit := unit.(type) {
 		case dataflow.DataFlowVertex:
 			inDegree := dp.dataflowCollection.InDegree(unit)
@@ -111,7 +119,7 @@ func (dp *StandardDependencyPlanner) Plan() error {
 		dp.secondaryTccs,
 		rewrittenWhereStr,
 	)
-	err := v.Visit(dp.sqlStatement)
+	err = v.Visit(dp.sqlStatement)
 	if err != nil {
 		return err
 	}
