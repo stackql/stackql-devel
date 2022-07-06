@@ -170,15 +170,16 @@ func (pr *StandardParameterRouter) GetOnConditionDataFlows() (dataflow.DataFlowC
 		srcVertex := dataflow.NewStandardDataFlowVertex(dependency, dependencyTable, rv.GetNextID())
 		destVertex := dataflow.NewStandardDataFlowVertex(destHierarchy, destinationTable, rv.GetNextID())
 
-		e := dataflow.NewStandardDataFlowEdge(
+		err := rv.AddOrUpdateEdge(
 			srcVertex,
 			destVertex,
 			k,
 			srcExpr,
 			destColumn,
 		)
-		rv.AddEdge(e)
-		log.Infof("%v\n", e)
+		if err != nil {
+			return nil, err
+		}
 	}
 	for k, v := range pr.tableToAnnotationCtx {
 		rv.AddVertex(dataflow.NewStandardDataFlowVertex(v, k, rv.GetNextID()))

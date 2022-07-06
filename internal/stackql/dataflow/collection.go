@@ -2,6 +2,7 @@ package dataflow
 
 import (
 	"fmt"
+	"sync"
 
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/simple"
@@ -16,7 +17,7 @@ type DataFlowUnit interface {
 }
 
 type DataFlowCollection interface {
-	AddEdge(e DataFlowEdge) error
+	AddOrUpdateEdge(source DataFlowVertex, dest DataFlowVertex, comparisonExpr *sqlparser.ComparisonExpr, sourceExpr sqlparser.Expr, destColumn *sqlparser.ColName) error
 	AddVertex(v DataFlowVertex)
 	GetAllUnits() ([]DataFlowUnit, error)
 	GetNextID() int64
@@ -28,6 +29,7 @@ type DataFlowCollection interface {
 
 func NewStandardDataFlowCollection() DataFlowCollection {
 	return &StandardDataFlowCollection{
+		idMutex:               &sync.Mutex{},
 		g:                     simple.NewWeightedDirectedGraph(0.0, 0.0),
 		vertices:              make(map[DataFlowVertex]struct{}),
 		verticesForTableExprs: make(map[sqlparser.TableExpr]struct{}),
@@ -35,6 +37,7 @@ func NewStandardDataFlowCollection() DataFlowCollection {
 }
 
 type StandardDataFlowCollection struct {
+	idMutex                *sync.Mutex
 	maxId                  int64
 	g                      *simple.WeightedDirectedGraph
 	sorted                 []graph.Node
@@ -46,15 +49,42 @@ type StandardDataFlowCollection struct {
 }
 
 func (dc *StandardDataFlowCollection) GetNextID() int64 {
+	defer dc.idMutex.Unlock()
+	dc.idMutex.Lock()
 	dc.maxId++
 	return dc.maxId
 }
 
-func (dc *StandardDataFlowCollection) AddEdge(e DataFlowEdge) error {
+func (dc *StandardDataFlowCollection) AddOrUpdateEdgeOld(e DataFlowEdge) error {
 	dc.AddVertex(e.GetSource())
 	dc.AddVertex(e.GetDest())
 	dc.edges = append(dc.edges, e)
 	dc.g.SetWeightedEdge(e)
+	return nil
+}
+
+func (dc *StandardDataFlowCollection) AddOrUpdateEdge(
+	source DataFlowVertex,
+	dest DataFlowVertex,
+	comparisonExpr *sqlparser.ComparisonExpr,
+	sourceExpr sqlparser.Expr,
+	destColumn *sqlparser.ColName,
+) error {
+	dc.AddVertex(source)
+	dc.AddVertex(dest)
+	existingEdge := dc.g.WeightedEdge(source.ID(), dest.ID())
+	if existingEdge == nil {
+		edge := NewStandardDataFlowEdge(source, dest, comparisonExpr, sourceExpr, destColumn)
+		dc.edges = append(dc.edges, edge)
+		dc.g.SetWeightedEdge(edge)
+		return nil
+	}
+	switch existingEdge := existingEdge.(type) {
+	case DataFlowEdge:
+		existingEdge.AddRelation(NewStandardDataFlowRelation(comparisonExpr, destColumn, sourceExpr))
+	default:
+		return fmt.Errorf("cannnot accomodate data flow edge of type: '%T'", existingEdge)
+	}
 	return nil
 }
 
@@ -74,7 +104,7 @@ func (dc *StandardDataFlowCollection) Sort() error {
 	if err != nil {
 		return err
 	}
-	err = dc.Optimise()
+	err = dc.optimise()
 	return err
 }
 
@@ -117,7 +147,7 @@ func (dc *StandardDataFlowCollection) OutDegree(v DataFlowVertex) int {
 	return outDegree
 }
 
-func (dc *StandardDataFlowCollection) Optimise() error {
+func (dc *StandardDataFlowCollection) optimise() error {
 	for _, node := range dc.sorted {
 		switch node := node.(type) {
 		case DataFlowVertex:
