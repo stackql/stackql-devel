@@ -6,6 +6,7 @@ import (
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/simple"
 	"gonum.org/v1/gonum/graph/topo"
+	"vitess.io/vitess/go/vt/sqlparser"
 )
 
 type DataFlowUnit interface {
@@ -25,17 +26,19 @@ type DataFlowCollection interface {
 
 func NewStandardDataFlowCollection() DataFlowCollection {
 	return &StandardDataFlowCollection{
-		g:        simple.NewWeightedDirectedGraph(0.0, 0.0),
-		vertices: make(map[DataFlowVertex]struct{}),
+		g:                     simple.NewWeightedDirectedGraph(0.0, 0.0),
+		vertices:              make(map[DataFlowVertex]struct{}),
+		verticesForTableExprs: make(map[sqlparser.TableExpr]struct{}),
 	}
 }
 
 type StandardDataFlowCollection struct {
-	maxId    int64
-	g        *simple.WeightedDirectedGraph
-	sorted   []graph.Node
-	vertices map[DataFlowVertex]struct{}
-	edges    []DataFlowEdge
+	maxId                 int64
+	g                     *simple.WeightedDirectedGraph
+	sorted                []graph.Node
+	vertices              map[DataFlowVertex]struct{}
+	verticesForTableExprs map[sqlparser.TableExpr]struct{}
+	edges                 []DataFlowEdge
 }
 
 func (dc *StandardDataFlowCollection) GetNextID() int64 {
@@ -52,11 +55,12 @@ func (dc *StandardDataFlowCollection) AddEdge(e DataFlowEdge) error {
 }
 
 func (dc *StandardDataFlowCollection) AddVertex(v DataFlowVertex) {
-	_, ok := dc.vertices[v]
+	_, ok := dc.verticesForTableExprs[v.GetTableExpr()]
 	if ok {
 		return
 	}
 	dc.vertices[v] = struct{}{}
+	dc.verticesForTableExprs[v.GetTableExpr()] = struct{}{}
 	dc.g.AddNode(v)
 }
 

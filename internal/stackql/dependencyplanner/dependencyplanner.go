@@ -90,6 +90,10 @@ func (dp *StandardDependencyPlanner) Plan() error {
 		case dataflow.DataFlowVertex:
 			inDegree := dp.dataflowCollection.InDegree(unit)
 			outDegree := dp.dataflowCollection.OutDegree(unit)
+			if inDegree == 0 && outDegree > 0 {
+				// TODO: start builder
+				log.Infof("\n")
+			}
 			if inDegree != 0 || outDegree != 0 {
 				return fmt.Errorf("cannot currently execute data dependent tables with inDegree = %d and/or outDegree = %d", inDegree, outDegree)
 			}
