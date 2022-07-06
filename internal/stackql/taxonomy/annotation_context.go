@@ -18,7 +18,7 @@ type AnnotationCtx interface {
 	GetParameters() map[string]interface{}
 	GetSchema() *openapistackql.Schema
 	GetTableMeta() *ExtendedTableMetadata
-	Prepare(handlerCtx *handler.HandlerContext, pr provider.IProvider, opStore *openapistackql.OperationStore, svc *openapistackql.Service) error
+	Prepare(handlerCtx *handler.HandlerContext, pr provider.IProvider, opStore *openapistackql.OperationStore, svc *openapistackql.Service, stream streaming.MapStream) error
 }
 
 type StandardAnnotationCtx struct {
@@ -53,8 +53,8 @@ func (ac *StandardAnnotationCtx) Prepare(
 	pr provider.IProvider,
 	opStore *openapistackql.OperationStore,
 	svc *openapistackql.Service,
+	stream streaming.MapStream,
 ) error {
-	var stream streaming.MapStream
 	if ac.isDynamic {
 		return fmt.Errorf("dynamic parameterinference not yet supported")
 	} else {
@@ -62,7 +62,6 @@ func (ac *StandardAnnotationCtx) Prepare(
 		if err != nil {
 			return err
 		}
-		stream = streaming.NewStandardMapStream()
 		stream.Write(
 			[]map[string]interface{}{
 				parametersCleaned,
@@ -73,7 +72,7 @@ func (ac *StandardAnnotationCtx) Prepare(
 	if err != nil {
 		return err
 	}
-	ac.TableMeta.HttpArmoury = httpArmoury
+	ac.TableMeta.GetHttpArmoury = func() (httpbuild.HTTPArmoury, error) { return httpArmoury, nil }
 	return nil
 }
 

@@ -975,7 +975,7 @@ func (p *primitiveGenerator) buildRequestContext(handlerCtx *handler.HandlerCont
 	if err != nil {
 		return nil, err
 	}
-	meta.HttpArmoury = httpArmoury
+	meta.GetHttpArmoury = func() (httpbuild.HTTPArmoury, error) { return httpArmoury, nil }
 	return httpArmoury, err
 }
 

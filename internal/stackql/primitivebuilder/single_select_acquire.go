@@ -80,11 +80,15 @@ func (ss *SingleSelectAcquire) Build() error {
 	ex := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 		ss.graph.AddTxnControlCounters(*ss.insertPreparedStatementCtx.GetGCCtrlCtrs())
 		mr := prov.InferMaxResultsElement(m)
+		httpArmoury, err := ss.tableMeta.GetHttpArmoury()
+		if err != nil {
+			return dto.NewErroneousExecutorOutput(err)
+		}
 		if mr != nil {
 			// TODO: infer param position and act accordingly
 			ok := true
 			if ok && ss.handlerCtx.RuntimeContext.HTTPMaxResults > 0 {
-				passOverParams := ss.tableMeta.HttpArmoury.GetRequestParams()
+				passOverParams := httpArmoury.GetRequestParams()
 				for i, param := range passOverParams {
 					// param.Context.SetQueryParam("maxResults", strconv.Itoa(ss.handlerCtx.RuntimeContext.HTTPMaxResults))
 					q := param.Request.URL.Query()
@@ -92,10 +96,10 @@ func (ss *SingleSelectAcquire) Build() error {
 					param.Request.URL.RawQuery = q.Encode()
 					passOverParams[i] = param
 				}
-				ss.tableMeta.HttpArmoury.SetRequestParams(passOverParams)
+				httpArmoury.SetRequestParams(passOverParams)
 			}
 		}
-		for _, reqCtx := range ss.tableMeta.HttpArmoury.GetRequestParams() {
+		for _, reqCtx := range httpArmoury.GetRequestParams() {
 			response, apiErr := httpmiddleware.HttpApiCallFromRequest(*(ss.handlerCtx), prov, reqCtx.Request.Clone(reqCtx.Request.Context()))
 			housekeepingDone := false
 			npt := prov.InferNextPageResponseElement(ss.tableMeta.HeirarchyObjects.Heirarchy)

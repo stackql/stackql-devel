@@ -13,6 +13,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/primitivebuilder"
 	"github.com/stackql/stackql/internal/stackql/primitivecomposer"
+	"github.com/stackql/stackql/internal/stackql/streaming"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 	"github.com/stackql/stackql/internal/stackql/util"
 	"vitess.io/vitess/go/vt/sqlparser"
@@ -43,6 +44,7 @@ type StandardDependencyPlanner struct {
 	//
 	bldr   primitivebuilder.Builder
 	selCtx *drm.PreparedStatementCtx
+	stream streaming.MapStream
 }
 
 func NewStandardDependencyPlanner(
@@ -63,6 +65,7 @@ func NewStandardDependencyPlanner(
 		tblz:               tblz,
 		primitiveComposer:  primitiveComposer,
 		discoGenIDs:        make(map[sqlparser.SQLNode]int),
+		stream:             streaming.NewStandardMapStream(),
 	}
 }
 
@@ -185,6 +188,7 @@ func (dp *StandardDependencyPlanner) processAcquire(sqlNode sqlparser.SQLNode, a
 		pr,
 		m,
 		svc,
+		dp.stream,
 	)
 	if err != nil {
 		return nil, err
