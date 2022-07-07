@@ -1,8 +1,6 @@
 package taxonomy
 
 import (
-	"fmt"
-
 	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
@@ -18,7 +16,8 @@ type AnnotationCtx interface {
 	GetParameters() map[string]interface{}
 	GetSchema() *openapistackql.Schema
 	GetTableMeta() *ExtendedTableMetadata
-	Prepare(handlerCtx *handler.HandlerContext, pr provider.IProvider, opStore *openapistackql.OperationStore, svc *openapistackql.Service, stream streaming.MapStream) error
+	Prepare(handlerCtx *handler.HandlerContext, pr provider.IProvider, opStore *openapistackql.OperationStore, svc *openapistackql.Service, inStream streaming.MapStream) error
+	SetDynamic()
 }
 
 type StandardAnnotationCtx struct {
@@ -48,6 +47,10 @@ func (ac *StandardAnnotationCtx) IsDynamic() bool {
 	return ac.isDynamic
 }
 
+func (ac *StandardAnnotationCtx) SetDynamic() {
+	ac.isDynamic = true
+}
+
 func (ac *StandardAnnotationCtx) Prepare(
 	handlerCtx *handler.HandlerContext,
 	pr provider.IProvider,
@@ -56,7 +59,12 @@ func (ac *StandardAnnotationCtx) Prepare(
 	stream streaming.MapStream,
 ) error {
 	if ac.isDynamic {
-		return fmt.Errorf("dynamic parameterinference not yet supported")
+		// LAZY EVAL
+		ac.TableMeta.GetHttpArmoury = func() (httpbuild.HTTPArmoury, error) {
+			httpArmoury, err := httpbuild.BuildHTTPRequestCtxFromAnnotation(handlerCtx, stream, pr, opStore, svc, nil, nil)
+			return httpArmoury, err
+		}
+		return nil
 	} else {
 		parametersCleaned, err := util.TransformSQLRawParameters(ac.GetParameters())
 		if err != nil {

@@ -9,6 +9,7 @@ import (
 
 	"github.com/jeroenrinzema/psql-wire/pkg/sqldata"
 	"github.com/lib/pq/oid"
+	"github.com/stackql/go-openapistackql/pkg/response"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 
@@ -177,6 +178,10 @@ func InterfaceToBytes(subject interface{}, isErrorCol bool) []byte {
 		return []byte(fmt.Sprintf(`{ "marshallingError": {"type": "array", "error": "%s"}}`, err.Error()))
 	case nil:
 		return []byte("null")
+	case *response.Response:
+		pb := sub.GetProcessedBody()
+		status := sub.GetHttpResponse().Status
+		return []byte(fmt.Sprintf(`{ "displayError": {"type": "http response", "status": "%s", "body": "%v", }}`, status, pb))
 	default:
 		return []byte(fmt.Sprintf(`{ "displayError": {"type": "%T", "error": "currently unable to represent object of type %T"}}`, subject, subject))
 	}

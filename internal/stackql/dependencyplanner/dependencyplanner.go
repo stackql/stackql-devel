@@ -103,7 +103,7 @@ func (dp *StandardDependencyPlanner) Plan() error {
 			tableExpr := unit.GetTableExpr()
 			annotation := unit.GetAnnotation()
 			dp.annMap[tableExpr] = annotation
-			err := dp.processOrphan(tableExpr, annotation, dp.defaultStream)
+			err := dp.processOrphan(tableExpr, annotation, dp.defaultStream, streaming.NewNopMapStream())
 			if err != nil {
 				return err
 			}
@@ -122,7 +122,44 @@ func (dp *StandardDependencyPlanner) Plan() error {
 			if edgeCount > 1 {
 				return fmt.Errorf("data flow: cannot accomodate table dependencies of this complexity: supplied = %d, max = 1", edgeCount)
 			}
-			return fmt.Errorf("data flow: components not yet implemented")
+			idsVisited := make(map[int64]struct{})
+			for _, n := range orderedNodes {
+				if _, ok := idsVisited[n.ID()]; ok {
+					continue
+				}
+				idsVisited[n.ID()] = struct{}{}
+				tableExpr := n.GetTableExpr()
+				annotation := n.GetAnnotation()
+				dp.annMap[tableExpr] = annotation
+				for _, e := range edges {
+					if e.From().ID() == n.ID() {
+						projection, err := e.GetProjection()
+						if err != nil {
+							return err
+						}
+						stream := streaming.NewSimpleProjectionMapStream(projection)
+						//
+						err = dp.processOrphan(tableExpr, annotation, dp.defaultStream, stream)
+						if err != nil {
+							return err
+						}
+						//
+						toNode := e.GetDest()
+						toTableExpr := toNode.GetTableExpr()
+						toAnnotation := toNode.GetAnnotation()
+						dp.annMap[toTableExpr] = toAnnotation
+						toAnnotation.SetDynamic()
+						data, _ := dp.defaultStream.Read()
+						stream.Write(data)
+						err = dp.processOrphan(toTableExpr, toAnnotation, stream, streaming.NewNopMapStream())
+						if err != nil {
+							return err
+						}
+						idsVisited[toNode.ID()] = struct{}{}
+					}
+				}
+			}
+			// return fmt.Errorf("data flow: components not yet implemented")
 		default:
 			return fmt.Errorf("cannot support dependency unit of type = '%T'", unit)
 		}
@@ -151,17 +188,25 @@ func (dp *StandardDependencyPlanner) Plan() error {
 		return err
 	}
 	selBld := primitivebuilder.NewSingleSelect(dp.primitiveComposer.GetGraph(), dp.handlerCtx, selCtx, nil)
-	dp.bldr = primitivebuilder.NewMultipleAcquireAndSelect(dp.primitiveComposer.GetGraph(), dp.execSlice, selBld)
+	// TODO: make this finer grained STAT
+	dp.bldr = primitivebuilder.NewDependentMultipleAcquireAndSelect(dp.primitiveComposer.GetGraph(), dp.execSlice, selBld)
 	dp.selCtx = selCtx
 	return nil
 }
 
-func (dp *StandardDependencyPlanner) processOrphan(sqlNode sqlparser.SQLNode, annotationCtx taxonomy.AnnotationCtx, stream streaming.MapStream) error {
-	insPsc, err := dp.processAcquire(sqlNode, annotationCtx, stream)
+func (dp *StandardDependencyPlanner) processOrphan(sqlNode sqlparser.SQLNode, annotationCtx taxonomy.AnnotationCtx, inStream streaming.MapStream, outStream streaming.MapStream) error {
+	insPsc, err := dp.processAcquire(sqlNode, annotationCtx, inStream)
 	if err != nil {
 		return err
 	}
-	builder := primitivebuilder.NewSingleSelectAcquire(dp.primitiveComposer.GetGraph(), dp.handlerCtx, annotationCtx.GetTableMeta(), insPsc, nil, nil)
+	builder := primitivebuilder.NewSingleSelectAcquire(
+		dp.primitiveComposer.GetGraph(),
+		dp.handlerCtx,
+		annotationCtx.GetTableMeta(),
+		insPsc,
+		nil,
+		outStream,
+	)
 	dp.execSlice = append(dp.execSlice, builder)
 	dp.tableSlice = append(dp.tableSlice, annotationCtx.GetTableMeta())
 	return nil
