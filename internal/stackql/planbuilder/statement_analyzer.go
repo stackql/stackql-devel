@@ -827,6 +827,10 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 	log.Debugf("%v\n", dataFlows)
 	// END_BLOCK  SequencingAccrual
 
+	onConditionsToRewrite := router.GetOnConditionsToRewrite()
+
+	parserutil.NaiveRewriteComparisonExprs(onConditionsToRewrite)
+
 	if err != nil {
 		return err
 	}
