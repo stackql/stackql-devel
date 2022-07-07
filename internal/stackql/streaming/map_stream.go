@@ -50,5 +50,7 @@ func (ss *StandardMapStream) Write(input []map[string]interface{}) error {
 }
 
 func (ss *StandardMapStream) Read() ([]map[string]interface{}, error) {
-	return ss.store, io.EOF
+	rv := ss.store
+	ss.store = nil
+	return rv, io.EOF
 }

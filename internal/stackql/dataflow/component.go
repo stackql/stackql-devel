@@ -10,6 +10,8 @@ type DataFlowWeaklyConnectedComponent interface {
 	DataFlowUnit
 	AddEdge(DataFlowEdge)
 	Analyze() error
+	GetEdges() ([]DataFlowEdge, error)
+	GetOrderedNodes() ([]DataFlowVertex, error)
 	PushBack(DataFlowVertex)
 }
 
@@ -35,6 +37,32 @@ func NewStandardDataFlowWeaklyConnectedComponent(
 			root,
 		},
 	}
+}
+
+func (wc *StandardDataFlowWeaklyConnectedComponent) GetOrderedNodes() ([]DataFlowVertex, error) {
+	var rv []DataFlowVertex
+	for _, n := range wc.orderedNodes {
+		switch n := n.(type) {
+		case DataFlowVertex:
+			rv = append(rv, n)
+		default:
+			return nil, fmt.Errorf("data flow error: weakly connected components cannot accomodate nodes of type '%T'", n)
+		}
+	}
+	return rv, nil
+}
+
+func (wc *StandardDataFlowWeaklyConnectedComponent) GetEdges() ([]DataFlowEdge, error) {
+	var rv []DataFlowEdge
+	for _, n := range wc.edges {
+		switch n := n.(type) {
+		case DataFlowEdge:
+			rv = append(rv, n)
+		default:
+			return nil, fmt.Errorf("data flow error: weakly connected components cannot accomodate edges of type '%T'", n)
+		}
+	}
+	return rv, nil
 }
 
 func (wc *StandardDataFlowWeaklyConnectedComponent) Analyze() error {

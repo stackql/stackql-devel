@@ -42,9 +42,10 @@ type StandardDependencyPlanner struct {
 	discoGenIDs        map[sqlparser.SQLNode]int
 
 	//
-	bldr   primitivebuilder.Builder
-	selCtx *drm.PreparedStatementCtx
-	stream streaming.MapStream
+	bldr          primitivebuilder.Builder
+	selCtx        *drm.PreparedStatementCtx
+	defaultStream streaming.MapStream
+	annMap        taxonomy.AnnotationCtxMap
 }
 
 func NewStandardDependencyPlanner(
@@ -65,7 +66,8 @@ func NewStandardDependencyPlanner(
 		tblz:               tblz,
 		primitiveComposer:  primitiveComposer,
 		discoGenIDs:        make(map[sqlparser.SQLNode]int),
-		stream:             streaming.NewStandardMapStream(),
+		defaultStream:      streaming.NewStandardMapStream(),
+		annMap:             make(taxonomy.AnnotationCtxMap),
 	}
 }
 
@@ -78,7 +80,6 @@ func (dp *StandardDependencyPlanner) GetSelectCtx() *drm.PreparedStatementCtx {
 }
 
 func (dp *StandardDependencyPlanner) Plan() error {
-	annMap := make(taxonomy.AnnotationCtxMap)
 	err := dp.dataflowCollection.Sort()
 	if err != nil {
 		return err
@@ -101,11 +102,27 @@ func (dp *StandardDependencyPlanner) Plan() error {
 			}
 			tableExpr := unit.GetTableExpr()
 			annotation := unit.GetAnnotation()
-			annMap[tableExpr] = annotation
-			err := dp.processOrphan(tableExpr, annotation)
+			dp.annMap[tableExpr] = annotation
+			err := dp.processOrphan(tableExpr, annotation, dp.defaultStream)
 			if err != nil {
 				return err
 			}
+		case dataflow.DataFlowWeaklyConnectedComponent:
+			orderedNodes, err := unit.GetOrderedNodes()
+			if err != nil {
+				return err
+			}
+			log.Infof("%v\n", orderedNodes)
+			edges, err := unit.GetEdges()
+			if err != nil {
+				return err
+			}
+			log.Infof("%v\n", edges)
+			edgeCount := len(edges)
+			if edgeCount > 1 {
+				return fmt.Errorf("data flow: cannot accomodate table dependencies of this complexity: supplied = %d, max = 1", edgeCount)
+			}
+			return fmt.Errorf("data flow: components not yet implemented")
 		default:
 			return fmt.Errorf("cannot support dependency unit of type = '%T'", unit)
 		}
@@ -117,7 +134,7 @@ func (dp *StandardDependencyPlanner) Plan() error {
 		dp.handlerCtx,
 		dp.tblz,
 		dp.tableSlice,
-		annMap,
+		dp.annMap,
 		dp.discoGenIDs,
 		dp.colRefs,
 		drm.GetGoogleV1SQLiteConfig(),
@@ -139,8 +156,8 @@ func (dp *StandardDependencyPlanner) Plan() error {
 	return nil
 }
 
-func (dp *StandardDependencyPlanner) processOrphan(sqlNode sqlparser.SQLNode, annotationCtx taxonomy.AnnotationCtx) error {
-	insPsc, err := dp.processAcquire(sqlNode, annotationCtx)
+func (dp *StandardDependencyPlanner) processOrphan(sqlNode sqlparser.SQLNode, annotationCtx taxonomy.AnnotationCtx, stream streaming.MapStream) error {
+	insPsc, err := dp.processAcquire(sqlNode, annotationCtx, stream)
 	if err != nil {
 		return err
 	}
@@ -150,7 +167,18 @@ func (dp *StandardDependencyPlanner) processOrphan(sqlNode sqlparser.SQLNode, an
 	return nil
 }
 
-func (dp *StandardDependencyPlanner) processAcquire(sqlNode sqlparser.SQLNode, annotationCtx taxonomy.AnnotationCtx) (*drm.PreparedStatementCtx, error) {
+func (dp *StandardDependencyPlanner) processComponent(sqlNode sqlparser.SQLNode, annotationCtx taxonomy.AnnotationCtx) error {
+	insPsc, err := dp.processAcquire(sqlNode, annotationCtx, dp.defaultStream)
+	if err != nil {
+		return err
+	}
+	builder := primitivebuilder.NewSingleSelectAcquire(dp.primitiveComposer.GetGraph(), dp.handlerCtx, annotationCtx.GetTableMeta(), insPsc, nil, nil)
+	dp.execSlice = append(dp.execSlice, builder)
+	dp.tableSlice = append(dp.tableSlice, annotationCtx.GetTableMeta())
+	return nil
+}
+
+func (dp *StandardDependencyPlanner) processAcquire(sqlNode sqlparser.SQLNode, annotationCtx taxonomy.AnnotationCtx, stream streaming.MapStream) (*drm.PreparedStatementCtx, error) {
 	pr, err := annotationCtx.GetTableMeta().GetProvider()
 	if err != nil {
 		return nil, err
@@ -188,7 +216,7 @@ func (dp *StandardDependencyPlanner) processAcquire(sqlNode sqlparser.SQLNode, a
 		pr,
 		m,
 		svc,
-		dp.stream,
+		stream,
 	)
 	if err != nil {
 		return nil, err
