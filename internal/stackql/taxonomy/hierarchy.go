@@ -27,7 +27,7 @@ func (ho *HeirarchyObjects) LookupSelectItemsKey() string {
 	rsc := ho.Resource
 	method := ho.Method
 	if method == nil {
-		return defaultSelectItemsKEy
+		return defaultSelectItemsKey
 	}
 	if sk := method.GetSelectItemsKey(); sk != "" {
 		return sk
@@ -69,7 +69,7 @@ func (ho *HeirarchyObjects) LookupSelectItemsKey() string {
 			return "bindings"
 		}
 	}
-	return defaultSelectItemsKEy
+	return defaultSelectItemsKey
 }
 
 func (ho *HeirarchyObjects) GetResponseSchemaAndMediaType() (*openapistackql.Schema, string, error) {

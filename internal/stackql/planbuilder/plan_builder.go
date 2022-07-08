@@ -28,6 +28,28 @@ var (
 	PlanCacheEnabled string = "true"
 )
 
+type PlanBuilderInput interface {
+	GetAliasedTables() parserutil.TableAliasMap
+	GetAuth() (*sqlparser.Auth, bool)
+	GetAuthRevoke() (*sqlparser.AuthRevoke, bool)
+	GetAssignedAliasedColumns() map[sqlparser.TableName]sqlparser.TableExpr
+	GetColRefs() parserutil.ColTableMap
+	GetDelete() (*sqlparser.Delete, bool)
+	GetDescribeTable() (*sqlparser.DescribeTable, bool)
+	GetExec() (*sqlparser.Exec, bool)
+	GetHandlerCtx() *handler.HandlerContext
+	GetInsert() (*sqlparser.Insert, bool)
+	GetPlaceholderParams() parserutil.ParameterMap
+	GetRegistry() (*sqlparser.Registry, bool)
+	GetSelect() (*sqlparser.Select, bool)
+	GetShow() (*sqlparser.Show, bool)
+	GetSleep() (*sqlparser.Sleep, bool)
+	GetStatement() sqlparser.SQLNode
+	GetTableExprs() sqlparser.TableExprs
+	GetUnion() (*sqlparser.Union, bool)
+	GetUse() (*sqlparser.Use, bool)
+}
+
 func isPlanCacheEnabled() bool {
 	return strings.ToLower(PlanCacheEnabled) != "false"
 }
@@ -152,28 +174,6 @@ func (pbi *StandardPlanBuilderInput) GetUse() (*sqlparser.Use, bool) {
 
 func (pbi *StandardPlanBuilderInput) GetHandlerCtx() *handler.HandlerContext {
 	return pbi.handlerCtx
-}
-
-type PlanBuilderInput interface {
-	GetAliasedTables() parserutil.TableAliasMap
-	GetAuth() (*sqlparser.Auth, bool)
-	GetAuthRevoke() (*sqlparser.AuthRevoke, bool)
-	GetAssignedAliasedColumns() map[sqlparser.TableName]sqlparser.TableExpr
-	GetColRefs() parserutil.ColTableMap
-	GetDelete() (*sqlparser.Delete, bool)
-	GetDescribeTable() (*sqlparser.DescribeTable, bool)
-	GetExec() (*sqlparser.Exec, bool)
-	GetHandlerCtx() *handler.HandlerContext
-	GetInsert() (*sqlparser.Insert, bool)
-	GetPlaceholderParams() parserutil.ParameterMap
-	GetRegistry() (*sqlparser.Registry, bool)
-	GetSelect() (*sqlparser.Select, bool)
-	GetShow() (*sqlparser.Show, bool)
-	GetSleep() (*sqlparser.Sleep, bool)
-	GetStatement() sqlparser.SQLNode
-	GetTableExprs() sqlparser.TableExprs
-	GetUnion() (*sqlparser.Union, bool)
-	GetUse() (*sqlparser.Use, bool)
 }
 
 type planGraphBuilder struct {

@@ -22,7 +22,7 @@ type ExtendedTableMetadata struct {
 
 func (ex ExtendedTableMetadata) LookupSelectItemsKey() string {
 	if ex.HeirarchyObjects == nil {
-		return defaultSelectItemsKEy
+		return defaultSelectItemsKey
 	}
 	return ex.HeirarchyObjects.LookupSelectItemsKey()
 }

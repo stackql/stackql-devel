@@ -1,5 +1,5 @@
 package taxonomy
 
 const (
-	defaultSelectItemsKEy = "items"
+	defaultSelectItemsKey = "items"
 )

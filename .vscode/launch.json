@@ -191,6 +191,21 @@
         "select id, name from github.repos.repos where org = 'stackql' and name = 'cloudy-redirect-app';"
       ],
     },
+    // select login, bio from github.users.users where username = 'kingy';
+    {
+      "name": "DEBUG select github.users.users... ;",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
+      "args": [
+        "exec",
+        "--registry=${input:registryString}",
+        "--auth=${input:authString}",
+        "--tls.allowInsecure=true",
+        "select login, bio from github.users.users where username = 'kingy';"
+      ],
+    },
     {
       "name": "DEBUG join ON param... ;",
       "type": "go",
@@ -201,7 +216,8 @@
         "exec",
         "--registry=${input:registryString}",
         "--auth=${input:authString}",
-        "select u.name, u.login, u.two_factor_authentication AS is_two_fa_enabled from github.orgs.members om inner join github.users.users u on om.login = u.login AND u.username = om.login where om.org = 'stackql';"
+        "--tls.allowInsecure=true",
+        "select u.name, om.login, u.two_factor_authentication AS is_two_fa_enabled from github.orgs.members om inner join github.users.users u on om.login = u.login AND u.username = om.login inner join github.users.users u2 on om.login = u2.login AND u2.username = om.login where om.org = 'dummyorg' order by u.name desc;"
       ],
     },
     // 
