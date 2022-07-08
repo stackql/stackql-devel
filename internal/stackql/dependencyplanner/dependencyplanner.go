@@ -88,6 +88,8 @@ func (dp *StandardDependencyPlanner) Plan() error {
 	if err != nil {
 		return err
 	}
+	// TODO: lift this restriction once all traversal algorithms are adequate
+	weaklyConnectedComponentCount := 0
 	for _, unit := range units {
 		switch unit := unit.(type) {
 		case dataflow.DataFlowVertex:
@@ -108,6 +110,7 @@ func (dp *StandardDependencyPlanner) Plan() error {
 				return err
 			}
 		case dataflow.DataFlowWeaklyConnectedComponent:
+			weaklyConnectedComponentCount++
 			orderedNodes, err := unit.GetOrderedNodes()
 			if err != nil {
 				return err
@@ -164,6 +167,9 @@ func (dp *StandardDependencyPlanner) Plan() error {
 			return fmt.Errorf("cannot support dependency unit of type = '%T'", unit)
 		}
 
+	}
+	if weaklyConnectedComponentCount > 1 {
+		return fmt.Errorf("data flow: there are too many weakly connected components; found = %d, max = 1", weaklyConnectedComponentCount)
 	}
 	rewrittenWhereStr := astvisit.GenerateModifiedWhereClause(dp.rewrittenWhere)
 	log.Debugf("rewrittenWhereStr = '%s'", rewrittenWhereStr)
