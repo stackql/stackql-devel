@@ -13,6 +13,8 @@ import (
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/primitivebuilder"
 	"github.com/stackql/stackql/internal/stackql/primitivecomposer"
+	"github.com/stackql/stackql/internal/stackql/sqlrewrite"
+	"github.com/stackql/stackql/internal/stackql/sqlstream"
 	"github.com/stackql/stackql/internal/stackql/streaming"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 	"github.com/stackql/stackql/internal/stackql/util"
@@ -285,10 +287,52 @@ func (dp *StandardDependencyPlanner) processAcquire(sqlNode sqlparser.SQLNode, a
 	return insPsc, err
 }
 
+func (dp *StandardDependencyPlanner) createSelectFrom() (*sqlparser.Select, error) {
+	return &sqlparser.Select{
+		SelectExprs: sqlparser.SelectExprs{
+			//retrieve from somewhere
+		},
+		From: sqlparser.TableExprs{
+			// retrieve from somewhere
+		},
+		Where:
+		// retrieve from somewhere
+		nil,
+	}, nil
+}
+
 func (dp *StandardDependencyPlanner) getStreamFromEdge(e dataflow.DataFlowEdge) (streaming.MapStream, error) {
+	if e.IsSQL() {
+		selectCtx, err := dp.generateSelectDML(e)
+		if err != nil {
+			return nil, err
+		}
+		return sqlstream.NewSimpleSQLMapStream(selectCtx), nil
+	}
 	projection, err := e.GetProjection()
 	if err != nil {
 		return nil, err
 	}
 	return streaming.NewSimpleProjectionMapStream(projection), nil
+}
+
+func (dp *StandardDependencyPlanner) generateSelectDML(e dataflow.DataFlowEdge) (*drm.PreparedStatementCtx, error) {
+	ann := e.GetDest().GetAnnotation()
+	meta := ann.GetTableMeta()
+	columnDescriptors, err := e.GetColumnDescriptors()
+	if err != nil {
+		return nil, err
+	}
+	rewriteInput := sqlrewrite.NewStandardSQLRewriteInput(
+		dp.handlerCtx.DrmConfig,
+		columnDescriptors,
+		dp.primaryTcc,
+		"",
+		"",
+		dp.secondaryTccs,
+		dp.tblz,
+		"",
+		[]*taxonomy.ExtendedTableMetadata{meta},
+	)
+	return sqlrewrite.GenerateSelectDML(rewriteInput)
 }

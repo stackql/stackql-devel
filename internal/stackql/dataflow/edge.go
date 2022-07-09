@@ -1,6 +1,7 @@
 package dataflow
 
 import (
+	"github.com/stackql/go-openapistackql/openapistackql"
 	"gonum.org/v1/gonum/graph"
 	"vitess.io/vitess/go/vt/sqlparser"
 )
@@ -8,6 +9,7 @@ import (
 type DataFlowEdge interface {
 	graph.WeightedEdge
 	AddRelation(DataFlowRelation)
+	GetColumnDescriptors() ([]openapistackql.ColumnDescriptor, error)
 	GetDest() DataFlowVertex
 	GetProjection() (map[string]string, error)
 	GetSelectExprs() (sqlparser.SelectExprs, error)
@@ -95,6 +97,18 @@ func (dv *StandardDataFlowEdge) GetSelectExprs() (sqlparser.SelectExprs, error) 
 			return nil, err
 		}
 		rv = append(rv, selExpr)
+	}
+	return rv, nil
+}
+
+func (dv *StandardDataFlowEdge) GetColumnDescriptors() ([]openapistackql.ColumnDescriptor, error) {
+	var rv []openapistackql.ColumnDescriptor
+	for _, rel := range dv.relations {
+		d, err := rel.GetColumnDescriptor()
+		if err != nil {
+			return nil, err
+		}
+		rv = append(rv, d)
 	}
 	return rv, nil
 }

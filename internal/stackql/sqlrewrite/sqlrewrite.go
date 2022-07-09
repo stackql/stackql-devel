@@ -126,7 +126,6 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 			colEntry.WriteString(fmt.Sprintf("%s ", col.DecoratedCol))
 		}
 		quotedColNames = append(quotedColNames, fmt.Sprintf("%s ", colEntry.String()))
-
 	}
 	genIdColName := dc.GetGenerationControlColumn()
 	sessionIDColName := dc.GetSessionControlColumn()

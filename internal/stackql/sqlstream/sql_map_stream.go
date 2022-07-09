@@ -1,4 +1,4 @@
-package sqlsteam
+package sqlstream
 
 import (
 	"io"
