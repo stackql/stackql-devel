@@ -514,6 +514,14 @@ func (v *TableAliasAstVisitor) Visit(node sqlparser.SQLNode) error {
 		return node.Expr.Accept(v)
 
 	case *sqlparser.ComparisonExpr:
+		err := node.Left.Accept(v)
+		if err != nil {
+			return err
+		}
+		err = node.Right.Accept(v)
+		if err != nil {
+			return err
+		}
 		// switch lt := node.Left.(type) {
 		// case *sqlparser.ColName:
 		// 	switch rt := node.Right.(type) {
@@ -592,6 +600,10 @@ func (v *TableAliasAstVisitor) Visit(node sqlparser.SQLNode) error {
 	case *sqlparser.CollateExpr:
 
 	case *sqlparser.FuncExpr:
+		err := node.Exprs.Accept(v)
+		if err != nil {
+			return err
+		}
 		if node.Distinct {
 		}
 		if !node.Qualifier.IsEmpty() {

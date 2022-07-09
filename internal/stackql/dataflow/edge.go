@@ -70,6 +70,11 @@ func (de *StandardDataFlowEdge) GetSource() DataFlowVertex {
 }
 
 func (de *StandardDataFlowEdge) IsSQL() bool {
+	for _, rel := range de.relations {
+		if rel.IsSQL() {
+			return true
+		}
+	}
 	return false
 }
 

@@ -6,12 +6,15 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type DataFlowRelation interface {
 	GetProjection() (string, string, error)
 	GetSelectExpr() (sqlparser.SelectExpr, error)
 	GetColumnDescriptor() (openapistackql.ColumnDescriptor, error)
+	IsSQL() bool
 }
 
 type StandardDataFlowRelation struct {
@@ -38,6 +41,16 @@ func (dr *StandardDataFlowRelation) GetProjection() (string, string, error) {
 		return se.Name.GetRawVal(), dr.destColumn.Name.GetRawVal(), nil
 	default:
 		return "", "", fmt.Errorf("cannot project from expression type = '%T'", se)
+	}
+}
+
+func (dr *StandardDataFlowRelation) IsSQL() bool {
+	switch se := dr.sourceExpr.(type) {
+	case *sqlparser.ColName:
+		return false
+	default:
+		log.Infof("%v\n", se)
+		return true
 	}
 }
 
