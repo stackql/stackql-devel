@@ -136,11 +136,10 @@ func (dp *StandardDependencyPlanner) Plan() error {
 				dp.annMap[tableExpr] = annotation
 				for _, e := range edges {
 					if e.From().ID() == n.ID() {
-						projection, err := e.GetProjection()
+						stream, err := dp.getStreamFromEdge(e)
 						if err != nil {
 							return err
 						}
-						stream := streaming.NewSimpleProjectionMapStream(projection)
 						//
 						err = dp.processOrphan(tableExpr, annotation, dp.defaultStream, stream)
 						if err != nil {
@@ -152,8 +151,6 @@ func (dp *StandardDependencyPlanner) Plan() error {
 						toAnnotation := toNode.GetAnnotation()
 						dp.annMap[toTableExpr] = toAnnotation
 						toAnnotation.SetDynamic()
-						data, _ := dp.defaultStream.Read()
-						stream.Write(data)
 						err = dp.processOrphan(toTableExpr, toAnnotation, stream, streaming.NewNopMapStream())
 						if err != nil {
 							return err
@@ -286,4 +283,12 @@ func (dp *StandardDependencyPlanner) processAcquire(sqlNode sqlparser.SQLNode, a
 	}
 	insPsc, err := dp.primitiveComposer.GetDRMConfig().GenerateInsertDML(anTab, dp.tcc)
 	return insPsc, err
+}
+
+func (dp *StandardDependencyPlanner) getStreamFromEdge(e dataflow.DataFlowEdge) (streaming.MapStream, error) {
+	projection, err := e.GetProjection()
+	if err != nil {
+		return nil, err
+	}
+	return streaming.NewSimpleProjectionMapStream(projection), nil
 }

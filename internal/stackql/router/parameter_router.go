@@ -157,6 +157,7 @@ func (pr *StandardParameterRouter) GetOnConditionDataFlows() (dataflow.DataFlowC
 				}
 				selfTableCited = true
 				destColumn = r
+				srcExpr = k.Left
 			} else {
 				dependency = rhr
 				dependencyTable = candidateTable
