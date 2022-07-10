@@ -109,7 +109,11 @@ func (dp *StandardDependencyPlanner) Plan() error {
 			tableExpr := unit.GetTableExpr()
 			annotation := unit.GetAnnotation()
 			dp.annMap[tableExpr] = annotation
-			err := dp.processOrphan(tableExpr, annotation, dp.defaultStream, streaming.NewNopMapStream())
+			insPsc, _, err := dp.processOrphan(tableExpr, annotation, dp.defaultStream)
+			if err != nil {
+				return err
+			}
+			err = dp.orchestrate(annotation, insPsc, dp.defaultStream, streaming.NewNopMapStream())
 			if err != nil {
 				return err
 			}
@@ -140,12 +144,17 @@ func (dp *StandardDependencyPlanner) Plan() error {
 				dp.annMap[tableExpr] = annotation
 				for _, e := range edges {
 					if e.From().ID() == n.ID() {
-						stream, err := dp.getStreamFromEdge(e)
+
+						//
+						insPsc, tcc, err := dp.processOrphan(tableExpr, annotation, dp.defaultStream)
 						if err != nil {
 							return err
 						}
-						//
-						err = dp.processOrphan(tableExpr, annotation, dp.defaultStream, stream)
+						stream, err := dp.getStreamFromEdge(e, tcc)
+						if err != nil {
+							return err
+						}
+						err = dp.orchestrate(annotation, insPsc, dp.defaultStream, stream)
 						if err != nil {
 							return err
 						}
@@ -155,7 +164,11 @@ func (dp *StandardDependencyPlanner) Plan() error {
 						toAnnotation := toNode.GetAnnotation()
 						dp.annMap[toTableExpr] = toAnnotation
 						toAnnotation.SetDynamic()
-						err = dp.processOrphan(toTableExpr, toAnnotation, stream, streaming.NewNopMapStream())
+						insPsc, _, err = dp.processOrphan(toTableExpr, toAnnotation, stream)
+						if err != nil {
+							return err
+						}
+						err = dp.orchestrate(toAnnotation, insPsc, stream, streaming.NewNopMapStream())
 						if err != nil {
 							return err
 						}
@@ -201,11 +214,21 @@ func (dp *StandardDependencyPlanner) Plan() error {
 	return nil
 }
 
-func (dp *StandardDependencyPlanner) processOrphan(sqlNode sqlparser.SQLNode, annotationCtx taxonomy.AnnotationCtx, inStream streaming.MapStream, outStream streaming.MapStream) error {
-	insPsc, err := dp.processAcquire(sqlNode, annotationCtx, inStream)
+func (dp *StandardDependencyPlanner) processOrphan(sqlNode sqlparser.SQLNode, annotationCtx taxonomy.AnnotationCtx, inStream streaming.MapStream) (*drm.PreparedStatementCtx, *dto.TxnControlCounters, error) {
+	anTab, tcc, err := dp.processAcquire(sqlNode, annotationCtx, inStream)
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
+	insPsc, err := dp.primitiveComposer.GetDRMConfig().GenerateInsertDML(anTab, tcc)
+	return insPsc, tcc, err
+}
+
+func (dp *StandardDependencyPlanner) orchestrate(
+	annotationCtx taxonomy.AnnotationCtx,
+	insPsc *drm.PreparedStatementCtx,
+	inStream streaming.MapStream,
+	outStream streaming.MapStream,
+) error {
 	builder := primitivebuilder.NewSingleSelectAcquire(
 		dp.primitiveComposer.GetGraph(),
 		dp.handlerCtx,
@@ -216,30 +239,31 @@ func (dp *StandardDependencyPlanner) processOrphan(sqlNode sqlparser.SQLNode, an
 	)
 	dp.execSlice = append(dp.execSlice, builder)
 	dp.tableSlice = append(dp.tableSlice, annotationCtx.GetTableMeta())
-	return nil
+	err := annotationCtx.Prepare(dp.handlerCtx, inStream)
+	return err
 }
 
-func (dp *StandardDependencyPlanner) processAcquire(sqlNode sqlparser.SQLNode, annotationCtx taxonomy.AnnotationCtx, stream streaming.MapStream) (*drm.PreparedStatementCtx, error) {
-	pr, err := annotationCtx.GetTableMeta().GetProvider()
-	if err != nil {
-		return nil, err
-	}
+func (dp *StandardDependencyPlanner) processAcquire(
+	sqlNode sqlparser.SQLNode,
+	annotationCtx taxonomy.AnnotationCtx,
+	stream streaming.MapStream,
+) (util.AnnotatedTabulation, *dto.TxnControlCounters, error) {
 	prov, err := annotationCtx.GetTableMeta().GetProviderObject()
 	if err != nil {
-		return nil, err
+		return util.NewAnnotatedTabulation(nil, nil, ""), nil, err
 	}
 	svc, err := annotationCtx.GetTableMeta().GetService()
 	if err != nil {
-		return nil, err
+		return util.NewAnnotatedTabulation(nil, nil, ""), nil, err
 	}
 	m, err := annotationCtx.GetTableMeta().GetMethod()
 	if err != nil {
-		return nil, err
+		return util.NewAnnotatedTabulation(nil, nil, ""), nil, err
 	}
 	tab := annotationCtx.GetSchema().Tabulate(false)
 	_, mediaType, err := m.GetResponseBodySchemaAndMediaType()
 	if err != nil {
-		return nil, err
+		return util.NewAnnotatedTabulation(nil, nil, ""), nil, err
 	}
 	switch mediaType {
 	case media.MediaTypeTextXML, media.MediaTypeXML:
@@ -249,12 +273,12 @@ func (dp *StandardDependencyPlanner) processAcquire(sqlNode sqlparser.SQLNode, a
 
 	discoGenId, err := docparser.OpenapiStackQLTabulationsPersistor(prov, svc, []util.AnnotatedTabulation{anTab}, dp.primitiveComposer.GetSQLEngine(), prov.Name)
 	if err != nil {
-		return nil, err
+		return util.NewAnnotatedTabulation(nil, nil, ""), nil, err
 	}
 	dp.discoGenIDs[sqlNode] = discoGenId
 	tableDTO, err := dp.primitiveComposer.GetDRMConfig().GetCurrentTable(annotationCtx.GetHIDs(), dp.handlerCtx.SQLEngine)
 	if err != nil {
-		return nil, err
+		return util.NewAnnotatedTabulation(nil, nil, ""), nil, err
 	}
 	if dp.tcc == nil {
 		dp.tcc = dto.NewTxnControlCounters(dp.primitiveComposer.GetTxnCounterManager(), tableDTO.GetDiscoveryID())
@@ -264,19 +288,23 @@ func (dp *StandardDependencyPlanner) processAcquire(sqlNode sqlparser.SQLNode, a
 		dp.tcc.DiscoveryGenerationId = discoGenId
 		dp.secondaryTccs = append(dp.secondaryTccs, dp.tcc)
 	}
-	err = annotationCtx.Prepare(
-		dp.handlerCtx,
-		pr,
-		m,
-		svc,
-		stream,
-	)
-	if err != nil {
-		return nil, err
-	}
-	insPsc, err := dp.primitiveComposer.GetDRMConfig().GenerateInsertDML(anTab, dp.tcc)
-	return insPsc, err
+	return anTab, dp.tcc, nil
 }
+
+// switch stream := stream.(type) {
+// case *sqlstream.SimpleSQLMapStream:
+// 	stream.SetTCCs(dp.tcc)
+// }
+// 	err = annotationCtx.Prepare(
+// 		dp.handlerCtx,
+// 		stream,
+// 	)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return insPsc, err
+// }
 
 func (dp *StandardDependencyPlanner) createSelectFrom() (*sqlparser.Select, error) {
 	return &sqlparser.Select{
@@ -292,9 +320,9 @@ func (dp *StandardDependencyPlanner) createSelectFrom() (*sqlparser.Select, erro
 	}, nil
 }
 
-func (dp *StandardDependencyPlanner) getStreamFromEdge(e dataflow.DataFlowEdge) (streaming.MapStream, error) {
+func (dp *StandardDependencyPlanner) getStreamFromEdge(e dataflow.DataFlowEdge, tcc *dto.TxnControlCounters) (streaming.MapStream, error) {
 	if e.IsSQL() {
-		selectCtx, err := dp.generateSelectDML(e)
+		selectCtx, err := dp.generateSelectDML(e, tcc)
 		if err != nil {
 			return nil, err
 		}
@@ -307,23 +335,25 @@ func (dp *StandardDependencyPlanner) getStreamFromEdge(e dataflow.DataFlowEdge) 
 	return streaming.NewSimpleProjectionMapStream(projection), nil
 }
 
-func (dp *StandardDependencyPlanner) generateSelectDML(e dataflow.DataFlowEdge) (*drm.PreparedStatementCtx, error) {
+func (dp *StandardDependencyPlanner) generateSelectDML(e dataflow.DataFlowEdge, tcc *dto.TxnControlCounters) (*drm.PreparedStatementCtx, error) {
 	ann := e.GetDest().GetAnnotation()
 	meta := ann.GetTableMeta()
 	columnDescriptors, err := e.GetColumnDescriptors()
 	if err != nil {
 		return nil, err
 	}
+	tableName := fmt.Sprintf(`"%s"`, dp.handlerCtx.DrmConfig.GetTableName(ann.GetHIDs(), dp.tcc.GenId))
 	rewriteInput := sqlrewrite.NewStandardSQLRewriteInput(
 		dp.handlerCtx.DrmConfig,
 		columnDescriptors,
-		dp.primaryTcc,
+		tcc,
 		"",
 		"",
 		dp.secondaryTccs,
 		dp.tblz,
-		"",
+		tableName,
 		[]*taxonomy.ExtendedTableMetadata{meta},
 	)
+	// return GenerateSelectDML(util.NewAnnotatedTabulation(selectTabulation, hIds, tbl.GetAlias()), insPsc.GetGCCtrlCtrs(), astvisit.GenerateModifiedSelectSuffix(node), astvisit.GenerateModifiedWhereClause(rewrittenWhere))
 	return sqlrewrite.GenerateSelectDML(rewriteInput)
 }
