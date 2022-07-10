@@ -16,9 +16,15 @@ type SimpleSQLMapStream struct {
 	// store     []map[string]interface{}
 }
 
-func NewSimpleSQLMapStream(selectCtx *drm.PreparedStatementCtx) streaming.MapStream {
+func NewSimpleSQLMapStream(
+	selectCtx *drm.PreparedStatementCtx,
+	drmCfg drm.DRMConfig,
+	sqlEngine sqlengine.SQLEngine,
+) streaming.MapStream {
 	return &SimpleSQLMapStream{
 		selectCtx: selectCtx,
+		drmCfg:    drmCfg,
+		sqlEngine: sqlEngine,
 	}
 }
 

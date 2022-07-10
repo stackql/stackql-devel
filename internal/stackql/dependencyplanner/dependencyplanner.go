@@ -58,6 +58,7 @@ func NewStandardDependencyPlanner(
 	sqlStatement sqlparser.SQLNode,
 	tblz taxonomy.TblMap,
 	primitiveComposer primitivecomposer.PrimitiveComposer,
+	tcc *dto.TxnControlCounters,
 ) DependencyPlanner {
 	return &StandardDependencyPlanner{
 		handlerCtx:         handlerCtx,
@@ -70,6 +71,7 @@ func NewStandardDependencyPlanner(
 		discoGenIDs:        make(map[sqlparser.SQLNode]int),
 		defaultStream:      streaming.NewStandardMapStream(),
 		annMap:             make(taxonomy.AnnotationCtxMap),
+		tcc:                tcc,
 	}
 }
 
@@ -217,17 +219,6 @@ func (dp *StandardDependencyPlanner) processOrphan(sqlNode sqlparser.SQLNode, an
 	return nil
 }
 
-func (dp *StandardDependencyPlanner) processComponent(sqlNode sqlparser.SQLNode, annotationCtx taxonomy.AnnotationCtx) error {
-	insPsc, err := dp.processAcquire(sqlNode, annotationCtx, dp.defaultStream)
-	if err != nil {
-		return err
-	}
-	builder := primitivebuilder.NewSingleSelectAcquire(dp.primitiveComposer.GetGraph(), dp.handlerCtx, annotationCtx.GetTableMeta(), insPsc, nil, nil)
-	dp.execSlice = append(dp.execSlice, builder)
-	dp.tableSlice = append(dp.tableSlice, annotationCtx.GetTableMeta())
-	return nil
-}
-
 func (dp *StandardDependencyPlanner) processAcquire(sqlNode sqlparser.SQLNode, annotationCtx taxonomy.AnnotationCtx, stream streaming.MapStream) (*drm.PreparedStatementCtx, error) {
 	pr, err := annotationCtx.GetTableMeta().GetProvider()
 	if err != nil {
@@ -261,16 +252,6 @@ func (dp *StandardDependencyPlanner) processAcquire(sqlNode sqlparser.SQLNode, a
 		return nil, err
 	}
 	dp.discoGenIDs[sqlNode] = discoGenId
-	err = annotationCtx.Prepare(
-		dp.handlerCtx,
-		pr,
-		m,
-		svc,
-		stream,
-	)
-	if err != nil {
-		return nil, err
-	}
 	tableDTO, err := dp.primitiveComposer.GetDRMConfig().GetCurrentTable(annotationCtx.GetHIDs(), dp.handlerCtx.SQLEngine)
 	if err != nil {
 		return nil, err
@@ -282,6 +263,16 @@ func (dp *StandardDependencyPlanner) processAcquire(sqlNode sqlparser.SQLNode, a
 		dp.tcc = dp.tcc.CloneAndIncrementInsertID()
 		dp.tcc.DiscoveryGenerationId = discoGenId
 		dp.secondaryTccs = append(dp.secondaryTccs, dp.tcc)
+	}
+	err = annotationCtx.Prepare(
+		dp.handlerCtx,
+		pr,
+		m,
+		svc,
+		stream,
+	)
+	if err != nil {
+		return nil, err
 	}
 	insPsc, err := dp.primitiveComposer.GetDRMConfig().GenerateInsertDML(anTab, dp.tcc)
 	return insPsc, err
@@ -307,7 +298,7 @@ func (dp *StandardDependencyPlanner) getStreamFromEdge(e dataflow.DataFlowEdge) 
 		if err != nil {
 			return nil, err
 		}
-		return sqlstream.NewSimpleSQLMapStream(selectCtx), nil
+		return sqlstream.NewSimpleSQLMapStream(selectCtx, dp.handlerCtx.DrmConfig, dp.handlerCtx.SQLEngine), nil
 	}
 	projection, err := e.GetProjection()
 	if err != nil {
