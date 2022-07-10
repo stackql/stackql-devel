@@ -64,6 +64,6 @@ func (dr *StandardDataFlowRelation) GetSelectExpr() (sqlparser.SelectExpr, error
 
 func (dr *StandardDataFlowRelation) GetColumnDescriptor() (openapistackql.ColumnDescriptor, error) {
 	decoratedColumn := fmt.Sprintf(`%s AS %s`, sqlparser.String(dr.sourceExpr), dr.destColumn.Name.GetRawVal())
-	cd := openapistackql.NewColumnDescriptor("", "", decoratedColumn, nil, nil)
+	cd := openapistackql.NewColumnDescriptor(dr.destColumn.Name.GetRawVal(), "", decoratedColumn, nil, nil)
 	return cd, nil
 }

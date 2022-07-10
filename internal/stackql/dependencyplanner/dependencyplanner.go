@@ -336,13 +336,17 @@ func (dp *StandardDependencyPlanner) getStreamFromEdge(e dataflow.DataFlowEdge, 
 }
 
 func (dp *StandardDependencyPlanner) generateSelectDML(e dataflow.DataFlowEdge, tcc *dto.TxnControlCounters) (*drm.PreparedStatementCtx, error) {
-	ann := e.GetDest().GetAnnotation()
+	ann := e.GetSource().GetAnnotation()
 	meta := ann.GetTableMeta()
 	columnDescriptors, err := e.GetColumnDescriptors()
 	if err != nil {
 		return nil, err
 	}
+	alias := ann.GetTableMeta().Alias
 	tableName := fmt.Sprintf(`"%s"`, dp.handlerCtx.DrmConfig.GetTableName(ann.GetHIDs(), dp.tcc.GenId))
+	if alias != "" {
+		tableName = fmt.Sprintf("%s AS %s", tableName, alias)
+	}
 	rewriteInput := sqlrewrite.NewStandardSQLRewriteInput(
 		dp.handlerCtx.DrmConfig,
 		columnDescriptors,
