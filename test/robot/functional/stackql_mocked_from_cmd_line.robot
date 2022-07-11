@@ -316,6 +316,17 @@ Data Flow Sequential Join Paginated Select Github
     ...    ${SELECT_GITHUB_JOIN_DATA_FLOW_SEQUENTIAL} 
     ...    ${SELECT_GITHUB_JOIN_DATA_FLOW_SEQUENTIAL_EXPECTED}
 
+Data Flow Sequential Join Select With Functions Github 
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SELECT_GITHUB_SCIM_JOIN_WITH_FUNCTIONS} 
+    ...    ${SELECT_GITHUB_SCIM_JOIN_WITH_FUNCTIONS_EXPECTED}
+
 Basic Query mTLS Returns OK
     Should PG Client Inline Contain
     ...    ${CURDIR}
