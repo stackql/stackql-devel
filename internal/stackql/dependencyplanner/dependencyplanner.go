@@ -176,7 +176,6 @@ func (dp *StandardDependencyPlanner) Plan() error {
 					}
 				}
 			}
-			// return fmt.Errorf("data flow: components not yet implemented")
 		default:
 			return fmt.Errorf("cannot support dependency unit of type = '%T'", unit)
 		}
@@ -358,6 +357,5 @@ func (dp *StandardDependencyPlanner) generateSelectDML(e dataflow.DataFlowEdge, 
 		tableName,
 		[]*taxonomy.ExtendedTableMetadata{meta},
 	)
-	// return GenerateSelectDML(util.NewAnnotatedTabulation(selectTabulation, hIds, tbl.GetAlias()), insPsc.GetGCCtrlCtrs(), astvisit.GenerateModifiedSelectSuffix(node), astvisit.GenerateModifiedWhereClause(rewrittenWhere))
 	return sqlrewrite.GenerateSelectDML(rewriteInput)
 }
