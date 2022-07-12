@@ -282,6 +282,17 @@ K8S Nodes Select Leveraging JSON Path
     ...    ${SELECT_K8S_NODES_ASC}
     ...    ${SELECT_K8S_NODES_ASC_EXPECTED}
 
+Google Compute Instance IAM Policy Select
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SELECT_GOOGLE_COMPUTE_INSTANCE_IAM_POLICY}
+    ...    ${SELECT_GOOGLE_COMPUTE_INSTANCE_IAM_POLICY_EXPECTED}
+
 Registry List All
     Should StackQL Exec Inline Equal
     ...    ${STACKQL_EXE}
