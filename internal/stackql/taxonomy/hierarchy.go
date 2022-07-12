@@ -158,6 +158,7 @@ func GetAliasFromStatement(node sqlparser.SQLNode) string {
 //   - Error if applicable.
 func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, parameters map[string]interface{}) (*HeirarchyObjects, map[string]interface{}, error) {
 	var hIds *dto.HeirarchyIdentifiers
+	getFirstAvailableMethod := false
 	remainingParams := make(map[string]interface{})
 	for k, v := range parameters {
 		remainingParams[k] = v
@@ -180,6 +181,7 @@ func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparse
 		switch strings.ToUpper(n.Type) {
 		case "INSERT":
 			methodAction = "insert"
+			getFirstAvailableMethod = true
 		case "METHODS":
 			methodRequired = false
 		default:
@@ -236,9 +238,13 @@ func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparse
 		}
 		var meth *openapistackql.OperationStore
 		var methStr string
-		meth, methStr, remainingParams, err = prov.GetMethodForAction(retVal.HeirarchyIds.ServiceStr, retVal.HeirarchyIds.ResourceStr, methodAction, remainingParams, handlerCtx.RuntimeContext)
-		if err != nil {
-			return nil, remainingParams, fmt.Errorf("Cannot find matching operation, possible causes include missing required parameters or an unsupported method for the resource, to find required parameters for supported methods run SHOW METHODS IN %s: %s", retVal.HeirarchyIds.GetTableName(), err.Error())
+		if getFirstAvailableMethod {
+			meth, methStr, err = prov.GetFirstMethodForAction(retVal.HeirarchyIds.ServiceStr, retVal.HeirarchyIds.ResourceStr, methodAction, handlerCtx.RuntimeContext)
+		} else {
+			meth, methStr, remainingParams, err = prov.GetMethodForAction(retVal.HeirarchyIds.ServiceStr, retVal.HeirarchyIds.ResourceStr, methodAction, remainingParams, handlerCtx.RuntimeContext)
+			if err != nil {
+				return nil, remainingParams, fmt.Errorf("Cannot find matching operation, possible causes include missing required parameters or an unsupported method for the resource, to find required parameters for supported methods run SHOW METHODS IN %s: %s", retVal.HeirarchyIds.GetTableName(), err.Error())
+			}
 		}
 		for _, srv := range svcHdl.Servers {
 			for k, _ := range srv.Variables {

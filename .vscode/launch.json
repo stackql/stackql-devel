@@ -319,6 +319,30 @@
       ],
     },
     {
+      "name": "DEBUG SHOW INSERT google.compute.instances_iam_policies... ;",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
+      "args": [
+        "exec",
+        "--registry=${input:registryString}",
+        "SHOW INSERT INTO google.compute.instances_iam_policies;"
+      ],
+    },
+    {
+      "name": "DEBUG SHOW INSERT google.iam.service_accounts... ;",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
+      "args": [
+        "exec",
+        "--registry=${input:registryString}",
+        "show insert into google.iam.service_accounts;"
+      ],
+    },
+    {
       "name": "DEBUG select compute.machineTypes ... ;",
       "type": "go",
       "request": "launch",
