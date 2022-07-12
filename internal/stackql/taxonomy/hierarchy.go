@@ -22,9 +22,6 @@ type HeirarchyObjects struct {
 }
 
 func (ho *HeirarchyObjects) LookupSelectItemsKey() string {
-	prov := ho.Provider
-	svcHdl := ho.ServiceHdl
-	rsc := ho.Resource
 	method := ho.Method
 	if method == nil {
 		return defaultSelectItemsKey
@@ -39,32 +36,6 @@ func (ho *HeirarchyObjects) LookupSelectItemsKey() string {
 	switch responseSchema.Type {
 	case "string", "integer":
 		return openapistackql.AnonymousColumnName
-	}
-	if prov.GetProviderString() == "google" {
-		sn := svcHdl.GetName()
-		if sn == "bigquery" && svcHdl.Info.Version == "v2" {
-			if rsc.ID != "" {
-			}
-			if method.GetName() != "" {
-			}
-			if responseSchema.GetName() == "GetQueryResultsResponse" {
-				return "rows"
-			}
-		}
-		if sn == "container" && svcHdl.Info.Version == "v1" {
-			if rsc.ID != "" {
-			}
-			if method.GetName() != "" {
-			}
-			if responseSchema.GetName() == "ListUsableSubnetworksResponse" {
-				return "subnetworks"
-			}
-		}
-		if sn == "cloudresourcemanager" && svcHdl.Info.Version == "v3" {
-			if responseSchema.GetName() == "ListProjectsResponse" {
-				return "projects"
-			}
-		}
 	}
 	return defaultSelectItemsKey
 }
