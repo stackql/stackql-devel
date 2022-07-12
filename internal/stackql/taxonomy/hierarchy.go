@@ -65,9 +65,6 @@ func (ho *HeirarchyObjects) LookupSelectItemsKey() string {
 				return "projects"
 			}
 		}
-		if responseSchema.GetName() == "Policy" {
-			return "bindings"
-		}
 	}
 	return defaultSelectItemsKey
 }
@@ -270,7 +267,7 @@ func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparse
 		var methStr string
 		meth, methStr, remainingParams, err = prov.GetMethodForAction(retVal.HeirarchyIds.ServiceStr, retVal.HeirarchyIds.ResourceStr, methodAction, remainingParams, handlerCtx.RuntimeContext)
 		if err != nil {
-			return nil, remainingParams, fmt.Errorf("could not find method in taxonomy: %s", err.Error())
+			return nil, remainingParams, fmt.Errorf("Cannot find matching operation, possible causes include missing required parameters or an unsupported method for the resource, to find required parameters for supported methods run SHOW METHODS IN %s: %s", retVal.HeirarchyIds.GetTableName(), err.Error())
 		}
 		for _, srv := range svcHdl.Servers {
 			for k, _ := range srv.Variables {
