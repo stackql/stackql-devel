@@ -22,13 +22,13 @@ RUN  cd ${SRC_DIR} && ls && go get -v -t -d ./... && go test --tags "json1" ./..
 
 FROM ubuntu:22.04 AS integration
 
-ENV RUN_DIR=/srv/stackql
+ENV TEST_ROOT_DIR=/opt/test/stackql
 
-ENV TEST_DIR=/opt/test/stackql
+RUN mkdir -p ${TEST_ROOT_DIR}/build
 
-RUN mkdir -p ${RUN_DIR} ${TEST_DIR}
+COPY --from=builder /work/stackql/build/stackql ${TEST_ROOT_DIR}/build/
 
-COPY --from=builder /work/stackql/build/stackql ${RUN_DIR}/
+COPY --from=builder /work/stackql/src ${TEST_ROOT_DIR}/
 
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends \
@@ -43,15 +43,16 @@ RUN apt-get update \
     && mvn \
         org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy \
         -Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded \
-        -DoutputDirectory=${TEST_DIR}/test/downloads \
-    && python3 ${TEST_DIR}/test/python/registry-rewrite.py \
-    && \
-      openssl req -x509 -keyout ${TEST_DIR}/test/server/mtls/credentials/pg_server_key.pem -out  ${TEST_DIR}/test/server/mtls/credentials/pg_server_cert.pem  -config ${TEST_DIR}/test/server/mtls/openssl.cnf -days 365 \
-      openssl req -x509 -keyout ${TEST_DIR}/test/server/mtls/credentials/pg_client_key.pem -out  ${TEST_DIR}/test/server/mtls/credentials/pg_client_cert.pem  -config ${TEST_DIR}/test/server/mtls/openssl.cnf -days 365 \
-      openssl req -x509 -keyout ${TEST_DIR}/test/server/mtls/credentials/pg_rubbish_key.pem -out ${TEST_DIR}/test/server/mtls/credentials/pg_rubbish_cert.pem -config ${TEST_DIR}/test/server/mtls/openssl.cnf -days 365 \ 
-    && robot test/robot/functional
+        -DoutputDirectory=${TEST_ROOT_DIR}/test/downloads \
+    && python3 ${TEST_ROOT_DIR}/test/python/registry-rewrite.py \
+    && openssl req -x509 -keyout ${TEST_ROOT_DIR}/test/server/mtls/credentials/pg_server_key.pem -out  ${TEST_ROOT_DIR}/test/server/mtls/credentials/pg_server_cert.pem  -config ${TEST_ROOT_DIR}/test/server/mtls/openssl.cnf -days 365 \
+    && openssl req -x509 -keyout ${TEST_ROOT_DIR}/test/server/mtls/credentials/pg_client_key.pem -out  ${TEST_ROOT_DIR}/test/server/mtls/credentials/pg_client_cert.pem  -config ${TEST_ROOT_DIR}/test/server/mtls/openssl.cnf -days 365 \
+    && openssl req -x509 -keyout ${TEST_ROOT_DIR}/test/server/mtls/credentials/pg_rubbish_key.pem -out ${TEST_ROOT_DIR}/test/server/mtls/credentials/pg_rubbish_cert.pem -config ${TEST_ROOT_DIR}/test/server/mtls/openssl.cnf -days 365 \ 
+    && robot ${TEST_ROOT_DIR}/test/robot/functional
 
 FROM ubuntu:22.04 AS app
+
+ENV TEST_ROOT_DIR=/opt/test/stackql
 
 ARG APP_DIR=/srv/stackql
 
@@ -61,7 +62,9 @@ RUN mkdir -p ${APP_DIR}
 
 ENV PATH="${APP_DIR}:${PATH}"
 
-COPY --from=builder /work/stackql/build/stackql ${APP_DIR}/
+COPY --from=integration ${TEST_ROOT_DIR}/build/stackql ${APP_DIR}/
+
+EXPOSE ${PG_PORT}/tcp
 
 CMD ["${APP_DIR}/stackql", "--pgsrv.port", "${PG_PORT}", "srv"]
 
