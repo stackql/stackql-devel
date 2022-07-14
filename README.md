@@ -105,8 +105,28 @@ export STACKQL_AUTH='{ "google": { "credentialsfilepath": "</path/to/google/sa-k
 
 **NOTE**: on some docker versions, the argument `--security-opt seccomp=unconfined` is required as a hack for a [known issue in docker](https://github.com/containers/skopeo/issues/1501). 
 
+#### Docker single query
+
 ```bash
-docker run stackql stackql "exec" "show providers;"
+docker run stackql "bash" "-c" "stackql exec 'show providers;'"
+```
+
+#### Docker interactive shell
+
+```bash
+docker run -it stackql "bash" "-c" "stackql --auth='${AUTH_STR}' --registry='${REG_CFG}' --http.log.enabled  shell"
+```
+
+#### Docker PG Server
+
+```bash
+docker run -P stackql
+```
+
+Then, run `docker ps` to ascertain the local port on which the container is serving.  Then...
+
+```bash
+psql -d "host=127.0.0.1 port=<LOCAL_PORT> user=myuser dbname=mydatabase"
 ```
 
 ## Examples
