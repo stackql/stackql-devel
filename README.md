@@ -108,19 +108,26 @@ export STACKQL_AUTH='{ "google": { "credentialsfilepath": "</path/to/google/sa-k
 #### Docker single query
 
 ```bash
-docker run stackql "bash" "-c" "stackql exec 'show providers;'"
+docker run --rm stackql "bash" "-c" "stackql exec 'show providers;'"
 ```
 
 #### Docker interactive shell
 
 ```bash
-docker run -it stackql "bash" "-c" "stackql --auth='${AUTH_STR}' --registry='${REG_CFG}' --http.log.enabled  shell"
+
+export AWS_KEY_ID='<YOUR_AWS_KEY_ID_NOT_A_SECRET>'
+
+export DOCKER_AUTH_STR='{ "google": { "credentialsfilepath": "/opt/stackql/keys/sa-key.json", "type": "service_account" }, "okta": { "credentialsenvvar": "OKTA_SECRET_KEY", "type": "api_key" }, "github": { "type": "basic", "credentialsenvvar": "GITHUB_CREDS" }, "aws": { "type": "aws_signing_v4", "credentialsfilepath": "/opt/stackql/keys/integration/aws-secret-key.txt", "keyID": "'${AWS_KEY_ID}'" }, "k8s": { "credentialsenvvar": "K8S_TOKEN", "type": "api_key", "valuePrefix": "Bearer " } }'
+
+export DOCKER_REG_CFG='{ "url": "https://cdn.statically.io/gh/stackql/stackql-provider-registry/dev/providers" }'
+
+docker run --workdir=/opt/stackql -e "OKTA_SECRET_KEY=${OKTA_SECRET_KEY}" -e "GITHUB_CREDS=${GITHUB_CREDS}" -e "K8S_TOKEN=${K8S_TOKEN}" --volume=$(pwd)/keys:/opt/stackql/keys:ro --volume=$(pwd)/vol/stackql:/opt/stackql/.stackql:rw --rm -it stackql "bash" "-c" "stackql --auth='${DOCKER_AUTH_STR}' --registry='${DOCKER_REG_CFG}' --http.log.enabled  shell"
 ```
 
 #### Docker PG Server
 
 ```bash
-docker run -P stackql
+docker run --rm -P stackql
 ```
 
 Then, run `docker ps` to ascertain the local port on which the container is serving.  Then...

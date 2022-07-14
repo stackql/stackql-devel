@@ -56,13 +56,17 @@ ENV TEST_ROOT_DIR=/opt/test/stackql
 
 ARG APP_DIR=/srv/stackql
 
+ARG STACKQL_CFG_ROOT=/opt/stackql
+
 ARG STACKQL_PG_PORT=5477
 
 ENV APP_DIR="${APP_DIR}"
 
+ENV STACKQL_CFG_ROOT="${STACKQL_CFG_ROOT}"
+
 ENV STACKQL_PG_PORT="${STACKQL_PG_PORT}"
 
-RUN mkdir -p ${APP_DIR}
+RUN mkdir -p ${APP_DIR} ${STACKQL_CFG_ROOT}
 
 ENV PATH="${APP_DIR}:${PATH}"
 
@@ -73,6 +77,8 @@ RUN apt-get update \
     && update-ca-certificates
 
 EXPOSE ${STACKQL_PG_PORT}/tcp
+
+WORKDIR ${STACKQL_CFG_ROOT}
 
 CMD ["/bin/bash", "-c", "stackql --pgsrv.port=${STACKQL_PG_PORT} srv"]
 
