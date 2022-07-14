@@ -54,6 +54,8 @@ Providers include:
 
 ## Build
 
+### Native Build
+
 Presuming you have all of [the system requirements](#system-requirements-for-local-devlopment-build-and-test), then build/test with cmake:
 
 ```bash
@@ -64,19 +66,47 @@ cmake --build .
 
 Executable `build/stackql` will be created.
 
-### System requirements for local development, build and test
+#### System requirements for local development, build and test
 
 - cmake>=3.22.3
 - golang>=1.16
 - openssl>=1.1.1
 - python>=3.5
 
+### Docker Build
+
+```bash
+docker build -t stackql:${STACKQL_TAG} -t stackql:latest .
+```
 
 ## Run
+
+### Native Run
+
+#### Help message
 
 ```bash
 ./build/stackql --help
 
+```
+
+#### Shell
+
+```bash
+
+# Amend STACKQL_AUTH as required, angle bracketed strings must be replaced.
+export STACKQL_AUTH='{ "google": { "credentialsfilepath": "</path/to/google/sa-key.json>", "type": "service_account" }, "okta": { "credentialsenvvar": "<OKTA_SECRET_KEY>", "type": "api_key" }, "github": { "type": "basic", "credentialsenvvar": "<GITHUB_CREDS>" }, "aws": { "type": "aws_signing_v4", "credentialsfilepath": "</path/to/aws/secret-key.txt>", "keyID": "<YOUR_AWS_KEY_NOT_A_SECRET>" }, "k8s": { "credentialsenvvar": "<K8S_TOKEN>", "type": "api_key", "valuePrefix": "Bearer " } }'
+
+./build/stackql --auth="${STACKQL_AUTH}" shell
+
+```
+
+### Docker Run
+
+**NOTE**: on some docker versions, the argument `--security-opt seccomp=unconfined` is required as a hack for a [known issue in docker](https://github.com/containers/skopeo/issues/1501). 
+
+```bash
+docker run stackql stackql "exec" "show providers;"
 ```
 
 ## Examples

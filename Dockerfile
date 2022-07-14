@@ -1,0 +1,68 @@
+FROM golang:1.18.4-bullseye AS builder
+
+ENV SRC_DIR=/work/stackql/src
+
+ENV BUILD_DIR=/work/stackql/build
+
+RUN mkdir -p ${SRC_DIR} ${BUILD_DIR}
+
+ADD internal  ${SRC_DIR}/internal
+
+ADD pkg ${SRC_DIR}/pkg
+
+ADD stackql ${SRC_DIR}/stackql
+
+ADD test ${SRC_DIR}/test
+
+COPY go.mod go.sum ${SRC_DIR}/
+
+RUN  cd ${SRC_DIR} && ls && go get -v -t -d ./... && go test --tags "json1" ./... \
+     && go build --tags "json1" -o ${BUILD_DIR}/stackql ./stackql
+
+
+FROM ubuntu:22.04 AS integration
+
+ENV RUN_DIR=/srv/stackql
+
+ENV TEST_DIR=/opt/test/stackql
+
+RUN mkdir -p ${RUN_DIR} ${TEST_DIR}
+
+COPY --from=builder /work/stackql/build/stackql ${RUN_DIR}/
+
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends \
+      default-jdk \
+      default-jre \
+      maven \
+      openssl \
+      postgresql-client \
+      python3 \
+      python3-pip \
+    && pip3 install PyYaml robotframework \
+    && mvn \
+        org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy \
+        -Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded \
+        -DoutputDirectory=${TEST_DIR}/test/downloads \
+    && python3 ${TEST_DIR}/test/python/registry-rewrite.py \
+    && \
+      openssl req -x509 -keyout ${TEST_DIR}/test/server/mtls/credentials/pg_server_key.pem -out  ${TEST_DIR}/test/server/mtls/credentials/pg_server_cert.pem  -config ${TEST_DIR}/test/server/mtls/openssl.cnf -days 365 \
+      openssl req -x509 -keyout ${TEST_DIR}/test/server/mtls/credentials/pg_client_key.pem -out  ${TEST_DIR}/test/server/mtls/credentials/pg_client_cert.pem  -config ${TEST_DIR}/test/server/mtls/openssl.cnf -days 365 \
+      openssl req -x509 -keyout ${TEST_DIR}/test/server/mtls/credentials/pg_rubbish_key.pem -out ${TEST_DIR}/test/server/mtls/credentials/pg_rubbish_cert.pem -config ${TEST_DIR}/test/server/mtls/openssl.cnf -days 365 \ 
+    && robot test/robot/functional
+
+FROM ubuntu:22.04 AS app
+
+ARG APP_DIR=/srv/stackql
+
+ARG PG_PORT=5477
+
+RUN mkdir -p ${APP_DIR}
+
+ENV PATH="${APP_DIR}:${PATH}"
+
+COPY --from=builder /work/stackql/build/stackql ${APP_DIR}/
+
+CMD ["${APP_DIR}/stackql", "--pgsrv.port", "${PG_PORT}", "srv"]
+
+
