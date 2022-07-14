@@ -56,7 +56,11 @@ ENV TEST_ROOT_DIR=/opt/test/stackql
 
 ARG APP_DIR=/srv/stackql
 
-ARG PG_PORT=5477
+ARG STACKQL_PG_PORT=5477
+
+ENV APP_DIR="${APP_DIR}"
+
+ENV STACKQL_PG_PORT="${STACKQL_PG_PORT}"
 
 RUN mkdir -p ${APP_DIR}
 
@@ -64,8 +68,12 @@ ENV PATH="${APP_DIR}:${PATH}"
 
 COPY --from=integration ${TEST_ROOT_DIR}/build/stackql ${APP_DIR}/
 
-EXPOSE ${PG_PORT}/tcp
+RUN apt-get update \
+    && apt-get install -y ca-certificates \
+    && update-ca-certificates
 
-CMD ["${APP_DIR}/stackql", "--pgsrv.port", "${PG_PORT}", "srv"]
+EXPOSE ${STACKQL_PG_PORT}/tcp
+
+CMD ["/bin/bash", "-c", "stackql --pgsrv.port=${STACKQL_PG_PORT} srv"]
 
 
