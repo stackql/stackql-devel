@@ -57,6 +57,32 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     *args,
     **cfg
   ):
+    if self._execution_platform == 'docker':
+      pass
+    return self._run_stackql_exec_command_native(
+      stackql_exe, 
+      okta_secret_str,
+      github_secret_str,
+      k8s_secret_str,
+      registry_cfg_str, 
+      auth_cfg_str, 
+      query,
+      *args,
+      **cfg
+    )
+
+  def _run_stackql_exec_command_native(
+    self,  
+    stackql_exe :str, 
+    okta_secret_str :str,
+    github_secret_str :str,
+    k8s_secret_str :str,
+    registry_cfg_str :str, 
+    auth_cfg_str :str, 
+    query,
+    *args,
+    **cfg
+  ):
     self.set_environment_variable("OKTA_SECRET_KEY", okta_secret_str)
     self.set_environment_variable("GITHUB_SECRET_KEY", github_secret_str)
     self.set_environment_variable("K8S_SECRET_KEY", k8s_secret_str)

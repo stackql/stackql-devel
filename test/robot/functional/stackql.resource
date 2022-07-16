@@ -5,7 +5,6 @@ ${EXECUTION_PLATFORM}    native   # to be overridden from command line, eg "dock
 *** Settings ***
 Library           Process
 Library           OperatingSystem 
-Library           ${LOCAL_LIB_HOME}/StackQLInterfaces.py    exection_platform=${EXECUTION_PLATFORM} 
 Variables         ${CURDIR}/../variables/stackql_context.py
 Library           Process
 Library           OperatingSystem
@@ -37,23 +36,31 @@ Prepare StackQL Environment
 
 Start StackQL PG Server mTLS
     [Arguments]    ${_SRV_PORT_MTLS}    ${_MTLS_CFG_STR}
-    ${process} =    Start Process    ${STACKQL_EXE}
-                    ...  srv    \-\-registry\=${REGISTRY_NO_VERIFY_CFG_STR}
-                    ...  \-\-auth\=${AUTH_CFG_STR}
-                    ...  \-\-tls\.allowInsecure\=true
-                    ...  \-\-pgsrv\.address\=0.0.0.0 
-                    ...  \-\-pgsrv\.port\=${_SRV_PORT_MTLS} 
-                    ...  \-\-pgsrv\.tls    ${_MTLS_CFG_STR}
-    Sleep    15s
+    IF    "${EXECUTION_PLATFORM}" == "native"
+        ${process} =    Start Process    ${STACKQL_EXE}
+                        ...  srv    \-\-registry\=${REGISTRY_NO_VERIFY_CFG_STR}
+                        ...  \-\-auth\=${AUTH_CFG_STR}
+                        ...  \-\-tls\.allowInsecure\=true
+                        ...  \-\-pgsrv\.address\=0.0.0.0 
+                        ...  \-\-pgsrv\.port\=${_SRV_PORT_MTLS} 
+                        ...  \-\-pgsrv\.tls    ${_MTLS_CFG_STR}
+        Sleep    15s
+    ELSE IF    "${EXECUTION_PLATFORM}" == "docker"
+        LOG     Skipping
+    END
     [Return]    ${process}
 
 Start StackQL PG Server unencrypted
     [Arguments]    ${_SRV_PORT_UNENCRYPTED}
-    ${process} =    Start Process    ${STACKQL_EXE}
-                    ...  srv    \-\-registry\=${REGISTRY_NO_VERIFY_CFG_STR}
-                    ...  \-\-auth\=${AUTH_CFG_STR}
-                    ...  \-\-tls\.allowInsecure\=true
-                    ...  \-\-pgsrv\.address\=0.0.0.0 
-                    ...  \-\-pgsrv\.port\=${_SRV_PORT_UNENCRYPTED}
-    Sleep    15s
+    IF    "${EXECUTION_PLATFORM}" == "native"
+        ${process} =    Start Process    ${STACKQL_EXE}
+                        ...  srv    \-\-registry\=${REGISTRY_NO_VERIFY_CFG_STR}
+                        ...  \-\-auth\=${AUTH_CFG_STR}
+                        ...  \-\-tls\.allowInsecure\=true
+                        ...  \-\-pgsrv\.address\=0.0.0.0 
+                        ...  \-\-pgsrv\.port\=${_SRV_PORT_UNENCRYPTED}
+        Sleep    15s
+    ELSE IF    "${EXECUTION_PLATFORM}" == "docker"
+        LOG     Skipping
+    END
     [Return]    ${process}
