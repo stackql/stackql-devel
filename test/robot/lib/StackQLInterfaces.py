@@ -102,6 +102,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
       supplied_args.append(f"--auth='{auth_cfg_str}'")
     supplied_args.append("--tls.allowInsecure=true")
     supplied_args = supplied_args + list(args)
+    query_escaped = query.replace("'", "'\"'\"'")
     res = super().run_process(
       "docker-compose",
       "-p",
@@ -119,7 +120,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
       "stackqlsrv",
       "bash",
       "-c",
-      f"stackql exec {' '.join(supplied_args)} '{query}'"
+      f"stackql exec {' '.join(supplied_args)} '{query_escaped}'"
     )
     self.log(res.stdout)
     self.log(res.stderr)

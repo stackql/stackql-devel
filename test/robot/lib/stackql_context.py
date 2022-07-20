@@ -45,7 +45,7 @@ class RegistryCfg:
       "url": self._get_url(execution_environment)
     }
     if self._get_local_path(execution_environment) != "":
-      cfg_dict["localPath"] = self._get_local_path(execution_environment)
+      cfg_dict["localDocRoot"] = self._get_local_path(execution_environment)
     if self.nop_verify:
       cfg_dict['verifyConfig'] = {
         'nopVerify': True
@@ -133,7 +133,7 @@ _AUTH_CFG={
 }
 _AUTH_CFG_DOCKER={ 
   "google": { 
-    "credentialsfilepath": get_unix_path(os.path.join('opt', 'stackql', 'test', 'assets', 'credentials', 'dummy', 'google', 'functional-test-dummy-sa-key.json')),
+    "credentialsfilepath": get_unix_path(os.path.join('/opt', 'stackql', 'test', 'assets', 'credentials', 'dummy', 'google', 'functional-test-dummy-sa-key.json')),
     "type": "service_account"
   }, 
   "okta": { 
@@ -142,7 +142,7 @@ _AUTH_CFG_DOCKER={
   }, 
   "aws": { 
     "type": "aws_signing_v4",
-    "credentialsfilepath": get_unix_path(os.path.join('opt', 'stackql', 'test', 'assets', 'credentials', 'dummy', 'aws', 'functional-test-dummy-aws-key.txt')),
+    "credentialsfilepath": get_unix_path(os.path.join('/opt', 'stackql', 'test', 'assets', 'credentials', 'dummy', 'aws', 'functional-test-dummy-aws-key.txt')),
      "keyID": "NON_SECRET" 
   },
   "github": { 
@@ -342,7 +342,12 @@ SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS :bytes =  b"""SELECT i.zone, 
 
 SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'google', 'joins', 'disks-instances-rewritten.txt'))
 
-SELECT_K8S_NODES_ASC = f"select name, uid, creationTimestamp from k8s.core_v1.node where cluster_addr = '127.0.0.1:{MOCKSERVER_PORT_K8S}' order by name asc;"
+def get_select_k8s_nodes_asc(execution_env :str) -> str:
+  k8s_host = '127.0.0.1'
+  if execution_env == 'docker':
+    k8s_host = 'host.docker.internal'
+  return f"select name, uid, creationTimestamp from k8s.core_v1.node where cluster_addr = '{k8s_host}:{MOCKSERVER_PORT_K8S}' order by name asc;"
+
 SELECT_K8S_NODES_ASC_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'k8s', 'select-nodes-asc.txt'))
 
 REGISTRY_LIST = "registry list;"
@@ -436,7 +441,7 @@ def get_variables(execution_env :str):
     'SELECT_GOOGLE_COMPUTE_INSTANCE_IAM_POLICY_EXPECTED':                   SELECT_GOOGLE_COMPUTE_INSTANCE_IAM_POLICY_EXPECTED,
     'SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS':                   SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS,
     'SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS_EXPECTED':          SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS_EXPECTED,
-    'SELECT_K8S_NODES_ASC':                                                 SELECT_K8S_NODES_ASC,
+    'SELECT_K8S_NODES_ASC':                                                 get_select_k8s_nodes_asc(execution_env),
     'SELECT_K8S_NODES_ASC_EXPECTED':                                        SELECT_K8S_NODES_ASC_EXPECTED,
     'SELECT_MACHINE_TYPES_DESC':                                            SELECT_MACHINE_TYPES_DESC,
     'SELECT_MACHINE_TYPES_DESC_EXPECTED':                                   SELECT_MACHINE_TYPES_DESC_EXPECTED,
