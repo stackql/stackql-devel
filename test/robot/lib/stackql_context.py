@@ -133,7 +133,7 @@ _AUTH_CFG={
 }
 _AUTH_CFG_DOCKER={ 
   "google": { 
-    "credentialsfilepath": get_unix_path(os.path.join('/opt', 'stackql', 'test', 'assets', 'credentials', 'dummy', 'google', 'functional-test-dummy-sa-key.json')),
+    "credentialsfilepath": get_unix_path(os.path.join('/opt', 'stackql', 'credentials', 'dummy', 'google', 'functional-test-dummy-sa-key.json')),
     "type": "service_account"
   }, 
   "okta": { 
@@ -142,7 +142,7 @@ _AUTH_CFG_DOCKER={
   }, 
   "aws": { 
     "type": "aws_signing_v4",
-    "credentialsfilepath": get_unix_path(os.path.join('/opt', 'stackql', 'test', 'assets', 'credentials', 'dummy', 'aws', 'functional-test-dummy-aws-key.txt')),
+    "credentialsfilepath": get_unix_path(os.path.join('/opt', 'stackql', 'credentials', 'dummy', 'aws', 'functional-test-dummy-aws-key.txt')),
      "keyID": "NON_SECRET" 
   },
   "github": { 
