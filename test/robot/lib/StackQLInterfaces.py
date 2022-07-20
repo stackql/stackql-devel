@@ -1,12 +1,12 @@
-from robot.api.deco import keyword, library
 
-from robot.libraries.BuiltIn import BuiltIn
 
-from robot.libraries.Process import Process
-
-from robot.libraries.OperatingSystem import OperatingSystem 
-
+import json
 import os
+
+from robot.api.deco import keyword, library
+from robot.libraries.BuiltIn import BuiltIn
+from robot.libraries.Process import Process
+from robot.libraries.OperatingSystem import OperatingSystem 
 
 
 
@@ -58,7 +58,16 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     **cfg
   ):
     if self._execution_platform == 'docker':
-      pass
+      return self._run_stackql_exec_command_docker(
+        okta_secret_str,
+        github_secret_str,
+        k8s_secret_str,
+        registry_cfg_str, 
+        auth_cfg_str, 
+        query,
+        *args,
+        **cfg
+      )
     return self._run_stackql_exec_command_native(
       stackql_exe, 
       okta_secret_str,
@@ -70,6 +79,55 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
       *args,
       **cfg
     )
+
+  def _run_stackql_exec_command_docker(
+    self,
+    okta_secret_str :str,
+    github_secret_str :str,
+    k8s_secret_str :str,
+    registry_cfg_str :str, 
+    auth_cfg_str :str, 
+    query,
+    *args,
+    **cfg
+  ):
+    reg_cfg = json.loads(registry_cfg_str)
+    reg_location = './test/registry-mocked'
+    ldr = reg_cfg.get('localDocRoot')
+    if ldr:
+      reg_location = ldr
+      suffix = os.path.split(ldr)
+      reg_cfg["localDocRoot"] = f'/opt/stackql/registry'
+      reg_cfg["url"] = f'file:///opt/stackql/registry'
+    supplied_args = []
+    if registry_cfg_str != "":
+      supplied_args.append(f"--registry='{json.dumps(reg_cfg)}'")
+    if auth_cfg_str != "":
+      supplied_args.append(f"--auth='{auth_cfg_str}'")
+    supplied_args.append("--tls.allowInsecure=true")
+    supplied_args = supplied_args + list(args)
+    res = super().run_process(
+      "docker-compose",
+      "-p",
+      "execrun",
+      "run",
+      "--rm",
+      "-e",
+      f"OKTA_SECRET_KEY={okta_secret_str}", 
+      "-e",
+      f"GITHUB_SECRET_KEY={github_secret_str}",
+      "-e",
+      f"K8S_SECRET_KEY={k8s_secret_str}",
+      "-e",
+      f"REGISTRY_SRC={reg_location}",
+      "stackqlsrv",
+      "bash",
+      "-c",
+      f"stackql exec {' '.join(supplied_args)} '{query}'"
+    )
+    self.log(res.stdout)
+    self.log(res.stderr)
+    return res
 
   def _run_stackql_exec_command_native(
     self,  

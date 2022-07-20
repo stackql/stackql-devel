@@ -334,7 +334,7 @@ Data Flow Sequential Join Paginated Select Github
     ...    ${OKTA_SECRET_STR}
     ...    ${GITHUB_SECRET_STR}
     ...    ${K8S_SECRET_STR}
-    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}    
     ...    ${AUTH_CFG_STR}
     ...    ${SELECT_GITHUB_JOIN_DATA_FLOW_SEQUENTIAL} 
     ...    ${SELECT_GITHUB_JOIN_DATA_FLOW_SEQUENTIAL_EXPECTED}

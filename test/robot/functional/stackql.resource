@@ -5,11 +5,11 @@ ${EXECUTION_PLATFORM}    native   # to be overridden from command line, eg "dock
 *** Settings ***
 Library           Process
 Library           OperatingSystem 
-Variables         ${CURDIR}/../variables/stackql_context.py
+Variables         ${CURDIR}/../variables/stackql_context.py    ${EXECUTION_PLATFORM}
 Library           Process
 Library           OperatingSystem
 Library           String
-Library           ${LOCAL_LIB_HOME}/StackQLInterfaces.py    exection_platform=${EXECUTION_PLATFORM}
+Library           ${LOCAL_LIB_HOME}/StackQLInterfaces.py    ${EXECUTION_PLATFORM}
 
 *** Keywords ***
 Start Mock Server
@@ -18,7 +18,7 @@ Start Mock Server
     ...  \-Dmockserver.initializationJsonPath\=${_JSON_INIT_FILE_PATH}
     ...  \-jar    ${_MOCKSERVER_JAR}
     ...  \-serverPort    ${_MOCKSERVER_PORT}    \-logLevel    INFO
-    Sleep    5s
+    Sleep    1s
     [Return]    ${process}
 
 Prepare StackQL Environment
@@ -31,6 +31,7 @@ Prepare StackQL Environment
     Start Mock Server    ${JSON_INIT_FILE_PATH_AWS}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_AWS}
     Start Mock Server    ${JSON_INIT_FILE_PATH_K8S}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_K8S}
     Start Mock Server    ${JSON_INIT_FILE_PATH_REGISTRY}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_REGISTRY}
+    Sleep    20s
     Start StackQL PG Server mTLS    ${PG_SRV_PORT_MTLS}    ${PG_SRV_MTLS_CFG_STR}
     Start StackQL PG Server unencrypted    ${PG_SRV_PORT_UNENCRYPTED}
 
@@ -46,7 +47,17 @@ Start StackQL PG Server mTLS
                         ...  \-\-pgsrv\.tls    ${_MTLS_CFG_STR}
         Sleep    15s
     ELSE IF    "${EXECUTION_PLATFORM}" == "docker"
-        LOG     Skipping
+        ${res} =         Run Process    docker-compose   
+                        ...  run    --rm    credentialsgen
+        Should Be Equal As Integers    ${res.rc}    0
+        ${process} =    Start Process    docker-compose
+                        ...  -p     mtls
+                        ...  run
+                        ...  --rm    -p${_SRV_PORT_MTLS}:${PG_SRV_PORT_DOCKER_MTLS}/tcp
+                        ...  stackqlsrv
+                        ...  bash
+                        ...  -c
+                        ...  srv    \-\-registry\=${REGISTRY_DOCKER_CFG_STR}    \-\-auth\=${AUTH_CFG_STR}    \-\-tls\.allowInsecure\=true    \-\-pgsrv\.address\=0.0.0.0     \-\-pgsrv\.port\=${PG_SRV_PORT_DOCKER_MTLS}     \-\-pgsrv\.tls    ${PG_SRV_MTLS_DOCKER_CFG_STR}
     END
     [Return]    ${process}
 
@@ -61,6 +72,13 @@ Start StackQL PG Server unencrypted
                         ...  \-\-pgsrv\.port\=${_SRV_PORT_UNENCRYPTED}
         Sleep    15s
     ELSE IF    "${EXECUTION_PLATFORM}" == "docker"
-        LOG     Skipping
+        ${process} =    Start Process    docker-compose   
+                        ...  -p     unencrypted
+                        ...  run
+                        ...  --rm    -p${_SRV_PORT_UNENCRYPTED}:${PG_SRV_PORT_DOCKER_UNENCRYPTED}/tcp
+                        ...  stackqlsrv
+                        ...  bash
+                        ...  -c
+                        ...  srv    \-\-registry\=${REGISTRY_DOCKER_CFG_STR}    \-\-auth\=${AUTH_CFG_STR}    \-\-tls\.allowInsecure\=true    \-\-pgsrv\.address\=0.0.0.0     \-\-pgsrv\.port\=${PG_SRV_PORT_DOCKER_UNENCRYPTED}
     END
     [Return]    ${process}

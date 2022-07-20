@@ -126,6 +126,8 @@ docker run --workdir=/opt/stackql -e "OKTA_SECRET_KEY=${OKTA_SECRET_KEY}" -e "GI
 
 #### Docker PG Server
 
+#### Stock as a rock
+
 ```bash
 docker run --rm -P stackql
 ```
@@ -135,6 +137,19 @@ Then, run `docker ps` to ascertain the local port on which the container is serv
 ```bash
 psql -d "host=127.0.0.1 port=<LOCAL_PORT> user=myuser dbname=mydatabase"
 ```
+
+#### More refined
+
+```bash
+export PG_SRV_PORT_MTLS="${PG_SRV_PORT_MTLS:-"5476"}"
+export PG_SRV_PORT_UNENCRYPTED="${PG_SRV_PORT_UNENCRYPTED:-"5477"}"
+export PG_SRV_PORT_DOCKER_MTLS="${PG_SRV_PORT_DOCKER_MTLS:-"5576"}"
+export PG_SRV_PORT_DOCKER_UNENCRYPTED="$PG_SRV_PORT_DOCKER_UNENCRYPTED:-"5577"}"
+
+docker run --workdir=/opt/stackql -e "OKTA_SECRET_KEY=${OKTA_SECRET_KEY}" -e "GITHUB_CREDS=${GITHUB_CREDS}" -e "K8S_TOKEN=${K8S_TOKEN}" --volume=$(pwd)/keys:/opt/stackql/keys:ro --volume=$(pwd)/vol/stackql:/opt/stackql/.stackql:rw --rm stackql "bash" "-c" "stackql --auth='${DOCKER_AUTH_STR}' --registry='${DOCKER_REG_CFG}' --pgsrv.tls='${PGSRV_TLS}' --pgsrv.address=0.0.0.0 --pgsrv.port=${PG_SRV_PORT_MTLS}  srv"
+```
+
+
 
 ## Examples
 

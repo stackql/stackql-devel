@@ -15,6 +15,7 @@ services:
       - ./keys:/opt/stackql/keys:ro
       - ./vol/srv/credentials:/opt/stackql/srv/credentials:ro
       - ./test/assets/credentials/dummy:/opt/stackql/credentials/dummy:ro
+      - ${REGISTRY_SRC:-./test/registry-mocked}:/opt/stackql/registry:ro
       - ./vol/stackql/config:/opt/stackql/.stackql:rw 
     ports:
       - "${PG_SRV_PORT_DOCKER_MTLS:-5576}:${PG_SRV_PORT_MTLS:-5476}/tcp"
@@ -22,3 +23,20 @@ services:
       - OKTA_SECRET_KEY=${OKTA_SECRET_STR:-some-junk}
       - GITHUB_SECRET_KEY=${GITHUB_SECRET_STR:-some-junk}
       - K8S_SECRET_KEY=${K8S_SECRET_STR:-some-junk}
+  credentialsgen:
+    image: stackql/stackqlsrvcertificates
+    build:
+      context: .
+      cache_from: 
+        - stackql/stackql
+        - stackql/stackqlsrvcertificates
+      target: certificates
+    volumes:
+      - ./vol/srv/credentials:/opt/stackql/srv/credentials:rw
+    command: 
+      - bash
+      - -c
+      - |
+        openssl req -x509 -keyout /opt/stackql/srv/credentials/pg_server_key.pem -out /opt/stackql/srv/credentials/pg_server_cert.pem  -config /opt/test/stackql/test/server/mtls/openssl.cnf -days 365 \
+        && openssl req -x509 -keyout /opt/stackql/srv/credentials/pg_client_key.pem -out  /opt/stackql/srv/credentials/pg_client_cert.pem  -config /opt/test/stackql/test/server/mtls/openssl.cnf -days 365 \
+        && openssl req -x509 -keyout /opt/stackql/srv/credentials/pg_rubbish_key.pem -out /opt/stackql/srv/credentials/pg_rubbish_cert.pem -config /opt/test/stackql/test/server/mtls/openssl.cnf -days 365

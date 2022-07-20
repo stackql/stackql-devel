@@ -48,6 +48,14 @@ _REGISTRY_NO_VERIFY_CFG    = {
     "nopVerify": True 
   } 
 }
+_REGISTRY_DOCKER_CFG    = { 
+  "url": "file:///opt/stackql/registry",
+  "localDocRoot": "/opt/stackql/registry",
+  "useEmbedded": False,
+  "verifyConfig": {
+    "nopVerify": True 
+  } 
+}
 _REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG    = { 
   "url": f"file://{get_unix_path(REGISTRY_ROOT_EXPERIMENTAL)}",
   "localDocRoot": f"{get_unix_path(REGISTRY_ROOT_EXPERIMENTAL)}",
@@ -113,11 +121,22 @@ STACKQL_PG_RUBBISH_CERT_PATH :str = os.path.abspath(os.path.join(REPOSITORY_ROOT
 with open(os.path.join(REPOSITORY_ROOT, 'test', 'server', 'mtls', 'credentials', 'pg_client_cert.pem'), 'rb') as f:
   _CLIENT_CERT_ENCODED :str = base64.b64encode(f.read()).decode('utf-8')
 
+# with open(os.path.join(REPOSITORY_ROOT, 'vol', 'srv', 'credentials', 'pg_client_cert.pem'), 'rb') as f:
+#   _DOCKER_CLIENT_CERT_ENCODED :str = base64.b64encode(f.read()).decode('utf-8')
+
 _mTLS_CFG :dict = { 
   "keyFilePath": STACKQL_PG_SERVER_KEY_PATH,
   "certFilePath": STACKQL_PG_SERVER_CERT_PATH,
   "clientCAs": [ 
     _CLIENT_CERT_ENCODED
+  ] 
+}
+
+_mTLS_CFG_DOCKER :dict = { 
+  "keyFilePath": "/opt/stackql/srv/credentials/pg_server_key.pem",
+  "certFilePath": "/opt/stackql/srv/credentials/pg_server_cert.pem",
+  "clientCAs": [ 
+    "$$(base64 -w 0 /opt/stackql/srv/credentials/pg_client_cert.pem)"
   ] 
 }
 
@@ -134,6 +153,8 @@ def get_registry_cfg(url :str, local_root :str, nop_verify :bool) -> dict:
 
 PG_SRV_MTLS_CFG_STR :str = json.dumps(_mTLS_CFG)
 
+PG_SRV_MTLS_DOCKER_CFG_STR :str = json.dumps(_mTLS_CFG_DOCKER)
+
 with open(os.path.join(REPOSITORY_ROOT, 'test', 'assets', 'credentials', 'dummy', 'okta', 'api-key.txt'), 'r') as f:
     OKTA_SECRET_STR = f.read()
 
@@ -149,7 +170,9 @@ REGISTRY_DEV_CFG_STR = json.dumps(get_registry_cfg(_DEV_REGISTRY_URL, ROBOT_DEV_
 
 REGISTRY_MOCKED_CFG_STR = json.dumps(get_registry_cfg(_MOCKED_REGISTRY_URL, ROBOT_MOCKED_REG_DIR, False))
 
-REGISTRY_NO_VERIFY_CFG_STR = json.dumps(_REGISTRY_NO_VERIFY_CFG)
+_REGISTRY_NO_VERIFY_CFG_STR = json.dumps(_REGISTRY_NO_VERIFY_CFG)
+_REGISTRY_NO_VERIFY_CFG_STR_DOCKER = json.dumps(_REGISTRY_DOCKER_CFG)
+REGISTRY_DOCKER_CFG_STR = json.dumps(_REGISTRY_DOCKER_CFG)
 REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR = json.dumps(_REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG)
 REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG_STR = json.dumps(_REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG)
 REGISTRY_CANONICAL_CFG_STR = json.dumps(_REGISTRY_CANONICAL_CFG)
@@ -181,6 +204,9 @@ JSON_INIT_FILE_PATH_REGISTRY = os.path.join(REPOSITORY_ROOT, 'test', 'mockserver
 
 PG_SRV_PORT_MTLS = 5476
 PG_SRV_PORT_UNENCRYPTED = 5477
+
+PG_SRV_PORT_DOCKER_MTLS = 5576
+PG_SRV_PORT_DOCKER_UNENCRYPTED = 5577
 
 PSQL_EXE :str = os.environ.get('PSQL_EXE', 'psql')
 
@@ -287,3 +313,50 @@ REGISTRY_LIST = "registry list;"
 REGISTRY_GOOGLE_PROVIDER_LIST = "registry list google;"
 REGISTRY_LIST_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'registry', 'all-providers-list.txt'))
 REGISTRY_GOOGLE_PROVIDER_LIST_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'registry', 'google-list.txt'))
+
+def get_variables(execution_env :str):
+  rv = {
+    'GITHUB_SECRET_STR':                GITHUB_SECRET_STR,
+    'K8S_SECRET_STR':                   K8S_SECRET_STR,
+    'MOCKSERVER_JAR':                   MOCKSERVER_JAR,
+    'MOCKSERVER_PORT_AWS':              MOCKSERVER_PORT_AWS,
+    'MOCKSERVER_PORT_GITHUB':           MOCKSERVER_PORT_GITHUB,
+    'MOCKSERVER_PORT_GOOGLE':           MOCKSERVER_PORT_GOOGLE,
+    'MOCKSERVER_PORT_K8S':              MOCKSERVER_PORT_K8S,
+    'MOCKSERVER_PORT_OKTA':             MOCKSERVER_PORT_OKTA,
+    'MOCKSERVER_PORT_REGISTRY':         MOCKSERVER_PORT_REGISTRY,
+    'OKTA_SECRET_STR':                  OKTA_SECRET_STR,
+    'PG_SRV_MTLS_DOCKER_CFG_STR':       PG_SRV_MTLS_DOCKER_CFG_STR,
+    'PG_SRV_PORT_DOCKER_MTLS':          PG_SRV_PORT_DOCKER_MTLS,
+    'PG_SRV_PORT_DOCKER_UNENCRYPTED':   PG_SRV_PORT_DOCKER_UNENCRYPTED,
+    'PG_SRV_PORT_MTLS':                 PG_SRV_PORT_MTLS,
+    'PG_SRV_PORT_UNENCRYPTED':          PG_SRV_PORT_UNENCRYPTED,
+    'PSQL_CLIENT_HOST':                 PSQL_CLIENT_HOST,
+    'PSQL_EXE':                         os.environ.get('PSQL_EXE', 'psql'),
+    'REGISTRY_DOCKER_CFG_STR':          REGISTRY_DOCKER_CFG_STR,
+    'STACKQL_EXE':                      STACKQL_EXE,
+    ##
+    'SELECT_GITHUB_JOIN_DATA_FLOW_SEQUENTIAL':          SELECT_GITHUB_JOIN_DATA_FLOW_SEQUENTIAL,
+    'SELECT_GITHUB_JOIN_DATA_FLOW_SEQUENTIAL_EXPECTED': SELECT_GITHUB_JOIN_DATA_FLOW_SEQUENTIAL_EXPECTED,
+  }
+  if execution_env == 'docker':
+    rv['AUTH_CFG_STR']                 = AUTH_CFG_STR
+    rv['JSON_INIT_FILE_PATH_AWS']      = JSON_INIT_FILE_PATH_AWS
+    rv['JSON_INIT_FILE_PATH_GITHUB']   = JSON_INIT_FILE_PATH_GITHUB
+    rv['JSON_INIT_FILE_PATH_GOOGLE']   = JSON_INIT_FILE_PATH_GOOGLE
+    rv['JSON_INIT_FILE_PATH_K8S']      = JSON_INIT_FILE_PATH_K8S
+    rv['JSON_INIT_FILE_PATH_OKTA']     = JSON_INIT_FILE_PATH_OKTA
+    rv['JSON_INIT_FILE_PATH_REGISTRY'] = JSON_INIT_FILE_PATH_REGISTRY
+    rv['PG_SRV_MTLS_CFG_STR']          = PG_SRV_MTLS_CFG_STR
+    rv['REGISTRY_NO_VERIFY_CFG_STR']   = _REGISTRY_NO_VERIFY_CFG_STR_DOCKER
+  else: 
+    rv['AUTH_CFG_STR']                 = AUTH_CFG_STR
+    rv['JSON_INIT_FILE_PATH_AWS']      = JSON_INIT_FILE_PATH_AWS
+    rv['JSON_INIT_FILE_PATH_GITHUB']   = JSON_INIT_FILE_PATH_GITHUB
+    rv['JSON_INIT_FILE_PATH_GOOGLE']   = JSON_INIT_FILE_PATH_GOOGLE
+    rv['JSON_INIT_FILE_PATH_K8S']      = JSON_INIT_FILE_PATH_K8S
+    rv['JSON_INIT_FILE_PATH_OKTA']     = JSON_INIT_FILE_PATH_OKTA
+    rv['JSON_INIT_FILE_PATH_REGISTRY'] = JSON_INIT_FILE_PATH_REGISTRY
+    rv['PG_SRV_MTLS_CFG_STR']          = PG_SRV_MTLS_CFG_STR
+    rv['REGISTRY_NO_VERIFY_CFG_STR']   = _REGISTRY_NO_VERIFY_CFG_STR
+  return rv
