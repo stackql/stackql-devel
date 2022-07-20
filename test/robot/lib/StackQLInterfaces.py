@@ -8,6 +8,8 @@ from robot.libraries.BuiltIn import BuiltIn
 from robot.libraries.Process import Process
 from robot.libraries.OperatingSystem import OperatingSystem 
 
+from stackql_context import RegistryCfg
+
 
 
 @library(scope='SUITE', version='0.1.0', doc_format='reST')
@@ -51,7 +53,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     okta_secret_str :str,
     github_secret_str :str,
     k8s_secret_str :str,
-    registry_cfg_str :str, 
+    registry_cfg :RegistryCfg, 
     auth_cfg_str :str, 
     query,
     *args,
@@ -62,7 +64,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
         okta_secret_str,
         github_secret_str,
         k8s_secret_str,
-        registry_cfg_str, 
+        registry_cfg, 
         auth_cfg_str, 
         query,
         *args,
@@ -73,7 +75,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
       okta_secret_str,
       github_secret_str,
       k8s_secret_str,
-      registry_cfg_str, 
+      registry_cfg, 
       auth_cfg_str, 
       query,
       *args,
@@ -85,23 +87,17 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     okta_secret_str :str,
     github_secret_str :str,
     k8s_secret_str :str,
-    registry_cfg_str :str, 
+    registry_cfg :RegistryCfg, 
     auth_cfg_str :str, 
     query,
     *args,
     **cfg
   ):
-    reg_cfg = json.loads(registry_cfg_str)
-    reg_location = './test/registry-mocked'
-    ldr = reg_cfg.get('localDocRoot')
-    if ldr:
-      reg_location = ldr
-      suffix = os.path.split(ldr)
-      reg_cfg["localDocRoot"] = f'/opt/stackql/registry'
-      reg_cfg["url"] = f'file:///opt/stackql/registry'
+    reg_location = registry_cfg.get_source_path_for_docker()
     supplied_args = []
+    registry_cfg_str = registry_cfg.get_config_str('docker')
     if registry_cfg_str != "":
-      supplied_args.append(f"--registry='{json.dumps(reg_cfg)}'")
+      supplied_args.append(f"--registry='{registry_cfg_str}'")
     if auth_cfg_str != "":
       supplied_args.append(f"--auth='{auth_cfg_str}'")
     supplied_args.append("--tls.allowInsecure=true")
@@ -135,7 +131,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     okta_secret_str :str,
     github_secret_str :str,
     k8s_secret_str :str,
-    registry_cfg_str :str, 
+    registry_cfg :RegistryCfg, 
     auth_cfg_str :str, 
     query,
     *args,
@@ -145,6 +141,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     self.set_environment_variable("GITHUB_SECRET_KEY", github_secret_str)
     self.set_environment_variable("K8S_SECRET_KEY", k8s_secret_str)
     supplied_args = [ stackql_exe, "exec" ]
+    registry_cfg_str = registry_cfg.get_config_str('native')
     if registry_cfg_str != "":
       supplied_args.append(f"--registry={registry_cfg_str}")
     if auth_cfg_str != "":
@@ -158,33 +155,6 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     )
     self.log(res.stdout)
     self.log(res.stderr)
-    return res
-
-  @keyword
-  def start_stackql_srv_command(
-    self,  
-    stackql_exe :str, 
-    okta_secret_str :str,
-    github_secret_str :str,
-    k8s_secret_str :str,
-    registry_cfg_str :str, 
-    auth_cfg_str :str,
-    *args,
-    **cfg
-  ):
-    self.set_environment_variable("OKTA_SECRET_KEY", okta_secret_str)
-    self.set_environment_variable("GITHUB_SECRET_KEY", github_secret_str)
-    self.set_environment_variable("K8S_SECRET_KEY", k8s_secret_str)
-    supplied_args = [ stackql_exe, "srv" ]
-    if registry_cfg_str != "":
-      supplied_args.append(f"--registry={registry_cfg_str}")
-    if auth_cfg_str != "":
-      supplied_args.append(f"--auth={auth_cfg_str}")
-    res = self.start_process(
-      *supplied_args,
-      *args,
-      **cfg
-    )
     return res
   
   @keyword
@@ -225,7 +195,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     okta_secret_str :str,
     github_secret_str :str,
     k8s_secret_str :str,
-    registry_cfg_str :str, 
+    registry_cfg :RegistryCfg, 
     auth_cfg_str :str, 
     query :str,
     expected_output :str,
@@ -238,7 +208,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
       okta_secret_str,
       github_secret_str,
       k8s_secret_str,
-      registry_cfg_str, 
+      registry_cfg, 
       auth_cfg_str, 
       query,
       *args,
@@ -253,7 +223,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     okta_secret_str :str,
     github_secret_str :str,
     k8s_secret_str :str,
-    registry_cfg_str :str, 
+    registry_cfg :RegistryCfg, 
     auth_cfg_str :str, 
     query :str,
     expected_output :str,
@@ -265,7 +235,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
       okta_secret_str,
       github_secret_str,
       k8s_secret_str,
-      registry_cfg_str, 
+      registry_cfg, 
       auth_cfg_str, 
       query,
       *args,
@@ -280,7 +250,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     okta_secret_str :str,
     github_secret_str :str,
     k8s_secret_str :str,
-    registry_cfg_str :str, 
+    registry_cfg :RegistryCfg, 
     auth_cfg_str :str, 
     query :str,
     expected_output :str,
@@ -292,7 +262,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
       okta_secret_str,
       github_secret_str,
       k8s_secret_str,
-      registry_cfg_str, 
+      registry_cfg, 
       auth_cfg_str, 
       query,
       *args,
@@ -307,7 +277,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     okta_secret_str :str,
     github_secret_str :str,
     k8s_secret_str :str,
-    registry_cfg_str :str, 
+    registry_cfg :RegistryCfg, 
     auth_cfg_str :str, 
     query :str,
     expected_output :str,
@@ -319,7 +289,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
       okta_secret_str,
       github_secret_str,
       k8s_secret_str,
-      registry_cfg_str, 
+      registry_cfg, 
       auth_cfg_str, 
       query,
       *args,
@@ -334,7 +304,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     okta_secret_str :str,
     github_secret_str :str,
     k8s_secret_str :str,
-    registry_cfg_str :str, 
+    registry_cfg :RegistryCfg, 
     auth_cfg_str :str,
     query,
     expected_output :str,
@@ -345,7 +315,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
       okta_secret_str,
       github_secret_str,
       k8s_secret_str,
-      registry_cfg_str, 
+      registry_cfg, 
       auth_cfg_str, 
       query,
       **{"stdout": stdout_tmp_file }

@@ -6,6 +6,7 @@ from robot.libraries.Process import Process
 
 
 
+
 @library(scope='SUITE', version='0.1.0', doc_format='reST')
 class CloudIntegration:
   ROBOT_LISTENER_API_VERSION = 2

@@ -10,6 +10,55 @@ if os.name == 'nt':
   IS_WINDOWS = '1'
   _exe_name = _exe_name + '.exe'
 
+_DOCKER_REG_PATH :str = '/opt/stackql/registry' 
+
+class RegistryCfg:
+
+  def __init__(
+    self,
+    local_path :str,
+    remote_url :str = '', 
+    nop_verify :bool = False,
+    src_prefix :str = '',
+  ) -> None:
+    self.local_path :str = local_path
+    self.remote_url :str = remote_url
+    self.nop_verify :bool = nop_verify
+    self.src_prefix :str = src_prefix
+
+  def _get_local_path(self, execution_environment :str) -> str:
+    if self.local_path == '':
+      return ''
+    if execution_environment == "docker":
+      return _DOCKER_REG_PATH
+    return os.path.join(REPOSITORY_ROOT_UNIX, self.local_path)
+  
+  def _get_url(self, execution_environment :str) -> str:
+    if self.remote_url != '':
+      return self.remote_url
+    if execution_environment == "docker":
+      return f'file://{_DOCKER_REG_PATH}'
+    return f'file://{os.path.join(REPOSITORY_ROOT_UNIX, self.local_path)}'
+  
+  def get_config_str(self, execution_environment :str) -> str:
+    cfg_dict = {
+      "url": self._get_url(execution_environment)
+    }
+    if self._get_local_path(execution_environment) != "":
+      cfg_dict["localPath"] = self._get_local_path(execution_environment)
+    if self.nop_verify:
+      cfg_dict['verifyConfig'] = {
+        'nopVerify': True
+      }
+    if self.src_prefix != '':
+      cfg_dict['srcPrefix'] = self.src_prefix
+    return json.dumps(cfg_dict)
+
+  def get_source_path_for_docker(self) -> str:
+    return self.local_path
+      
+
+
 REPOSITORY_ROOT = os.path.abspath(os.path.join(__file__, '..', '..', '..', '..'))
 
 ROBOT_TEST_ROOT = os.path.abspath(os.path.join(__file__, '..'))
@@ -35,56 +84,29 @@ _DEV_REGISTRY_URL :str = "https://cdn.statically.io/gh/stackql/stackql-provider-
 _MOCKED_REGISTRY_URL :str = f"http://localhost:{MOCKSERVER_PORT_REGISTRY}/gh/stackql/stackql-provider-registry/main/providers"
 
 REPOSITORY_ROOT_UNIX = get_unix_path(REPOSITORY_ROOT)
-REGISTRY_ROOT_CANONICAL   = get_unix_path(os.path.join(REPOSITORY_ROOT, 'test', 'registry'))
-REGISTRY_ROOT_MOCKED   = get_unix_path(os.path.join(REPOSITORY_ROOT, 'test', 'registry-mocked'))
-REGISTRY_ROOT_EXPERIMENTAL   = get_unix_path(os.path.join(REPOSITORY_ROOT, 'test', 'registry-advanced'))
-REGISTRY_ROOT_DEPRECATED   = get_unix_path(os.path.join(REPOSITORY_ROOT, 'test', 'registry-deprecated'))
 STACKQL_EXE     = get_unix_path(os.path.join(REPOSITORY_ROOT, 'build', _exe_name))
-_REGISTRY_NO_VERIFY_CFG    = { 
-  "url": f"file://{get_unix_path(REGISTRY_ROOT_MOCKED)}",
-  "localDocRoot": f"{get_unix_path(REGISTRY_ROOT_MOCKED)}",
-  "useEmbedded": False,
-  "verifyConfig": {
-    "nopVerify": True 
-  } 
-}
-_REGISTRY_DOCKER_CFG    = { 
-  "url": "file:///opt/stackql/registry",
-  "localDocRoot": "/opt/stackql/registry",
-  "useEmbedded": False,
-  "verifyConfig": {
-    "nopVerify": True 
-  } 
-}
-_REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG    = { 
-  "url": f"file://{get_unix_path(REGISTRY_ROOT_EXPERIMENTAL)}",
-  "localDocRoot": f"{get_unix_path(REGISTRY_ROOT_EXPERIMENTAL)}",
-  "verifyConfig": {
-    "nopVerify": True 
-  } 
-}
-_REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG    = { 
-  "url": f"file://{get_unix_path(REGISTRY_ROOT_CANONICAL)}",
-  "localDocRoot": f"{get_unix_path(REGISTRY_ROOT_CANONICAL)}",
-  "srcPrefix": "registry-verb-matching-src",
-  "verifyConfig": {
-    "nopVerify": True 
-  } 
-}
-_REGISTRY_CANONICAL_CFG    = { 
-  "url": f"file://{get_unix_path(REGISTRY_ROOT_CANONICAL)}",
-  "localDocRoot": f"{get_unix_path(REGISTRY_ROOT_CANONICAL)}",
-  "verifyConfig": {
-    "nopVerify": False 
-  } 
-}
-_REGISTRY_DEPRECATED_CFG    = { 
-  "url": f"file://{get_unix_path(REGISTRY_ROOT_DEPRECATED)}",
-  "localDocRoot": f"{get_unix_path(REGISTRY_ROOT_DEPRECATED)}",
-  "verifyConfig": {
-    "nopVerify": False 
-  } 
-}
+
+_REGISTRY_MOCKED_NO_VERIFY = RegistryCfg(
+  get_unix_path(os.path.join('test', 'registry-mocked')),
+  nop_verify=True
+)
+_REGISTRY_EXPERIMENTAL_NO_VERIFY = RegistryCfg(
+  get_unix_path(os.path.join('test', 'registry-advanced')),
+  nop_verify=True
+)
+_REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY = RegistryCfg(
+  get_unix_path(os.path.join('test', 'registry')),
+  src_prefix="registry-verb-matching-src",
+  nop_verify=True
+)
+_REGISTRY_CANONICAL = RegistryCfg(
+  get_unix_path(os.path.join('test', 'registry')),
+  nop_verify=False
+)
+_REGISTRY_DEPRECATED = RegistryCfg(
+  get_unix_path(os.path.join('test', 'registry-deprecated')),
+  nop_verify=False
+)
 _AUTH_CFG={ 
   "google": { 
     "credentialsfilepath": get_unix_path(os.path.join(REPOSITORY_ROOT, 'test', 'assets', 'credentials', 'dummy', 'google', 'functional-test-dummy-sa-key.json')),
@@ -190,15 +212,6 @@ with open(os.path.join(REPOSITORY_ROOT, 'test', 'assets', 'credentials', 'dummy'
 REGISTRY_PROD_CFG_STR = json.dumps(get_registry_cfg(_PROD_REGISTRY_URL, ROBOT_PROD_REG_DIR, False))
 REGISTRY_DEV_CFG_STR = json.dumps(get_registry_cfg(_DEV_REGISTRY_URL, ROBOT_DEV_REG_DIR, False))
 
-REGISTRY_MOCKED_CFG_STR = json.dumps(get_registry_cfg(_MOCKED_REGISTRY_URL, ROBOT_MOCKED_REG_DIR, False))
-
-_REGISTRY_NO_VERIFY_CFG_STR = json.dumps(_REGISTRY_NO_VERIFY_CFG)
-_REGISTRY_NO_VERIFY_CFG_STR_DOCKER = json.dumps(_REGISTRY_DOCKER_CFG)
-REGISTRY_DOCKER_CFG_STR = json.dumps(_REGISTRY_DOCKER_CFG)
-REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR = json.dumps(_REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG)
-REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG_STR = json.dumps(_REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG)
-REGISTRY_CANONICAL_CFG_STR = json.dumps(_REGISTRY_CANONICAL_CFG)
-REGISTRY_DEPRECATED_CFG_STR = json.dumps(_REGISTRY_DEPRECATED_CFG)
 AUTH_CFG_STR = json.dumps(_AUTH_CFG)
 AUTH_CFG_STR_DOCKER = json.dumps(_AUTH_CFG_DOCKER)
 SHOW_PROVIDERS_STR = "show providers;"
@@ -340,32 +353,36 @@ REGISTRY_GOOGLE_PROVIDER_LIST_EXPECTED = get_output_from_local_file(os.path.join
 def get_variables(execution_env :str):
   rv = {
     ## general config
-    'GITHUB_SECRET_STR':                GITHUB_SECRET_STR,
-    'K8S_SECRET_STR':                   K8S_SECRET_STR,
-    'MOCKSERVER_JAR':                   MOCKSERVER_JAR,
-    'MOCKSERVER_PORT_AWS':              MOCKSERVER_PORT_AWS,
-    'MOCKSERVER_PORT_GITHUB':           MOCKSERVER_PORT_GITHUB,
-    'MOCKSERVER_PORT_GOOGLE':           MOCKSERVER_PORT_GOOGLE,
-    'MOCKSERVER_PORT_K8S':              MOCKSERVER_PORT_K8S,
-    'MOCKSERVER_PORT_OKTA':             MOCKSERVER_PORT_OKTA,
-    'MOCKSERVER_PORT_REGISTRY':         MOCKSERVER_PORT_REGISTRY,
-    'OKTA_SECRET_STR':                  OKTA_SECRET_STR,
-    'PG_SRV_MTLS_DOCKER_CFG_STR':       PG_SRV_MTLS_DOCKER_CFG_STR,
-    'PG_SRV_PORT_DOCKER_MTLS':          PG_SRV_PORT_DOCKER_MTLS,
-    'PG_SRV_PORT_DOCKER_UNENCRYPTED':   PG_SRV_PORT_DOCKER_UNENCRYPTED,
-    'PG_SRV_PORT_MTLS':                 PG_SRV_PORT_MTLS,
-    'PG_SRV_PORT_UNENCRYPTED':          PG_SRV_PORT_UNENCRYPTED,
-    'PSQL_CLIENT_HOST':                 PSQL_CLIENT_HOST,
-    'PSQL_EXE':                         PSQL_EXE,
-    'PSQL_MTLS_CONN_STR':               PSQL_MTLS_CONN_STR,
-    'PSQL_MTLS_INVALID_CONN_STR':       PSQL_MTLS_INVALID_CONN_STR,
-    'PSQL_UNENCRYPTED_CONN_STR':        PSQL_UNENCRYPTED_CONN_STR,
-    'REGISTRY_DOCKER_CFG_STR':          REGISTRY_DOCKER_CFG_STR,
-    'REGISTRY_ROOT_CANONICAL':          REGISTRY_ROOT_CANONICAL,
-    'REGISTRY_ROOT_DEPRECATED':         REGISTRY_ROOT_DEPRECATED,
-    'REGISTRY_ROOT_EXPERIMENTAL':       REGISTRY_ROOT_EXPERIMENTAL,
-    'REGISTRY_ROOT_MOCKED':             REGISTRY_ROOT_MOCKED,
-    'STACKQL_EXE':                      STACKQL_EXE,
+    'GITHUB_SECRET_STR':                              GITHUB_SECRET_STR,
+    'K8S_SECRET_STR':                                 K8S_SECRET_STR,
+    'MOCKSERVER_JAR':                                 MOCKSERVER_JAR,
+    'MOCKSERVER_PORT_AWS':                            MOCKSERVER_PORT_AWS,
+    'MOCKSERVER_PORT_GITHUB':                         MOCKSERVER_PORT_GITHUB,
+    'MOCKSERVER_PORT_GOOGLE':                         MOCKSERVER_PORT_GOOGLE,
+    'MOCKSERVER_PORT_K8S':                            MOCKSERVER_PORT_K8S,
+    'MOCKSERVER_PORT_OKTA':                           MOCKSERVER_PORT_OKTA,
+    'MOCKSERVER_PORT_REGISTRY':                       MOCKSERVER_PORT_REGISTRY,
+    'OKTA_SECRET_STR':                                OKTA_SECRET_STR,
+    'PG_SRV_MTLS_DOCKER_CFG_STR':                     PG_SRV_MTLS_DOCKER_CFG_STR,
+    'PG_SRV_PORT_DOCKER_MTLS':                        PG_SRV_PORT_DOCKER_MTLS,
+    'PG_SRV_PORT_DOCKER_UNENCRYPTED':                 PG_SRV_PORT_DOCKER_UNENCRYPTED,
+    'PG_SRV_PORT_MTLS':                               PG_SRV_PORT_MTLS,
+    'PG_SRV_PORT_UNENCRYPTED':                        PG_SRV_PORT_UNENCRYPTED,
+    'PSQL_CLIENT_HOST':                               PSQL_CLIENT_HOST,
+    'PSQL_EXE':                                       PSQL_EXE,
+    'PSQL_MTLS_CONN_STR':                             PSQL_MTLS_CONN_STR,
+    'PSQL_MTLS_INVALID_CONN_STR':                     PSQL_MTLS_INVALID_CONN_STR,
+    'PSQL_UNENCRYPTED_CONN_STR':                      PSQL_UNENCRYPTED_CONN_STR,
+    'REGISTRY_ROOT_CANONICAL':                        _REGISTRY_CANONICAL,
+    'REGISTRY_ROOT_DEPRECATED':                       _REGISTRY_DEPRECATED,
+    'REGISTRY_ROOT_MOCKED':                           _REGISTRY_MOCKED_NO_VERIFY,
+    'REGISTRY_CANONICAL_CFG_STR':                     _REGISTRY_CANONICAL,
+    'REGISTRY_DEPRECATED_CFG_STR':                    _REGISTRY_DEPRECATED,
+    'REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR':        _REGISTRY_EXPERIMENTAL_NO_VERIFY,
+    'REGISTRY_MOCKED_CFG_STR':                        _REGISTRY_MOCKED_NO_VERIFY,
+    'REGISTRY_NO_VERIFY_CFG_STR':                     _REGISTRY_MOCKED_NO_VERIFY,
+    'REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG_STR':  _REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY,
+    'STACKQL_EXE':                                    STACKQL_EXE,
     ## queries and expectations
     'CREATE_AWS_VOLUME':                                                    CREATE_AWS_VOLUME,
     'DESCRIBE_GITHUB_REPOS_PAGES':                                          DESCRIBE_GITHUB_REPOS_PAGES,
@@ -447,13 +464,6 @@ def get_variables(execution_env :str):
     rv['JSON_INIT_FILE_PATH_OKTA']                      = JSON_INIT_FILE_PATH_OKTA
     rv['JSON_INIT_FILE_PATH_REGISTRY']                  = JSON_INIT_FILE_PATH_REGISTRY
     rv['PG_SRV_MTLS_CFG_STR']                           = PG_SRV_MTLS_CFG_STR
-    rv['REGISTRY_CANONICAL_CFG_STR']                    = REGISTRY_CANONICAL_CFG_STR
-    rv['REGISTRY_DEPRECATED_CFG_STR']                   = REGISTRY_DEPRECATED_CFG_STR
-    rv['REGISTRY_DOCKER_CFG_STR']                       = REGISTRY_DOCKER_CFG_STR
-    rv['REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR']       = REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR
-    rv['REGISTRY_MOCKED_CFG_STR']                       = REGISTRY_MOCKED_CFG_STR
-    rv['REGISTRY_NO_VERIFY_CFG_STR']                    = _REGISTRY_NO_VERIFY_CFG_STR_DOCKER
-    rv['REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG_STR'] = REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG_STR
   else: 
     rv['AUTH_CFG_STR']                                  = AUTH_CFG_STR
     rv['GET_IAM_POLICY_AGG_ASC_INPUT_FILE']             = GET_IAM_POLICY_AGG_ASC_INPUT_FILE
@@ -464,11 +474,4 @@ def get_variables(execution_env :str):
     rv['JSON_INIT_FILE_PATH_OKTA']                      = JSON_INIT_FILE_PATH_OKTA
     rv['JSON_INIT_FILE_PATH_REGISTRY']                  = JSON_INIT_FILE_PATH_REGISTRY
     rv['PG_SRV_MTLS_CFG_STR']                           = PG_SRV_MTLS_CFG_STR
-    rv['REGISTRY_CANONICAL_CFG_STR']                    = REGISTRY_CANONICAL_CFG_STR
-    rv['REGISTRY_DEPRECATED_CFG_STR']                   = REGISTRY_DEPRECATED_CFG_STR
-    rv['REGISTRY_DOCKER_CFG_STR']                       = REGISTRY_DOCKER_CFG_STR
-    rv['REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR']       = REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR
-    rv['REGISTRY_MOCKED_CFG_STR']                       = REGISTRY_MOCKED_CFG_STR
-    rv['REGISTRY_NO_VERIFY_CFG_STR']                    = _REGISTRY_NO_VERIFY_CFG_STR
-    rv['REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG_STR'] = REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG_STR
   return rv

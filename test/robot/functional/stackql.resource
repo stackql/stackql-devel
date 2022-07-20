@@ -5,7 +5,7 @@ ${EXECUTION_PLATFORM}    native   # to be overridden from command line, eg "dock
 *** Settings ***
 Library           Process
 Library           OperatingSystem 
-Variables         ${CURDIR}/../variables/stackql_context.py    ${EXECUTION_PLATFORM}
+Variables         ${LOCAL_LIB_HOME}/stackql_context.py    ${EXECUTION_PLATFORM}
 Library           Process
 Library           OperatingSystem
 Library           String
@@ -39,7 +39,7 @@ Start StackQL PG Server mTLS
     [Arguments]    ${_SRV_PORT_MTLS}    ${_MTLS_CFG_STR}
     IF    "${EXECUTION_PLATFORM}" == "native"
         ${process} =    Start Process    ${STACKQL_EXE}
-                        ...  srv    \-\-registry\=${REGISTRY_NO_VERIFY_CFG_STR}
+                        ...  srv    \-\-registry\=${REGISTRY_NO_VERIFY_CFG_STR.get_config_str('native')}
                         ...  \-\-auth\=${AUTH_CFG_STR}
                         ...  \-\-tls\.allowInsecure\=true
                         ...  \-\-pgsrv\.address\=0.0.0.0 
@@ -57,7 +57,7 @@ Start StackQL PG Server mTLS
                         ...  stackqlsrv
                         ...  bash
                         ...  -c
-                        ...  srv    \-\-registry\=${REGISTRY_DOCKER_CFG_STR}    \-\-auth\=${AUTH_CFG_STR}    \-\-tls\.allowInsecure\=true    \-\-pgsrv\.address\=0.0.0.0     \-\-pgsrv\.port\=${PG_SRV_PORT_DOCKER_MTLS}     \-\-pgsrv\.tls    ${PG_SRV_MTLS_DOCKER_CFG_STR}
+                        ...  srv    \-\-registry\=${REGISTRY_MOCKED_CFG_STR}    \-\-auth\=${AUTH_CFG_STR}    \-\-tls\.allowInsecure\=true    \-\-pgsrv\.address\=0.0.0.0     \-\-pgsrv\.port\=${PG_SRV_PORT_DOCKER_MTLS}     \-\-pgsrv\.tls    ${PG_SRV_MTLS_DOCKER_CFG_STR}
     END
     [Return]    ${process}
 
@@ -65,7 +65,7 @@ Start StackQL PG Server unencrypted
     [Arguments]    ${_SRV_PORT_UNENCRYPTED}
     IF    "${EXECUTION_PLATFORM}" == "native"
         ${process} =    Start Process    ${STACKQL_EXE}
-                        ...  srv    \-\-registry\=${REGISTRY_NO_VERIFY_CFG_STR}
+                        ...  srv    \-\-registry\=${REGISTRY_NO_VERIFY_CFG_STR.get_config_str('native')}
                         ...  \-\-auth\=${AUTH_CFG_STR}
                         ...  \-\-tls\.allowInsecure\=true
                         ...  \-\-pgsrv\.address\=0.0.0.0 
@@ -79,6 +79,6 @@ Start StackQL PG Server unencrypted
                         ...  stackqlsrv
                         ...  bash
                         ...  -c
-                        ...  srv    \-\-registry\=${REGISTRY_DOCKER_CFG_STR}    \-\-auth\=${AUTH_CFG_STR}    \-\-tls\.allowInsecure\=true    \-\-pgsrv\.address\=0.0.0.0     \-\-pgsrv\.port\=${PG_SRV_PORT_DOCKER_UNENCRYPTED}
+                        ...  srv    \-\-registry\=${REGISTRY_MOCKED_CFG_STR.get_config_str('docker')}    \-\-auth\=${AUTH_CFG_STR}    \-\-tls\.allowInsecure\=true    \-\-pgsrv\.address\=0.0.0.0     \-\-pgsrv\.port\=${PG_SRV_PORT_DOCKER_UNENCRYPTED}
     END
     [Return]    ${process}
