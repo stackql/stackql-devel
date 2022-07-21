@@ -298,7 +298,12 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
       *args,
       **cfg
     )
-    return self.should_be_equal(result.stderr, expected_output)
+    se = result.stderr
+    if self._execution_platform == 'docker':
+      se_split = se.split('\n')
+      if len(se_split) > 1:
+        se = se_split[-1]
+    return self.should_be_equal(se, expected_output, collapse_spaces=True, formatter='ascii', strip_spaces=True)
 
   @keyword
   def should_horrid_query_stackql_inline_equal(
