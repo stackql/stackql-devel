@@ -116,6 +116,11 @@ _REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY = RegistryCfg(
   src_prefix="registry-verb-matching-src",
   nop_verify=True
 )
+_REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_DOCKER = RegistryCfg(
+  get_unix_path(os.path.join('test', 'registry')),
+  src_prefix="registry-verb-matching-src-docker",
+  nop_verify=True
+)
 _REGISTRY_CANONICAL = RegistryCfg(
   get_unix_path(os.path.join('test', 'registry')),
   nop_verify=False
@@ -410,7 +415,6 @@ def get_variables(execution_env :str):
     'REGISTRY_MOCKED_CFG_STR':                        get_registry_mocked(execution_env),
     'REGISTRY_NO_VERIFY_CFG_STR':                     _REGISTRY_NO_VERIFY,
     'REGISTRY_NULL':                                  _REGISTRY_NULL,
-    'REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG_STR':  _REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY,
     'STACKQL_EXE':                                    STACKQL_EXE,
     ## queries and expectations
     'CREATE_AWS_VOLUME':                                                    CREATE_AWS_VOLUME,
@@ -494,6 +498,7 @@ def get_variables(execution_env :str):
     rv['JSON_INIT_FILE_PATH_REGISTRY']                  = JSON_INIT_FILE_PATH_REGISTRY
     rv['PG_SRV_MTLS_CFG_STR']                           = PG_SRV_MTLS_CFG_STR
     rv['REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR']       = _REGISTRY_EXPERIMENTAL_DOCKER_NO_VERIFY
+    rv['REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG_STR'] = _REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_DOCKER
   else: 
     rv['AUTH_CFG_STR']                                  = AUTH_CFG_STR
     rv['GET_IAM_POLICY_AGG_ASC_INPUT_FILE']             = GET_IAM_POLICY_AGG_ASC_INPUT_FILE
@@ -505,4 +510,5 @@ def get_variables(execution_env :str):
     rv['JSON_INIT_FILE_PATH_REGISTRY']                  = JSON_INIT_FILE_PATH_REGISTRY
     rv['PG_SRV_MTLS_CFG_STR']                           = PG_SRV_MTLS_CFG_STR
     rv['REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR']       = _REGISTRY_EXPERIMENTAL_NO_VERIFY
+    rv['REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG_STR'] = _REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY
   return rv
