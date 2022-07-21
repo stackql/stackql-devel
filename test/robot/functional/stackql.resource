@@ -10,6 +10,7 @@ Library           Process
 Library           OperatingSystem
 Library           String
 Library           ${LOCAL_LIB_HOME}/StackQLInterfaces.py    ${EXECUTION_PLATFORM}
+Library           ${LOCAL_LIB_HOME}/CloudIntegration.py
 
 *** Keywords ***
 Start Mock Server
