@@ -138,7 +138,7 @@ _AUTH_CFG={
 }
 _AUTH_CFG_DOCKER={ 
   "google": { 
-    "credentialsfilepath": get_unix_path(os.path.join('/opt', 'stackql', 'credentials', 'dummy', 'google', 'functional-test-dummy-sa-key.json')),
+    "credentialsfilepath": get_unix_path(os.path.join('/opt', 'stackql', 'credentials', 'dummy', 'google', 'docker-functional-test-dummy-sa-key.json')),
     "type": "service_account"
   }, 
   "okta": { 
