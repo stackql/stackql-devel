@@ -499,7 +499,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends \
             postgresql-client \
-            ca-certificates
+            ca-certificates \
+            openssl
 
     - name: Install Python dependencies
       run: |
@@ -530,6 +531,7 @@ jobs:
 
     - name: Run robot mocked functional tests
       if: success()
+      timeout-minutes: 20
       run: |
         robot --variable EXECUTION_PLATFORM:docker test/robot/functional
         cat ./output.xml
