@@ -1,10 +1,8 @@
 
 
 
-# ROBOT_OKTA_SECRET_KEY="$(cat /path/to/okta/credentials)" \
-# ROBOT_GCP_SECRET_KEY="$(cat /path/to/gcp/credentials)" \
-# ROBOT_AWS_SECRET_KEY="$(cat /path/to/aws/credentials)" \
-# ROBOT_AZURE_SECRET_KEY="$(cat /path/to/azure/credentials)" \
+*** Settings ***
+Resource          ${CURDIR}/stackql.resource
 
 *** Test Cases *** 
 Nop From Lib
