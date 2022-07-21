@@ -167,7 +167,7 @@ Should StackQL No Cfg Exec Contain
     ...    ${OKTA_SECRET_STR}
     ...    ${GITHUB_SECRET_STR}
     ...    ${K8S_SECRET_STR}
-    ...    ${EMPTY}
+    ...    ${REGISTRY_NULL}
     ...    ${EMPTY}
     ...    ${_EXEC_CMD_STR}
     ...    ${_EXEC_CMD_EXPECTED_OUTPUT}

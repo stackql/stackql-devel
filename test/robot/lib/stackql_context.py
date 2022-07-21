@@ -20,11 +20,13 @@ class RegistryCfg:
     remote_url :str = '', 
     nop_verify :bool = False,
     src_prefix :str = '',
+    is_null_registry :bool = False,
   ) -> None:
     self.local_path :str = local_path
     self.remote_url :str = remote_url
     self.nop_verify :bool = nop_verify
     self.src_prefix :str = src_prefix
+    self.is_null_registry :bool = is_null_registry
 
   def _get_local_path(self, execution_environment :str) -> str:
     if self.local_path == '':
@@ -41,6 +43,8 @@ class RegistryCfg:
     return f'file://{os.path.join(REPOSITORY_ROOT_UNIX, self.local_path)}'
   
   def get_config_str(self, execution_environment :str) -> str:
+    if self.is_null_registry:
+      return ''
     cfg_dict = {
       "url": self._get_url(execution_environment)
     }
@@ -91,6 +95,10 @@ def get_registry_mocked(execution_env :str) -> RegistryCfg:
     remote_url=get_registry_mock_url(execution_env),
     nop_verify=True
   )
+_REGISTRY_NULL = RegistryCfg(
+  '',
+  is_null_registry=True
+)
 _REGISTRY_NO_VERIFY = RegistryCfg(
   get_unix_path(os.path.join('test', 'registry-mocked')),
   nop_verify=True
@@ -400,6 +408,7 @@ def get_variables(execution_env :str):
     'REGISTRY_DEPRECATED_CFG_STR':                    _REGISTRY_DEPRECATED,
     'REGISTRY_MOCKED_CFG_STR':                        get_registry_mocked(execution_env),
     'REGISTRY_NO_VERIFY_CFG_STR':                     _REGISTRY_NO_VERIFY,
+    'REGISTRY_NULL':                                  _REGISTRY_NULL,
     'REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG_STR':  _REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY,
     'STACKQL_EXE':                                    STACKQL_EXE,
     ## queries and expectations
