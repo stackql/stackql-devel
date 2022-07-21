@@ -17,9 +17,12 @@ Start Mock Server
     [Arguments]    ${_JSON_INIT_FILE_PATH}    ${_MOCKSERVER_JAR}    ${_MOCKSERVER_PORT}
     ${process} =    Start Process    java    \-Dfile.encoding\=UTF-8
     ...  \-Dmockserver.initializationJsonPath\=${_JSON_INIT_FILE_PATH}
+    ...  \-Dmockserver.logLevel\=OFF
+    ...  \-Droot.logLevel\=OFF
     ...  \-jar    ${_MOCKSERVER_JAR}
-    ...  \-serverPort    ${_MOCKSERVER_PORT}    \-logLevel    INFO
-    Sleep    1s
+    ...  \-serverPort    ${_MOCKSERVER_PORT}
+    ...  stderr=${CURDIR}/tmp/stdout-mockserver-${_MOCKSERVER_PORT}.txt
+    ...  stdout=${CURDIR}/tmp/stderr-mockserver-${_MOCKSERVER_PORT}.txt
     [Return]    ${process}
 
 Prepare StackQL Environment
@@ -32,9 +35,9 @@ Prepare StackQL Environment
     Start Mock Server    ${JSON_INIT_FILE_PATH_AWS}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_AWS}
     Start Mock Server    ${JSON_INIT_FILE_PATH_K8S}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_K8S}
     Start Mock Server    ${JSON_INIT_FILE_PATH_REGISTRY}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_REGISTRY}
-    Sleep    20s
     Start StackQL PG Server mTLS    ${PG_SRV_PORT_MTLS}    ${PG_SRV_MTLS_CFG_STR}
     Start StackQL PG Server unencrypted    ${PG_SRV_PORT_UNENCRYPTED}
+    Sleep    30s
 
 Start StackQL PG Server mTLS
     [Arguments]    ${_SRV_PORT_MTLS}    ${_MTLS_CFG_STR}
@@ -46,7 +49,8 @@ Start StackQL PG Server mTLS
                         ...  \-\-pgsrv\.address\=0.0.0.0 
                         ...  \-\-pgsrv\.port\=${_SRV_PORT_MTLS} 
                         ...  \-\-pgsrv\.tls    ${_MTLS_CFG_STR}
-        Sleep    15s
+                        ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
+                        ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
     ELSE IF    "${EXECUTION_PLATFORM}" == "docker"
         ${res} =         Run Process    docker-compose   
                         ...  run    --rm    credentialsgen
@@ -59,9 +63,8 @@ Start StackQL PG Server mTLS
                         ...  bash
                         ...  -c
                         ...  stackql srv \-\-registry\='${REGISTRY_NO_VERIFY_CFG_STR.get_config_str('docker')}' \-\-auth\='${AUTH_CFG_STR}' \-\-tls\.allowInsecure\=true \-\-pgsrv\.address\=0.0.0.0 \-\-pgsrv\.port\=${PG_SRV_PORT_DOCKER_MTLS} \-\-pgsrv\.tls\='{\"keyFilePath\": \"/opt/stackql/srv/credentials/pg_server_key.pem\", \"certFilePath\": \"/opt/stackql/srv/credentials/pg_server_cert.pem\", \"clientCAs\": [\"'$(base64 -w 0 /opt/stackql/srv/credentials/pg_client_cert.pem)'\"]}'
-        # Log    ${process.stdout}
-        # Log    ${process.stderr}
-        Sleep    15s
+                        ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
+                        ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
     END
     [Return]    ${process}
 
@@ -74,7 +77,8 @@ Start StackQL PG Server unencrypted
                         ...  \-\-tls\.allowInsecure\=true
                         ...  \-\-pgsrv\.address\=0.0.0.0 
                         ...  \-\-pgsrv\.port\=${_SRV_PORT_UNENCRYPTED}
-        Sleep    15s
+                        ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-unencrypted-${_SRV_PORT_UNENCRYPTED}.txt
+                        ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-unencrypted-${_SRV_PORT_UNENCRYPTED}.txt
     ELSE IF    "${EXECUTION_PLATFORM}" == "docker"
         ${process} =    Start Process    docker-compose   
                         ...  -p     unencrypted
@@ -84,5 +88,7 @@ Start StackQL PG Server unencrypted
                         ...  bash
                         ...  -c
                         ...  stackql srv \-\-registry\='${REGISTRY_NO_VERIFY_CFG_STR.get_config_str('docker')}' \-\-auth\='${AUTH_CFG_STR}' \-\-tls\.allowInsecure\=true \-\-pgsrv\.address\=0.0.0.0 \-\-pgsrv\.port\=${PG_SRV_PORT_DOCKER_UNENCRYPTED}
+                        ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-unencrypted-${_SRV_PORT_UNENCRYPTED}.txt
+                        ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-unencrypted-${_SRV_PORT_UNENCRYPTED}.txt
     END
     [Return]    ${process}
