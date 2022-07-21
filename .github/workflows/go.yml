@@ -27,21 +27,11 @@ jobs:
     runs-on: windows-latest
     steps:
 
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
-
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
       with:
         go-version: ^1.18
       id: go
-    
-    - name: Git Ref Parse
-      id: git_ref_parse
-      run: |
-          echo ::set-output name=SOURCE_NAME::${GITHUB_REF#refs/*/}
-          echo ::set-output name=SOURCE_BRANCH::${GITHUB_REF#refs/heads/}
-          echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
     
     - name: Set up mingw
       uses: egor-tensin/setup-mingw@v2
@@ -55,6 +45,16 @@ jobs:
     - name: Get rid of disruptive line endings before checkout
       run: |
         git config --global core.autocrlf false
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+    
+    - name: Git Ref Parse
+      id: git_ref_parse
+      run: |
+          echo ::set-output name=SOURCE_NAME::${GITHUB_REF#refs/*/}
+          echo ::set-output name=SOURCE_BRANCH::${GITHUB_REF#refs/heads/}
+          echo ::set-output name=SOURCE_TAG::${GITHUB_REF#refs/tags/}
 
     - name: Install Python dependencies
       run: |
@@ -168,14 +168,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
-
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
       with:
         go-version: ^1.18
       id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
     
     - name: Git Ref Parse
       id: git_ref_parse
@@ -522,16 +522,18 @@ jobs:
       run: |
         docker pull stackql/stackql:latest || echo 'could not pull image for cache purposes'
 
-    - name: Build image
-      run: |
-        docker-compose run --rm credentialsgen \
-        && docker-compose build stackqlsrv
-
     - name: Create certificates for robot tests
       run: |
         openssl req -x509 -keyout test/server/mtls/credentials/pg_server_key.pem -out test/server/mtls/credentials/pg_server_cert.pem -config test/server/mtls/openssl.cnf -days 365
         openssl req -x509 -keyout test/server/mtls/credentials/pg_client_key.pem -out test/server/mtls/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
         openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365 
+        openssl req -x509 -keyout vol/srv/credentials/pg_server_key.pem -out  vol/srv/credentials/pg_server_cert.pem -config test/server/mtls/openssl.cnf -days 365
+        openssl req -x509 -keyout vol/srv/credentials/pg_client_key.pem -out  vol/srv/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
+        openssl req -x509 -keyout vol/srv/credentials/pg_rubbish_key.pem -out vol/srv/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365
+
+    - name: Build image
+      run: |
+        docker-compose build stackqlsrv
 
 
     - name: Run robot mocked functional tests
