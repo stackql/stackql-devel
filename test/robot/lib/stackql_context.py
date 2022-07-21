@@ -81,12 +81,17 @@ def get_unix_path(pathStr :str) -> str:
 
 _PROD_REGISTRY_URL :str = "https://cdn.statically.io/gh/stackql/stackql-provider-registry/main/providers"
 _DEV_REGISTRY_URL :str = "https://cdn.statically.io/gh/stackql/stackql-provider-registry/dev/providers"
-_MOCKED_REGISTRY_URL :str = f"http://localhost:{MOCKSERVER_PORT_REGISTRY}/gh/stackql/stackql-provider-registry/main/providers"
 
 REPOSITORY_ROOT_UNIX = get_unix_path(REPOSITORY_ROOT)
 STACKQL_EXE     = get_unix_path(os.path.join(REPOSITORY_ROOT, 'build', _exe_name))
 
-_REGISTRY_MOCKED_NO_VERIFY = RegistryCfg(
+def get_registry_mocked(execution_env :str) -> RegistryCfg:
+  return RegistryCfg(
+    "",
+    remote_url=get_registry_mock_url(execution_env),
+    nop_verify=True
+  )
+_REGISTRY_NO_VERIFY = RegistryCfg(
   get_unix_path(os.path.join('test', 'registry-mocked')),
   nop_verify=True
 )
@@ -348,6 +353,12 @@ def get_select_k8s_nodes_asc(execution_env :str) -> str:
     k8s_host = 'host.docker.internal'
   return f"select name, uid, creationTimestamp from k8s.core_v1.node where cluster_addr = '{k8s_host}:{MOCKSERVER_PORT_K8S}' order by name asc;"
 
+def get_registry_mock_url(execution_env :str) -> str:
+  host = 'localhost'
+  if execution_env == 'docker':
+    host = 'host.docker.internal'
+  return f"http://{host}:{MOCKSERVER_PORT_REGISTRY}/gh/stackql/stackql-provider-registry/main/providers"
+
 SELECT_K8S_NODES_ASC_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'k8s', 'select-nodes-asc.txt'))
 
 REGISTRY_LIST = "registry list;"
@@ -380,12 +391,12 @@ def get_variables(execution_env :str):
     'PSQL_UNENCRYPTED_CONN_STR':                      PSQL_UNENCRYPTED_CONN_STR,
     'REGISTRY_ROOT_CANONICAL':                        _REGISTRY_CANONICAL,
     'REGISTRY_ROOT_DEPRECATED':                       _REGISTRY_DEPRECATED,
-    'REGISTRY_ROOT_MOCKED':                           _REGISTRY_MOCKED_NO_VERIFY,
+    # 'REGISTRY_ROOT_MOCKED':                           _REGISTRY_MOCKED_NO_VERIFY,
     'REGISTRY_CANONICAL_CFG_STR':                     _REGISTRY_CANONICAL,
     'REGISTRY_DEPRECATED_CFG_STR':                    _REGISTRY_DEPRECATED,
     'REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR':        _REGISTRY_EXPERIMENTAL_NO_VERIFY,
-    'REGISTRY_MOCKED_CFG_STR':                        _REGISTRY_MOCKED_NO_VERIFY,
-    'REGISTRY_NO_VERIFY_CFG_STR':                     _REGISTRY_MOCKED_NO_VERIFY,
+    'REGISTRY_MOCKED_CFG_STR':                        get_registry_mocked(execution_env),
+    'REGISTRY_NO_VERIFY_CFG_STR':                     _REGISTRY_NO_VERIFY,
     'REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG_STR':  _REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY,
     'STACKQL_EXE':                                    STACKQL_EXE,
     ## queries and expectations
