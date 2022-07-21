@@ -99,6 +99,10 @@ _REGISTRY_EXPERIMENTAL_NO_VERIFY = RegistryCfg(
   get_unix_path(os.path.join('test', 'registry-advanced')),
   nop_verify=True
 )
+_REGISTRY_EXPERIMENTAL_DOCKER_NO_VERIFY = RegistryCfg(
+  get_unix_path(os.path.join('test', 'registry-advanced-docker')),
+  nop_verify=True
+)
 _REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY = RegistryCfg(
   get_unix_path(os.path.join('test', 'registry')),
   src_prefix="registry-verb-matching-src",
@@ -394,7 +398,6 @@ def get_variables(execution_env :str):
     # 'REGISTRY_ROOT_MOCKED':                           _REGISTRY_MOCKED_NO_VERIFY,
     'REGISTRY_CANONICAL_CFG_STR':                     _REGISTRY_CANONICAL,
     'REGISTRY_DEPRECATED_CFG_STR':                    _REGISTRY_DEPRECATED,
-    'REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR':        _REGISTRY_EXPERIMENTAL_NO_VERIFY,
     'REGISTRY_MOCKED_CFG_STR':                        get_registry_mocked(execution_env),
     'REGISTRY_NO_VERIFY_CFG_STR':                     _REGISTRY_NO_VERIFY,
     'REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG_STR':  _REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY,
@@ -480,6 +483,7 @@ def get_variables(execution_env :str):
     rv['JSON_INIT_FILE_PATH_OKTA']                      = JSON_INIT_FILE_PATH_OKTA
     rv['JSON_INIT_FILE_PATH_REGISTRY']                  = JSON_INIT_FILE_PATH_REGISTRY
     rv['PG_SRV_MTLS_CFG_STR']                           = PG_SRV_MTLS_CFG_STR
+    rv['REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR']       = _REGISTRY_EXPERIMENTAL_DOCKER_NO_VERIFY
   else: 
     rv['AUTH_CFG_STR']                                  = AUTH_CFG_STR
     rv['GET_IAM_POLICY_AGG_ASC_INPUT_FILE']             = GET_IAM_POLICY_AGG_ASC_INPUT_FILE
@@ -490,4 +494,5 @@ def get_variables(execution_env :str):
     rv['JSON_INIT_FILE_PATH_OKTA']                      = JSON_INIT_FILE_PATH_OKTA
     rv['JSON_INIT_FILE_PATH_REGISTRY']                  = JSON_INIT_FILE_PATH_REGISTRY
     rv['PG_SRV_MTLS_CFG_STR']                           = PG_SRV_MTLS_CFG_STR
+    rv['REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR']       = _REGISTRY_EXPERIMENTAL_NO_VERIFY
   return rv

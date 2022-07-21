@@ -103,6 +103,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     supplied_args.append("--tls.allowInsecure=true")
     supplied_args = supplied_args + list(args)
     query_escaped = query.replace("'", "'\"'\"'")
+    os.environ['REGISTRY_SRC']= f'./{reg_location}'
     res = super().run_process(
       "docker-compose",
       "-p",
@@ -115,8 +116,6 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
       f"GITHUB_SECRET_KEY={github_secret_str}",
       "-e",
       f"K8S_SECRET_KEY={k8s_secret_str}",
-      "-e",
-      f"REGISTRY_SRC={reg_location}",
       "stackqlsrv",
       "bash",
       "-c",
