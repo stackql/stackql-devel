@@ -93,6 +93,8 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     *args,
     **cfg
   ):
+    if type(query) == bytes:
+      query = query.decode("utf-8") 
     reg_location = registry_cfg.get_source_path_for_docker()
     supplied_args = []
     registry_cfg_str = registry_cfg.get_config_str('docker')
@@ -119,7 +121,8 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
       "stackqlsrv",
       "bash",
       "-c",
-      f"stackql exec {' '.join(supplied_args)} '{query_escaped}'"
+      f"stackql exec {' '.join(supplied_args)} '{query_escaped}'",
+      **cfg
     )
     self.log(res.stdout)
     self.log(res.stderr)
