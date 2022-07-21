@@ -532,6 +532,7 @@ jobs:
       if: success()
       run: |
         robot --variable EXECUTION_PLATFORM:docker test/robot/functional
+        cat /home/runner/work/stackql-devel/stackql-devel/output.xml
     
     - name: Run robot integration tests
       if: success() && startsWith(${{ steps.git_ref_parse.outputs.SOURCE_TAG }}, 'build-release')
