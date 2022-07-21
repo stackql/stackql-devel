@@ -520,7 +520,11 @@ jobs:
 
     - name: Pull Docker image for cache purposes
       run: |
-        docker pull stackql/stackql:latest || echo 'could not pull image for cache purposes' \
+        docker pull stackql/stackql:latest || echo 'could not pull image for cache purposes'
+
+    - name: Build image
+      run: |
+        docker-compose run --rm credentialsgen \
         && docker-compose build stackqlsrv
 
     - name: Create certificates for robot tests
@@ -529,11 +533,17 @@ jobs:
         openssl req -x509 -keyout test/server/mtls/credentials/pg_client_key.pem -out test/server/mtls/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
         openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365 
 
+
     - name: Run robot mocked functional tests
       if: success()
       timeout-minutes: 20
       run: |
         robot --variable EXECUTION_PLATFORM:docker test/robot/functional
+        cat ./output.xml
+
+    - name: Run robot mocked functional tests
+      if: always()
+      run: |
         cat ./output.xml
     
     - name: Run robot integration tests
