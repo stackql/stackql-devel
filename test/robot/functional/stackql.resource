@@ -53,11 +53,14 @@ Start StackQL PG Server mTLS
         ${process} =    Start Process    docker-compose
                         ...  -p     mtls
                         ...  run
-                        ...  --rm    -p${_SRV_PORT_MTLS}:${PG_SRV_PORT_DOCKER_MTLS}/tcp
+                        ...  -p${_SRV_PORT_MTLS}:${PG_SRV_PORT_DOCKER_MTLS}/tcp
                         ...  stackqlsrv
                         ...  bash
                         ...  -c
-                        ...  srv    \-\-registry\=${REGISTRY_MOCKED_CFG_STR}    \-\-auth\=${AUTH_CFG_STR}    \-\-tls\.allowInsecure\=true    \-\-pgsrv\.address\=0.0.0.0     \-\-pgsrv\.port\=${PG_SRV_PORT_DOCKER_MTLS}     \-\-pgsrv\.tls    ${PG_SRV_MTLS_DOCKER_CFG_STR}
+                        ...  stackql srv \-\-registry\='${REGISTRY_NO_VERIFY_CFG_STR.get_config_str('docker')}' \-\-auth\='${AUTH_CFG_STR}' \-\-tls\.allowInsecure\=true \-\-pgsrv\.address\=0.0.0.0 \-\-pgsrv\.port\=${PG_SRV_PORT_DOCKER_MTLS} \-\-pgsrv\.tls\='{\"keyFilePath\": \"/opt/stackql/srv/credentials/pg_server_key.pem\", \"certFilePath\": \"/opt/stackql/srv/credentials/pg_server_cert.pem\", \"clientCAs\": [\"'$(base64 -w 0 /opt/stackql/srv/credentials/pg_client_cert.pem)'\"]}'
+        # Log    ${process.stdout}
+        # Log    ${process.stderr}
+        Sleep    15s
     END
     [Return]    ${process}
 
@@ -79,6 +82,6 @@ Start StackQL PG Server unencrypted
                         ...  stackqlsrv
                         ...  bash
                         ...  -c
-                        ...  srv    \-\-registry\=${REGISTRY_MOCKED_CFG_STR.get_config_str('docker')}    \-\-auth\=${AUTH_CFG_STR}    \-\-tls\.allowInsecure\=true    \-\-pgsrv\.address\=0.0.0.0     \-\-pgsrv\.port\=${PG_SRV_PORT_DOCKER_UNENCRYPTED}
+                        ...  stackql srv \-\-registry\='${REGISTRY_NO_VERIFY_CFG_STR.get_config_str('docker')}' \-\-auth\='${AUTH_CFG_STR}' \-\-tls\.allowInsecure\=true \-\-pgsrv\.address\=0.0.0.0 \-\-pgsrv\.port\=${PG_SRV_PORT_DOCKER_UNENCRYPTED}
     END
     [Return]    ${process}
