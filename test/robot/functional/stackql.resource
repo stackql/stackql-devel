@@ -52,7 +52,7 @@ Start StackQL PG Server mTLS
                         ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
                         ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
     ELSE IF    "${EXECUTION_PLATFORM}" == "docker"
-        ${res} =         Run Process    docker-compose   
+        ${res} =         Run Process    docker-compose    --log-level    CRITICAL
                         ...  run    --rm    credentialsgen
         Should Be Equal As Integers    ${res.rc}    0
         ${process} =    Start Process    docker-compose
@@ -80,7 +80,7 @@ Start StackQL PG Server unencrypted
                         ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-unencrypted-${_SRV_PORT_UNENCRYPTED}.txt
                         ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-unencrypted-${_SRV_PORT_UNENCRYPTED}.txt
     ELSE IF    "${EXECUTION_PLATFORM}" == "docker"
-        ${process} =    Start Process    docker-compose   
+        ${process} =    Start Process    docker-compose    --log-level    CRITICAL
                         ...  -p     unencrypted
                         ...  run
                         ...  --rm    -p${_SRV_PORT_UNENCRYPTED}:${PG_SRV_PORT_DOCKER_UNENCRYPTED}/tcp
