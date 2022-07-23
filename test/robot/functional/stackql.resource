@@ -65,6 +65,7 @@ Start StackQL PG Server mTLS
     ELSE IF    "${EXECUTION_PLATFORM}" == "docker"
         ${res} =         Run Process    docker-compose    --log-level    CRITICAL
                         ...  run    --rm    credentialsgen
+        Log     Credentials gen completed
         Should Be Equal As Integers    ${res.rc}    0
         ${process} =    Start Process    docker-compose
                         ...  -p     mtls
