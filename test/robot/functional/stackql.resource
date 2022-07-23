@@ -34,8 +34,8 @@ Start All Mock Servers
         Start Mock Server    ${JSON_INIT_FILE_PATH_K8S}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_K8S}
         Start Mock Server    ${JSON_INIT_FILE_PATH_REGISTRY}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_REGISTRY}
     ELSE IF    "${EXECUTION_PLATFORM}" == "docker"
-        Start Process    docker-compose    --log-level    CRITICAL
-        ...  -p     mockserver
+        Start Process    docker\-compose    \-\-log\-level    CRITICAL
+        ...  \-p     mockserver
         ...  up
         ...  mockserver
         Log    Mock Servers Started
@@ -63,17 +63,17 @@ Start StackQL PG Server mTLS
                         ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
                         ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
     ELSE IF    "${EXECUTION_PLATFORM}" == "docker"
-        ${res} =         Run Process    docker-compose    --log-level    CRITICAL
-                        ...  run    --rm    credentialsgen
+        ${res} =         Run Process    docker\-compose    \-\-log\-level    CRITICAL
+                        ...  run    \-\-rm    credentialsgen
         Log     Credentials gen completed
         Should Be Equal As Integers    ${res.rc}    0
-        ${process} =    Start Process    docker-compose
-                        ...  -p     mtls
+        ${process} =    Start Process    docker\-compose
+                        ...  \-p     mtls
                         ...  run
-                        ...  -p${_SRV_PORT_MTLS}:${PG_SRV_PORT_DOCKER_MTLS}/tcp
+                        ...  \-p${_SRV_PORT_MTLS}:${PG_SRV_PORT_DOCKER_MTLS}/tcp
                         ...  stackqlsrv
                         ...  bash
-                        ...  -c
+                        ...  \-c
                         ...  stackql srv \-\-registry\='${REGISTRY_NO_VERIFY_CFG_STR.get_config_str('docker')}' \-\-auth\='${AUTH_CFG_STR}' \-\-tls\.allowInsecure\=true \-\-pgsrv\.address\=0.0.0.0 \-\-pgsrv\.port\=${PG_SRV_PORT_DOCKER_MTLS} \-\-pgsrv\.tls\='{\"keyFilePath\": \"/opt/stackql/srv/credentials/pg_server_key.pem\", \"certFilePath\": \"/opt/stackql/srv/credentials/pg_server_cert.pem\", \"clientCAs\": [\"'$(base64 -w 0 /opt/stackql/srv/credentials/pg_client_cert.pem)'\"]}'
                         ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
                         ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
@@ -92,13 +92,13 @@ Start StackQL PG Server unencrypted
                         ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-unencrypted-${_SRV_PORT_UNENCRYPTED}.txt
                         ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-unencrypted-${_SRV_PORT_UNENCRYPTED}.txt
     ELSE IF    "${EXECUTION_PLATFORM}" == "docker"
-        ${process} =    Start Process    docker-compose    --log-level    CRITICAL
-                        ...  -p     unencrypted
+        ${process} =    Start Process    docker\-compose    \-\-log\-level    CRITICAL
+                        ...  \-p     unencrypted
                         ...  run
-                        ...  --rm    -p${_SRV_PORT_UNENCRYPTED}:${PG_SRV_PORT_DOCKER_UNENCRYPTED}/tcp
+                        ...  \-\-rm    \-p${_SRV_PORT_UNENCRYPTED}:${PG_SRV_PORT_DOCKER_UNENCRYPTED}/tcp
                         ...  stackqlsrv
                         ...  bash
-                        ...  -c
+                        ...  \-c
                         ...  stackql srv \-\-registry\='${REGISTRY_NO_VERIFY_CFG_STR.get_config_str('docker')}' \-\-auth\='${AUTH_CFG_STR}' \-\-tls\.allowInsecure\=true \-\-pgsrv\.address\=0.0.0.0 \-\-pgsrv\.port\=${PG_SRV_PORT_DOCKER_UNENCRYPTED}
                         ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-unencrypted-${_SRV_PORT_UNENCRYPTED}.txt
                         ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-unencrypted-${_SRV_PORT_UNENCRYPTED}.txt
