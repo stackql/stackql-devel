@@ -528,6 +528,13 @@ jobs:
       run: |
         docker-compose build stackqlsrv
 
+    - name: Mock Server Download
+      run: |
+        mvn \
+        org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy \
+        -Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded \
+        -DoutputDirectory=test/downloads
+
     - name: Debug info
       run: |
         echo "psql version info: $(psql --version)"
@@ -572,9 +579,8 @@ jobs:
       if: always()
       run: |
         cat ./output.xml
-    
+
     - name: Run robot integration tests
       if: success() && startsWith(${{ steps.git_ref_parse.outputs.SOURCE_TAG }}, 'build-release')
       run: |
         robot  --variable EXECUTION_PLATFORM:docker test/robot/integration
-
