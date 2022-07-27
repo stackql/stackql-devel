@@ -5,7 +5,7 @@ paths:
         url: https://api.github.com/graphql
         httpVerb: POST
         responseSelection:
-          jsonPath: '$.data.viewer.organization.samlIdentityProvider.externalIdentities.edges[*]'
+          jsonPath: '$.data.viewer.organization.samlIdentityProvider.externalIdentities.edges[*].node'
         cursor:
           jsonPath: '$.data.viewer.organization.samlIdentityProvider.externalIdentities.edges[-1:].cursor'
         query: >
@@ -941,7 +941,7 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-            objectKey: '$.data.viewer.organization.samlIdentityProvider.externalIdentities.edges[*]'
+            objectKey: '$.data.viewer.organization.samlIdentityProvider.externalIdentities.edges[*].node'
       sqlVerbs:
         select:
           - $ref: '#/components/x-stackQL-resources/samlIDs/methods/list_saml_identities'
