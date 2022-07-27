@@ -30,7 +30,6 @@ type GraphQLSingleSelectAcquire struct {
 	rowSort                    func(map[string]map[string]interface{}) []string
 	root                       primitivegraph.PrimitiveNode
 	stream                     streaming.MapStream
-	graphQLReader              graphql.GQLReader
 }
 
 func newGraphQLSingleSelectAcquire(
@@ -77,6 +76,10 @@ func (ss *GraphQLSingleSelectAcquire) Build() error {
 	if err != nil {
 		return err
 	}
+	gql, ok := ss.tableMeta.GetGraphQL()
+	if !ok {
+		return fmt.Errorf("could not build graphql exection for table")
+	}
 	ex := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 		ss.graph.AddTxnControlCounters(*ss.insertPreparedStatementCtx.GetGCCtrlCtrs())
 
@@ -91,18 +94,29 @@ func (ss *GraphQLSingleSelectAcquire) Build() error {
 			if err != nil {
 				return dto.NewErroneousExecutorOutput(err)
 			}
-			graphql.NewStandardGQLReader(
+			cursorJsonPath, ok := gql.GetCursorJSONPath()
+			if !ok {
+				return dto.NewErroneousExecutorOutput(fmt.Errorf("cannot perform graphql action without cursor json path"))
+			}
+			responseJsonPath, ok := gql.GetResponseJSONPath()
+			if !ok {
+				return dto.NewErroneousExecutorOutput(fmt.Errorf("cannot perform graphql action without response json path"))
+			}
+			graphQLReader, err := graphql.NewStandardGQLReader(
 				client,
 				req,
 				ss.handlerCtx.RuntimeContext.HTTPPageLimit,
-				"",
+				gql.Query,
 				paramMap,
 				"",
-				"",
-				"",
+				responseJsonPath,
+				cursorJsonPath,
 			)
+			if err != nil {
+				return dto.NewErroneousExecutorOutput(err)
+			}
 			for {
-				response, err := ss.graphQLReader.Read()
+				response, err := graphQLReader.Read()
 				if len(response) > 0 {
 					if !housekeepingDone && ss.insertPreparedStatementCtx != nil {
 						_, err = ss.handlerCtx.SQLEngine.Exec(ss.insertPreparedStatementCtx.GetGCHousekeepingQueries())
@@ -125,6 +139,9 @@ func (ss *GraphQLSingleSelectAcquire) Build() error {
 				}
 				if err == io.EOF {
 					break
+				}
+				if err != nil {
+					return dto.NewErroneousExecutorOutput(err)
 				}
 			}
 		}

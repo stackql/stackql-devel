@@ -4,12 +4,14 @@ paths:
       x-stackQL-graphQL:
         url: https://api.github.com/graphql
         httpVerb: POST
+        responseSelection:
+          jsonPath: '$.data.viewer.organization.samlIdentityProvider.externalIdentities.edges[*]'
         cursor:
           jsonPath: '$.data.viewer.organization.samlIdentityProvider.externalIdentities.edges[-1:].cursor'
-        query: |
+        query: >
           query {
               viewer {
-                  organization(login: {{ .org }}) {
+                  organization(login: "{{ .org }}") {
                       samlIdentityProvider {
                           externalIdentities(first: 100{{ .cursor }}) {
                               edges {
@@ -50,44 +52,47 @@ paths:
                   data:
                     type: object
                     properties:
-                      organization:
+                      viewer:
                         type: object
                         properties:
-                          samlIdentityProvider:
-                            type: object
-                            properties:
-                              externalIdentities:
-                                type: object
-                                properties:
-                                  edges:
-                                    type: array
-                                    items:
+                            organization:
+                              type: object
+                              properties:
+                                samlIdentityProvider:
+                                  type: object
+                                  properties:
+                                    externalIdentities:
                                       type: object
                                       properties:
-                                        cursor:
-                                          type: string
-                                        node:
-                                          type: object
-                                          properties:
-                                            guid:
-                                              type: string
-                                            samlIdentity:
-                                              type: object
-                                              properties:
-                                                nameId:
-                                                  type: string
-                                                username:
-                                                  type: string 
-                                            scimIdentity:
-                                              type: object
-                                              properties:
-                                                username:
-                                                  type: string
-                                            user:
-                                              type: object
-                                              properties:
-                                                username:
-                                                  type: string
+                                        edges:
+                                          type: array
+                                          items:
+                                            type: object
+                                            properties:
+                                              cursor:
+                                                type: string
+                                              node:
+                                                type: object
+                                                properties:
+                                                  guid:
+                                                    type: string
+                                                  samlIdentity:
+                                                    type: object
+                                                    properties:
+                                                      nameId:
+                                                        type: string
+                                                      username:
+                                                        type: string 
+                                                  scimIdentity:
+                                                    type: object
+                                                    properties:
+                                                      username:
+                                                        type: string
+                                                  user:
+                                                    type: object
+                                                    properties:
+                                                      username:
+                                                        type: string
   /scim/v2/organizations/{org}/Users:
     get:
       summary: List SCIM provisioned identities
@@ -934,7 +939,7 @@ components:
           operation:
             $ref: '#/paths/~1graphql/post'
           response:
-            mediaType: application/scim+json
+            mediaType: application/json
             openAPIDocKey: '200'
             objectKey: '$.data.viewer.organization.samlIdentityProvider.externalIdentities.edges[*]'
       sqlVerbs:
