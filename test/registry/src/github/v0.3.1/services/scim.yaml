@@ -13,7 +13,7 @@ paths:
               viewer {
                   organization(login: "{{ .org }}") {
                       samlIdentityProvider {
-                          externalIdentities(first: 100{{ .cursor }}) {
+                          externalIdentities(first: 2{{ .cursor }}) {
                               edges {
                                   node {
                                       guid
