@@ -7,6 +7,8 @@ services:
       context: .
       cache_from: 
         - stackql/stackql
+        - stackql/integration
+        - stackql/stackqlsrvcertificates
     command: 
       - bash
       - -c
@@ -50,6 +52,7 @@ services:
       cache_from: 
         - stackql/stackql
         - stackql/integration
+        - stackql/stackqlsrvcertificates
       target: integration
     volumes:
       - ./vol/srv/credentials:/opt/stackql/srv/credentials:rw

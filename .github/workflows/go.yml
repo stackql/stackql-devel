@@ -526,6 +526,7 @@ jobs:
 
     - name: Build image
       run: |
+        docker-compose build credentialsgen
         docker-compose build stackqlsrv
 
     - name: Mock Server Download
