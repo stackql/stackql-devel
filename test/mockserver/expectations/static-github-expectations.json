@@ -1,6 +1,20 @@
 [  
   {
     "httpRequest": {
+      "method": "POST",
+      "path": "/graphql",
+      "body": {
+        "type": "REGEX",
+        "regex": ".*query.*samlIdentityProvider.*"
+      }
+    },
+    "httpResponseTemplate": {
+      "template": "#set($end = 2)\n#set($rb = $request.body.json)\n#set($inferredPage = $rb.replaceAll('.*', 'x'))\n#set($rr = $rb.replaceAll('.*after:(\\d+).*', '$1'))\n#set($rn = $rr * 1)\n#set($maxItems = 88)\n#set($thisCursor = \"#if (${rn})${rn}#{else}1#end\")\n#set($cFinal = $thisCursor * $end + 1)\n{ 'statusCode': 200, 'headers': { 'Datetime': [ $!now_iso_8601 ] }, 'body': {  \"data\": {    \"viewer\": {      \"organization\": {        \"samlIdentityProvider\": {          \"externalIdentities\": {      \"rb\": ${rb},   \"rr\": '${rr}', \"rn\": '${rn}', \"thisCursor\": '${thisCursor}',   \"edges\": [       #if($thisCursor < $maxItems)  \n#foreach($i in [1..$end])  \n#set($ci = ($thisCursor - 1) * ${end} + ${i})\n     {             \"node\": {                  \"guid\": \"4d8ca614-05b3-11ed-8b3b-954c779e608e\",                  \"samlIdentity\": {                    \"nameId\": \"sherlockholmes${ci}-${inferredPage}-${thisCursor}@gmail.com\",                    \"username\": \"sherlockholmes${ci}@gmail.com\"                  },                  \"scimIdentity\": {                    \"username\": null                  },                  \"user\": {                    \"login\": \"some-jimbo-${ci}\"                  }                },                \"cursor\": \"${ci}\"              }, #end              {                \"node\": {                  \"guid\": \"2b03a0f4-05bb-11ed-9795-a2b270ddb7b3\",                  \"samlIdentity\": {                    \"nameId\": \"krimmer@stackql.io\",                    \"username\": \"krimmer@stackql.io\"                  },                  \"scimIdentity\": {                    \"username\": null                  },                  \"user\": {                    \"login\": \"kr-internal-id\"                  }                },                \"cursor\": \"${cFinal}\"              }     #{else}#end      ]          }        }      }    }  }  } }",
+      "templateType": "VELOCITY"
+    }
+  },
+  {
+    "httpRequest": {
       "headers": {
         "accept": [ "application/json" ]
       },
