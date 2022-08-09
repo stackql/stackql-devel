@@ -1,7 +1,8 @@
-package dto
+package httpparameters
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 
@@ -66,6 +67,15 @@ func (hp *HttpParameters) StoreParameter(param *openapistackql.Parameter, val in
 		hp.ServerParams[param.Name] = NewParameterBinding(param, val)
 		return
 	}
+}
+
+func processJsonHTTPParam(param interface{}) (interface{}, error) {
+	switch param := param.(type) {
+	case string:
+		if strings.HasPrefix(strings.ToUpper(param), "JSON") {
+		}
+	}
+	return param, nil
 }
 
 func (hp *HttpParameters) updateStuff(k string, v ParameterBinding, paramMap map[string]interface{}, visited map[string]struct{}) error {
