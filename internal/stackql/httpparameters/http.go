@@ -1,10 +1,13 @@
 package httpparameters
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
+	"github.com/stackql/stackql/pkg/queryunmarshal"
+	"vitess.io/vitess/go/vt/sqlparser"
 
 	"github.com/getkin/kin-openapi/openapi3"
 )
@@ -22,6 +25,8 @@ func NewParameterBinding(param *openapistackql.Parameter, val interface{}) Param
 }
 
 type HttpParameters struct {
+	prov         *openapistackql.Provider
+	opStore      *openapistackql.OperationStore
 	CookieParams map[string]ParameterBinding
 	HeaderParams map[string]ParameterBinding
 	PathParams   map[string]ParameterBinding
@@ -33,8 +38,10 @@ type HttpParameters struct {
 	Region       string
 }
 
-func NewHttpParameters() *HttpParameters {
+func NewHttpParameters(pr *openapistackql.Provider, method *openapistackql.OperationStore) *HttpParameters {
 	return &HttpParameters{
+		prov:         pr,
+		opStore:      method,
 		CookieParams: make(map[string]ParameterBinding),
 		HeaderParams: make(map[string]ParameterBinding),
 		PathParams:   make(map[string]ParameterBinding),
@@ -69,13 +76,37 @@ func (hp *HttpParameters) StoreParameter(param *openapistackql.Parameter, val in
 	}
 }
 
-func processJsonHTTPParam(param interface{}) (interface{}, error) {
+func (hp *HttpParameters) processFuncHTTPParam(key string, param interface{}) (map[string]string, error) {
 	switch param := param.(type) {
-	case string:
-		if strings.HasPrefix(strings.ToUpper(param), "JSON") {
+	case *sqlparser.FuncExpr:
+		if strings.ToUpper(param.Name.GetRawVal()) == "JSON" {
+			provName := strings.ToLower(hp.prov.Name)
+			if provName != "aws" {
+				return nil, fmt.Errorf("cannot accomodate JSON query parameters for provider = '%s'", provName)
+			}
+			if len(param.Exprs) != 1 {
+				return nil, fmt.Errorf("cannot accomodate JSON Function with arg count = %d", len(param.Exprs))
+			}
+			switch ex := param.Exprs[0].(type) {
+			case *sqlparser.AliasedExpr:
+				switch argExpr := ex.Expr.(type) {
+				case *sqlparser.SQLVal:
+					var v interface{}
+					err := json.Unmarshal(argExpr.Val, &v)
+					if err != nil {
+						return nil, err
+					}
+					queryUnmarshaller := queryunmarshal.NewAWSCanonicalQueryUnmarshaller(key)
+					return queryUnmarshaller.Unmarshal(v)
+				default:
+					return nil, fmt.Errorf("cannot process json function underlying arg of type = '%T'", argExpr)
+				}
+			default:
+				return nil, fmt.Errorf("cannot process json function arg of type = '%T'", ex)
+			}
 		}
 	}
-	return param, nil
+	return map[string]string{key: fmt.Sprintf("%v", param)}, nil
 }
 
 func (hp *HttpParameters) updateStuff(k string, v ParameterBinding, paramMap map[string]interface{}, visited map[string]struct{}) error {
@@ -109,9 +140,17 @@ func (hp *HttpParameters) ToFlatMap() (map[string]interface{}, error) {
 		}
 	}
 	for k, v := range hp.QueryParams {
-		err := hp.updateStuff(k, v, rv, visited)
+		// var err error
+		m, err := hp.processFuncHTTPParam(k, v.Val)
 		if err != nil {
 			return nil, err
+		}
+		for mk, mv := range m {
+			val := NewParameterBinding(nil, mv)
+			err = hp.updateStuff(mk, val, rv, visited)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	for k, v := range hp.ServerParams {

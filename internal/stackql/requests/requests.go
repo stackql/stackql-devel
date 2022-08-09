@@ -55,7 +55,11 @@ func SplitHttpParameters(prov provider.IProvider, sqlParamMap map[int]map[string
 	sort.Ints(rowKeys)
 	for _, key := range rowKeys {
 		sqlRow := sqlParamMap[key]
-		reqMap := httpparameters.NewHttpParameters()
+		pr, err := prov.GetProvider()
+		if err != nil {
+			return nil, err
+		}
+		reqMap := httpparameters.NewHttpParameters(pr, method)
 		for k, v := range sqlRow {
 			if param, ok := method.GetOperationParameter(k); ok {
 				reqMap.StoreParameter(param, v)
