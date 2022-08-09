@@ -172,6 +172,10 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 		httpArmoury.AddRequestParams(pm)
 	}
 	secondPassParams := httpArmoury.GetRequestParams()
+	pr, err := prov.GetProvider()
+	if err != nil {
+		return nil, err
+	}
 	for i, param := range secondPassParams {
 		p := param
 		if len(p.Parameters.RequestBody) == 0 {
@@ -180,7 +184,7 @@ func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLN
 		var baseRequestCtx *http.Request
 		switch node := node.(type) {
 		case *sqlparser.Delete, *sqlparser.Exec, *sqlparser.Insert, *sqlparser.Select:
-			baseRequestCtx, err = getRequest(svc, m, p.Parameters)
+			baseRequestCtx, err = getRequest(pr, svc, m, p.Parameters)
 			if err != nil {
 				return nil, err
 			}
@@ -217,12 +221,12 @@ func awsContextHousekeeping(ctx context.Context, svc *openapistackql.Service, pa
 	return ctx
 }
 
-func getRequest(svc *openapistackql.Service, method *openapistackql.OperationStore, httpParams *httpparameters.HttpParameters) (*http.Request, error) {
+func getRequest(prov *openapistackql.Provider, svc *openapistackql.Service, method *openapistackql.OperationStore, httpParams *httpparameters.HttpParameters) (*http.Request, error) {
 	params, err := httpParams.ToFlatMap()
 	if err != nil {
 		return nil, err
 	}
-	validationParams, err := method.Parameterize(svc, params, httpParams.RequestBody)
+	validationParams, err := method.Parameterize(prov, svc, params, httpParams.RequestBody)
 	if err != nil {
 		return nil, err
 	}
@@ -293,13 +297,17 @@ func BuildHTTPRequestCtxFromAnnotation(handlerCtx *handler.HandlerContext, param
 		httpArmoury.AddRequestParams(pm)
 	}
 	secondPassParams := httpArmoury.GetRequestParams()
+	pr, err := prov.GetProvider()
+	if err != nil {
+		return nil, err
+	}
 	for i, param := range secondPassParams {
 		p := param
 		if len(p.Parameters.RequestBody) == 0 {
 			p.Parameters.RequestBody = nil
 		}
 		var baseRequestCtx *http.Request
-		baseRequestCtx, err = getRequest(svc, m, p.Parameters)
+		baseRequestCtx, err = getRequest(pr, svc, m, p.Parameters)
 		if err != nil {
 			return nil, err
 		}
