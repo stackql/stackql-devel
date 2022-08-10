@@ -1,12 +1,11 @@
 package httpparameters
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
-	"github.com/stackql/stackql/pkg/queryunmarshal"
+	"github.com/stackql/go-openapistackql/pkg/querytranspose"
 	"vitess.io/vitess/go/vt/sqlparser"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -91,13 +90,8 @@ func (hp *HttpParameters) processFuncHTTPParam(key string, param interface{}) (m
 			case *sqlparser.AliasedExpr:
 				switch argExpr := ex.Expr.(type) {
 				case *sqlparser.SQLVal:
-					var v interface{}
-					err := json.Unmarshal(argExpr.Val, &v)
-					if err != nil {
-						return nil, err
-					}
-					queryUnmarshaller := queryunmarshal.NewAWSCanonicalQueryUnmarshaller(key)
-					return queryUnmarshaller.Unmarshal(v)
+					queryTransposer := querytranspose.NewQueryTransposer(hp.opStore.GetQueryTransposeAlgorithm(), argExpr.Val, key)
+					return queryTransposer.Transpose()
 				default:
 					return nil, fmt.Errorf("cannot process json function underlying arg of type = '%T'", argExpr)
 				}
