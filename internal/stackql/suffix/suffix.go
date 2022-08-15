@@ -47,7 +47,7 @@ func (psm *ParameterSuffixMap) GetAll() map[string]*openapistackql.Parameter {
 	return rv
 }
 
-func (psm *ParameterSuffixMap) Put(k string, v *openapistackql.Parameter) {
+func (psm *ParameterSuffixMap) Put(k string, v openapistackql.Addressable) {
 	psm.sm.Put(k, v)
 }
 

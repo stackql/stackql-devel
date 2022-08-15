@@ -92,7 +92,7 @@ func ToInsertStatement(columns sqlparser.Columns, m *openapistackql.OperationSto
 		paramsToInclude = m.GetRequiredParameters()
 	}
 	if columns != nil {
-		paramsToInclude = make(map[string]*openapistackql.Parameter)
+		paramsToInclude = make(map[string]openapistackql.Addressable)
 		for _, col := range columns {
 			cName := col.GetRawVal()
 			if !isBodyParam(cName) {
