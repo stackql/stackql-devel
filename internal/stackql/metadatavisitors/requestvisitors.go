@@ -86,7 +86,7 @@ func isBodyParam(paramName string) bool {
 }
 
 func ToInsertStatement(columns sqlparser.Columns, m *openapistackql.OperationStore, svc *openapistackql.Service, extended bool, prettyPrinter *prettyprint.PrettyPrinter, requiredOnly bool) (string, error) {
-	paramsToInclude := m.GetParameters()
+	paramsToInclude := m.GetNonBodyParameters()
 	successfullyIncludedCols := make(map[string]bool)
 	if !extended {
 		paramsToInclude = m.GetRequiredParameters()
