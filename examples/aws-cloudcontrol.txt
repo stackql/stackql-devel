@@ -1,0 +1,4 @@
+"AWS4-HMAC-SHA256 Credential=AKIA376P4FQSS2ONB2NS/20220811/ap-southeast-1/cloudcontrol/aws4_request, SignedHeaders=host;x-amz-date, Signature=a0a2dee82f497280ec3c523a5febbf1a7be05e6bf09378a56f1e9420d29b48e2"
+
+
+"AWS4-HMAC-SHA256 Credential=AKIA376P4FQSS2ONB2NS/20220811/ap-southeast-1/ec2/aws4_request, SignedHeaders=host;x-amz-date, Signature=025618cb536a2e3d7ba0e00a734a695d01c6df627a898fbf2c5fdc8c8b976a1e"
