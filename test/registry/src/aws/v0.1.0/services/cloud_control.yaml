@@ -915,6 +915,8 @@ components:
         list_resources:
           operation:
             $ref: '#/paths/~1?Action=ListResources&Version=2021-09-30/post'
+          request:
+            mediaType: application/x-amz-json-1.0
           response:
             mediaType: application/x-amz-json-1.0
             objectKey: '$.ResourceDescriptions'
