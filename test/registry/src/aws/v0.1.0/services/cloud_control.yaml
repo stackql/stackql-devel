@@ -257,7 +257,6 @@ paths:
           schema:
             type: string
             default: application/x-amz-json-1.0
-          description: Action Header
           required: false
     parameters:
       - $ref: '#/components/parameters/X-Amz-Content-Sha256'

@@ -172,6 +172,17 @@ AWS EC2 Volume Insert Simple
     ...    ${CREATE_AWS_VOLUME}
     ...    The operation completed successfully
 
+AWS Cloud Control Log Group Insert Simple
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${CREATE_AWS_CLOUD_CONTROL_LOG_GROUP}
+    ...    The operation completed successfully
+
 GitHub Pages Select Top Level Object
     Should StackQL Exec Inline Equal
     ...    ${STACKQL_EXE}

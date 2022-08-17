@@ -27,11 +27,8 @@
       "method": "POST",
       "path": "/",
       "headers": {
-        "Authorization": ["^.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$" ]
-      },
-      "queryStringParameters": { 
-        "Action": [ "^ListResources$" ],
-        "Version": [ "^2021\\-09\\-30$" ] 
+        "Authorization": ["^.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$" ],
+        "X-Amz-Target": [ "CloudApiService.ListResources" ]
       },
       "body": {
         "type": "JSON",
@@ -39,7 +36,7 @@
           "TypeName":"AWS::EC2::VPC"
         },
         "matchType": "ONLY_MATCHING_FIELDS"
-    }
+      }
     },
     "httpResponse": {
       "headers": {
@@ -49,6 +46,33 @@
       "body": {
         "type": "BINARY",
         "base64Bytes": "eyJSZXNvdXJjZURlc2NyaXB0aW9ucyI6W3siSWRlbnRpZmllciI6InZwYy0wMDAxIiwiUHJvcGVydGllcyI6IntcIlZwY0lkXCI6XCJ2cGMtMDAwMVwifSJ9LHsiSWRlbnRpZmllciI6InZwYy0wMDAyIiwiUHJvcGVydGllcyI6IntcIlZwY0lkXCI6XCJ2cGMtMDAwMlwifSJ9LHsiSWRlbnRpZmllciI6InZwYy0wMDAzIiwiUHJvcGVydGllcyI6IntcIlZwY0lkXCI6XCJ2cGMtMDAwM1wifSJ9LHsiSWRlbnRpZmllciI6InZwYy0wMDA0IiwiUHJvcGVydGllcyI6IntcIlZwY0lkXCI6XCJ2cGMtMDAwNFwifSJ9LHsiSWRlbnRpZmllciI6InZwYy0wMDA1IiwiUHJvcGVydGllcyI6IntcIlZwY0lkXCI6XCJ2cGMtMDAwNVwifSJ9XSwiVHlwZU5hbWUiOiJBV1M6OkVDMjo6VlBDIn0="
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "Authorization": ["^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$" ],
+        "X-Amz-Target": [ "CloudApiService.CreateResource" ]
+      },
+      "body": {
+        "type": "JSON",
+        "json": {
+          "TypeName":"AWS::Logs::LogGroup"
+        },
+        "matchType": "ONLY_MATCHING_FIELDS"
+      }
+    },
+    "httpResponse": {
+      "headers": {
+        "content-type": [ "application/x-amz-json-1.0" ]
+      },
+      "statusCode": 200,
+      "body": {
+        "type": "BINARY",
+        "base64Bytes": "eyJQcm9ncmVzc0V2ZW50Ijp7IkV2ZW50VGltZSI6MS42NjA3MTQyNzM4RTksIklkZW50aWZpZXIiOiJMb2dHcm91cFJlc291cmNlRXhhbXBsZVRoaXJkIiwiT3BlcmF0aW9uIjoiQ1JFQVRFIiwiT3BlcmF0aW9uU3RhdHVzIjoiSU5fUFJPR1JFU1MiLCJSZXF1ZXN0VG9rZW4iOiI1YWU5Zjk2Mi04NzIwLTRhMjEtOTkyZS0xNTk4Y2Y1ZGIyNzMiLCJUeXBlTmFtZSI6IkFXUzo6TG9nczo6TG9nR3JvdXAifX0="
       }
     }
   },

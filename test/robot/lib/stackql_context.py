@@ -294,6 +294,7 @@ SELECT_GOOGLE_COMPUTE_INSTANCE_IAM_POLICY = "SELECT eTag FROM google.compute.ins
 
 SELECT_AWS_VOLUMES = "select VolumeId, Encrypted, Size from aws.ec2.volumes where region = 'ap-southeast-1' order by VolumeId asc;"
 CREATE_AWS_VOLUME = """insert into aws.ec2.volumes(AvailabilityZone, Size, region, TagSpecification) select 'ap-southeast-1a', JSON(10), 'ap-southeast-1', JSON('[ { "ResourceType": "volume", "Tag": [ { "Key": "stack", "Value": "production" }, { "Key": "name", "Value": "multi-tag-volume" } ] } ]');"""
+CREATE_AWS_CLOUD_CONTROL_LOG_GROUP = """insert into aws.cloud_control.resources(region, data__TypeName, data__DesiredState) select 'ap-southeast-1', 'AWS::Logs::LogGroup', string('{ "LogGroupName": "LogGroupResourceExampleThird", "RetentionInDays":90}');"""
 SELECT_AWS_CLOUD_CONTROL_VPCS_DESC = "select Identifier, Properties from aws.cloud_control.resources where region = 'ap-southeast-1' and data__TypeName = 'AWS::EC2::VPC' order by Identifier desc;"
 
 SELECT_GITHUB_REPOS_PAGES_SINGLE = "select url from github.repos.pages where owner = 'dummyorg' and repo = 'dummyapp.io';"
@@ -434,6 +435,7 @@ def get_variables(execution_env :str):
     'STACKQL_EXE':                                    STACKQL_EXE,
     ## queries and expectations
     'CREATE_AWS_VOLUME':                                                    CREATE_AWS_VOLUME,
+    'CREATE_AWS_CLOUD_CONTROL_LOG_GROUP':                                   CREATE_AWS_CLOUD_CONTROL_LOG_GROUP,
     'DESCRIBE_AWS_EC2_INSTANCES':                                           DESCRIBE_AWS_EC2_INSTANCES,
     'DESCRIBE_AWS_EC2_DEFAULT_KMS_KEY_ID':                                  DESCRIBE_AWS_EC2_DEFAULT_KMS_KEY_ID,
     'DESCRIBE_GITHUB_REPOS_PAGES':                                          DESCRIBE_GITHUB_REPOS_PAGES,
