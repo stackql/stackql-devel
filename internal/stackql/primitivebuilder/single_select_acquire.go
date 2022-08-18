@@ -209,7 +209,7 @@ func (ss *SingleSelectAcquire) Build() error {
 					break
 				}
 				pageCount++
-				req, err := reqCtx.SetNextPage(tk, nptKey)
+				req, err := reqCtx.SetNextPage(m, tk, nptKey)
 				if err != nil {
 					return dto.NewErroneousExecutorOutput(err)
 				}

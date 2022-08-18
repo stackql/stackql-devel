@@ -48,7 +48,7 @@
         "--registry=${input:registryString}",
         "--auth=${input:authString}",
         "--tls.allowInsecure",
-        "insert into aws.cloud_control.resources(region, data__TypeName, data__DesiredState) select 'ap-southeast-1', 'AWS::Logs::LogGroup', string('{\"LogGroupName\": \"LogGroupResourceExample\",\"RetentionInDays\":90}');"
+        "select * from aws.cloud_control.resource_requests where region = 'ap-southeast-1';"
       ],
     },
     {
