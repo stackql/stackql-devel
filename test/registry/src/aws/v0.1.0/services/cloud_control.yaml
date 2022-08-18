@@ -928,3 +928,11 @@ components:
       maxLength: 128
 security:
   - hmac: []
+x-stackQL-config:
+  pagination:
+    requestToken:
+      key: NextToken
+      location: body
+    responseToken:
+      key: NextToken
+      location: body

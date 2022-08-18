@@ -75,6 +75,7 @@ func (hap HTTPArmouryParameters) SetNextPage(ops *openapistackql.OperationStore,
 			return nil, err
 		}
 		rv.Body = io.NopCloser(bytes.NewBuffer(b))
+		rv.ContentLength = int64(len(b))
 		return rv, nil
 	default:
 		return nil, fmt.Errorf("cannot accomodate pagaination for http element type = %+v", tokenKey.Type)
