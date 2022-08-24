@@ -300,6 +300,7 @@ GET_AWS_CLOUD_CONTROL_VPCS_DESC = "select Identifier, Properties from aws.cloud_
 GET_AWS_CLOUD_CONTROL_REQUEST_LOG_GROUP = """select TypeName, OperationStatus, StatusMessage, Identifier, RequestToken from aws.cloud_control.resource_requests where data__RequestToken = 'abc001' and region = 'ap-southeast-1';"""
 SELECT_AWS_CLOUD_CONTROL_OPERATIONS_DESC = "select TypeName, OperationStatus, StatusMessage, Identifier, RequestToken from aws.cloud_control.resource_requests where data__ResourceRequestStatusFilter='{}' and region = 'ap-southeast-1' order by RequestToken desc;"
 UPDATE_AWS_CLOUD_CONTROL_REQUEST_LOG_GROUP = """update aws.cloud_control.resources set region = 'ap-southeast-1', data__TypeName = 'AWS::Logs::LogGroup', data__Identifier = 'LogGroupResourceExampleThird', data__PatchDocument = string('[{"op":"replace","path":"/RetentionInDays","value":180}]');"""
+UPDATE_AWS_EC2_VOLUME = "update aws.ec2.volumes set VolumeId = 'vol-000000000000001', Size = 12, region = 'ap-southeast-1';"
 
 SELECT_GITHUB_REPOS_PAGES_SINGLE = "select url from github.repos.pages where owner = 'dummyorg' and repo = 'dummyapp.io';"
 SELECT_GITHUB_REPOS_IDS_ASC = "select id from github.repos.repos where org = 'dummyorg' order by id ASC;"
@@ -532,6 +533,7 @@ def get_variables(execution_env :str):
     'SHOW_OKTA_SERVICES_FILTERED_STR':                                      SHOW_OKTA_SERVICES_FILTERED_STR,
     'SHOW_PROVIDERS_STR':                                                   SHOW_PROVIDERS_STR,
     'UPDATE_AWS_CLOUD_CONTROL_REQUEST_LOG_GROUP':                           UPDATE_AWS_CLOUD_CONTROL_REQUEST_LOG_GROUP,
+    'UPDATE_AWS_EC2_VOLUME':                                                UPDATE_AWS_EC2_VOLUME,
   }
   if execution_env == 'docker':
     rv['AUTH_CFG_STR']                                  = AUTH_CFG_STR_DOCKER
