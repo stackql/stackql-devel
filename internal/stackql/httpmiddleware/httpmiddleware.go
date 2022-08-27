@@ -6,6 +6,8 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/stackql/go-openapistackql/openapistackql"
+	"github.com/stackql/go-openapistackql/pkg/requesttranslate"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/provider"
 )
@@ -26,7 +28,7 @@ func getAuthenticatedClient(handlerCtx handler.HandlerContext, prov provider.IPr
 	return httpClient, nil
 }
 
-func HttpApiCallFromRequest(handlerCtx handler.HandlerContext, prov provider.IProvider, request *http.Request) (*http.Response, error) {
+func HttpApiCallFromRequest(handlerCtx handler.HandlerContext, prov provider.IProvider, method *openapistackql.OperationStore, request *http.Request) (*http.Response, error) {
 	httpClient, httpClientErr := getAuthenticatedClient(handlerCtx, prov)
 	if httpClientErr != nil {
 		return nil, httpClientErr
@@ -49,7 +51,15 @@ func HttpApiCallFromRequest(handlerCtx handler.HandlerContext, prov provider.IPr
 			handlerCtx.OutErrFile.Write([]byte(fmt.Sprintf("http request body = '%s'\n", bodyStr)))
 		}
 	}
-	r, err := httpClient.Do(request)
+	requestTranslator, err := requesttranslate.NewRequestTranslator(method.GetRequestTranslateAlgorithm())
+	if err != nil {
+		return nil, err
+	}
+	translatedRequest, err := requestTranslator.Translate(request)
+	if err != nil {
+		return nil, err
+	}
+	r, err := httpClient.Do(translatedRequest)
 	if handlerCtx.RuntimeContext.HTTPLogEnabled {
 		if r != nil {
 			handlerCtx.OutErrFile.Write([]byte(fmt.Sprintf("http response status: %s\n", r.Status)))
