@@ -1,14 +1,17 @@
 [
   {
     "httpRequest": {
-      "method": "GET",
+      "method": "POST",
       "path": "/",
       "headers": {
-        "Authorization": ["^.*SignedHeaders=host;x-amz-date.*$" ]
+        "Authorization": ["^.*SignedHeaders=.*content-type;host;x-amz-date.*$" ]
       },
-      "queryStringParameters": { 
-        "Action": [ "^DescribeVolumes$" ],
-        "Version": [ "^2016\\-11\\-15$" ] 
+      "body" : {
+        "type" : "PARAMETERS",
+        "parameters": {
+          "Action": [ "^DescribeVolumes$" ],
+          "Version": [ "^2016\\-11\\-15$" ] 
+        }
       }
     },
     "httpResponse": {
@@ -24,14 +27,17 @@
   },
   {
     "httpRequest": {
-      "method": "GET",
+      "method": "POST",
       "path": "/",
       "headers": {
-        "Authorization": ["^.*SignedHeaders=host;x-amz-date.*$" ]
+        "Authorization": ["^.*SignedHeaders=.*content-type;host;x-amz-date.*$" ]
       },
-      "queryStringParameters": { 
-        "Action": [ "^ListUsers$" ],
-        "Version": [ "^2010\\-05\\-08$" ] 
+      "body" : {
+        "type" : "PARAMETERS",
+        "parameters": {
+          "Action": [ "^ListUsers$" ],
+          "Version": [ "^2010\\-05\\-08$" ] 
+        }
       }
     },
     "httpResponse": {
@@ -313,20 +319,23 @@
   },
   {
     "httpRequest": {
-      "method": "GET",
+      "method": "POST",
       "path": "/",
       "headers": {
-        "Authorization": ["^.*SignedHeaders=host;x-amz-date.*$" ]
+        "Authorization": ["^.*SignedHeaders=.*content-type;host;x-amz-date.*$" ]
       },
-      "queryStringParameters": { 
-        "Action": [ "^CreateVolume$" ],
-        "Version": [ "^2016\\-11\\-15$" ],
-        "Size": ["^10$"],
-        "TagSpecification.1.ResourceType": [ "volume" ],
-        "TagSpecification.1.Tag.1.Key": [ "stack" ],
-        "TagSpecification.1.Tag.1.Value": [ "production" ],
-        "TagSpecification.1.Tag.2.Key": [ "name" ],
-        "TagSpecification.1.Tag.2.Value": [ "multi-tag-volume" ]
+      "body" : {
+        "type" : "PARAMETERS",
+        "parameters": {
+          "Action": [ "^CreateVolume$" ],
+          "Version": [ "^2016\\-11\\-15$" ],
+          "Size": ["^10$"],
+          "TagSpecification.1.ResourceType": [ "volume" ],
+          "TagSpecification.1.Tag.1.Key": [ "stack" ],
+          "TagSpecification.1.Tag.1.Value": [ "production" ],
+          "TagSpecification.1.Tag.2.Key": [ "name" ],
+          "TagSpecification.1.Tag.2.Value": [ "multi-tag-volume" ]
+        }
       }
     },
     "httpResponse": {
@@ -342,16 +351,19 @@
   },
   {
     "httpRequest": {
-      "method": "GET",
+      "method": "POST",
       "path": "/",
       "headers": {
-        "Authorization": ["^.*SignedHeaders=host;x-amz-date.*$" ]
+        "Authorization": ["^.*SignedHeaders=.*content-type;host;x-amz-date.*$" ]
       },
-      "queryStringParameters": { 
-        "Action": [ "^ModifyVolume$" ],
-        "Version": [ "^2016\\-11\\-15$" ],
-        "Size": ["^12$"],
-        "VolumeId": [ "vol-000000000000001" ]
+      "body" : {
+        "type" : "PARAMETERS",
+        "parameters": {
+          "Action": [ "^ModifyVolume$" ],
+          "Version": [ "^2016\\-11\\-15$" ],
+          "Size": ["^12$"],
+          "VolumeId": [ "vol-000000000000001" ]
+        }
       }
     },
     "httpResponse": {
