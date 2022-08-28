@@ -30888,3 +30888,8 @@ servers:
           - sa-east-1
           - me-south-1
         default: us-east-1
+x-stackQL-config:
+  queryParamTranspose:
+    algorithm: AWSCanonical
+  requestTranslate:
+    algorithm: get_query_to_post_form_utf_8

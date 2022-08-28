@@ -34,23 +34,6 @@ func HttpApiCallFromRequest(handlerCtx handler.HandlerContext, prov provider.IPr
 		return nil, httpClientErr
 	}
 	request.Header.Del("Authorization")
-	if handlerCtx.RuntimeContext.HTTPLogEnabled {
-		urlStr := ""
-		if request != nil && request.URL != nil {
-			urlStr = request.URL.String()
-		}
-		handlerCtx.OutErrFile.Write([]byte(fmt.Sprintf("http request url: %s\n", urlStr)))
-		body := request.Body
-		if body != nil {
-			b, err := io.ReadAll(body)
-			if err != nil {
-				handlerCtx.OutErrFile.Write([]byte(fmt.Sprintf("error inpecting http request body: %s\n", err.Error())))
-			}
-			bodyStr := string(b)
-			request.Body = io.NopCloser(bytes.NewBuffer(b))
-			handlerCtx.OutErrFile.Write([]byte(fmt.Sprintf("http request body = '%s'\n", bodyStr)))
-		}
-	}
 	requestTranslator, err := requesttranslate.NewRequestTranslator(method.GetRequestTranslateAlgorithm())
 	if err != nil {
 		return nil, err
@@ -59,10 +42,39 @@ func HttpApiCallFromRequest(handlerCtx handler.HandlerContext, prov provider.IPr
 	if err != nil {
 		return nil, err
 	}
+	if handlerCtx.RuntimeContext.HTTPLogEnabled {
+		urlStr := ""
+		methodStr := ""
+		if translatedRequest != nil && translatedRequest.URL != nil {
+			urlStr = translatedRequest.URL.String()
+			methodStr = translatedRequest.Method
+		}
+		handlerCtx.OutErrFile.Write([]byte(fmt.Sprintf("http request url: '%s', method: '%s'\n", urlStr, methodStr)))
+		body := translatedRequest.Body
+		if body != nil {
+			b, err := io.ReadAll(body)
+			if err != nil {
+				handlerCtx.OutErrFile.Write([]byte(fmt.Sprintf("error inpecting http request body: %s\n", err.Error())))
+			}
+			bodyStr := string(b)
+			translatedRequest.Body = io.NopCloser(bytes.NewBuffer(b))
+			handlerCtx.OutErrFile.Write([]byte(fmt.Sprintf("http request body = '%s'\n", bodyStr)))
+		}
+	}
 	r, err := httpClient.Do(translatedRequest)
 	if handlerCtx.RuntimeContext.HTTPLogEnabled {
 		if r != nil {
 			handlerCtx.OutErrFile.Write([]byte(fmt.Sprintf("http response status: %s\n", r.Status)))
+			if r.StatusCode >= 300 {
+				if r.Body != nil {
+					bodyBytes, err := io.ReadAll(r.Body)
+					if err != nil {
+						return nil, err
+					}
+					handlerCtx.OutErrFile.Write([]byte(fmt.Sprintf("http error response body: %s\n", string(bodyBytes))))
+					r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+				}
+			}
 		} else {
 			handlerCtx.OutErrFile.Write([]byte("http response came buck null\n"))
 		}
