@@ -9346,68 +9346,68 @@ components:
         - $ref: '#/components/x-stackQL-resources/account_authorization_details/methods/account_authorization_details_Get'
         update: []
       title: account_authorization_details
-    account_password_policys:
-      id: aws.iam.account_password_policys
+    account_password_policies:
+      id: aws.iam.account_password_policies
       methods:
-        account_password_policys_Delete:
+        account_password_policies_Delete:
           operation:
             $ref: '#/paths/~1?Action=DeleteAccountPasswordPolicy&Version=2010-05-08/get'
           response:
             openAPIDocKey: '200'
-        account_password_policys_Get:
+        account_password_policies_Get:
           operation:
             $ref: '#/paths/~1?Action=GetAccountPasswordPolicy&Version=2010-05-08/get'
           response:
             mediaType: text/xml
             objectKey: /*/GetAccountPasswordPolicyResult
             openAPIDocKey: '200'
-        account_password_policys_Update:
+        account_password_policies_Update:
           operation:
             $ref: '#/paths/~1?Action=UpdateAccountPasswordPolicy&Version=2010-05-08/get'
           response:
             openAPIDocKey: '200'
-      name: account_password_policys
+      name: account_password_policies
       sqlVerbs:
         delete:
-        - $ref: '#/components/x-stackQL-resources/account_password_policys/methods/account_password_policys_Delete'
+        - $ref: '#/components/x-stackQL-resources/account_password_policies/methods/account_password_policies_Delete'
         insert: []
         select:
-        - $ref: '#/components/x-stackQL-resources/account_password_policys/methods/account_password_policys_Get'
+        - $ref: '#/components/x-stackQL-resources/account_password_policies/methods/account_password_policies_Get'
         update: []
-      title: account_password_policys
-    account_summarys:
-      id: aws.iam.account_summarys
+      title: account_password_policies
+    account_summaries:
+      id: aws.iam.account_summaries
       methods:
-        account_summarys_Get:
+        account_summaries_Get:
           operation:
             $ref: '#/paths/~1?Action=GetAccountSummary&Version=2010-05-08/get'
           response:
             mediaType: text/xml
             objectKey: /*/GetAccountSummaryResult
             openAPIDocKey: '200'
-      name: account_summarys
+      name: account_summaries
       sqlVerbs:
         delete: []
         insert: []
         select:
-        - $ref: '#/components/x-stackQL-resources/account_summarys/methods/account_summarys_Get'
+        - $ref: '#/components/x-stackQL-resources/account_summaries/methods/account_summaries_Get'
         update: []
-      title: account_summarys
-    assume_role_policys:
-      id: aws.iam.assume_role_policys
+      title: account_summaries
+    assume_role_policies:
+      id: aws.iam.assume_role_policies
       methods:
-        assume_role_policys_Update:
+        assume_role_policies_Update:
           operation:
             $ref: '#/paths/~1?Action=UpdateAssumeRolePolicy&Version=2010-05-08/get'
           response:
             openAPIDocKey: '200'
-      name: assume_role_policys
+      name: assume_role_policies
       sqlVerbs:
         delete: []
         insert: []
         select: []
         update: []
-      title: assume_role_policys
+      title: assume_role_policies
     attached_group_policies:
       id: aws.iam.attached_group_policies
       methods:
@@ -9487,42 +9487,42 @@ components:
         select: []
         update: []
       title: client_id_to_open_id_connect_providers
-    context_keys_for_custom_policys:
-      id: aws.iam.context_keys_for_custom_policys
+    context_keys_for_custom_policies:
+      id: aws.iam.context_keys_for_custom_policies
       methods:
-        context_keys_for_custom_policys_Get:
+        context_keys_for_custom_policies_Get:
           operation:
             $ref: '#/paths/~1?Action=GetContextKeysForCustomPolicy&Version=2010-05-08/get'
           response:
             mediaType: text/xml
             objectKey: /*/GetContextKeysForCustomPolicyResult
             openAPIDocKey: '200'
-      name: context_keys_for_custom_policys
+      name: context_keys_for_custom_policies
       sqlVerbs:
         delete: []
         insert: []
         select:
-        - $ref: '#/components/x-stackQL-resources/context_keys_for_custom_policys/methods/context_keys_for_custom_policys_Get'
+        - $ref: '#/components/x-stackQL-resources/context_keys_for_custom_policies/methods/context_keys_for_custom_policies_Get'
         update: []
-      title: context_keys_for_custom_policys
-    context_keys_for_principal_policys:
-      id: aws.iam.context_keys_for_principal_policys
+      title: context_keys_for_custom_policies
+    context_keys_for_principal_policies:
+      id: aws.iam.context_keys_for_principal_policies
       methods:
-        context_keys_for_principal_policys_Get:
+        context_keys_for_principal_policies_Get:
           operation:
             $ref: '#/paths/~1?Action=GetContextKeysForPrincipalPolicy&Version=2010-05-08/get'
           response:
             mediaType: text/xml
             objectKey: /*/GetContextKeysForPrincipalPolicyResult
             openAPIDocKey: '200'
-      name: context_keys_for_principal_policys
+      name: context_keys_for_principal_policies
       sqlVerbs:
         delete: []
         insert: []
         select:
-        - $ref: '#/components/x-stackQL-resources/context_keys_for_principal_policys/methods/context_keys_for_principal_policys_Get'
+        - $ref: '#/components/x-stackQL-resources/context_keys_for_principal_policies/methods/context_keys_for_principal_policies_Get'
         update: []
-      title: context_keys_for_principal_policys
+      title: context_keys_for_principal_policies
     credential_reports:
       id: aws.iam.credential_reports
       methods:
@@ -9547,22 +9547,22 @@ components:
         - $ref: '#/components/x-stackQL-resources/credential_reports/methods/credential_reports_Get'
         update: []
       title: credential_reports
-    custom_policys:
-      id: aws.iam.custom_policys
+    custom_policies:
+      id: aws.iam.custom_policies
       methods:
-        custom_policys_Simulate:
+        custom_policies_Simulate:
           operation:
             $ref: '#/paths/~1?Action=SimulateCustomPolicy&Version=2010-05-08/get'
           response:
             mediaType: text/xml
             openAPIDocKey: '200'
-      name: custom_policys
+      name: custom_policies
       sqlVerbs:
         delete: []
         insert: []
         select: []
         update: []
-      title: custom_policys
+      title: custom_policies
     default_policy_versions:
       id: aws.iam.default_policy_versions
       methods:
@@ -9578,27 +9578,49 @@ components:
         select: []
         update: []
       title: default_policy_versions
-    entities_for_policys:
-      id: aws.iam.entities_for_policys
+    entities_for_policies:
+      id: aws.iam.entities_for_policies
       methods:
-        entities_for_policys_List:
+        entities_for_policies_List:
           operation:
             $ref: '#/paths/~1?Action=ListEntitiesForPolicy&Version=2010-05-08/get'
           response:
             mediaType: text/xml
             objectKey: /*/ListEntitiesForPolicyResult/PolicyGroups/member
             openAPIDocKey: '200'
-      name: entities_for_policys
+      name: entities_for_policies
       sqlVerbs:
         delete: []
         insert: []
         select:
-        - $ref: '#/components/x-stackQL-resources/entities_for_policys/methods/entities_for_policys_List'
+        - $ref: '#/components/x-stackQL-resources/entities_for_policies/methods/entities_for_policies_List'
         update: []
-      title: entities_for_policys
+      title: entities_for_policies
     group_policies:
       id: aws.iam.group_policies
       methods:
+        group_policies_Attach:
+          operation:
+            $ref: '#/paths/~1?Action=AttachGroupPolicy&Version=2010-05-08/get'
+          response:
+            openAPIDocKey: '200'
+        group_policies_Delete:
+          operation:
+            $ref: '#/paths/~1?Action=DeleteGroupPolicy&Version=2010-05-08/get'
+          response:
+            openAPIDocKey: '200'
+        group_policies_Detach:
+          operation:
+            $ref: '#/paths/~1?Action=DetachGroupPolicy&Version=2010-05-08/get'
+          response:
+            openAPIDocKey: '200'
+        group_policies_Get:
+          operation:
+            $ref: '#/paths/~1?Action=GetGroupPolicy&Version=2010-05-08/get'
+          response:
+            mediaType: text/xml
+            objectKey: /*/GetGroupPolicyResult
+            openAPIDocKey: '200'
         group_policies_List:
           operation:
             $ref: '#/paths/~1?Action=ListGroupPolicies&Version=2010-05-08/get'
@@ -9606,53 +9628,21 @@ components:
             mediaType: text/xml
             objectKey: /*/ListGroupPoliciesResult/PolicyNames/member
             openAPIDocKey: '200'
-      name: group_policies
-      sqlVerbs:
-        delete: []
-        insert: []
-        select:
-        - $ref: '#/components/x-stackQL-resources/group_policies/methods/group_policies_List'
-        update: []
-      title: group_policies
-    group_policys:
-      id: aws.iam.group_policys
-      methods:
-        group_policys_Attach:
-          operation:
-            $ref: '#/paths/~1?Action=AttachGroupPolicy&Version=2010-05-08/get'
-          response:
-            openAPIDocKey: '200'
-        group_policys_Delete:
-          operation:
-            $ref: '#/paths/~1?Action=DeleteGroupPolicy&Version=2010-05-08/get'
-          response:
-            openAPIDocKey: '200'
-        group_policys_Detach:
-          operation:
-            $ref: '#/paths/~1?Action=DetachGroupPolicy&Version=2010-05-08/get'
-          response:
-            openAPIDocKey: '200'
-        group_policys_Get:
-          operation:
-            $ref: '#/paths/~1?Action=GetGroupPolicy&Version=2010-05-08/get'
-          response:
-            mediaType: text/xml
-            objectKey: /*/GetGroupPolicyResult
-            openAPIDocKey: '200'
-        group_policys_Put:
+        group_policies_Put:
           operation:
             $ref: '#/paths/~1?Action=PutGroupPolicy&Version=2010-05-08/get'
           response:
             openAPIDocKey: '200'
-      name: group_policys
+      name: group_policies
       sqlVerbs:
         delete:
-        - $ref: '#/components/x-stackQL-resources/group_policys/methods/group_policys_Delete'
+        - $ref: '#/components/x-stackQL-resources/group_policies/methods/group_policies_Delete'
         insert: []
         select:
-        - $ref: '#/components/x-stackQL-resources/group_policys/methods/group_policys_Get'
+        - $ref: '#/components/x-stackQL-resources/group_policies/methods/group_policies_Get'
+        - $ref: '#/components/x-stackQL-resources/group_policies/methods/group_policies_List'
         update: []
-      title: group_policys
+      title: group_policies
     groups:
       id: aws.iam.groups
       methods:
@@ -10021,6 +10011,24 @@ components:
     policies:
       id: aws.iam.policies
       methods:
+        policies_Create:
+          operation:
+            $ref: '#/paths/~1?Action=CreatePolicy&Version=2010-05-08/get'
+          response:
+            mediaType: text/xml
+            openAPIDocKey: '200'
+        policies_Delete:
+          operation:
+            $ref: '#/paths/~1?Action=DeletePolicy&Version=2010-05-08/get'
+          response:
+            openAPIDocKey: '200'
+        policies_Get:
+          operation:
+            $ref: '#/paths/~1?Action=GetPolicy&Version=2010-05-08/get'
+          response:
+            mediaType: text/xml
+            objectKey: /*/GetPolicyResult
+            openAPIDocKey: '200'
         policies_List:
           operation:
             $ref: '#/paths/~1?Action=ListPolicies&Version=2010-05-08/get'
@@ -10028,11 +10036,24 @@ components:
             mediaType: text/xml
             objectKey: /*/ListPoliciesResult/Policies/member
             openAPIDocKey: '200'
+        policies_Tag:
+          operation:
+            $ref: '#/paths/~1?Action=TagPolicy&Version=2010-05-08/get'
+          response:
+            openAPIDocKey: '200'
+        policies_Untag:
+          operation:
+            $ref: '#/paths/~1?Action=UntagPolicy&Version=2010-05-08/get'
+          response:
+            openAPIDocKey: '200'
       name: policies
       sqlVerbs:
-        delete: []
-        insert: []
+        delete:
+        - $ref: '#/components/x-stackQL-resources/policies/methods/policies_Delete'
+        insert:
+        - $ref: '#/components/x-stackQL-resources/policies/methods/policies_Create'
         select:
+        - $ref: '#/components/x-stackQL-resources/policies/methods/policies_Get'
         - $ref: '#/components/x-stackQL-resources/policies/methods/policies_List'
         update: []
       title: policies
@@ -10093,63 +10114,22 @@ components:
         - $ref: '#/components/x-stackQL-resources/policy_versions/methods/policy_versions_List'
         update: []
       title: policy_versions
-    policys:
-      id: aws.iam.policys
+    principal_policies:
+      id: aws.iam.principal_policies
       methods:
-        policys_Create:
-          operation:
-            $ref: '#/paths/~1?Action=CreatePolicy&Version=2010-05-08/get'
-          response:
-            mediaType: text/xml
-            openAPIDocKey: '200'
-        policys_Delete:
-          operation:
-            $ref: '#/paths/~1?Action=DeletePolicy&Version=2010-05-08/get'
-          response:
-            openAPIDocKey: '200'
-        policys_Get:
-          operation:
-            $ref: '#/paths/~1?Action=GetPolicy&Version=2010-05-08/get'
-          response:
-            mediaType: text/xml
-            objectKey: /*/GetPolicyResult/Policy
-            openAPIDocKey: '200'
-        policys_Tag:
-          operation:
-            $ref: '#/paths/~1?Action=TagPolicy&Version=2010-05-08/get'
-          response:
-            openAPIDocKey: '200'
-        policys_Untag:
-          operation:
-            $ref: '#/paths/~1?Action=UntagPolicy&Version=2010-05-08/get'
-          response:
-            openAPIDocKey: '200'
-      name: policys
-      sqlVerbs:
-        delete:
-        - $ref: '#/components/x-stackQL-resources/policys/methods/policys_Delete'
-        insert:
-        - $ref: '#/components/x-stackQL-resources/policys/methods/policys_Create'
-        select:
-        - $ref: '#/components/x-stackQL-resources/policys/methods/policys_Get'
-        update: []
-      title: policys
-    principal_policys:
-      id: aws.iam.principal_policys
-      methods:
-        principal_policys_Simulate:
+        principal_policies_Simulate:
           operation:
             $ref: '#/paths/~1?Action=SimulatePrincipalPolicy&Version=2010-05-08/get'
           response:
             mediaType: text/xml
             openAPIDocKey: '200'
-      name: principal_policys
+      name: principal_policies
       sqlVerbs:
         delete: []
         insert: []
         select: []
         update: []
-      title: principal_policys
+      title: principal_policies
     role_descriptions:
       id: aws.iam.role_descriptions
       methods:
@@ -10181,30 +10161,52 @@ components:
         select: []
         update: []
       title: role_from_instance_profiles
-    role_permissions_boundarys:
-      id: aws.iam.role_permissions_boundarys
+    role_permissions_boundaries:
+      id: aws.iam.role_permissions_boundaries
       methods:
-        role_permissions_boundarys_Delete:
+        role_permissions_boundaries_Delete:
           operation:
             $ref: '#/paths/~1?Action=DeleteRolePermissionsBoundary&Version=2010-05-08/get'
           response:
             openAPIDocKey: '200'
-        role_permissions_boundarys_Put:
+        role_permissions_boundaries_Put:
           operation:
             $ref: '#/paths/~1?Action=PutRolePermissionsBoundary&Version=2010-05-08/get'
           response:
             openAPIDocKey: '200'
-      name: role_permissions_boundarys
+      name: role_permissions_boundaries
       sqlVerbs:
         delete:
-        - $ref: '#/components/x-stackQL-resources/role_permissions_boundarys/methods/role_permissions_boundarys_Delete'
+        - $ref: '#/components/x-stackQL-resources/role_permissions_boundaries/methods/role_permissions_boundaries_Delete'
         insert: []
         select: []
         update: []
-      title: role_permissions_boundarys
+      title: role_permissions_boundaries
     role_policies:
       id: aws.iam.role_policies
       methods:
+        role_policies_Attach:
+          operation:
+            $ref: '#/paths/~1?Action=AttachRolePolicy&Version=2010-05-08/get'
+          response:
+            openAPIDocKey: '200'
+        role_policies_Delete:
+          operation:
+            $ref: '#/paths/~1?Action=DeleteRolePolicy&Version=2010-05-08/get'
+          response:
+            openAPIDocKey: '200'
+        role_policies_Detach:
+          operation:
+            $ref: '#/paths/~1?Action=DetachRolePolicy&Version=2010-05-08/get'
+          response:
+            openAPIDocKey: '200'
+        role_policies_Get:
+          operation:
+            $ref: '#/paths/~1?Action=GetRolePolicy&Version=2010-05-08/get'
+          response:
+            mediaType: text/xml
+            objectKey: /*/GetRolePolicyResult
+            openAPIDocKey: '200'
         role_policies_List:
           operation:
             $ref: '#/paths/~1?Action=ListRolePolicies&Version=2010-05-08/get'
@@ -10212,53 +10214,21 @@ components:
             mediaType: text/xml
             objectKey: /*/ListRolePoliciesResult/PolicyNames/member
             openAPIDocKey: '200'
-      name: role_policies
-      sqlVerbs:
-        delete: []
-        insert: []
-        select:
-        - $ref: '#/components/x-stackQL-resources/role_policies/methods/role_policies_List'
-        update: []
-      title: role_policies
-    role_policys:
-      id: aws.iam.role_policys
-      methods:
-        role_policys_Attach:
-          operation:
-            $ref: '#/paths/~1?Action=AttachRolePolicy&Version=2010-05-08/get'
-          response:
-            openAPIDocKey: '200'
-        role_policys_Delete:
-          operation:
-            $ref: '#/paths/~1?Action=DeleteRolePolicy&Version=2010-05-08/get'
-          response:
-            openAPIDocKey: '200'
-        role_policys_Detach:
-          operation:
-            $ref: '#/paths/~1?Action=DetachRolePolicy&Version=2010-05-08/get'
-          response:
-            openAPIDocKey: '200'
-        role_policys_Get:
-          operation:
-            $ref: '#/paths/~1?Action=GetRolePolicy&Version=2010-05-08/get'
-          response:
-            mediaType: text/xml
-            objectKey: /*/GetRolePolicyResult
-            openAPIDocKey: '200'
-        role_policys_Put:
+        role_policies_Put:
           operation:
             $ref: '#/paths/~1?Action=PutRolePolicy&Version=2010-05-08/get'
           response:
             openAPIDocKey: '200'
-      name: role_policys
+      name: role_policies
       sqlVerbs:
         delete:
-        - $ref: '#/components/x-stackQL-resources/role_policys/methods/role_policys_Delete'
+        - $ref: '#/components/x-stackQL-resources/role_policies/methods/role_policies_Delete'
         insert: []
         select:
-        - $ref: '#/components/x-stackQL-resources/role_policys/methods/role_policys_Get'
+        - $ref: '#/components/x-stackQL-resources/role_policies/methods/role_policies_Get'
+        - $ref: '#/components/x-stackQL-resources/role_policies/methods/role_policies_List'
         update: []
-      title: role_policys
+      title: role_policies
     role_tags:
       id: aws.iam.role_tags
       methods:
@@ -10725,30 +10695,52 @@ components:
         select: []
         update: []
       title: user_from_groups
-    user_permissions_boundarys:
-      id: aws.iam.user_permissions_boundarys
+    user_permissions_boundaries:
+      id: aws.iam.user_permissions_boundaries
       methods:
-        user_permissions_boundarys_Delete:
+        user_permissions_boundaries_Delete:
           operation:
             $ref: '#/paths/~1?Action=DeleteUserPermissionsBoundary&Version=2010-05-08/get'
           response:
             openAPIDocKey: '200'
-        user_permissions_boundarys_Put:
+        user_permissions_boundaries_Put:
           operation:
             $ref: '#/paths/~1?Action=PutUserPermissionsBoundary&Version=2010-05-08/get'
           response:
             openAPIDocKey: '200'
-      name: user_permissions_boundarys
+      name: user_permissions_boundaries
       sqlVerbs:
         delete:
-        - $ref: '#/components/x-stackQL-resources/user_permissions_boundarys/methods/user_permissions_boundarys_Delete'
+        - $ref: '#/components/x-stackQL-resources/user_permissions_boundaries/methods/user_permissions_boundaries_Delete'
         insert: []
         select: []
         update: []
-      title: user_permissions_boundarys
+      title: user_permissions_boundaries
     user_policies:
       id: aws.iam.user_policies
       methods:
+        user_policies_Attach:
+          operation:
+            $ref: '#/paths/~1?Action=AttachUserPolicy&Version=2010-05-08/get'
+          response:
+            openAPIDocKey: '200'
+        user_policies_Delete:
+          operation:
+            $ref: '#/paths/~1?Action=DeleteUserPolicy&Version=2010-05-08/get'
+          response:
+            openAPIDocKey: '200'
+        user_policies_Detach:
+          operation:
+            $ref: '#/paths/~1?Action=DetachUserPolicy&Version=2010-05-08/get'
+          response:
+            openAPIDocKey: '200'
+        user_policies_Get:
+          operation:
+            $ref: '#/paths/~1?Action=GetUserPolicy&Version=2010-05-08/get'
+          response:
+            mediaType: text/xml
+            objectKey: /*/GetUserPolicyResult
+            openAPIDocKey: '200'
         user_policies_List:
           operation:
             $ref: '#/paths/~1?Action=ListUserPolicies&Version=2010-05-08/get'
@@ -10756,53 +10748,21 @@ components:
             mediaType: text/xml
             objectKey: /*/ListUserPoliciesResult/PolicyNames/member
             openAPIDocKey: '200'
-      name: user_policies
-      sqlVerbs:
-        delete: []
-        insert: []
-        select:
-        - $ref: '#/components/x-stackQL-resources/user_policies/methods/user_policies_List'
-        update: []
-      title: user_policies
-    user_policys:
-      id: aws.iam.user_policys
-      methods:
-        user_policys_Attach:
-          operation:
-            $ref: '#/paths/~1?Action=AttachUserPolicy&Version=2010-05-08/get'
-          response:
-            openAPIDocKey: '200'
-        user_policys_Delete:
-          operation:
-            $ref: '#/paths/~1?Action=DeleteUserPolicy&Version=2010-05-08/get'
-          response:
-            openAPIDocKey: '200'
-        user_policys_Detach:
-          operation:
-            $ref: '#/paths/~1?Action=DetachUserPolicy&Version=2010-05-08/get'
-          response:
-            openAPIDocKey: '200'
-        user_policys_Get:
-          operation:
-            $ref: '#/paths/~1?Action=GetUserPolicy&Version=2010-05-08/get'
-          response:
-            mediaType: text/xml
-            objectKey: /*/GetUserPolicyResult
-            openAPIDocKey: '200'
-        user_policys_Put:
+        user_policies_Put:
           operation:
             $ref: '#/paths/~1?Action=PutUserPolicy&Version=2010-05-08/get'
           response:
             openAPIDocKey: '200'
-      name: user_policys
+      name: user_policies
       sqlVerbs:
         delete:
-        - $ref: '#/components/x-stackQL-resources/user_policys/methods/user_policys_Delete'
+        - $ref: '#/components/x-stackQL-resources/user_policies/methods/user_policies_Delete'
         insert: []
         select:
-        - $ref: '#/components/x-stackQL-resources/user_policys/methods/user_policys_Get'
+        - $ref: '#/components/x-stackQL-resources/user_policies/methods/user_policies_Get'
+        - $ref: '#/components/x-stackQL-resources/user_policies/methods/user_policies_List'
         update: []
-      title: user_policys
+      title: user_policies
     user_tags:
       id: aws.iam.user_tags
       methods:
