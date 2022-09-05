@@ -182,11 +182,20 @@ var shellCmd = &cobra.Command{
 			rawLine, err := l.Readline()
 			if err == readline.ErrInterrupt {
 				if len(rawLine) == 0 {
+					fmt.Fprintf(
+						outErrFile,
+						"defective line from stdin: %s\n",
+						err.Error(),
+					)
 					break
 				} else {
 					continue
 				}
 			} else if err == io.EOF {
+				fmt.Fprintf(
+					outErrFile,
+					"defective line from stdin: EOF\n",
+				)
 				break
 			}
 
@@ -226,6 +235,10 @@ var shellCmd = &cobra.Command{
 			}
 		}
 	exit:
+		fmt.Fprintln(
+			outErrFile,
+			"goodbye",
+		)
 		if !colorIsNull(runtimeCtx) {
 			cd.ResetColorScheme()
 		}
