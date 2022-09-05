@@ -448,6 +448,7 @@ def get_variables(execution_env :str):
   rv = {
     ## general config
     'GITHUB_SECRET_STR':                              GITHUB_SECRET_STR,
+    'IS_WINDOWS':                                     IS_WINDOWS,
     'K8S_SECRET_STR':                                 K8S_SECRET_STR,
     'MOCKSERVER_JAR':                                 MOCKSERVER_JAR,
     'MOCKSERVER_PORT_AWS':                            MOCKSERVER_PORT_AWS,

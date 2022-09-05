@@ -3,6 +3,7 @@ Resource          ${CURDIR}/stackql.resource
 
 *** Test Cases *** 
 Shell Session Simple
+    Pass Execution If    "${IS_WINDOWS}" == "1"
     Should StackQL Shell Inline Equal
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
