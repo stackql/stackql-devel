@@ -65,6 +65,9 @@ func usage(w io.Writer) {
 }
 
 func getShellPRompt(authCtx *dto.AuthCtx, cd *color.ColorDriver) string {
+	if runtime.GOOS == "windows" {
+		return "stackql  >>"
+	}
 	if authCtx != nil && authCtx.Active {
 		switch authCtx.Type {
 		case dto.AuthInteractiveStr:
