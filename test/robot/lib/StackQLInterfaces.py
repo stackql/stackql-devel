@@ -179,10 +179,6 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     *args,
     **cfg
   ):
-    processed_queries = []
-    for q in queries:
-      query_escaped = q.replace("'", "'\"'\"'")
-      processed_queries.append(query_escaped)
     reg_location = registry_cfg.get_source_path_for_docker()
     supplied_args = []
     registry_cfg_str = registry_cfg.get_config_str('docker')
@@ -215,7 +211,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     shell_session = ShellSession()
     res = shell_session.run_shell_session(
       start_cmd,
-      processed_queries,
+      queries,
       stdout=stdout,
       stderr=stderr,
     )
