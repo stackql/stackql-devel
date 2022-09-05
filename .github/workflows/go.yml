@@ -590,7 +590,7 @@ jobs:
     - name: Build image
       run: |
         docker-compose build credentialsgen
-        docker-compose build -e stackqlsrv
+        docker-compose build stackqlsrv
 
     - name: Mock Server Download
       run: |
