@@ -82,7 +82,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.0 // indirect
 )
 
-replace github.com/chzyer/readline => github.com/stackql/readline v0.0.2-alpha05
+replace github.com/chzyer/readline => github.com/stackql/readline v0.0.2-alpha06
 
 replace github.com/fatih/color => github.com/stackql/color v0.0.1-rc01
 
