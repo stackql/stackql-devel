@@ -192,7 +192,6 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
       supplied_args.append(f"--auth='{auth_cfg_str}'")
     supplied_args.append("--tls.allowInsecure=true")
     supplied_args = supplied_args + list(args)
-    query_escaped = query.replace("'", "'\"'\"'")
     os.environ['REGISTRY_SRC']= f'./{reg_location}'
     start_cmd = [
       "docker-compose",
