@@ -193,9 +193,9 @@ var shellCmd = &cobra.Command{
 				}
 			} else if err == io.EOF {
 				// absolute garbage
-				if runtime.GOOS == "windows" {
-					continue
-				}
+				// if runtime.GOOS == "windows" {
+				// 	continue
+				// }
 				fmt.Fprintf(
 					outErrFile,
 					"defective line from stdin: EOF\n",
