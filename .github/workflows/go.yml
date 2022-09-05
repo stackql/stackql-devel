@@ -110,6 +110,10 @@ jobs:
         Write-Output $BuildDate
         Write-Output $BuildPlatform
         
+        echo "BUILDMAJORVERSION=$BuildMajorVersion" >> $GITHUB_ENV
+        echo "BUILDMINORVERSION=$BuildMinorVersion" >> $GITHUB_ENV
+        echo "BUILDPATCHVERSION=$BuildPatchVersion" >> $GITHUB_ENV
+
         go build -x -v --tags "json1" -ldflags "-X github.com/stackql/stackql/internal/stackql/cmd.BuildMajorVersion=$BuildMajorVersion `
           -X github.com/stackql/stackql/internal/stackql/cmd.BuildMinorVersion=$BuildMinorVersion `
           -X github.com/stackql/stackql/internal/stackql/cmd.BuildPatchVersion=$BuildPatchVersion `
@@ -150,6 +154,8 @@ jobs:
     
     - name: Run robot integration tests
       if: success() && startsWith(${{ steps.git_ref_parse.outputs.SOURCE_TAG }}, 'build-release')
+      env:
+        PSQL_EXE: C:\Program Files\PostgreSQL\13\bin\psql
       run: |
         robot test/robot/integration
     
@@ -243,6 +249,10 @@ jobs:
         echo "BUILDSHORTCOMMITSHA: ${BUILDSHORTCOMMITSHA}"
         echo "BUILDDATE: ${BUILDDATE}"
         echo "BUILDPLATFORM: ${BUILDPLATFORM}"
+
+        echo "BUILDMAJORVERSION=$BUILDMAJORVERSION" >> $GITHUB_ENV
+        echo "BUILDMINORVERSION=$BUILDMINORVERSION" >> $GITHUB_ENV
+        echo "BUILDPATCHVERSION=$BUILDPATCHVERSION" >> $GITHUB_ENV
 
         go build -x -v --tags "json1" -ldflags "-X github.com/stackql/stackql/internal/stackql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
         -X github.com/stackql/stackql/internal/stackql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
@@ -368,6 +378,10 @@ jobs:
         echo "BUILDDATE: ${BUILDDATE}"
         echo "BUILDPLATFORM: ${BUILDPLATFORM}"
 
+        echo "BUILDMAJORVERSION=$BUILDMAJORVERSION" >> $GITHUB_ENV
+        echo "BUILDMINORVERSION=$BUILDMINORVERSION" >> $GITHUB_ENV
+        echo "BUILDPATCHVERSION=$BUILDPATCHVERSION" >> $GITHUB_ENV
+
         go build -x -v --tags "json1" -ldflags "-X github.com/stackql/stackql/internal/stackql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
         -X github.com/stackql/stackql/internal/stackql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
         -X github.com/stackql/stackql/internal/stackql/cmd.BuildPatchVersion=$BUILDPATCHVERSION \
@@ -476,6 +490,11 @@ jobs:
         echo "BUILDDATE: ${BUILDDATE}"
         echo "BUILDPLATFORM: ${BUILDPLATFORM}"
 
+
+        echo "BUILDMAJORVERSION=$BUILDMAJORVERSION" >> $GITHUB_ENV
+        echo "BUILDMINORVERSION=$BUILDMINORVERSION" >> $GITHUB_ENV
+        echo "BUILDPATCHVERSION=$BUILDPATCHVERSION" >> $GITHUB_ENV
+
         GOOS=darwin GOARCH=arm64 \
         go build -x -v --tags "json1" -ldflags "-X github.com/stackql/stackql/internal/stackql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
         -X github.com/stackql/stackql/internal/stackql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
@@ -522,6 +541,35 @@ jobs:
         pip3 install PyYaml
         pip3 install robotframework
     
+    - name: Extract Build Info and Persist
+      env:
+        BUILDCOMMITSHA: ${{github.sha}}
+        BUILDBRANCH: ${{github.ref}}
+        BUILDPLATFORM: ${{runner.os}}
+        BUILDPATCHVERSION: ${{github.run_number}}
+      run: |
+        source version.txt
+        BUILDMAJORVERSION=$MajorVersion
+        BUILDMINORVERSION=$MinorVersion
+        if [[ ! "$BUILDBRANCH" == *develop ]]
+          then
+          BUILDPATCHVERSION="${BUILDPATCHVERSION}"
+        fi
+        BUILDSHORTCOMMITSHA=$(echo $BUILDCOMMITSHA | cut -c 1-7)
+        BUILDDATE=$(date)
+        echo "BUILDMAJORVERSION: ${BUILDMAJORVERSION}"
+        echo "BUILDMINORVERSION: ${BUILDMINORVERSION}"
+        echo "BUILDPATCHVERSION: ${BUILDPATCHVERSION}"
+        echo "BUILDBRANCH: ${BUILDBRANCH}"
+        echo "BUILDCOMMITSHA: ${BUILDCOMMITSHA}"
+        echo "BUILDSHORTCOMMITSHA: ${BUILDSHORTCOMMITSHA}"
+        echo "BUILDDATE: ${BUILDDATE}"
+        echo "BUILDPLATFORM: ${BUILDPLATFORM}"
+
+        echo "BUILDMAJORVERSION=$BUILDMAJORVERSION" >> $GITHUB_ENV
+        echo "BUILDMINORVERSION=$BUILDMINORVERSION" >> $GITHUB_ENV
+        echo "BUILDPATCHVERSION=$BUILDPATCHVERSION" >> $GITHUB_ENV
+    
     - name: Generate rewritten registry for simulations
       run: |
         python3 test/python/registry-rewrite.py --replacement-host=host.docker.internal
@@ -542,7 +590,7 @@ jobs:
     - name: Build image
       run: |
         docker-compose build credentialsgen
-        docker-compose build stackqlsrv
+        docker-compose build -e stackqlsrv
 
     - name: Mock Server Download
       run: |

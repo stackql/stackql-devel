@@ -28,6 +28,9 @@ services:
       - OKTA_SECRET_KEY=${OKTA_SECRET_STR:-some-junk}
       - GITHUB_SECRET_KEY=${GITHUB_SECRET_STR:-some-junk}
       - K8S_SECRET_KEY=${K8S_SECRET_STR:-some-junk}
+      - BUILDMAJORVERSION=${BUILDMAJORVERSION:-1}
+      - BUILDMINORVERSION=${BUILDMINORVERSION:-1}
+      - BUILDPATCHVERSION=${BUILDPATCHVERSION:-1}
   credentialsgen:
     image: stackql/stackqlsrvcertificates
     build:

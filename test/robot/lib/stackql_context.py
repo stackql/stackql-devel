@@ -12,12 +12,18 @@ if os.name == 'nt':
 
 _DOCKER_REG_PATH :str = '/opt/stackql/registry' 
 
+BUILD_MAJOR_VERSION = os.environ.get('BUILDMAJORVERSION', '')
+BUILD_MINOR_VERSION = os.environ.get('BUILDMINORVERSION', '')
+BUILD_PATCH_VERSION = os.environ.get('BUILDPATCHVERSION', '')
+
 _SHELL_WELCOME_MSG = """
-stackql Command Shell ..
+""" + f"stackql Command Shell {BUILD_MAJOR_VERSION}.{BUILD_MINOR_VERSION}.{BUILD_PATCH_VERSION}" + """
 Copyright (c) 2021, stackql studios. All rights reserved.
 Welcome to the interactive shell for running stackql commands.
 ---
 """
+
+_TEST_APP_CACHE_ROOT = os.path.join("test", ".stackql")
 
 class RegistryCfg:
 
@@ -71,6 +77,8 @@ class RegistryCfg:
 
 
 REPOSITORY_ROOT = os.path.abspath(os.path.join(__file__, '..', '..', '..', '..'))
+
+_TEST_APP_CACHE_ROOT = os.path.abspath(os.path.join(REPOSITORY_ROOT, "test", ".stackql"))
 
 ROBOT_TEST_ROOT = os.path.abspath(os.path.join(__file__, '..'))
 

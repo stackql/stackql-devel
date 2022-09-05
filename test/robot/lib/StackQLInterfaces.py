@@ -10,7 +10,7 @@ from robot.libraries.BuiltIn import BuiltIn
 from robot.libraries.Process import Process
 from robot.libraries.OperatingSystem import OperatingSystem 
 
-from stackql_context import RegistryCfg
+from stackql_context import RegistryCfg, _TEST_APP_CACHE_ROOT
 from ShellSession import ShellSession
 
 
@@ -278,6 +278,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn):
     if auth_cfg_str != "":
       supplied_args.append(f"--auth={auth_cfg_str}")
     supplied_args.append("--tls.allowInsecure=true")
+    supplied_args.append(f'--approot="{_TEST_APP_CACHE_ROOT}"')
     stdout = cfg.get('stdout', subprocess.PIPE)
     stderr = cfg.get('stderr', subprocess.PIPE)
     shell_session = ShellSession()
