@@ -13,12 +13,12 @@ if os.name == 'nt':
 
 _DOCKER_REG_PATH :str = '/opt/stackql/registry' 
 
-BUILD_MAJOR_VERSION = os.environ.get('BUILDMAJORVERSION', '')
-BUILD_MINOR_VERSION = os.environ.get('BUILDMINORVERSION', '')
-BUILD_PATCH_VERSION = os.environ.get('BUILDPATCHVERSION', '')
+_BUILD_MAJOR_VERSION = os.environ.get('BUILDMAJORVERSION', '1')
+_BUILD_MINOR_VERSION = os.environ.get('BUILDMINORVERSION', '1')
+_BUILD_PATCH_VERSION = os.environ.get('BUILDPATCHVERSION', '1')
 
 _SHELL_WELCOME_MSG = """
-""" + f"stackql Command Shell {BUILD_MAJOR_VERSION}.{BUILD_MINOR_VERSION}.{BUILD_PATCH_VERSION}" + """
+""" + f"stackql Command Shell {_BUILD_MAJOR_VERSION}.{_BUILD_MINOR_VERSION}.{_BUILD_PATCH_VERSION}" + """
 Copyright (c) 2021, stackql studios. All rights reserved.
 Welcome to the interactive shell for running stackql commands.
 ---
@@ -482,6 +482,9 @@ def get_variables(execution_env :str):
   rv = {
     ## general config
     'AZURE_SECRET_STR':                               AZURE_SECRET_STR,
+    'BUILDMAJORVERSION':                              _BUILD_MAJOR_VERSION,
+    'BUILDMINORVERSION':                              _BUILD_MINOR_VERSION,
+    'BUILDPATCHVERSION':                              _BUILD_PATCH_VERSION,
     'GITHUB_SECRET_STR':                              GITHUB_SECRET_STR,
     'IS_WINDOWS':                                     IS_WINDOWS,
     'K8S_SECRET_STR':                                 K8S_SECRET_STR,

@@ -38,17 +38,14 @@
 
     // select VolumeId from aws.ec2.volumes where region = 'ap-southeast-1' order by VolumeId asc;
     {
-      "name": "DEBUG aws guff working",
+      "name": "DEBUG boilerplate",
       "type": "go",
       "request": "launch",
       "mode": "debug",
       "program": "${workspaceFolder}/stackql",
       "args": [
         "exec",
-        "--registry=${input:registryString}",
-        "--auth=${input:authString}",
-        "--tls.allowInsecure",
-        "select UserName, Arn from aws.iam.users WHERE region = 'us-east-1' order by UserName ASC;"
+        "SELECT t.oid, NULL FROM pg_type t JOIN pg_namespace ns ON typnamespace = ns.oid WHERE typname = 'hstore';"
       ],
     },
     {

@@ -75,6 +75,34 @@ res = conn.execute("""SHOW PROVIDERS""")
 
 res.fetchall()
 
+curs = conn.cursor()
+
+typarray = "NULL"
+
+curs.execute(f"""SELECT t.oid, {typarray}
+FROM pg_type t JOIN pg_namespace ns
+    ON typnamespace = ns.oid
+WHERE typname = 'hstore';
+""")
+
+for oids in curs:
+    print(oids[0])
+    print(oids[1])
+
+conn = psycopg.connect("host=127.0.0.1 port=5432 user=admin dbname=postgres", autocommit = True)
+
+
+curs = conn.cursor()
+
+typarray = "NULL"
+
+curs.execute(f"""SELECT t.oid, {typarray}
+FROM pg_type t JOIN pg_namespace ns
+    ON typnamespace = ns.oid
+WHERE typname = 'hstore';
+""")
+
+
 ```
 
 ## Queries
