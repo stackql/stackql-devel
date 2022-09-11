@@ -16,6 +16,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/plan"
 	"github.com/stackql/stackql/internal/stackql/primitive"
+	"github.com/stackql/stackql/internal/stackql/primitivebuilder"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/util"
 
@@ -365,9 +366,14 @@ func (pgb *planGraphBuilder) handleSelect(pbi PlanBuilderInput) (*primitivegraph
 			logging.GetLogger().Infoln(fmt.Sprintf("select statement analysis error = '%s'", err.Error()))
 			return nil, nil, err
 		}
-		isLocallyExecutable := true
-		for _, val := range primitiveGenerator.PrimitiveComposer.GetTables() {
-			isLocallyExecutable = isLocallyExecutable && val.IsLocallyExecutable
+		builder := primitiveGenerator.PrimitiveComposer.GetBuilder()
+		_, isNativeSelect := builder.(*primitivebuilder.NativeSelect)
+		isLocallyExecutable := !isNativeSelect
+		// check tables only if not native
+		if isLocallyExecutable {
+			for _, val := range primitiveGenerator.PrimitiveComposer.GetTables() {
+				isLocallyExecutable = isLocallyExecutable && val.IsLocallyExecutable
+			}
 		}
 		if isLocallyExecutable {
 			pr, err := primitiveGenerator.localSelectExecutor(handlerCtx, node, util.DefaultRowSort)
@@ -380,7 +386,6 @@ func (pgb *planGraphBuilder) handleSelect(pbi PlanBuilderInput) (*primitivegraph
 		if primitiveGenerator.PrimitiveComposer.GetBuilder() == nil {
 			return nil, nil, fmt.Errorf("builder not created for select, cannot proceed")
 		}
-		builder := primitiveGenerator.PrimitiveComposer.GetBuilder()
 		err = builder.Build()
 		if err != nil {
 			return nil, nil, err
@@ -660,6 +665,17 @@ func (pgb *planGraphBuilder) handleShow(pbi PlanBuilderInput) error {
 	err := primitiveGenerator.analyzeStatement(pbi)
 	if err != nil {
 		return err
+	}
+	nodeTypeUpper := strings.ToUpper(node.Type)
+	switch nodeTypeUpper {
+	case "TRANSACTION_ISOLATION_LEVEL":
+		builder := primitiveGenerator.PrimitiveComposer.GetBuilder()
+		_, isNativeSelect := builder.(*primitivebuilder.NativeSelect)
+		if isNativeSelect {
+			err := builder.Build()
+			return err
+		}
+		return fmt.Errorf("improper usage of 'show transaction isolation level'")
 	}
 	pr := primitive.NewMetaDataPrimitive(
 		primitiveGenerator.PrimitiveComposer.GetProvider(),

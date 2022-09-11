@@ -60,7 +60,11 @@ And then, using the `psql` client (from same directory; `build`):
 psql -d "host=127.0.0.1 port=5466 user=silly dbname=silly sslmode=verify-full sslcert=../test/server/mtls/credentials/pg_client_cert.pem sslkey=../test/server/mtls/credentials/pg_client_key.pem sslrootcert=../test/server/mtls/credentials/pg_server_cert.pem"
 ```
 
-### Access from pscopg python
+### Access from python
+
+- For integration testing, we use `psycopg` which is currently `v3`.  
+- `superset` uses `sqlalchemy` which consumes `psycopg2` **note different version**.
+
 
 ```py
 import psycopg
@@ -71,7 +75,7 @@ conn = psycopg.connect("host=127.0.0.1 port=5466 user=silly dbname=silly", autoc
 
 
 
-res = conn.execute("""SHOW PROVIDERS""")
+res = conn.execute("""show transaction isolation level""")
 
 res.fetchall()
 
@@ -89,19 +93,46 @@ for oids in curs:
     print(oids[0])
     print(oids[1])
 
+import psycopg
+
 conn = psycopg.connect("host=127.0.0.1 port=5432 user=admin dbname=postgres", autocommit = True)
 
+curs = conn.cursor()
+
+curs.execute("show transaction isolation level")
+
+curs.fetchall()
 
 curs = conn.cursor()
 
 typarray = "NULL"
 
-curs.execute(f"""SELECT t.oid, {typarray}
-FROM pg_type t JOIN pg_namespace ns
-    ON typnamespace = ns.oid
-WHERE typname = 'hstore';
-""")
+curs.execute(f"""SELECT t.oid, typarray FROM pg_type t JOIN pg_namespace ns ON typnamespace = ns.oid WHERE typname = 'hstore';""")
 
+import sqlalchemy
+
+eng = sqlalchemy.create_engine('postgresql://admin:@127.0.0.1:5432/postgres')
+
+conn = eng.raw_connection()
+
+curs = conn.cursor()
+
+curs.execute(f"""SELECT t.oid, typarray FROM pg_type t JOIN pg_namespace ns ON typnamespace = ns.oid WHERE typname = 'hstore';""")
+
+curs.fetchall()
+
+import sqlalchemy
+
+eng = sqlalchemy.create_engine('postgresql://sillyuser:sillypw@127.0.0.1:5466/sillydb')
+
+## this is the sticking point for now
+conn = eng.raw_connection()
+
+curs = conn.cursor()
+
+curs.execute("show transaction isolation level")
+
+curs.fetchall()
 
 ```
 

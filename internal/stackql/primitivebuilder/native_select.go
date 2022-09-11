@@ -2,6 +2,8 @@ package primitivebuilder
 
 import (
 	"fmt"
+	"io"
+	"strconv"
 
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/dto"
@@ -49,7 +51,32 @@ func (ss *NativeSelect) Build() error {
 		for _, col := range ss.selectQuery.GetColumns() {
 			colz = append(colz, col.GetName())
 		}
-		return util.NewEmptyListResultSet(colz)
+		rowStream := ss.selectQuery.GetRows()
+		rowMap := make(map[string]map[string]interface{})
+		if rowStream != nil {
+			i := 0
+			for {
+				rows, err := rowStream.Read()
+				if err != nil && err != io.EOF {
+					return dto.NewErroneousExecutorOutput(err)
+				}
+				for _, row := range rows {
+					rowMap[strconv.Itoa(i)] = row
+					i++
+				}
+				if err == io.EOF {
+					break
+				}
+			}
+		}
+		rv := util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, rowMap, colz, nil, nil, nil))
+		if len(rowMap) > 0 {
+			return rv
+		}
+		return util.EmptyProtectResultSet(
+			rv,
+			colz,
+		)
 	}
 	graph := ss.graph
 	selectNode := graph.CreatePrimitiveNode(primitive.NewLocalPrimitive(selectEx))
