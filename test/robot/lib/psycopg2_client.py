@@ -4,7 +4,7 @@ import typing
 from psycopg2.extras import DictCursor
 
 
-class PsycoPGClient(object):
+class PsycoPG2Client(object):
 
 
   def __init__(self, connection_string :str):

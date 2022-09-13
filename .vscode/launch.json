@@ -12,6 +12,7 @@
         "{ \"url\": \"file://${workspaceFolder}/test/registry-sandbox\", \"localDocRoot\": \"${workspaceFolder}/test/registry-sandbox\", \"verifyConfig\": { \"nopVerify\": true } }",
         "{ \"url\": \"file://${workspaceFolder}/test/registry\", \"localDocRoot\": \"${workspaceFolder}/test/registry\", \"verifyConfig\": { \"nopVerify\": true } }",
         "{ \"url\": \"file://${workspaceFolder}/test/registry-mocked\", \"localDocRoot\": \"${workspaceFolder}/test/registry-mocked\", \"verifyConfig\": { \"nopVerify\": true } }",
+        "{ \"url\": \"file://${workspaceFolder}/build/.stackql\", \"localDocRoot\": \"${workspaceFolder}/build/.stackql\" }",
         "{ \"url\": \"https://cdn.statically.io/gh/stackql/stackql-provider-registry/main/providers\", \"localDocRoot\": \"${workspaceFolder}/test/registry\" }",
         "{ \"url\": \"https://cdn.statically.io/gh/stackql/stackql-provider-registry/dev/providers\" }"
       ],
@@ -1191,9 +1192,8 @@
       "args": [
         "exec",
         "--auth=${input:authString}",
-        "show providers;",
-        "-o",
-        "json"
+        "--registry=${input:registryString}",
+        "show providers;"
       ],
     },
     {
@@ -1291,7 +1291,7 @@
       "type": "go",
       "request": "attach",
       "mode": "local",
-      "processId": 81780
+      "processId": 31803
     }
   ]
 }

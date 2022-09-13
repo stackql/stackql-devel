@@ -25,9 +25,12 @@ foo = importlib.util.module_from_spec(spec)
 sys.modules["module.name"] = foo
 spec.loader.exec_module(foo)
 
-psycopg2_client = foo.PsycoPGClient("host=127.0.0.1 port=5466 user=silly dbname=silly")
+psycopg2_client = foo.PsycoPG2Client("host=127.0.0.1 port=5466 user=silly dbname=silly")
 
 rv = psycopg2_client.run_queries(["show transaction isolation level"])
 
 print(rv)
 
+rv = psycopg2_client.run_queries(["SELECT t.oid, typarray FROM pg_type t JOIN pg_namespace ns ON typnamespace = ns.oid WHERE typname = 'hstore'"])
+
+print(rv)

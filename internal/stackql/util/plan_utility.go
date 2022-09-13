@@ -363,7 +363,9 @@ func emptyProtectResultSet(rv dto.ExecutorOutput, columns []string) dto.Executor
 			rCols[f] = getPlaceholderColumn(table, columns[f])
 		}
 		rv.GetSQLResult = func() sqldata.ISQLResultStream {
-			return sqldata.NewSimpleSQLResultStream(sqldata.NewSQLResult(rCols, 0, 0, nil))
+			return sqldata.NewSimpleSQLResultStream(sqldata.NewSQLResult(rCols, 0, 0, []sqldata.ISQLRow{
+				sqldata.NewSQLRow([]interface{}{}),
+			}))
 		}
 	}
 	return rv
