@@ -1,7 +1,7 @@
 import psycopg2
 import typing
 
-from psycopg2.extras import DictCursor
+from psycopg2.extras import RealDictCursor
 
 
 class PsycoPG2Client(object):
@@ -16,9 +16,9 @@ class PsycoPG2Client(object):
 
 
   def _exec_query(self, query :str) -> typing.List[typing.Dict]:
-    cur = self._connection.cursor(cursor_factory=DictCursor)
+    cur = self._connection.cursor(cursor_factory=RealDictCursor)
     cur.execute(query)
-    return cur.fetchall()
+    return [ dict(b) for b in cur.fetchall() ]
 
 
   def _run_queries(self, queries :typing.List[str]) -> typing.List[typing.Dict]:
