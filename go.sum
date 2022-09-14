@@ -662,6 +662,12 @@ github.com/stackql/psql-wire v0.0.2-stackqlbeta02 h1:djbLljmiFK1pzOaisEWkD/ZmDNg
 github.com/stackql/psql-wire v0.0.2-stackqlbeta02/go.mod h1:mS0gvNPicc1rtwVkIDqVuWMOSL29WNEDOeF8mxkrwqY=
 github.com/stackql/psql-wire v0.0.2-stackqlbeta03 h1:I3yTAFsaNmk2SuP13VnzLKZWrAx+TsXnf+sKw76xikM=
 github.com/stackql/psql-wire v0.0.2-stackqlbeta03/go.mod h1:mS0gvNPicc1rtwVkIDqVuWMOSL29WNEDOeF8mxkrwqY=
+github.com/stackql/psql-wire v0.0.2-stackqlbeta04 h1:0KBFpUe+VOdjIjCIysXMPZDuqer1umASwVjceDd2pv0=
+github.com/stackql/psql-wire v0.0.2-stackqlbeta04/go.mod h1:mS0gvNPicc1rtwVkIDqVuWMOSL29WNEDOeF8mxkrwqY=
+github.com/stackql/psql-wire v0.0.2-stackqlbeta05 h1:QCXqKjdWZOLLxzEiH1a6YasE7go9I+Wnf2tZhNd03KQ=
+github.com/stackql/psql-wire v0.0.2-stackqlbeta05/go.mod h1:mS0gvNPicc1rtwVkIDqVuWMOSL29WNEDOeF8mxkrwqY=
+github.com/stackql/psql-wire v0.0.2-stackqlbeta06 h1:+3GUoLmXOFH7zoZbcMx9mSOUND4pRKL+TS15CSr13KI=
+github.com/stackql/psql-wire v0.0.2-stackqlbeta06/go.mod h1:mS0gvNPicc1rtwVkIDqVuWMOSL29WNEDOeF8mxkrwqY=
 github.com/stackql/readline v0.0.2-alpha05 h1:ID4QzGdplFBsrSnTuz8pvKzWw96JbrJg8fsLry2UriU=
 github.com/stackql/readline v0.0.2-alpha05/go.mod h1:OFAYOdXk/X4+5GYiDXFfaGrk+bCN6Qv0SYY5HNzD2E0=
 github.com/stackql/stackql-provider-registry v0.0.1-rc01 h1:3XorfaYEhGpuvEeQK04EmpZUCr42hZ/a4Nh3wE25LF0=

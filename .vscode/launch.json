@@ -1291,7 +1291,7 @@
       "type": "go",
       "request": "attach",
       "mode": "local",
-      "processId": 31803
+      "processId": 95356
     }
   ]
 }
