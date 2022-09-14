@@ -211,16 +211,6 @@ func filterMethods(methods openapistackql.Methods, tableFilter func(openapistack
 	return methods, err
 }
 
-// func (pb *primitiveGenerator) isPGSetupShowQuery(node *sqlparser.Show) bool {
-// 	nodeTypeUpperCase := strings.ToUpper(node.Type)
-// 	switch nodeTypeUpperCase {
-// 	case "TRANSACTION_ISOLATION_LEVEL":
-// 		return true
-// 	default:
-// 		return false
-// 	}
-// }
-
 func (pb *primitiveGenerator) inferProviderForShow(node *sqlparser.Show, handlerCtx *handler.HandlerContext) error {
 	nodeTypeUpperCase := strings.ToUpper(node.Type)
 	switch nodeTypeUpperCase {

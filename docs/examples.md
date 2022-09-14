@@ -62,79 +62,12 @@ psql -d "host=127.0.0.1 port=5466 user=silly dbname=silly sslmode=verify-full ss
 
 ### Access from python
 
-- For integration testing, we use `psycopg` which is currently `v3`.  
+- Python access requires a runnning server, simplest is `stackql srv` which will serve on default port with zero credentials.
+- For integration testing, we use `psycopg` which is currently `v3`.
+    - Run / adapt [this script](/examples/scripts/python/psycopg3_scratchpad.py) for troubleshooting `psycopg` `v3`. 
 - `superset` uses `sqlalchemy` which consumes `psycopg2` **note different version**.
-
-
-```py
-import psycopg
-# Connect to your stackql instance.
-# Devil is in the detail of conection string.
-# `autocommit = True` is all-important until we support (at least NOP) Transactions.
-conn = psycopg.connect("host=127.0.0.1 port=5466 user=silly dbname=silly", autocommit = True)
-
-
-
-res = conn.execute("""show transaction isolation level""")
-
-res.fetchall()
-
-curs = conn.cursor()
-
-typarray = "NULL"
-
-curs.execute(f"""SELECT t.oid, {typarray}
-FROM pg_type t JOIN pg_namespace ns
-    ON typnamespace = ns.oid
-WHERE typname = 'hstore';
-""")
-
-for oids in curs:
-    print(oids[0])
-    print(oids[1])
-
-import psycopg
-
-conn = psycopg.connect("host=127.0.0.1 port=5432 user=admin dbname=postgres", autocommit = True)
-
-curs = conn.cursor()
-
-curs.execute("show transaction isolation level")
-
-curs.fetchall()
-
-curs = conn.cursor()
-
-typarray = "NULL"
-
-curs.execute(f"""SELECT t.oid, typarray FROM pg_type t JOIN pg_namespace ns ON typnamespace = ns.oid WHERE typname = 'hstore';""")
-
-import sqlalchemy
-
-eng = sqlalchemy.create_engine('postgresql://admin:@127.0.0.1:5432/postgres')
-
-conn = eng.raw_connection()
-
-curs = conn.cursor()
-
-curs.execute(f"""SELECT t.oid, typarray FROM pg_type t JOIN pg_namespace ns ON typnamespace = ns.oid WHERE typname = 'hstore';""")
-
-curs.fetchall()
-
-import sqlalchemy
-
-eng = sqlalchemy.create_engine('postgresql://sillyuser:sillypw@127.0.0.1:5466/sillydb')
-
-## this is the sticking point for now
-conn = eng.raw_connection()
-
-curs = conn.cursor()
-
-curs.execute("show transaction isolation level")
-
-curs.fetchall()
-
-```
+    - Run / adapt [this script](/examples/scripts/python/psycopg2_scratchpad.py) for troubleshooting `psycopg2`. 
+    - Run / adapt [this script](/examples/scripts/python/sqlalchemy_scratchpad.py) for troubleshooting `sqlalchemy`. 
 
 ## Queries
 

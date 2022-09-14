@@ -13,6 +13,7 @@
         "{ \"url\": \"file://${workspaceFolder}/test/registry\", \"localDocRoot\": \"${workspaceFolder}/test/registry\", \"verifyConfig\": { \"nopVerify\": true } }",
         "{ \"url\": \"file://${workspaceFolder}/test/registry-mocked\", \"localDocRoot\": \"${workspaceFolder}/test/registry-mocked\", \"verifyConfig\": { \"nopVerify\": true } }",
         "{ \"url\": \"file://${workspaceFolder}/build/.stackql\", \"localDocRoot\": \"${workspaceFolder}/build/.stackql\" }",
+        "{ \"url\": \"file://${workspaceFolder}/examples/empty-registry\", \"localDocRoot\": \"${workspaceFolder}/examples/empty-registry\" }",
         "{ \"url\": \"https://cdn.statically.io/gh/stackql/stackql-provider-registry/main/providers\", \"localDocRoot\": \"${workspaceFolder}/test/registry\" }",
         "{ \"url\": \"https://cdn.statically.io/gh/stackql/stackql-provider-registry/dev/providers\" }"
       ],
@@ -1193,7 +1194,9 @@
         "exec",
         "--auth=${input:authString}",
         "--registry=${input:registryString}",
-        "show providers;"
+        "show providers;",
+        "-o",
+        "json"
       ],
     },
     {

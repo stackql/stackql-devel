@@ -150,6 +150,9 @@ func resToArr(res sqldata.ISQLResult) []map[string]interface{} {
 	var retVal []map[string]interface{}
 	for _, r := range res.GetRows() {
 		rowArr := r.GetRowDataNaive()
+		if len(rowArr) == 0 {
+			continue
+		}
 		rm := make(map[string]interface{})
 		for i, c := range keys {
 			switch tp := rowArr[i].(type) {
