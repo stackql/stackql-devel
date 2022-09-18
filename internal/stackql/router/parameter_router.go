@@ -91,6 +91,7 @@ func (pr *StandardParameterRouter) AnalyzeDependencies() error {
 func (pr *StandardParameterRouter) GetOnConditionsToRewrite() map[*sqlparser.ComparisonExpr]struct{} {
 	rv := make(map[*sqlparser.ComparisonExpr]struct{})
 	for k, _ := range pr.comparisonToTableDependencies {
+
 		rv[k] = struct{}{}
 	}
 	return rv
@@ -393,8 +394,6 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 			return nil, fmt.Errorf("data flow violation detected: ON comparison expression '%s' is a  dependency for tables '%s' and '%s'", sqlparser.String(p), sqlparser.String(existingTable), sqlparser.String(tb))
 		}
 		pr.comparisonToTableDependencies[p] = tb
-		// this can be done, not sure if it is the best way
-		// rewriteComparisonExpr(p)
 		logging.GetLogger().Infof("%v", kv)
 	}
 	m := taxonomy.NewExtendedTableMetadata(hr, taxonomy.GetAliasFromStatement(tb))
@@ -405,13 +404,4 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 	ac, err := obtainAnnotationCtx(handlerCtx.SQLEngine, m, abbreviatedConsumedMap)
 	pr.tableToAnnotationCtx[tb] = ac
 	return ac, err
-}
-
-func rewriteComparisonExpr(ex *sqlparser.ComparisonExpr) {
-	ex = &sqlparser.ComparisonExpr{
-		Left:     &sqlparser.SQLVal{Type: sqlparser.IntVal, Val: []byte("1")},
-		Right:    &sqlparser.SQLVal{Type: sqlparser.IntVal, Val: []byte("1")},
-		Operator: ex.Operator,
-		Escape:   ex.Escape,
-	}
 }
