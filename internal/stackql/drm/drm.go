@@ -595,6 +595,3 @@ func GetGoogleV1SQLiteConfig() DRMConfig {
 		defaultGolangValue:    sql.NullString{}, // string is default
 	}
 }
-
-type GoogleV1DRM struct {
-}
