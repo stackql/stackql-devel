@@ -217,7 +217,11 @@ func (dp *StandardDependencyPlanner) processOrphan(sqlNode sqlparser.SQLNode, an
 	if err != nil {
 		return nil, nil, err
 	}
-	insPsc, err := dp.primitiveComposer.GetDRMConfig().GenerateInsertDML(anTab, tcc)
+	os, err := annotationCtx.GetTableMeta().GetMethod()
+	if err != nil {
+		return nil, nil, err
+	}
+	insPsc, err := dp.primitiveComposer.GetDRMConfig().GenerateInsertDML(anTab, os, tcc)
 	return insPsc, tcc, err
 }
 
@@ -250,10 +254,6 @@ func (dp *StandardDependencyPlanner) processAcquire(
 	if err != nil {
 		return util.NewAnnotatedTabulation(nil, nil, ""), nil, err
 	}
-	svc, err := annotationCtx.GetTableMeta().GetService()
-	if err != nil {
-		return util.NewAnnotatedTabulation(nil, nil, ""), nil, err
-	}
 	m, err := annotationCtx.GetTableMeta().GetMethod()
 	if err != nil {
 		return util.NewAnnotatedTabulation(nil, nil, ""), nil, err
@@ -269,7 +269,7 @@ func (dp *StandardDependencyPlanner) processAcquire(
 	}
 	anTab := util.NewAnnotatedTabulation(tab, annotationCtx.GetHIDs(), annotationCtx.GetTableMeta().Alias)
 
-	discoGenId, err := docparser.OpenapiStackQLTabulationsPersistor(prov, svc, []util.AnnotatedTabulation{anTab}, dp.primitiveComposer.GetSQLEngine(), prov.Name)
+	discoGenId, err := docparser.OpenapiStackQLTabulationsPersistor(m, []util.AnnotatedTabulation{anTab}, dp.primitiveComposer.GetSQLEngine(), prov.Name)
 	if err != nil {
 		return util.NewAnnotatedTabulation(nil, nil, ""), nil, err
 	}
