@@ -91,8 +91,8 @@ func (pr *StandardParameterRouter) AnalyzeDependencies() error {
 func (pr *StandardParameterRouter) GetOnConditionsToRewrite() map[*sqlparser.ComparisonExpr]struct{} {
 	rv := make(map[*sqlparser.ComparisonExpr]struct{})
 	for k, _ := range pr.comparisonToTableDependencies {
-
-		rv[k] = struct{}{}
+		logging.GetLogger().Debugf("%v\n", k)
+		// rv[k] = struct{}{}
 	}
 	return rv
 }

@@ -200,7 +200,7 @@ type DRMConfig interface {
 	ExtractFromGolangValue(interface{}) interface{}
 	GetCurrentTable(*dto.HeirarchyIdentifiers, sqlengine.SQLEngine) (dto.DBTable, error)
 	GetRelationalType(string) string
-	GenerateDDL(util.AnnotatedTabulation, int, bool) []string
+	GenerateDDL(util.AnnotatedTabulation, *openapistackql.OperationStore, int, bool) []string
 	GetGolangValue(string) interface{}
 	GetInsControlColumn() string
 	GetParserTableName(*dto.HeirarchyIdentifiers, int) sqlparser.TableName
@@ -208,7 +208,7 @@ type DRMConfig interface {
 	GetTableName(*dto.HeirarchyIdentifiers, int) string
 	GetTxnControlColumn() string
 	GetGenerationControlColumn() string
-	GenerateInsertDML(util.AnnotatedTabulation, *dto.TxnControlCounters) (*PreparedStatementCtx, error)
+	GenerateInsertDML(util.AnnotatedTabulation, *openapistackql.OperationStore, *dto.TxnControlCounters) (*PreparedStatementCtx, error)
 	GenerateSelectDML(util.AnnotatedTabulation, *dto.TxnControlCounters, string, string) (*PreparedStatementCtx, error)
 	ExecuteInsertDML(sqlengine.SQLEngine, *PreparedStatementCtx, map[string]interface{}) (sql.Result, error)
 	QueryDML(sqlengine.SQLEngine, PreparedStatementParameterized) (*sql.Rows, error)
@@ -346,7 +346,7 @@ func (dc *StaticDRMConfig) generateDropTableStatement(hIds *dto.HeirarchyIdentif
 	return fmt.Sprintf(`drop table if exists "%s"`, dc.getTableName(hIds, discoveryGenerationID))
 }
 
-func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, discoveryGenerationID int, dropTable bool) []string {
+func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, m *openapistackql.OperationStore, discoveryGenerationID int, dropTable bool) []string {
 	var colDefs, retVal []string
 	var rv strings.Builder
 	tableName := dc.getTableName(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID)
@@ -360,10 +360,27 @@ func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, discover
 	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, sessionIdColName))
 	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, txnIdColName))
 	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, insIdColName))
-	for _, col := range tabAnn.GetTabulation().GetColumns() {
+	tableColumns := tabAnn.GetTabulation().GetColumns()
+	existingColumns := make(map[string]struct{})
+	for _, col := range tableColumns {
 		var b strings.Builder
+		existingColumns[col.Name] = struct{}{}
 		b.WriteString(`"` + col.Name + `" `)
 		b.WriteString(dc.GetRelationalType(col.Schema.Type))
+		colDefs = append(colDefs, b.String())
+	}
+	for k, col := range m.GetRequiredParameters() {
+		if _, ok := existingColumns[k]; ok {
+			continue
+		}
+		relationalType := "text"
+		schema, ok := col.GetSchema()
+		if ok && schema != nil && schema.Type != "" {
+			relationalType = dc.GetRelationalType(schema.Type)
+		}
+		var b strings.Builder
+		b.WriteString(`"` + k + `" `)
+		b.WriteString(relationalType)
 		colDefs = append(colDefs, b.String())
 	}
 	rv.WriteString(strings.Join(colDefs, " , "))
@@ -379,7 +396,7 @@ func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, discover
 	return retVal
 }
 
-func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulation, tcc *dto.TxnControlCounters) (*PreparedStatementCtx, error) {
+func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulation, method *openapistackql.OperationStore, tcc *dto.TxnControlCounters) (*PreparedStatementCtx, error) {
 	// logging.GetLogger().Infoln(fmt.Sprintf("%v", tabulation))
 	var q strings.Builder
 	var quotedColNames, vals []string
@@ -398,9 +415,31 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 	vals = append(vals, "?")
 	vals = append(vals, "?")
 	vals = append(vals, "?")
+	existingColumns := make(map[string]struct{})
 	for _, col := range tabAnnotated.GetTabulation().GetColumns() {
+		existingColumns[col.Name] = struct{}{}
 		columns = append(columns, NewColDescriptor(col, dc.GetRelationalType(col.Schema.Type)))
 		quotedColNames = append(quotedColNames, `"`+col.Name+`" `)
+		vals = append(vals, "?")
+	}
+	for k, col := range method.GetRequiredParameters() {
+		if _, ok := existingColumns[k]; ok {
+			continue
+		}
+		relationalType := "text"
+		schema, ok := col.GetSchema()
+		if ok && schema != nil && schema.Type != "" {
+			relationalType = dc.GetRelationalType(schema.Type)
+		}
+		colDesc := openapistackql.NewColumnDescriptor(
+			"",
+			k,
+			"",
+			schema,
+			nil,
+		)
+		columns = append(columns, NewColDescriptor(colDesc, relationalType))
+		quotedColNames = append(quotedColNames, `"`+k+`" `)
 		vals = append(vals, "?")
 	}
 	q.WriteString(fmt.Sprintf(" (%s) ", strings.Join(quotedColNames, ", ")))
