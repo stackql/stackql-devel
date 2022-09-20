@@ -129,7 +129,7 @@ jobs:
 
     - name: Test
       if: success()
-      run: go test -timeout 1200s --tags "json1" -v ./...
+      run: go test -timeout 1200s --tags "json1 sqleanall" -v ./...
 
     - name: Mock Server Download
       run: |
@@ -271,7 +271,7 @@ jobs:
       
     - name: Test
       if: success()
-      run: go test -timeout 1200s --tags "json1" -v ./...
+      run: go test -timeout 1200s --tags "json1 sqleanall" -v ./...
 
     - name: Mock Server Download
       run: |
@@ -401,7 +401,7 @@ jobs:
 
     - name: Test
       if: success()
-      run: go test -timeout 1200s --tags "json1" -v ./...
+      run: go test -timeout 1200s --tags "json1 sqleanall" -v ./...
 
     - name: Mock Server Download
       run: |

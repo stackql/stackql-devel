@@ -100,7 +100,7 @@ add_custom_command(TARGET ${TARGET}
   PRE_BUILD
   DEPENDS ${SRCS}
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  COMMAND go test -timeout 2400s -p 2 --tags "json1" ./...
+  COMMAND go test -timeout 2400s -p 2 --tags "json1 sqleanall" ./...
   COMMENT "Running Go Unit Tests"
 )
 

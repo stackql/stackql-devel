@@ -34,7 +34,7 @@ ADD test ${SRC_DIR}/test
 
 COPY go.mod go.sum ${SRC_DIR}/
 
-RUN  cd ${SRC_DIR} && ls && go get -v -t -d ./... && go test --tags "json1" ./... \
+RUN  cd ${SRC_DIR} && ls && go get -v -t -d ./... && go test --tags "json1 sqleanall" ./... \
      && go build -ldflags "-X github.com/stackql/stackql/internal/stackql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
           -X github.com/stackql/stackql/internal/stackql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
           -X github.com/stackql/stackql/internal/stackql/cmd.BuildPatchVersion=$BUILDPATCHVERSION \
