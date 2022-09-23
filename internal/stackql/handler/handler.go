@@ -14,31 +14,30 @@ import (
 	"github.com/stackql/stackql/internal/stackql/netutils"
 	"github.com/stackql/stackql/internal/stackql/provider"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
+	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/pkg/txncounter"
 
 	"gopkg.in/yaml.v2"
 	lrucache "vitess.io/vitess/go/cache"
 )
 
-var (
-	drmConfig drm.DRMConfig = drm.GetGoogleV1SQLiteConfig()
-)
-
 type HandlerContext struct {
-	RawQuery          string
-	Query             string
-	RuntimeContext    dto.RuntimeCtx
-	providers         map[string]provider.IProvider
-	CurrentProvider   string
-	authContexts      map[string]*dto.AuthCtx
-	Registry          openapistackql.RegistryAPI
-	ErrorPresentation string
-	Outfile           io.Writer
-	OutErrFile        io.Writer
-	LRUCache          *lrucache.LRUCache
-	SQLEngine         sqlengine.SQLEngine
-	DrmConfig         drm.DRMConfig
-	TxnCounterMgr     *txncounter.TxnCounterManager
+	RawQuery                   string
+	Query                      string
+	RuntimeContext             dto.RuntimeCtx
+	providers                  map[string]provider.IProvider
+	CurrentProvider            string
+	authContexts               map[string]*dto.AuthCtx
+	Registry                   openapistackql.RegistryAPI
+	ErrorPresentation          string
+	Outfile                    io.Writer
+	OutErrFile                 io.Writer
+	LRUCache                   *lrucache.LRUCache
+	SQLEngine                  sqlengine.SQLEngine
+	DrmConfig                  drm.DRMConfig
+	TxnCounterMgr              *txncounter.TxnCounterManager
+	analyticsCacheNamespaceCfg tablenamespace.TableNamespaceConfigurator
+	viewsNamespaceCfg          tablenamespace.TableNamespaceConfigurator
 }
 
 func getProviderMap(providerName string, providerDesc openapistackql.ProviderDescription) map[string]interface{} {
@@ -135,6 +134,14 @@ func (hc *HandlerContext) GetAuthContext(providerName string) (*dto.AuthCtx, err
 	return authCtx, err
 }
 
+func (hc *HandlerContext) GetAnalyticsCacheTableNamespaceConfigurator() tablenamespace.TableNamespaceConfigurator {
+	return hc.analyticsCacheNamespaceCfg
+}
+
+func (hc *HandlerContext) GetViewsTableNamespaceConfigurator() tablenamespace.TableNamespaceConfigurator {
+	return hc.viewsNamespaceCfg
+}
+
 func GetRegistry(runtimeCtx dto.RuntimeCtx) (openapistackql.RegistryAPI, error) {
 	return getRegistry(runtimeCtx)
 }
@@ -156,6 +163,22 @@ func getRegistry(runtimeCtx dto.RuntimeCtx) (openapistackql.RegistryAPI, error) 
 	return openapistackql.NewRegistry(rc, rt)
 }
 
+func (hc *HandlerContext) initNamespaces() error {
+	analyticsCacheDirector := tablenamespace.GetAnalyticsCacheTableNamespaceConfiguratorBuilderDirector()
+	err := analyticsCacheDirector.Construct()
+	if err != nil {
+		return err
+	}
+	hc.analyticsCacheNamespaceCfg = analyticsCacheDirector.GetResult()
+	viewsDirector := tablenamespace.GetViewsTableNamespaceConfiguratorBuilderDirector()
+	err = viewsDirector.Construct()
+	if err != nil {
+		return err
+	}
+	hc.viewsNamespaceCfg = viewsDirector.GetResult()
+	return nil
+}
+
 func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucache.LRUCache, sqlEng sqlengine.SQLEngine) (HandlerContext, error) {
 
 	ac := make(map[string]*dto.AuthCtx)
@@ -171,7 +194,7 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 	if err != nil {
 		return HandlerContext{}, err
 	}
-	return HandlerContext{
+	rv := &HandlerContext{
 		RawQuery:          cmdString,
 		RuntimeContext:    runtimeCtx,
 		providers:         providers,
@@ -180,7 +203,17 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 		ErrorPresentation: runtimeCtx.ErrorPresentation,
 		LRUCache:          lruCache,
 		SQLEngine:         sqlEng,
-		DrmConfig:         drmConfig,
 		TxnCounterMgr:     nil,
-	}, nil
+	}
+	err = rv.initNamespaces()
+	if err != nil {
+		return HandlerContext{}, err
+	}
+	drmCfg, err := drm.GetGoogleV1SQLiteConfig(rv.analyticsCacheNamespaceCfg, rv.viewsNamespaceCfg)
+	if err != nil {
+		return HandlerContext{}, err
+	}
+	rv.DrmConfig = drmCfg
+	err = rv.initNamespaces()
+	return *rv, err
 }
