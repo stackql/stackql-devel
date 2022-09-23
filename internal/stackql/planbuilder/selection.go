@@ -39,7 +39,7 @@ func (p *primitiveGenerator) assembleUnarySelectionBuilder(
 		return err
 	}
 
-	_, err = docparser.OpenapiStackQLTabulationsPersistor(method, []util.AnnotatedTabulation{annotatedInsertTabulation}, p.PrimitiveComposer.GetSQLEngine(), prov.Name)
+	_, err = docparser.OpenapiStackQLTabulationsPersistor(method, []util.AnnotatedTabulation{annotatedInsertTabulation}, p.PrimitiveComposer.GetSQLEngine(), prov.Name, handlerCtx.GetAnalyticsCacheTableNamespaceConfigurator(), handlerCtx.GetViewsTableNamespaceConfigurator())
 	if err != nil {
 		return err
 	}

@@ -185,6 +185,10 @@ func (dp *StandardDependencyPlanner) Plan() error {
 	}
 	rewrittenWhereStr := astvisit.GenerateModifiedWhereClause(dp.rewrittenWhere)
 	logging.GetLogger().Debugf("rewrittenWhereStr = '%s'", rewrittenWhereStr)
+	drmCfg, err := drm.GetGoogleV1SQLiteConfig(dp.handlerCtx.GetAnalyticsCacheTableNamespaceConfigurator(), dp.handlerCtx.GetViewsTableNamespaceConfigurator())
+	if err != nil {
+		return err
+	}
 	v := astvisit.NewQueryRewriteAstVisitor(
 		dp.handlerCtx,
 		dp.tblz,
@@ -192,7 +196,7 @@ func (dp *StandardDependencyPlanner) Plan() error {
 		dp.annMap,
 		dp.discoGenIDs,
 		dp.colRefs,
-		drm.GetGoogleV1SQLiteConfig(),
+		drmCfg,
 		dp.primaryTcc,
 		dp.secondaryTccs,
 		rewrittenWhereStr,
@@ -269,7 +273,7 @@ func (dp *StandardDependencyPlanner) processAcquire(
 	}
 	anTab := util.NewAnnotatedTabulation(tab, annotationCtx.GetHIDs(), annotationCtx.GetTableMeta().Alias)
 
-	discoGenId, err := docparser.OpenapiStackQLTabulationsPersistor(m, []util.AnnotatedTabulation{anTab}, dp.primitiveComposer.GetSQLEngine(), prov.Name)
+	discoGenId, err := docparser.OpenapiStackQLTabulationsPersistor(m, []util.AnnotatedTabulation{anTab}, dp.primitiveComposer.GetSQLEngine(), prov.Name, dp.handlerCtx.GetAnalyticsCacheTableNamespaceConfigurator(), dp.handlerCtx.GetViewsTableNamespaceConfigurator())
 	if err != nil {
 		return util.NewAnnotatedTabulation(nil, nil, ""), nil, err
 	}
