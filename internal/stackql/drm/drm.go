@@ -12,6 +12,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
+	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/internal/stackql/util"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
@@ -215,10 +216,12 @@ type DRMConfig interface {
 }
 
 type StaticDRMConfig struct {
-	typeMappings          map[string]DRMCoupling
-	defaultRelationalType string
-	defaultGolangKind     reflect.Kind
-	defaultGolangValue    interface{}
+	typeMappings               map[string]DRMCoupling
+	defaultRelationalType      string
+	defaultGolangKind          reflect.Kind
+	defaultGolangValue         interface{}
+	analyticsCacheNamespaceCfg tablenamespace.TableNamespaceConfigurator
+	viewsNamespaceCfg          tablenamespace.TableNamespaceConfigurator
 }
 
 func (dc *StaticDRMConfig) getDefaultGolangValue() interface{} {
@@ -322,7 +325,11 @@ func (dc *StaticDRMConfig) GetTableName(hIds *dto.HeirarchyIdentifiers, discover
 }
 
 func (dc *StaticDRMConfig) getTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) string {
-	return fmt.Sprintf("%s.generation_%d", hIds.GetTableName(), discoveryGenerationID)
+	rv := fmt.Sprintf("%s.generation_%d", hIds.GetTableName(), discoveryGenerationID)
+	if dc.analyticsCacheNamespaceCfg.Match(rv) {
+		return dc.analyticsCacheNamespaceCfg.GetTableName(rv)
+	}
+	return rv
 }
 
 func (dc *StaticDRMConfig) GetParserTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) sqlparser.TableName {
@@ -600,18 +607,21 @@ func (dc *StaticDRMConfig) QueryDML(dbEngine sqlengine.SQLEngine, ctxParameteriz
 	return dbEngine.Query(query, varArgs...)
 }
 
-func GetGoogleV1SQLiteConfig() DRMConfig {
-	return &StaticDRMConfig{
+func GetGoogleV1SQLiteConfig(analyticsCacheNamespaceCfg tablenamespace.TableNamespaceConfigurator, viewsNamespaceCfg tablenamespace.TableNamespaceConfigurator) (DRMConfig, error) {
+	rv := &StaticDRMConfig{
 		typeMappings: map[string]DRMCoupling{
-			"array":   DRMCoupling{RelationalType: "text", GolangKind: reflect.Slice},
-			"boolean": DRMCoupling{RelationalType: "boolean", GolangKind: reflect.Bool},
-			"int":     DRMCoupling{RelationalType: "integer", GolangKind: reflect.Int},
-			"integer": DRMCoupling{RelationalType: "integer", GolangKind: reflect.Int},
-			"object":  DRMCoupling{RelationalType: "text", GolangKind: reflect.Map},
-			"string":  DRMCoupling{RelationalType: "text", GolangKind: reflect.String},
+			"array":   {RelationalType: "text", GolangKind: reflect.Slice},
+			"boolean": {RelationalType: "boolean", GolangKind: reflect.Bool},
+			"int":     {RelationalType: "integer", GolangKind: reflect.Int},
+			"integer": {RelationalType: "integer", GolangKind: reflect.Int},
+			"object":  {RelationalType: "text", GolangKind: reflect.Map},
+			"string":  {RelationalType: "text", GolangKind: reflect.String},
 		},
-		defaultRelationalType: "text",
-		defaultGolangKind:     reflect.String,
-		defaultGolangValue:    sql.NullString{}, // string is default
+		defaultRelationalType:      "text",
+		defaultGolangKind:          reflect.String,
+		defaultGolangValue:         sql.NullString{}, // string is default
+		analyticsCacheNamespaceCfg: analyticsCacheNamespaceCfg,
+		viewsNamespaceCfg:          viewsNamespaceCfg,
 	}
+	return rv, nil
 }
