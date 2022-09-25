@@ -5,6 +5,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
+	"github.com/stackql/stackql/internal/stackql/streaming"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 )
 
@@ -18,7 +19,7 @@ func NewSingleAcquireAndSelect(graph *primitivegraph.PrimitiveGraph, txnControlC
 	return &SingleAcquireAndSelect{
 		graph:          graph,
 		acquireBuilder: NewSingleSelectAcquire(graph, handlerCtx, tableMeta, insertCtx, rowSort, nil),
-		selectBuilder:  NewSingleSelect(graph, handlerCtx, selectCtx, rowSort),
+		selectBuilder:  NewSingleSelect(graph, handlerCtx, selectCtx, rowSort, streaming.NewNopMapStream()),
 	}
 }
 
