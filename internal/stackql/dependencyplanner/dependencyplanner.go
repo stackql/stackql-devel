@@ -112,7 +112,8 @@ func (dp *StandardDependencyPlanner) Plan() error {
 			if err != nil {
 				return err
 			}
-			err = dp.orchestrate(annotation, insPsc, dp.defaultStream, streaming.NewNopMapStream())
+			stream := streaming.NewNopMapStream()
+			err = dp.orchestrate(annotation, insPsc, dp.defaultStream, stream)
 			if err != nil {
 				return err
 			}
@@ -209,7 +210,13 @@ func (dp *StandardDependencyPlanner) Plan() error {
 	if err != nil {
 		return err
 	}
-	selBld := primitivebuilder.NewSingleSelect(dp.primitiveComposer.GetGraph(), dp.handlerCtx, selCtx, nil)
+	selBld := primitivebuilder.NewSingleSelect(
+		dp.primitiveComposer.GetGraph(),
+		dp.handlerCtx,
+		selCtx,
+		nil,
+		streaming.NewNopMapStream(),
+	)
 	// TODO: make this finer grained STAT
 	dp.bldr = primitivebuilder.NewDependentMultipleAcquireAndSelect(dp.primitiveComposer.GetGraph(), dp.execSlice, selBld)
 	dp.selCtx = selCtx
@@ -235,15 +242,17 @@ func (dp *StandardDependencyPlanner) orchestrate(
 	inStream streaming.MapStream,
 	outStream streaming.MapStream,
 ) error {
-	builder := primitivebuilder.NewSingleSelectAcquire(
-		dp.primitiveComposer.GetGraph(),
-		dp.handlerCtx,
-		annotationCtx.GetTableMeta(),
-		insPsc,
-		nil,
-		outStream,
-	)
-	dp.execSlice = append(dp.execSlice, builder)
+	if !insPsc.IsAnalyticsCacheQuery() {
+		builder := primitivebuilder.NewSingleSelectAcquire(
+			dp.primitiveComposer.GetGraph(),
+			dp.handlerCtx,
+			annotationCtx.GetTableMeta(),
+			insPsc,
+			nil,
+			outStream,
+		)
+		dp.execSlice = append(dp.execSlice, builder)
+	}
 	dp.tableSlice = append(dp.tableSlice, annotationCtx.GetTableMeta())
 	err := annotationCtx.Prepare(dp.handlerCtx, inStream)
 	return err

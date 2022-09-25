@@ -177,5 +177,6 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 		len(input.GetTables()),
 		txnCtrlCtrs,
 		input.GetSecondaryCtrlCounters(),
+		input.GetDRMConfig().GetAnalyticsCacheTableNamespaceConfigurator(),
 	), nil
 }
