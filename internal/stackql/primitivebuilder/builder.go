@@ -12,6 +12,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
+	"github.com/stackql/stackql/internal/stackql/streaming"
 	"github.com/stackql/stackql/internal/stackql/util"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
@@ -25,7 +26,14 @@ type Builder interface {
 	GetTail() primitivegraph.PrimitiveNode
 }
 
-func prepareGolangResult(sqlEngine sqlengine.SQLEngine, errWriter io.Writer, stmtCtx drm.PreparedStatementParameterized, nonControlColumns []drm.ColumnMetadata, drmCfg drm.DRMConfig) dto.ExecutorOutput {
+func prepareGolangResult(
+	sqlEngine sqlengine.SQLEngine,
+	errWriter io.Writer,
+	stmtCtx drm.PreparedStatementParameterized,
+	nonControlColumns []drm.ColumnMetadata,
+	drmCfg drm.DRMConfig,
+	stream streaming.MapStream,
+) dto.ExecutorOutput {
 	r, sqlErr := drmCfg.QueryDML(
 		sqlEngine,
 		stmtCtx,
@@ -70,6 +78,7 @@ func prepareGolangResult(sqlEngine sqlengine.SQLEngine, errWriter io.Writer, stm
 				imRaw[ord] = ev
 			}
 			altKeys[strconv.Itoa(i)] = im
+			stream.Write([]map[string]interface{}{im})
 			rawRows[i] = imRaw
 			ks = append(ks, i)
 			i++

@@ -98,6 +98,10 @@ func (ps *PreparedStatementCtx) GetQuery() string {
 	return ps.query
 }
 
+func (ps *PreparedStatementCtx) IsAnalyticsCacheQuery() bool {
+	return false
+}
+
 func (ps *PreparedStatementCtx) GetGCCtrlCtrs() *dto.TxnControlCounters {
 	return ps.txnCtrlCtrs
 }
@@ -129,6 +133,7 @@ func NewPreparedStatementCtx(
 	ctrlColumnRepeats int,
 	txnCtrlCtrs *dto.TxnControlCounters,
 	secondaryCtrs []*dto.TxnControlCounters,
+	analyticsNamespaceCfg tablenamespace.TableNamespaceConfigurator,
 ) *PreparedStatementCtx {
 	return &PreparedStatementCtx{
 		query:                   query,
@@ -204,6 +209,8 @@ type DRMConfig interface {
 	GenerateDDL(util.AnnotatedTabulation, *openapistackql.OperationStore, int, bool) []string
 	GetGolangValue(string) interface{}
 	GetInsControlColumn() string
+	GetAnalyticsCacheTableNamespaceConfigurator() tablenamespace.TableNamespaceConfigurator
+	GetViewsTableNamespaceConfigurator() tablenamespace.TableNamespaceConfigurator
 	GetParserTableName(*dto.HeirarchyIdentifiers, int) sqlparser.TableName
 	GetSessionControlColumn() string
 	GetTableName(*dto.HeirarchyIdentifiers, int) string
@@ -238,6 +245,14 @@ func (dc *StaticDRMConfig) GetRelationalType(discoType string) string {
 		return rv.RelationalType
 	}
 	return dc.defaultRelationalType
+}
+
+func (dc *StaticDRMConfig) GetAnalyticsCacheTableNamespaceConfigurator() tablenamespace.TableNamespaceConfigurator {
+	return dc.analyticsCacheNamespaceCfg
+}
+
+func (dc *StaticDRMConfig) GetViewsTableNamespaceConfigurator() tablenamespace.TableNamespaceConfigurator {
+	return dc.viewsNamespaceCfg
 }
 
 func (dc *StaticDRMConfig) GetGolangValue(discoType string) interface{} {
@@ -444,6 +459,7 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 			1,
 			tcc,
 			nil,
+			dc.viewsNamespaceCfg,
 		),
 		nil
 }
@@ -507,6 +523,7 @@ func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 		1,
 		txnCtrlCtrs,
 		nil,
+		dc.viewsNamespaceCfg,
 	), nil
 }
 
