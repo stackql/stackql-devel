@@ -78,6 +78,9 @@ func (hc *HandlerContext) GetProvider(providerName string) (provider.IProvider, 
 	if providerName == "" {
 		providerName = hc.RuntimeContext.ProviderStr
 	}
+	if hc.analyticsCacheNamespaceCfg.Match(providerName) {
+		providerName = hc.analyticsCacheNamespaceCfg.GetObjectName(providerName)
+	}
 	ds, err := nomenclature.ExtractProviderDesignation(providerName)
 	if err != nil {
 		return nil, err

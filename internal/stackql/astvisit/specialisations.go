@@ -5,11 +5,12 @@ import (
 	"strings"
 
 	"github.com/stackql/stackql/internal/stackql/parserutil"
+	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-func GenerateModifiedSelectSuffix(node sqlparser.SQLNode) string {
-	v := NewDRMAstVisitor("", false)
+func GenerateModifiedSelectSuffix(node sqlparser.SQLNode, analyticsNamespaceConfigurator tablenamespace.TableNamespaceConfigurator) string {
+	v := NewDRMAstVisitor("", false, analyticsNamespaceConfigurator)
 	switch node := node.(type) {
 	case *sqlparser.Select:
 		var options string
@@ -54,8 +55,8 @@ func GenerateModifiedSelectSuffix(node sqlparser.SQLNode) string {
 	return v.GetRewrittenQuery()
 }
 
-func GenerateUnionTemplateQuery(node *sqlparser.Union) string {
-	v := NewDRMAstVisitor("", false)
+func GenerateUnionTemplateQuery(node *sqlparser.Union, analyticsNamespaceConfigurator tablenamespace.TableNamespaceConfigurator) string {
+	v := NewDRMAstVisitor("", false, analyticsNamespaceConfigurator)
 
 	var sb strings.Builder
 	sb.WriteString("%s ")
@@ -83,8 +84,8 @@ func GenerateUnionTemplateQuery(node *sqlparser.Union) string {
 	return v.GetRewrittenQuery()
 }
 
-func GenerateModifiedWhereClause(node *sqlparser.Where) string {
-	v := NewDRMAstVisitor("", false)
+func GenerateModifiedWhereClause(node *sqlparser.Where, analyticsNamespaceConfigurator tablenamespace.TableNamespaceConfigurator) string {
+	v := NewDRMAstVisitor("", false, analyticsNamespaceConfigurator)
 	var whereStr string
 	if node != nil && node.Expr != nil {
 		node.Expr.Accept(v)
@@ -114,8 +115,8 @@ func ExtractParamsFromFromClause(node sqlparser.TableExprs) parserutil.Parameter
 	return v.GetParameters()
 }
 
-func ExtractProviderStrings(node sqlparser.SQLNode) []string {
-	v := NewDRMAstVisitor("", true)
+func ExtractProviderStrings(node sqlparser.SQLNode, analyticsNamespaceConfigurator tablenamespace.TableNamespaceConfigurator) []string {
+	v := NewDRMAstVisitor("", true, analyticsNamespaceConfigurator)
 	node.Accept(v)
 	return v.GetProviderStrings()
 }
