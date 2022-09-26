@@ -223,6 +223,8 @@ STACKQL_PG_CLIENT_CERT_PATH_DOCKER  :str = os.path.abspath(os.path.join(REPOSITO
 STACKQL_PG_RUBBISH_KEY_PATH_DOCKER  :str = os.path.abspath(os.path.join(REPOSITORY_ROOT, "vol", "srv", "credentials", "pg_rubbish_key.pem"))
 STACKQL_PG_RUBBISH_CERT_PATH_DOCKER :str = os.path.abspath(os.path.join(REPOSITORY_ROOT, "vol", "srv", "credentials", "pg_rubbish_cert.pem"))
 
+ANALYTICS_DB_INIT_PATH :str = os.path.abspath(os.path.join(REPOSITORY_ROOT, "test", "db", "cache_setup.sql"))
+
 with open(os.path.join(REPOSITORY_ROOT, 'test', 'server', 'mtls', 'credentials', 'pg_client_cert.pem'), 'rb') as f:
   _CLIENT_CERT_ENCODED :str = base64.b64encode(f.read()).decode('utf-8')
 
@@ -376,6 +378,8 @@ SELECT_GITHUB_SCIM_JOIN_WITH_FUNCTIONS = "select substr(su.userName, 1, instr(su
 SELECT_GITHUB_ORGS_MEMBERS = "select om.login from github.orgs.members om where om.org = 'dummyorg' order by om.login desc;"
 SELECT_GITHUB_JOIN_IN_PARAMS = "select r.name, col.login, col.type, col.role_name from github.repos.collaborators col inner join github.repos.repos r ON col.repo = r.name where col.owner = 'dummyorg' and r.org = 'dummyorg' order by r.name, col.login desc;"
 
+SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS = "select r.name, col.login, col.type, col.role_name from stackql_analytics_github.repos.collaborators col inner join stackql_analytics_github.repos.repos r ON col.repo = r.name where col.owner = 'stackql' and r.org = 'stackql' order by r.name, col.login desc;"
+
 SELECT_OKTA_APPS = "select name, status, label, id from okta.application.apps apps where apps.subdomain = 'example-subdomain' order by name asc;"
 SELECT_OKTA_USERS_ASC = "select JSON_EXTRACT(ou.profile, '$.login') as login, ou.status from okta.user.users ou WHERE ou.subdomain = 'dummyorg' order by JSON_EXTRACT(ou.profile, '$.login') asc;"
 
@@ -439,6 +443,7 @@ SELECT_GITHUB_TAGS_COUNT_EXPECTED = get_output_from_local_file(os.path.join('tes
 SELECT_GITHUB_JOIN_DATA_FLOW_SEQUENTIAL_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'github', 'joins', 'select-github-sequential-join.txt'))
 SELECT_GITHUB_JOIN_IN_PARAMS_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'github', 'joins', 'select-github-join-on-path-param.txt'))
 SELECT_GITHUB_SCIM_JOIN_WITH_FUNCTIONS_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'github', 'joins', 'select-github-sequential-join-with-functions.txt'))
+SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'github', 'joins', 'analytics-repositories-collaborators.txt'))
 SELECT_GITHUB_OKTA_SAML_JOIN_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'joins', 'inner', 'github-saml-members-okta-users.txt'))
 SELECT_GITHUB_ORGS_MEMBERS_PAGE_LIMITED_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'github', 'orgs', 'page-limited-members.txt'))
 SELECT_GOOGLE_COMPUTE_INSTANCE_IAM_POLICY_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'google', 'compute', 'instance-iam-policy-projection.txt'))
@@ -490,6 +495,7 @@ REGISTRY_GOOGLE_PROVIDER_LIST_EXPECTED = get_output_from_local_file(os.path.join
 def get_variables(execution_env :str):
   rv = {
     ## general config
+    'ANALYTICS_DB_INIT_PATH':                         ANALYTICS_DB_INIT_PATH,
     'AZURE_SECRET_STR':                               AZURE_SECRET_STR,
     'BUILDMAJORVERSION':                              _BUILD_MAJOR_VERSION,
     'BUILDMINORVERSION':                              _BUILD_MINOR_VERSION,
@@ -542,6 +548,8 @@ def get_variables(execution_env :str):
     'REGISTRY_LIST_EXPECTED':                                               REGISTRY_LIST_EXPECTED,
     'SELECT_ACCELERATOR_TYPES_DESC':                                        SELECT_ACCELERATOR_TYPES_DESC,
     'SELECT_ACCELERATOR_TYPES_DESC_EXPECTED':                               SELECT_ACCELERATOR_TYPES_DESC_EXPECTED,
+    'SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS':             SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS,
+    'SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS_EXPECTED':    SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS_EXPECTED,
     'SELECT_AWS_CLOUD_CONTROL_OPERATIONS_DESC':                             SELECT_AWS_CLOUD_CONTROL_OPERATIONS_DESC,
     'SELECT_AWS_CLOUD_CONTROL_OPERATIONS_DESC_EXPECTED':                    SELECT_AWS_CLOUD_CONTROL_OPERATIONS_DESC_EXPECTED,
     'SELECT_AWS_CLOUD_CONTROL_VPCS_DESC':                                   SELECT_AWS_CLOUD_CONTROL_VPCS_DESC,

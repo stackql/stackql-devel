@@ -379,6 +379,19 @@ GitHub Repository IDs Select
     ...    ${SELECT_GITHUB_REPOS_IDS_ASC}
     ...    ${SELECT_GITHUB_REPOS_IDS_ASC_EXPECTED}
 
+GitHub Analytics Select Repositories Collaborators
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SELECT_GITHUB_REPOS_IDS_ASC}
+    ...    ${SELECT_GITHUB_REPOS_IDS_ASC_EXPECTED}
+    ...    \-\-dbinitfilepath\=${ANALYTICS_DB_INIT_PATH}
+    ...    stdout=${CURDIR}/tmp/GitHub-Analytics-Select-Repositories-Collaborators.tmp
+
 GitHub Repository With Functions Select
     Should Horrid Query StackQL Inline Equal
     ...    ${STACKQL_EXE}
