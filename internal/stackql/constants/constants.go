@@ -1,6 +1,7 @@
 package constants
 
 const (
+	AnalyticsPrefix                    string = "stackql_analytics"
 	GoogleV1DiscoveryDoc               string = "https://www.googleapis.com/discovery/v1/apis"
 	GoogleV1OperationURLPropertyString string = "selfLink"
 	GoogleV1ProviderCacheName          string = "google_provider_v_0_3_7"

@@ -78,7 +78,7 @@ func NewColDescriptor(col openapistackql.ColumnDescriptor, relTypeStr string) Co
 
 type PreparedStatementCtx struct {
 	query                   string
-	kind                    string // string annotation applicale only in some cases eg UNION [ALL]
+	kind                    string // string annotation applicable only in some cases eg UNION [ALL]
 	genIdControlColName     string
 	sessionIdControlColName string
 	TableNames              []string
@@ -88,6 +88,8 @@ type PreparedStatementCtx struct {
 	ctrlColumnRepeats       int
 	txnCtrlCtrs             *dto.TxnControlCounters
 	selectTxnCtrlCtrs       []*dto.TxnControlCounters
+	analyticsNamespaceCfg   tablenamespace.TableNamespaceConfigurator
+	isOnlyAnalytics         bool
 }
 
 func (ps *PreparedStatementCtx) SetKind(kind string) {
@@ -98,8 +100,8 @@ func (ps *PreparedStatementCtx) GetQuery() string {
 	return ps.query
 }
 
-func (ps *PreparedStatementCtx) IsAnalyticsCacheQuery() bool {
-	return false
+func (ps *PreparedStatementCtx) IsAnalyticsCacheQueryOnly() bool {
+	return ps.isOnlyAnalytics
 }
 
 func (ps *PreparedStatementCtx) GetGCCtrlCtrs() *dto.TxnControlCounters {
@@ -134,6 +136,7 @@ func NewPreparedStatementCtx(
 	txnCtrlCtrs *dto.TxnControlCounters,
 	secondaryCtrs []*dto.TxnControlCounters,
 	analyticsNamespaceCfg tablenamespace.TableNamespaceConfigurator,
+	isOnlyAnalytics bool,
 ) *PreparedStatementCtx {
 	return &PreparedStatementCtx{
 		query:                   query,
@@ -147,6 +150,8 @@ func NewPreparedStatementCtx(
 		ctrlColumnRepeats:       ctrlColumnRepeats,
 		txnCtrlCtrs:             txnCtrlCtrs,
 		selectTxnCtrlCtrs:       secondaryCtrs,
+		analyticsNamespaceCfg:   analyticsNamespaceCfg,
+		isOnlyAnalytics:         isOnlyAnalytics,
 	}
 }
 
@@ -332,6 +337,10 @@ func (dc *StaticDRMConfig) getInsControlColumn() string {
 }
 
 func (dc *StaticDRMConfig) GetCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers, dbEngine sqlengine.SQLEngine) (dto.DBTable, error) {
+	tn := tableHeirarchyIDs.GetTableName()
+	if dc.analyticsCacheNamespaceCfg.Match(tn) {
+		return dto.NewDBTableAnalytics(tn, -1, tableHeirarchyIDs), nil
+	}
 	return dbEngine.GetCurrentTable(tableHeirarchyIDs)
 }
 
@@ -339,10 +348,15 @@ func (dc *StaticDRMConfig) GetTableName(hIds *dto.HeirarchyIdentifiers, discover
 	return dc.getTableName(hIds, discoveryGenerationID)
 }
 
+func (dc *StaticDRMConfig) isOnlyAnalytics(hIds *dto.HeirarchyIdentifiers) bool {
+	name := hIds.GetTableName()
+	return dc.analyticsCacheNamespaceCfg.Match(name)
+}
+
 func (dc *StaticDRMConfig) getTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) string {
 	rv := fmt.Sprintf("%s.generation_%d", hIds.GetTableName(), discoveryGenerationID)
 	if dc.analyticsCacheNamespaceCfg.Match(rv) {
-		return dc.analyticsCacheNamespaceCfg.GetTableName(rv)
+		return dc.analyticsCacheNamespaceCfg.GetObjectName(rv)
 	}
 	return rv
 }
@@ -352,6 +366,13 @@ func (dc *StaticDRMConfig) GetParserTableName(hIds *dto.HeirarchyIdentifiers, di
 }
 
 func (dc *StaticDRMConfig) getParserTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) sqlparser.TableName {
+	if dc.analyticsCacheNamespaceCfg.Match(hIds.GetTableName()) {
+		return sqlparser.TableName{
+			Name:            sqlparser.NewTableIdent(hIds.ResourceStr),
+			Qualifier:       sqlparser.NewTableIdent(hIds.ServiceStr),
+			QualifierSecond: sqlparser.NewTableIdent(hIds.ProviderStr),
+		}
+	}
 	return sqlparser.TableName{
 		Name:            sqlparser.NewTableIdent(fmt.Sprintf("generation_%d", discoveryGenerationID)),
 		Qualifier:       sqlparser.NewTableIdent(hIds.ResourceStr),
@@ -419,6 +440,7 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 	var q strings.Builder
 	var quotedColNames, vals []string
 	var columns []ColumnMetadata
+	isOnlyAnalytics := dc.isOnlyAnalytics(tabAnnotated.GetHeirarchyIdentifiers())
 	tableName := dc.inferTableName(tabAnnotated.GetHeirarchyIdentifiers(), tcc.DiscoveryGenerationId)
 	q.WriteString(fmt.Sprintf(`INSERT INTO "%s" `, tableName))
 	genIdColName := dc.getGenerationControlColumn()
@@ -460,6 +482,7 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 			tcc,
 			nil,
 			dc.viewsNamespaceCfg,
+			isOnlyAnalytics,
 		),
 		nil
 }
@@ -524,6 +547,7 @@ func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 		txnCtrlCtrs,
 		nil,
 		dc.viewsNamespaceCfg,
+		false,
 	), nil
 }
 

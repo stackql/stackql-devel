@@ -7,11 +7,13 @@ import (
 	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/dto"
+	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
 type SQLRewriteInput interface {
+	GetAnalyticsConfig() tablenamespace.TableNamespaceConfigurator
 	GetDRMConfig() drm.DRMConfig
 	GetColumnDescriptors() []openapistackql.ColumnDescriptor
 	GetBaseControlCounters() *dto.TxnControlCounters
@@ -33,6 +35,7 @@ type StandardSQLRewriteInput struct {
 	tables                taxonomy.TblMap
 	fromString            string
 	tableSlice            []*taxonomy.ExtendedTableMetadata
+	analtyicsConfig       tablenamespace.TableNamespaceConfigurator
 }
 
 func NewStandardSQLRewriteInput(
@@ -45,6 +48,7 @@ func NewStandardSQLRewriteInput(
 	tables taxonomy.TblMap,
 	fromString string,
 	tableSlice []*taxonomy.ExtendedTableMetadata,
+	analtyicsConfig tablenamespace.TableNamespaceConfigurator,
 ) SQLRewriteInput {
 	return &StandardSQLRewriteInput{
 		dc:                    dc,
@@ -56,11 +60,16 @@ func NewStandardSQLRewriteInput(
 		tables:                tables,
 		fromString:            fromString,
 		tableSlice:            tableSlice,
+		analtyicsConfig:       analtyicsConfig,
 	}
 }
 
 func (ri *StandardSQLRewriteInput) GetDRMConfig() drm.DRMConfig {
 	return ri.dc
+}
+
+func (ri *StandardSQLRewriteInput) GetAnalyticsConfig() tablenamespace.TableNamespaceConfigurator {
+	return ri.analtyicsConfig
 }
 
 func (ri *StandardSQLRewriteInput) GetColumnDescriptors() []openapistackql.ColumnDescriptor {
@@ -134,25 +143,35 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 	var wq strings.Builder
 	var controlWhereComparisons []string
 	for _, v := range input.GetTableSlice() {
-		alias := v.Alias
-		if alias != "" {
-			gIDcn := fmt.Sprintf(`"%s"."%s"`, alias, genIdColName)
-			sIDcn := fmt.Sprintf(`"%s"."%s"`, alias, sessionIDColName)
-			tIDcn := fmt.Sprintf(`"%s"."%s"`, alias, txnIdColName)
-			iIDcn := fmt.Sprintf(`"%s"."%s"`, alias, insIdColName)
-			controlWhereComparisons = append(controlWhereComparisons, fmt.Sprintf(`%s = ? AND %s = ? AND %s = ? AND %s = ?`, gIDcn, sIDcn, tIDcn, iIDcn))
-		} else {
-			gIDcn := fmt.Sprintf(`"%s"`, genIdColName)
-			sIDcn := fmt.Sprintf(`"%s"`, sessionIDColName)
-			tIDcn := fmt.Sprintf(`"%s"`, txnIdColName)
-			iIDcn := fmt.Sprintf(`"%s"`, insIdColName)
-			controlWhereComparisons = append(controlWhereComparisons, fmt.Sprintf(`%s = ? AND %s = ? AND %s = ? AND %s = ?`, gIDcn, sIDcn, tIDcn, iIDcn))
+		tn, _ := v.GetTableName()
+		if !input.GetAnalyticsConfig().Match(tn) {
+			alias := v.Alias
+			if alias != "" {
+				gIDcn := fmt.Sprintf(`"%s"."%s"`, alias, genIdColName)
+				sIDcn := fmt.Sprintf(`"%s"."%s"`, alias, sessionIDColName)
+				tIDcn := fmt.Sprintf(`"%s"."%s"`, alias, txnIdColName)
+				iIDcn := fmt.Sprintf(`"%s"."%s"`, alias, insIdColName)
+				controlWhereComparisons = append(controlWhereComparisons, fmt.Sprintf(`%s = ? AND %s = ? AND %s = ? AND %s = ?`, gIDcn, sIDcn, tIDcn, iIDcn))
+			} else {
+				gIDcn := fmt.Sprintf(`"%s"`, genIdColName)
+				sIDcn := fmt.Sprintf(`"%s"`, sessionIDColName)
+				tIDcn := fmt.Sprintf(`"%s"`, txnIdColName)
+				iIDcn := fmt.Sprintf(`"%s"`, insIdColName)
+				controlWhereComparisons = append(controlWhereComparisons, fmt.Sprintf(`%s = ? AND %s = ? AND %s = ? AND %s = ?`, gIDcn, sIDcn, tIDcn, iIDcn))
+			}
 		}
 	}
-	controlWhereSubClause := fmt.Sprintf("( %s )", strings.Join(controlWhereComparisons, " AND "))
-	wq.WriteString(controlWhereSubClause)
+	if len(controlWhereComparisons) > 0 {
+		controlWhereSubClause := fmt.Sprintf("( %s )", strings.Join(controlWhereComparisons, " AND "))
+		wq.WriteString(controlWhereSubClause)
+	}
+
 	if strings.TrimSpace(rewrittenWhere) != "" {
-		wq.WriteString(fmt.Sprintf(" AND ( %s ) ", rewrittenWhere))
+		if len(controlWhereComparisons) > 0 {
+			wq.WriteString(fmt.Sprintf(" AND ( %s ) ", rewrittenWhere))
+		} else {
+			wq.WriteString(fmt.Sprintf(" ( %s ) ", rewrittenWhere))
+		}
 	}
 	whereExprsStr := wq.String()
 
@@ -178,5 +197,6 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 		txnCtrlCtrs,
 		input.GetSecondaryCtrlCounters(),
 		input.GetDRMConfig().GetAnalyticsCacheTableNamespaceConfigurator(),
+		false,
 	), nil
 }

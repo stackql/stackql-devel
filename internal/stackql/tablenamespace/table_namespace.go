@@ -1,12 +1,11 @@
 package tablenamespace
 
 import (
-	"fmt"
 	"regexp"
 )
 
 type TableNamespaceConfigurator interface {
-	GetTableName(string) string
+	GetObjectName(string) string
 	Match(string) bool
 }
 
@@ -23,6 +22,14 @@ func (stc *RegexTableNamespaceConfigurator) Match(tableString string) bool {
 	return stc.regex.MatchString(tableString)
 }
 
-func (stc *RegexTableNamespaceConfigurator) GetTableName(tableString string) string {
-	return fmt.Sprintf("%s.%s", stc.prefix, tableString)
+func (stc *RegexTableNamespaceConfigurator) GetObjectName(inputString string) string {
+	for i, name := range stc.regex.SubexpNames() {
+		if name == "objectName" {
+			submatches := stc.regex.FindStringSubmatch(inputString)
+			if len(submatches) > i {
+				return submatches[i]
+			}
+		}
+	}
+	return ""
 }

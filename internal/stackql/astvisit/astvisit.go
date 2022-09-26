@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/stackql/stackql/internal/stackql/dto"
+	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 
 	"vitess.io/vitess/go/sqltypes"
 	"vitess.io/vitess/go/vt/sqlparser"
@@ -15,20 +16,22 @@ type SQLAstVisitor interface {
 }
 
 type DRMAstVisitor struct {
-	iDColumnName        string
-	rewrittenQuery      string
-	gcQueries           []string
-	tablesCited         map[*sqlparser.AliasedTableExpr]sqlparser.TableName
-	params              map[sqlparser.SQLNode]interface{}
-	shouldCollectTables bool
+	iDColumnName                   string
+	rewrittenQuery                 string
+	gcQueries                      []string
+	tablesCited                    map[*sqlparser.AliasedTableExpr]sqlparser.TableName
+	params                         map[sqlparser.SQLNode]interface{}
+	shouldCollectTables            bool
+	analyticsNamespaceConfigurator tablenamespace.TableNamespaceConfigurator
 }
 
-func NewDRMAstVisitor(iDColumnName string, shouldCollectTables bool) *DRMAstVisitor {
+func NewDRMAstVisitor(iDColumnName string, shouldCollectTables bool, analyticsNamespaceConfigurator tablenamespace.TableNamespaceConfigurator) *DRMAstVisitor {
 	return &DRMAstVisitor{
-		iDColumnName:        iDColumnName,
-		tablesCited:         make(map[*sqlparser.AliasedTableExpr]sqlparser.TableName),
-		params:              make(map[sqlparser.SQLNode]interface{}),
-		shouldCollectTables: shouldCollectTables,
+		iDColumnName:                   iDColumnName,
+		tablesCited:                    make(map[*sqlparser.AliasedTableExpr]sqlparser.TableName),
+		params:                         make(map[sqlparser.SQLNode]interface{}),
+		shouldCollectTables:            shouldCollectTables,
+		analyticsNamespaceConfigurator: analyticsNamespaceConfigurator,
 	}
 }
 
@@ -136,7 +139,7 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 			node.SelectExprs.Accept(v)
 			selectExprStr = v.GetRewrittenQuery()
 		}
-		fromVis := NewDRMAstVisitor(v.iDColumnName, true)
+		fromVis := NewDRMAstVisitor(v.iDColumnName, true, v.analyticsNamespaceConfigurator)
 		if node.From != nil {
 			node.From.Accept(fromVis)
 			v.tablesCited = fromVis.tablesCited

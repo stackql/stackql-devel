@@ -8,6 +8,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
+	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 	"vitess.io/vitess/go/vt/sqlparser"
 )
@@ -60,6 +61,7 @@ type StandardParameterRouter struct {
 	tableToComparisonDependencies parserutil.ComparisonTableMap
 	tableToAnnotationCtx          map[sqlparser.TableExpr]taxonomy.AnnotationCtx
 	invalidatedParams             map[string]interface{}
+	analyticsCacheNamepsaceCfg    tablenamespace.TableNamespaceConfigurator
 }
 
 func NewParameterRouter(
@@ -68,6 +70,7 @@ func NewParameterRouter(
 	whereParamMap parserutil.ParameterMap,
 	onParamMap parserutil.ParameterMap,
 	colRefs parserutil.ColTableMap,
+	analyticsCacheNamepsaceCfg tablenamespace.TableNamespaceConfigurator,
 ) ParameterRouter {
 	return &StandardParameterRouter{
 		tablesAliasMap:                tablesAliasMap,
@@ -79,6 +82,7 @@ func NewParameterRouter(
 		comparisonToTableDependencies: make(parserutil.ComparisonTableMap),
 		tableToComparisonDependencies: make(parserutil.ComparisonTableMap),
 		tableToAnnotationCtx:          make(map[sqlparser.TableExpr]taxonomy.AnnotationCtx),
+		analyticsCacheNamepsaceCfg:    analyticsCacheNamepsaceCfg,
 	}
 }
 
@@ -403,7 +407,7 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 	// hierarchy.  This enables e2e relationship
 	// from expression to hierarchy.
 	// eg: "on" clause to openapi method
-	ac, err := obtainAnnotationCtx(handlerCtx.SQLEngine, m, abbreviatedConsumedMap)
+	ac, err := obtainAnnotationCtx(handlerCtx.SQLEngine, m, abbreviatedConsumedMap, pr.analyticsCacheNamepsaceCfg)
 	pr.tableToAnnotationCtx[tb] = ac
 	return ac, err
 }

@@ -184,7 +184,7 @@ func (dp *StandardDependencyPlanner) Plan() error {
 	if weaklyConnectedComponentCount > 1 {
 		return fmt.Errorf("data flow: there are too many weakly connected components; found = %d, max = 1", weaklyConnectedComponentCount)
 	}
-	rewrittenWhereStr := astvisit.GenerateModifiedWhereClause(dp.rewrittenWhere)
+	rewrittenWhereStr := astvisit.GenerateModifiedWhereClause(dp.rewrittenWhere, dp.handlerCtx.GetAnalyticsCacheTableNamespaceConfigurator())
 	logging.GetLogger().Debugf("rewrittenWhereStr = '%s'", rewrittenWhereStr)
 	drmCfg, err := drm.GetGoogleV1SQLiteConfig(dp.handlerCtx.GetAnalyticsCacheTableNamespaceConfigurator(), dp.handlerCtx.GetViewsTableNamespaceConfigurator())
 	if err != nil {
@@ -201,6 +201,7 @@ func (dp *StandardDependencyPlanner) Plan() error {
 		dp.primaryTcc,
 		dp.secondaryTccs,
 		rewrittenWhereStr,
+		drmCfg.GetAnalyticsCacheTableNamespaceConfigurator(),
 	)
 	err = v.Visit(dp.sqlStatement)
 	if err != nil {
@@ -242,7 +243,7 @@ func (dp *StandardDependencyPlanner) orchestrate(
 	inStream streaming.MapStream,
 	outStream streaming.MapStream,
 ) error {
-	if !insPsc.IsAnalyticsCacheQuery() {
+	if !insPsc.IsAnalyticsCacheQueryOnly() {
 		builder := primitivebuilder.NewSingleSelectAcquire(
 			dp.primitiveComposer.GetGraph(),
 			dp.handlerCtx,
@@ -371,6 +372,7 @@ func (dp *StandardDependencyPlanner) generateSelectDML(e dataflow.DataFlowEdge, 
 		dp.tblz,
 		tableName,
 		[]*taxonomy.ExtendedTableMetadata{meta},
+		dp.handlerCtx.GetAnalyticsCacheTableNamespaceConfigurator(),
 	)
 	return sqlrewrite.GenerateSelectDML(rewriteInput)
 }
