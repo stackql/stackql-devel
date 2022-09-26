@@ -63,7 +63,7 @@ func (p *primitiveGenerator) assembleUnarySelectionBuilder(
 		selectTabulation.PushBackColumn(openapistackql.NewColumnDescriptor(col.Alias, col.Name, col.DecoratedColumn, foundSchema, col.Val))
 	}
 
-	selPsc, err := p.PrimitiveComposer.GetDRMConfig().GenerateSelectDML(util.NewAnnotatedTabulation(selectTabulation, hIds, tbl.GetAlias()), insPsc.GetGCCtrlCtrs(), astvisit.GenerateModifiedSelectSuffix(node), astvisit.GenerateModifiedWhereClause(rewrittenWhere))
+	selPsc, err := p.PrimitiveComposer.GetDRMConfig().GenerateSelectDML(util.NewAnnotatedTabulation(selectTabulation, hIds, tbl.GetAlias()), insPsc.GetGCCtrlCtrs(), astvisit.GenerateModifiedSelectSuffix(node, handlerCtx.GetAnalyticsCacheTableNamespaceConfigurator()), astvisit.GenerateModifiedWhereClause(rewrittenWhere, handlerCtx.GetAnalyticsCacheTableNamespaceConfigurator()))
 	if err != nil {
 		return err
 	}

@@ -42,7 +42,7 @@ func prepareGolangResult(
 	if sqlErr != nil {
 		errWriter.Write(
 			[]byte(
-				fmt.Sprintf("sql error = %s\n", sqlErr.Error()),
+				fmt.Sprintf("sql SELECT error = %s\n", sqlErr.Error()),
 			),
 		)
 	}

@@ -5,8 +5,8 @@ import (
 )
 
 var (
-	analyticsCacheRegexp = regexp.MustCompile(`^stackql_analytics\..*$`)
-	viewsRegexp          = regexp.MustCompile(`^stackql_views\..*$`)
+	analyticsCacheRegexp = regexp.MustCompile(`^stackql_analytics_(?P<objectName>.*)$`)
+	viewsRegexp          = regexp.MustCompile(`^stackql_views\.(?P<objectName>.*)$`)
 )
 
 type TableNamespaceConfiguratorBuilderDirector interface {
