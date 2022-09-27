@@ -224,6 +224,7 @@ STACKQL_PG_RUBBISH_KEY_PATH_DOCKER  :str = os.path.abspath(os.path.join(REPOSITO
 STACKQL_PG_RUBBISH_CERT_PATH_DOCKER :str = os.path.abspath(os.path.join(REPOSITORY_ROOT, "vol", "srv", "credentials", "pg_rubbish_cert.pem"))
 
 ANALYTICS_DB_INIT_PATH :str = os.path.abspath(os.path.join(REPOSITORY_ROOT, "test", "db", "cache_setup.sql"))
+ANALYTICS_DB_INIT_PATH_DOCKER :str = get_unix_path(os.path.join('/opt', 'stackql', "test", "db", "cache_setup.sql"))
 
 with open(os.path.join(REPOSITORY_ROOT, 'test', 'server', 'mtls', 'credentials', 'pg_client_cert.pem'), 'rb') as f:
   _CLIENT_CERT_ENCODED :str = base64.b64encode(f.read()).decode('utf-8')
@@ -495,7 +496,6 @@ REGISTRY_GOOGLE_PROVIDER_LIST_EXPECTED = get_output_from_local_file(os.path.join
 def get_variables(execution_env :str):
   rv = {
     ## general config
-    'ANALYTICS_DB_INIT_PATH':                         ANALYTICS_DB_INIT_PATH,
     'AZURE_SECRET_STR':                               AZURE_SECRET_STR,
     'BUILDMAJORVERSION':                              _BUILD_MAJOR_VERSION,
     'BUILDMINORVERSION':                              _BUILD_MINOR_VERSION,
@@ -644,6 +644,7 @@ def get_variables(execution_env :str):
     'UPDATE_GITHUB_ORG':                                                    UPDATE_GITHUB_ORG,
   }
   if execution_env == 'docker':
+    rv['ANALYTICS_DB_INIT_PATH']                        = ANALYTICS_DB_INIT_PATH_DOCKER
     rv['AUTH_CFG_STR']                                  = AUTH_CFG_STR_DOCKER
     rv['GET_IAM_POLICY_AGG_ASC_INPUT_FILE']             = GET_IAM_POLICY_AGG_ASC_INPUT_FILE_DOCKER
     rv['JSON_INIT_FILE_PATH_AWS']                       = JSON_INIT_FILE_PATH_AWS
@@ -660,7 +661,8 @@ def get_variables(execution_env :str):
     rv['PSQL_UNENCRYPTED_CONN_STR']                     = PSQL_UNENCRYPTED_CONN_STR_DOCKER
     rv['REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR']       = _REGISTRY_EXPERIMENTAL_DOCKER_NO_VERIFY
     rv['REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG_STR'] = _REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_DOCKER
-  else: 
+  else:
+    rv['ANALYTICS_DB_INIT_PATH']                        = ANALYTICS_DB_INIT_PATH
     rv['AUTH_CFG_STR']                                  = AUTH_CFG_STR
     rv['GET_IAM_POLICY_AGG_ASC_INPUT_FILE']             = GET_IAM_POLICY_AGG_ASC_INPUT_FILE
     rv['JSON_INIT_FILE_PATH_AWS']                       = JSON_INIT_FILE_PATH_AWS
