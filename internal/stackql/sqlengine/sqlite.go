@@ -69,6 +69,7 @@ func newSQLiteEngine(cfg SQLEngineConfig) (*sqLiteEngine, error) {
 func (eng *sqLiteEngine) TableOldestUpdate(tableName string, colName string) time.Time {
 	rows, err := eng.db.Query(fmt.Sprintf("SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%S', min(%s)) as oldest_update FROM \"%s\";", colName, tableName))
 	if err == nil && rows != nil {
+		defer rows.Close()
 		rowExists := rows.Next()
 		if rowExists {
 			var oldest string
@@ -96,6 +97,7 @@ func (eng *sqLiteEngine) execFileSQLite(fileName string) error {
 func (eng *sqLiteEngine) IsTablePresent(tableName string) bool {
 	rows, err := eng.db.Query("SELECT count(*) as ct FROM sqlite_master WHERE type='table' AND name=?;", tableName)
 	if err == nil && rows != nil {
+		defer rows.Close()
 		rowExists := rows.Next()
 		if rowExists {
 			var ct int
@@ -104,6 +106,7 @@ func (eng *sqLiteEngine) IsTablePresent(tableName string) bool {
 				return true
 			}
 		}
+		rows.Close()
 	}
 	return false
 }
