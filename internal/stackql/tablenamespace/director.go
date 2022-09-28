@@ -2,11 +2,14 @@ package tablenamespace
 
 import (
 	"regexp"
+	"time"
+
+	"github.com/stackql/stackql/internal/stackql/dto"
 )
 
 var (
-	analyticsCacheRegexp = regexp.MustCompile(`^stackql_analytics_(?P<objectName>.*)$`)
-	viewsRegexp          = regexp.MustCompile(`^stackql_views\.(?P<objectName>.*)$`)
+	defaultAnalyticsCacheRegexp = regexp.MustCompile(`^stackql_analytics_(?P<objectName>.*)$`)
+	defaultViewsRegexp          = regexp.MustCompile(`^stackql_views\.(?P<objectName>.*)$`)
 )
 
 type TableNamespaceConfiguratorBuilderDirector interface {
@@ -14,20 +17,27 @@ type TableNamespaceConfiguratorBuilderDirector interface {
 	GetResult() TableNamespaceConfigurator
 }
 
-func GetViewsTableNamespaceConfiguratorBuilderDirector() TableNamespaceConfiguratorBuilderDirector {
-	return &viewsTableNamespaceConfiguratorBuilderDirector{}
+func getViewsTableNamespaceConfiguratorBuilderDirector(cfg *dto.NamespaceCfg) TableNamespaceConfiguratorBuilderDirector {
+	return &viewsTableNamespaceConfiguratorBuilderDirector{
+		cfg: cfg,
+	}
 }
 
-func GetAnalyticsCacheTableNamespaceConfiguratorBuilderDirector() TableNamespaceConfiguratorBuilderDirector {
-	return &analyticsCacheTableNamespaceConfiguratorBuilderDirector{}
+func getAnalyticsCacheTableNamespaceConfiguratorBuilderDirector(cfg *dto.NamespaceCfg) TableNamespaceConfiguratorBuilderDirector {
+	return &analyticsCacheTableNamespaceConfiguratorBuilderDirector{
+		cfg: cfg,
+	}
 }
 
 type viewsTableNamespaceConfiguratorBuilderDirector struct {
+	cfg               *dto.NamespaceCfg
 	viewsConfigurator TableNamespaceConfigurator
 }
 
 func (dr *viewsTableNamespaceConfiguratorBuilderDirector) Construct() error {
-	bldr := newTableNamespaceConfiguratorBuilder().WithRegexp(viewsRegexp)
+	viewsRegexp := defaultViewsRegexp
+	viewsExpiryTime := time.Now().Add(24 * time.Hour)
+	bldr := newTableNamespaceConfiguratorBuilder().WithRegexp(viewsRegexp).WithExpiryTime(viewsExpiryTime)
 	configurator, err := bldr.Build()
 	if err != nil {
 		return err
@@ -41,11 +51,14 @@ func (dr *viewsTableNamespaceConfiguratorBuilderDirector) GetResult() TableNames
 }
 
 type analyticsCacheTableNamespaceConfiguratorBuilderDirector struct {
+	cfg                   *dto.NamespaceCfg
 	analyticsConfigurator TableNamespaceConfigurator
 }
 
 func (dr *analyticsCacheTableNamespaceConfiguratorBuilderDirector) Construct() error {
-	bldr := newTableNamespaceConfiguratorBuilder().WithRegexp(analyticsCacheRegexp)
+	analytisCacheRegexp := defaultAnalyticsCacheRegexp
+	analyticsExpiryTime := time.Now().Add(24 * time.Hour)
+	bldr := newTableNamespaceConfiguratorBuilder().WithRegexp(analytisCacheRegexp).WithExpiryTime(analyticsExpiryTime)
 	configurator, err := bldr.Build()
 	if err != nil {
 		return err

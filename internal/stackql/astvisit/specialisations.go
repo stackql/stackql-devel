@@ -9,8 +9,8 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-func GenerateModifiedSelectSuffix(node sqlparser.SQLNode, analyticsNamespaceConfigurator tablenamespace.TableNamespaceConfigurator) string {
-	v := NewDRMAstVisitor("", false, analyticsNamespaceConfigurator)
+func GenerateModifiedSelectSuffix(node sqlparser.SQLNode, namespaceCollection tablenamespace.TableNamespaceCollection) string {
+	v := NewDRMAstVisitor("", false, namespaceCollection)
 	switch node := node.(type) {
 	case *sqlparser.Select:
 		var options string
@@ -55,8 +55,8 @@ func GenerateModifiedSelectSuffix(node sqlparser.SQLNode, analyticsNamespaceConf
 	return v.GetRewrittenQuery()
 }
 
-func GenerateUnionTemplateQuery(node *sqlparser.Union, analyticsNamespaceConfigurator tablenamespace.TableNamespaceConfigurator) string {
-	v := NewDRMAstVisitor("", false, analyticsNamespaceConfigurator)
+func GenerateUnionTemplateQuery(node *sqlparser.Union, namespaceCollection tablenamespace.TableNamespaceCollection) string {
+	v := NewDRMAstVisitor("", false, namespaceCollection)
 
 	var sb strings.Builder
 	sb.WriteString("%s ")
@@ -84,8 +84,8 @@ func GenerateUnionTemplateQuery(node *sqlparser.Union, analyticsNamespaceConfigu
 	return v.GetRewrittenQuery()
 }
 
-func GenerateModifiedWhereClause(node *sqlparser.Where, analyticsNamespaceConfigurator tablenamespace.TableNamespaceConfigurator) string {
-	v := NewDRMAstVisitor("", false, analyticsNamespaceConfigurator)
+func GenerateModifiedWhereClause(node *sqlparser.Where, namespaceCollection tablenamespace.TableNamespaceCollection) string {
+	v := NewDRMAstVisitor("", false, namespaceCollection)
 	var whereStr string
 	if node != nil && node.Expr != nil {
 		node.Expr.Accept(v)
@@ -115,8 +115,8 @@ func ExtractParamsFromFromClause(node sqlparser.TableExprs) parserutil.Parameter
 	return v.GetParameters()
 }
 
-func ExtractProviderStrings(node sqlparser.SQLNode, analyticsNamespaceConfigurator tablenamespace.TableNamespaceConfigurator) []string {
-	v := NewDRMAstVisitor("", true, analyticsNamespaceConfigurator)
+func ExtractProviderStrings(node sqlparser.SQLNode, namespaceCollection tablenamespace.TableNamespaceCollection) []string {
+	v := NewDRMAstVisitor("", true, namespaceCollection)
 	node.Accept(v)
 	return v.GetProviderStrings()
 }

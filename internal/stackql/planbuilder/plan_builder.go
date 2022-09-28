@@ -787,7 +787,7 @@ func BuildPlanFromContext(handlerCtx *handler.HandlerContext) (*plan.Plan, error
 		}
 	} else {
 		// First pass AST analysis; extract provider strings for auth.
-		provStrSlice := astvisit.ExtractProviderStrings(result.AST, handlerCtx.GetAnalyticsCacheTableNamespaceConfigurator())
+		provStrSlice := astvisit.ExtractProviderStrings(result.AST, handlerCtx.GetNamespaceCollection())
 		for _, p := range provStrSlice {
 			_, err := handlerCtx.GetProvider(p)
 			if err != nil {

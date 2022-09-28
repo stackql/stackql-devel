@@ -13,7 +13,7 @@ func obtainAnnotationCtx(
 	sqlEngine sqlengine.SQLEngine,
 	tbl *taxonomy.ExtendedTableMetadata,
 	parameters map[string]interface{},
-	analyticsCacheNamespace tablenamespace.TableNamespaceConfigurator,
+	namespaceCollection tablenamespace.TableNamespaceCollection,
 ) (taxonomy.AnnotationCtx, error) {
 	schema, mediaType, err := tbl.GetResponseSchemaAndMediaType()
 	if err != nil {
@@ -32,7 +32,7 @@ func obtainAnnotationCtx(
 	}
 	name := itemObjS.GetSelectionName()
 	tn, err := tbl.GetTableName()
-	if err == nil && analyticsCacheNamespace.Match(tn) {
+	if err == nil && namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().Match(tn) {
 		name, _ = tbl.GetResourceStr()
 	}
 	hIds := dto.NewHeirarchyIdentifiers(provStr, svcStr, name, "")

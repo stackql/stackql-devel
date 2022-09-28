@@ -33,11 +33,10 @@ func OpenapiStackQLTabulationsPersistor(
 	tabluationsAnnotated []util.AnnotatedTabulation,
 	dbEngine sqlengine.SQLEngine,
 	prefix string,
-	analyticsCacheConfigurator tablenamespace.TableNamespaceConfigurator,
-	viewConfigurator tablenamespace.TableNamespaceConfigurator,
+	namespaceCollection tablenamespace.TableNamespaceCollection,
 ) (int, error) {
 	// replace := false
-	drmCfg, err := drm.GetGoogleV1SQLiteConfig(analyticsCacheConfigurator, viewConfigurator)
+	drmCfg, err := drm.GetGoogleV1SQLiteConfig(namespaceCollection)
 	if err != nil {
 		return 0, err
 	}
