@@ -5,6 +5,7 @@ import (
 	"text/template"
 
 	"github.com/stackql/stackql/internal/stackql/dto"
+	"github.com/stackql/stackql/internal/stackql/sqlengine"
 )
 
 var (
@@ -27,16 +28,18 @@ type TableNamespaceConfiguratorBuilderDirector interface {
 	GetResult() TableNamespaceConfigurator
 }
 
-func getViewsTableNamespaceConfiguratorBuilderDirector(cfg dto.NamespaceCfg) TableNamespaceConfiguratorBuilderDirector {
+func getViewsTableNamespaceConfiguratorBuilderDirector(cfg dto.NamespaceCfg, sqlEngine sqlengine.SQLEngine) TableNamespaceConfiguratorBuilderDirector {
 	return &configuratorBuilderDirector{
+		sqlEngine:       sqlEngine,
 		cfg:             cfg,
 		defaultRegexp:   defaultViewsRegexp,
 		defaultTemplate: defaultViewsTemplate,
 	}
 }
 
-func getAnalyticsCacheTableNamespaceConfiguratorBuilderDirector(cfg dto.NamespaceCfg) TableNamespaceConfiguratorBuilderDirector {
+func getAnalyticsCacheTableNamespaceConfiguratorBuilderDirector(cfg dto.NamespaceCfg, sqlEngine sqlengine.SQLEngine) TableNamespaceConfiguratorBuilderDirector {
 	return &configuratorBuilderDirector{
+		sqlEngine:       sqlEngine,
 		cfg:             cfg,
 		defaultRegexp:   defaultAnalyticsCacheRegexp,
 		defaultTemplate: defaultAnalyticsTemplate,
@@ -44,6 +47,7 @@ func getAnalyticsCacheTableNamespaceConfiguratorBuilderDirector(cfg dto.Namespac
 }
 
 type configuratorBuilderDirector struct {
+	sqlEngine       sqlengine.SQLEngine
 	cfg             dto.NamespaceCfg
 	defaultRegexp   *regexp.Regexp
 	defaultTemplate *template.Template
@@ -66,7 +70,7 @@ func (dr *configuratorBuilderDirector) Construct() error {
 			return err
 		}
 	}
-	bldr := newTableNamespaceConfiguratorBuilder().WithRegexp(cfgRegexp).WithTTL(dr.cfg.TTL).WithTemplate(cfgTemplate)
+	bldr := newTableNamespaceConfiguratorBuilder().WithRegexp(cfgRegexp).WithTTL(dr.cfg.TTL).WithTemplate(cfgTemplate).WithSQLEngine(dr.sqlEngine)
 	configurator, err := bldr.Build()
 	if err != nil {
 		return err
