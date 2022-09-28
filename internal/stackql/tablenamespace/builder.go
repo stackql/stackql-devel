@@ -54,6 +54,7 @@ func (b *standardTableNamespaceConfiguratorBuilder) Build() (TableNamespaceConfi
 	return &regexTableNamespaceConfigurator{
 		sqlEngine: b.sqlEngine,
 		regex:     b.regex,
+		template:  b.tmpl,
 		ttl:       b.ttl,
 	}, nil
 }
