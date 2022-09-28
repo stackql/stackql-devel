@@ -25,6 +25,7 @@ type SQLEngine interface {
 	CacheStoreGet(string) ([]byte, error)
 	CacheStoreGetAll() ([]dto.KeyVal, error)
 	CacheStorePut(string, []byte, string, int) error
+	IsTablePresent(string) bool
 }
 
 func NewSQLEngine(cfg SQLEngineConfig) (SQLEngine, error) {

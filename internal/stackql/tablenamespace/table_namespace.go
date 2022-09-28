@@ -4,28 +4,54 @@ import (
 	"bytes"
 	"regexp"
 	"text/template"
+
+	"github.com/stackql/stackql/internal/stackql/sqlengine"
 )
 
 type TableNamespaceConfigurator interface {
 	GetObjectName(string) string
+	IsAllowed(string) bool
 	Match(string) bool
 	RenderTemplate(string) (string, error)
 }
 
 var (
-	_ TableNamespaceConfigurator = &RegexTableNamespaceConfigurator{}
+	_ TableNamespaceConfigurator = &regexTableNamespaceConfigurator{}
 )
 
-type RegexTableNamespaceConfigurator struct {
-	regex    *regexp.Regexp
-	template *template.Template
+type regexTableNamespaceConfigurator struct {
+	sqlEngine sqlengine.SQLEngine
+	regex     *regexp.Regexp
+	template  *template.Template
+	ttl       int
 }
 
-func (stc *RegexTableNamespaceConfigurator) Match(tableString string) bool {
+func (stc *regexTableNamespaceConfigurator) IsAllowed(tableString string) bool {
+	return stc.isAllowed(tableString)
+}
+
+func (stc *regexTableNamespaceConfigurator) isAllowed(tableString string) bool {
 	return stc.regex.MatchString(tableString)
 }
 
-func (stc *RegexTableNamespaceConfigurator) RenderTemplate(input string) (string, error) {
+func (stc *regexTableNamespaceConfigurator) Match(tableString string) bool {
+	isAllowed := stc.isAllowed(tableString)
+	if !isAllowed {
+		return false
+	}
+	actualTableName, err := stc.renderTemplate(tableString)
+	if err != nil {
+		return false
+	}
+	isPresent := stc.sqlEngine.IsTablePresent(actualTableName)
+	return isPresent
+}
+
+func (stc *regexTableNamespaceConfigurator) RenderTemplate(input string) (string, error) {
+	return stc.renderTemplate(input)
+}
+
+func (stc *regexTableNamespaceConfigurator) renderTemplate(input string) (string, error) {
 	objName := stc.getObjectName(input)
 	inputMap := map[string]interface{}{
 		"objectName": objName,
@@ -33,7 +59,7 @@ func (stc *RegexTableNamespaceConfigurator) RenderTemplate(input string) (string
 	return stc.render(inputMap)
 }
 
-func (stc *RegexTableNamespaceConfigurator) render(input map[string]interface{}) (string, error) {
+func (stc *regexTableNamespaceConfigurator) render(input map[string]interface{}) (string, error) {
 	var tplWr bytes.Buffer
 	if err := stc.template.Execute(&tplWr, input); err != nil {
 		return "", err
@@ -41,11 +67,11 @@ func (stc *RegexTableNamespaceConfigurator) render(input map[string]interface{})
 	return tplWr.String(), nil
 }
 
-func (stc *RegexTableNamespaceConfigurator) GetObjectName(inputString string) string {
+func (stc *regexTableNamespaceConfigurator) GetObjectName(inputString string) string {
 	return stc.getObjectName(inputString)
 }
 
-func (stc *RegexTableNamespaceConfigurator) getObjectName(inputString string) string {
+func (stc *regexTableNamespaceConfigurator) getObjectName(inputString string) string {
 	for i, name := range stc.regex.SubexpNames() {
 		if name == "objectName" {
 			submatches := stc.regex.FindStringSubmatch(inputString)

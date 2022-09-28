@@ -15,8 +15,8 @@ func NewStandardTableNamespaceCollection(cfg map[string]dto.NamespaceCfg, sqlEng
 	if cfg == nil {
 		cfg = map[string]dto.NamespaceCfg{}
 	}
-	analyticsCfgDirector := getAnalyticsCacheTableNamespaceConfiguratorBuilderDirector(cfg["analytics"])
-	viewsCfgDirector := getViewsTableNamespaceConfiguratorBuilderDirector(cfg["views"])
+	analyticsCfgDirector := getAnalyticsCacheTableNamespaceConfiguratorBuilderDirector(cfg["analytics"], sqlEngine)
+	viewsCfgDirector := getViewsTableNamespaceConfiguratorBuilderDirector(cfg["views"], sqlEngine)
 	err := analyticsCfgDirector.Construct()
 	if err != nil {
 		return nil, err

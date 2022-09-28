@@ -3,6 +3,8 @@ package tablenamespace
 import (
 	"regexp"
 	"text/template"
+
+	"github.com/stackql/stackql/internal/stackql/sqlengine"
 )
 
 var (
@@ -13,13 +15,15 @@ type TableNamespaceConfiguratorBuilder interface {
 	Build() (TableNamespaceConfigurator, error)
 	WithTTL(ttl int) TableNamespaceConfiguratorBuilder
 	WithRegexp(regex *regexp.Regexp) TableNamespaceConfiguratorBuilder
+	WithSQLEngine(sqlEngine sqlengine.SQLEngine) TableNamespaceConfiguratorBuilder
 	WithTemplate(regex *template.Template) TableNamespaceConfiguratorBuilder
 }
 
 type standardTableNamespaceConfiguratorBuilder struct {
-	regex *regexp.Regexp
-	tmpl  *template.Template
-	ttl   int
+	sqlEngine sqlengine.SQLEngine
+	regex     *regexp.Regexp
+	tmpl      *template.Template
+	ttl       int
 }
 
 func newTableNamespaceConfiguratorBuilder() TableNamespaceConfiguratorBuilder {
@@ -41,8 +45,15 @@ func (b *standardTableNamespaceConfiguratorBuilder) WithTTL(ttl int) TableNamesp
 	return b
 }
 
+func (b *standardTableNamespaceConfiguratorBuilder) WithSQLEngine(sqlEngine sqlengine.SQLEngine) TableNamespaceConfiguratorBuilder {
+	b.sqlEngine = sqlEngine
+	return b
+}
+
 func (b *standardTableNamespaceConfiguratorBuilder) Build() (TableNamespaceConfigurator, error) {
-	return &RegexTableNamespaceConfigurator{
-		regex: b.regex,
+	return &regexTableNamespaceConfigurator{
+		sqlEngine: b.sqlEngine,
+		regex:     b.regex,
+		ttl:       b.ttl,
 	}, nil
 }
