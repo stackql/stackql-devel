@@ -184,9 +184,9 @@ func (dp *StandardDependencyPlanner) Plan() error {
 	if weaklyConnectedComponentCount > 1 {
 		return fmt.Errorf("data flow: there are too many weakly connected components; found = %d, max = 1", weaklyConnectedComponentCount)
 	}
-	rewrittenWhereStr := astvisit.GenerateModifiedWhereClause(dp.rewrittenWhere, dp.handlerCtx.GetAnalyticsCacheTableNamespaceConfigurator())
+	rewrittenWhereStr := astvisit.GenerateModifiedWhereClause(dp.rewrittenWhere, dp.handlerCtx.GetNamespaceCollection())
 	logging.GetLogger().Debugf("rewrittenWhereStr = '%s'", rewrittenWhereStr)
-	drmCfg, err := drm.GetGoogleV1SQLiteConfig(dp.handlerCtx.GetAnalyticsCacheTableNamespaceConfigurator(), dp.handlerCtx.GetViewsTableNamespaceConfigurator())
+	drmCfg, err := drm.GetGoogleV1SQLiteConfig(dp.handlerCtx.GetNamespaceCollection())
 	if err != nil {
 		return err
 	}
@@ -201,7 +201,7 @@ func (dp *StandardDependencyPlanner) Plan() error {
 		dp.primaryTcc,
 		dp.secondaryTccs,
 		rewrittenWhereStr,
-		drmCfg.GetAnalyticsCacheTableNamespaceConfigurator(),
+		drmCfg.GetNamespaceCollection(),
 	)
 	err = v.Visit(dp.sqlStatement)
 	if err != nil {
@@ -283,7 +283,7 @@ func (dp *StandardDependencyPlanner) processAcquire(
 	}
 	anTab := util.NewAnnotatedTabulation(tab, annotationCtx.GetHIDs(), annotationCtx.GetTableMeta().Alias)
 
-	discoGenId, err := docparser.OpenapiStackQLTabulationsPersistor(m, []util.AnnotatedTabulation{anTab}, dp.primitiveComposer.GetSQLEngine(), prov.Name, dp.handlerCtx.GetAnalyticsCacheTableNamespaceConfigurator(), dp.handlerCtx.GetViewsTableNamespaceConfigurator())
+	discoGenId, err := docparser.OpenapiStackQLTabulationsPersistor(m, []util.AnnotatedTabulation{anTab}, dp.primitiveComposer.GetSQLEngine(), prov.Name, dp.handlerCtx.GetNamespaceCollection())
 	if err != nil {
 		return util.NewAnnotatedTabulation(nil, nil, ""), nil, err
 	}
@@ -372,7 +372,7 @@ func (dp *StandardDependencyPlanner) generateSelectDML(e dataflow.DataFlowEdge, 
 		dp.tblz,
 		tableName,
 		[]*taxonomy.ExtendedTableMetadata{meta},
-		dp.handlerCtx.GetAnalyticsCacheTableNamespaceConfigurator(),
+		dp.handlerCtx.GetNamespaceCollection(),
 	)
 	return sqlrewrite.GenerateSelectDML(rewriteInput)
 }

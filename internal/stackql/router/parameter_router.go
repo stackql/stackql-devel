@@ -61,7 +61,7 @@ type StandardParameterRouter struct {
 	tableToComparisonDependencies parserutil.ComparisonTableMap
 	tableToAnnotationCtx          map[sqlparser.TableExpr]taxonomy.AnnotationCtx
 	invalidatedParams             map[string]interface{}
-	analyticsCacheNamepsaceCfg    tablenamespace.TableNamespaceConfigurator
+	namespaceCollection           tablenamespace.TableNamespaceCollection
 }
 
 func NewParameterRouter(
@@ -70,7 +70,7 @@ func NewParameterRouter(
 	whereParamMap parserutil.ParameterMap,
 	onParamMap parserutil.ParameterMap,
 	colRefs parserutil.ColTableMap,
-	analyticsCacheNamepsaceCfg tablenamespace.TableNamespaceConfigurator,
+	namespaceCollection tablenamespace.TableNamespaceCollection,
 ) ParameterRouter {
 	return &StandardParameterRouter{
 		tablesAliasMap:                tablesAliasMap,
@@ -82,7 +82,7 @@ func NewParameterRouter(
 		comparisonToTableDependencies: make(parserutil.ComparisonTableMap),
 		tableToComparisonDependencies: make(parserutil.ComparisonTableMap),
 		tableToAnnotationCtx:          make(map[sqlparser.TableExpr]taxonomy.AnnotationCtx),
-		analyticsCacheNamepsaceCfg:    analyticsCacheNamepsaceCfg,
+		namespaceCollection:           namespaceCollection,
 	}
 }
 
@@ -407,7 +407,7 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 	// hierarchy.  This enables e2e relationship
 	// from expression to hierarchy.
 	// eg: "on" clause to openapi method
-	ac, err := obtainAnnotationCtx(handlerCtx.SQLEngine, m, abbreviatedConsumedMap, pr.analyticsCacheNamepsaceCfg)
+	ac, err := obtainAnnotationCtx(handlerCtx.SQLEngine, m, abbreviatedConsumedMap, pr.namespaceCollection)
 	pr.tableToAnnotationCtx[tb] = ac
 	return ac, err
 }
