@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"regexp"
 	"text/template"
+	"time"
 
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 )
@@ -39,20 +40,20 @@ func (stc *regexTableNamespaceConfigurator) Match(tableString string) bool {
 	if !isAllowed {
 		return false
 	}
-	// actualTableName, err := stc.renderTemplate(tableString)
-	// if err != nil {
-	// 	return false
-	// }
-	// isPresent := stc.sqlEngine.IsTablePresent(actualTableName)
-	// if !isPresent {
-	// 	return false
-	// }
-	// oldestUpdate := stc.sqlEngine.TableOldestUpdate(actualTableName, "iql_last_modified")
-	// diff := time.Since(oldestUpdate)
-	// ds := diff.Seconds()
-	// if stc.ttl > 0 && int(ds) > stc.ttl {
-	// 	return false
-	// }
+	actualTableName, err := stc.renderTemplate(tableString)
+	if err != nil {
+		return false
+	}
+	isPresent := stc.sqlEngine.IsTablePresent(actualTableName)
+	if !isPresent {
+		return false
+	}
+	oldestUpdate := stc.sqlEngine.TableOldestUpdate(actualTableName, "iql_last_modified")
+	diff := time.Since(oldestUpdate)
+	ds := diff.Seconds()
+	if stc.ttl > 0 && int(ds) > stc.ttl {
+		return false
+	}
 	return true
 }
 
