@@ -16,22 +16,22 @@ type SQLAstVisitor interface {
 }
 
 type DRMAstVisitor struct {
-	iDColumnName                   string
-	rewrittenQuery                 string
-	gcQueries                      []string
-	tablesCited                    map[*sqlparser.AliasedTableExpr]sqlparser.TableName
-	params                         map[sqlparser.SQLNode]interface{}
-	shouldCollectTables            bool
-	analyticsNamespaceConfigurator tablenamespace.TableNamespaceConfigurator
+	iDColumnName        string
+	rewrittenQuery      string
+	gcQueries           []string
+	tablesCited         map[*sqlparser.AliasedTableExpr]sqlparser.TableName
+	params              map[sqlparser.SQLNode]interface{}
+	shouldCollectTables bool
+	namespaceCollection tablenamespace.TableNamespaceCollection
 }
 
-func NewDRMAstVisitor(iDColumnName string, shouldCollectTables bool, analyticsNamespaceConfigurator tablenamespace.TableNamespaceConfigurator) *DRMAstVisitor {
+func NewDRMAstVisitor(iDColumnName string, shouldCollectTables bool, namespaceCollection tablenamespace.TableNamespaceCollection) *DRMAstVisitor {
 	return &DRMAstVisitor{
-		iDColumnName:                   iDColumnName,
-		tablesCited:                    make(map[*sqlparser.AliasedTableExpr]sqlparser.TableName),
-		params:                         make(map[sqlparser.SQLNode]interface{}),
-		shouldCollectTables:            shouldCollectTables,
-		analyticsNamespaceConfigurator: analyticsNamespaceConfigurator,
+		iDColumnName:        iDColumnName,
+		tablesCited:         make(map[*sqlparser.AliasedTableExpr]sqlparser.TableName),
+		params:              make(map[sqlparser.SQLNode]interface{}),
+		shouldCollectTables: shouldCollectTables,
+		namespaceCollection: namespaceCollection,
 	}
 }
 
@@ -139,7 +139,7 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 			node.SelectExprs.Accept(v)
 			selectExprStr = v.GetRewrittenQuery()
 		}
-		fromVis := NewDRMAstVisitor(v.iDColumnName, true, v.analyticsNamespaceConfigurator)
+		fromVis := NewDRMAstVisitor(v.iDColumnName, true, v.namespaceCollection)
 		if node.From != nil {
 			node.From.Accept(fromVis)
 			v.tablesCited = fromVis.tablesCited

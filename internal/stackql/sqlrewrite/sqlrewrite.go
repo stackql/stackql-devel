@@ -13,7 +13,7 @@ import (
 )
 
 type SQLRewriteInput interface {
-	GetAnalyticsConfig() tablenamespace.TableNamespaceConfigurator
+	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
 	GetDRMConfig() drm.DRMConfig
 	GetColumnDescriptors() []openapistackql.ColumnDescriptor
 	GetBaseControlCounters() *dto.TxnControlCounters
@@ -35,7 +35,7 @@ type StandardSQLRewriteInput struct {
 	tables                taxonomy.TblMap
 	fromString            string
 	tableSlice            []*taxonomy.ExtendedTableMetadata
-	analtyicsConfig       tablenamespace.TableNamespaceConfigurator
+	namespaceCollection   tablenamespace.TableNamespaceCollection
 }
 
 func NewStandardSQLRewriteInput(
@@ -48,7 +48,7 @@ func NewStandardSQLRewriteInput(
 	tables taxonomy.TblMap,
 	fromString string,
 	tableSlice []*taxonomy.ExtendedTableMetadata,
-	analtyicsConfig tablenamespace.TableNamespaceConfigurator,
+	namespaceCollection tablenamespace.TableNamespaceCollection,
 ) SQLRewriteInput {
 	return &StandardSQLRewriteInput{
 		dc:                    dc,
@@ -60,7 +60,7 @@ func NewStandardSQLRewriteInput(
 		tables:                tables,
 		fromString:            fromString,
 		tableSlice:            tableSlice,
-		analtyicsConfig:       analtyicsConfig,
+		namespaceCollection:   namespaceCollection,
 	}
 }
 
@@ -68,8 +68,8 @@ func (ri *StandardSQLRewriteInput) GetDRMConfig() drm.DRMConfig {
 	return ri.dc
 }
 
-func (ri *StandardSQLRewriteInput) GetAnalyticsConfig() tablenamespace.TableNamespaceConfigurator {
-	return ri.analtyicsConfig
+func (ri *StandardSQLRewriteInput) GetNamespaceCollection() tablenamespace.TableNamespaceCollection {
+	return ri.namespaceCollection
 }
 
 func (ri *StandardSQLRewriteInput) GetColumnDescriptors() []openapistackql.ColumnDescriptor {
@@ -144,7 +144,7 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 	var controlWhereComparisons []string
 	for _, v := range input.GetTableSlice() {
 		tn, _ := v.GetTableName()
-		if !input.GetAnalyticsConfig().Match(tn) {
+		if !input.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(tn) {
 			alias := v.Alias
 			if alias != "" {
 				gIDcn := fmt.Sprintf(`"%s"."%s"`, alias, genIdColName)
@@ -196,7 +196,7 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 		len(input.GetTables()),
 		txnCtrlCtrs,
 		input.GetSecondaryCtrlCounters(),
-		input.GetDRMConfig().GetAnalyticsCacheTableNamespaceConfigurator(),
+		input.GetDRMConfig().GetNamespaceCollection(),
 		false,
 	), nil
 }

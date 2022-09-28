@@ -22,22 +22,21 @@ import (
 )
 
 type HandlerContext struct {
-	RawQuery                   string
-	Query                      string
-	RuntimeContext             dto.RuntimeCtx
-	providers                  map[string]provider.IProvider
-	CurrentProvider            string
-	authContexts               map[string]*dto.AuthCtx
-	Registry                   openapistackql.RegistryAPI
-	ErrorPresentation          string
-	Outfile                    io.Writer
-	OutErrFile                 io.Writer
-	LRUCache                   *lrucache.LRUCache
-	SQLEngine                  sqlengine.SQLEngine
-	DrmConfig                  drm.DRMConfig
-	TxnCounterMgr              *txncounter.TxnCounterManager
-	analyticsCacheNamespaceCfg tablenamespace.TableNamespaceConfigurator
-	viewsNamespaceCfg          tablenamespace.TableNamespaceConfigurator
+	RawQuery            string
+	Query               string
+	RuntimeContext      dto.RuntimeCtx
+	providers           map[string]provider.IProvider
+	CurrentProvider     string
+	authContexts        map[string]*dto.AuthCtx
+	Registry            openapistackql.RegistryAPI
+	ErrorPresentation   string
+	Outfile             io.Writer
+	OutErrFile          io.Writer
+	LRUCache            *lrucache.LRUCache
+	SQLEngine           sqlengine.SQLEngine
+	DrmConfig           drm.DRMConfig
+	TxnCounterMgr       *txncounter.TxnCounterManager
+	namespaceCollection tablenamespace.TableNamespaceCollection
 }
 
 func getProviderMap(providerName string, providerDesc openapistackql.ProviderDescription) map[string]interface{} {
@@ -78,8 +77,8 @@ func (hc *HandlerContext) GetProvider(providerName string) (provider.IProvider, 
 	if providerName == "" {
 		providerName = hc.RuntimeContext.ProviderStr
 	}
-	if hc.analyticsCacheNamespaceCfg.Match(providerName) {
-		providerName = hc.analyticsCacheNamespaceCfg.GetObjectName(providerName)
+	if hc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().Match(providerName) {
+		providerName = hc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().GetObjectName(providerName)
 	}
 	ds, err := nomenclature.ExtractProviderDesignation(providerName)
 	if err != nil {
@@ -137,12 +136,8 @@ func (hc *HandlerContext) GetAuthContext(providerName string) (*dto.AuthCtx, err
 	return authCtx, err
 }
 
-func (hc *HandlerContext) GetAnalyticsCacheTableNamespaceConfigurator() tablenamespace.TableNamespaceConfigurator {
-	return hc.analyticsCacheNamespaceCfg
-}
-
-func (hc *HandlerContext) GetViewsTableNamespaceConfigurator() tablenamespace.TableNamespaceConfigurator {
-	return hc.viewsNamespaceCfg
+func (hc *HandlerContext) GetNamespaceCollection() tablenamespace.TableNamespaceCollection {
+	return hc.namespaceCollection
 }
 
 func GetRegistry(runtimeCtx dto.RuntimeCtx) (openapistackql.RegistryAPI, error) {
@@ -167,18 +162,11 @@ func getRegistry(runtimeCtx dto.RuntimeCtx) (openapistackql.RegistryAPI, error) 
 }
 
 func (hc *HandlerContext) initNamespaces() error {
-	analyticsCacheDirector := tablenamespace.GetAnalyticsCacheTableNamespaceConfiguratorBuilderDirector()
-	err := analyticsCacheDirector.Construct()
+	namespaces, err := tablenamespace.NewStandardTableNamespaceCollection(nil)
 	if err != nil {
 		return err
 	}
-	hc.analyticsCacheNamespaceCfg = analyticsCacheDirector.GetResult()
-	viewsDirector := tablenamespace.GetViewsTableNamespaceConfiguratorBuilderDirector()
-	err = viewsDirector.Construct()
-	if err != nil {
-		return err
-	}
-	hc.viewsNamespaceCfg = viewsDirector.GetResult()
+	hc.namespaceCollection = namespaces
 	return nil
 }
 
@@ -212,7 +200,7 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 	if err != nil {
 		return HandlerContext{}, err
 	}
-	drmCfg, err := drm.GetGoogleV1SQLiteConfig(rv.analyticsCacheNamespaceCfg, rv.viewsNamespaceCfg)
+	drmCfg, err := drm.GetGoogleV1SQLiteConfig(rv.namespaceCollection)
 	if err != nil {
 		return HandlerContext{}, err
 	}

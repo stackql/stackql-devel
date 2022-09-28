@@ -88,7 +88,7 @@ type PreparedStatementCtx struct {
 	ctrlColumnRepeats       int
 	txnCtrlCtrs             *dto.TxnControlCounters
 	selectTxnCtrlCtrs       []*dto.TxnControlCounters
-	analyticsNamespaceCfg   tablenamespace.TableNamespaceConfigurator
+	namespaceCollection     tablenamespace.TableNamespaceCollection
 	isOnlyAnalytics         bool
 }
 
@@ -135,7 +135,7 @@ func NewPreparedStatementCtx(
 	ctrlColumnRepeats int,
 	txnCtrlCtrs *dto.TxnControlCounters,
 	secondaryCtrs []*dto.TxnControlCounters,
-	analyticsNamespaceCfg tablenamespace.TableNamespaceConfigurator,
+	namespaceCollection tablenamespace.TableNamespaceCollection,
 	isOnlyAnalytics bool,
 ) *PreparedStatementCtx {
 	return &PreparedStatementCtx{
@@ -150,7 +150,7 @@ func NewPreparedStatementCtx(
 		ctrlColumnRepeats:       ctrlColumnRepeats,
 		txnCtrlCtrs:             txnCtrlCtrs,
 		selectTxnCtrlCtrs:       secondaryCtrs,
-		analyticsNamespaceCfg:   analyticsNamespaceCfg,
+		namespaceCollection:     namespaceCollection,
 		isOnlyAnalytics:         isOnlyAnalytics,
 	}
 }
@@ -214,8 +214,7 @@ type DRMConfig interface {
 	GenerateDDL(util.AnnotatedTabulation, *openapistackql.OperationStore, int, bool) []string
 	GetGolangValue(string) interface{}
 	GetInsControlColumn() string
-	GetAnalyticsCacheTableNamespaceConfigurator() tablenamespace.TableNamespaceConfigurator
-	GetViewsTableNamespaceConfigurator() tablenamespace.TableNamespaceConfigurator
+	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
 	GetParserTableName(*dto.HeirarchyIdentifiers, int) sqlparser.TableName
 	GetSessionControlColumn() string
 	GetTableName(*dto.HeirarchyIdentifiers, int) string
@@ -228,12 +227,11 @@ type DRMConfig interface {
 }
 
 type StaticDRMConfig struct {
-	typeMappings               map[string]DRMCoupling
-	defaultRelationalType      string
-	defaultGolangKind          reflect.Kind
-	defaultGolangValue         interface{}
-	analyticsCacheNamespaceCfg tablenamespace.TableNamespaceConfigurator
-	viewsNamespaceCfg          tablenamespace.TableNamespaceConfigurator
+	typeMappings          map[string]DRMCoupling
+	defaultRelationalType string
+	defaultGolangKind     reflect.Kind
+	defaultGolangValue    interface{}
+	namespaceCollection   tablenamespace.TableNamespaceCollection
 }
 
 func (dc *StaticDRMConfig) getDefaultGolangValue() interface{} {
@@ -252,12 +250,8 @@ func (dc *StaticDRMConfig) GetRelationalType(discoType string) string {
 	return dc.defaultRelationalType
 }
 
-func (dc *StaticDRMConfig) GetAnalyticsCacheTableNamespaceConfigurator() tablenamespace.TableNamespaceConfigurator {
-	return dc.analyticsCacheNamespaceCfg
-}
-
-func (dc *StaticDRMConfig) GetViewsTableNamespaceConfigurator() tablenamespace.TableNamespaceConfigurator {
-	return dc.viewsNamespaceCfg
+func (dc *StaticDRMConfig) GetNamespaceCollection() tablenamespace.TableNamespaceCollection {
+	return dc.namespaceCollection
 }
 
 func (dc *StaticDRMConfig) GetGolangValue(discoType string) interface{} {
@@ -338,7 +332,7 @@ func (dc *StaticDRMConfig) getInsControlColumn() string {
 
 func (dc *StaticDRMConfig) GetCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers, dbEngine sqlengine.SQLEngine) (dto.DBTable, error) {
 	tn := tableHeirarchyIDs.GetTableName()
-	if dc.analyticsCacheNamespaceCfg.Match(tn) {
+	if dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().Match(tn) {
 		return dto.NewDBTableAnalytics(tn, -1, tableHeirarchyIDs), nil
 	}
 	return dbEngine.GetCurrentTable(tableHeirarchyIDs)
@@ -350,13 +344,13 @@ func (dc *StaticDRMConfig) GetTableName(hIds *dto.HeirarchyIdentifiers, discover
 
 func (dc *StaticDRMConfig) isOnlyAnalytics(hIds *dto.HeirarchyIdentifiers) bool {
 	name := hIds.GetTableName()
-	return dc.analyticsCacheNamespaceCfg.Match(name)
+	return dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().Match(name)
 }
 
 func (dc *StaticDRMConfig) getTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) string {
 	rv := fmt.Sprintf("%s.generation_%d", hIds.GetTableName(), discoveryGenerationID)
-	if dc.analyticsCacheNamespaceCfg.Match(rv) {
-		return dc.analyticsCacheNamespaceCfg.GetObjectName(rv)
+	if dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().Match(rv) {
+		return dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().GetObjectName(rv)
 	}
 	return rv
 }
@@ -366,7 +360,7 @@ func (dc *StaticDRMConfig) GetParserTableName(hIds *dto.HeirarchyIdentifiers, di
 }
 
 func (dc *StaticDRMConfig) getParserTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) sqlparser.TableName {
-	if dc.analyticsCacheNamespaceCfg.Match(hIds.GetTableName()) {
+	if dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().Match(hIds.GetTableName()) {
 		return sqlparser.TableName{
 			Name:            sqlparser.NewTableIdent(hIds.ResourceStr),
 			Qualifier:       sqlparser.NewTableIdent(hIds.ServiceStr),
@@ -481,7 +475,7 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 			1,
 			tcc,
 			nil,
-			dc.viewsNamespaceCfg,
+			dc.namespaceCollection,
 			isOnlyAnalytics,
 		),
 		nil
@@ -546,7 +540,7 @@ func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 		1,
 		txnCtrlCtrs,
 		nil,
-		dc.viewsNamespaceCfg,
+		dc.namespaceCollection,
 		false,
 	), nil
 }
@@ -648,7 +642,7 @@ func (dc *StaticDRMConfig) QueryDML(dbEngine sqlengine.SQLEngine, ctxParameteriz
 	return dbEngine.Query(query, varArgs...)
 }
 
-func GetGoogleV1SQLiteConfig(analyticsCacheNamespaceCfg tablenamespace.TableNamespaceConfigurator, viewsNamespaceCfg tablenamespace.TableNamespaceConfigurator) (DRMConfig, error) {
+func GetGoogleV1SQLiteConfig(namespaceCollection tablenamespace.TableNamespaceCollection) (DRMConfig, error) {
 	rv := &StaticDRMConfig{
 		typeMappings: map[string]DRMCoupling{
 			"array":   {RelationalType: "text", GolangKind: reflect.Slice},
@@ -658,11 +652,10 @@ func GetGoogleV1SQLiteConfig(analyticsCacheNamespaceCfg tablenamespace.TableName
 			"object":  {RelationalType: "text", GolangKind: reflect.Map},
 			"string":  {RelationalType: "text", GolangKind: reflect.String},
 		},
-		defaultRelationalType:      "text",
-		defaultGolangKind:          reflect.String,
-		defaultGolangValue:         sql.NullString{}, // string is default
-		analyticsCacheNamespaceCfg: analyticsCacheNamespaceCfg,
-		viewsNamespaceCfg:          viewsNamespaceCfg,
+		defaultRelationalType: "text",
+		defaultGolangKind:     reflect.String,
+		defaultGolangValue:    sql.NullString{}, // string is default
+		namespaceCollection:   namespaceCollection,
 	}
 	return rv, nil
 }

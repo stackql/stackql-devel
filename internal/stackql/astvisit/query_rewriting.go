@@ -102,26 +102,26 @@ func (v *QueryRewriteAstVisitor) GenerateSelectDML() (*drm.PreparedStatementCtx,
 		v.tables,
 		v.fromStr,
 		v.tableSlice,
-		v.analyticsNamespaceConfigurator,
+		v.namespaceCollection,
 	)
 	return sqlrewrite.GenerateSelectDML(rewriteInput)
 }
 
 type QueryRewriteAstVisitor struct {
-	handlerCtx                     *handler.HandlerContext
-	dc                             drm.DRMConfig
-	tables                         taxonomy.TblMap
-	annotations                    taxonomy.AnnotationCtxMap
-	discoGenIDs                    map[sqlparser.SQLNode]int
-	annotatedTabulations           taxonomy.AnnotatedTabulationMap
-	selectCtx                      *drm.PreparedStatementCtx
-	baseCtrlCounters               *dto.TxnControlCounters
-	secondaryCtrlCounters          []*dto.TxnControlCounters
-	colRefs                        parserutil.ColTableMap
-	columnNames                    []parserutil.ColumnHandle
-	columnDescriptors              []openapistackql.ColumnDescriptor
-	tableSlice                     []*taxonomy.ExtendedTableMetadata
-	analyticsNamespaceConfigurator tablenamespace.TableNamespaceConfigurator
+	handlerCtx            *handler.HandlerContext
+	dc                    drm.DRMConfig
+	tables                taxonomy.TblMap
+	annotations           taxonomy.AnnotationCtxMap
+	discoGenIDs           map[sqlparser.SQLNode]int
+	annotatedTabulations  taxonomy.AnnotatedTabulationMap
+	selectCtx             *drm.PreparedStatementCtx
+	baseCtrlCounters      *dto.TxnControlCounters
+	secondaryCtrlCounters []*dto.TxnControlCounters
+	colRefs               parserutil.ColTableMap
+	columnNames           []parserutil.ColumnHandle
+	columnDescriptors     []openapistackql.ColumnDescriptor
+	tableSlice            []*taxonomy.ExtendedTableMetadata
+	namespaceCollection   tablenamespace.TableNamespaceCollection
 	//
 	selectExprsStr string
 	fromStr        string
@@ -149,21 +149,21 @@ func NewQueryRewriteAstVisitor(
 	txnCtrlCtrs *dto.TxnControlCounters,
 	secondaryTccs []*dto.TxnControlCounters,
 	rewrittenWhere string,
-	analyticsNamespaceConfigurator tablenamespace.TableNamespaceConfigurator,
+	namespaceCollection tablenamespace.TableNamespaceCollection,
 ) *QueryRewriteAstVisitor {
 	rv := &QueryRewriteAstVisitor{
-		handlerCtx:                     handlerCtx,
-		tables:                         tables,
-		tableSlice:                     tableSlice,
-		annotations:                    annotations,
-		discoGenIDs:                    discoGenIDs,
-		annotatedTabulations:           make(taxonomy.AnnotatedTabulationMap),
-		colRefs:                        colRefs,
-		dc:                             dc,
-		baseCtrlCounters:               txnCtrlCtrs,
-		secondaryCtrlCounters:          secondaryTccs,
-		whereExprsStr:                  rewrittenWhere,
-		analyticsNamespaceConfigurator: analyticsNamespaceConfigurator,
+		handlerCtx:            handlerCtx,
+		tables:                tables,
+		tableSlice:            tableSlice,
+		annotations:           annotations,
+		discoGenIDs:           discoGenIDs,
+		annotatedTabulations:  make(taxonomy.AnnotatedTabulationMap),
+		colRefs:               colRefs,
+		dc:                    dc,
+		baseCtrlCounters:      txnCtrlCtrs,
+		secondaryCtrlCounters: secondaryTccs,
+		whereExprsStr:         rewrittenWhere,
+		namespaceCollection:   namespaceCollection,
 	}
 	return rv
 }
@@ -188,7 +188,7 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 
 	switch node := node.(type) {
 	case *sqlparser.Select:
-		v.selectSuffix = GenerateModifiedSelectSuffix(node, v.analyticsNamespaceConfigurator)
+		v.selectSuffix = GenerateModifiedSelectSuffix(node, v.namespaceCollection)
 		var options string
 		addIf := func(b bool, s string) {
 			if b {
@@ -220,7 +220,7 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			if err != nil {
 				return err
 			}
-			fromVis := NewDRMAstVisitor("", true, v.analyticsNamespaceConfigurator)
+			fromVis := NewDRMAstVisitor("", true, v.namespaceCollection)
 			if node.From != nil {
 				node.From.Accept(fromVis)
 				v.fromStr = fromVis.GetRewrittenQuery()
