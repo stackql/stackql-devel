@@ -30,6 +30,16 @@
       ]
     },
     {
+      "type": "pickString",
+      "id": "namespaceString",
+      "description": "Namespace JSON config String",
+      "default": "{ \"analytics\": { \"ttl\": 86400, \"regex\": \"^stackql_analytics_(?P<objectName>.*)$\", \"template\": \"stackql_analytics_{{ .objectName }}\" } }",
+      "options": [
+        "{ \"analytics\": { \"ttl\": 86400, \"regex\": \"^stackql_analytics_(?P<objectName>.*)$\", \"template\": \"stackql_analytics_{{ .objectName }}\" } }",
+        "{}"
+      ]
+    },
+    {
       "type": "promptString",
       "id": "gcpProject",
       "description": "GCP Project arg String",
@@ -57,6 +67,7 @@
         "exec",
         "--auth=${input:authString}",
         "--registry=${input:registryString}",
+        "--namespaces=${input:namespaceString}",
         "--dbinitfilepath=${workspaceFolder}/test/db/cache_setup.sql",
         "select r.name, col.login, col.type, col.role_name from stackql_analytics_github.repos.collaborators col inner join stackql_analytics_github.repos.repos r ON col.repo = r.name where col.owner = 'stackql' and r.org = 'stackql' order by r.name, col.login desc;"
       ],

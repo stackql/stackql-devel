@@ -48,7 +48,7 @@ func (stc *regexTableNamespaceConfigurator) Match(tableString string) bool {
 	if !isPresent {
 		return false
 	}
-	oldestUpdate := stc.sqlEngine.TableOldestUpdate(actualTableName, "iql_last_modified")
+	oldestUpdate := stc.sqlEngine.TableOldestUpdateUTC(actualTableName, "iql_last_modified")
 	diff := time.Since(oldestUpdate)
 	ds := diff.Seconds()
 	if stc.ttl > 0 && int(ds) > stc.ttl {
