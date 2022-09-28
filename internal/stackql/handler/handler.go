@@ -162,7 +162,11 @@ func getRegistry(runtimeCtx dto.RuntimeCtx) (openapistackql.RegistryAPI, error) 
 }
 
 func (hc *HandlerContext) initNamespaces() error {
-	namespaces, err := tablenamespace.NewStandardTableNamespaceCollection(nil)
+	cfgs, err := dto.GetNamespaceCfg(hc.RuntimeContext.NamespaceCfgRaw)
+	if err != nil {
+		return err
+	}
+	namespaces, err := tablenamespace.NewStandardTableNamespaceCollection(cfgs, hc.SQLEngine)
 	if err != nil {
 		return err
 	}

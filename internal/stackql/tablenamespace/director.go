@@ -2,7 +2,7 @@ package tablenamespace
 
 import (
 	"regexp"
-	"time"
+	"text/template"
 
 	"github.com/stackql/stackql/internal/stackql/dto"
 )
@@ -10,63 +10,71 @@ import (
 var (
 	defaultAnalyticsCacheRegexp = regexp.MustCompile(`^stackql_analytics_(?P<objectName>.*)$`)
 	defaultViewsRegexp          = regexp.MustCompile(`^stackql_views\.(?P<objectName>.*)$`)
+	defaultAnalyticsTemplate    = templateParseOrPanic("defaultAnalyticsTmpl", "stackql_analytics_{{ .objectName }}")
+	defaultViewsTemplate        = templateParseOrPanic("defaultViewsTmpl", "stackql_views.{{ .objectName }}")
 )
+
+func templateParseOrPanic(tmplName, tmplBody string) *template.Template {
+	rv, err := template.New(tmplName).Parse(tmplBody)
+	if err != nil {
+		panic(err)
+	}
+	return rv
+}
 
 type TableNamespaceConfiguratorBuilderDirector interface {
 	Construct() error
 	GetResult() TableNamespaceConfigurator
 }
 
-func getViewsTableNamespaceConfiguratorBuilderDirector(cfg *dto.NamespaceCfg) TableNamespaceConfiguratorBuilderDirector {
-	return &viewsTableNamespaceConfiguratorBuilderDirector{
-		cfg: cfg,
+func getViewsTableNamespaceConfiguratorBuilderDirector(cfg dto.NamespaceCfg) TableNamespaceConfiguratorBuilderDirector {
+	return &configuratorBuilderDirector{
+		cfg:             cfg,
+		defaultRegexp:   defaultViewsRegexp,
+		defaultTemplate: defaultViewsTemplate,
 	}
 }
 
-func getAnalyticsCacheTableNamespaceConfiguratorBuilderDirector(cfg *dto.NamespaceCfg) TableNamespaceConfiguratorBuilderDirector {
-	return &analyticsCacheTableNamespaceConfiguratorBuilderDirector{
-		cfg: cfg,
+func getAnalyticsCacheTableNamespaceConfiguratorBuilderDirector(cfg dto.NamespaceCfg) TableNamespaceConfiguratorBuilderDirector {
+	return &configuratorBuilderDirector{
+		cfg:             cfg,
+		defaultRegexp:   defaultAnalyticsCacheRegexp,
+		defaultTemplate: defaultAnalyticsTemplate,
 	}
 }
 
-type viewsTableNamespaceConfiguratorBuilderDirector struct {
-	cfg               *dto.NamespaceCfg
-	viewsConfigurator TableNamespaceConfigurator
+type configuratorBuilderDirector struct {
+	cfg             dto.NamespaceCfg
+	defaultRegexp   *regexp.Regexp
+	defaultTemplate *template.Template
+	configurator    TableNamespaceConfigurator
 }
 
-func (dr *viewsTableNamespaceConfiguratorBuilderDirector) Construct() error {
-	viewsRegexp := defaultViewsRegexp
-	viewsExpiryTime := time.Now().Add(24 * time.Hour)
-	bldr := newTableNamespaceConfiguratorBuilder().WithRegexp(viewsRegexp).WithExpiryTime(viewsExpiryTime)
+func (dr *configuratorBuilderDirector) Construct() error {
+	var err error
+	cfgRegexp := dr.defaultRegexp
+	cfgTemplate := dr.defaultTemplate
+	if dr.cfg.RegexpStr != "" {
+		cfgRegexp, err = dr.cfg.GetRegex()
+		if err != nil {
+			return err
+		}
+	}
+	if dr.cfg.NamespaceTemplate != "" {
+		cfgTemplate, err = dr.cfg.GetTemplate()
+		if err != nil {
+			return err
+		}
+	}
+	bldr := newTableNamespaceConfiguratorBuilder().WithRegexp(cfgRegexp).WithTTL(dr.cfg.TTL).WithTemplate(cfgTemplate)
 	configurator, err := bldr.Build()
 	if err != nil {
 		return err
 	}
-	dr.viewsConfigurator = configurator
+	dr.configurator = configurator
 	return nil
 }
 
-func (dr *viewsTableNamespaceConfiguratorBuilderDirector) GetResult() TableNamespaceConfigurator {
-	return dr.viewsConfigurator
-}
-
-type analyticsCacheTableNamespaceConfiguratorBuilderDirector struct {
-	cfg                   *dto.NamespaceCfg
-	analyticsConfigurator TableNamespaceConfigurator
-}
-
-func (dr *analyticsCacheTableNamespaceConfiguratorBuilderDirector) Construct() error {
-	analytisCacheRegexp := defaultAnalyticsCacheRegexp
-	analyticsExpiryTime := time.Now().Add(24 * time.Hour)
-	bldr := newTableNamespaceConfiguratorBuilder().WithRegexp(analytisCacheRegexp).WithExpiryTime(analyticsExpiryTime)
-	configurator, err := bldr.Build()
-	if err != nil {
-		return err
-	}
-	dr.analyticsConfigurator = configurator
-	return nil
-}
-
-func (dr *analyticsCacheTableNamespaceConfiguratorBuilderDirector) GetResult() TableNamespaceConfigurator {
-	return dr.analyticsConfigurator
+func (dr *configuratorBuilderDirector) GetResult() TableNamespaceConfigurator {
+	return dr.configurator
 }
