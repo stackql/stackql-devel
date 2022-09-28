@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/logging"
@@ -65,6 +66,24 @@ func newSQLiteEngine(cfg SQLEngineConfig) (*sqLiteEngine, error) {
 	return eng, err
 }
 
+func (eng *sqLiteEngine) TableOldestUpdate(tableName string, colName string) time.Time {
+	rows, err := eng.db.Query(fmt.Sprintf("SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%S', min(%s)) as oldest_update FROM \"%s\";", colName, tableName))
+	if err == nil && rows != nil {
+		rowExists := rows.Next()
+		if rowExists {
+			var oldest string
+			err = rows.Scan(&oldest)
+			if err == nil {
+				oldestTime, err := time.Parse("2006-01-02T15:04:05", oldest)
+				if err == nil {
+					return oldestTime
+				}
+			}
+		}
+	}
+	return time.Time{}
+}
+
 func (eng *sqLiteEngine) execFileSQLite(fileName string) error {
 	fileContents, err := ioutil.ReadFile(fileName)
 	if err != nil {
@@ -88,6 +107,22 @@ func (eng *sqLiteEngine) IsTablePresent(tableName string) bool {
 	}
 	return false
 }
+
+// func (eng *sqLiteEngine) IsTablePresent(tableName string) bool {
+// 	rows, err := eng.db.Query(fmt.Sprintf("SELECT count(*) as ct FROM \"%s\";", tableName))
+// 	// rows, err := eng.db.Query("SELECT count(*) as ct FROM sqlite_master WHERE type='table' AND name=?;", tableName)
+// 	if err == nil && rows != nil {
+// 		rowExists := rows.Next()
+// 		if rowExists {
+// 			var ct int
+// 			err = rows.Scan(&ct)
+// 			if ct > 0 && err == nil {
+// 				return true
+// 			}
+// 		}
+// 	}
+// 	return false
+// }
 
 func (eng *sqLiteEngine) execFileLocal(fileName string) error {
 	expF, err := util.GetFilePathFromRepositoryRoot(fileName)

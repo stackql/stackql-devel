@@ -44,7 +44,16 @@ func (stc *regexTableNamespaceConfigurator) Match(tableString string) bool {
 		return false
 	}
 	isPresent := stc.sqlEngine.IsTablePresent(actualTableName)
-	return isPresent
+	if !isPresent {
+		return false
+	}
+	// oldestUpdate := stc.sqlEngine.TableOldestUpdate(actualTableName, "iql_last_modified")
+	// diff := time.Since(oldestUpdate)
+	// ds := diff.Seconds()
+	// if stc.ttl > 0 && int(ds) > stc.ttl {
+	// 	return false
+	// }
+	return true
 }
 
 func (stc *regexTableNamespaceConfigurator) RenderTemplate(input string) (string, error) {

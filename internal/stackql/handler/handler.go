@@ -77,7 +77,7 @@ func (hc *HandlerContext) GetProvider(providerName string) (provider.IProvider, 
 	if providerName == "" {
 		providerName = hc.RuntimeContext.ProviderStr
 	}
-	if hc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().Match(providerName) {
+	if hc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(providerName) {
 		providerName = hc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().GetObjectName(providerName)
 	}
 	ds, err := nomenclature.ExtractProviderDesignation(providerName)

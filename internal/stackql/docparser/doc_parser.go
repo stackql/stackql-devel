@@ -61,10 +61,10 @@ func OpenapiStackQLTabulationsPersistor(
 			// logging.GetLogger().Infoln(q)
 			_, err = db.Exec(q)
 			if err != nil {
-				errStr := fmt.Sprintf("aborting DDL run on query = %s, err = %v", q, err)
-				logging.GetLogger().Infoln(errStr)
+				displayErr := fmt.Errorf("aborting DDL run: %s", err.Error())
+				logging.GetLogger().Infoln(displayErr.Error())
 				txn.Rollback()
-				return discoveryGenerationId, err
+				return discoveryGenerationId, displayErr
 			}
 		}
 	}
