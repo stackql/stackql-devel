@@ -768,6 +768,13 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 			return nil
 		}
 		str := fmt.Sprintf(`"%s"`, node.GetRawVal())
+		if v.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().Match(str) {
+			var err error
+			str, err = v.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().RenderTemplate(str)
+			if err != nil {
+				return err
+			}
+		}
 		v.rewrittenQuery = str
 
 	case *sqlparser.ParenTableExpr:

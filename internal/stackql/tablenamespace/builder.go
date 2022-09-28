@@ -2,7 +2,7 @@ package tablenamespace
 
 import (
 	"regexp"
-	"time"
+	"text/template"
 )
 
 var (
@@ -11,13 +11,15 @@ var (
 
 type TableNamespaceConfiguratorBuilder interface {
 	Build() (TableNamespaceConfigurator, error)
-	WithExpiryTime(expiryTime time.Time) TableNamespaceConfiguratorBuilder
+	WithTTL(ttl int) TableNamespaceConfiguratorBuilder
 	WithRegexp(regex *regexp.Regexp) TableNamespaceConfiguratorBuilder
+	WithTemplate(regex *template.Template) TableNamespaceConfiguratorBuilder
 }
 
 type standardTableNamespaceConfiguratorBuilder struct {
-	regex      *regexp.Regexp
-	expiryTime time.Time
+	regex *regexp.Regexp
+	tmpl  *template.Template
+	ttl   int
 }
 
 func newTableNamespaceConfiguratorBuilder() TableNamespaceConfiguratorBuilder {
@@ -29,8 +31,13 @@ func (b *standardTableNamespaceConfiguratorBuilder) WithRegexp(regex *regexp.Reg
 	return b
 }
 
-func (b *standardTableNamespaceConfiguratorBuilder) WithExpiryTime(expiryTime time.Time) TableNamespaceConfiguratorBuilder {
-	b.expiryTime = expiryTime
+func (b *standardTableNamespaceConfiguratorBuilder) WithTemplate(tmpl *template.Template) TableNamespaceConfiguratorBuilder {
+	b.tmpl = tmpl
+	return b
+}
+
+func (b *standardTableNamespaceConfiguratorBuilder) WithTTL(ttl int) TableNamespaceConfiguratorBuilder {
+	b.ttl = ttl
 	return b
 }
 

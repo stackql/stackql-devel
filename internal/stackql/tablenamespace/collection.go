@@ -2,6 +2,7 @@ package tablenamespace
 
 import (
 	"github.com/stackql/stackql/internal/stackql/dto"
+	"github.com/stackql/stackql/internal/stackql/sqlengine"
 )
 
 type TableNamespaceCollection interface {
@@ -9,10 +10,10 @@ type TableNamespaceCollection interface {
 	GetViewsTableNamespaceConfigurator() TableNamespaceConfigurator
 }
 
-func NewStandardTableNamespaceCollection(cfg map[string]*dto.NamespaceCfg) (TableNamespaceCollection, error) {
+func NewStandardTableNamespaceCollection(cfg map[string]dto.NamespaceCfg, sqlEngine sqlengine.SQLEngine) (TableNamespaceCollection, error) {
 	// nil dereference protect
 	if cfg == nil {
-		cfg = map[string]*dto.NamespaceCfg{}
+		cfg = map[string]dto.NamespaceCfg{}
 	}
 	analyticsCfgDirector := getAnalyticsCacheTableNamespaceConfiguratorBuilderDirector(cfg["analytics"])
 	viewsCfgDirector := getViewsTableNamespaceConfiguratorBuilderDirector(cfg["views"])
@@ -27,6 +28,7 @@ func NewStandardTableNamespaceCollection(cfg map[string]*dto.NamespaceCfg) (Tabl
 	rv := &StandardTableNamespaceCollection{
 		analyticsCfg: analyticsCfgDirector.GetResult(),
 		viewCfg:      viewsCfgDirector.GetResult(),
+		sqlEngine:    sqlEngine,
 	}
 	return rv, nil
 }
@@ -34,6 +36,7 @@ func NewStandardTableNamespaceCollection(cfg map[string]*dto.NamespaceCfg) (Tabl
 type StandardTableNamespaceCollection struct {
 	analyticsCfg TableNamespaceConfigurator
 	viewCfg      TableNamespaceConfigurator
+	sqlEngine    sqlengine.SQLEngine
 }
 
 func (col *StandardTableNamespaceCollection) GetAnalyticsCacheTableNamespaceConfigurator() TableNamespaceConfigurator {
