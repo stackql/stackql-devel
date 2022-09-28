@@ -74,6 +74,21 @@ func (eng *sqLiteEngine) execFileSQLite(fileName string) error {
 	return err
 }
 
+func (eng *sqLiteEngine) IsTablePresent(tableName string) bool {
+	rows, err := eng.db.Query("SELECT count(*) as ct FROM sqlite_master WHERE type='table' AND name=?;", tableName)
+	if err == nil && rows != nil {
+		rowExists := rows.Next()
+		if rowExists {
+			var ct int
+			rows.Scan(&ct)
+			if ct == 1 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (eng *sqLiteEngine) execFileLocal(fileName string) error {
 	expF, err := util.GetFilePathFromRepositoryRoot(fileName)
 	if err != nil {
