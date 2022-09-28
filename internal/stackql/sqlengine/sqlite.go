@@ -66,7 +66,7 @@ func newSQLiteEngine(cfg SQLEngineConfig) (*sqLiteEngine, error) {
 	return eng, err
 }
 
-func (eng *sqLiteEngine) TableOldestUpdate(tableName string, colName string) time.Time {
+func (eng *sqLiteEngine) TableOldestUpdateUTC(tableName string, colName string) time.Time {
 	rows, err := eng.db.Query(fmt.Sprintf("SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%S', min(%s)) as oldest_update FROM \"%s\";", colName, tableName))
 	if err == nil && rows != nil {
 		defer rows.Close()
