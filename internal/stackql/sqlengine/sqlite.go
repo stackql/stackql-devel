@@ -66,6 +66,14 @@ func newSQLiteEngine(cfg SQLEngineConfig) (*sqLiteEngine, error) {
 	return eng, err
 }
 
+// In SQLite, `DateTime` objects are not properly aware; the zone is not recorded.
+// That being said, those fields populated with `DateTime('now')` are UTC.
+// As per https://www.sqlite.org/lang_datefunc.html:
+//    The 'now' argument to date and time functions always returns exactly
+//    the same value for multiple invocations within the same sqlite3_step()
+//    call. Universal Coordinated Time (UTC) is used.
+// Therefore, this method will behave correctly provided that the column `colName`
+// is populated with `DateTime('now')`.
 func (eng *sqLiteEngine) TableOldestUpdateUTC(tableName string, colName string) time.Time {
 	rows, err := eng.db.Query(fmt.Sprintf("SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%S', min(%s)) as oldest_update FROM \"%s\";", colName, tableName))
 	if err == nil && rows != nil {
