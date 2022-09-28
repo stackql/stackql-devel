@@ -387,8 +387,8 @@ GitHub Analytics Select Repositories Collaborators
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
-    ...    ${SELECT_GITHUB_REPOS_IDS_ASC}
-    ...    ${SELECT_GITHUB_REPOS_IDS_ASC_EXPECTED}
+    ...    ${SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS}
+    ...    ${SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS_EXPECTED}
     ...    \-\-dbinitfilepath\=${ANALYTICS_DB_INIT_PATH}
     ...    stdout=${CURDIR}/tmp/GitHub-Analytics-Select-Repositories-Collaborators.tmp
 
