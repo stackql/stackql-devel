@@ -89,6 +89,8 @@ ROBOT_MOCKED_REG_DIR = os.path.abspath(os.path.join(ROBOT_TEST_ROOT, 'registry',
 
 ROBOT_INTEGRATION_TEST_ROOT = os.path.abspath(os.path.join(__file__, '..', 'integration'))
 
+NAMESPACES_TTL_SIMPLE = '{ "analytics": { "ttl": 86400, "regex": "^stackql_analytics_(?P<objectName>.*)$", "template": "stackql_analytics_{{ .objectName }}" } }'
+
 MOCKSERVER_PORT_REGISTRY = 1094
 
 def get_output_from_local_file(fp :str) -> str:
@@ -511,6 +513,7 @@ def get_variables(execution_env :str):
     'MOCKSERVER_PORT_K8S':                            MOCKSERVER_PORT_K8S,
     'MOCKSERVER_PORT_OKTA':                           MOCKSERVER_PORT_OKTA,
     'MOCKSERVER_PORT_REGISTRY':                       MOCKSERVER_PORT_REGISTRY,
+    'NAMESPACES_TTL_SIMPLE':                          NAMESPACES_TTL_SIMPLE,
     'OKTA_SECRET_STR':                                OKTA_SECRET_STR,
     'PG_SRV_MTLS_DOCKER_CFG_STR':                     PG_SRV_MTLS_DOCKER_CFG_STR,
     'PG_SRV_PORT_DOCKER_MTLS':                        PG_SRV_PORT_DOCKER_MTLS,

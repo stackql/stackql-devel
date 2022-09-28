@@ -390,7 +390,7 @@ GitHub Analytics Select Repositories Collaborators
     ...    ${SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS}
     ...    ${SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS_EXPECTED}
     ...    \-\-dbinitfilepath\=${ANALYTICS_DB_INIT_PATH}
-    ...    \-\-namespaces\={ "analytics": { "ttl": 86400, "regex": "^stackql_analytics_(?P<objectName>.*)$", "template": "stackql_analytics_{{ .objectName }}" } }
+    ...    \-\-namespaces\=${NAMESPACES_TTL_SIMPLE}
     ...    stdout=${CURDIR}/tmp/GitHub-Analytics-Select-Repositories-Collaborators.tmp
 
 GitHub Repository With Functions Select
