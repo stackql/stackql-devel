@@ -147,14 +147,16 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 		}
 		qIdSubtree, _ := fromVis.computeQIDWhereSubTree()
 		augmentedWhere := node.Where
-		if augmentedWhere != nil {
-			newWhereExpr := &sqlparser.AndExpr{
-				Left:  node.Where.Expr,
-				Right: qIdSubtree,
+		if qIdSubtree != nil {
+			if augmentedWhere != nil {
+				newWhereExpr := &sqlparser.AndExpr{
+					Left:  node.Where.Expr,
+					Right: qIdSubtree,
+				}
+				augmentedWhere = sqlparser.NewWhere(sqlparser.WhereStr, newWhereExpr)
+			} else {
+				augmentedWhere = sqlparser.NewWhere(sqlparser.WhereStr, qIdSubtree)
 			}
-			augmentedWhere = sqlparser.NewWhere(sqlparser.WhereStr, newWhereExpr)
-		} else {
-			augmentedWhere = sqlparser.NewWhere(sqlparser.WhereStr, qIdSubtree)
 		}
 		augmentedWhere.Accept(v)
 		whereStr = v.GetRewrittenQuery()
@@ -767,7 +769,7 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 		if node.IsEmpty() {
 			return nil
 		}
-		str := fmt.Sprintf(`"%s"`, node.GetRawVal())
+		str := node.GetRawVal()
 		if v.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().Match(str) {
 			var err error
 			str, err = v.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().RenderTemplate(str)
@@ -775,7 +777,8 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 				return err
 			}
 		}
-		v.rewrittenQuery = str
+		v.rewrittenQuery = fmt.Sprintf(`"%s"`, str)
+		return nil
 
 	case *sqlparser.ParenTableExpr:
 		buf.AstPrintf(node, "(%v)", node.Exprs)
@@ -791,9 +794,11 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 		v.rewrittenQuery = buf.String()
 
 	case *sqlparser.JoinTableExpr:
-		node.LeftExpr.Accept(v)
-		node.LeftExpr.Accept(v)
-		buf.AstPrintf(node, "%v %s %v%v", node.LeftExpr, node.Join, node.RightExpr, node.Condition)
+		lVis := NewDRMAstVisitor("", true, v.namespaceCollection)
+		node.LeftExpr.Accept(lVis)
+		rVis := NewDRMAstVisitor("", true, v.namespaceCollection)
+		node.RightExpr.Accept(rVis)
+		buf.AstPrintf(node, "%s %s %s%v", lVis.GetRewrittenQuery(), node.Join, rVis.GetRewrittenQuery(), node.Condition)
 		bs := buf.String()
 		v.rewrittenQuery = bs
 
