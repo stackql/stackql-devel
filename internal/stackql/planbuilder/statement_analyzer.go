@@ -1005,7 +1005,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 		}
 
 	}
-	return fmt.Errorf("cannot process complex select just yet")
+	return fmt.Errorf("cannot process cartesian join select just yet")
 }
 
 func (p *primitiveGenerator) buildRequestContext(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, meta *taxonomy.ExtendedTableMetadata, execContext *httpbuild.ExecContext, rowsToInsert map[int]map[int]interface{}) (httpbuild.HTTPArmoury, error) {
