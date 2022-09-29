@@ -115,8 +115,8 @@ func ExtractParamsFromFromClause(node sqlparser.TableExprs) parserutil.Parameter
 	return v.GetParameters()
 }
 
-func ExtractProviderStrings(node sqlparser.SQLNode, namespaceCollection tablenamespace.TableNamespaceCollection) []string {
+func ExtractProviderStringsAndDetectAnalyticsCache(node sqlparser.SQLNode, namespaceCollection tablenamespace.TableNamespaceCollection) ([]string, bool) {
 	v := NewDRMAstVisitor("", true, namespaceCollection)
 	node.Accept(v)
-	return v.GetProviderStrings()
+	return v.GetProviderStrings(), v.ContainsAnalyticsCacheMaterial()
 }

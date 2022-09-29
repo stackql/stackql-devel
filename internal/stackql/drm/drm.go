@@ -21,10 +21,11 @@ import (
 )
 
 const (
-	gen_id_col_name string = "iql_generation_id"
-	ssn_id_col_name string = "iql_session_id"
-	txn_id_col_name string = "iql_txn_id"
-	ins_id_col_name string = "iql_insert_id"
+	gen_id_col_name        string = "iql_generation_id"
+	ssn_id_col_name        string = "iql_session_id"
+	txn_id_col_name        string = "iql_txn_id"
+	ins_id_col_name        string = "iql_insert_id"
+	latest_update_col_name string = "iql_last_modified"
 )
 
 type DRM interface {
@@ -211,13 +212,14 @@ type DRMConfig interface {
 	ExtractFromGolangValue(interface{}) interface{}
 	GetCurrentTable(*dto.HeirarchyIdentifiers, sqlengine.SQLEngine) (dto.DBTable, error)
 	GetRelationalType(string) string
-	GenerateDDL(util.AnnotatedTabulation, *openapistackql.OperationStore, int, bool) []string
+	GenerateDDL(util.AnnotatedTabulation, *openapistackql.OperationStore, int, bool) ([]string, error)
 	GetGolangValue(string) interface{}
 	GetInsControlColumn() string
+	// GetLastUpdatedControlColumn() string
 	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
 	GetParserTableName(*dto.HeirarchyIdentifiers, int) sqlparser.TableName
 	GetSessionControlColumn() string
-	GetTableName(*dto.HeirarchyIdentifiers, int) string
+	GetTableName(*dto.HeirarchyIdentifiers, int) (string, error)
 	GetTxnControlColumn() string
 	GetGenerationControlColumn() string
 	GenerateInsertDML(util.AnnotatedTabulation, *openapistackql.OperationStore, *dto.TxnControlCounters) (*PreparedStatementCtx, error)
@@ -330,15 +332,23 @@ func (dc *StaticDRMConfig) getInsControlColumn() string {
 	return ins_id_col_name
 }
 
+// func (dc *StaticDRMConfig) GetLastUpdatedControlColumn() string {
+// 	return dc.getLastUpdatedControlColumn()
+// }
+
+func (dc *StaticDRMConfig) getLastUpdatedControlColumn() string {
+	return latest_update_col_name
+}
+
 func (dc *StaticDRMConfig) GetCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers, dbEngine sqlengine.SQLEngine) (dto.DBTable, error) {
 	tn := tableHeirarchyIDs.GetTableName()
-	if dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().Match(tn) {
+	if dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tn) {
 		return dto.NewDBTableAnalytics(tn, -1, tableHeirarchyIDs), nil
 	}
 	return dbEngine.GetCurrentTable(tableHeirarchyIDs)
 }
 
-func (dc *StaticDRMConfig) GetTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) string {
+func (dc *StaticDRMConfig) GetTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) (string, error) {
 	return dc.getTableName(hIds, discoveryGenerationID)
 }
 
@@ -347,12 +357,12 @@ func (dc *StaticDRMConfig) isOnlyAnalytics(hIds *dto.HeirarchyIdentifiers) bool 
 	return dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().Match(name)
 }
 
-func (dc *StaticDRMConfig) getTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) string {
-	rv := fmt.Sprintf("%s.generation_%d", hIds.GetTableName(), discoveryGenerationID)
-	if dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().Match(rv) {
-		return dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().GetObjectName(rv)
+func (dc *StaticDRMConfig) getTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) (string, error) {
+	unadornedTableName := hIds.GetTableName()
+	if dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(unadornedTableName) {
+		return dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().RenderTemplate(unadornedTableName)
 	}
-	return rv
+	return fmt.Sprintf("%s.generation_%d", hIds.GetTableName(), discoveryGenerationID), nil
 }
 
 func (dc *StaticDRMConfig) GetParserTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) sqlparser.TableName {
@@ -360,7 +370,7 @@ func (dc *StaticDRMConfig) GetParserTableName(hIds *dto.HeirarchyIdentifiers, di
 }
 
 func (dc *StaticDRMConfig) getParserTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) sqlparser.TableName {
-	if dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().Match(hIds.GetTableName()) {
+	if dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(hIds.GetTableName()) {
 		return sqlparser.TableName{
 			Name:            sqlparser.NewTableIdent(hIds.ResourceStr),
 			Qualifier:       sqlparser.NewTableIdent(hIds.ServiceStr),
@@ -375,12 +385,16 @@ func (dc *StaticDRMConfig) getParserTableName(hIds *dto.HeirarchyIdentifiers, di
 	}
 }
 
-func (dc *StaticDRMConfig) inferTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) string {
+func (dc *StaticDRMConfig) inferTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) (string, error) {
 	return dc.getTableName(hIds, discoveryGenerationID)
 }
 
-func (dc *StaticDRMConfig) generateDropTableStatement(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) string {
-	return fmt.Sprintf(`drop table if exists "%s"`, dc.getTableName(hIds, discoveryGenerationID))
+func (dc *StaticDRMConfig) generateDropTableStatement(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) (string, error) {
+	tableName, err := dc.getTableName(hIds, discoveryGenerationID)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf(`drop table if exists "%s"`, tableName), nil
 }
 
 func (dc *StaticDRMConfig) inferColType(col util.Column) string {
@@ -392,20 +406,25 @@ func (dc *StaticDRMConfig) inferColType(col util.Column) string {
 	return relationalType
 }
 
-func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, m *openapistackql.OperationStore, discoveryGenerationID int, dropTable bool) []string {
+func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, m *openapistackql.OperationStore, discoveryGenerationID int, dropTable bool) ([]string, error) {
 	var colDefs, retVal []string
 	var rv strings.Builder
-	tableName := dc.getTableName(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID)
+	tableName, err := dc.getTableName(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID)
+	if err != nil {
+		return nil, err
+	}
 	rv.WriteString(fmt.Sprintf(`create table if not exists "%s" ( `, tableName))
 	colDefs = append(colDefs, fmt.Sprintf(`"iql_%s_id" INTEGER PRIMARY KEY AUTOINCREMENT`, tableName))
 	genIdColName := dc.getGenerationControlColumn()
 	sessionIdColName := dc.getSessionControlColumn()
 	txnIdColName := dc.getTxnControlColumn()
 	insIdColName := dc.getInsControlColumn()
+	lastUpdateColName := dc.getLastUpdatedControlColumn()
 	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, genIdColName))
 	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, sessionIdColName))
 	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, txnIdColName))
 	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, insIdColName))
+	colDefs = append(colDefs, fmt.Sprintf(`"%s" DateTime NOT NULL DEFAULT CURRENT_TIMESTAMP `, lastUpdateColName))
 	schemaAnalyzer := util.NewTableSchemaAnalyzer(tabAnn.GetTabulation().GetSchema(), m)
 	tableColumns := schemaAnalyzer.GetColumns()
 	for _, col := range tableColumns {
@@ -419,14 +438,18 @@ func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, m *opena
 	rv.WriteString(strings.Join(colDefs, " , "))
 	rv.WriteString(" ) ")
 	if dropTable {
-		retVal = append(retVal, dc.generateDropTableStatement(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID))
+		dts, err := dc.generateDropTableStatement(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID)
+		if err != nil {
+			return nil, err
+		}
+		retVal = append(retVal, dts)
 	}
 	retVal = append(retVal, rv.String())
 	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), genIdColName, tableName, genIdColName))
 	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), sessionIdColName, tableName, sessionIdColName))
 	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), txnIdColName, tableName, txnIdColName))
 	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), insIdColName, tableName, insIdColName))
-	return retVal
+	return retVal, nil
 }
 
 func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulation, method *openapistackql.OperationStore, tcc *dto.TxnControlCounters) (*PreparedStatementCtx, error) {
@@ -435,7 +458,10 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 	var quotedColNames, vals []string
 	var columns []ColumnMetadata
 	isOnlyAnalytics := dc.isOnlyAnalytics(tabAnnotated.GetHeirarchyIdentifiers())
-	tableName := dc.inferTableName(tabAnnotated.GetHeirarchyIdentifiers(), tcc.DiscoveryGenerationId)
+	tableName, err := dc.inferTableName(tabAnnotated.GetHeirarchyIdentifiers(), tcc.DiscoveryGenerationId)
+	if err != nil {
+		return nil, err
+	}
 	q.WriteString(fmt.Sprintf(`INSERT INTO "%s" `, tableName))
 	genIdColName := dc.getGenerationControlColumn()
 	sessionIdColName := dc.getSessionControlColumn()
@@ -521,7 +547,11 @@ func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 	if tabAnnotated.GetAlias() != "" {
 		aliasStr = fmt.Sprintf(` AS "%s" `, tabAnnotated.GetAlias())
 	}
-	q.WriteString(fmt.Sprintf(`SELECT %s FROM "%s" %s WHERE `, strings.Join(quotedColNames, ", "), dc.getTableName(tabAnnotated.GetHeirarchyIdentifiers(), txnCtrlCtrs.DiscoveryGenerationId), aliasStr))
+	tn, err := dc.getTableName(tabAnnotated.GetHeirarchyIdentifiers(), txnCtrlCtrs.DiscoveryGenerationId)
+	if err != nil {
+		return nil, err
+	}
+	q.WriteString(fmt.Sprintf(`SELECT %s FROM "%s" %s WHERE `, strings.Join(quotedColNames, ", "), tn, aliasStr))
 	q.WriteString(fmt.Sprintf(`( "%s" = ? AND "%s" = ? AND "%s" = ? AND "%s" = ? ) `, genIdColName, sessionIDColName, txnIdColName, insIdColName))
 	if strings.TrimSpace(rewrittenWhere) != "" {
 		q.WriteString(fmt.Sprintf(" AND ( %s ) ", rewrittenWhere))

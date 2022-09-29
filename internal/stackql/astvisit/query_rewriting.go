@@ -19,13 +19,17 @@ import (
 	"github.com/stackql/stackql/internal/stackql/util"
 )
 
-func (v *QueryRewriteAstVisitor) getSelectExprString(dc *drm.StaticDRMConfig, tabAnnotated util.AnnotatedTabulation, txnCtrlCtrs *dto.TxnControlCounters) string {
-	aliasStr := ""
-	if tabAnnotated.GetAlias() != "" {
-		aliasStr = fmt.Sprintf(` AS "%s" `, tabAnnotated.GetAlias())
-	}
-	return fmt.Sprintf(`"%s" %s`, dc.GetTableName(tabAnnotated.GetHeirarchyIdentifiers(), txnCtrlCtrs.DiscoveryGenerationId), aliasStr)
-}
+// func (v *QueryRewriteAstVisitor) getSelectExprString(dc *drm.StaticDRMConfig, tabAnnotated util.AnnotatedTabulation, txnCtrlCtrs *dto.TxnControlCounters) (string, error) {
+// 	aliasStr := ""
+// 	if tabAnnotated.GetAlias() != "" {
+// 		aliasStr = fmt.Sprintf(` AS "%s" `, tabAnnotated.GetAlias())
+// 	}
+// 	tn, err := dc.GetTableName(tabAnnotated.GetHeirarchyIdentifiers(), txnCtrlCtrs.DiscoveryGenerationId)
+// 	if err != nil {
+// 		return "", err
+// 	}
+// 	return fmt.Sprintf(`"%s" %s`, tn, aliasStr), nil
+// }
 
 func (v *QueryRewriteAstVisitor) getNextAlias() string {
 	v.anonColCounter++

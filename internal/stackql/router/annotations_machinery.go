@@ -32,7 +32,7 @@ func obtainAnnotationCtx(
 	}
 	name := itemObjS.GetSelectionName()
 	tn, err := tbl.GetTableName()
-	if err == nil && namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().Match(tn) {
+	if err == nil && namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tn) {
 		name, _ = tbl.GetResourceStr()
 	}
 	hIds := dto.NewHeirarchyIdentifiers(provStr, svcStr, name, "")

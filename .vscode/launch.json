@@ -55,11 +55,11 @@
       "type": "go",
       "request": "attach",
       "mode": "local",
-      "processId": 95356
+      "processId": 19377
     },
     // DEBUG
     {
-      "name": "analytics select;",
+      "name": "analytics select",
       "type": "go",
       "request": "launch",
       "mode": "debug",
@@ -70,6 +70,20 @@
         "--registry=${input:registryString}",
         "--namespaces=${input:namespaceString}",
         "--dbinitfilepath=${workspaceFolder}/test/db/cache_setup.sql",
+        "select r.name, col.login, col.type, col.role_name from github.repos.collaborators col inner join github.repos.repos r ON col.repo = r.name where col.owner = 'stackql' and r.org = 'stackql' order by r.name, col.login desc;"
+      ],
+    },
+    {
+      "name": "analytics select NOT primed",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
+      "args": [
+        "exec",
+        "--auth=${input:authString}",
+        "--registry=${input:registryString}",
+        "--namespaces=${input:namespaceString}",
         "select r.name, col.login, col.type, col.role_name from github.repos.collaborators col inner join github.repos.repos r ON col.repo = r.name where col.owner = 'stackql' and r.org = 'stackql' order by r.name, col.login desc;"
       ],
     },

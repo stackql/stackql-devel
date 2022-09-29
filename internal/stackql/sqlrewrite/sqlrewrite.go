@@ -144,7 +144,7 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 	var controlWhereComparisons []string
 	for _, v := range input.GetTableSlice() {
 		tn, _ := v.GetTableName()
-		if input.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(tn) {
+		if input.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tn) {
 			//
 		} else {
 			alias := v.Alias
