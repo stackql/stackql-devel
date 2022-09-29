@@ -358,7 +358,11 @@ func (dp *StandardDependencyPlanner) generateSelectDML(e dataflow.DataFlowEdge, 
 		return nil, err
 	}
 	alias := ann.GetTableMeta().Alias
-	tableName := fmt.Sprintf(`"%s"`, dp.handlerCtx.DrmConfig.GetTableName(ann.GetHIDs(), dp.tcc.GenId))
+	tn, err := dp.handlerCtx.DrmConfig.GetTableName(ann.GetHIDs(), dp.tcc.GenId)
+	if err != nil {
+		return nil, err
+	}
+	tableName := fmt.Sprintf(`"%s"`, tn)
 	if alias != "" {
 		tableName = fmt.Sprintf("%s AS %s", tableName, alias)
 	}
