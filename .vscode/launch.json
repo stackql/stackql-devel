@@ -36,6 +36,7 @@
       "default": "{ \"analytics\": { \"ttl\": 86400, \"regex\": \"^stackql_analytics_(?P<objectName>.*)$\", \"template\": \"stackql_analytics_{{ .objectName }}\" } }",
       "options": [
         "{ \"analytics\": { \"ttl\": 86400, \"regex\": \"^stackql_analytics_(?P<objectName>.*)$\", \"template\": \"stackql_analytics_{{ .objectName }}\" } }",
+        "{ \"analytics\": { \"ttl\": 86400, \"regex\": \"^(?P<objectName>.*)$\", \"template\": \"stackql_analytics_{{ .objectName }}\" } }",
         "{}"
       ]
     },
@@ -69,7 +70,7 @@
         "--registry=${input:registryString}",
         "--namespaces=${input:namespaceString}",
         "--dbinitfilepath=${workspaceFolder}/test/db/cache_setup.sql",
-        "select r.name, col.login, col.type, col.role_name from stackql_analytics_github.repos.collaborators col inner join stackql_analytics_github.repos.repos r ON col.repo = r.name where col.owner = 'stackql' and r.org = 'stackql' order by r.name, col.login desc;"
+        "select r.name, col.login, col.type, col.role_name from github.repos.collaborators col inner join github.repos.repos r ON col.repo = r.name where col.owner = 'stackql' and r.org = 'stackql' order by r.name, col.login desc;"
       ],
     },
     {
