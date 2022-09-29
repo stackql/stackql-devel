@@ -114,26 +114,9 @@ func (eng *sqLiteEngine) IsTablePresent(tableName string) bool {
 				return true
 			}
 		}
-		rows.Close()
 	}
 	return false
 }
-
-// func (eng *sqLiteEngine) IsTablePresent(tableName string) bool {
-// 	rows, err := eng.db.Query(fmt.Sprintf("SELECT count(*) as ct FROM \"%s\";", tableName))
-// 	// rows, err := eng.db.Query("SELECT count(*) as ct FROM sqlite_master WHERE type='table' AND name=?;", tableName)
-// 	if err == nil && rows != nil {
-// 		rowExists := rows.Next()
-// 		if rowExists {
-// 			var ct int
-// 			err = rows.Scan(&ct)
-// 			if ct > 0 && err == nil {
-// 				return true
-// 			}
-// 		}
-// 	}
-// 	return false
-// }
 
 func (eng *sqLiteEngine) execFileLocal(fileName string) error {
 	expF, err := util.GetFilePathFromRepositoryRoot(fileName)
