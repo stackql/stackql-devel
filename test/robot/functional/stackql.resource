@@ -41,10 +41,19 @@ Prepare StackQL Environment
     Set Environment Variable    K8S_SECRET_KEY    ${K8S_SECRET_STR}
     Set Environment Variable    AZ_ACCESS_TOKEN    ${AZURE_SECRET_STR}
     Start All Mock Servers
+    Generate Container Credentials for StackQL PG Server mTLS
     Start StackQL PG Server mTLS    ${PG_SRV_PORT_MTLS}    ${PG_SRV_MTLS_CFG_STR}    {}    ${PG_SRV_PORT_DOCKER_MTLS}
     Start StackQL PG Server mTLS    ${PG_SRV_PORT_MTLS_WITH_NAMESPACES}    ${PG_SRV_MTLS_CFG_STR}    ${NAMESPACES_TTL_SPECIALCASE_TRANSPARENT}    ${PG_SRV_PORT_DOCKER_MTLS_WITH_NAMESPACES}
     Start StackQL PG Server unencrypted    ${PG_SRV_PORT_UNENCRYPTED}    {}
     Sleep    50s
+
+Generate Container Credentials for StackQL PG Server mTLS
+    IF    "${EXECUTION_PLATFORM}" == "docker"
+        ${res} =         Run Process    docker\-compose    \-\-log\-level    CRITICAL
+                        ...  run    \-\-rm    credentialsgen
+        Log     Credentials gen completed
+        Should Be Equal As Integers    ${res.rc}    0
+    END
 
 Start StackQL PG Server mTLS
     [Arguments]    ${_SRV_PORT_MTLS}    ${_MTLS_CFG_STR}    ${_NAMESPACES_CFG}    ${_DOCKER_PORT}
@@ -60,10 +69,6 @@ Start StackQL PG Server mTLS
                         ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
                         ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
     ELSE IF    "${EXECUTION_PLATFORM}" == "docker"
-        ${res} =         Run Process    docker\-compose    \-\-log\-level    CRITICAL
-                        ...  run    \-\-rm    credentialsgen
-        Log     Credentials gen completed
-        Should Be Equal As Integers    ${res.rc}    0
         ${process} =    Start Process    docker\-compose
                         ...  \-p     mtls
                         ...  run
