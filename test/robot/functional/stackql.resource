@@ -41,13 +41,13 @@ Prepare StackQL Environment
     Set Environment Variable    K8S_SECRET_KEY    ${K8S_SECRET_STR}
     Set Environment Variable    AZ_ACCESS_TOKEN    ${AZURE_SECRET_STR}
     Start All Mock Servers
-    Start StackQL PG Server mTLS    ${PG_SRV_PORT_MTLS}    ${PG_SRV_MTLS_CFG_STR}    {}
-    Start StackQL PG Server mTLS    ${PG_SRV_PORT_MTLS_WITH_NAMESPACES}    ${PG_SRV_MTLS_CFG_STR}    ${NAMESPACES_TTL_SPECIALCASE_TRANSPARENT}
+    Start StackQL PG Server mTLS    ${PG_SRV_PORT_MTLS}    ${PG_SRV_MTLS_CFG_STR}    {}    ${PG_SRV_PORT_DOCKER_MTLS}
+    Start StackQL PG Server mTLS    ${PG_SRV_PORT_MTLS_WITH_NAMESPACES}    ${PG_SRV_MTLS_CFG_STR}    ${NAMESPACES_TTL_SPECIALCASE_TRANSPARENT}    ${PG_SRV_PORT_DOCKER_MTLS_WITH_NAMESPACES}
     Start StackQL PG Server unencrypted    ${PG_SRV_PORT_UNENCRYPTED}    {}
     Sleep    50s
 
 Start StackQL PG Server mTLS
-    [Arguments]    ${_SRV_PORT_MTLS}    ${_MTLS_CFG_STR}    ${_NAMESPACES_CFG}
+    [Arguments]    ${_SRV_PORT_MTLS}    ${_MTLS_CFG_STR}    ${_NAMESPACES_CFG}    ${_DOCKER_PORT}
     IF    "${EXECUTION_PLATFORM}" == "native"
         ${process} =    Start Process    ${STACKQL_EXE}
                         ...  srv    \-\-registry\=${REGISTRY_NO_VERIFY_CFG_STR.get_config_str('native')}
@@ -67,11 +67,11 @@ Start StackQL PG Server mTLS
         ${process} =    Start Process    docker\-compose
                         ...  \-p     mtls
                         ...  run
-                        ...  \-p${_SRV_PORT_MTLS}:${PG_SRV_PORT_DOCKER_MTLS}/tcp
+                        ...  \-p${_SRV_PORT_MTLS}:${_DOCKER_PORT}/tcp
                         ...  stackqlsrv
                         ...  bash
                         ...  \-c
-                        ...  stackql srv \-\-registry\='${REGISTRY_NO_VERIFY_CFG_STR.get_config_str('docker')}' \-\-auth\='${AUTH_CFG_STR}' \-\-namespaces\='${_NAMESPACES_CFG}' \-\-tls\.allowInsecure\=true \-\-pgsrv\.address\=0.0.0.0 \-\-pgsrv\.port\=${PG_SRV_PORT_DOCKER_MTLS} \-\-pgsrv\.tls\='{\"keyFilePath\": \"/opt/stackql/srv/credentials/pg_server_key.pem\", \"certFilePath\": \"/opt/stackql/srv/credentials/pg_server_cert.pem\", \"clientCAs\": [\"'$(base64 -w 0 /opt/stackql/srv/credentials/pg_client_cert.pem)'\"]}'
+                        ...  stackql srv \-\-registry\='${REGISTRY_NO_VERIFY_CFG_STR.get_config_str('docker')}' \-\-auth\='${AUTH_CFG_STR}' \-\-namespaces\='${_NAMESPACES_CFG}' \-\-tls\.allowInsecure\=true \-\-pgsrv\.address\=0.0.0.0 \-\-pgsrv\.port\=${_DOCKER_PORT} \-\-pgsrv\.tls\='{\"keyFilePath\": \"/opt/stackql/srv/credentials/pg_server_key.pem\", \"certFilePath\": \"/opt/stackql/srv/credentials/pg_server_cert.pem\", \"clientCAs\": [\"'$(base64 -w 0 /opt/stackql/srv/credentials/pg_client_cert.pem)'\"]}'
                         ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
                         ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
     END
