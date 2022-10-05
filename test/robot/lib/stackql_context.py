@@ -91,7 +91,7 @@ ROBOT_MOCKED_REG_DIR = os.path.abspath(os.path.join(ROBOT_TEST_ROOT, 'registry',
 
 ROBOT_INTEGRATION_TEST_ROOT = os.path.abspath(os.path.join(__file__, '..', 'integration'))
 
-_NAMESPACES_TTL_SIMPLE = '{ "analytics": { "ttl": 86400, "regex": "^stackql_analytics_(?P<objectName>.*)$", "template": "stackql_analytics_{{ .objectName }}" } }'
+_NAMESPACES_TTL_SIMPLE = '{ "analytics": { "ttl": 86400, "regex": "^(?:stackql_analytics_)?(?P<objectName>.*)$", "template": "stackql_analytics_{{ .objectName }}" } }'
 _NAMESPACES_TTL_TRANSPARENT = '{ "analytics": { "ttl": 86400, "regex": "^(?P<objectName>.*)$", "template": "stackql_analytics_{{ .objectName }}" } }'
 _NAMESPACES_TTL_SPECIALCASE_TRANSPARENT = '{ "analytics": { "ttl": 86400, "regex": "^(?P<objectName>github.*)$", "template": "stackql_analytics_{{ .objectName }}" } }'
 

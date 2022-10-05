@@ -130,7 +130,8 @@ func (ss *GraphQLSingleSelectAcquire) Build() error {
 						return dto.NewErroneousExecutorOutput(err)
 					}
 					for _, item := range response {
-						r, err := ss.drmCfg.ExecuteInsertDML(ss.handlerCtx.SQLEngine, ss.insertPreparedStatementCtx, item)
+						// TODO: handle request encoding
+						r, err := ss.drmCfg.ExecuteInsertDML(ss.handlerCtx.SQLEngine, ss.insertPreparedStatementCtx, item, "")
 						logging.GetLogger().Infoln(fmt.Sprintf("insert result = %v, error = %v", r, err))
 						if err != nil {
 							return dto.NewErroneousExecutorOutput(err)

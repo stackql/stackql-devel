@@ -243,17 +243,15 @@ func (dp *StandardDependencyPlanner) orchestrate(
 	inStream streaming.MapStream,
 	outStream streaming.MapStream,
 ) error {
-	if !insPsc.IsAnalyticsCacheQueryOnly() {
-		builder := primitivebuilder.NewSingleSelectAcquire(
-			dp.primitiveComposer.GetGraph(),
-			dp.handlerCtx,
-			annotationCtx.GetTableMeta(),
-			insPsc,
-			nil,
-			outStream,
-		)
-		dp.execSlice = append(dp.execSlice, builder)
-	}
+	builder := primitivebuilder.NewSingleSelectAcquire(
+		dp.primitiveComposer.GetGraph(),
+		dp.handlerCtx,
+		annotationCtx.GetTableMeta(),
+		insPsc,
+		nil,
+		outStream,
+	)
+	dp.execSlice = append(dp.execSlice, builder)
 	dp.tableSlice = append(dp.tableSlice, annotationCtx.GetTableMeta())
 	err := annotationCtx.Prepare(dp.handlerCtx, inStream)
 	return err
