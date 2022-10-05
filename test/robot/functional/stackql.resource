@@ -49,7 +49,7 @@ Prepare StackQL Environment
 
 Generate Container Credentials for StackQL PG Server mTLS
     IF    "${EXECUTION_PLATFORM}" == "docker"
-        ${res} =         Run Process    docker\-compose    \-\-log\-level    CRITICAL
+        ${res} =         Run Process    docker\-compose    \-\-log\-level    ERROR
                         ...  run    \-\-rm    credentialsgen
         Log     Credentials gen completed
         Should Be Equal As Integers    ${res.rc}    0
@@ -76,7 +76,7 @@ Start StackQL PG Server mTLS
         ${process} =    Start Process    docker\-compose
                         ...  \-p     mtls
                         ...  run
-                        ...  \-p${_SRV_PORT_MTLS}:${_DOCKER_PORT}/tcp
+                        ...  \-\-rm    \-p${_SRV_PORT_MTLS}:${_DOCKER_PORT}/tcp
                         ...  stackqlsrv
                         ...  bash
                         ...  \-c
