@@ -140,6 +140,7 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 	sessionIDColName := dc.GetSessionControlColumn()
 	txnIdColName := dc.GetTxnControlColumn()
 	insIdColName := dc.GetInsControlColumn()
+	insEncodedColName := dc.GetInsertEncodedControlColumn()
 	var wq strings.Builder
 	var controlWhereComparisons []string
 	for _, v := range input.GetTableSlice() {
@@ -194,11 +195,11 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 		nil,
 		txnIdColName,
 		insIdColName,
+		insEncodedColName,
 		columns,
 		len(input.GetTables()),
 		txnCtrlCtrs,
 		input.GetSecondaryCtrlCounters(),
 		input.GetDRMConfig().GetNamespaceCollection(),
-		false,
 	), nil
 }

@@ -21,11 +21,12 @@ import (
 )
 
 const (
-	gen_id_col_name        string = "iql_generation_id"
-	ssn_id_col_name        string = "iql_session_id"
-	txn_id_col_name        string = "iql_txn_id"
-	ins_id_col_name        string = "iql_insert_id"
-	latest_update_col_name string = "iql_last_modified"
+	gen_id_col_name         string = "iql_generation_id"
+	ssn_id_col_name         string = "iql_session_id"
+	txn_id_col_name         string = "iql_txn_id"
+	ins_id_col_name         string = "iql_insert_id"
+	insert_endoded_col_name string = "iql_insert_encoded"
+	latest_update_col_name  string = "iql_last_modified"
 )
 
 type DRM interface {
@@ -85,12 +86,12 @@ type PreparedStatementCtx struct {
 	TableNames              []string
 	txnIdControlColName     string
 	insIdControlColName     string
+	insEncodedColName       string
 	nonControlColumns       []ColumnMetadata
 	ctrlColumnRepeats       int
 	txnCtrlCtrs             *dto.TxnControlCounters
 	selectTxnCtrlCtrs       []*dto.TxnControlCounters
 	namespaceCollection     tablenamespace.TableNamespaceCollection
-	isOnlyAnalytics         bool
 }
 
 func (ps *PreparedStatementCtx) SetKind(kind string) {
@@ -99,10 +100,6 @@ func (ps *PreparedStatementCtx) SetKind(kind string) {
 
 func (ps *PreparedStatementCtx) GetQuery() string {
 	return ps.query
-}
-
-func (ps *PreparedStatementCtx) IsAnalyticsCacheQueryOnly() bool {
-	return ps.isOnlyAnalytics
 }
 
 func (ps *PreparedStatementCtx) GetGCCtrlCtrs() *dto.TxnControlCounters {
@@ -132,12 +129,12 @@ func NewPreparedStatementCtx(
 	tableNames []string,
 	txnIdControlColName string,
 	insIdControlColName string,
+	insEncodedColName string,
 	nonControlColumns []ColumnMetadata,
 	ctrlColumnRepeats int,
 	txnCtrlCtrs *dto.TxnControlCounters,
 	secondaryCtrs []*dto.TxnControlCounters,
 	namespaceCollection tablenamespace.TableNamespaceCollection,
-	isOnlyAnalytics bool,
 ) *PreparedStatementCtx {
 	return &PreparedStatementCtx{
 		query:                   query,
@@ -147,12 +144,12 @@ func NewPreparedStatementCtx(
 		TableNames:              tableNames,
 		txnIdControlColName:     txnIdControlColName,
 		insIdControlColName:     insIdControlColName,
+		insEncodedColName:       insEncodedColName,
 		nonControlColumns:       nonControlColumns,
 		ctrlColumnRepeats:       ctrlColumnRepeats,
 		txnCtrlCtrs:             txnCtrlCtrs,
 		selectTxnCtrlCtrs:       secondaryCtrs,
 		namespaceCollection:     namespaceCollection,
-		isOnlyAnalytics:         isOnlyAnalytics,
 	}
 }
 
@@ -179,6 +176,7 @@ type PreparedStatementParameterized struct {
 	Ctx                 *PreparedStatementCtx
 	args                map[string]interface{}
 	controlArgsRequired bool
+	requestEncoding     string
 	children            map[int]PreparedStatementParameterized
 }
 
@@ -215,7 +213,8 @@ type DRMConfig interface {
 	GenerateDDL(util.AnnotatedTabulation, *openapistackql.OperationStore, int, bool) ([]string, error)
 	GetGolangValue(string) interface{}
 	GetInsControlColumn() string
-	// GetLastUpdatedControlColumn() string
+	GetInsertEncodedControlColumn() string
+	GetLastUpdatedControlColumn() string
 	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
 	GetParserTableName(*dto.HeirarchyIdentifiers, int) sqlparser.TableName
 	GetSessionControlColumn() string
@@ -224,7 +223,7 @@ type DRMConfig interface {
 	GetGenerationControlColumn() string
 	GenerateInsertDML(util.AnnotatedTabulation, *openapistackql.OperationStore, *dto.TxnControlCounters) (*PreparedStatementCtx, error)
 	GenerateSelectDML(util.AnnotatedTabulation, *dto.TxnControlCounters, string, string) (*PreparedStatementCtx, error)
-	ExecuteInsertDML(sqlengine.SQLEngine, *PreparedStatementCtx, map[string]interface{}) (sql.Result, error)
+	ExecuteInsertDML(sqlengine.SQLEngine, *PreparedStatementCtx, map[string]interface{}, string) (sql.Result, error)
 	QueryDML(sqlengine.SQLEngine, PreparedStatementParameterized) (*sql.Rows, error)
 }
 
@@ -332,12 +331,20 @@ func (dc *StaticDRMConfig) getInsControlColumn() string {
 	return ins_id_col_name
 }
 
-// func (dc *StaticDRMConfig) GetLastUpdatedControlColumn() string {
-// 	return dc.getLastUpdatedControlColumn()
-// }
+func (dc *StaticDRMConfig) GetLastUpdatedControlColumn() string {
+	return dc.getLastUpdatedControlColumn()
+}
 
 func (dc *StaticDRMConfig) getLastUpdatedControlColumn() string {
 	return latest_update_col_name
+}
+
+func (dc *StaticDRMConfig) GetInsertEncodedControlColumn() string {
+	return dc.getInsertEncodedControlColumn()
+}
+
+func (dc *StaticDRMConfig) getInsertEncodedControlColumn() string {
+	return insert_endoded_col_name
 }
 
 func (dc *StaticDRMConfig) GetCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers, dbEngine sqlengine.SQLEngine) (dto.DBTable, error) {
@@ -350,11 +357,6 @@ func (dc *StaticDRMConfig) GetCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdent
 
 func (dc *StaticDRMConfig) GetTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) (string, error) {
 	return dc.getTableName(hIds, discoveryGenerationID)
-}
-
-func (dc *StaticDRMConfig) isOnlyAnalytics(hIds *dto.HeirarchyIdentifiers) bool {
-	name := hIds.GetTableName()
-	return dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().Match(name)
 }
 
 func (dc *StaticDRMConfig) getTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) (string, error) {
@@ -420,10 +422,12 @@ func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, m *opena
 	txnIdColName := dc.getTxnControlColumn()
 	insIdColName := dc.getInsControlColumn()
 	lastUpdateColName := dc.getLastUpdatedControlColumn()
+	insertEncodedColName := dc.getInsertEncodedControlColumn()
 	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, genIdColName))
 	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, sessionIdColName))
 	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, txnIdColName))
 	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, insIdColName))
+	colDefs = append(colDefs, fmt.Sprintf(`"%s" TEXT `, insertEncodedColName))
 	colDefs = append(colDefs, fmt.Sprintf(`"%s" DateTime NOT NULL DEFAULT CURRENT_TIMESTAMP `, lastUpdateColName))
 	schemaAnalyzer := util.NewTableSchemaAnalyzer(tabAnn.GetTabulation().GetSchema(), m)
 	tableColumns := schemaAnalyzer.GetColumns()
@@ -457,7 +461,6 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 	var q strings.Builder
 	var quotedColNames, vals []string
 	var columns []ColumnMetadata
-	isOnlyAnalytics := dc.isOnlyAnalytics(tabAnnotated.GetHeirarchyIdentifiers())
 	tableName, err := dc.inferTableName(tabAnnotated.GetHeirarchyIdentifiers(), tcc.DiscoveryGenerationId)
 	if err != nil {
 		return nil, err
@@ -467,10 +470,13 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 	sessionIdColName := dc.getSessionControlColumn()
 	txnIdColName := dc.getTxnControlColumn()
 	insIdColName := dc.getInsControlColumn()
+	insEncodedColName := dc.getInsertEncodedControlColumn()
 	quotedColNames = append(quotedColNames, `"`+genIdColName+`" `)
 	quotedColNames = append(quotedColNames, `"`+sessionIdColName+`" `)
 	quotedColNames = append(quotedColNames, `"`+txnIdColName+`" `)
 	quotedColNames = append(quotedColNames, `"`+insIdColName+`" `)
+	quotedColNames = append(quotedColNames, `"`+insEncodedColName+`" `)
+	vals = append(vals, "?")
 	vals = append(vals, "?")
 	vals = append(vals, "?")
 	vals = append(vals, "?")
@@ -497,12 +503,12 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 			[]string{tableName},
 			txnIdColName,
 			insIdColName,
+			insEncodedColName,
 			columns,
 			1,
 			tcc,
 			nil,
 			dc.namespaceCollection,
-			isOnlyAnalytics,
 		),
 		nil
 }
@@ -566,16 +572,16 @@ func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 		nil,
 		txnIdColName,
 		insIdColName,
+		dc.getInsertEncodedControlColumn(),
 		columns,
 		1,
 		txnCtrlCtrs,
 		nil,
 		dc.namespaceCollection,
-		false,
 	), nil
 }
 
-func (dc *StaticDRMConfig) generateControlVarArgs(cp PreparedStatementParameterized) ([]interface{}, error) {
+func (dc *StaticDRMConfig) generateControlVarArgs(cp PreparedStatementParameterized, isInsert bool) ([]interface{}, error) {
 	// logging.GetLogger().Infoln(fmt.Sprintf("%v", ctx))
 	var varArgs []interface{}
 	if cp.controlArgsRequired {
@@ -585,21 +591,24 @@ func (dc *StaticDRMConfig) generateControlVarArgs(cp PreparedStatementParameteri
 			varArgs = append(varArgs, ctrs.SessionId)
 			varArgs = append(varArgs, ctrs.TxnId)
 			varArgs = append(varArgs, ctrs.InsertId)
+			if isInsert {
+				varArgs = append(varArgs, cp.requestEncoding)
+			}
 		}
 	}
 	return varArgs, nil
 }
 
-func (dc *StaticDRMConfig) generateVarArgs(cp PreparedStatementParameterized) (PreparedStatementArgs, error) {
+func (dc *StaticDRMConfig) generateVarArgs(cp PreparedStatementParameterized, isInsert bool) (PreparedStatementArgs, error) {
 	retVal := NewPreparedStatementArgs(cp.Ctx.GetQuery())
 	for i, child := range cp.children {
-		chidRv, err := dc.generateVarArgs(child)
+		chidRv, err := dc.generateVarArgs(child, isInsert)
 		if err != nil {
 			return retVal, err
 		}
 		retVal.children[i] = chidRv
 	}
-	varArgs, _ := dc.generateControlVarArgs(cp)
+	varArgs, _ := dc.generateControlVarArgs(cp, isInsert)
 	if cp.args != nil && len(cp.args) > 0 {
 		for _, col := range cp.Ctx.GetNonControlColumns() {
 			va, ok := cp.args[col.GetName()]
@@ -623,11 +632,11 @@ func (dc *StaticDRMConfig) generateVarArgs(cp PreparedStatementParameterized) (P
 	return retVal, nil
 }
 
-func (dc *StaticDRMConfig) ExecuteInsertDML(dbEngine sqlengine.SQLEngine, ctx *PreparedStatementCtx, payload map[string]interface{}) (sql.Result, error) {
+func (dc *StaticDRMConfig) ExecuteInsertDML(dbEngine sqlengine.SQLEngine, ctx *PreparedStatementCtx, payload map[string]interface{}, requestEncoding string) (sql.Result, error) {
 	if ctx == nil {
 		return nil, fmt.Errorf("cannot execute on nil PreparedStatementContext")
 	}
-	stmtArgs, err := dc.generateVarArgs(PreparedStatementParameterized{Ctx: ctx, args: payload, controlArgsRequired: true})
+	stmtArgs, err := dc.generateVarArgs(PreparedStatementParameterized{Ctx: ctx, args: payload, controlArgsRequired: true, requestEncoding: requestEncoding}, true)
 	if err != nil {
 		return nil, err
 	}
@@ -638,7 +647,7 @@ func (dc *StaticDRMConfig) QueryDML(dbEngine sqlengine.SQLEngine, ctxParameteriz
 	if ctxParameterized.Ctx == nil {
 		return nil, fmt.Errorf("cannot execute based upon nil PreparedStatementContext")
 	}
-	rootArgs, err := dc.generateVarArgs(ctxParameterized)
+	rootArgs, err := dc.generateVarArgs(ctxParameterized, false)
 	if err != nil {
 		return nil, err
 	}

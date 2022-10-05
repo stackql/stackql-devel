@@ -42,10 +42,21 @@ type HTTPArmouryParameters struct {
 }
 
 func (hap HTTPArmouryParameters) ToFlatMap() (map[string]interface{}, error) {
+	return hap.toFlatMap()
+}
+
+func (hap HTTPArmouryParameters) toFlatMap() (map[string]interface{}, error) {
 	if hap.Parameters != nil {
 		return hap.Parameters.ToFlatMap()
 	}
 	return make(map[string]interface{}), nil
+}
+
+func (hap HTTPArmouryParameters) Encode() string {
+	if hap.Parameters != nil {
+		return hap.Parameters.Encode()
+	}
+	return ""
 }
 
 func (hap HTTPArmouryParameters) SetNextPage(ops *openapistackql.OperationStore, token string, tokenKey *dto.HTTPElement) (*http.Request, error) {
