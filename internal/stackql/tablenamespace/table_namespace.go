@@ -12,7 +12,7 @@ import (
 type TableNamespaceConfigurator interface {
 	GetObjectName(string) string
 	IsAllowed(string) bool
-	Match(string) bool
+	Match(string, string, string, string) bool
 	RenderTemplate(string) (string, error)
 }
 
@@ -35,7 +35,7 @@ func (stc *regexTableNamespaceConfigurator) isAllowed(tableString string) bool {
 	return stc.regex.MatchString(tableString)
 }
 
-func (stc *regexTableNamespaceConfigurator) Match(tableString string) bool {
+func (stc *regexTableNamespaceConfigurator) Match(tableString string, requestEncoding string, lastModifiedColName string, requestEncodingColName string) bool {
 	isAllowed := stc.isAllowed(tableString)
 	if !isAllowed {
 		return false
@@ -44,11 +44,11 @@ func (stc *regexTableNamespaceConfigurator) Match(tableString string) bool {
 	if err != nil {
 		return false
 	}
-	isPresent := stc.sqlEngine.IsTablePresent(actualTableName)
+	isPresent := stc.sqlEngine.IsTablePresent(actualTableName, requestEncoding, requestEncodingColName)
 	if !isPresent {
 		return false
 	}
-	oldestUpdate := stc.sqlEngine.TableOldestUpdateUTC(actualTableName, "iql_last_modified")
+	oldestUpdate := stc.sqlEngine.TableOldestUpdateUTC(actualTableName, requestEncoding, lastModifiedColName, requestEncodingColName)
 	diff := time.Since(oldestUpdate)
 	ds := diff.Seconds()
 	if stc.ttl > 0 && int(ds) > stc.ttl {

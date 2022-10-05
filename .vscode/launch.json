@@ -35,7 +35,7 @@
       "description": "Namespace JSON config String",
       "default": "{ \"analytics\": { \"ttl\": 86400, \"regex\": \"^stackql_analytics_(?P<objectName>.*)$\", \"template\": \"stackql_analytics_{{ .objectName }}\" } }",
       "options": [
-        "{ \"analytics\": { \"ttl\": 86400, \"regex\": \"^stackql_analytics_(?P<objectName>.*)$\", \"template\": \"stackql_analytics_{{ .objectName }}\" } }",
+        "{ \"analytics\": { \"ttl\": 86400, \"regex\": \"^(?:stackql_analytics_)?(?P<objectName>.*)$\", \"template\": \"stackql_analytics_{{ .objectName }}\" } }",
         "{ \"analytics\": { \"ttl\": 86400, \"regex\": \"^(?P<objectName>.*)$\", \"template\": \"stackql_analytics_{{ .objectName }}\" } }",
         "{}"
       ]

@@ -107,6 +107,10 @@ func (ss *SingleSelectAcquire) Build() error {
 	if err != nil {
 		return err
 	}
+	tableName, err := ss.tableMeta.GetTableName()
+	if err != nil {
+		return err
+	}
 	ex := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
 		ss.graph.AddTxnControlCounters(*ss.insertPreparedStatementCtx.GetGCCtrlCtrs())
 		mr := prov.InferMaxResultsElement(m)
@@ -130,6 +134,14 @@ func (ss *SingleSelectAcquire) Build() error {
 			}
 		}
 		for _, reqCtx := range httpArmoury.GetRequestParams() {
+			paramsUsed, err := reqCtx.ToFlatMap()
+			if err != nil {
+				return dto.NewErroneousExecutorOutput(err)
+			}
+			reqEncoding := reqCtx.Encode()
+			if ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(tableName, reqEncoding, ss.drmCfg.GetLastUpdatedControlColumn(), ss.drmCfg.GetInsertEncodedControlColumn()) {
+				return dto.ExecutorOutput{}
+			}
 			response, apiErr := httpmiddleware.HttpApiCallFromRequest(*(ss.handlerCtx), prov, m, reqCtx.Request.Clone(reqCtx.Request.Context()))
 			housekeepingDone := false
 			npt := prov.InferNextPageResponseElement(ss.tableMeta.HeirarchyObjects.Heirarchy)
@@ -200,7 +212,6 @@ func (ss *SingleSelectAcquire) Build() error {
 						for i, item := range iArr {
 							if item != nil {
 
-								paramsUsed, err := reqCtx.ToFlatMap()
 								if err == nil {
 									for k, v := range paramsUsed {
 										if _, ok := item[k]; !ok {
@@ -210,7 +221,7 @@ func (ss *SingleSelectAcquire) Build() error {
 								}
 
 								logging.GetLogger().Infoln(fmt.Sprintf("running insert with control parameters: %v", ss.insertPreparedStatementCtx.GetGCCtrlCtrs()))
-								r, err := ss.drmCfg.ExecuteInsertDML(ss.handlerCtx.SQLEngine, ss.insertPreparedStatementCtx, item)
+								r, err := ss.drmCfg.ExecuteInsertDML(ss.handlerCtx.SQLEngine, ss.insertPreparedStatementCtx, item, reqEncoding)
 								logging.GetLogger().Infoln(fmt.Sprintf("insert result = %v, error = %v", r, err))
 								if err != nil {
 									return dto.NewErroneousExecutorOutput(fmt.Errorf("sql insert error: '%s' from query: %s", err.Error(), ss.insertPreparedStatementCtx.GetQuery()))

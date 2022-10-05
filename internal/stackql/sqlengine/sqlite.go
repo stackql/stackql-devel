@@ -74,8 +74,8 @@ func newSQLiteEngine(cfg SQLEngineConfig) (*sqLiteEngine, error) {
 //    call. Universal Coordinated Time (UTC) is used.
 // Therefore, this method will behave correctly provided that the column `colName`
 // is populated with `DateTime('now')`.
-func (eng *sqLiteEngine) TableOldestUpdateUTC(tableName string, colName string) time.Time {
-	rows, err := eng.db.Query(fmt.Sprintf("SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%S', min(%s)) as oldest_update FROM \"%s\";", colName, tableName))
+func (eng *sqLiteEngine) TableOldestUpdateUTC(tableName string, requestEncoding string, updateColName string, requestEncodingColName string) time.Time {
+	rows, err := eng.db.Query(fmt.Sprintf("SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%S', min(%s)) as oldest_update FROM \"%s\" WHERE %s = '%s';", updateColName, tableName, requestEncodingColName, requestEncoding))
 	if err == nil && rows != nil {
 		defer rows.Close()
 		rowExists := rows.Next()
@@ -102,15 +102,15 @@ func (eng *sqLiteEngine) execFileSQLite(fileName string) error {
 	return err
 }
 
-func (eng *sqLiteEngine) IsTablePresent(tableName string) bool {
-	rows, err := eng.db.Query("SELECT count(*) as ct FROM sqlite_master WHERE type='table' AND name=?;", tableName)
+func (eng *sqLiteEngine) IsTablePresent(tableName string, requestEncoding string, colName string) bool {
+	rows, err := eng.db.Query(fmt.Sprintf(`SELECT count(*) as ct FROM "%s" WHERE iql_insert_encoded=?;`, tableName), requestEncoding)
 	if err == nil && rows != nil {
 		defer rows.Close()
 		rowExists := rows.Next()
 		if rowExists {
 			var ct int
 			rows.Scan(&ct)
-			if ct == 1 {
+			if ct > 0 {
 				return true
 			}
 		}
