@@ -12,6 +12,45 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
+var (
+	_ TableInsertionContainer = &StandardTableInsertionContainer{}
+)
+
+type TableInsertionContainer interface {
+	GetTableMetadata() *taxonomy.ExtendedTableMetadata
+	SetTxnCounters(*dto.TxnControlCounters)
+	GetTxnCounters() *dto.TxnControlCounters
+}
+
+type StandardTableInsertionContainer struct {
+	tm  *taxonomy.ExtendedTableMetadata
+	tcc *dto.TxnControlCounters
+}
+
+func (ic *StandardTableInsertionContainer) GetTableMetadata() *taxonomy.ExtendedTableMetadata {
+	return ic.tm
+}
+
+func (ic *StandardTableInsertionContainer) SetTxnCounters(tcc *dto.TxnControlCounters) {
+	ic.tcc = tcc
+}
+
+func (ic *StandardTableInsertionContainer) GetTxnCounters() *dto.TxnControlCounters {
+	return ic.tcc
+}
+
+func newTableInsertionContainer(tm *taxonomy.ExtendedTableMetadata) TableInsertionContainer {
+	return &StandardTableInsertionContainer{tm: tm}
+}
+
+func NewTableInsertionContainers(tms []*taxonomy.ExtendedTableMetadata) []TableInsertionContainer {
+	var rv []TableInsertionContainer
+	for _, tm := range tms {
+		rv = append(rv, newTableInsertionContainer(tm))
+	}
+	return rv
+}
+
 type SQLRewriteInput interface {
 	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
 	GetDRMConfig() drm.DRMConfig
@@ -22,20 +61,20 @@ type SQLRewriteInput interface {
 	GetRewrittenWhere() string
 	GetSecondaryCtrlCounters() []*dto.TxnControlCounters
 	GetTables() taxonomy.TblMap
-	GetTableSlice() []*taxonomy.ExtendedTableMetadata
+	GetTableInsertionContainers() []TableInsertionContainer
 }
 
 type StandardSQLRewriteInput struct {
-	dc                    drm.DRMConfig
-	columnDescriptors     []openapistackql.ColumnDescriptor
-	baseControlCounters   *dto.TxnControlCounters
-	selectSuffix          string
-	rewrittenWhere        string
-	secondaryCtrlCounters []*dto.TxnControlCounters
-	tables                taxonomy.TblMap
-	fromString            string
-	tableSlice            []*taxonomy.ExtendedTableMetadata
-	namespaceCollection   tablenamespace.TableNamespaceCollection
+	dc                       drm.DRMConfig
+	columnDescriptors        []openapistackql.ColumnDescriptor
+	baseControlCounters      *dto.TxnControlCounters
+	selectSuffix             string
+	rewrittenWhere           string
+	secondaryCtrlCounters    []*dto.TxnControlCounters
+	tables                   taxonomy.TblMap
+	fromString               string
+	tableInsertionContainers []TableInsertionContainer
+	namespaceCollection      tablenamespace.TableNamespaceCollection
 }
 
 func NewStandardSQLRewriteInput(
@@ -47,20 +86,20 @@ func NewStandardSQLRewriteInput(
 	secondaryCtrlCounters []*dto.TxnControlCounters,
 	tables taxonomy.TblMap,
 	fromString string,
-	tableSlice []*taxonomy.ExtendedTableMetadata,
+	tableInsertionContainers []TableInsertionContainer,
 	namespaceCollection tablenamespace.TableNamespaceCollection,
 ) SQLRewriteInput {
 	return &StandardSQLRewriteInput{
-		dc:                    dc,
-		columnDescriptors:     columnDescriptors,
-		baseControlCounters:   baseControlCounters,
-		selectSuffix:          selectSuffix,
-		rewrittenWhere:        rewrittenWhere,
-		secondaryCtrlCounters: secondaryCtrlCounters,
-		tables:                tables,
-		fromString:            fromString,
-		tableSlice:            tableSlice,
-		namespaceCollection:   namespaceCollection,
+		dc:                       dc,
+		columnDescriptors:        columnDescriptors,
+		baseControlCounters:      baseControlCounters,
+		selectSuffix:             selectSuffix,
+		rewrittenWhere:           rewrittenWhere,
+		secondaryCtrlCounters:    secondaryCtrlCounters,
+		tables:                   tables,
+		fromString:               fromString,
+		tableInsertionContainers: tableInsertionContainers,
+		namespaceCollection:      namespaceCollection,
 	}
 }
 
@@ -76,8 +115,8 @@ func (ri *StandardSQLRewriteInput) GetColumnDescriptors() []openapistackql.Colum
 	return ri.columnDescriptors
 }
 
-func (ri *StandardSQLRewriteInput) GetTableSlice() []*taxonomy.ExtendedTableMetadata {
-	return ri.tableSlice
+func (ri *StandardSQLRewriteInput) GetTableInsertionContainers() []TableInsertionContainer {
+	return ri.tableInsertionContainers
 }
 
 func (ri *StandardSQLRewriteInput) GetBaseControlCounters() *dto.TxnControlCounters {
@@ -143,7 +182,8 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 	insEncodedColName := dc.GetInsertEncodedControlColumn()
 	var wq strings.Builder
 	var controlWhereComparisons []string
-	for _, v := range input.GetTableSlice() {
+	for _, tb := range input.GetTableInsertionContainers() {
+		v := tb.GetTableMetadata()
 		tn, _ := v.GetTableName()
 		if input.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tn) {
 			//

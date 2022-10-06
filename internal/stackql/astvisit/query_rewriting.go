@@ -105,7 +105,7 @@ func (v *QueryRewriteAstVisitor) GenerateSelectDML() (*drm.PreparedStatementCtx,
 		v.secondaryCtrlCounters,
 		v.tables,
 		v.fromStr,
-		v.tableSlice,
+		sqlrewrite.NewTableInsertionContainers(v.tableSlice),
 		v.namespaceCollection,
 	)
 	return sqlrewrite.GenerateSelectDML(rewriteInput)
