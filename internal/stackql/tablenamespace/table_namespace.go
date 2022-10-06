@@ -51,7 +51,7 @@ func (stc *regexTableNamespaceConfigurator) Match(tableString string, requestEnc
 	oldestUpdate := stc.sqlEngine.TableOldestUpdateUTC(actualTableName, requestEncoding, lastModifiedColName, requestEncodingColName)
 	diff := time.Since(oldestUpdate)
 	ds := diff.Seconds()
-	if stc.ttl > 0 && int(ds) > stc.ttl {
+	if stc.ttl > -1 && int(ds) > stc.ttl {
 		return false
 	}
 	return true
