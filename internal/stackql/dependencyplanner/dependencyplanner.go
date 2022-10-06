@@ -373,7 +373,7 @@ func (dp *StandardDependencyPlanner) generateSelectDML(e dataflow.DataFlowEdge, 
 		dp.secondaryTccs,
 		dp.tblz,
 		tableName,
-		[]*taxonomy.ExtendedTableMetadata{meta},
+		sqlrewrite.NewTableInsertionContainers([]*taxonomy.ExtendedTableMetadata{meta}),
 		dp.handlerCtx.GetNamespaceCollection(),
 	)
 	return sqlrewrite.GenerateSelectDML(rewriteInput)
