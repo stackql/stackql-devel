@@ -27,6 +27,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/sqlstream"
 	"github.com/stackql/stackql/internal/stackql/suffix"
 	"github.com/stackql/stackql/internal/stackql/symtab"
+	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 	"github.com/stackql/stackql/internal/stackql/util"
 
@@ -627,6 +628,7 @@ func (p *primitiveGenerator) analyzeExec(pbi PlanBuilderInput) error {
 		return fmt.Errorf("could not cast node of type '%T' to required Exec", pbi.GetStatement())
 	}
 	tbl, err := p.analyzeUnaryExec(handlerCtx, node, nil, nil)
+	insertionContainer := tableinsertioncontainer.NewTableInsertionContainer(tbl)
 	if err != nil {
 		logging.GetLogger().Infoln(fmt.Sprintf("error analyzing EXEC as selection: '%s'", err.Error()))
 		return err
@@ -636,10 +638,10 @@ func (p *primitiveGenerator) analyzeExec(pbi PlanBuilderInput) error {
 			return err
 		}
 		if m.IsNullary() && !p.PrimitiveComposer.IsAwait() {
-			p.PrimitiveComposer.SetBuilder(primitivebuilder.NewSingleSelectAcquire(p.PrimitiveComposer.GetGraph(), handlerCtx, tbl, p.PrimitiveComposer.GetInsertPreparedStatementCtx(), nil, nil))
+			p.PrimitiveComposer.SetBuilder(primitivebuilder.NewSingleSelectAcquire(p.PrimitiveComposer.GetGraph(), handlerCtx, insertionContainer, p.PrimitiveComposer.GetInsertPreparedStatementCtx(), nil, nil))
 			return nil
 		}
-		p.PrimitiveComposer.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(p.PrimitiveComposer.GetGraph(), p.PrimitiveComposer.GetTxnCtrlCtrs(), handlerCtx, tbl, p.PrimitiveComposer.GetInsertPreparedStatementCtx(), p.PrimitiveComposer.GetSelectPreparedStatementCtx(), nil))
+		p.PrimitiveComposer.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(p.PrimitiveComposer.GetGraph(), p.PrimitiveComposer.GetTxnCtrlCtrs(), handlerCtx, insertionContainer, p.PrimitiveComposer.GetInsertPreparedStatementCtx(), p.PrimitiveComposer.GetSelectPreparedStatementCtx(), nil))
 	}
 	return nil
 }
@@ -1000,7 +1002,8 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 			if err != nil {
 				return err
 			}
-			pChild.PrimitiveComposer.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveComposer.GetGraph(), pChild.PrimitiveComposer.GetTxnCtrlCtrs(), handlerCtx, tbl, pChild.PrimitiveComposer.GetInsertPreparedStatementCtx(), pChild.PrimitiveComposer.GetSelectPreparedStatementCtx(), nil))
+			insertionContainer := tableinsertioncontainer.NewTableInsertionContainer(tbl)
+			pChild.PrimitiveComposer.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveComposer.GetGraph(), pChild.PrimitiveComposer.GetTxnCtrlCtrs(), handlerCtx, insertionContainer, pChild.PrimitiveComposer.GetInsertPreparedStatementCtx(), pChild.PrimitiveComposer.GetSelectPreparedStatementCtx(), nil))
 			return nil
 		}
 

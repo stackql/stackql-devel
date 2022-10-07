@@ -7,49 +7,11 @@ import (
 	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/dto"
+	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 	"vitess.io/vitess/go/vt/sqlparser"
 )
-
-var (
-	_ TableInsertionContainer = &StandardTableInsertionContainer{}
-)
-
-type TableInsertionContainer interface {
-	GetTableMetadata() *taxonomy.ExtendedTableMetadata
-	SetTxnCounters(*dto.TxnControlCounters)
-	GetTxnCounters() *dto.TxnControlCounters
-}
-
-type StandardTableInsertionContainer struct {
-	tm  *taxonomy.ExtendedTableMetadata
-	tcc *dto.TxnControlCounters
-}
-
-func (ic *StandardTableInsertionContainer) GetTableMetadata() *taxonomy.ExtendedTableMetadata {
-	return ic.tm
-}
-
-func (ic *StandardTableInsertionContainer) SetTxnCounters(tcc *dto.TxnControlCounters) {
-	ic.tcc = tcc
-}
-
-func (ic *StandardTableInsertionContainer) GetTxnCounters() *dto.TxnControlCounters {
-	return ic.tcc
-}
-
-func newTableInsertionContainer(tm *taxonomy.ExtendedTableMetadata) TableInsertionContainer {
-	return &StandardTableInsertionContainer{tm: tm}
-}
-
-func NewTableInsertionContainers(tms []*taxonomy.ExtendedTableMetadata) []TableInsertionContainer {
-	var rv []TableInsertionContainer
-	for _, tm := range tms {
-		rv = append(rv, newTableInsertionContainer(tm))
-	}
-	return rv
-}
 
 type SQLRewriteInput interface {
 	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
@@ -61,7 +23,7 @@ type SQLRewriteInput interface {
 	GetRewrittenWhere() string
 	GetSecondaryCtrlCounters() []*dto.TxnControlCounters
 	GetTables() taxonomy.TblMap
-	GetTableInsertionContainers() []TableInsertionContainer
+	GetTableInsertionContainers() []tableinsertioncontainer.TableInsertionContainer
 }
 
 type StandardSQLRewriteInput struct {
@@ -73,7 +35,7 @@ type StandardSQLRewriteInput struct {
 	secondaryCtrlCounters    []*dto.TxnControlCounters
 	tables                   taxonomy.TblMap
 	fromString               string
-	tableInsertionContainers []TableInsertionContainer
+	tableInsertionContainers []tableinsertioncontainer.TableInsertionContainer
 	namespaceCollection      tablenamespace.TableNamespaceCollection
 }
 
@@ -86,7 +48,7 @@ func NewStandardSQLRewriteInput(
 	secondaryCtrlCounters []*dto.TxnControlCounters,
 	tables taxonomy.TblMap,
 	fromString string,
-	tableInsertionContainers []TableInsertionContainer,
+	tableInsertionContainers []tableinsertioncontainer.TableInsertionContainer,
 	namespaceCollection tablenamespace.TableNamespaceCollection,
 ) SQLRewriteInput {
 	return &StandardSQLRewriteInput{
@@ -115,7 +77,7 @@ func (ri *StandardSQLRewriteInput) GetColumnDescriptors() []openapistackql.Colum
 	return ri.columnDescriptors
 }
 
-func (ri *StandardSQLRewriteInput) GetTableInsertionContainers() []TableInsertionContainer {
+func (ri *StandardSQLRewriteInput) GetTableInsertionContainers() []tableinsertioncontainer.TableInsertionContainer {
 	return ri.tableInsertionContainers
 }
 
