@@ -106,6 +106,16 @@ func (ss *GraphQLSingleSelectAcquire) Build() error {
 			if !ok {
 				return dto.NewErroneousExecutorOutput(fmt.Errorf("cannot perform graphql action without response json path"))
 			}
+			tableName, err := ss.tableMeta.GetTableName()
+			if err != nil {
+				return dto.NewErroneousExecutorOutput(err)
+			}
+			reqEncoding := reqCtx.Encode()
+			tcc, isMatch := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(tableName, reqEncoding, ss.drmCfg.GetLastUpdatedControlColumn(), ss.drmCfg.GetInsertEncodedControlColumn())
+			if isMatch {
+				ss.insertionContainer.SetTxnCounters(tcc)
+				return dto.ExecutorOutput{}
+			}
 			graphQLReader, err := graphql.NewStandardGQLReader(
 				client,
 				req,
@@ -124,6 +134,7 @@ func (ss *GraphQLSingleSelectAcquire) Build() error {
 				if len(response) > 0 {
 					if !housekeepingDone && ss.insertPreparedStatementCtx != nil {
 						_, err = ss.handlerCtx.SQLEngine.Exec(ss.insertPreparedStatementCtx.GetGCHousekeepingQueries())
+						ss.insertionContainer.SetTxnCounters(ss.insertPreparedStatementCtx.GetGCCtrlCtrs())
 						housekeepingDone = true
 					}
 					if err != nil {
