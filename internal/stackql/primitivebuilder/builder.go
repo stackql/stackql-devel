@@ -13,6 +13,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/streaming"
+	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 	"github.com/stackql/stackql/internal/stackql/util"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
@@ -30,6 +31,7 @@ func prepareGolangResult(
 	sqlEngine sqlengine.SQLEngine,
 	errWriter io.Writer,
 	stmtCtx drm.PreparedStatementParameterized,
+	insertContainers []tableinsertioncontainer.TableInsertionContainer,
 	nonControlColumns []drm.ColumnMetadata,
 	drmCfg drm.DRMConfig,
 	stream streaming.MapStream,

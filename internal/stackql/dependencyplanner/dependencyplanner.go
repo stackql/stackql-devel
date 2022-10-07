@@ -17,6 +17,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/sqlrewrite"
 	"github.com/stackql/stackql/internal/stackql/sqlstream"
 	"github.com/stackql/stackql/internal/stackql/streaming"
+	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 	"github.com/stackql/stackql/internal/stackql/util"
 	"vitess.io/vitess/go/vt/sqlparser"
@@ -38,7 +39,7 @@ type StandardDependencyPlanner struct {
 	rewrittenWhere     *sqlparser.Where
 	secondaryTccs      []*dto.TxnControlCounters
 	sqlStatement       sqlparser.SQLNode
-	tableSlice         []*taxonomy.ExtendedTableMetadata
+	tableSlice         []tableinsertioncontainer.TableInsertionContainer
 	tblz               taxonomy.TblMap
 	discoGenIDs        map[sqlparser.SQLNode]int
 
@@ -215,6 +216,7 @@ func (dp *StandardDependencyPlanner) Plan() error {
 		dp.primitiveComposer.GetGraph(),
 		dp.handlerCtx,
 		selCtx,
+		dp.tableSlice,
 		nil,
 		streaming.NewNopMapStream(),
 	)
@@ -243,16 +245,17 @@ func (dp *StandardDependencyPlanner) orchestrate(
 	inStream streaming.MapStream,
 	outStream streaming.MapStream,
 ) error {
+	rc := tableinsertioncontainer.NewTableInsertionContainer(annotationCtx.GetTableMeta())
 	builder := primitivebuilder.NewSingleSelectAcquire(
 		dp.primitiveComposer.GetGraph(),
 		dp.handlerCtx,
-		annotationCtx.GetTableMeta(),
+		rc,
 		insPsc,
 		nil,
 		outStream,
 	)
 	dp.execSlice = append(dp.execSlice, builder)
-	dp.tableSlice = append(dp.tableSlice, annotationCtx.GetTableMeta())
+	dp.tableSlice = append(dp.tableSlice, rc)
 	err := annotationCtx.Prepare(dp.handlerCtx, inStream)
 	return err
 }
@@ -321,7 +324,10 @@ func (dp *StandardDependencyPlanner) getStreamFromEdge(e dataflow.DataFlowEdge, 
 		if err != nil {
 			return nil, err
 		}
-		return sqlstream.NewSimpleSQLMapStream(selectCtx, dp.handlerCtx.DrmConfig, dp.handlerCtx.SQLEngine), nil
+		ann := e.GetSource().GetAnnotation()
+		meta := ann.GetTableMeta()
+		insertContainer := tableinsertioncontainer.NewTableInsertionContainer(meta)
+		return sqlstream.NewSimpleSQLMapStream(selectCtx, insertContainer, dp.handlerCtx.DrmConfig, dp.handlerCtx.SQLEngine), nil
 	}
 	projection, err := e.GetProjection()
 	if err != nil {
@@ -373,7 +379,7 @@ func (dp *StandardDependencyPlanner) generateSelectDML(e dataflow.DataFlowEdge, 
 		dp.secondaryTccs,
 		dp.tblz,
 		tableName,
-		sqlrewrite.NewTableInsertionContainers([]*taxonomy.ExtendedTableMetadata{meta}),
+		tableinsertioncontainer.NewTableInsertionContainers([]*taxonomy.ExtendedTableMetadata{meta}),
 		dp.handlerCtx.GetNamespaceCollection(),
 	)
 	return sqlrewrite.GenerateSelectDML(rewriteInput)

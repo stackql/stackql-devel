@@ -13,6 +13,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/streaming"
+	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 )
 
@@ -26,6 +27,7 @@ type GraphQLSingleSelectAcquire struct {
 	tableMeta                  *taxonomy.ExtendedTableMetadata
 	drmCfg                     drm.DRMConfig
 	insertPreparedStatementCtx *drm.PreparedStatementCtx
+	insertionContainer         tableinsertioncontainer.TableInsertionContainer
 	txnCtrlCtr                 *dto.TxnControlCounters
 	rowSort                    func(map[string]map[string]interface{}) []string
 	root                       primitivegraph.PrimitiveNode
@@ -37,6 +39,7 @@ func newGraphQLSingleSelectAcquire(
 	handlerCtx *handler.HandlerContext,
 	tableMeta *taxonomy.ExtendedTableMetadata,
 	insertCtx *drm.PreparedStatementCtx,
+	insertionContainer tableinsertioncontainer.TableInsertionContainer,
 	rowSort func(map[string]map[string]interface{}) []string,
 	stream streaming.MapStream,
 ) Builder {
@@ -54,6 +57,7 @@ func newGraphQLSingleSelectAcquire(
 		rowSort:                    rowSort,
 		drmCfg:                     handlerCtx.DrmConfig,
 		insertPreparedStatementCtx: insertCtx,
+		insertionContainer:         insertionContainer,
 		txnCtrlCtr:                 tcc,
 		stream:                     stream,
 	}

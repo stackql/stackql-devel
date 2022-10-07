@@ -14,6 +14,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/sqlrewrite"
+	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 	"github.com/stackql/stackql/internal/stackql/util"
@@ -105,7 +106,7 @@ func (v *QueryRewriteAstVisitor) GenerateSelectDML() (*drm.PreparedStatementCtx,
 		v.secondaryCtrlCounters,
 		v.tables,
 		v.fromStr,
-		sqlrewrite.NewTableInsertionContainers(v.tableSlice),
+		v.tableSlice,
 		v.namespaceCollection,
 	)
 	return sqlrewrite.GenerateSelectDML(rewriteInput)
@@ -124,7 +125,7 @@ type QueryRewriteAstVisitor struct {
 	colRefs               parserutil.ColTableMap
 	columnNames           []parserutil.ColumnHandle
 	columnDescriptors     []openapistackql.ColumnDescriptor
-	tableSlice            []*taxonomy.ExtendedTableMetadata
+	tableSlice            []tableinsertioncontainer.TableInsertionContainer
 	namespaceCollection   tablenamespace.TableNamespaceCollection
 	//
 	selectExprsStr string
@@ -145,7 +146,7 @@ func (v *QueryRewriteAstVisitor) getCtrlCounters(discoveryGenerationID int) *dto
 func NewQueryRewriteAstVisitor(
 	handlerCtx *handler.HandlerContext,
 	tables taxonomy.TblMap,
-	tableSlice []*taxonomy.ExtendedTableMetadata,
+	tableSlice []tableinsertioncontainer.TableInsertionContainer,
 	annotations taxonomy.AnnotationCtxMap,
 	discoGenIDs map[sqlparser.SQLNode]int,
 	colRefs parserutil.ColTableMap,

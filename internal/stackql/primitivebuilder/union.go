@@ -28,7 +28,7 @@ func (un *Union) Build() error {
 			i++
 			us.AddChild(i, drm.NewPreparedStatementParameterized(rhsElement, nil, true))
 		}
-		return prepareGolangResult(un.handlerCtx.SQLEngine, un.handlerCtx.OutErrFile, us, un.lhs.GetNonControlColumns(), un.drmCfg, streaming.NewNopMapStream())
+		return prepareGolangResult(un.handlerCtx.SQLEngine, un.handlerCtx.OutErrFile, us, nil, un.lhs.GetNonControlColumns(), un.drmCfg, streaming.NewNopMapStream())
 	}
 	graph := un.graph
 	unionNode := graph.CreatePrimitiveNode(primitive.NewLocalPrimitive(unionEx))

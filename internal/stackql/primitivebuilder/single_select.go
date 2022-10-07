@@ -10,6 +10,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/streaming"
+	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 )
 
 type SingleSelect struct {
@@ -17,6 +18,7 @@ type SingleSelect struct {
 	handlerCtx                 *handler.HandlerContext
 	drmCfg                     drm.DRMConfig
 	selectPreparedStatementCtx *drm.PreparedStatementCtx
+	insertionContainers        []tableinsertioncontainer.TableInsertionContainer
 	txnCtrlCtr                 *dto.TxnControlCounters
 	rowSort                    func(map[string]map[string]interface{}) []string
 	root                       primitivegraph.PrimitiveNode
@@ -27,6 +29,7 @@ func NewSingleSelect(
 	graph *primitivegraph.PrimitiveGraph,
 	handlerCtx *handler.HandlerContext,
 	selectCtx *drm.PreparedStatementCtx,
+	insertionContainers []tableinsertioncontainer.TableInsertionContainer,
 	rowSort func(map[string]map[string]interface{}) []string,
 	stream streaming.MapStream,
 ) Builder {
@@ -36,6 +39,7 @@ func NewSingleSelect(
 		rowSort:                    rowSort,
 		drmCfg:                     handlerCtx.DrmConfig,
 		selectPreparedStatementCtx: selectCtx,
+		insertionContainers:        insertionContainers,
 		txnCtrlCtr:                 selectCtx.GetGCCtrlCtrs(),
 		stream:                     stream,
 	}
@@ -56,7 +60,7 @@ func (ss *SingleSelect) Build() error {
 		// select phase
 		logging.GetLogger().Infoln(fmt.Sprintf("running select with control parameters: %v", ss.selectPreparedStatementCtx.GetGCCtrlCtrs()))
 
-		return prepareGolangResult(ss.handlerCtx.SQLEngine, ss.handlerCtx.OutErrFile, drm.NewPreparedStatementParameterized(ss.selectPreparedStatementCtx, nil, true), ss.selectPreparedStatementCtx.GetNonControlColumns(), ss.drmCfg, ss.stream)
+		return prepareGolangResult(ss.handlerCtx.SQLEngine, ss.handlerCtx.OutErrFile, drm.NewPreparedStatementParameterized(ss.selectPreparedStatementCtx, nil, true), ss.insertionContainers, ss.selectPreparedStatementCtx.GetNonControlColumns(), ss.drmCfg, ss.stream)
 	}
 	graph := ss.graph
 	selectNode := graph.CreatePrimitiveNode(primitive.NewLocalPrimitive(selectEx))
