@@ -74,23 +74,28 @@ func newSQLiteEngine(cfg SQLEngineConfig) (*sqLiteEngine, error) {
 //    call. Universal Coordinated Time (UTC) is used.
 // Therefore, this method will behave correctly provided that the column `colName`
 // is populated with `DateTime('now')`.
-func (eng *sqLiteEngine) TableOldestUpdateUTC(tableName string, requestEncoding string, updateColName string, requestEncodingColName string) time.Time {
-	rows, err := eng.db.Query(fmt.Sprintf("SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%S', min(%s)) as oldest_update FROM \"%s\" WHERE %s = '%s';", updateColName, tableName, requestEncodingColName, requestEncoding))
+func (eng *sqLiteEngine) TableOldestUpdateUTC(tableName string, requestEncoding string, updateColName string, requestEncodingColName string) (time.Time, *dto.TxnControlCounters) {
+	var gen_id_col_name string = "iql_generation_id"
+	var ssn_id_col_name string = "iql_session_id"
+	var txn_id_col_name string = "iql_txn_id"
+	var ins_id_col_name string = "iql_insert_id"
+	rows, err := eng.db.Query(fmt.Sprintf("SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%S', min(%s)) as oldest_update, %s, %s, %s, %s FROM \"%s\" WHERE %s = '%s';", updateColName, gen_id_col_name, ssn_id_col_name, txn_id_col_name, ins_id_col_name, tableName, requestEncodingColName, requestEncoding))
 	if err == nil && rows != nil {
 		defer rows.Close()
 		rowExists := rows.Next()
 		if rowExists {
 			var oldest string
-			err = rows.Scan(&oldest)
+			tcc := dto.TxnControlCounters{}
+			err = rows.Scan(&oldest, &tcc.GenId, &tcc.SessionId, &tcc.TxnId, &tcc.InsertId)
 			if err == nil {
 				oldestTime, err := time.Parse("2006-01-02T15:04:05", oldest)
 				if err == nil {
-					return oldestTime
+					return oldestTime, &tcc
 				}
 			}
 		}
 	}
-	return time.Time{}
+	return time.Time{}, nil
 }
 
 func (eng *sqLiteEngine) execFileSQLite(fileName string) error {

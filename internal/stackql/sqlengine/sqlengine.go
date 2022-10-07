@@ -27,7 +27,7 @@ type SQLEngine interface {
 	CacheStoreGetAll() ([]dto.KeyVal, error)
 	CacheStorePut(string, []byte, string, int) error
 	IsTablePresent(string, string, string) bool
-	TableOldestUpdateUTC(string, string, string, string) time.Time
+	TableOldestUpdateUTC(string, string, string, string) (time.Time, *dto.TxnControlCounters)
 }
 
 func NewSQLEngine(cfg SQLEngineConfig) (SQLEngine, error) {

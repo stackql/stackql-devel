@@ -6,13 +6,14 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 )
 
 type TableNamespaceConfigurator interface {
 	GetObjectName(string) string
 	IsAllowed(string) bool
-	Match(string, string, string, string) bool
+	Match(string, string, string, string) (*dto.TxnControlCounters, bool)
 	RenderTemplate(string) (string, error)
 }
 
@@ -35,26 +36,26 @@ func (stc *regexTableNamespaceConfigurator) isAllowed(tableString string) bool {
 	return stc.regex.MatchString(tableString)
 }
 
-func (stc *regexTableNamespaceConfigurator) Match(tableString string, requestEncoding string, lastModifiedColName string, requestEncodingColName string) bool {
+func (stc *regexTableNamespaceConfigurator) Match(tableString string, requestEncoding string, lastModifiedColName string, requestEncodingColName string) (*dto.TxnControlCounters, bool) {
 	isAllowed := stc.isAllowed(tableString)
 	if !isAllowed {
-		return false
+		return nil, false
 	}
 	actualTableName, err := stc.renderTemplate(tableString)
 	if err != nil {
-		return false
+		return nil, false
 	}
 	isPresent := stc.sqlEngine.IsTablePresent(actualTableName, requestEncoding, requestEncodingColName)
 	if !isPresent {
-		return false
+		return nil, false
 	}
-	oldestUpdate := stc.sqlEngine.TableOldestUpdateUTC(actualTableName, requestEncoding, lastModifiedColName, requestEncodingColName)
+	oldestUpdate, tcc := stc.sqlEngine.TableOldestUpdateUTC(actualTableName, requestEncoding, lastModifiedColName, requestEncodingColName)
 	diff := time.Since(oldestUpdate)
 	ds := diff.Seconds()
 	if stc.ttl > -1 && int(ds) > stc.ttl {
-		return false
+		return nil, false
 	}
-	return true
+	return tcc, true
 }
 
 func (stc *regexTableNamespaceConfigurator) RenderTemplate(input string) (string, error) {
