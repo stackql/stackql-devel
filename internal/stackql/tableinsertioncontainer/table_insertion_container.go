@@ -11,13 +11,15 @@ var (
 
 type TableInsertionContainer interface {
 	GetTableMetadata() *taxonomy.ExtendedTableMetadata
+	IsCountersSet() bool
 	SetTxnCounters(*dto.TxnControlCounters)
 	GetTxnCounters() *dto.TxnControlCounters
 }
 
 type StandardTableInsertionContainer struct {
-	tm  *taxonomy.ExtendedTableMetadata
-	tcc *dto.TxnControlCounters
+	tm            *taxonomy.ExtendedTableMetadata
+	tcc           *dto.TxnControlCounters
+	isCountersSet bool
 }
 
 func (ic *StandardTableInsertionContainer) GetTableMetadata() *taxonomy.ExtendedTableMetadata {
@@ -25,15 +27,26 @@ func (ic *StandardTableInsertionContainer) GetTableMetadata() *taxonomy.Extended
 }
 
 func (ic *StandardTableInsertionContainer) SetTxnCounters(tcc *dto.TxnControlCounters) {
-	ic.tcc = tcc
+	ic.tcc.GenId = tcc.GenId
+	ic.tcc.SessionId = tcc.SessionId
+	ic.tcc.InsertId = tcc.InsertId
+	ic.tcc.TxnId = tcc.TxnId
+	ic.isCountersSet = true
 }
 
 func (ic *StandardTableInsertionContainer) GetTxnCounters() *dto.TxnControlCounters {
 	return ic.tcc
 }
 
+func (ic *StandardTableInsertionContainer) IsCountersSet() bool {
+	return ic.isCountersSet
+}
+
 func NewTableInsertionContainer(tm *taxonomy.ExtendedTableMetadata) TableInsertionContainer {
-	return &StandardTableInsertionContainer{tm: tm}
+	return &StandardTableInsertionContainer{
+		tm:  tm,
+		tcc: &dto.TxnControlCounters{},
+	}
 }
 
 func NewTableInsertionContainers(tms []*taxonomy.ExtendedTableMetadata) []TableInsertionContainer {

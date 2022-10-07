@@ -108,7 +108,8 @@ func (ri *StandardSQLRewriteInput) GetTables() taxonomy.TblMap {
 func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error) {
 	dc := input.GetDRMConfig()
 	cols := input.GetColumnDescriptors()
-	txnCtrlCtrs := input.GetBaseControlCounters()
+	var txnCtrlCtrs *dto.TxnControlCounters
+	var secondaryCtrlCounters []*dto.TxnControlCounters
 	selectSuffix := input.GetSelectSuffix()
 	rewrittenWhere := input.GetRewrittenWhere()
 	var q strings.Builder
@@ -144,11 +145,21 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 	insEncodedColName := dc.GetInsertEncodedControlColumn()
 	var wq strings.Builder
 	var controlWhereComparisons []string
-	for _, tb := range input.GetTableInsertionContainers() {
+	inputContainers := input.GetTableInsertionContainers()
+	if len(inputContainers) > 0 {
+		txnCtrlCtrs = inputContainers[0].GetTxnCounters()
+	} else {
+		txnCtrlCtrs = input.GetBaseControlCounters()
+		secondaryCtrlCounters = input.GetSecondaryCtrlCounters()
+	}
+	i := 0
+	for _, tb := range inputContainers {
+		if i > 0 {
+			secondaryCtrlCounters = append(secondaryCtrlCounters, tb.GetTxnCounters())
+		}
 		v := tb.GetTableMetadata()
 		tn, _ := v.GetTableName()
 		if input.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tn) {
-			//
 		} else {
 			alias := v.Alias
 			if alias != "" {
@@ -165,6 +176,7 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 				controlWhereComparisons = append(controlWhereComparisons, fmt.Sprintf(`%s = ? AND %s = ? AND %s = ? AND %s = ?`, gIDcn, sIDcn, tIDcn, iIDcn))
 			}
 		}
+		i++
 	}
 	if len(controlWhereComparisons) > 0 {
 		controlWhereSubClause := fmt.Sprintf("( %s )", strings.Join(controlWhereComparisons, " AND "))
@@ -201,7 +213,7 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 		columns,
 		len(input.GetTables()),
 		txnCtrlCtrs,
-		input.GetSecondaryCtrlCounters(),
+		secondaryCtrlCounters,
 		input.GetDRMConfig().GetNamespaceCollection(),
 	), nil
 }
