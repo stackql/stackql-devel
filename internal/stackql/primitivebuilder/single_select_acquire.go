@@ -14,6 +14,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/streaming"
+	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 	"github.com/stackql/stackql/internal/stackql/util"
 )
@@ -28,6 +29,7 @@ type SingleSelectAcquire struct {
 	tableMeta                  *taxonomy.ExtendedTableMetadata
 	drmCfg                     drm.DRMConfig
 	insertPreparedStatementCtx *drm.PreparedStatementCtx
+	insertionContainer         tableinsertioncontainer.TableInsertionContainer
 	txnCtrlCtr                 *dto.TxnControlCounters
 	rowSort                    func(map[string]map[string]interface{}) []string
 	root                       primitivegraph.PrimitiveNode
@@ -37,11 +39,12 @@ type SingleSelectAcquire struct {
 func NewSingleSelectAcquire(
 	graph *primitivegraph.PrimitiveGraph,
 	handlerCtx *handler.HandlerContext,
-	tableMeta *taxonomy.ExtendedTableMetadata,
+	insertionContainer tableinsertioncontainer.TableInsertionContainer,
 	insertCtx *drm.PreparedStatementCtx,
 	rowSort func(map[string]map[string]interface{}) []string,
 	stream streaming.MapStream,
 ) Builder {
+	tableMeta := insertionContainer.GetTableMetadata()
 	_, isGraphQL := tableMeta.GetGraphQL()
 	if isGraphQL {
 		return newGraphQLSingleSelectAcquire(
@@ -49,6 +52,7 @@ func NewSingleSelectAcquire(
 			handlerCtx,
 			tableMeta,
 			insertCtx,
+			insertionContainer,
 			rowSort,
 			stream,
 		)
@@ -58,6 +62,7 @@ func NewSingleSelectAcquire(
 		handlerCtx,
 		tableMeta,
 		insertCtx,
+		insertionContainer,
 		rowSort,
 		stream,
 	)
@@ -68,6 +73,7 @@ func newSingleSelectAcquire(
 	handlerCtx *handler.HandlerContext,
 	tableMeta *taxonomy.ExtendedTableMetadata,
 	insertCtx *drm.PreparedStatementCtx,
+	insertionContainer tableinsertioncontainer.TableInsertionContainer,
 	rowSort func(map[string]map[string]interface{}) []string,
 	stream streaming.MapStream,
 ) Builder {
@@ -85,6 +91,7 @@ func newSingleSelectAcquire(
 		rowSort:                    rowSort,
 		drmCfg:                     handlerCtx.DrmConfig,
 		insertPreparedStatementCtx: insertCtx,
+		insertionContainer:         insertionContainer,
 		txnCtrlCtr:                 tcc,
 		stream:                     stream,
 	}
