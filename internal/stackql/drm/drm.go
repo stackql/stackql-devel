@@ -587,6 +587,9 @@ func (dc *StaticDRMConfig) generateControlVarArgs(cp PreparedStatementParameteri
 	if cp.controlArgsRequired {
 		ctrSlice := cp.Ctx.GetAllCtrlCtrs()
 		for _, ctrs := range ctrSlice {
+			if ctrs == nil {
+				continue
+			}
 			varArgs = append(varArgs, ctrs.GenId)
 			varArgs = append(varArgs, ctrs.SessionId)
 			varArgs = append(varArgs, ctrs.TxnId)
