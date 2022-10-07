@@ -146,7 +146,9 @@ func (ss *SingleSelectAcquire) Build() error {
 				return dto.NewErroneousExecutorOutput(err)
 			}
 			reqEncoding := reqCtx.Encode()
-			if ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(tableName, reqEncoding, ss.drmCfg.GetLastUpdatedControlColumn(), ss.drmCfg.GetInsertEncodedControlColumn()) {
+			tcc, isMatch := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(tableName, reqEncoding, ss.drmCfg.GetLastUpdatedControlColumn(), ss.drmCfg.GetInsertEncodedControlColumn())
+			if isMatch {
+				ss.insertionContainer.SetTxnCounters(tcc)
 				return dto.ExecutorOutput{}
 			}
 			response, apiErr := httpmiddleware.HttpApiCallFromRequest(*(ss.handlerCtx), prov, m, reqCtx.Request.Clone(reqCtx.Request.Context()))
@@ -210,6 +212,7 @@ func (ss *SingleSelectAcquire) Build() error {
 					if ok && len(iArr) > 0 {
 						if !housekeepingDone && ss.insertPreparedStatementCtx != nil {
 							_, err = ss.handlerCtx.SQLEngine.Exec(ss.insertPreparedStatementCtx.GetGCHousekeepingQueries())
+							ss.insertionContainer.SetTxnCounters(ss.insertPreparedStatementCtx.GetGCCtrlCtrs())
 							housekeepingDone = true
 						}
 						if err != nil {
