@@ -395,10 +395,10 @@ func getOidForSchema(colSchema *openapistackql.Schema) oid.Oid {
 	switch colSchema.Type {
 	case "object", "array":
 		return oid.T_text
-	case "integer":
-		return oid.T_int8
+	// case "integer":
+	// 	return oid.T_numeric
 	case "boolean", "bool":
-		return oid.T_bool
+		return oid.T_text
 	case "number":
 		return oid.T_numeric
 	default:
