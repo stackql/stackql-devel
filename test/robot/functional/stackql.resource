@@ -69,10 +69,6 @@ Start StackQL PG Server mTLS
                         ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
                         ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
     ELSE IF    "${EXECUTION_PLATFORM}" == "docker"
-        ${res} =         Run Process    docker\-compose    \-\-log\-level    ERROR
-                        ...  run    \-\-rm    credentialsgen
-        Log     Credentials gen completed
-        Should Be Equal As Integers    ${res.rc}    0
         ${process} =    Start Process    docker\-compose
                         ...  \-p     mtls\-${_DOCKER_PORT}
                         ...  run
