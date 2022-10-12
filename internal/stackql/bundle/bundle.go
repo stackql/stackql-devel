@@ -1,0 +1,43 @@
+package bundle
+
+import (
+	"github.com/stackql/stackql/internal/stackql/gc"
+	"github.com/stackql/stackql/internal/stackql/sqlengine"
+	"github.com/stackql/stackql/internal/stackql/tablenamespace"
+)
+
+type Bundle interface {
+	GetGC() gc.GarbageCollector
+	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
+	GetSQLEngine() sqlengine.SQLEngine
+}
+
+func NewBundle(
+	garbageCollector gc.GarbageCollector,
+	namespaces tablenamespace.TableNamespaceCollection,
+	sqlEngine sqlengine.SQLEngine,
+) Bundle {
+	return &simpleBundle{
+		garbageCollector: garbageCollector,
+		namespaces:       namespaces,
+		sqlEngine:        sqlEngine,
+	}
+}
+
+type simpleBundle struct {
+	garbageCollector gc.GarbageCollector
+	namespaces       tablenamespace.TableNamespaceCollection
+	sqlEngine        sqlengine.SQLEngine
+}
+
+func (sb *simpleBundle) GetGC() gc.GarbageCollector {
+	return sb.garbageCollector
+}
+
+func (sb *simpleBundle) GetSQLEngine() sqlengine.SQLEngine {
+	return sb.sqlEngine
+}
+
+func (sb *simpleBundle) GetNamespaceCollection() tablenamespace.TableNamespaceCollection {
+	return sb.namespaces
+}

@@ -11,6 +11,7 @@ import (
 )
 
 type TableNamespaceConfigurator interface {
+	GetTTL() int
 	GetObjectName(string) string
 	IsAllowed(string) bool
 	Match(string, string, string, string) (*dto.TxnControlCounters, bool)
@@ -30,6 +31,10 @@ type regexTableNamespaceConfigurator struct {
 
 func (stc *regexTableNamespaceConfigurator) IsAllowed(tableString string) bool {
 	return stc.isAllowed(tableString)
+}
+
+func (stc *regexTableNamespaceConfigurator) GetTTL() int {
+	return stc.ttl
 }
 
 func (stc *regexTableNamespaceConfigurator) isAllowed(tableString string) bool {

@@ -121,10 +121,10 @@ var shellCmd = &cobra.Command{
 		fmt.Fprintln(outfile, "") // necesary hack to get 'square' coloring
 		fmt.Fprintln(outfile, getShellIntroLong())
 
-		sqlEngine, garbageCollector, err := entryutil.BuildSQLEngineAndGC(runtimeCtx)
+		inputBundle, err := entryutil.BuildInputBundle(runtimeCtx)
 		iqlerror.PrintErrorAndExitOneIfError(err)
 
-		handlerCtx, handlerrErr := handler.GetHandlerCtx("", runtimeCtx, queryCache, sqlEngine, garbageCollector)
+		handlerCtx, handlerrErr := handler.GetHandlerCtx("", runtimeCtx, queryCache, inputBundle)
 		if handlerrErr != nil {
 			fmt.Fprintln(outErrFile, fmt.Sprintf("Error setting up handler context for provider '%s': \"%s\"", runtimeCtx.ProviderStr, handlerrErr))
 		}

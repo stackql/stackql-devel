@@ -9,6 +9,7 @@ import (
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/go-openapistackql/pkg/nomenclature"
+	"github.com/stackql/stackql/internal/stackql/bundle"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/gc"
@@ -176,7 +177,7 @@ func (hc *HandlerContext) initNamespaces() error {
 	return nil
 }
 
-func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucache.LRUCache, sqlEng sqlengine.SQLEngine, garbageCollector gc.GarbageCollector) (HandlerContext, error) {
+func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucache.LRUCache, inputBundle bundle.Bundle) (HandlerContext, error) {
 
 	ac := make(map[string]*dto.AuthCtx)
 	err := yaml.Unmarshal([]byte(runtimeCtx.AuthRaw), ac)
@@ -199,8 +200,8 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 		Registry:          reg,
 		ErrorPresentation: runtimeCtx.ErrorPresentation,
 		LRUCache:          lruCache,
-		SQLEngine:         sqlEng,
-		GarbageCollector:  garbageCollector,
+		SQLEngine:         inputBundle.GetSQLEngine(),
+		GarbageCollector:  inputBundle.GetGC(),
 		TxnCounterMgr:     nil,
 	}
 	err = rv.initNamespaces()
