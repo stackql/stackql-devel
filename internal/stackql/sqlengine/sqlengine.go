@@ -13,6 +13,7 @@ type SQLEngine interface {
 	Query(string, ...interface{}) (*sql.Rows, error)
 	ExecFileLocal(string) error
 	ExecFile(string) error
+	ExecInTxn(queries []string) error
 	GCCollectObsolete(*dto.TxnControlCounters) error
 	GCCollectUnreachable() error
 	GCEnactFull() error

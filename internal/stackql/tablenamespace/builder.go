@@ -16,7 +16,7 @@ type TableNamespaceConfiguratorBuilder interface {
 	WithTTL(ttl int) TableNamespaceConfiguratorBuilder
 	WithRegexp(regex *regexp.Regexp) TableNamespaceConfiguratorBuilder
 	WithSQLEngine(sqlEngine sqlengine.SQLEngine) TableNamespaceConfiguratorBuilder
-	WithTemplate(regex *template.Template) TableNamespaceConfiguratorBuilder
+	WithTemplate(tmpl *template.Template) TableNamespaceConfiguratorBuilder
 }
 
 type standardTableNamespaceConfiguratorBuilder struct {

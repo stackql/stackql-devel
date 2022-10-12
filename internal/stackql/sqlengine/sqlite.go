@@ -151,6 +151,22 @@ func (se sqLiteEngine) Exec(query string, varArgs ...interface{}) (sql.Result, e
 	return res, err
 }
 
+func (se sqLiteEngine) ExecInTxn(queries []string) error {
+	txn, err := se.db.Begin()
+	if err != nil {
+		return err
+	}
+	for _, query := range queries {
+		_, err = txn.Exec(query)
+		if err != nil {
+			txn.Rollback()
+			return err
+		}
+	}
+	err = txn.Commit()
+	return err
+}
+
 func (se sqLiteEngine) GetNextGenerationId() (int, error) {
 	se.ctrlMutex.Lock()
 	defer se.ctrlMutex.Unlock()

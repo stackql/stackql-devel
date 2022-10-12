@@ -70,9 +70,9 @@ stackql exec -i iqlscripts/create-disk.iql --credentialsfilepath /mnt/c/tmp/stac
 			rdr, err = os.Open(runtimeCtx.InfilePath)
 			iqlerror.PrintErrorAndExitOneIfError(err)
 		}
-		sqlEngine, garbageCollector, err := entryutil.BuildSQLEngineAndGC(runtimeCtx)
+		inputBundle, err := entryutil.BuildInputBundle(runtimeCtx)
 		iqlerror.PrintErrorAndExitOneIfError(err)
-		handlerCtx, err := entryutil.BuildHandlerContext(runtimeCtx, rdr, queryCache, sqlEngine, garbageCollector)
+		handlerCtx, err := entryutil.BuildHandlerContext(runtimeCtx, rdr, queryCache, inputBundle)
 		iqlerror.PrintErrorAndExitOneIfError(err)
 		iqlerror.PrintErrorAndExitOneIfNil(&handlerCtx, "Handler context error")
 		RunCommand(&handlerCtx, nil, nil)

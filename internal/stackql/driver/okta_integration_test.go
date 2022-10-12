@@ -55,12 +55,12 @@ func TestSelectOktaApplicationAppsDriver(t *testing.T) {
 	testhttpapi.StartServer(t, exp)
 	provider.DummyAuth = true
 
-	sqlEng, garbageCollector, err := stackqltestutil.BuildSQLEngineAndGC(*runtimeCtx)
+	inputBundle, err := stackqltestutil.BuildInputBundle(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
 
-	handlerCtx, err := handler.GetHandlerCtx(testobjects.SimpleSelectOktaApplicationApps, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), sqlEng, garbageCollector)
+	handlerCtx, err := handler.GetHandlerCtx(testobjects.SimpleSelectOktaApplicationApps, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 	handlerCtx.Outfile = os.Stdout
 	handlerCtx.OutErrFile = os.Stderr
 
@@ -84,14 +84,14 @@ func TestSimpleSelectOktaApplicationAppsDriverOutput(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
-	sqlEngine, garbageCollector, err := stackqltestutil.BuildSQLEngineAndGC(*runtimeCtx)
+	inputBundle, err := stackqltestutil.BuildInputBundle(*runtimeCtx)
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
 
-		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, strings.NewReader(""), lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), sqlEngine, garbageCollector)
+		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, strings.NewReader(""), lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 		if err != nil {
 			t.Fatalf("Test failed: %v", err)
 		}
