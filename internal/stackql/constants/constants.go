@@ -24,3 +24,11 @@ const (
 	DefaultPrettyPrintIndent           int    = 2
 	DefaultQueryCacheSize              int    = 10000
 )
+
+type GCStatus int
+
+const (
+	GCWhite GCStatus = iota
+	GCBlack
+	GCGrey
+)

@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
@@ -27,6 +28,7 @@ const (
 	ins_id_col_name         string = "iql_insert_id"
 	insert_endoded_col_name string = "iql_insert_encoded"
 	latest_update_col_name  string = "iql_last_modified"
+	gc_status_col_name      string = "iql_gc_status"
 )
 
 type DRM interface {
@@ -311,8 +313,16 @@ func (dc *StaticDRMConfig) GetSessionControlColumn() string {
 	return dc.getSessionControlColumn()
 }
 
+func (dc *StaticDRMConfig) GetGCStatusColumn() string {
+	return dc.getGCStatusColumn()
+}
+
 func (dc *StaticDRMConfig) getSessionControlColumn() string {
 	return ssn_id_col_name
+}
+
+func (dc *StaticDRMConfig) getGCStatusColumn() string {
+	return gc_status_col_name
 }
 
 func (dc *StaticDRMConfig) GetTxnControlColumn() string {
@@ -423,12 +433,14 @@ func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, m *opena
 	insIdColName := dc.getInsControlColumn()
 	lastUpdateColName := dc.getLastUpdatedControlColumn()
 	insertEncodedColName := dc.getInsertEncodedControlColumn()
+	gcStatusColName := dc.getGCStatusColumn()
 	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, genIdColName))
 	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, sessionIdColName))
 	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, txnIdColName))
 	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, insIdColName))
 	colDefs = append(colDefs, fmt.Sprintf(`"%s" TEXT `, insertEncodedColName))
 	colDefs = append(colDefs, fmt.Sprintf(`"%s" DateTime NOT NULL DEFAULT CURRENT_TIMESTAMP `, lastUpdateColName))
+	colDefs = append(colDefs, fmt.Sprintf(`"%s" SMALLINT NOT NULL DEFAULT %d `, gcStatusColName, constants.GCBlack))
 	schemaAnalyzer := util.NewTableSchemaAnalyzer(tabAnn.GetTabulation().GetSchema(), m)
 	tableColumns := schemaAnalyzer.GetColumns()
 	for _, col := range tableColumns {

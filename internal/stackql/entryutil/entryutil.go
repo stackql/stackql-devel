@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/stackql/stackql/internal/stackql/dto"
+	"github.com/stackql/stackql/internal/stackql/gc"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/iqlerror"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
@@ -19,9 +20,25 @@ import (
 	lrucache "vitess.io/vitess/go/cache"
 )
 
-func BuildSQLEngine(runtimeCtx dto.RuntimeCtx) (sqlengine.SQLEngine, error) {
+func BuildSQLEngineAndGC(runtimeCtx dto.RuntimeCtx) (sqlengine.SQLEngine, gc.GarbageCollector, error) {
+	se, err := buildSQLEngine(runtimeCtx)
+	if err != nil {
+		return nil, nil, err
+	}
+	gc, err := buildGC(se, runtimeCtx)
+	if err != nil {
+		return nil, nil, err
+	}
+	return se, gc, nil
+}
+
+func buildSQLEngine(runtimeCtx dto.RuntimeCtx) (sqlengine.SQLEngine, error) {
 	sqlCfg := sqlengine.NewSQLEngineConfig(runtimeCtx)
 	return sqlengine.NewSQLEngine(sqlCfg)
+}
+
+func buildGC(sqlEngine sqlengine.SQLEngine, runtimeCtx dto.RuntimeCtx) (gc.GarbageCollector, error) {
+	return gc.NewGarbageCollector(sqlEngine, "sqlite")
 }
 
 func GetTxnCounterManager(handlerCtx handler.HandlerContext) (*txncounter.TxnCounterManager, error) {
@@ -80,12 +97,12 @@ func assemblePreprocessor(runtimeCtx dto.RuntimeCtx, rdr io.Reader) ([]byte, err
 	return bb, err
 }
 
-func BuildHandlerContext(runtimeCtx dto.RuntimeCtx, rdr io.Reader, lruCache *lrucache.LRUCache, sqlEngine sqlengine.SQLEngine) (handler.HandlerContext, error) {
+func BuildHandlerContext(runtimeCtx dto.RuntimeCtx, rdr io.Reader, lruCache *lrucache.LRUCache, sqlEngine sqlengine.SQLEngine, garbageCollector gc.GarbageCollector) (handler.HandlerContext, error) {
 	bb, err := assemblePreprocessor(runtimeCtx, rdr)
 	iqlerror.PrintErrorAndExitOneIfError(err)
-	return handler.GetHandlerCtx(strings.TrimSpace(string(bb)), runtimeCtx, lruCache, sqlEngine)
+	return handler.GetHandlerCtx(strings.TrimSpace(string(bb)), runtimeCtx, lruCache, sqlEngine, garbageCollector)
 }
 
-func BuildHandlerContextNoPreProcess(runtimeCtx dto.RuntimeCtx, lruCache *lrucache.LRUCache, sqlEngine sqlengine.SQLEngine) (handler.HandlerContext, error) {
-	return handler.GetHandlerCtx("", runtimeCtx, lruCache, sqlEngine)
+func BuildHandlerContextNoPreProcess(runtimeCtx dto.RuntimeCtx, lruCache *lrucache.LRUCache, sqlEngine sqlengine.SQLEngine, garbageCollector gc.GarbageCollector) (handler.HandlerContext, error) {
+	return handler.GetHandlerCtx("", runtimeCtx, lruCache, sqlEngine, garbageCollector)
 }

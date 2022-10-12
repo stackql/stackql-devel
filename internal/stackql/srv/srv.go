@@ -33,12 +33,12 @@ func handleConnection(c net.Conn, runtimeCtx dto.RuntimeCtx, lruCache *lrucache.
 		if temp == "STOP" {
 			break
 		}
-		sqlEng, err := entryutil.BuildSQLEngine(runtimeCtx)
+		sqlEng, garbageCollector, err := entryutil.BuildSQLEngineAndGC(runtimeCtx)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		handlerContext, _ := handler.GetHandlerCtx(netData, runtimeCtx, lruCache, sqlEng)
+		handlerContext, _ := handler.GetHandlerCtx(netData, runtimeCtx, lruCache, sqlEng, garbageCollector)
 		handlerContext.Outfile = c
 		handlerContext.OutErrFile = c
 		defer iqlerror.HandlePanic(c)
