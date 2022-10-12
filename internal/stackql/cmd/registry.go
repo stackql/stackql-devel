@@ -75,9 +75,9 @@ var registryCmd = &cobra.Command{
 			}
 		}
 
-		sqlEngine, err := entryutil.BuildSQLEngine(runtimeCtx)
+		sqlEngine, garbageCollector, err := entryutil.BuildSQLEngineAndGC(runtimeCtx)
 		iqlerror.PrintErrorAndExitOneIfError(err)
-		handlerCtx, err := entryutil.BuildHandlerContext(runtimeCtx, rdr, queryCache, sqlEngine)
+		handlerCtx, err := entryutil.BuildHandlerContext(runtimeCtx, rdr, queryCache, sqlEngine, garbageCollector)
 		iqlerror.PrintErrorAndExitOneIfError(err)
 		iqlerror.PrintErrorAndExitOneIfNil(&handlerCtx, "Handler context error")
 		RunCommand(&handlerCtx, nil, nil)

@@ -11,6 +11,7 @@ import (
 	"github.com/stackql/go-openapistackql/pkg/nomenclature"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/dto"
+	"github.com/stackql/stackql/internal/stackql/gc"
 	"github.com/stackql/stackql/internal/stackql/netutils"
 	"github.com/stackql/stackql/internal/stackql/provider"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
@@ -34,6 +35,7 @@ type HandlerContext struct {
 	OutErrFile          io.Writer
 	LRUCache            *lrucache.LRUCache
 	SQLEngine           sqlengine.SQLEngine
+	GarbageCollector    gc.GarbageCollector
 	DrmConfig           drm.DRMConfig
 	TxnCounterMgr       *txncounter.TxnCounterManager
 	namespaceCollection tablenamespace.TableNamespaceCollection
@@ -174,7 +176,7 @@ func (hc *HandlerContext) initNamespaces() error {
 	return nil
 }
 
-func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucache.LRUCache, sqlEng sqlengine.SQLEngine) (HandlerContext, error) {
+func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucache.LRUCache, sqlEng sqlengine.SQLEngine, garbageCollector gc.GarbageCollector) (HandlerContext, error) {
 
 	ac := make(map[string]*dto.AuthCtx)
 	err := yaml.Unmarshal([]byte(runtimeCtx.AuthRaw), ac)
@@ -198,6 +200,7 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 		ErrorPresentation: runtimeCtx.ErrorPresentation,
 		LRUCache:          lruCache,
 		SQLEngine:         sqlEng,
+		GarbageCollector:  garbageCollector,
 		TxnCounterMgr:     nil,
 	}
 	err = rv.initNamespaces()
