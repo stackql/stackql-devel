@@ -10,8 +10,9 @@ import (
 
 type SQLDialect interface {
 	GCCollect(transactionIDs []int) error
-	GCCollectFromCache(transactionIDs []int) error
 	GCCollectAll() error
+	GCCollectFromCache(transactionIDs []int) error
+	GCPurgeCache() error
 }
 
 func NewSQLDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, name string) (SQLDialect, error) {
@@ -74,10 +75,40 @@ func (sl *SQLiteDialect) gcCollectFromCache(transactionIDs []int) error {
 	return err
 }
 
-func (sl *SQLiteDialect) gcWipeCache() error {
-	query := `drop table `
-	_, err := sl.sqlEngine.Exec(query)
+func (sl *SQLiteDialect) GCPurgeCache() error {
+	return sl.gcPurgeCache()
+}
+
+func (sl *SQLiteDialect) gcPurgeCache() error {
+	s, err := sl.getGCPurgeCacheTemplate()
+	if err != nil {
+		return err
+	}
+	err = sl.sqlEngine.ExecInTxn(s)
 	return err
+}
+
+func (sl *SQLiteDialect) getGCPurgeCacheTemplate() ([]string, error) {
+	query := `select distinct name from sqlite_schema where type = 'table' and name like ? ;`
+	rows, err := sl.sqlEngine.Query(query, sl.namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetLikeString())
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var rv []string
+	for {
+		hasNext := rows.Next()
+		if !hasNext {
+			break
+		}
+		var s string
+		err := rows.Scan(&s)
+		if err != nil {
+			return nil, err
+		}
+		rv = append(rv, fmt.Sprintf(`DROP TABLE IF EXISTS "%s" CASCADE; `, s))
+	}
+	return rv, nil
 }
 
 func (sl *SQLiteDialect) getGCCollectAllTemplate() ([]string, error) {
@@ -112,8 +143,8 @@ func (sl *SQLiteDialect) getGCCollectTemplate(transactionIDs []int) ([]string, e
 	inBuilder.WriteString("( ")
 	inBuilder.WriteString(strings.Join(transactionIDStrings, ", "))
 	inBuilder.WriteString(" )")
-	query := fmt.Sprintf(`SELECT DISTINCT table_name, iql_transaction_id FROM "__iql__.control.gc.txn_table_x_ref" WHERE iql_transaction_id NOT IN %s ;`, inBuilder.String())
-	rows, err := sl.sqlEngine.Query(query)
+	query := fmt.Sprintf(`SELECT DISTINCT table_name, iql_transaction_id FROM "__iql__.control.gc.txn_table_x_ref" WHERE iql_transaction_id NOT IN %s AND table_name NOT LIKE ? ;`, inBuilder.String())
+	rows, err := sl.sqlEngine.Query(query, sl.namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetLikeString())
 	if err != nil {
 		return nil, err
 	}
@@ -144,8 +175,8 @@ func (sl *SQLiteDialect) getGCCollectCacheTemplate(transactionIDs []int) ([]stri
 	inBuilder.WriteString("( ")
 	inBuilder.WriteString(strings.Join(transactionIDStrings, ", "))
 	inBuilder.WriteString(" )")
-	query := fmt.Sprintf(`SELECT DISTINCT table_name, iql_transaction_id FROM "__iql__.control.gc.txn_table_x_ref" WHERE iql_transaction_id NOT IN %s ;`, inBuilder.String())
-	rows, err := sl.sqlEngine.Query(query)
+	query := fmt.Sprintf(`SELECT DISTINCT table_name, iql_transaction_id FROM "__iql__.control.gc.txn_table_x_ref" WHERE iql_transaction_id NOT IN %s AND table_name LIKE ? ;`, inBuilder.String())
+	rows, err := sl.sqlEngine.Query(query, sl.namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetLikeString())
 	if err != nil {
 		return nil, err
 	}
