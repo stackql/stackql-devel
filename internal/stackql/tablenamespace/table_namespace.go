@@ -12,6 +12,7 @@ import (
 
 type TableNamespaceConfigurator interface {
 	GetTTL() int
+	GetLikeString() string
 	GetObjectName(string) string
 	IsAllowed(string) bool
 	Match(string, string, string, string) (*dto.TxnControlCounters, bool)
@@ -23,10 +24,11 @@ var (
 )
 
 type regexTableNamespaceConfigurator struct {
-	sqlEngine sqlengine.SQLEngine
-	regex     *regexp.Regexp
-	template  *template.Template
-	ttl       int
+	sqlEngine  sqlengine.SQLEngine
+	regex      *regexp.Regexp
+	template   *template.Template
+	likeString string
+	ttl        int
 }
 
 func (stc *regexTableNamespaceConfigurator) IsAllowed(tableString string) bool {
@@ -35,6 +37,14 @@ func (stc *regexTableNamespaceConfigurator) IsAllowed(tableString string) bool {
 
 func (stc *regexTableNamespaceConfigurator) GetTTL() int {
 	return stc.ttl
+}
+
+func (stc *regexTableNamespaceConfigurator) GetLikeString() string {
+	return stc.getLikeString()
+}
+
+func (stc *regexTableNamespaceConfigurator) getLikeString() string {
+	return stc.likeString
 }
 
 func (stc *regexTableNamespaceConfigurator) isAllowed(tableString string) bool {

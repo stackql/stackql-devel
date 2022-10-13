@@ -23,6 +23,10 @@ const (
 	DefaultPrettyPrintBaseIndent       int    = 2
 	DefaultPrettyPrintIndent           int    = 2
 	DefaultQueryCacheSize              int    = 10000
+	DefaultAnalyticsTemplateString     string = "stackql_analytics_{{ .objectName }}"
+	DefaultViewsTemplateString         string = "stackql_views.{{ .objectName }}"
+	DefaultAnalyticsRegexpString       string = `^stackql_analytics_(?P<objectName>.*)$`
+	DefaultViewsRegexpString           string = `^stackql_views\.(?P<objectName>.*)$`
 )
 
 type GCStatus int

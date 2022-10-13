@@ -13,6 +13,7 @@ var (
 
 type TableNamespaceConfiguratorBuilder interface {
 	Build() (TableNamespaceConfigurator, error)
+	WithLikeString(likeString string) TableNamespaceConfiguratorBuilder
 	WithTTL(ttl int) TableNamespaceConfiguratorBuilder
 	WithRegexp(regex *regexp.Regexp) TableNamespaceConfiguratorBuilder
 	WithSQLEngine(sqlEngine sqlengine.SQLEngine) TableNamespaceConfiguratorBuilder
@@ -20,10 +21,11 @@ type TableNamespaceConfiguratorBuilder interface {
 }
 
 type standardTableNamespaceConfiguratorBuilder struct {
-	sqlEngine sqlengine.SQLEngine
-	regex     *regexp.Regexp
-	tmpl      *template.Template
-	ttl       int
+	sqlEngine  sqlengine.SQLEngine
+	regex      *regexp.Regexp
+	tmpl       *template.Template
+	likeString string
+	ttl        int
 }
 
 func newTableNamespaceConfiguratorBuilder() TableNamespaceConfiguratorBuilder {
@@ -32,6 +34,11 @@ func newTableNamespaceConfiguratorBuilder() TableNamespaceConfiguratorBuilder {
 
 func (b *standardTableNamespaceConfiguratorBuilder) WithRegexp(regex *regexp.Regexp) TableNamespaceConfiguratorBuilder {
 	b.regex = regex
+	return b
+}
+
+func (b *standardTableNamespaceConfiguratorBuilder) WithLikeString(likeString string) TableNamespaceConfiguratorBuilder {
+	b.likeString = likeString
 	return b
 }
 
@@ -52,9 +59,10 @@ func (b *standardTableNamespaceConfiguratorBuilder) WithSQLEngine(sqlEngine sqle
 
 func (b *standardTableNamespaceConfiguratorBuilder) Build() (TableNamespaceConfigurator, error) {
 	return &regexTableNamespaceConfigurator{
-		sqlEngine: b.sqlEngine,
-		regex:     b.regex,
-		template:  b.tmpl,
-		ttl:       b.ttl,
+		sqlEngine:  b.sqlEngine,
+		regex:      b.regex,
+		template:   b.tmpl,
+		ttl:        b.ttl,
+		likeString: b.likeString,
 	}, nil
 }

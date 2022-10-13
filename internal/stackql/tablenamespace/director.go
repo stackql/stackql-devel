@@ -4,15 +4,17 @@ import (
 	"regexp"
 	"text/template"
 
+	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
+	"github.com/stackql/stackql/pkg/textutil"
 )
 
 var (
-	defaultAnalyticsCacheRegexp = regexp.MustCompile(`^stackql_analytics_(?P<objectName>.*)$`)
-	defaultViewsRegexp          = regexp.MustCompile(`^stackql_views\.(?P<objectName>.*)$`)
-	defaultAnalyticsTemplate    = templateParseOrPanic("defaultAnalyticsTmpl", "stackql_analytics_{{ .objectName }}")
-	defaultViewsTemplate        = templateParseOrPanic("defaultViewsTmpl", "stackql_views.{{ .objectName }}")
+	defaultAnalyticsCacheRegexp = regexp.MustCompile(constants.DefaultAnalyticsRegexpString)
+	defaultViewsRegexp          = regexp.MustCompile(constants.DefaultViewsRegexpString)
+	defaultAnalyticsTemplate    = templateParseOrPanic("defaultAnalyticsTmpl", constants.DefaultAnalyticsTemplateString)
+	defaultViewsTemplate        = templateParseOrPanic("defaultViewsTmpl", constants.DefaultViewsTemplateString)
 )
 
 func templateParseOrPanic(tmplName, tmplBody string) *template.Template {
@@ -30,34 +32,38 @@ type TableNamespaceConfiguratorBuilderDirector interface {
 
 func getViewsTableNamespaceConfiguratorBuilderDirector(cfg dto.NamespaceCfg, sqlEngine sqlengine.SQLEngine) TableNamespaceConfiguratorBuilderDirector {
 	return &configuratorBuilderDirector{
-		sqlEngine:       sqlEngine,
-		cfg:             cfg,
-		defaultRegexp:   defaultViewsRegexp,
-		defaultTemplate: defaultViewsTemplate,
+		sqlEngine:         sqlEngine,
+		cfg:               cfg,
+		defaultRegexp:     defaultViewsRegexp,
+		defaultTemplate:   defaultViewsTemplate,
+		defaultLikeString: textutil.GetTemplateLikeString(constants.DefaultViewsTemplateString),
 	}
 }
 
 func getAnalyticsCacheTableNamespaceConfiguratorBuilderDirector(cfg dto.NamespaceCfg, sqlEngine sqlengine.SQLEngine) TableNamespaceConfiguratorBuilderDirector {
 	return &configuratorBuilderDirector{
-		sqlEngine:       sqlEngine,
-		cfg:             cfg,
-		defaultRegexp:   defaultAnalyticsCacheRegexp,
-		defaultTemplate: defaultAnalyticsTemplate,
+		sqlEngine:         sqlEngine,
+		cfg:               cfg,
+		defaultRegexp:     defaultAnalyticsCacheRegexp,
+		defaultTemplate:   defaultAnalyticsTemplate,
+		defaultLikeString: textutil.GetTemplateLikeString(constants.DefaultAnalyticsTemplateString),
 	}
 }
 
 type configuratorBuilderDirector struct {
-	sqlEngine       sqlengine.SQLEngine
-	cfg             dto.NamespaceCfg
-	defaultRegexp   *regexp.Regexp
-	defaultTemplate *template.Template
-	configurator    TableNamespaceConfigurator
+	sqlEngine         sqlengine.SQLEngine
+	cfg               dto.NamespaceCfg
+	defaultRegexp     *regexp.Regexp
+	defaultTemplate   *template.Template
+	defaultLikeString string
+	configurator      TableNamespaceConfigurator
 }
 
 func (dr *configuratorBuilderDirector) Construct() error {
 	var err error
 	cfgRegexp := dr.defaultRegexp
 	cfgTemplate := dr.defaultTemplate
+	likeString := dr.defaultLikeString
 	if dr.cfg.RegexpStr != "" {
 		cfgRegexp, err = dr.cfg.GetRegex()
 		if err != nil {
@@ -69,8 +75,9 @@ func (dr *configuratorBuilderDirector) Construct() error {
 		if err != nil {
 			return err
 		}
+		likeString = textutil.GetTemplateLikeString(dr.cfg.NamespaceTemplate)
 	}
-	bldr := newTableNamespaceConfiguratorBuilder().WithRegexp(cfgRegexp).WithTTL(dr.cfg.TTL).WithTemplate(cfgTemplate).WithSQLEngine(dr.sqlEngine)
+	bldr := newTableNamespaceConfiguratorBuilder().WithRegexp(cfgRegexp).WithLikeString(likeString).WithTTL(dr.cfg.TTL).WithTemplate(cfgTemplate).WithSQLEngine(dr.sqlEngine)
 	configurator, err := bldr.Build()
 	if err != nil {
 		return err
