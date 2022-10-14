@@ -8,7 +8,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
-	"github.com/stackql/stackql/internal/stackql/taxonomy"
+	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 	"github.com/stackql/stackql/internal/stackql/util"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
@@ -22,7 +22,7 @@ func (p *primitiveGenerator) assembleUnarySelectionBuilder(
 	rewrittenWhere *sqlparser.Where,
 	hIds *dto.HeirarchyIdentifiers,
 	schema *openapistackql.Schema,
-	tbl *taxonomy.ExtendedTableMetadata,
+	tbl *tablemetadata.ExtendedTableMetadata,
 	selectTabulation *openapistackql.Tabulation,
 	insertTabulation *openapistackql.Tabulation,
 	cols []parserutil.ColumnHandle,
@@ -77,7 +77,7 @@ func (p *primitiveGenerator) analyzeUnarySelection(
 	handlerCtx *handler.HandlerContext,
 	node sqlparser.SQLNode,
 	rewrittenWhere *sqlparser.Where,
-	tbl *taxonomy.ExtendedTableMetadata,
+	tbl *tablemetadata.ExtendedTableMetadata,
 	cols []parserutil.ColumnHandle) error {
 	_, err := tbl.GetProvider()
 	if err != nil {

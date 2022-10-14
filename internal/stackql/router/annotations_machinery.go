@@ -5,13 +5,14 @@ import (
 
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
+	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 )
 
 func obtainAnnotationCtx(
 	sqlEngine sqlengine.SQLEngine,
-	tbl *taxonomy.ExtendedTableMetadata,
+	tbl *tablemetadata.ExtendedTableMetadata,
 	parameters map[string]interface{},
 	namespaceCollection tablenamespace.TableNamespaceCollection,
 ) (taxonomy.AnnotationCtx, error) {

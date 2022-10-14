@@ -10,7 +10,6 @@ import (
 	"net/url"
 
 	"github.com/stackql/stackql/internal/stackql/dto"
-	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/provider"
 	"github.com/stackql/stackql/internal/stackql/requests"
@@ -146,7 +145,7 @@ func NewHTTPArmoury() HTTPArmoury {
 	return &StandardHTTPArmoury{}
 }
 
-func BuildHTTPRequestCtx(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, prov provider.IProvider, m *openapistackql.OperationStore, svc *openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext *ExecContext) (HTTPArmoury, error) {
+func BuildHTTPRequestCtx(node sqlparser.SQLNode, prov provider.IProvider, m *openapistackql.OperationStore, svc *openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext *ExecContext) (HTTPArmoury, error) {
 	var err error
 	httpArmoury := NewHTTPArmoury()
 	var requestSchema, responseSchema *openapistackql.Schema
@@ -259,7 +258,7 @@ func getRequest(prov *openapistackql.Provider, svc *openapistackql.Service, meth
 	return request, nil
 }
 
-func BuildHTTPRequestCtxFromAnnotation(handlerCtx *handler.HandlerContext, parameters streaming.MapStream, prov provider.IProvider, m *openapistackql.OperationStore, svc *openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext *ExecContext) (HTTPArmoury, error) {
+func BuildHTTPRequestCtxFromAnnotation(parameters streaming.MapStream, prov provider.IProvider, m *openapistackql.OperationStore, svc *openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext *ExecContext) (HTTPArmoury, error) {
 	var err error
 	httpArmoury := NewHTTPArmoury()
 	var requestSchema, responseSchema *openapistackql.Schema

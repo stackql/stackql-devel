@@ -147,7 +147,7 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 	var controlWhereComparisons []string
 	inputContainers := input.GetTableInsertionContainers()
 	if len(inputContainers) > 0 {
-		txnCtrlCtrs = inputContainers[0].GetTxnCounters()
+		_, txnCtrlCtrs = inputContainers[0].GetTableTxnCounters()
 	} else {
 		txnCtrlCtrs = input.GetBaseControlCounters()
 		secondaryCtrlCounters = input.GetSecondaryCtrlCounters()
@@ -155,7 +155,8 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 	i := 0
 	for _, tb := range inputContainers {
 		if i > 0 {
-			secondaryCtrlCounters = append(secondaryCtrlCounters, tb.GetTxnCounters())
+			_, secondaryCtr := tb.GetTableTxnCounters()
+			secondaryCtrlCounters = append(secondaryCtrlCounters, secondaryCtr)
 		}
 		v := tb.GetTableMetadata()
 		tn, _ := v.GetTableName()

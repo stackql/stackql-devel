@@ -1,6 +1,7 @@
 package bundle
 
 import (
+	"github.com/stackql/stackql/internal/stackql/garbagecollector"
 	"github.com/stackql/stackql/internal/stackql/gc"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
@@ -26,6 +27,7 @@ func NewBundle(
 
 type simpleBundle struct {
 	garbageCollector gc.GarbageCollector
+	gc2              garbagecollector.GarbageCollector
 	namespaces       tablenamespace.TableNamespaceCollection
 	sqlEngine        sqlengine.SQLEngine
 }

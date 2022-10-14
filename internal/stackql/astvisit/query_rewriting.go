@@ -15,6 +15,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/sqlrewrite"
 	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
+	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 	"github.com/stackql/stackql/internal/stackql/util"
@@ -69,7 +70,7 @@ func (v *QueryRewriteAstVisitor) buildAcquireQueryCtx(
 }
 
 func (v *QueryRewriteAstVisitor) getStarColumns(
-	tbl *taxonomy.ExtendedTableMetadata,
+	tbl *tablemetadata.ExtendedTableMetadata,
 ) ([]openapistackql.ColumnDescriptor, error) {
 	schema, _, err := tbl.GetResponseSchemaAndMediaType()
 	if err != nil {
@@ -526,7 +527,7 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		}
 
 	case *sqlparser.StarExpr:
-		var tbl *taxonomy.ExtendedTableMetadata
+		var tbl *tablemetadata.ExtendedTableMetadata
 		if node.TableName.IsEmpty() {
 			if len(v.tables) != 1 {
 				return fmt.Errorf("unaliased star expr not permitted for table count = %d", len(v.tables))
