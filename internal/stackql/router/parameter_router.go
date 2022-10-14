@@ -8,6 +8,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
+	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 	"vitess.io/vitess/go/vt/sqlparser"
@@ -402,7 +403,7 @@ func (pr *StandardParameterRouter) Route(tb sqlparser.TableExpr, handlerCtx *han
 		pr.comparisonToTableDependencies[p] = tb
 		logging.GetLogger().Infof("%v", kv)
 	}
-	m := taxonomy.NewExtendedTableMetadata(hr, taxonomy.GetAliasFromStatement(tb))
+	m := tablemetadata.NewExtendedTableMetadata(hr, taxonomy.GetAliasFromStatement(tb))
 	// store relationship from sqlparser table expression to
 	// hierarchy.  This enables e2e relationship
 	// from expression to hierarchy.

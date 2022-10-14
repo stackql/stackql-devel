@@ -13,6 +13,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
+	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 	"github.com/stackql/stackql/internal/stackql/util"
 )
@@ -73,7 +74,7 @@ func (v *TableNameSubstitutionAstVisitor) addAcquireQuery(
 }
 
 func (v *TableNameSubstitutionAstVisitor) getStarColumns(
-	tbl *taxonomy.ExtendedTableMetadata,
+	tbl *tablemetadata.ExtendedTableMetadata,
 ) ([]openapistackql.ColumnDescriptor, error) {
 	schema, _, err := tbl.GetResponseSchemaAndMediaType()
 	if err != nil {
@@ -104,7 +105,7 @@ func (v *TableNameSubstitutionAstVisitor) getStarColumns(
 func (v *TableNameSubstitutionAstVisitor) buildSelectQuery(
 	handlerCtx *handler.HandlerContext,
 	node sqlparser.SQLNode,
-	tbl *taxonomy.ExtendedTableMetadata,
+	tbl *tablemetadata.ExtendedTableMetadata,
 	cols []parserutil.ColumnHandle,
 	dc drm.DRMConfig,
 ) error {
@@ -543,7 +544,7 @@ func (v *TableNameSubstitutionAstVisitor) Visit(node sqlparser.SQLNode) error {
 	case sqlparser.SelectExprs:
 
 	case *sqlparser.StarExpr:
-		var tbl *taxonomy.ExtendedTableMetadata
+		var tbl *tablemetadata.ExtendedTableMetadata
 		if node.TableName.IsEmpty() {
 			if len(v.tables) != 1 {
 				return fmt.Errorf("unaliased star expr not permitted for table count = %d", len(v.tables))

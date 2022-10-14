@@ -15,7 +15,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/streaming"
 	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
-	"github.com/stackql/stackql/internal/stackql/taxonomy"
+	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 	"github.com/stackql/stackql/internal/stackql/util"
 )
 
@@ -26,7 +26,7 @@ import (
 type SingleSelectAcquire struct {
 	graph                      *primitivegraph.PrimitiveGraph
 	handlerCtx                 *handler.HandlerContext
-	tableMeta                  *taxonomy.ExtendedTableMetadata
+	tableMeta                  *tablemetadata.ExtendedTableMetadata
 	drmCfg                     drm.DRMConfig
 	insertPreparedStatementCtx *drm.PreparedStatementCtx
 	insertionContainer         tableinsertioncontainer.TableInsertionContainer
@@ -71,7 +71,7 @@ func NewSingleSelectAcquire(
 func newSingleSelectAcquire(
 	graph *primitivegraph.PrimitiveGraph,
 	handlerCtx *handler.HandlerContext,
-	tableMeta *taxonomy.ExtendedTableMetadata,
+	tableMeta *tablemetadata.ExtendedTableMetadata,
 	insertCtx *drm.PreparedStatementCtx,
 	insertionContainer tableinsertioncontainer.TableInsertionContainer,
 	rowSort func(map[string]map[string]interface{}) []string,
@@ -148,7 +148,7 @@ func (ss *SingleSelectAcquire) Build() error {
 			reqEncoding := reqCtx.Encode()
 			tcc, isMatch := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(tableName, reqEncoding, ss.drmCfg.GetLastUpdatedControlColumn(), ss.drmCfg.GetInsertEncodedControlColumn())
 			if isMatch {
-				ss.insertionContainer.SetTxnCounters(tcc)
+				ss.insertionContainer.SetTableTxnCounters(tableName, tcc)
 				return dto.ExecutorOutput{}
 			}
 			response, apiErr := httpmiddleware.HttpApiCallFromRequest(*(ss.handlerCtx), prov, m, reqCtx.Request.Clone(reqCtx.Request.Context()))
@@ -212,7 +212,7 @@ func (ss *SingleSelectAcquire) Build() error {
 					if ok && len(iArr) > 0 {
 						if !housekeepingDone && ss.insertPreparedStatementCtx != nil {
 							_, err = ss.handlerCtx.SQLEngine.Exec(ss.insertPreparedStatementCtx.GetGCHousekeepingQueries())
-							ss.insertionContainer.SetTxnCounters(ss.insertPreparedStatementCtx.GetGCCtrlCtrs())
+							ss.insertionContainer.SetTableTxnCounters(tableName, ss.insertPreparedStatementCtx.GetGCCtrlCtrs())
 							housekeepingDone = true
 						}
 						if err != nil {

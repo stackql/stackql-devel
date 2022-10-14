@@ -2,7 +2,7 @@ package tableinsertioncontainer
 
 import (
 	"github.com/stackql/stackql/internal/stackql/dto"
-	"github.com/stackql/stackql/internal/stackql/taxonomy"
+	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 )
 
 var (
@@ -10,23 +10,25 @@ var (
 )
 
 type TableInsertionContainer interface {
-	GetTableMetadata() *taxonomy.ExtendedTableMetadata
+	GetTableMetadata() *tablemetadata.ExtendedTableMetadata
 	IsCountersSet() bool
-	SetTxnCounters(*dto.TxnControlCounters)
-	GetTxnCounters() *dto.TxnControlCounters
+	SetTableTxnCounters(string, *dto.TxnControlCounters)
+	GetTableTxnCounters() (string, *dto.TxnControlCounters)
 }
 
 type StandardTableInsertionContainer struct {
-	tm            *taxonomy.ExtendedTableMetadata
+	tableName     string
+	tm            *tablemetadata.ExtendedTableMetadata
 	tcc           *dto.TxnControlCounters
 	isCountersSet bool
 }
 
-func (ic *StandardTableInsertionContainer) GetTableMetadata() *taxonomy.ExtendedTableMetadata {
+func (ic *StandardTableInsertionContainer) GetTableMetadata() *tablemetadata.ExtendedTableMetadata {
 	return ic.tm
 }
 
-func (ic *StandardTableInsertionContainer) SetTxnCounters(tcc *dto.TxnControlCounters) {
+func (ic *StandardTableInsertionContainer) SetTableTxnCounters(tableName string, tcc *dto.TxnControlCounters) {
+	ic.tableName = tableName
 	ic.tcc.GenId = tcc.GenId
 	ic.tcc.SessionId = tcc.SessionId
 	ic.tcc.InsertId = tcc.InsertId
@@ -34,22 +36,22 @@ func (ic *StandardTableInsertionContainer) SetTxnCounters(tcc *dto.TxnControlCou
 	ic.isCountersSet = true
 }
 
-func (ic *StandardTableInsertionContainer) GetTxnCounters() *dto.TxnControlCounters {
-	return ic.tcc
+func (ic *StandardTableInsertionContainer) GetTableTxnCounters() (string, *dto.TxnControlCounters) {
+	return ic.tableName, ic.tcc
 }
 
 func (ic *StandardTableInsertionContainer) IsCountersSet() bool {
 	return ic.isCountersSet
 }
 
-func NewTableInsertionContainer(tm *taxonomy.ExtendedTableMetadata) TableInsertionContainer {
+func NewTableInsertionContainer(tm *tablemetadata.ExtendedTableMetadata) TableInsertionContainer {
 	return &StandardTableInsertionContainer{
 		tm:  tm,
 		tcc: &dto.TxnControlCounters{},
 	}
 }
 
-func NewTableInsertionContainers(tms []*taxonomy.ExtendedTableMetadata) []TableInsertionContainer {
+func NewTableInsertionContainers(tms []*tablemetadata.ExtendedTableMetadata) []TableInsertionContainer {
 	var rv []TableInsertionContainer
 	for _, tm := range tms {
 		rv = append(rv, NewTableInsertionContainer(tm))

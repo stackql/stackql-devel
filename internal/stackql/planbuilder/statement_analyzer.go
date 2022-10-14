@@ -28,6 +28,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/suffix"
 	"github.com/stackql/stackql/internal/stackql/symtab"
 	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
+	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 	"github.com/stackql/stackql/internal/stackql/util"
 
@@ -431,7 +432,7 @@ func (pb *primitiveGenerator) analyzeWhere(where *sqlparser.Where, existingParam
 	requiredParameters := suffix.NewParameterSuffixMap()
 	remainingRequiredParameters := suffix.NewParameterSuffixMap()
 	optionalParameters := suffix.NewParameterSuffixMap()
-	tbVisited := map[*taxonomy.ExtendedTableMetadata]struct{}{}
+	tbVisited := map[*tablemetadata.ExtendedTableMetadata]struct{}{}
 	for _, tb := range pb.PrimitiveComposer.GetTables() {
 		if _, ok := tbVisited[tb]; ok {
 			continue
@@ -512,11 +513,11 @@ func (p *primitiveGenerator) parseComments(comments sqlparser.Comments) {
 	}
 }
 
-func (p *primitiveGenerator) persistHerarchyToBuilder(heirarchy *taxonomy.HeirarchyObjects, node sqlparser.SQLNode) {
-	p.PrimitiveComposer.SetTable(node, taxonomy.NewExtendedTableMetadata(heirarchy, taxonomy.GetAliasFromStatement(node)))
+func (p *primitiveGenerator) persistHerarchyToBuilder(heirarchy *tablemetadata.HeirarchyObjects, node sqlparser.SQLNode) {
+	p.PrimitiveComposer.SetTable(node, tablemetadata.NewExtendedTableMetadata(heirarchy, taxonomy.GetAliasFromStatement(node)))
 }
 
-func (p *primitiveGenerator) analyzeUnaryExec(handlerCtx *handler.HandlerContext, node *sqlparser.Exec, selectNode *sqlparser.Select, cols []parserutil.ColumnHandle) (*taxonomy.ExtendedTableMetadata, error) {
+func (p *primitiveGenerator) analyzeUnaryExec(handlerCtx *handler.HandlerContext, node *sqlparser.Exec, selectNode *sqlparser.Select, cols []parserutil.ColumnHandle) (*tablemetadata.ExtendedTableMetadata, error) {
 	err := p.inferHeirarchyAndPersist(handlerCtx, node, nil)
 	if err != nil {
 		return nil, err
@@ -1011,7 +1012,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 	return fmt.Errorf("cannot process cartesian join select just yet")
 }
 
-func (p *primitiveGenerator) buildRequestContext(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, meta *taxonomy.ExtendedTableMetadata, execContext *httpbuild.ExecContext, rowsToInsert map[int]map[int]interface{}) (httpbuild.HTTPArmoury, error) {
+func (p *primitiveGenerator) buildRequestContext(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, meta *tablemetadata.ExtendedTableMetadata, execContext *httpbuild.ExecContext, rowsToInsert map[int]map[int]interface{}) (httpbuild.HTTPArmoury, error) {
 	m, err := meta.GetMethod()
 	if err != nil {
 		return nil, err
@@ -1024,7 +1025,7 @@ func (p *primitiveGenerator) buildRequestContext(handlerCtx *handler.HandlerCont
 	if err != nil {
 		return nil, err
 	}
-	httpArmoury, err := httpbuild.BuildHTTPRequestCtx(handlerCtx, node, prov, m, svc, rowsToInsert, execContext)
+	httpArmoury, err := httpbuild.BuildHTTPRequestCtx(node, prov, m, svc, rowsToInsert, execContext)
 	if err != nil {
 		return nil, err
 	}
