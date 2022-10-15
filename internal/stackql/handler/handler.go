@@ -12,7 +12,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/bundle"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/dto"
-	"github.com/stackql/stackql/internal/stackql/gc"
+	"github.com/stackql/stackql/internal/stackql/garbagecollector"
 	"github.com/stackql/stackql/internal/stackql/netutils"
 	"github.com/stackql/stackql/internal/stackql/provider"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
@@ -36,7 +36,7 @@ type HandlerContext struct {
 	OutErrFile          io.Writer
 	LRUCache            *lrucache.LRUCache
 	SQLEngine           sqlengine.SQLEngine
-	GarbageCollector    gc.GarbageCollector
+	GarbageCollector    garbagecollector.GarbageCollector
 	DrmConfig           drm.DRMConfig
 	TxnCounterMgr       *txncounter.TxnCounterManager
 	namespaceCollection tablenamespace.TableNamespaceCollection
