@@ -738,6 +738,7 @@ func createErroneousPlan(handlerCtx *handler.HandlerContext, qPlan *plan.Plan, r
 }
 
 func BuildPlanFromContext(handlerCtx *handler.HandlerContext) (*plan.Plan, error) {
+	defer handlerCtx.GarbageCollector.Close()
 	planKey := handlerCtx.Query
 	if qp, ok := handlerCtx.LRUCache.Get(planKey); ok && isPlanCacheEnabled() {
 		logging.GetLogger().Infoln("retrieving query plan from cache")
