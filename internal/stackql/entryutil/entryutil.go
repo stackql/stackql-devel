@@ -10,7 +10,8 @@ import (
 
 	"github.com/stackql/stackql/internal/stackql/bundle"
 	"github.com/stackql/stackql/internal/stackql/dto"
-	"github.com/stackql/stackql/internal/stackql/gc"
+	"github.com/stackql/stackql/internal/stackql/garbagecollector"
+	"github.com/stackql/stackql/internal/stackql/gcexec"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/iqlerror"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
@@ -31,10 +32,11 @@ func BuildInputBundle(runtimeCtx dto.RuntimeCtx) (bundle.Bundle, error) {
 	if err != nil {
 		return nil, err
 	}
-	gc, err := buildGC(se, namespaces, runtimeCtx)
+	gcExec, err := buildGCExec(se, namespaces, runtimeCtx)
 	if err != nil {
 		return nil, err
 	}
+	gc := buildGC(gcExec)
 	return bundle.NewBundle(gc, namespaces, se), nil
 }
 
@@ -51,8 +53,12 @@ func buildSQLEngine(runtimeCtx dto.RuntimeCtx) (sqlengine.SQLEngine, error) {
 	return sqlengine.NewSQLEngine(sqlCfg)
 }
 
-func buildGC(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, runtimeCtx dto.RuntimeCtx) (gc.GarbageCollector, error) {
-	return gc.NewGarbageCollector(sqlEngine, namespaces, "sqlite")
+func buildGCExec(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, runtimeCtx dto.RuntimeCtx) (gcexec.GarbageCollectorExecutor, error) {
+	return gcexec.NewGarbageCollectorExecutor(sqlEngine, namespaces, "sqlite")
+}
+
+func buildGC(gcExec gcexec.GarbageCollectorExecutor) garbagecollector.GarbageCollector {
+	return garbagecollector.NewGarbageCollector(gcExec)
 }
 
 func GetTxnCounterManager(handlerCtx handler.HandlerContext) (*txncounter.TxnCounterManager, error) {

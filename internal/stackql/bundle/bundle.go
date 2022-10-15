@@ -2,19 +2,18 @@ package bundle
 
 import (
 	"github.com/stackql/stackql/internal/stackql/garbagecollector"
-	"github.com/stackql/stackql/internal/stackql/gc"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 )
 
 type Bundle interface {
-	GetGC() gc.GarbageCollector
+	GetGC() garbagecollector.GarbageCollector
 	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
 	GetSQLEngine() sqlengine.SQLEngine
 }
 
 func NewBundle(
-	garbageCollector gc.GarbageCollector,
+	garbageCollector garbagecollector.GarbageCollector,
 	namespaces tablenamespace.TableNamespaceCollection,
 	sqlEngine sqlengine.SQLEngine,
 ) Bundle {
@@ -26,13 +25,12 @@ func NewBundle(
 }
 
 type simpleBundle struct {
-	garbageCollector gc.GarbageCollector
-	gc2              garbagecollector.GarbageCollector
+	garbageCollector garbagecollector.GarbageCollector
 	namespaces       tablenamespace.TableNamespaceCollection
 	sqlEngine        sqlengine.SQLEngine
 }
 
-func (sb *simpleBundle) GetGC() gc.GarbageCollector {
+func (sb *simpleBundle) GetGC() garbagecollector.GarbageCollector {
 	return sb.garbageCollector
 }
 
