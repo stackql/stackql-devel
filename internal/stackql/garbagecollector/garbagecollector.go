@@ -9,6 +9,7 @@ import (
 type GarbageCollector interface {
 	AddInsertContainer(tm *tablemetadata.ExtendedTableMetadata) tableinsertioncontainer.TableInsertionContainer
 	Close() error
+	Collect() error
 }
 
 func NewGarbageCollector(gcExecutor gcexec.GarbageCollectorExecutor) GarbageCollector {
@@ -30,7 +31,11 @@ func (gc *StandardGarbageCollector) Close() error {
 	for _, ic := range gc.insertContainers {
 		gc.gcExecutor.Condemn(ic.GetTableTxnCounters())
 	}
-	return nil
+	return gc.gcExecutor.Collect()
+}
+
+func (gc *StandardGarbageCollector) Collect() error {
+	return gc.gcExecutor.Collect()
 }
 
 func (gc *StandardGarbageCollector) AddInsertContainer(tm *tablemetadata.ExtendedTableMetadata) tableinsertioncontainer.TableInsertionContainer {

@@ -54,7 +54,7 @@ func buildSQLEngine(runtimeCtx dto.RuntimeCtx) (sqlengine.SQLEngine, error) {
 }
 
 func buildGCExec(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, runtimeCtx dto.RuntimeCtx) (gcexec.GarbageCollectorExecutor, error) {
-	return gcexec.NewGarbageCollectorExecutor(sqlEngine, namespaces, "sqlite")
+	return gcexec.GetGarbageCollectorExecutorInstance(sqlEngine, namespaces, "sqlite")
 }
 
 func buildGC(gcExec gcexec.GarbageCollectorExecutor) garbagecollector.GarbageCollector {

@@ -9,9 +9,15 @@ import (
 )
 
 type SQLDialect interface {
-	GCCollect(transactionIDs []int) error
+	// GCCollect() will collect unmarked (from input list) condemned records, from:
+	//   - canonical tables.
+	//   - cache.
+	GCCollect([]int, []int) error
+	// GCCollectAll() will collect **all** condemned / expired records, from both canonical tables and cache.
 	GCCollectAll() error
+	// GCCollectFromCache() will collect unmarked (from input list), expired cache records.
 	GCCollectFromCache(transactionIDs []int) error
+	// GCPurgeCache() will completely wipe the cache.
 	GCPurgeCache() error
 }
 
@@ -25,48 +31,58 @@ func NewSQLDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.Tabl
 }
 
 func newSQLiteDialct(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection) (SQLDialect, error) {
-	return &SQLiteDialect{
+	return &sqLiteDialect{
 		namespaces: namespaces,
 		sqlEngine:  sqlEngine,
 	}, nil
 }
 
-type SQLiteDialect struct {
+type sqLiteDialect struct {
 	namespaces tablenamespace.TableNamespaceCollection
 	sqlEngine  sqlengine.SQLEngine
 }
 
-func (sl *SQLiteDialect) GCCollectAll() error {
+func (sl *sqLiteDialect) GCCollectAll() error {
 	return sl.gcCollectAll()
 }
 
-func (sl *SQLiteDialect) GCCollect(transactionIDs []int) error {
-	return sl.gcCollect(transactionIDs)
+func (sl *sqLiteDialect) GCCollect(transactionIDs, cacheTransactionIDs []int) error {
+	return sl.gcCollect(transactionIDs, cacheTransactionIDs)
 }
 
-func (sl *SQLiteDialect) GCCollectFromCache(transactionIDs []int) error {
+func (sl *sqLiteDialect) GCCollectFromCache(transactionIDs []int) error {
 	return sl.gcCollectFromCache(transactionIDs)
 }
 
-func (sl *SQLiteDialect) gcCollectAll() error {
+func (sl *sqLiteDialect) gcCollectAll() error {
 	s, err := sl.getGCCollectAllTemplate()
 	if err != nil {
 		return err
 	}
+	s2, err := sl.getGCCollectCacheTemplate(nil)
+	if err != nil {
+		return err
+	}
+	s = append(s, s2...)
 	err = sl.sqlEngine.ExecInTxn(s)
 	return err
 }
 
-func (sl *SQLiteDialect) gcCollect(transactionIDs []int) error {
+func (sl *sqLiteDialect) gcCollect(transactionIDs, cacheTransactionIDs []int) error {
 	s, err := sl.getGCCollectTemplate(transactionIDs)
 	if err != nil {
 		return err
 	}
+	s2, err := sl.getGCCollectCacheTemplate(cacheTransactionIDs)
+	if err != nil {
+		return err
+	}
+	s = append(s, s2...)
 	err = sl.sqlEngine.ExecInTxn(s)
 	return err
 }
 
-func (sl *SQLiteDialect) gcCollectFromCache(transactionIDs []int) error {
+func (sl *sqLiteDialect) gcCollectFromCache(transactionIDs []int) error {
 	s, err := sl.getGCCollectCacheTemplate(transactionIDs)
 	if err != nil {
 		return err
@@ -75,11 +91,11 @@ func (sl *SQLiteDialect) gcCollectFromCache(transactionIDs []int) error {
 	return err
 }
 
-func (sl *SQLiteDialect) GCPurgeCache() error {
+func (sl *sqLiteDialect) GCPurgeCache() error {
 	return sl.gcPurgeCache()
 }
 
-func (sl *SQLiteDialect) gcPurgeCache() error {
+func (sl *sqLiteDialect) gcPurgeCache() error {
 	s, err := sl.getGCPurgeCacheTemplate()
 	if err != nil {
 		return err
@@ -88,7 +104,7 @@ func (sl *SQLiteDialect) gcPurgeCache() error {
 	return err
 }
 
-func (sl *SQLiteDialect) getGCPurgeCacheTemplate() ([]string, error) {
+func (sl *sqLiteDialect) getGCPurgeCacheTemplate() ([]string, error) {
 	query := `select distinct name from sqlite_schema where type = 'table' and name like ? ;`
 	rows, err := sl.sqlEngine.Query(query, sl.namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetLikeString())
 	if err != nil {
@@ -111,7 +127,7 @@ func (sl *SQLiteDialect) getGCPurgeCacheTemplate() ([]string, error) {
 	return rv, nil
 }
 
-func (sl *SQLiteDialect) getGCCollectAllTemplate() ([]string, error) {
+func (sl *sqLiteDialect) getGCCollectAllTemplate() ([]string, error) {
 	query := `SELECT DISTINCT table_name FROM "__iql__.control.gc.txn_table_x_ref" ;`
 	rows, err := sl.sqlEngine.Query(query)
 	if err != nil {
@@ -134,7 +150,7 @@ func (sl *SQLiteDialect) getGCCollectAllTemplate() ([]string, error) {
 	return rv, nil
 }
 
-func (sl *SQLiteDialect) getGCCollectTemplate(transactionIDs []int) ([]string, error) {
+func (sl *sqLiteDialect) getGCCollectTemplate(transactionIDs []int) ([]string, error) {
 	var transactionIDStrings []string
 	for _, txn := range transactionIDs {
 		transactionIDStrings = append(transactionIDStrings, fmt.Sprintf("%d", txn))
@@ -166,7 +182,7 @@ func (sl *SQLiteDialect) getGCCollectTemplate(transactionIDs []int) ([]string, e
 	return rv, nil
 }
 
-func (sl *SQLiteDialect) getGCCollectCacheTemplate(transactionIDs []int) ([]string, error) {
+func (sl *sqLiteDialect) getGCCollectCacheTemplate(transactionIDs []int) ([]string, error) {
 	var transactionIDStrings []string
 	for _, txn := range transactionIDs {
 		transactionIDStrings = append(transactionIDStrings, fmt.Sprintf("%d", txn))

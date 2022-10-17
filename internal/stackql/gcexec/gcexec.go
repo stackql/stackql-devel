@@ -9,19 +9,30 @@ import (
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 )
 
-type TxnMap struct {
+var (
+	once                     sync.Once
+	garbageCollectorExecutor GarbageCollectorExecutor
+)
+
+type TxnMap interface {
+	Add(tcc *dto.TxnControlCounters) int
+	Delete(tcc *dto.TxnControlCounters) int
+	GetTxnIDs() []int
+}
+
+type basicTxnMap struct {
 	mutex *sync.Mutex
 	m     map[int]int
 }
 
-func NewTxnMap() TxnMap {
-	return TxnMap{
+func newTxnMap() TxnMap {
+	return basicTxnMap{
 		mutex: &sync.Mutex{},
 		m:     make(map[int]int),
 	}
 }
 
-func (tm TxnMap) GetTxnIDs() []int {
+func (tm basicTxnMap) GetTxnIDs() []int {
 	tm.mutex.Lock()
 	defer tm.mutex.Unlock()
 	var rv []int
@@ -33,7 +44,7 @@ func (tm TxnMap) GetTxnIDs() []int {
 	return rv
 }
 
-func (tm TxnMap) Add(tcc *dto.TxnControlCounters) int {
+func (tm basicTxnMap) Add(tcc *dto.TxnControlCounters) int {
 	tm.mutex.Lock()
 	defer tm.mutex.Unlock()
 	key := tcc.TxnId
@@ -46,7 +57,7 @@ func (tm TxnMap) Add(tcc *dto.TxnControlCounters) int {
 	return 1
 }
 
-func (tm TxnMap) Delete(tcc *dto.TxnControlCounters) int {
+func (tm basicTxnMap) Delete(tcc *dto.TxnControlCounters) int {
 	tm.mutex.Lock()
 	defer tm.mutex.Unlock()
 	key := tcc.TxnId
@@ -78,18 +89,23 @@ type GarbageCollectorExecutor interface {
 	AbstractFlatGarbageCollectorExecutor
 }
 
-func NewGarbageCollectorExecutor(sqlEngine sqlengine.SQLEngine, ns tablenamespace.TableNamespaceCollection, dialectStr string) (GarbageCollectorExecutor, error) {
-	dialect, err := sqldialect.NewSQLDialect(sqlEngine, ns, dialectStr)
-	if err != nil {
-		return nil, err
-	}
-	return newBasicGarbageCollector(dialect, ns)
+func GetGarbageCollectorExecutorInstance(sqlEngine sqlengine.SQLEngine, ns tablenamespace.TableNamespaceCollection, dialectStr string) (GarbageCollectorExecutor, error) {
+	var err error
+	var dialect sqldialect.SQLDialect
+	once.Do(func() {
+		dialect, err = sqldialect.NewSQLDialect(sqlEngine, ns, dialectStr)
+		if err != nil {
+			return
+		}
+		garbageCollectorExecutor, err = newBasicGarbageCollectorExecutor(dialect, ns)
+	})
+	return garbageCollectorExecutor, err
 }
 
-func newBasicGarbageCollector(dialect sqldialect.SQLDialect, ns tablenamespace.TableNamespaceCollection) (GarbageCollectorExecutor, error) {
-	return &BasicGarbageCollector{
-		activeTxns:      NewTxnMap(),
-		activeTxnsCache: NewTxnMap(),
+func newBasicGarbageCollectorExecutor(dialect sqldialect.SQLDialect, ns tablenamespace.TableNamespaceCollection) (GarbageCollectorExecutor, error) {
+	return &basicGarbageCollectorExecutor{
+		activeTxns:      newTxnMap(),
+		activeTxnsCache: newTxnMap(),
 		gcMutex:         &sync.Mutex{},
 		ns:              ns,
 		sqlDialect:      dialect,
@@ -99,7 +115,7 @@ func newBasicGarbageCollector(dialect sqldialect.SQLDialect, ns tablenamespace.T
 // Algorithm summary:
 //   - `Collect()` will reclaim resources from all txns **not** in supplied list of IDs.
 //   - `CollectAll()` as assumed.
-type BasicGarbageCollector struct {
+type basicGarbageCollectorExecutor struct {
 	activeTxns      TxnMap
 	activeTxnsCache TxnMap
 	gcMutex         *sync.Mutex
@@ -107,17 +123,18 @@ type BasicGarbageCollector struct {
 	sqlDialect      sqldialect.SQLDialect
 }
 
-func (rc *BasicGarbageCollector) Add(tableName string, tcc *dto.TxnControlCounters) bool {
+func (rc *basicGarbageCollectorExecutor) Add(tableName string, tcc *dto.TxnControlCounters) bool {
 	rc.gcMutex.Lock()
 	defer rc.gcMutex.Unlock()
 	if rc.ns.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tableName) {
 		rc.activeTxnsCache.Add(tcc)
+		return true
 	}
 	rc.activeTxns.Add(tcc)
 	return true
 }
 
-func (rc *BasicGarbageCollector) Condemn(tableName string, tcc *dto.TxnControlCounters) bool {
+func (rc *basicGarbageCollectorExecutor) Condemn(tableName string, tcc *dto.TxnControlCounters) bool {
 	rc.gcMutex.Lock()
 	defer rc.gcMutex.Unlock()
 	if rc.ns.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tableName) {
@@ -132,16 +149,17 @@ func (rc *BasicGarbageCollector) Condemn(tableName string, tcc *dto.TxnControlCo
 //   - Assemble active transactions.
 //   - Retrieve GC queries from control table.
 //   - Execute GC queries in a txn.
-func (rc *BasicGarbageCollector) Collect() error {
+func (rc *basicGarbageCollectorExecutor) Collect() error {
 	rc.gcMutex.Lock()
 	defer rc.gcMutex.Unlock()
 	activeTxnIDs := rc.activeTxns.GetTxnIDs()
-	return rc.sqlDialect.GCCollect(activeTxnIDs)
+	activeCacheTxnIDs := rc.activeTxnsCache.GetTxnIDs()
+	return rc.sqlDialect.GCCollect(activeTxnIDs, activeCacheTxnIDs)
 }
 
 // Algorithm, **must be done during pause**:
 //   - Execute **all possible** GC queries in a txn.
-func (rc *BasicGarbageCollector) CollectAll() error {
+func (rc *basicGarbageCollectorExecutor) CollectAll() error {
 	rc.gcMutex.Lock()
 	defer rc.gcMutex.Unlock()
 	return rc.sqlDialect.GCCollectAll()
