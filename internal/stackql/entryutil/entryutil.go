@@ -32,11 +32,15 @@ func BuildInputBundle(runtimeCtx dto.RuntimeCtx) (bundle.Bundle, error) {
 	if err != nil {
 		return nil, err
 	}
+	gcCfg, err := dto.GetGCCfg("")
+	if err != nil {
+		return nil, err
+	}
 	gcExec, err := buildGCExec(se, namespaces, runtimeCtx)
 	if err != nil {
 		return nil, err
 	}
-	gc := buildGC(gcExec)
+	gc := buildGC(gcExec, gcCfg)
 	return bundle.NewBundle(gc, namespaces, se), nil
 }
 
@@ -57,8 +61,8 @@ func buildGCExec(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableN
 	return gcexec.GetGarbageCollectorExecutorInstance(sqlEngine, namespaces, "sqlite")
 }
 
-func buildGC(gcExec gcexec.GarbageCollectorExecutor) garbagecollector.GarbageCollector {
-	return garbagecollector.NewGarbageCollector(gcExec)
+func buildGC(gcExec gcexec.GarbageCollectorExecutor, gcCfg dto.GCCfg) garbagecollector.GarbageCollector {
+	return garbagecollector.NewGarbageCollector(gcExec, gcCfg)
 }
 
 func GetTxnCounterManager(handlerCtx handler.HandlerContext) (*txncounter.TxnCounterManager, error) {

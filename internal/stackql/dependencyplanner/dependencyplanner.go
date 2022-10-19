@@ -356,7 +356,6 @@ func (dp *StandardDependencyPlanner) getStreamFromEdge(e dataflow.DataFlowEdge, 
 
 func (dp *StandardDependencyPlanner) generateSelectDML(e dataflow.DataFlowEdge, tcc *dto.TxnControlCounters) (*drm.PreparedStatementCtx, error) {
 	ann := e.GetSource().GetAnnotation()
-	// meta := ann.GetTableMeta()
 	columnDescriptors, err := e.GetColumnDescriptors()
 	if err != nil {
 		return nil, err

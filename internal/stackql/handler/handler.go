@@ -192,27 +192,23 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 	if err != nil {
 		return HandlerContext{}, err
 	}
-	rv := &HandlerContext{
-		RawQuery:          cmdString,
-		RuntimeContext:    runtimeCtx,
-		providers:         providers,
-		authContexts:      ac,
-		Registry:          reg,
-		ErrorPresentation: runtimeCtx.ErrorPresentation,
-		LRUCache:          lruCache,
-		SQLEngine:         inputBundle.GetSQLEngine(),
-		GarbageCollector:  inputBundle.GetGC(),
-		TxnCounterMgr:     nil,
-	}
-	err = rv.initNamespaces()
-	if err != nil {
-		return HandlerContext{}, err
+	rv := HandlerContext{
+		RawQuery:            cmdString,
+		RuntimeContext:      runtimeCtx,
+		providers:           providers,
+		authContexts:        ac,
+		Registry:            reg,
+		ErrorPresentation:   runtimeCtx.ErrorPresentation,
+		LRUCache:            lruCache,
+		SQLEngine:           inputBundle.GetSQLEngine(),
+		GarbageCollector:    inputBundle.GetGC(),
+		TxnCounterMgr:       nil,
+		namespaceCollection: inputBundle.GetNamespaceCollection(),
 	}
 	drmCfg, err := drm.GetGoogleV1SQLiteConfig(rv.namespaceCollection)
 	if err != nil {
 		return HandlerContext{}, err
 	}
 	rv.DrmConfig = drmCfg
-	err = rv.initNamespaces()
-	return *rv, err
+	return rv, nil
 }

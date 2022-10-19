@@ -159,24 +159,21 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 			secondaryCtrlCounters = append(secondaryCtrlCounters, secondaryCtr)
 		}
 		v := tb.GetTableMetadata()
-		tn, _ := v.GetTableName()
-		if false && input.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tn) {
+		alias := v.Alias
+		if alias != "" {
+			gIDcn := fmt.Sprintf(`"%s"."%s"`, alias, genIdColName)
+			sIDcn := fmt.Sprintf(`"%s"."%s"`, alias, sessionIDColName)
+			tIDcn := fmt.Sprintf(`"%s"."%s"`, alias, txnIdColName)
+			iIDcn := fmt.Sprintf(`"%s"."%s"`, alias, insIdColName)
+			controlWhereComparisons = append(controlWhereComparisons, fmt.Sprintf(`%s = ? AND %s = ? AND %s = ? AND %s = ?`, gIDcn, sIDcn, tIDcn, iIDcn))
 		} else {
-			alias := v.Alias
-			if alias != "" {
-				gIDcn := fmt.Sprintf(`"%s"."%s"`, alias, genIdColName)
-				sIDcn := fmt.Sprintf(`"%s"."%s"`, alias, sessionIDColName)
-				tIDcn := fmt.Sprintf(`"%s"."%s"`, alias, txnIdColName)
-				iIDcn := fmt.Sprintf(`"%s"."%s"`, alias, insIdColName)
-				controlWhereComparisons = append(controlWhereComparisons, fmt.Sprintf(`%s = ? AND %s = ? AND %s = ? AND %s = ?`, gIDcn, sIDcn, tIDcn, iIDcn))
-			} else {
-				gIDcn := fmt.Sprintf(`"%s"`, genIdColName)
-				sIDcn := fmt.Sprintf(`"%s"`, sessionIDColName)
-				tIDcn := fmt.Sprintf(`"%s"`, txnIdColName)
-				iIDcn := fmt.Sprintf(`"%s"`, insIdColName)
-				controlWhereComparisons = append(controlWhereComparisons, fmt.Sprintf(`%s = ? AND %s = ? AND %s = ? AND %s = ?`, gIDcn, sIDcn, tIDcn, iIDcn))
-			}
+			gIDcn := fmt.Sprintf(`"%s"`, genIdColName)
+			sIDcn := fmt.Sprintf(`"%s"`, sessionIDColName)
+			tIDcn := fmt.Sprintf(`"%s"`, txnIdColName)
+			iIDcn := fmt.Sprintf(`"%s"`, insIdColName)
+			controlWhereComparisons = append(controlWhereComparisons, fmt.Sprintf(`%s = ? AND %s = ? AND %s = ? AND %s = ?`, gIDcn, sIDcn, tIDcn, iIDcn))
 		}
+
 		i++
 	}
 	if len(controlWhereComparisons) > 0 {

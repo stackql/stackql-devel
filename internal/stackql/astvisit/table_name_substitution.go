@@ -18,18 +18,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/util"
 )
 
-// func (v *TableNameSubstitutionAstVisitor) getSelectExprString(dc *drm.StaticDRMConfig, tabAnnotated util.AnnotatedTabulation, txnCtrlCtrs *dto.TxnControlCounters) (string, error) {
-// 	aliasStr := ""
-// 	if tabAnnotated.GetAlias() != "" {
-// 		aliasStr = fmt.Sprintf(` AS "%s" `, tabAnnotated.GetAlias())
-// 	}
-// 	tn, err := dc.GetTableName(tabAnnotated.GetHeirarchyIdentifiers(), txnCtrlCtrs.DiscoveryGenerationId)
-// 	if err != nil {
-// 		return "", err
-// 	}
-// 	return fmt.Sprintf(`"%s" %s`, tn, aliasStr), nil
-// }
-
 func (v *TableNameSubstitutionAstVisitor) buildAcquireQueryCtx(
 	sqlEngine sqlengine.SQLEngine,
 	ac taxonomy.AnnotationCtx,
