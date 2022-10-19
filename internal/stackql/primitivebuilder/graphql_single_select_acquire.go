@@ -113,7 +113,18 @@ func (ss *GraphQLSingleSelectAcquire) Build() error {
 			reqEncoding := reqCtx.Encode()
 			tcc, isMatch := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(tableName, reqEncoding, ss.drmCfg.GetLastUpdatedControlColumn(), ss.drmCfg.GetInsertEncodedControlColumn())
 			if isMatch {
+				nonControlColumns := ss.insertPreparedStatementCtx.GetNonControlColumns()
+				var nonControlColumnNames []string
+				for _, c := range nonControlColumns {
+					nonControlColumnNames = append(nonControlColumnNames, c.GetName())
+				}
 				ss.insertionContainer.SetTableTxnCounters(tableName, tcc)
+				ss.insertPreparedStatementCtx.SetGCCtrlCtrs(tcc)
+				r, sqlErr := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Read(tableName, reqEncoding, ss.drmCfg.GetInsertEncodedControlColumn(), nonControlColumnNames)
+				if sqlErr != nil {
+					dto.NewErroneousExecutorOutput(sqlErr)
+				}
+				ss.drmCfg.ExtractObjectFromSQLRows(r, nonControlColumns, ss.stream)
 				return dto.ExecutorOutput{}
 			}
 			graphQLReader, err := graphql.NewStandardGQLReader(
