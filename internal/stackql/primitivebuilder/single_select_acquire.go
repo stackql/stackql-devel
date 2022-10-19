@@ -148,7 +148,18 @@ func (ss *SingleSelectAcquire) Build() error {
 			reqEncoding := reqCtx.Encode()
 			tcc, isMatch := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(tableName, reqEncoding, ss.drmCfg.GetLastUpdatedControlColumn(), ss.drmCfg.GetInsertEncodedControlColumn())
 			if isMatch {
+				nonControlColumns := ss.insertPreparedStatementCtx.GetNonControlColumns()
+				var nonControlColumnNames []string
+				for _, c := range nonControlColumns {
+					nonControlColumnNames = append(nonControlColumnNames, c.GetName())
+				}
 				ss.insertionContainer.SetTableTxnCounters(tableName, tcc)
+				ss.insertPreparedStatementCtx.SetGCCtrlCtrs(tcc)
+				r, sqlErr := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Read(tableName, reqEncoding, ss.drmCfg.GetInsertEncodedControlColumn(), nonControlColumnNames)
+				if sqlErr != nil {
+					dto.NewErroneousExecutorOutput(sqlErr)
+				}
+				ss.drmCfg.ExtractObjectFromSQLRows(r, nonControlColumns, ss.stream)
 				return dto.ExecutorOutput{}
 			}
 			response, apiErr := httpmiddleware.HttpApiCallFromRequest(*(ss.handlerCtx), prov, m, reqCtx.Request.Clone(reqCtx.Request.Context()))
@@ -212,7 +223,9 @@ func (ss *SingleSelectAcquire) Build() error {
 					if ok && len(iArr) > 0 {
 						if !housekeepingDone && ss.insertPreparedStatementCtx != nil {
 							_, err = ss.handlerCtx.SQLEngine.Exec(ss.insertPreparedStatementCtx.GetGCHousekeepingQueries())
-							ss.insertionContainer.SetTableTxnCounters(tableName, ss.insertPreparedStatementCtx.GetGCCtrlCtrs())
+							tcc := ss.insertPreparedStatementCtx.GetGCCtrlCtrs()
+							tcc.TableName = tableName
+							ss.insertionContainer.SetTableTxnCounters(tableName, tcc)
 							housekeepingDone = true
 						}
 						if err != nil {

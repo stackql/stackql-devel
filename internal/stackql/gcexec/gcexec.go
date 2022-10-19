@@ -89,6 +89,7 @@ type GarbageCollectorExecutor interface {
 	AbstractFlatGarbageCollectorExecutor
 }
 
+// Idiomatic golang singleton
 func GetGarbageCollectorExecutorInstance(sqlEngine sqlengine.SQLEngine, ns tablenamespace.TableNamespaceCollection, dialectStr string) (GarbageCollectorExecutor, error) {
 	var err error
 	var dialect sqldialect.SQLDialect

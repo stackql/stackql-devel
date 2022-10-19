@@ -16,7 +16,7 @@ type SQLDialect interface {
 	// GCCollectAll() will collect **all** condemned / expired records, from both canonical tables and cache.
 	GCCollectAll() error
 	// GCCollectFromCache() will collect unmarked (from input list), expired cache records.
-	GCCollectFromCache(transactionIDs []int) error
+	GCCollectFromCache([]int) error
 	// GCPurgeCache() will completely wipe the cache.
 	GCPurgeCache() error
 }

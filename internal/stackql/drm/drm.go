@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"reflect"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/stackql/stackql/internal/stackql/constants"
@@ -13,6 +14,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
+	"github.com/stackql/stackql/internal/stackql/streaming"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/internal/stackql/util"
 
@@ -210,10 +212,12 @@ func NewPreparedStatementParameterized(ctx *PreparedStatementCtx, args map[strin
 
 type DRMConfig interface {
 	ExtractFromGolangValue(interface{}) interface{}
+	ExtractObjectFromSQLRows(r *sql.Rows, nonControlColumns []ColumnMetadata, stream streaming.MapStream) (map[string]map[string]interface{}, map[int]map[int]interface{})
 	GetCurrentTable(*dto.HeirarchyIdentifiers, sqlengine.SQLEngine) (dto.DBTable, error)
 	GetRelationalType(string) string
 	GenerateDDL(util.AnnotatedTabulation, *openapistackql.OperationStore, int, bool) ([]string, error)
 	GetGolangValue(string) interface{}
+	GetGolangSlices([]ColumnMetadata) ([]interface{}, []string)
 	GetInsControlColumn() string
 	GetInsertEncodedControlColumn() string
 	GetLastUpdatedControlColumn() string
@@ -245,6 +249,66 @@ func (dc *StaticDRMConfig) getDefaultGolangKind() reflect.Kind {
 	return dc.defaultGolangKind
 }
 
+func (dc *StaticDRMConfig) GetGolangSlices(nonControlColumns []ColumnMetadata) ([]interface{}, []string) {
+	return dc.getGolangSlices(nonControlColumns)
+}
+
+func (dc *StaticDRMConfig) ExtractObjectFromSQLRows(r *sql.Rows, nonControlColumns []ColumnMetadata, stream streaming.MapStream) (map[string]map[string]interface{}, map[int]map[int]interface{}) {
+	return dc.extractObjectFromSQLRows(r, nonControlColumns, stream)
+}
+
+func (dc *StaticDRMConfig) extractObjectFromSQLRows(r *sql.Rows, nonControlColumns []ColumnMetadata, stream streaming.MapStream) (map[string]map[string]interface{}, map[int]map[int]interface{}) {
+	altKeys := make(map[string]map[string]interface{})
+	rawRows := make(map[int]map[int]interface{})
+	var ks []int
+	ifArr, keyArr := dc.getGolangSlices(nonControlColumns)
+	if r != nil {
+		i := 0
+		for r.Next() {
+			errScan := r.Scan(ifArr...)
+			if errScan != nil {
+				logging.GetLogger().Infoln(fmt.Sprintf("%v", errScan))
+			}
+			for ord, val := range ifArr {
+				logging.GetLogger().Infoln(fmt.Sprintf("col #%d '%s':  %v  type: %T", ord, nonControlColumns[ord].GetName(), val, val))
+			}
+			im := make(map[string]interface{})
+			imRaw := make(map[int]interface{})
+			for ord, key := range keyArr {
+				val := ifArr[ord]
+				ev := dc.ExtractFromGolangValue(val)
+				im[key] = ev
+				imRaw[ord] = ev
+			}
+			altKeys[strconv.Itoa(i)] = im
+			stream.Write([]map[string]interface{}{im})
+			rawRows[i] = imRaw
+			ks = append(ks, i)
+			i++
+		}
+
+		for ord := range ks {
+			val := altKeys[strconv.Itoa(ord)]
+			logging.GetLogger().Infoln(fmt.Sprintf("row #%d:  %v  type: %T", ord, val, val))
+		}
+	}
+	return altKeys, rawRows
+}
+
+func (dc *StaticDRMConfig) getGolangSlices(nonControlColumns []ColumnMetadata) ([]interface{}, []string) {
+	i := 0
+	var keyArr []string
+	var ifArr []interface{}
+	for i < len(nonControlColumns) {
+		x := nonControlColumns[i]
+		y := dc.getGolangValue(x.GetType())
+		ifArr = append(ifArr, y)
+		keyArr = append(keyArr, x.Column.GetIdentifier())
+		i++
+	}
+	return ifArr, keyArr
+}
+
 func (dc *StaticDRMConfig) GetRelationalType(discoType string) string {
 	rv, ok := dc.typeMappings[discoType]
 	if ok {
@@ -258,6 +322,10 @@ func (dc *StaticDRMConfig) GetNamespaceCollection() tablenamespace.TableNamespac
 }
 
 func (dc *StaticDRMConfig) GetGolangValue(discoType string) interface{} {
+	return dc.getGolangValue(discoType)
+}
+
+func (dc *StaticDRMConfig) getGolangValue(discoType string) interface{} {
 	rv, ok := dc.typeMappings[discoType]
 	if !ok {
 		return dc.getDefaultGolangValue()
@@ -278,6 +346,10 @@ func (dc *StaticDRMConfig) GetGolangValue(discoType string) interface{} {
 }
 
 func (dc *StaticDRMConfig) ExtractFromGolangValue(val interface{}) interface{} {
+	return dc.extractFromGolangValue(val)
+}
+
+func (dc *StaticDRMConfig) extractFromGolangValue(val interface{}) interface{} {
 	if val == nil {
 		return nil
 	}

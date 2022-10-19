@@ -90,6 +90,7 @@ func (eng *sqLiteEngine) TableOldestUpdateUTC(tableName string, requestEncoding 
 			if err == nil {
 				oldestTime, err := time.Parse("2006-01-02T15:04:05", oldest)
 				if err == nil {
+					tcc.TableName = tableName
 					return oldestTime, &tcc
 				}
 			}

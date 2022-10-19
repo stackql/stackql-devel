@@ -33,6 +33,8 @@ func (ic *StandardTableInsertionContainer) SetTableTxnCounters(tableName string,
 	ic.tcc.SessionId = tcc.SessionId
 	ic.tcc.InsertId = tcc.InsertId
 	ic.tcc.TxnId = tcc.TxnId
+	ic.tcc.TableName = tableName
+	ic.tcc.RequestEncoding = tcc.RequestEncoding
 	ic.isCountersSet = true
 }
 

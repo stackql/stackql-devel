@@ -116,7 +116,9 @@ docker build -t stackql:${STACKQL_TAG} -t stackql:latest .
 # Amend STACKQL_AUTH as required, angle bracketed strings must be replaced.
 export STACKQL_AUTH='{ "google": { "credentialsfilepath": "</path/to/google/sa-key.json>", "type": "service_account" }, "okta": { "credentialsenvvar": "<OKTA_SECRET_KEY>", "type": "api_key" }, "github": { "type": "basic", "credentialsenvvar": "<GITHUB_CREDS>" }, "aws": { "type": "aws_signing_v4", "credentialsfilepath": "</path/to/aws/secret-key.txt>", "keyID": "<YOUR_AWS_KEY_NOT_A_SECRET>" }, "k8s": { "credentialsenvvar": "<K8S_TOKEN>", "type": "api_key", "valuePrefix": "Bearer " } }'
 
-./build/stackql --auth="${STACKQL_AUTH}" shell
+export NAMESPACES="{ \"analytics\": { \"ttl\": 86400, \"regex\": \"^(?P<objectName>github.*)$\", \"template\": \"stackql_analytics_{{ .objectName }}\" } }"
+
+./build/stackql --auth="${STACKQL_AUTH}" --namespaces="${NAMESPACES}" shell
 
 ```
 

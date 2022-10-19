@@ -160,7 +160,7 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 		}
 		v := tb.GetTableMetadata()
 		tn, _ := v.GetTableName()
-		if input.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tn) {
+		if false && input.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tn) {
 		} else {
 			alias := v.Alias
 			if alias != "" {
