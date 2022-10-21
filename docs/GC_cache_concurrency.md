@@ -50,3 +50,30 @@ export NAMESPACES='{ "analytics": { "ttl": 86400, "regex": "^(?P<objectName>gith
 stackql ... --namespaces="${NAMESPACES}" ... shell
 ```
 
+### MVCC and Postgres?
+
+- [Postgres MVCC high level rundown](https://devcenter.heroku.com/articles/postgresql-concurrency#:~:text=a%20hard%20problem.-,How%20MVCC%20works,statements%20together%20via%20BEGIN%20%2D%20COMMIT%20)
+- [Postgres official MVCC](https://www.postgresql.org/docs/current/mvcc.html) 
+- [Postgres official VACUUM + ID wraparound etc](https://www.postgresql.org/docs/current/routine-vacuuming.html)
+
+Postgres implements [RW locking on indexes](https://www.postgresql.org/docs/current/locking-indexes.html) which varies by index type and comes with differing performance and deadlock headaches.  `B-tree`, the default type, is the go to for `scalar` data.
+
+At record level, MVCC takes over, leveraging [the tuple header](https://www.postgresql.org/docs/current/storage-page-layout.html#STORAGE-TUPLE-LAYOUT).  The key fields here are `t_xmin` for the Txn that created the record and `t_xmax`, which ***usually*** records the Txn that deleted the record.  Both `t_xmin` and `t_xmax` are 32 bit counters and overflow anomalies are only prevented by the action of [`VACUUM` garbage collection](https://www.postgresql.org/docs/current/routine-vacuuming.html).  Canonically, updates result in a new row being created (deletes are the same, but no new tuple created) and the tuple header `t_max` set to whichever Txn made the update.  One interesting variation is a scenario where multiple Txns have a lock on the tuple; in such a case the tuple header field `t_infomask` [will indicate that `t_xmax` should be interpreted as a `MultiXactId`](https://github.com/postgres/postgres/blob/ce20f8b9f4354b46b40fd6ebf7ce5c37d08747e0/src/include/access/htup_details.h#L208).  `MultiXactId` is itself a 32 bit counter that acts as an indirection to a list of txn IDs stored elsewhere.  There are other variations and the algorithms to maintain all of the requisite data coherently are non-trivial.
+
+
+### Short term approach for StackQL
+
+In the first instance, MVCC is likely overkill for stackql.
+
+A sensible approach to concurrency and GC in stackql is:
+
+- RW locking at table level.
+- Locks acquired in deterministic order (prevents deadlock).
+- Locks dispensed aggressively.
+- GC in arrears, removes data from transactions know to completely be finished.
+- Purge interventions supported.
+
+This naive approach avoids deadlock and provides break glass.
+
+
+

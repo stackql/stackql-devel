@@ -90,6 +90,7 @@ type GarbageCollectorExecutor interface {
 }
 
 // Idiomatic golang singleton
+// Credit to http://marcio.io/2015/07/singleton-pattern-in-go/
 func GetGarbageCollectorExecutorInstance(sqlEngine sqlengine.SQLEngine, ns tablenamespace.TableNamespaceCollection, dialectStr string) (GarbageCollectorExecutor, error) {
 	var err error
 	var dialect sqldialect.SQLDialect
