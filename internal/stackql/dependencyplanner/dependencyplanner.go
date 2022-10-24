@@ -187,7 +187,7 @@ func (dp *StandardDependencyPlanner) Plan() error {
 	}
 	rewrittenWhereStr := astvisit.GenerateModifiedWhereClause(dp.rewrittenWhere, dp.handlerCtx.GetNamespaceCollection())
 	logging.GetLogger().Debugf("rewrittenWhereStr = '%s'", rewrittenWhereStr)
-	drmCfg, err := drm.GetGoogleV1SQLiteConfig(dp.handlerCtx.GetNamespaceCollection())
+	drmCfg, err := drm.GetGoogleV1SQLiteConfig(dp.handlerCtx.GetNamespaceCollection(), dp.handlerCtx.ControlAttributes)
 	if err != nil {
 		return err
 	}
@@ -245,7 +245,7 @@ func (dp *StandardDependencyPlanner) orchestrate(
 	inStream streaming.MapStream,
 	outStream streaming.MapStream,
 ) error {
-	rc := tableinsertioncontainer.NewTableInsertionContainer(annotationCtx.GetTableMeta())
+	rc := tableinsertioncontainer.NewTableInsertionContainer(annotationCtx.GetTableMeta(), dp.handlerCtx.SQLEngine)
 	builder := primitivebuilder.NewSingleSelectAcquire(
 		dp.primitiveComposer.GetGraph(),
 		dp.handlerCtx,
@@ -284,7 +284,7 @@ func (dp *StandardDependencyPlanner) processAcquire(
 	}
 	anTab := util.NewAnnotatedTabulation(tab, annotationCtx.GetHIDs(), annotationCtx.GetTableMeta().Alias)
 
-	discoGenId, err := docparser.OpenapiStackQLTabulationsPersistor(m, []util.AnnotatedTabulation{anTab}, dp.primitiveComposer.GetSQLEngine(), prov.Name, dp.handlerCtx.GetNamespaceCollection())
+	discoGenId, err := docparser.OpenapiStackQLTabulationsPersistor(m, []util.AnnotatedTabulation{anTab}, dp.primitiveComposer.GetSQLEngine(), prov.Name, dp.handlerCtx.GetNamespaceCollection(), dp.handlerCtx.ControlAttributes)
 	if err != nil {
 		return util.NewAnnotatedTabulation(nil, nil, ""), nil, err
 	}
@@ -326,7 +326,7 @@ func (dp *StandardDependencyPlanner) getStreamFromEdge(e dataflow.DataFlowEdge, 
 		}
 		ann := e.GetSource().GetAnnotation()
 		meta := ann.GetTableMeta()
-		insertContainer := tableinsertioncontainer.NewTableInsertionContainer(meta)
+		insertContainer := tableinsertioncontainer.NewTableInsertionContainer(meta, dp.handlerCtx.SQLEngine)
 		return sqlstream.NewSimpleSQLMapStream(selectCtx, insertContainer, dp.handlerCtx.DrmConfig, dp.handlerCtx.SQLEngine), nil
 	}
 	projection, err := e.GetProjection()

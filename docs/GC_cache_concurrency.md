@@ -69,8 +69,8 @@ At record level, MVCC takes over, leveraging [the tuple header](https://www.post
 
 In the first instance, MVCC is likely overkill for stackql.  This is because stackql does not actually **need** to update non-control portions of database records and txns **never** directly delete records.  Therefore the following information is sufficient to infer if a record is a deletion candidate:
 
-  - `txn_max_id` What is the maximum Txn ID that has locked the record.  
-  - `txn_running_min_id` What is the minimum Txn ID still running in the system.
+  - `txn_max_id` is the maximum Txn ID that has locked the record.  
+  - `txn_running_min_id` is the minimum Txn ID still running in the system.
 
 If `txn_running_min_id` > `txn_max_id` then the record can safely be removed.  This is definitely not the only or optimal approach but it is simple and requires only one Txn ID to be stored against each record. The simplest technique is to store the Txn ID as a control column in each record tuple.
 
@@ -81,7 +81,8 @@ Long lived or dormant `phantom` Txns must be killable through some aspect of the
 
 A sensible `v1` approach to concurrency and GC in stackql is therefore:
 
-- A global list of live (Txn ID, timestamp begun) tuples must be maintained as a monotonically increasing counter.  Likely implementation is fixed size integer type used as a ring and periodically re-zeroed.  `txn_running_min_id` can be inferred from this list.  This is a la Postgres.
+- A Txn ID, such as may be required in various aspects of the system, is a monotonically increasing counter.  Likely implementation is fixed size integer type used as a ring and periodically re-zeroed.
+- A global list of live (Txn ID, timestamp begun) tuples must be maintained. `txn_running_min_id` can be inferred from this list.  This is a la Postgres.
 - The `acquire` phase (write to DB after REST call or read from cache) must update `txn_max_id` using conditional SQL logic (if greater than existing).
 - GC cycles to be triggered by:
   - Threshold of live Txns reached.
@@ -100,7 +101,7 @@ This naive approach avoids deadlock and provides break glass.
 
 ### v2
 
-Admin activities to be supported supported (`v2` perhaps):
+- Admin activities to be supported supported (`v2` perhaps):
   - Purge interventions.
   - List active Txns.
   - Halt / Allow new Txns.

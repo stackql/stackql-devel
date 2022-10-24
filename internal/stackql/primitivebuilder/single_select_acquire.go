@@ -119,7 +119,8 @@ func (ss *SingleSelectAcquire) Build() error {
 		return err
 	}
 	ex := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
-		ss.graph.AddTxnControlCounters(*ss.insertPreparedStatementCtx.GetGCCtrlCtrs())
+		parentTcc := *ss.insertPreparedStatementCtx.GetGCCtrlCtrs()
+		ss.graph.AddTxnControlCounters(parentTcc)
 		mr := prov.InferMaxResultsElement(m)
 		httpArmoury, err := ss.tableMeta.GetHttpArmoury()
 		if err != nil {
@@ -146,7 +147,7 @@ func (ss *SingleSelectAcquire) Build() error {
 				return dto.NewErroneousExecutorOutput(err)
 			}
 			reqEncoding := reqCtx.Encode()
-			tcc, isMatch := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(tableName, reqEncoding, ss.drmCfg.GetLastUpdatedControlColumn(), ss.drmCfg.GetInsertEncodedControlColumn())
+			tcc, isMatch := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(tableName, reqEncoding, ss.drmCfg.GetControlAttributes().GetControlLatestUpdateColumnName(), ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIdColumnName())
 			if isMatch {
 				nonControlColumns := ss.insertPreparedStatementCtx.GetNonControlColumns()
 				var nonControlColumnNames []string
@@ -155,7 +156,7 @@ func (ss *SingleSelectAcquire) Build() error {
 				}
 				ss.insertionContainer.SetTableTxnCounters(tableName, tcc)
 				ss.insertPreparedStatementCtx.SetGCCtrlCtrs(tcc)
-				r, sqlErr := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Read(tableName, reqEncoding, ss.drmCfg.GetInsertEncodedControlColumn(), nonControlColumnNames)
+				r, sqlErr := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Read(tableName, reqEncoding, ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIdColumnName(), nonControlColumnNames)
 				if sqlErr != nil {
 					dto.NewErroneousExecutorOutput(sqlErr)
 				}

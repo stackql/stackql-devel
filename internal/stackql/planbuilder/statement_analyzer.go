@@ -629,7 +629,7 @@ func (p *primitiveGenerator) analyzeExec(pbi PlanBuilderInput) error {
 		return fmt.Errorf("could not cast node of type '%T' to required Exec", pbi.GetStatement())
 	}
 	tbl, err := p.analyzeUnaryExec(handlerCtx, node, nil, nil)
-	insertionContainer := tableinsertioncontainer.NewTableInsertionContainer(tbl)
+	insertionContainer := tableinsertioncontainer.NewTableInsertionContainer(tbl, handlerCtx.SQLEngine)
 	if err != nil {
 		logging.GetLogger().Infoln(fmt.Sprintf("error analyzing EXEC as selection: '%s'", err.Error()))
 		return err
@@ -1003,7 +1003,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 			if err != nil {
 				return err
 			}
-			insertionContainer := tableinsertioncontainer.NewTableInsertionContainer(tbl)
+			insertionContainer := tableinsertioncontainer.NewTableInsertionContainer(tbl, handlerCtx.SQLEngine)
 			pChild.PrimitiveComposer.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveComposer.GetGraph(), pChild.PrimitiveComposer.GetTxnCtrlCtrs(), handlerCtx, insertionContainer, pChild.PrimitiveComposer.GetInsertPreparedStatementCtx(), pChild.PrimitiveComposer.GetSelectPreparedStatementCtx(), nil))
 			return nil
 		}

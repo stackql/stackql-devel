@@ -1,4 +1,4 @@
-package sqlengine
+package sqldialect
 
 import _ "embed"
 

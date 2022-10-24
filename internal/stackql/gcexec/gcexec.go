@@ -79,7 +79,7 @@ type BrutalGarbageCollectorExecutor interface {
 }
 
 type AbstractFlatGarbageCollectorExecutor interface {
-	Add(string, *dto.TxnControlCounters) bool
+	Add(string, *dto.TxnControlCounters) error
 	Condemn(string, *dto.TxnControlCounters) bool
 	Collect() error
 }
@@ -91,11 +91,9 @@ type GarbageCollectorExecutor interface {
 
 // Idiomatic golang singleton
 // Credit to http://marcio.io/2015/07/singleton-pattern-in-go/
-func GetGarbageCollectorExecutorInstance(sqlEngine sqlengine.SQLEngine, ns tablenamespace.TableNamespaceCollection, dialectStr string) (GarbageCollectorExecutor, error) {
+func GetGarbageCollectorExecutorInstance(sqlEngine sqlengine.SQLEngine, ns tablenamespace.TableNamespaceCollection, dialect sqldialect.SQLDialect) (GarbageCollectorExecutor, error) {
 	var err error
-	var dialect sqldialect.SQLDialect
 	once.Do(func() {
-		dialect, err = sqldialect.NewSQLDialect(sqlEngine, ns, dialectStr)
 		if err != nil {
 			return
 		}
@@ -125,15 +123,24 @@ type basicGarbageCollectorExecutor struct {
 	sqlDialect      sqldialect.SQLDialect
 }
 
-func (rc *basicGarbageCollectorExecutor) Add(tableName string, tcc *dto.TxnControlCounters) bool {
+func (rc *basicGarbageCollectorExecutor) Add(tableName string, tcc *dto.TxnControlCounters) error {
 	rc.gcMutex.Lock()
 	defer rc.gcMutex.Unlock()
+	var err error
 	if rc.ns.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tableName) {
+		// err = rc.sqlDialect.GCAdd(tableName, tcc)
+		if err != nil {
+			return err
+		}
 		rc.activeTxnsCache.Add(tcc)
-		return true
+		return nil
+	}
+	// err = rc.sqlDialect.GCAdd(tableName, tcc)
+	if err != nil {
+		return err
 	}
 	rc.activeTxns.Add(tcc)
-	return true
+	return nil
 }
 
 func (rc *basicGarbageCollectorExecutor) Condemn(tableName string, tcc *dto.TxnControlCounters) bool {

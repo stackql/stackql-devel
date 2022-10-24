@@ -15,6 +15,8 @@ import (
 	"github.com/stackql/stackql/internal/stackql/garbagecollector"
 	"github.com/stackql/stackql/internal/stackql/netutils"
 	"github.com/stackql/stackql/internal/stackql/provider"
+	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
+	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/pkg/txncounter"
@@ -28,6 +30,7 @@ type HandlerContext struct {
 	Query               string
 	RuntimeContext      dto.RuntimeCtx
 	providers           map[string]provider.IProvider
+	ControlAttributes   sqlcontrol.ControlAttributes
 	CurrentProvider     string
 	authContexts        map[string]*dto.AuthCtx
 	Registry            openapistackql.RegistryAPI
@@ -36,6 +39,7 @@ type HandlerContext struct {
 	OutErrFile          io.Writer
 	LRUCache            *lrucache.LRUCache
 	SQLEngine           sqlengine.SQLEngine
+	SQLDialect          sqldialect.SQLDialect
 	GarbageCollector    garbagecollector.GarbageCollector
 	DrmConfig           drm.DRMConfig
 	TxnCounterMgr       *txncounter.TxnCounterManager
@@ -192,20 +196,23 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 	if err != nil {
 		return HandlerContext{}, err
 	}
+	controlAttributes := inputBundle.GetControlAttributes()
 	rv := HandlerContext{
 		RawQuery:            cmdString,
 		RuntimeContext:      runtimeCtx,
 		providers:           providers,
 		authContexts:        ac,
 		Registry:            reg,
+		ControlAttributes:   controlAttributes,
 		ErrorPresentation:   runtimeCtx.ErrorPresentation,
 		LRUCache:            lruCache,
 		SQLEngine:           inputBundle.GetSQLEngine(),
+		SQLDialect:          inputBundle.GetSQLDialect(),
 		GarbageCollector:    inputBundle.GetGC(),
 		TxnCounterMgr:       nil,
 		namespaceCollection: inputBundle.GetNamespaceCollection(),
 	}
-	drmCfg, err := drm.GetGoogleV1SQLiteConfig(rv.namespaceCollection)
+	drmCfg, err := drm.GetGoogleV1SQLiteConfig(rv.namespaceCollection, controlAttributes)
 	if err != nil {
 		return HandlerContext{}, err
 	}

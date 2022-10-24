@@ -3,6 +3,7 @@ package garbagecollector
 import (
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/gcexec"
+	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 )
@@ -13,14 +14,15 @@ type GarbageCollector interface {
 	Collect() error
 }
 
-func NewGarbageCollector(gcExecutor gcexec.GarbageCollectorExecutor, gcCfg dto.GCCfg) GarbageCollector {
-	return newStandardGarbageCollector(gcExecutor, gcCfg)
+func NewGarbageCollector(gcExecutor gcexec.GarbageCollectorExecutor, gcCfg dto.GCCfg, sqlEngine sqlengine.SQLEngine) GarbageCollector {
+	return newStandardGarbageCollector(gcExecutor, gcCfg, sqlEngine)
 }
 
-func newStandardGarbageCollector(gcExecutor gcexec.GarbageCollectorExecutor, policy dto.GCCfg) GarbageCollector {
+func newStandardGarbageCollector(gcExecutor gcexec.GarbageCollectorExecutor, policy dto.GCCfg, sqlEngine sqlengine.SQLEngine) GarbageCollector {
 	return &standardGarbageCollector{
 		gcExecutor: gcExecutor,
 		isEager:    policy.IsEager,
+		sqlEngine:  sqlEngine,
 	}
 }
 
@@ -28,6 +30,7 @@ type standardGarbageCollector struct {
 	gcExecutor       gcexec.GarbageCollectorExecutor
 	insertContainers []tableinsertioncontainer.TableInsertionContainer
 	isEager          bool
+	sqlEngine        sqlengine.SQLEngine
 }
 
 func (gc *standardGarbageCollector) Close() error {
@@ -45,7 +48,7 @@ func (gc *standardGarbageCollector) Collect() error {
 }
 
 func (gc *standardGarbageCollector) AddInsertContainer(tm *tablemetadata.ExtendedTableMetadata) tableinsertioncontainer.TableInsertionContainer {
-	rv := tableinsertioncontainer.NewTableInsertionContainer(tm)
+	rv := tableinsertioncontainer.NewTableInsertionContainer(tm, gc.sqlEngine)
 	gc.insertContainers = append(gc.insertContainers, rv)
 	return rv
 }

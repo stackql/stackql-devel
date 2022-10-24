@@ -4,11 +4,16 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/stackql/stackql/internal/stackql/dto"
+	"github.com/stackql/stackql/internal/stackql/logging"
+	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 )
 
 type SQLDialect interface {
+	// GCAdd() will record a Txn as active
+	GCAdd(string, dto.TxnControlCounters, dto.TxnControlCounters) error
 	// GCCollect() will collect unmarked (from input list) condemned records, from:
 	//   - canonical tables.
 	//   - cache.
@@ -17,29 +22,53 @@ type SQLDialect interface {
 	GCCollectAll() error
 	// GCCollectFromCache() will collect unmarked (from input list), expired cache records.
 	GCCollectFromCache([]int) error
+	// Deprecated: GCCollectObsolete() is a hangover.
+	GCCollectObsolete(*dto.TxnControlCounters) error
 	// GCPurgeCache() will completely wipe the cache.
 	GCPurgeCache() error
 }
 
-func NewSQLDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, name string) (SQLDialect, error) {
+func NewSQLDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes, name string) (SQLDialect, error) {
 	switch strings.ToLower(name) {
 	case "sqlite":
-		return newSQLiteDialct(sqlEngine, namespaces)
+		return newSQLiteDialct(sqlEngine, namespaces, controlAttributes)
 	default:
 		return nil, fmt.Errorf("cannot accomodate sql dialect '%s'", name)
 	}
 }
 
-func newSQLiteDialct(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection) (SQLDialect, error) {
-	return &sqLiteDialect{
-		namespaces: namespaces,
-		sqlEngine:  sqlEngine,
-	}, nil
+func newSQLiteDialct(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes) (SQLDialect, error) {
+	rv := &sqLiteDialect{
+		controlAttributes: controlAttributes,
+		namespaces:        namespaces,
+		sqlEngine:         sqlEngine,
+	}
+	err := rv.initSQLiteEngine()
+	return rv, err
 }
 
 type sqLiteDialect struct {
-	namespaces tablenamespace.TableNamespaceCollection
-	sqlEngine  sqlengine.SQLEngine
+	controlAttributes sqlcontrol.ControlAttributes
+	namespaces        tablenamespace.TableNamespaceCollection
+	sqlEngine         sqlengine.SQLEngine
+}
+
+func (eng *sqLiteDialect) initSQLiteEngine() error {
+	_, err := eng.sqlEngine.Exec(sqlEngineSetupDDL)
+	return err
+}
+
+func (sl *sqLiteDialect) GCAdd(tableName string, parentTcc, lockableTcc dto.TxnControlCounters) error {
+	var offset int
+	q := fmt.Sprintf(
+		`UPDATE "%s" SET "%s" = ? WHERE "%s" = ? AND "%s" = ? AND "" `,
+		tableName,
+		sl.controlAttributes.GetControlMaxTxnColumnName(),
+		sl.controlAttributes.GetControlTxnIdColumnName(),
+		sl.controlAttributes.GetControlInsIdColumnName(),
+	)
+	_, err := sl.sqlEngine.Exec(q, offset)
+	return err
 }
 
 func (sl *sqLiteDialect) GCCollectAll() error {
@@ -180,6 +209,45 @@ func (sl *sqLiteDialect) getGCCollectTemplate(transactionIDs []int) ([]string, e
 		rv = append(rv, fmt.Sprintf(`delete from "%s" where iql_transaction_id  = %d ; `, s, i))
 	}
 	return rv, nil
+}
+
+func (se *sqLiteDialect) collectUnreachable() error {
+	return se.concertedQueryGen(unreachableTablesQuery)
+}
+
+func (se *sqLiteDialect) collectObsolete() error {
+	return se.concertedQueryGen(cleanupObsoleteQuery)
+}
+
+func (se *sqLiteDialect) collectObsoleteQualified(tcc *dto.TxnControlCounters) error {
+	return se.concertedQueryGen(cleanupObsoleteQualifiedQuery, tcc.GenId, tcc.SessionId, tcc.TxnId)
+}
+
+func (se *sqLiteDialect) concertedQueryGen(generatorQuery string, args ...interface{}) error {
+	if se.sqlEngine.IsMemory() {
+		return nil
+	}
+	rows, err := se.sqlEngine.Query(generatorQuery, args...)
+	if err != nil {
+		logging.GetLogger().Infoln(fmt.Sprintf("obsolete compose error: %v", err))
+		return err
+	}
+	amalgam, err := singleColRowsToString(rows)
+	if err != nil {
+		logging.GetLogger().Infoln(fmt.Sprintf("obsolete obtain error: %v", err))
+		return err
+	}
+	logging.GetLogger().Infoln(fmt.Sprintf("amalgam = %s", amalgam))
+	_, err = se.sqlEngine.Exec(amalgam, args...)
+	if err != nil {
+		logging.GetLogger().Infoln(fmt.Sprintf("obsolete exec error: %v", err))
+		return err
+	}
+	return nil
+}
+
+func (se *sqLiteDialect) GCCollectObsolete(tcc *dto.TxnControlCounters) error {
+	return se.collectObsoleteQualified(tcc)
 }
 
 func (sl *sqLiteDialect) getGCCollectCacheTemplate(transactionIDs []int) ([]string, error) {

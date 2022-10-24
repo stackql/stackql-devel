@@ -7,6 +7,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/primitivebuilder"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/provider"
+	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/symtab"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
@@ -36,6 +37,7 @@ type PrimitiveComposer interface {
 	GetRoot() primitivegraph.PrimitiveNode
 	GetSelectPreparedStatementCtx() *drm.PreparedStatementCtx
 	GetSQLEngine() sqlengine.SQLEngine
+	GetSQLDialect() sqldialect.SQLDialect
 	GetSymbol(k interface{}) (symtab.SymTabEntry, error)
 	GetSymTab() symtab.SymTab
 	GetTable(node sqlparser.SQLNode) (*tablemetadata.ExtendedTableMetadata, error)
@@ -112,6 +114,8 @@ type StandardPrimitiveComposer struct {
 	where *sqlparser.Where
 
 	sqlEngine sqlengine.SQLEngine
+
+	sqlDialect sqldialect.SQLDialect
 }
 
 func (pb *StandardPrimitiveComposer) ShouldCollectGarbage() bool {
@@ -171,7 +175,7 @@ func (pb *StandardPrimitiveComposer) GetTxnCounterManager() *txncounter.TxnCount
 }
 
 func (pb *StandardPrimitiveComposer) NewChildPrimitiveBuilder(ast sqlparser.SQLNode) PrimitiveComposer {
-	child := NewPrimitiveComposer(pb, ast, pb.drmConfig, pb.txnCounterManager, pb.graph, pb.tables, pb.symTab, pb.sqlEngine)
+	child := NewPrimitiveComposer(pb, ast, pb.drmConfig, pb.txnCounterManager, pb.graph, pb.tables, pb.symTab, pb.sqlEngine, pb.sqlDialect)
 	pb.children = append(pb.children, child)
 	return child
 }
@@ -283,7 +287,7 @@ func (pb *StandardPrimitiveComposer) GetBuilder() primitivebuilder.Builder {
 		}
 	}
 	if true {
-		return primitivebuilder.NewDiamondBuilder(pb.builder, builders, pb.graph, pb.sqlEngine, pb.ShouldCollectGarbage())
+		return primitivebuilder.NewDiamondBuilder(pb.builder, builders, pb.graph, pb.sqlDialect, pb.ShouldCollectGarbage())
 	}
 	return primitivebuilder.NewSubTreeBuilder(builders)
 }
@@ -320,7 +324,11 @@ func (pb *StandardPrimitiveComposer) GetSQLEngine() sqlengine.SQLEngine {
 	return pb.sqlEngine
 }
 
-func NewPrimitiveComposer(parent PrimitiveComposer, ast sqlparser.SQLNode, drmConfig drm.DRMConfig, txnCtrMgr *txncounter.TxnCounterManager, graph *primitivegraph.PrimitiveGraph, tblMap taxonomy.TblMap, symTab symtab.SymTab, sqlEngine sqlengine.SQLEngine) PrimitiveComposer {
+func (pb *StandardPrimitiveComposer) GetSQLDialect() sqldialect.SQLDialect {
+	return pb.sqlDialect
+}
+
+func NewPrimitiveComposer(parent PrimitiveComposer, ast sqlparser.SQLNode, drmConfig drm.DRMConfig, txnCtrMgr *txncounter.TxnCounterManager, graph *primitivegraph.PrimitiveGraph, tblMap taxonomy.TblMap, symTab symtab.SymTab, sqlEngine sqlengine.SQLEngine, sqlDialect sqldialect.SQLDialect) PrimitiveComposer {
 	return &StandardPrimitiveComposer{
 		parent:            parent,
 		ast:               ast,
@@ -333,5 +341,6 @@ func NewPrimitiveComposer(parent PrimitiveComposer, ast sqlparser.SQLNode, drmCo
 		symTab:            symTab,
 		graph:             graph,
 		sqlEngine:         sqlEngine,
+		sqlDialect:        sqlDialect,
 	}
 }
