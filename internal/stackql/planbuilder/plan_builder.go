@@ -744,7 +744,11 @@ func BuildPlanFromContext(handlerCtx *handler.HandlerContext) (*plan.Plan, error
 		logging.GetLogger().Infoln("retrieving query plan from cache")
 		pl, ok := qp.(*plan.Plan)
 		if ok {
-			pl.Instructions.SetTxnId(handlerCtx.TxnCounterMgr.GetNextTxnId())
+			txnId, err := handlerCtx.TxnCounterMgr.GetNextTxnId()
+			if err != nil {
+				return nil, err
+			}
+			pl.Instructions.SetTxnId(txnId)
 			return pl, nil
 		}
 		return qp.(*plan.Plan), nil

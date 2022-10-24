@@ -294,7 +294,10 @@ func (dp *StandardDependencyPlanner) processAcquire(
 		return util.NewAnnotatedTabulation(nil, nil, ""), nil, err
 	}
 	if dp.tcc == nil {
-		dp.tcc = dto.NewTxnControlCounters(dp.primitiveComposer.GetTxnCounterManager(), tableDTO.GetDiscoveryID())
+		dp.tcc, err = dto.NewTxnControlCounters(dp.primitiveComposer.GetTxnCounterManager(), tableDTO.GetDiscoveryID())
+		if err != nil {
+			return util.NewAnnotatedTabulation(nil, nil, ""), nil, err
+		}
 		dp.primaryTcc = dp.tcc
 	} else {
 		dp.tcc = dp.tcc.CloneAndIncrementInsertID()

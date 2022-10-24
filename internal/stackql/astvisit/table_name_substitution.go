@@ -41,7 +41,11 @@ func (v *TableNameSubstitutionAstVisitor) buildAcquireQueryCtx(
 	if err != nil {
 		return nil, err
 	}
-	insPsc, err := dc.GenerateInsertDML(annotatedInsertTabulation, os, v.getCtrlCounters(tableDTO.GetDiscoveryID()))
+	ctrs, err := v.getCtrlCounters(tableDTO.GetDiscoveryID())
+	if err != nil {
+		return nil, err
+	}
+	insPsc, err := dc.GenerateInsertDML(annotatedInsertTabulation, os, ctrs)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +135,11 @@ func (v *TableNameSubstitutionAstVisitor) buildSelectQuery(
 	if err != nil {
 		return err
 	}
-	insPsc, err := dc.GenerateInsertDML(annotatedInsertTabulation, os, v.getCtrlCounters(tableDTO.GetDiscoveryID()))
+	ctrs, err := v.getCtrlCounters(tableDTO.GetDiscoveryID())
+	if err != nil {
+		return err
+	}
+	insPsc, err := dc.GenerateInsertDML(annotatedInsertTabulation, os, ctrs)
 	if err != nil {
 		return err
 	}
@@ -157,11 +165,11 @@ type TableNameSubstitutionAstVisitor struct {
 	whereExprsStr  string
 }
 
-func (v *TableNameSubstitutionAstVisitor) getCtrlCounters(discoveryGenerationID int) *dto.TxnControlCounters {
+func (v *TableNameSubstitutionAstVisitor) getCtrlCounters(discoveryGenerationID int) (*dto.TxnControlCounters, error) {
 	if v.baseCtrlCounters == nil {
 		return dto.NewTxnControlCounters(v.handlerCtx.TxnCounterMgr, discoveryGenerationID)
 	}
-	return v.baseCtrlCounters.CloneWithDiscoGenID(discoveryGenerationID)
+	return v.baseCtrlCounters.CloneWithDiscoGenID(discoveryGenerationID), nil
 }
 
 func (v *TableNameSubstitutionAstVisitor) getSubstituteTableName(dc *drm.StaticDRMConfig, tabAnnotated util.AnnotatedTabulation, txnCtrlCtrs *dto.TxnControlCounters) sqlparser.TableName {
