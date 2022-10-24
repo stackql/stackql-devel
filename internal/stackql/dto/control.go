@@ -10,7 +10,7 @@ type TxnControlCounters struct {
 	RequestEncoding                                          []string
 }
 
-func NewTxnControlCounters(txnCtrMgr *txncounter.TxnCounterManager, discoveryGenerationID int) *TxnControlCounters {
+func NewTxnControlCounters(txnCtrMgr txncounter.TxnCounterManager, discoveryGenerationID int) *TxnControlCounters {
 	return &TxnControlCounters{
 		GenId:                 txnCtrMgr.GetCurrentGenerationId(),
 		SessionId:             txnCtrMgr.GetCurrentSessionId(),

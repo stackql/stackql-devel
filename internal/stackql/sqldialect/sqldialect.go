@@ -60,12 +60,37 @@ func (eng *sqLiteDialect) initSQLiteEngine() error {
 
 func (sl *sqLiteDialect) GCAdd(tableName string, parentTcc, lockableTcc dto.TxnControlCounters) error {
 	var offset int
+	maxTxnColName := sl.controlAttributes.GetControlMaxTxnColumnName()
 	q := fmt.Sprintf(
-		`UPDATE "%s" SET "%s" = ? WHERE "%s" = ? AND "%s" = ? AND "" `,
+		`
+		UPDATE "%s" 
+		SET "%s" = r.current_value
+		FROM (
+			SELECT *
+			FROM
+				"__iql__.control.gc.rings"
+		) AS r
+		WHERE 
+			"%s" = ? 
+			AND 
+			"%s" = ? 
+			AND
+			r.ring_name = 'transaction_id'
+			AND
+			"%s" < CASE 
+			   WHEN ("%s" - r.current_offset) < 0
+				 THEN CAST(power(2, r.width_bits) + ("%s" - r.current_offset)  AS int)
+				 ELSE "%s" - r.current_offset
+				 END
+		`,
 		tableName,
-		sl.controlAttributes.GetControlMaxTxnColumnName(),
+		maxTxnColName,
 		sl.controlAttributes.GetControlTxnIdColumnName(),
 		sl.controlAttributes.GetControlInsIdColumnName(),
+		maxTxnColName,
+		maxTxnColName,
+		maxTxnColName,
+		maxTxnColName,
 	)
 	_, err := sl.sqlEngine.Exec(q, offset)
 	return err

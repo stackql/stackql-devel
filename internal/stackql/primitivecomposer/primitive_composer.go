@@ -43,7 +43,7 @@ type PrimitiveComposer interface {
 	GetTable(node sqlparser.SQLNode) (*tablemetadata.ExtendedTableMetadata, error)
 	GetTableFilter() func(openapistackql.ITable) (openapistackql.ITable, error)
 	GetTables() taxonomy.TblMap
-	GetTxnCounterManager() *txncounter.TxnCounterManager
+	GetTxnCounterManager() txncounter.TxnCounterManager
 	GetTxnCtrlCtrs() *dto.TxnControlCounters
 	GetValOnlyCol(key int) map[string]interface{}
 	GetValOnlyColKeys() []int
@@ -97,7 +97,7 @@ type StandardPrimitiveComposer struct {
 	// per query
 	columnOrder       []string
 	commentDirectives sqlparser.CommentDirectives
-	txnCounterManager *txncounter.TxnCounterManager
+	txnCounterManager txncounter.TxnCounterManager
 	txnCtrlCtrs       *dto.TxnControlCounters
 
 	// per query -- SELECT only
@@ -170,7 +170,7 @@ func (pb *StandardPrimitiveComposer) GetAst() sqlparser.SQLNode {
 	return pb.ast
 }
 
-func (pb *StandardPrimitiveComposer) GetTxnCounterManager() *txncounter.TxnCounterManager {
+func (pb *StandardPrimitiveComposer) GetTxnCounterManager() txncounter.TxnCounterManager {
 	return pb.txnCounterManager
 }
 
@@ -328,7 +328,7 @@ func (pb *StandardPrimitiveComposer) GetSQLDialect() sqldialect.SQLDialect {
 	return pb.sqlDialect
 }
 
-func NewPrimitiveComposer(parent PrimitiveComposer, ast sqlparser.SQLNode, drmConfig drm.DRMConfig, txnCtrMgr *txncounter.TxnCounterManager, graph *primitivegraph.PrimitiveGraph, tblMap taxonomy.TblMap, symTab symtab.SymTab, sqlEngine sqlengine.SQLEngine, sqlDialect sqldialect.SQLDialect) PrimitiveComposer {
+func NewPrimitiveComposer(parent PrimitiveComposer, ast sqlparser.SQLNode, drmConfig drm.DRMConfig, txnCtrMgr txncounter.TxnCounterManager, graph *primitivegraph.PrimitiveGraph, tblMap taxonomy.TblMap, symTab symtab.SymTab, sqlEngine sqlengine.SQLEngine, sqlDialect sqldialect.SQLDialect) PrimitiveComposer {
 	return &StandardPrimitiveComposer{
 		parent:            parent,
 		ast:               ast,

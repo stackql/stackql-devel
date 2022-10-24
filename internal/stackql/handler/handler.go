@@ -42,7 +42,7 @@ type HandlerContext struct {
 	SQLDialect          sqldialect.SQLDialect
 	GarbageCollector    garbagecollector.GarbageCollector
 	DrmConfig           drm.DRMConfig
-	TxnCounterMgr       *txncounter.TxnCounterManager
+	TxnCounterMgr       txncounter.TxnCounterManager
 	namespaceCollection tablenamespace.TableNamespaceCollection
 }
 

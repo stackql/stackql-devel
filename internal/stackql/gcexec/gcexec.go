@@ -79,7 +79,7 @@ type BrutalGarbageCollectorExecutor interface {
 }
 
 type AbstractFlatGarbageCollectorExecutor interface {
-	Add(string, *dto.TxnControlCounters) error
+	Add(string, *dto.TxnControlCounters, *dto.TxnControlCounters) error
 	Condemn(string, *dto.TxnControlCounters) bool
 	Collect() error
 }
@@ -123,12 +123,12 @@ type basicGarbageCollectorExecutor struct {
 	sqlDialect      sqldialect.SQLDialect
 }
 
-func (rc *basicGarbageCollectorExecutor) Add(tableName string, tcc *dto.TxnControlCounters) error {
+func (rc *basicGarbageCollectorExecutor) Add(tableName string, parentTcc, tcc *dto.TxnControlCounters) error {
 	rc.gcMutex.Lock()
 	defer rc.gcMutex.Unlock()
 	var err error
 	if rc.ns.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tableName) {
-		// err = rc.sqlDialect.GCAdd(tableName, tcc)
+		err = rc.sqlDialect.GCAdd(tableName, *parentTcc, *tcc)
 		if err != nil {
 			return err
 		}

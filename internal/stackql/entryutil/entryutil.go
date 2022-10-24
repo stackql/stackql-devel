@@ -72,7 +72,7 @@ func buildGC(gcExec gcexec.GarbageCollectorExecutor, gcCfg dto.GCCfg, sqlEngine 
 	return garbagecollector.NewGarbageCollector(gcExec, gcCfg, sqlEngine)
 }
 
-func GetTxnCounterManager(handlerCtx handler.HandlerContext) (*txncounter.TxnCounterManager, error) {
+func GetTxnCounterManager(handlerCtx handler.HandlerContext) (txncounter.TxnCounterManager, error) {
 	genId, err := handlerCtx.SQLEngine.GetCurrentGenerationId()
 	if err != nil {
 		genId, err = handlerCtx.SQLEngine.GetNextGenerationId()

@@ -12,43 +12,50 @@ var (
 )
 
 func GetNextGenerationId() int {
-	txnCtrlMutex.Lock()
-	defer txnCtrlMutex.Unlock()
+	genCtrlMutex.Lock()
+	defer genCtrlMutex.Unlock()
 	*currentGenerationId++
 	return *currentGenerationId
 }
 
-type TxnCounterManager struct {
+type TxnCounterManager interface {
+	GetCurrentGenerationId() int
+	GetCurrentSessionId() int
+	GetNextInsertId() int
+	GetNextTxnId() int
+}
+
+type standardTxnCounterManager struct {
 	perTxnMutex     *sync.Mutex
 	generationId    int
 	sessionId       int
 	currentInsertId int
 }
 
-func NewTxnCounterManager(generationId, sessionId int) *TxnCounterManager {
-	return &TxnCounterManager{
+func NewTxnCounterManager(generationId, sessionId int) TxnCounterManager {
+	return &standardTxnCounterManager{
 		generationId: generationId,
 		sessionId:    sessionId,
 		perTxnMutex:  &sync.Mutex{},
 	}
 }
 
-func (tc *TxnCounterManager) GetCurrentGenerationId() int {
+func (tc *standardTxnCounterManager) GetCurrentGenerationId() int {
 	return tc.generationId
 }
 
-func (tc *TxnCounterManager) GetCurrentSessionId() int {
+func (tc *standardTxnCounterManager) GetCurrentSessionId() int {
 	return tc.sessionId
 }
 
-func (tc *TxnCounterManager) GetNextTxnId() int {
+func (tc *standardTxnCounterManager) GetNextTxnId() int {
 	txnCtrlMutex.Lock()
 	defer txnCtrlMutex.Unlock()
 	*currentTxnId++
 	return *currentTxnId
 }
 
-func (tc *TxnCounterManager) GetNextInsertId() int {
+func (tc *standardTxnCounterManager) GetNextInsertId() int {
 	tc.perTxnMutex.Lock()
 	defer tc.perTxnMutex.Unlock()
 	tc.currentInsertId++
