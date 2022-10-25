@@ -79,7 +79,7 @@ type BrutalGarbageCollectorExecutor interface {
 }
 
 type AbstractFlatGarbageCollectorExecutor interface {
-	Add(string, dto.TxnControlCounters, dto.TxnControlCounters) error
+	Update(string, dto.TxnControlCounters, dto.TxnControlCounters) error
 	Condemn(string, dto.TxnControlCounters) bool
 	Collect() error
 }
@@ -123,7 +123,7 @@ type basicGarbageCollectorExecutor struct {
 	sqlDialect      sqldialect.SQLDialect
 }
 
-func (rc *basicGarbageCollectorExecutor) Add(tableName string, parentTcc, tcc dto.TxnControlCounters) error {
+func (rc *basicGarbageCollectorExecutor) Update(tableName string, parentTcc, tcc dto.TxnControlCounters) error {
 	rc.gcMutex.Lock()
 	defer rc.gcMutex.Unlock()
 	var err error

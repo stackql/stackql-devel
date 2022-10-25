@@ -72,16 +72,15 @@ In the first instance, MVCC is likely overkill for stackql.  This is because sta
   - `txn_max_id` is the maximum Txn ID that has locked the record.  
   - `txn_running_min_id` is the minimum Txn ID still running in the system.
 
-If `txn_running_min_id` > `txn_max_id` then the record can safely be removed.  This is definitely not the only or optimal approach but it is simple and requires only one Txn ID to be stored against each record. The simplest technique is to store the Txn ID as a control column in each record tuple.
+If `txn_running_min_id` > `txn_max_id` then the record can safely be removed.  This is definitely not the only or optimal approach but it is simple and requires only one (maximum) Txn ID to be stored against each record. The simplest technique is to store this Txn ID as a control column in each record tuple.
 
 A **hard requirement** of this in-row pattern is that row updates in the database backend can be done atomically.  This is definitely the case for SQLite, Postgres, MySQL, etc but may not hold up for all future backends.  It will be adequate for `v1`.
 
 Long lived or dormant `phantom` Txns must be killable through some aspect of the GC process.  This is because otherwise `txn_running_min_id` will not advance and exentually the required monotonic Txn counter invariant will fail.  This we can initialy address by killing all transactions older than some threshold timestamp or the timestamp corresponding to Txn ID of some threshold count.  It can be improved upon later.
 
-
 A sensible `v1` approach to concurrency and GC in stackql is therefore:
 
-- A Txn ID, such as may be required in various aspects of the system, is a monotonically increasing counter.  Likely implementation is fixed size integer type used as a ring and periodically re-zeroed.
+- A Txn ID, such as may be required in various aspects of the system, is a monotonically increasing counter.  Likely implementation is fixed size integer type used as a ring and periodically re-zeroed.  **Update**: this will be implemented in the DB backend, through SQL.
 - A global list of live (Txn ID, timestamp begun) tuples must be maintained. `txn_running_min_id` can be inferred from this list.  This is a la Postgres.
 - The `acquire` phase (write to DB after REST call or read from cache) must update `txn_max_id` using conditional SQL logic (if greater than existing).
 - GC cycles to be triggered by:
@@ -95,6 +94,7 @@ A sensible `v1` approach to concurrency and GC in stackql is therefore:
   - If `txn_running_min_id` > `txn_max_id` then destroy record.
   - Admin activities to be supported supported:
     - Purge interventions for Txns and records.
+- Pre-emptible handler threads to be implemented.
 
 
 This naive approach avoids deadlock and provides break glass.

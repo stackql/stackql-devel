@@ -131,7 +131,7 @@ type QueryRewriteAstVisitor struct {
 
 func (v *QueryRewriteAstVisitor) getCtrlCounters(discoveryGenerationID int) (*dto.TxnControlCounters, error) {
 	if v.baseCtrlCounters == nil {
-		return dto.NewTxnControlCounters(v.handlerCtx.TxnCounterMgr, discoveryGenerationID)
+		return nil, fmt.Errorf("QueryRewriteAstVisitor: no control counters present")
 	}
 	return v.baseCtrlCounters.CloneWithDiscoGenID(discoveryGenerationID), nil
 }

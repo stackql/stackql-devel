@@ -5,18 +5,9 @@ import (
 )
 
 var (
-	genCtrlMutex        *sync.Mutex = &sync.Mutex{}
-	txnCtrlMutex        *sync.Mutex = &sync.Mutex{}
-	currentTxnId        *int        = new(int)
-	currentGenerationId *int        = new(int)
+	txnCtrlMutex *sync.Mutex = &sync.Mutex{}
+	currentTxnId *int        = new(int)
 )
-
-func GetNextGenerationId() int {
-	genCtrlMutex.Lock()
-	defer genCtrlMutex.Unlock()
-	*currentGenerationId++
-	return *currentGenerationId
-}
 
 type TxnCounterManager interface {
 	GetCurrentGenerationId() (int, error)

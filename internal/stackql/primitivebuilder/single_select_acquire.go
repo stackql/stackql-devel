@@ -154,7 +154,7 @@ func (ss *SingleSelectAcquire) Build() error {
 				for _, c := range nonControlColumns {
 					nonControlColumnNames = append(nonControlColumnNames, c.GetName())
 				}
-				ss.handlerCtx.GarbageCollector.Add(tableName, parentTcc, *tcc)
+				ss.handlerCtx.GarbageCollector.Update(tableName, parentTcc, *tcc)
 				ss.insertionContainer.SetTableTxnCounters(tableName, tcc)
 				ss.insertPreparedStatementCtx.SetGCCtrlCtrs(tcc)
 				r, sqlErr := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Read(tableName, reqEncoding, ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIdColumnName(), nonControlColumnNames)

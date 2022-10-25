@@ -25,7 +25,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/logging"
-	"github.com/stackql/stackql/pkg/txncounter"
 
 	"github.com/magiconair/properties"
 	"github.com/spf13/cobra"
@@ -54,7 +53,6 @@ var SemVersion string = fmt.Sprintf("%s.%s.%s", BuildMajorVersion, BuildMinorVer
 var (
 	runtimeCtx      dto.RuntimeCtx
 	queryCache      *lrucache.LRUCache
-	txnCtrMgr       *txncounter.TxnCounterManager
 	replicateCtrMgr bool = false
 )
 
@@ -111,7 +109,6 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.RegistryRaw, dto.RegistryRawKey, fmt.Sprintf(`{ "url": "%s", "localDocRoot": "%s" }`, defaultRegistryUrlString, strings.ReplaceAll(path.Join(runtimeCtx.ApplicationFilesRootPath), `\`, `\\`)), fmt.Sprintf(`openapi registry context keyvals in json form, eg: '{ "url": "%s" }'.`, defaultRegistryUrlString))
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.DbEngine, dto.DbEngineKey, config.GetDefaultDbEngine(), fmt.Sprintf("DB engine id"))
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.DbFilePath, dto.DbFilePathKey, config.GetDefaultDbFilePath(), fmt.Sprintf("DB persistence filename"))
-	rootCmd.PersistentFlags().IntVar(&runtimeCtx.DbGenerationId, dto.DbGenerationIdKey, txncounter.GetNextGenerationId(), fmt.Sprintf("DB generation id"))
 	rootCmd.PersistentFlags().BoolVar(&runtimeCtx.HTTPLogEnabled, dto.HTTPLogEnabledKey, false, "Display http request info in terminal")
 	rootCmd.PersistentFlags().IntVar(&runtimeCtx.HTTPMaxResults, dto.HTTPMaxResultsKey, -1, "Max results per http request, any number <=0 results in no limitation")
 	rootCmd.PersistentFlags().IntVar(&runtimeCtx.HTTPPageLimit, dto.HTTPPAgeLimitKey, 20, "Max pages of results that will be returned per resource, any number <=0 results in no limitation")

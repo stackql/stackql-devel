@@ -167,7 +167,7 @@ type TableNameSubstitutionAstVisitor struct {
 
 func (v *TableNameSubstitutionAstVisitor) getCtrlCounters(discoveryGenerationID int) (*dto.TxnControlCounters, error) {
 	if v.baseCtrlCounters == nil {
-		return dto.NewTxnControlCounters(v.handlerCtx.TxnCounterMgr, discoveryGenerationID)
+		return nil, fmt.Errorf("TableNameSubstitutionAstVisitor: no control counters present")
 	}
 	return v.baseCtrlCounters.CloneWithDiscoGenID(discoveryGenerationID), nil
 }
@@ -197,6 +197,7 @@ func NewTableNameSubstitutionAstVisitor(
 		annotatedTabulations: make(taxonomy.AnnotatedTabulationMap),
 		colRefs:              colRefs,
 		dc:                   dc,
+		baseCtrlCounters:     txnCtrlCtrs,
 	}
 }
 
