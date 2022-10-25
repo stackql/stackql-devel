@@ -15,8 +15,8 @@ var (
 )
 
 type TxnMap interface {
-	Add(tcc *dto.TxnControlCounters) int
-	Delete(tcc *dto.TxnControlCounters) int
+	Add(tcc dto.TxnControlCounters) int
+	Delete(tcc dto.TxnControlCounters) int
 	GetTxnIDs() []int
 }
 
@@ -44,7 +44,7 @@ func (tm basicTxnMap) GetTxnIDs() []int {
 	return rv
 }
 
-func (tm basicTxnMap) Add(tcc *dto.TxnControlCounters) int {
+func (tm basicTxnMap) Add(tcc dto.TxnControlCounters) int {
 	tm.mutex.Lock()
 	defer tm.mutex.Unlock()
 	key := tcc.TxnId
@@ -57,7 +57,7 @@ func (tm basicTxnMap) Add(tcc *dto.TxnControlCounters) int {
 	return 1
 }
 
-func (tm basicTxnMap) Delete(tcc *dto.TxnControlCounters) int {
+func (tm basicTxnMap) Delete(tcc dto.TxnControlCounters) int {
 	tm.mutex.Lock()
 	defer tm.mutex.Unlock()
 	key := tcc.TxnId
@@ -79,8 +79,8 @@ type BrutalGarbageCollectorExecutor interface {
 }
 
 type AbstractFlatGarbageCollectorExecutor interface {
-	Add(string, *dto.TxnControlCounters, *dto.TxnControlCounters) error
-	Condemn(string, *dto.TxnControlCounters) bool
+	Add(string, dto.TxnControlCounters, dto.TxnControlCounters) error
+	Condemn(string, dto.TxnControlCounters) bool
 	Collect() error
 }
 
@@ -123,12 +123,12 @@ type basicGarbageCollectorExecutor struct {
 	sqlDialect      sqldialect.SQLDialect
 }
 
-func (rc *basicGarbageCollectorExecutor) Add(tableName string, parentTcc, tcc *dto.TxnControlCounters) error {
+func (rc *basicGarbageCollectorExecutor) Add(tableName string, parentTcc, tcc dto.TxnControlCounters) error {
 	rc.gcMutex.Lock()
 	defer rc.gcMutex.Unlock()
 	var err error
 	if rc.ns.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tableName) {
-		err = rc.sqlDialect.GCAdd(tableName, *parentTcc, *tcc)
+		err = rc.sqlDialect.GCAdd(tableName, parentTcc, tcc)
 		if err != nil {
 			return err
 		}
@@ -143,7 +143,7 @@ func (rc *basicGarbageCollectorExecutor) Add(tableName string, parentTcc, tcc *d
 	return nil
 }
 
-func (rc *basicGarbageCollectorExecutor) Condemn(tableName string, tcc *dto.TxnControlCounters) bool {
+func (rc *basicGarbageCollectorExecutor) Condemn(tableName string, tcc dto.TxnControlCounters) bool {
 	rc.gcMutex.Lock()
 	defer rc.gcMutex.Unlock()
 	if rc.ns.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tableName) {

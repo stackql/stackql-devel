@@ -9,6 +9,7 @@ import (
 )
 
 type GarbageCollector interface {
+	Add(string, dto.TxnControlCounters, dto.TxnControlCounters) error
 	AddInsertContainer(tm *tablemetadata.ExtendedTableMetadata) tableinsertioncontainer.TableInsertionContainer
 	Close() error
 	Collect() error
@@ -33,9 +34,14 @@ type standardGarbageCollector struct {
 	sqlEngine        sqlengine.SQLEngine
 }
 
+func (gc *standardGarbageCollector) Add(tableName string, parentTcc, tcc dto.TxnControlCounters) error {
+	return gc.gcExecutor.Add(tableName, parentTcc, tcc)
+}
+
 func (gc *standardGarbageCollector) Close() error {
 	for _, ic := range gc.insertContainers {
-		gc.gcExecutor.Condemn(ic.GetTableTxnCounters())
+		a, b := ic.GetTableTxnCounters()
+		gc.gcExecutor.Condemn(a, *b)
 	}
 	if gc.isEager {
 		return gc.gcExecutor.Collect()
