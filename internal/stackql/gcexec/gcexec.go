@@ -128,7 +128,11 @@ func (rc *basicGarbageCollectorExecutor) Update(tableName string, parentTcc, tcc
 	defer rc.gcMutex.Unlock()
 	var err error
 	if rc.ns.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tableName) {
-		err = rc.sqlDialect.GCAdd(tableName, parentTcc, tcc)
+		templatedName, err := rc.ns.GetAnalyticsCacheTableNamespaceConfigurator().RenderTemplate(tableName)
+		if err != nil {
+			return err
+		}
+		err = rc.sqlDialect.GCAdd(templatedName, parentTcc, tcc)
 		if err != nil {
 			return err
 		}

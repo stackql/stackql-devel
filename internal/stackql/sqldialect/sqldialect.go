@@ -59,7 +59,6 @@ func (eng *sqLiteDialect) initSQLiteEngine() error {
 }
 
 func (sl *sqLiteDialect) GCAdd(tableName string, parentTcc, lockableTcc dto.TxnControlCounters) error {
-	var offset int
 	maxTxnColName := sl.controlAttributes.GetControlMaxTxnColumnName()
 	q := fmt.Sprintf(
 		`
@@ -79,7 +78,7 @@ func (sl *sqLiteDialect) GCAdd(tableName string, parentTcc, lockableTcc dto.TxnC
 			AND
 			"%s" < CASE 
 			   WHEN ("%s" - r.current_offset) < 0
-				 THEN CAST(power(2, r.width_bits) + ("%s" - r.current_offset)  AS int)
+				 THEN CAST(pow(2, r.width_bits) + ("%s" - r.current_offset)  AS int)
 				 ELSE "%s" - r.current_offset
 				 END
 		`,
@@ -92,7 +91,7 @@ func (sl *sqLiteDialect) GCAdd(tableName string, parentTcc, lockableTcc dto.TxnC
 		maxTxnColName,
 		maxTxnColName,
 	)
-	_, err := sl.sqlEngine.Exec(q, offset)
+	_, err := sl.sqlEngine.Exec(q, lockableTcc.TxnId, lockableTcc.InsertId)
 	return err
 }
 
