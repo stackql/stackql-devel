@@ -67,6 +67,7 @@ const (
 	RegistryRawKey                  string = "registry"
 	GCCfgRawKey                     string = "gc"
 	NamespaceCfgRawKey              string = "namespaces"
+	StoreTxnCfgRawKey               string = "store.txn"
 	ReinitKey                       string = "reinit"
 	TemplateCtxFilePathKey          string = "iqldata"
 	TestWithoutApiCallsKey          string = "testwithoutapicalls"
@@ -273,6 +274,7 @@ type RuntimeCtx struct {
 	ProviderStr                  string
 	RegistryRaw                  string
 	NamespaceCfgRaw              string
+	StoreTxnCfgRaw               string
 	GCCfgRaw                     string
 	Reinit                       bool
 	QueryCacheSize               int
@@ -365,6 +367,8 @@ func (rc *RuntimeCtx) Set(key string, val string) error {
 		rc.LogLevelStr = val
 	case NamespaceCfgRawKey:
 		rc.NamespaceCfgRaw = val
+	case StoreTxnCfgRawKey:
+		rc.StoreTxnCfgRaw = val
 	case GCCfgRawKey:
 		rc.GCCfgRaw = val
 	case OutfilePathKey:

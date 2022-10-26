@@ -22,8 +22,8 @@ type SQLDialect interface {
 	GCCollectAll() error
 	// GCCollectFromCache() will collect unmarked (from input list), expired cache records.
 	GCCollectFromCache([]int) error
-	// Deprecated: GCCollectObsolete() is a hangover.
-	GCCollectObsolete(*dto.TxnControlCounters) error
+	// GCCollectObsoleted() must be mutex-protected.
+	GCCollectObsoleted(minTransactionID int) error
 	// GCPurgeCache() will completely wipe the cache.
 	GCPurgeCache() error
 }
@@ -101,6 +101,48 @@ func (sl *sqLiteDialect) GCCollectAll() error {
 
 func (sl *sqLiteDialect) GCCollect(transactionIDs, cacheTransactionIDs []int) error {
 	return sl.gcCollect(transactionIDs, cacheTransactionIDs)
+}
+
+func (sl *sqLiteDialect) GCCollectObsoleted(minTransactionID int) error {
+	return sl.gCCollectObsoleted(minTransactionID)
+}
+
+func (sl *sqLiteDialect) gCCollectObsoleted(minTransactionID int) error {
+	maxTxnColName := sl.controlAttributes.GetControlMaxTxnColumnName()
+	obtainQuery := fmt.Sprintf(
+		`
+		SELECT
+			group_concat(
+				'DELETE FROM "' || name | '" WHERE "%s" < %d ; ',
+				' ' 
+			)
+		FROM
+			sqlite_master 
+		where 
+			type = 'table'
+		`,
+		maxTxnColName,
+		minTransactionID,
+	)
+	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery)
+	if err != nil {
+		return err
+	}
+	hasNext := deleteQueryResultSet.Next()
+	if !hasNext {
+
+	}
+	var deleteQueries string
+	err = deleteQueryResultSet.Scan(&deleteQueries)
+	if err != nil {
+		return err
+	}
+	q := fmt.Sprintf(
+		`BEGIN; %s COMMIT; `,
+		deleteQueries,
+	)
+	_, err = sl.sqlEngine.Exec(q)
+	return err
 }
 
 func (sl *sqLiteDialect) GCCollectFromCache(transactionIDs []int) error {

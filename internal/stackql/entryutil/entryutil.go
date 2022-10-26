@@ -14,6 +14,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/gcexec"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/iqlerror"
+	"github.com/stackql/stackql/internal/stackql/kstore"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
@@ -35,7 +36,11 @@ func BuildInputBundle(runtimeCtx dto.RuntimeCtx) (bundle.Bundle, error) {
 	if err != nil {
 		return nil, err
 	}
-	gcCfg, err := dto.GetGCCfg("")
+	gcCfg, err := dto.GetGCCfg(runtimeCtx.GCCfgRaw)
+	if err != nil {
+		return nil, err
+	}
+	txnStoreCfg, err := dto.GetKStoreCfg(runtimeCtx.StoreTxnCfgRaw)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +53,15 @@ func BuildInputBundle(runtimeCtx dto.RuntimeCtx) (bundle.Bundle, error) {
 		return nil, err
 	}
 	gc := buildGC(gcExec, gcCfg, se)
-	return bundle.NewBundle(gc, namespaces, se, dialect, controlAttributes), nil
+	txnStore, err := kstore.GetKStore(txnStoreCfg)
+	if err != nil {
+		return nil, err
+	}
+	txnCtrMgr, err := getTxnCounterManager(se)
+	if err != nil {
+		return nil, err
+	}
+	return bundle.NewBundle(gc, namespaces, se, dialect, controlAttributes, txnStore, txnCtrMgr), nil
 }
 
 func initNamespaces(namespaceCfgRaw string, sqlEngine sqlengine.SQLEngine) (tablenamespace.TableNamespaceCollection, error) {
@@ -72,15 +85,15 @@ func buildGC(gcExec gcexec.GarbageCollectorExecutor, gcCfg dto.GCCfg, sqlEngine 
 	return garbagecollector.NewGarbageCollector(gcExec, gcCfg, sqlEngine)
 }
 
-func GetTxnCounterManager(handlerCtx handler.HandlerContext) (txncounter.TxnCounterManager, error) {
-	genId, err := handlerCtx.SQLEngine.GetCurrentGenerationId()
+func getTxnCounterManager(sqlEngine sqlengine.SQLEngine) (txncounter.TxnCounterManager, error) {
+	genId, err := sqlEngine.GetCurrentGenerationId()
 	if err != nil {
-		genId, err = handlerCtx.SQLEngine.GetNextGenerationId()
+		genId, err = sqlEngine.GetNextGenerationId()
 		if err != nil {
 			return nil, err
 		}
 	}
-	sessionId, err := handlerCtx.SQLEngine.GetNextSessionId(genId)
+	sessionId, err := sqlEngine.GetNextSessionId(genId)
 	if err != nil {
 		return nil, err
 	}

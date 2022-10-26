@@ -17,6 +17,7 @@ import (
 )
 
 func (p *primitiveGenerator) assembleUnarySelectionBuilder(
+	pbi PlanBuilderInput,
 	handlerCtx *handler.HandlerContext,
 	node sqlparser.SQLNode,
 	rewrittenWhere *sqlparser.Where,
@@ -47,11 +48,8 @@ func (p *primitiveGenerator) assembleUnarySelectionBuilder(
 	// if err != nil {
 	// 	return err
 	// }
-	ctrs, err := dto.NewTxnControlCounters(p.PrimitiveComposer.GetTxnCounterManager())
-	if err != nil {
-		return err
-	}
-	insPsc, err := p.PrimitiveComposer.GetDRMConfig().GenerateInsertDML(annotatedInsertTabulation, method, ctrs)
+	ctrs := pbi.GetTxnCtrlCtrs()
+	insPsc, err := p.PrimitiveComposer.GetDRMConfig().GenerateInsertDML(annotatedInsertTabulation, method, &ctrs)
 	if err != nil {
 		return err
 	}
@@ -78,6 +76,7 @@ func (p *primitiveGenerator) assembleUnarySelectionBuilder(
 }
 
 func (p *primitiveGenerator) analyzeUnarySelection(
+	pbi PlanBuilderInput,
 	handlerCtx *handler.HandlerContext,
 	node sqlparser.SQLNode,
 	rewrittenWhere *sqlparser.Where,
@@ -121,6 +120,7 @@ func (p *primitiveGenerator) analyzeUnarySelection(
 	selectTabulation := itemObjS.Tabulate(true)
 
 	return p.assembleUnarySelectionBuilder(
+		pbi,
 		handlerCtx,
 		node,
 		rewrittenWhere,

@@ -13,6 +13,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/garbagecollector"
+	"github.com/stackql/stackql/internal/stackql/kstore"
 	"github.com/stackql/stackql/internal/stackql/netutils"
 	"github.com/stackql/stackql/internal/stackql/provider"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
@@ -43,6 +44,7 @@ type HandlerContext struct {
 	GarbageCollector    garbagecollector.GarbageCollector
 	DrmConfig           drm.DRMConfig
 	TxnCounterMgr       txncounter.TxnCounterManager
+	TxnStore            kstore.KStore
 	namespaceCollection tablenamespace.TableNamespaceCollection
 }
 
@@ -210,7 +212,8 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 		SQLEngine:           sqlEngine,
 		SQLDialect:          inputBundle.GetSQLDialect(),
 		GarbageCollector:    inputBundle.GetGC(),
-		TxnCounterMgr:       nil,
+		TxnCounterMgr:       inputBundle.GetTxnCounterManager(),
+		TxnStore:            inputBundle.GetTxnStore(),
 		namespaceCollection: inputBundle.GetNamespaceCollection(),
 	}
 	drmCfg, err := drm.GetGoogleV1SQLiteConfig(sqlEngine, rv.namespaceCollection, controlAttributes)

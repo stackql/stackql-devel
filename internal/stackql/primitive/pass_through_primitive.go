@@ -50,11 +50,7 @@ func (pr *PassThroughPrimitive) IncidentData(fromId int64, input dto.ExecutorOut
 }
 
 func (pt *PassThroughPrimitive) collectGarbage() {
-	if pt.shouldCollectGarbage {
-		for _, gc := range pt.txnControlCounterSlice {
-			pt.sqlDialect.GCCollectObsolete(&gc)
-		}
-	}
+	// placeholder
 }
 
 func (pt *PassThroughPrimitive) Execute(pc IPrimitiveCtx) dto.ExecutorOutput {
