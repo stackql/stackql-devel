@@ -30,11 +30,6 @@ func (ic *StandardTableInsertionContainer) GetTableMetadata() *tablemetadata.Ext
 }
 
 func (ic *StandardTableInsertionContainer) SetTableTxnCounters(tableName string, tcc *dto.TxnControlCounters) error {
-	// q := fmt.Sprintf(`UPDATE "%s" `, tableName)
-	// _, err := ic.sqlEngine.Exec(q)
-	// if err != nil {
-	// 	return err
-	// }
 	ic.tableName = tableName
 	ic.tcc.GenId = tcc.GenId
 	ic.tcc.SessionId = tcc.SessionId
@@ -61,11 +56,3 @@ func NewTableInsertionContainer(tm *tablemetadata.ExtendedTableMetadata, sqlEngi
 		sqlEngine: sqlEngine,
 	}
 }
-
-// func NewTableInsertionContainers(tms []*tablemetadata.ExtendedTableMetadata) []TableInsertionContainer {
-// 	var rv []TableInsertionContainer
-// 	for _, tm := range tms {
-// 		rv = append(rv, NewTableInsertionContainer(tm))
-// 	}
-// 	return rv
-// }
