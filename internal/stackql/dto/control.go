@@ -5,9 +5,9 @@ import (
 )
 
 type TxnControlCounters struct {
-	GenId, SessionId, TxnId, InsertId, DiscoveryGenerationId int
-	TableName                                                string
-	RequestEncoding                                          []string
+	GenId, SessionId, TxnId, InsertId int
+	TableName                         string
+	RequestEncoding                   []string
 }
 
 func NewTxnControlCounters(txnCtrMgr txncounter.TxnCounterManager) (*TxnControlCounters, error) {

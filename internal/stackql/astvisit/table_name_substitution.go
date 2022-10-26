@@ -611,7 +611,11 @@ func (v *TableNameSubstitutionAstVisitor) Visit(node sqlparser.SQLNode) error {
 					return fmt.Errorf("cannot process table '%s'", exp.GetRawVal())
 				}
 				logging.GetLogger().Debugf("%v\n", exp)
-				node.Expr = v.dc.GetParserTableName(tbl.GetHeirarchyIdentifiers(), v.baseCtrlCounters.DiscoveryGenerationId)
+				discoID, err := v.handlerCtx.SQLEngine.GetCurrentDiscoveryGenerationId(tbl.GetHeirarchyIdentifiers().GetTableName())
+				if err != nil {
+					return err
+				}
+				node.Expr = v.dc.GetParserTableName(tbl.GetHeirarchyIdentifiers(), discoID)
 			}
 			// t, err := v.analyzeAliasedTable(node)
 			// if err != nil {
