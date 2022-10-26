@@ -10,7 +10,7 @@ type TxnControlCounters struct {
 	RequestEncoding                                          []string
 }
 
-func NewTxnControlCounters(txnCtrMgr txncounter.TxnCounterManager, discoveryGenerationID int) (*TxnControlCounters, error) {
+func NewTxnControlCounters(txnCtrMgr txncounter.TxnCounterManager) (*TxnControlCounters, error) {
 	genId, err := txnCtrMgr.GetCurrentGenerationId()
 	if err != nil {
 		return nil, err
@@ -28,33 +28,30 @@ func NewTxnControlCounters(txnCtrMgr txncounter.TxnCounterManager, discoveryGene
 		return nil, err
 	}
 	return &TxnControlCounters{
-		GenId:                 genId,
-		SessionId:             ssnId,
-		TxnId:                 txnId,
-		InsertId:              insertId,
-		DiscoveryGenerationId: discoveryGenerationID,
+		GenId:     genId,
+		SessionId: ssnId,
+		TxnId:     txnId,
+		InsertId:  insertId,
 	}, nil
 }
 
 func (tc *TxnControlCounters) CloneWithDiscoGenID(discoveryGenerationID int) *TxnControlCounters {
 	return &TxnControlCounters{
-		GenId:                 tc.GenId,
-		SessionId:             tc.SessionId,
-		TxnId:                 tc.TxnId,
-		InsertId:              tc.InsertId,
-		RequestEncoding:       tc.RequestEncoding,
-		DiscoveryGenerationId: discoveryGenerationID,
+		GenId:           tc.GenId,
+		SessionId:       tc.SessionId,
+		TxnId:           tc.TxnId,
+		InsertId:        tc.InsertId,
+		RequestEncoding: tc.RequestEncoding,
 	}
 }
 
 func (tc *TxnControlCounters) CloneAndIncrementInsertID() *TxnControlCounters {
 	return &TxnControlCounters{
-		GenId:                 tc.GenId,
-		SessionId:             tc.SessionId,
-		TxnId:                 tc.TxnId,
-		InsertId:              tc.InsertId + 1,
-		RequestEncoding:       tc.RequestEncoding,
-		DiscoveryGenerationId: tc.DiscoveryGenerationId,
+		GenId:           tc.GenId,
+		SessionId:       tc.SessionId,
+		TxnId:           tc.TxnId,
+		InsertId:        tc.InsertId + 1,
+		RequestEncoding: tc.RequestEncoding,
 	}
 }
 

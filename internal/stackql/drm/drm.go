@@ -226,6 +226,7 @@ type StaticDRMConfig struct {
 	defaultGolangValue    interface{}
 	namespaceCollection   tablenamespace.TableNamespaceCollection
 	controlAttributes     sqlcontrol.ControlAttributes
+	sqlEngine             sqlengine.SQLEngine
 }
 
 func (dc *StaticDRMConfig) GetControlAttributes() sqlcontrol.ControlAttributes {
@@ -371,7 +372,11 @@ func (dc *StaticDRMConfig) GetGolangKind(discoType string) reflect.Kind {
 func (dc *StaticDRMConfig) GetCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers, dbEngine sqlengine.SQLEngine) (dto.DBTable, error) {
 	tn := tableHeirarchyIDs.GetTableName()
 	if dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tn) {
-		return dto.NewDBTableAnalytics(tn, -1, tableHeirarchyIDs), nil
+		templatedName, err := dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().RenderTemplate(tn)
+		if err != nil {
+			return dto.NewDBTableAnalytics(templatedName, -1, tableHeirarchyIDs), err
+		}
+		return dto.NewDBTableAnalytics(templatedName, -1, tableHeirarchyIDs), nil
 	}
 	return dbEngine.GetCurrentTable(tableHeirarchyIDs)
 }
@@ -484,11 +489,11 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 	var q strings.Builder
 	var quotedColNames, vals []string
 	var columns []ColumnMetadata
-	tableName, err := dc.inferTableName(tabAnnotated.GetHeirarchyIdentifiers(), tcc.DiscoveryGenerationId)
+	tableName, err := dc.GetCurrentTable(tabAnnotated.GetHeirarchyIdentifiers(), dc.sqlEngine)
 	if err != nil {
 		return nil, err
 	}
-	q.WriteString(fmt.Sprintf(`INSERT INTO "%s" `, tableName))
+	q.WriteString(fmt.Sprintf(`INSERT INTO "%s" `, tableName.GetName()))
 	genIdColName := dc.controlAttributes.GetControlGenIdColumnName()
 	sessionIdColName := dc.controlAttributes.GetControlSsnIdColumnName()
 	txnIdColName := dc.controlAttributes.GetControlTxnIdColumnName()
@@ -523,7 +528,7 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 			"",
 			genIdColName,
 			sessionIdColName,
-			[]string{tableName},
+			[]string{tableName.GetName()},
 			txnIdColName,
 			insIdColName,
 			insEncodedColName,
@@ -576,11 +581,11 @@ func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 	if tabAnnotated.GetAlias() != "" {
 		aliasStr = fmt.Sprintf(` AS "%s" `, tabAnnotated.GetAlias())
 	}
-	tn, err := dc.getTableName(tabAnnotated.GetHeirarchyIdentifiers(), txnCtrlCtrs.DiscoveryGenerationId)
+	tn, err := dc.GetCurrentTable(tabAnnotated.GetHeirarchyIdentifiers(), dc.sqlEngine)
 	if err != nil {
 		return nil, err
 	}
-	q.WriteString(fmt.Sprintf(`SELECT %s FROM "%s" %s WHERE `, strings.Join(quotedColNames, ", "), tn, aliasStr))
+	q.WriteString(fmt.Sprintf(`SELECT %s FROM "%s" %s WHERE `, strings.Join(quotedColNames, ", "), tn.GetName(), aliasStr))
 	q.WriteString(fmt.Sprintf(`( "%s" = ? AND "%s" = ? AND "%s" = ? AND "%s" = ? ) `, genIdColName, sessionIDColName, txnIdColName, insIdColName))
 	if strings.TrimSpace(rewrittenWhere) != "" {
 		q.WriteString(fmt.Sprintf(" AND ( %s ) ", rewrittenWhere))
@@ -707,7 +712,7 @@ func (dc *StaticDRMConfig) QueryDML(dbEngine sqlengine.SQLEngine, ctxParameteriz
 	return dbEngine.Query(query, varArgs...)
 }
 
-func GetGoogleV1SQLiteConfig(namespaceCollection tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes) (DRMConfig, error) {
+func GetGoogleV1SQLiteConfig(sqlEngine sqlengine.SQLEngine, namespaceCollection tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes) (DRMConfig, error) {
 	rv := &StaticDRMConfig{
 		typeMappings: map[string]DRMCoupling{
 			"array":   {RelationalType: "text", GolangKind: reflect.Slice},
@@ -722,6 +727,7 @@ func GetGoogleV1SQLiteConfig(namespaceCollection tablenamespace.TableNamespaceCo
 		defaultGolangValue:    sql.NullString{}, // string is default
 		namespaceCollection:   namespaceCollection,
 		controlAttributes:     controlAttributes,
+		sqlEngine:             sqlEngine,
 	}
 	return rv, nil
 }

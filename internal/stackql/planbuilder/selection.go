@@ -43,15 +43,15 @@ func (p *primitiveGenerator) assembleUnarySelectionBuilder(
 	if err != nil {
 		return err
 	}
-	tableDTO, err := p.PrimitiveComposer.GetDRMConfig().GetCurrentTable(hIds, handlerCtx.SQLEngine)
+	// tableDTO, err := p.PrimitiveComposer.GetDRMConfig().GetCurrentTable(hIds, handlerCtx.SQLEngine)
+	// if err != nil {
+	// 	return err
+	// }
+	ctrs, err := dto.NewTxnControlCounters(p.PrimitiveComposer.GetTxnCounterManager())
 	if err != nil {
 		return err
 	}
-	mgrs, err := dto.NewTxnControlCounters(p.PrimitiveComposer.GetTxnCounterManager(), tableDTO.GetDiscoveryID())
-	if err != nil {
-		return err
-	}
-	insPsc, err := p.PrimitiveComposer.GetDRMConfig().GenerateInsertDML(annotatedInsertTabulation, method, mgrs)
+	insPsc, err := p.PrimitiveComposer.GetDRMConfig().GenerateInsertDML(annotatedInsertTabulation, method, ctrs)
 	if err != nil {
 		return err
 	}

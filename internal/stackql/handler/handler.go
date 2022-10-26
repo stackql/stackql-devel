@@ -197,6 +197,7 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 		return HandlerContext{}, err
 	}
 	controlAttributes := inputBundle.GetControlAttributes()
+	sqlEngine := inputBundle.GetSQLEngine()
 	rv := HandlerContext{
 		RawQuery:            cmdString,
 		RuntimeContext:      runtimeCtx,
@@ -206,13 +207,13 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 		ControlAttributes:   controlAttributes,
 		ErrorPresentation:   runtimeCtx.ErrorPresentation,
 		LRUCache:            lruCache,
-		SQLEngine:           inputBundle.GetSQLEngine(),
+		SQLEngine:           sqlEngine,
 		SQLDialect:          inputBundle.GetSQLDialect(),
 		GarbageCollector:    inputBundle.GetGC(),
 		TxnCounterMgr:       nil,
 		namespaceCollection: inputBundle.GetNamespaceCollection(),
 	}
-	drmCfg, err := drm.GetGoogleV1SQLiteConfig(rv.namespaceCollection, controlAttributes)
+	drmCfg, err := drm.GetGoogleV1SQLiteConfig(sqlEngine, rv.namespaceCollection, controlAttributes)
 	if err != nil {
 		return HandlerContext{}, err
 	}

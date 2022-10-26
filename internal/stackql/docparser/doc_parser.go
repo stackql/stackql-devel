@@ -37,8 +37,7 @@ func OpenapiStackQLTabulationsPersistor(
 	namespaceCollection tablenamespace.TableNamespaceCollection,
 	controlAttributes sqlcontrol.ControlAttributes,
 ) (int, error) {
-
-	drmCfg, err := drm.GetGoogleV1SQLiteConfig(namespaceCollection, controlAttributes)
+	drmCfg, err := drm.GetGoogleV1SQLiteConfig(dbEngine, namespaceCollection, controlAttributes)
 	if err != nil {
 		return 0, err
 	}

@@ -975,7 +975,14 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 	if len(node.From) == 1 {
 		switch ft := node.From[0].(type) {
 		case *sqlparser.JoinTableExpr, *sqlparser.AliasedTableExpr:
-			dp := dependencyplanner.NewStandardDependencyPlanner(
+			tcc := pChild.PrimitiveComposer.GetTxnCtrlCtrs()
+			if tcc == nil {
+				tcc, err = dto.NewTxnControlCounters(p.PrimitiveComposer.GetTxnCounterManager())
+			}
+			if err != nil {
+				return err
+			}
+			dp, err := dependencyplanner.NewStandardDependencyPlanner(
 				handlerCtx,
 				dataFlows,
 				colRefs,
@@ -983,8 +990,11 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				pbi.GetStatement(),
 				tblz,
 				p.PrimitiveComposer,
-				pChild.PrimitiveComposer.GetTxnCtrlCtrs(),
+				tcc,
 			)
+			if err != nil {
+				return err
+			}
 			err = dp.Plan()
 			if err != nil {
 				return err
