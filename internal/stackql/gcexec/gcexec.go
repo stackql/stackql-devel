@@ -17,6 +17,9 @@ var (
 
 type BrutalGarbageCollectorExecutor interface {
 	Purge() error
+	PurgeCache() error
+	PurgeControlTables() error
+	PurgeEphemeral() error
 }
 
 type AbstractFlatGarbageCollectorExecutor interface {
@@ -98,9 +101,23 @@ func (rc *basicGarbageCollectorExecutor) Collect() error {
 func (rc *basicGarbageCollectorExecutor) Purge() error {
 	rc.gcMutex.Lock()
 	defer rc.gcMutex.Unlock()
-	minId, minValid := rc.txnStore.Min()
-	if !minValid {
-		return nil
-	}
-	return rc.sqlDialect.GCCollectObsoleted(minId)
+	return rc.sqlDialect.PurgeAll()
+}
+
+func (rc *basicGarbageCollectorExecutor) PurgeCache() error {
+	rc.gcMutex.Lock()
+	defer rc.gcMutex.Unlock()
+	return rc.sqlDialect.GCPurgeCache()
+}
+
+func (rc *basicGarbageCollectorExecutor) PurgeControlTables() error {
+	rc.gcMutex.Lock()
+	defer rc.gcMutex.Unlock()
+	return rc.sqlDialect.GCControlTablesPurge()
+}
+
+func (rc *basicGarbageCollectorExecutor) PurgeEphemeral() error {
+	rc.gcMutex.Lock()
+	defer rc.gcMutex.Unlock()
+	return rc.sqlDialect.GCPurgeEphemeral()
 }

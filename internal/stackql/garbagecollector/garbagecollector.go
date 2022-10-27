@@ -6,10 +6,18 @@ import (
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 )
 
+var (
+	_ GarbageCollector = &standardGarbageCollector{}
+)
+
 type GarbageCollector interface {
-	Update(string, dto.TxnControlCounters, dto.TxnControlCounters) error
 	Close() error
 	Collect() error
+	Purge() error
+	PurgeCache() error
+	PurgeControlTables() error
+	PurgeEphemeral() error
+	Update(string, dto.TxnControlCounters, dto.TxnControlCounters) error
 }
 
 func NewGarbageCollector(gcExecutor gcexec.GarbageCollectorExecutor, gcCfg dto.GCCfg, sqlEngine sqlengine.SQLEngine) GarbageCollector {
@@ -47,4 +55,16 @@ func (gc *standardGarbageCollector) Collect() error {
 
 func (gc *standardGarbageCollector) Purge() error {
 	return gc.gcExecutor.Purge()
+}
+
+func (gc *standardGarbageCollector) PurgeEphemeral() error {
+	return gc.gcExecutor.PurgeEphemeral()
+}
+
+func (gc *standardGarbageCollector) PurgeCache() error {
+	return gc.gcExecutor.PurgeCache()
+}
+
+func (gc *standardGarbageCollector) PurgeControlTables() error {
+	return gc.gcExecutor.PurgeControlTables()
 }

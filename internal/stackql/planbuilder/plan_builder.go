@@ -40,6 +40,7 @@ type PlanBuilderInput interface {
 	GetHandlerCtx() *handler.HandlerContext
 	GetInsert() (*sqlparser.Insert, bool)
 	GetPlaceholderParams() parserutil.ParameterMap
+	GetPurge() (*sqlparser.Purge, bool)
 	GetRegistry() (*sqlparser.Registry, bool)
 	GetSelect() (*sqlparser.Select, bool)
 	GetShow() (*sqlparser.Show, bool)
@@ -156,6 +157,11 @@ func (pbi *StandardPlanBuilderInput) GetRegistry() (*sqlparser.Registry, bool) {
 	return rv, ok
 }
 
+func (pbi *StandardPlanBuilderInput) GetPurge() (*sqlparser.Purge, bool) {
+	rv, ok := pbi.stmt.(*sqlparser.Purge)
+	return rv, ok
+}
+
 func (pbi *StandardPlanBuilderInput) GetSelect() (*sqlparser.Select, bool) {
 	rv, ok := pbi.stmt.(*sqlparser.Select)
 	return rv, ok
@@ -227,6 +233,8 @@ func (pgb *planGraphBuilder) createInstructionFor(pbi PlanBuilderInput) error {
 		return pgb.handleInsert(pbi)
 	case *sqlparser.OtherRead, *sqlparser.OtherAdmin:
 		return iqlerror.GetStatementNotSupportedError("OTHER")
+	case *sqlparser.Purge:
+		return pgb.handlePurge(pbi)
 	case *sqlparser.Registry:
 		return pgb.handleRegistry(pbi)
 	case *sqlparser.Rollback:
@@ -528,6 +536,77 @@ func (pgb *planGraphBuilder) handleRegistry(pbi PlanBuilderInput) error {
 			default:
 				return dto.NewErroneousExecutorOutput(fmt.Errorf("registry action '%s' no supported", at))
 			}
+		},
+	)
+	pgb.planGraph.CreatePrimitiveNode(pr)
+
+	return nil
+}
+
+func (pgb *planGraphBuilder) handlePurge(pbi PlanBuilderInput) error {
+	handlerCtx := pbi.GetHandlerCtx()
+	node, ok := pbi.GetPurge()
+	if !ok {
+		return fmt.Errorf("could not cast statement of type '%T' to required Purge", pbi.GetStatement())
+	}
+	// primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
+	pr := primitive.NewLocalPrimitive(
+		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+			if node.IsGlobal {
+				err := handlerCtx.GarbageCollector.Purge()
+				if err != nil {
+					return dto.NewErroneousExecutorOutput(err)
+				}
+				return util.PrepareResultSet(
+					dto.NewPrepareResultSetPlusRawDTO(
+						nil,
+						nil,
+						nil,
+						nil,
+						nil,
+						&dto.BackendMessages{
+							WorkingMessages: []string{fmt.Sprintf("Global PURGE successfully completed")}},
+						nil,
+					),
+				)
+			}
+			targetStr := strings.ToLower(node.Target.GetRawVal())
+			switch targetStr {
+			case "cache":
+				err := handlerCtx.GarbageCollector.PurgeCache()
+				if err != nil {
+					return dto.NewErroneousExecutorOutput(err)
+				}
+			case "conservative":
+				err := handlerCtx.GarbageCollector.Collect()
+				if err != nil {
+					return dto.NewErroneousExecutorOutput(err)
+				}
+			case "control_tables":
+				err := handlerCtx.GarbageCollector.PurgeControlTables()
+				if err != nil {
+					return dto.NewErroneousExecutorOutput(err)
+				}
+			case "ephemeral":
+				err := handlerCtx.GarbageCollector.PurgeEphemeral()
+				if err != nil {
+					return dto.NewErroneousExecutorOutput(err)
+				}
+			default:
+				return dto.NewErroneousExecutorOutput(fmt.Errorf("purge target '%s' not supported", targetStr))
+			}
+			return util.PrepareResultSet(
+				dto.NewPrepareResultSetPlusRawDTO(
+					nil,
+					nil,
+					nil,
+					nil,
+					nil,
+					&dto.BackendMessages{
+						WorkingMessages: []string{fmt.Sprintf("PURGE of type '%s' successfully completed", targetStr)}},
+					nil,
+				),
+			)
 		},
 	)
 	pgb.planGraph.CreatePrimitiveNode(pr)

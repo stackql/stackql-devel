@@ -1,6 +1,7 @@
 package sqldialect
 
 import (
+	"database/sql"
 	"fmt"
 	"strings"
 
@@ -15,8 +16,12 @@ type SQLDialect interface {
 	GCAdd(string, dto.TxnControlCounters, dto.TxnControlCounters) error
 	// GCCollectObsoleted() must be mutex-protected.
 	GCCollectObsoleted(minTransactionID int) error
+	// GCControlTablesPurge() will remove all data from non ring control tables.
+	GCControlTablesPurge() error
 	// GCPurgeCache() will completely wipe the cache.
 	GCPurgeCache() error
+	// GCPurgeCache() will completely wipe the cache.
+	GCPurgeEphemeral() error
 	// PurgeAll() drops all data tables, does **not** drop control tables.
 	PurgeAll() error
 }
@@ -97,14 +102,15 @@ func (sl *sqLiteDialect) gCCollectObsoleted(minTransactionID int) error {
 	obtainQuery := fmt.Sprintf(
 		`
 		SELECT
-			group_concat(
-				'DELETE FROM "' || name | '" WHERE "%s" < %d ; ',
-				' ' 
-			)
+			'DELETE FROM "' || name || '" WHERE "%s" < %d ; '
 		FROM
 			sqlite_master 
 		where 
 			type = 'table'
+		  and
+			name not like '__iql__%%' 
+			and
+			name NOT LIKE 'sqlite_%%' 
 		`,
 		maxTxnColName,
 		minTransactionID,
@@ -113,21 +119,33 @@ func (sl *sqLiteDialect) gCCollectObsoleted(minTransactionID int) error {
 	if err != nil {
 		return err
 	}
-	hasNext := deleteQueryResultSet.Next()
-	if !hasNext {
-		return fmt.Errorf("purgeAll() failed: query generation lacking result")
-	}
-	var deleteQueries string
-	err = deleteQueryResultSet.Scan(&deleteQueries)
+	return sl.readExecGeneratedQueries(deleteQueryResultSet)
+}
+
+func (sl *sqLiteDialect) GCControlTablesPurge() error {
+	return sl.gcControlTablesPurge()
+}
+
+func (sl *sqLiteDialect) gcControlTablesPurge() error {
+	obtainQuery := `
+		SELECT
+		  'DELETE FROM "' || name || '" ; '
+		FROM
+			sqlite_master 
+		where 
+			type = 'table'
+			and
+			name like '__iql__%'
+		`
+	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery)
 	if err != nil {
 		return err
 	}
-	q := fmt.Sprintf(
-		`BEGIN; %s COMMIT; `,
-		deleteQueries,
-	)
-	_, err = sl.sqlEngine.Exec(q)
-	return err
+	return sl.readExecGeneratedQueries(deleteQueryResultSet)
+}
+
+func (sl *sqLiteDialect) GCPurgeEphemeral() error {
+	return sl.gcPurgeEphemeral()
 }
 
 func (sl *sqLiteDialect) GCPurgeCache() error {
@@ -135,35 +153,39 @@ func (sl *sqLiteDialect) GCPurgeCache() error {
 }
 
 func (sl *sqLiteDialect) gcPurgeCache() error {
-	s, err := sl.getGCPurgeCacheTemplate()
+	query := `
+	select distinct 
+		'DROP TABLE IF EXISTS "' || name || '" ; ' 
+	from sqlite_schema 
+	where type = 'table' and name like ?
+	`
+	rows, err := sl.sqlEngine.Query(query, sl.namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetLikeString())
 	if err != nil {
 		return err
 	}
-	err = sl.sqlEngine.ExecInTxn(s)
-	return err
+	return sl.readExecGeneratedQueries(rows)
 }
 
-func (sl *sqLiteDialect) getGCPurgeCacheTemplate() ([]string, error) {
-	query := `select distinct name from sqlite_schema where type = 'table' and name like ? ;`
+func (sl *sqLiteDialect) gcPurgeEphemeral() error {
+	query := `
+	select distinct 
+		'DROP TABLE IF EXISTS "' || name || ' ; ' 
+	from 
+		sqlite_schema 
+	where 
+		type = 'table' 
+		and 
+		name NOT like ? 
+		and 
+		name not like '__iql__%' 
+		and
+		name NOT LIKE 'sqlite_%' 
+	`
 	rows, err := sl.sqlEngine.Query(query, sl.namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetLikeString())
 	if err != nil {
-		return nil, err
+		return err
 	}
-	defer rows.Close()
-	var rv []string
-	for {
-		hasNext := rows.Next()
-		if !hasNext {
-			break
-		}
-		var s string
-		err := rows.Scan(&s)
-		if err != nil {
-			return nil, err
-		}
-		rv = append(rv, fmt.Sprintf(`DROP TABLE IF EXISTS "%s" CASCADE; `, s))
-	}
-	return rv, nil
+	return sl.readExecGeneratedQueries(rows)
 }
 
 func (sl *sqLiteDialect) PurgeAll() error {
@@ -173,34 +195,38 @@ func (sl *sqLiteDialect) PurgeAll() error {
 func (sl *sqLiteDialect) purgeAll() error {
 	obtainQuery := `
 		SELECT
-			group_concat(
-				'DROP TABLE IF EXISTS "' || name || '" ; ',
-				' ' 
-			)
+			'DROP TABLE IF EXISTS "' || name || '" ; '
 		FROM
 			sqlite_master 
 		where 
 			type = 'table'
 		  AND
 			name NOT LIKE '__iql__%'
+			and
+			name NOT LIKE 'sqlite_%'
 		`
 	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery)
 	if err != nil {
 		return err
 	}
-	hasNext := deleteQueryResultSet.Next()
-	if !hasNext {
-		return fmt.Errorf("purgeAll() failed: query generation lacking result")
+	return sl.readExecGeneratedQueries(deleteQueryResultSet)
+}
+
+func (sl *sqLiteDialect) readExecGeneratedQueries(queryResultSet *sql.Rows) error {
+	defer queryResultSet.Close()
+	var queries []string
+	for {
+		hasNext := queryResultSet.Next()
+		if !hasNext {
+			break
+		}
+		var s string
+		err := queryResultSet.Scan(&s)
+		if err != nil {
+			return err
+		}
+		queries = append(queries, s)
 	}
-	var deleteQueries string
-	err = deleteQueryResultSet.Scan(&deleteQueries)
-	if err != nil {
-		return err
-	}
-	q := fmt.Sprintf(
-		`BEGIN; %s COMMIT; `,
-		deleteQueries,
-	)
-	_, err = sl.sqlEngine.Exec(q)
+	err := sl.sqlEngine.ExecInTxn(queries)
 	return err
 }
