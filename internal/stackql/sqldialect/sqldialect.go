@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/stackql/stackql/internal/stackql/dto"
-	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
@@ -14,18 +13,12 @@ import (
 type SQLDialect interface {
 	// GCAdd() will record a Txn as active
 	GCAdd(string, dto.TxnControlCounters, dto.TxnControlCounters) error
-	// GCCollect() will collect unmarked (from input list) condemned records, from:
-	//   - canonical tables.
-	//   - cache.
-	GCCollect([]int, []int) error
-	// GCCollectAll() will collect **all** condemned / expired records, from both canonical tables and cache.
-	GCCollectAll() error
-	// GCCollectFromCache() will collect unmarked (from input list), expired cache records.
-	GCCollectFromCache([]int) error
 	// GCCollectObsoleted() must be mutex-protected.
 	GCCollectObsoleted(minTransactionID int) error
 	// GCPurgeCache() will completely wipe the cache.
 	GCPurgeCache() error
+	// PurgeAll() drops all data tables, does **not** drop control tables.
+	PurgeAll() error
 }
 
 func NewSQLDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes, name string) (SQLDialect, error) {
@@ -95,14 +88,6 @@ func (sl *sqLiteDialect) GCAdd(tableName string, parentTcc, lockableTcc dto.TxnC
 	return err
 }
 
-func (sl *sqLiteDialect) GCCollectAll() error {
-	return sl.gcCollectAll()
-}
-
-func (sl *sqLiteDialect) GCCollect(transactionIDs, cacheTransactionIDs []int) error {
-	return sl.gcCollect(transactionIDs, cacheTransactionIDs)
-}
-
 func (sl *sqLiteDialect) GCCollectObsoleted(minTransactionID int) error {
 	return sl.gCCollectObsoleted(minTransactionID)
 }
@@ -130,7 +115,7 @@ func (sl *sqLiteDialect) gCCollectObsoleted(minTransactionID int) error {
 	}
 	hasNext := deleteQueryResultSet.Next()
 	if !hasNext {
-
+		return fmt.Errorf("purgeAll() failed: query generation lacking result")
 	}
 	var deleteQueries string
 	err = deleteQueryResultSet.Scan(&deleteQueries)
@@ -142,47 +127,6 @@ func (sl *sqLiteDialect) gCCollectObsoleted(minTransactionID int) error {
 		deleteQueries,
 	)
 	_, err = sl.sqlEngine.Exec(q)
-	return err
-}
-
-func (sl *sqLiteDialect) GCCollectFromCache(transactionIDs []int) error {
-	return sl.gcCollectFromCache(transactionIDs)
-}
-
-func (sl *sqLiteDialect) gcCollectAll() error {
-	s, err := sl.getGCCollectAllTemplate()
-	if err != nil {
-		return err
-	}
-	s2, err := sl.getGCCollectCacheTemplate(nil)
-	if err != nil {
-		return err
-	}
-	s = append(s, s2...)
-	err = sl.sqlEngine.ExecInTxn(s)
-	return err
-}
-
-func (sl *sqLiteDialect) gcCollect(transactionIDs, cacheTransactionIDs []int) error {
-	s, err := sl.getGCCollectTemplate(transactionIDs)
-	if err != nil {
-		return err
-	}
-	s2, err := sl.getGCCollectCacheTemplate(cacheTransactionIDs)
-	if err != nil {
-		return err
-	}
-	s = append(s, s2...)
-	err = sl.sqlEngine.ExecInTxn(s)
-	return err
-}
-
-func (sl *sqLiteDialect) gcCollectFromCache(transactionIDs []int) error {
-	s, err := sl.getGCCollectCacheTemplate(transactionIDs)
-	if err != nil {
-		return err
-	}
-	err = sl.sqlEngine.ExecInTxn(s)
 	return err
 }
 
@@ -222,130 +166,41 @@ func (sl *sqLiteDialect) getGCPurgeCacheTemplate() ([]string, error) {
 	return rv, nil
 }
 
-func (sl *sqLiteDialect) getGCCollectAllTemplate() ([]string, error) {
-	query := `SELECT DISTINCT table_name FROM "__iql__.control.gc.txn_table_x_ref" ;`
-	rows, err := sl.sqlEngine.Query(query)
+func (sl *sqLiteDialect) PurgeAll() error {
+	return sl.purgeAll()
+}
+
+func (sl *sqLiteDialect) purgeAll() error {
+	obtainQuery := `
+		SELECT
+			group_concat(
+				'DROP TABLE IF EXISTS "' || name || '" ; ',
+				' ' 
+			)
+		FROM
+			sqlite_master 
+		where 
+			type = 'table'
+		  AND
+			name NOT LIKE '__iql__%'
+		`
+	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery)
 	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var rv []string
-	for {
-		hasNext := rows.Next()
-		if !hasNext {
-			break
-		}
-		var s string
-		err := rows.Scan(&s)
-		if err != nil {
-			return nil, err
-		}
-		rv = append(rv, fmt.Sprintf("delete from %s; ", s))
-	}
-	return rv, nil
-}
-
-func (sl *sqLiteDialect) getGCCollectTemplate(transactionIDs []int) ([]string, error) {
-	var transactionIDStrings []string
-	for _, txn := range transactionIDs {
-		transactionIDStrings = append(transactionIDStrings, fmt.Sprintf("%d", txn))
-	}
-	var inBuilder strings.Builder
-	inBuilder.WriteString("( ")
-	inBuilder.WriteString(strings.Join(transactionIDStrings, ", "))
-	inBuilder.WriteString(" )")
-	query := fmt.Sprintf(`SELECT DISTINCT table_name, iql_transaction_id FROM "__iql__.control.gc.txn_table_x_ref" WHERE iql_transaction_id NOT IN %s AND table_name NOT LIKE ? ;`, inBuilder.String())
-	rows, err := sl.sqlEngine.Query(query, sl.namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetLikeString())
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var rv []string
-	for {
-		hasNext := rows.Next()
-		if !hasNext {
-			break
-		}
-		var s string
-		var i int
-		err = rows.Scan(&s, &i)
-		if err != nil {
-			return nil, err
-		}
-		rv = append(rv, fmt.Sprintf(`delete from "%s" where iql_transaction_id  = %d ; `, s, i))
-	}
-	return rv, nil
-}
-
-func (se *sqLiteDialect) collectUnreachable() error {
-	return se.concertedQueryGen(unreachableTablesQuery)
-}
-
-func (se *sqLiteDialect) collectObsolete() error {
-	return se.concertedQueryGen(cleanupObsoleteQuery)
-}
-
-func (se *sqLiteDialect) collectObsoleteQualified(tcc *dto.TxnControlCounters) error {
-	return se.concertedQueryGen(cleanupObsoleteQualifiedQuery, tcc.GenId, tcc.SessionId, tcc.TxnId)
-}
-
-func (se *sqLiteDialect) concertedQueryGen(generatorQuery string, args ...interface{}) error {
-	if se.sqlEngine.IsMemory() {
-		return nil
-	}
-	rows, err := se.sqlEngine.Query(generatorQuery, args...)
-	if err != nil {
-		logging.GetLogger().Infoln(fmt.Sprintf("obsolete compose error: %v", err))
 		return err
 	}
-	amalgam, err := singleColRowsToString(rows)
+	hasNext := deleteQueryResultSet.Next()
+	if !hasNext {
+		return fmt.Errorf("purgeAll() failed: query generation lacking result")
+	}
+	var deleteQueries string
+	err = deleteQueryResultSet.Scan(&deleteQueries)
 	if err != nil {
-		logging.GetLogger().Infoln(fmt.Sprintf("obsolete obtain error: %v", err))
 		return err
 	}
-	logging.GetLogger().Infoln(fmt.Sprintf("amalgam = %s", amalgam))
-	_, err = se.sqlEngine.Exec(amalgam, args...)
-	if err != nil {
-		logging.GetLogger().Infoln(fmt.Sprintf("obsolete exec error: %v", err))
-		return err
-	}
-	return nil
-}
-
-func (se *sqLiteDialect) GCCollectObsolete(tcc *dto.TxnControlCounters) error {
-	return se.collectObsoleteQualified(tcc)
-}
-
-func (sl *sqLiteDialect) getGCCollectCacheTemplate(transactionIDs []int) ([]string, error) {
-	var transactionIDStrings []string
-	for _, txn := range transactionIDs {
-		transactionIDStrings = append(transactionIDStrings, fmt.Sprintf("%d", txn))
-	}
-	var inBuilder strings.Builder
-	inBuilder.WriteString("( ")
-	inBuilder.WriteString(strings.Join(transactionIDStrings, ", "))
-	inBuilder.WriteString(" )")
-	query := fmt.Sprintf(`SELECT DISTINCT table_name, iql_transaction_id FROM "__iql__.control.gc.txn_table_x_ref" WHERE iql_transaction_id NOT IN %s AND table_name LIKE ? ;`, inBuilder.String())
-	rows, err := sl.sqlEngine.Query(query, sl.namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetLikeString())
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var rv []string
-	for {
-		hasNext := rows.Next()
-		if !hasNext {
-			break
-		}
-		var s string
-		var i int
-		err = rows.Scan(&s, &i)
-		if err != nil {
-			return nil, err
-		}
-		if sl.namespaces.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(s) {
-			rv = append(rv, fmt.Sprintf(`delete from "%s" where iql_transaction_id  = %d and iql_latest_update <= datetime('now','-%d second'); `, s, i, sl.namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetTTL()))
-		}
-	}
-	return rv, nil
+	q := fmt.Sprintf(
+		`BEGIN; %s COMMIT; `,
+		deleteQueries,
+	)
+	_, err = sl.sqlEngine.Exec(q)
+	return err
 }

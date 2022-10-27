@@ -48,15 +48,15 @@ func BuildInputBundle(runtimeCtx dto.RuntimeCtx) (bundle.Bundle, error) {
 	if err != nil {
 		return nil, err
 	}
-	gcExec, err := buildGCExec(se, namespaces, dialect)
-	if err != nil {
-		return nil, err
-	}
-	gc := buildGC(gcExec, gcCfg, se)
 	txnStore, err := kstore.GetKStore(txnStoreCfg)
 	if err != nil {
 		return nil, err
 	}
+	gcExec, err := buildGCExec(se, namespaces, dialect, txnStore)
+	if err != nil {
+		return nil, err
+	}
+	gc := buildGC(gcExec, gcCfg, se)
 	txnCtrMgr, err := getTxnCounterManager(se)
 	if err != nil {
 		return nil, err
@@ -77,8 +77,8 @@ func buildSQLEngine(runtimeCtx dto.RuntimeCtx, controlAttributes sqlcontrol.Cont
 	return sqlengine.NewSQLEngine(sqlCfg, controlAttributes)
 }
 
-func buildGCExec(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, dialect sqldialect.SQLDialect) (gcexec.GarbageCollectorExecutor, error) {
-	return gcexec.GetGarbageCollectorExecutorInstance(sqlEngine, namespaces, dialect)
+func buildGCExec(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, dialect sqldialect.SQLDialect, txnStore kstore.KStore) (gcexec.GarbageCollectorExecutor, error) {
+	return gcexec.GetGarbageCollectorExecutorInstance(sqlEngine, namespaces, dialect, txnStore)
 }
 
 func buildGC(gcExec gcexec.GarbageCollectorExecutor, gcCfg dto.GCCfg, sqlEngine sqlengine.SQLEngine) garbagecollector.GarbageCollector {

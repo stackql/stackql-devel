@@ -750,7 +750,7 @@ func BuildPlanFromContext(handlerCtx *handler.HandlerContext) (*plan.Plan, error
 	tcc, err := dto.NewTxnControlCounters(handlerCtx.TxnCounterMgr)
 	handlerCtx.TxnStore.Put(tcc.TxnId)
 	defer handlerCtx.TxnStore.Del(tcc.TxnId)
-	logging.GetLogger().Infof("tcc = %v", tcc)
+	logging.GetLogger().Debugf("tcc = %v\n", tcc)
 	if err != nil {
 		return nil, err
 	}

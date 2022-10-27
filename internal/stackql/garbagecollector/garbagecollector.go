@@ -4,13 +4,10 @@ import (
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/gcexec"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
-	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
-	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 )
 
 type GarbageCollector interface {
 	Update(string, dto.TxnControlCounters, dto.TxnControlCounters) error
-	AddInsertContainer(tm *tablemetadata.ExtendedTableMetadata) tableinsertioncontainer.TableInsertionContainer
 	Close() error
 	Collect() error
 }
@@ -28,10 +25,9 @@ func newStandardGarbageCollector(gcExecutor gcexec.GarbageCollectorExecutor, pol
 }
 
 type standardGarbageCollector struct {
-	gcExecutor       gcexec.GarbageCollectorExecutor
-	insertContainers []tableinsertioncontainer.TableInsertionContainer
-	isEager          bool
-	sqlEngine        sqlengine.SQLEngine
+	gcExecutor gcexec.GarbageCollectorExecutor
+	isEager    bool
+	sqlEngine  sqlengine.SQLEngine
 }
 
 func (gc *standardGarbageCollector) Update(tableName string, parentTcc, tcc dto.TxnControlCounters) error {
@@ -39,10 +35,6 @@ func (gc *standardGarbageCollector) Update(tableName string, parentTcc, tcc dto.
 }
 
 func (gc *standardGarbageCollector) Close() error {
-	for _, ic := range gc.insertContainers {
-		a, b := ic.GetTableTxnCounters()
-		gc.gcExecutor.Condemn(a, *b)
-	}
 	if gc.isEager {
 		return gc.gcExecutor.Collect()
 	}
@@ -53,16 +45,6 @@ func (gc *standardGarbageCollector) Collect() error {
 	return gc.gcExecutor.Collect()
 }
 
-func (gc *standardGarbageCollector) AddInsertContainer(tm *tablemetadata.ExtendedTableMetadata) tableinsertioncontainer.TableInsertionContainer {
-	rv := tableinsertioncontainer.NewTableInsertionContainer(tm, gc.sqlEngine)
-	gc.insertContainers = append(gc.insertContainers, rv)
-	return rv
-}
-
-func (gc *standardGarbageCollector) GetGarbageCollectorExecutor() gcexec.GarbageCollectorExecutor {
-	return gc.gcExecutor
-}
-
-func (gc *standardGarbageCollector) GetInsertContainers() []tableinsertioncontainer.TableInsertionContainer {
-	return gc.insertContainers
+func (gc *standardGarbageCollector) Purge() error {
+	return gc.gcExecutor.Purge()
 }
