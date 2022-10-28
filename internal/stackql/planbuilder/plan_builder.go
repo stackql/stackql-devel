@@ -39,6 +39,7 @@ type PlanBuilderInput interface {
 	GetExec() (*sqlparser.Exec, bool)
 	GetHandlerCtx() *handler.HandlerContext
 	GetInsert() (*sqlparser.Insert, bool)
+	GetNativeQuery() (*sqlparser.NativeQuery, bool)
 	GetPlaceholderParams() parserutil.ParameterMap
 	GetPurge() (*sqlparser.Purge, bool)
 	GetRegistry() (*sqlparser.Registry, bool)
@@ -162,6 +163,11 @@ func (pbi *StandardPlanBuilderInput) GetPurge() (*sqlparser.Purge, bool) {
 	return rv, ok
 }
 
+func (pbi *StandardPlanBuilderInput) GetNativeQuery() (*sqlparser.NativeQuery, bool) {
+	rv, ok := pbi.stmt.(*sqlparser.NativeQuery)
+	return rv, ok
+}
+
 func (pbi *StandardPlanBuilderInput) GetSelect() (*sqlparser.Select, bool) {
 	rv, ok := pbi.stmt.(*sqlparser.Select)
 	return rv, ok
@@ -231,6 +237,8 @@ func (pgb *planGraphBuilder) createInstructionFor(pbi PlanBuilderInput) error {
 		return iqlerror.GetStatementNotSupportedError("EXPLAIN")
 	case *sqlparser.Insert:
 		return pgb.handleInsert(pbi)
+	case *sqlparser.NativeQuery:
+		return pgb.handleNativeQuery(pbi)
 	case *sqlparser.OtherRead, *sqlparser.OtherAdmin:
 		return iqlerror.GetStatementNotSupportedError("OTHER")
 	case *sqlparser.Purge:
@@ -610,6 +618,23 @@ func (pgb *planGraphBuilder) handlePurge(pbi PlanBuilderInput) error {
 		},
 	)
 	pgb.planGraph.CreatePrimitiveNode(pr)
+
+	return nil
+}
+
+func (pgb *planGraphBuilder) handleNativeQuery(pbi PlanBuilderInput) error {
+	handlerCtx := pbi.GetHandlerCtx()
+	node, ok := pbi.GetNativeQuery()
+	if !ok {
+		return fmt.Errorf("could not cast statement of type '%T' to required Purge", pbi.GetStatement())
+	}
+	rns := primitivebuilder.NewRawNativeSelect(pgb.planGraph, handlerCtx, pbi.GetTxnCtrlCtrs(), node.QueryString)
+
+	err := rns.Build()
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

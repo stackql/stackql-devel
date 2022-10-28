@@ -1,6 +1,7 @@
 package util
 
 import (
+	"database/sql"
 	"fmt"
 	"sort"
 	"strings"
@@ -359,6 +360,54 @@ func PrepareResultSet(payload dto.PrepareResultSetDTO) dto.ExecutorOutput {
 	return rv
 }
 
+func PrepareNativeResultSet(rows *sql.Rows) dto.ExecutorOutput {
+	if rows == nil {
+		return dto.NewExecutorOutput(
+			nil,
+			nil,
+			nil,
+			&dto.BackendMessages{WorkingMessages: []string{"native sql nil result set"}},
+			nil,
+		)
+	}
+	colTypes, err := rows.ColumnTypes()
+	if err != nil {
+		return dto.NewErroneousExecutorOutput(err)
+	}
+
+	var columns []sqldata.ISQLColumn
+
+	for _, col := range colTypes {
+		columns = append(columns, getPlaceholderColumnForNativeResult(nil, col.Name(), col))
+	}
+	rowPtr := make([]any, len(colTypes))
+
+	var outRows []sqldata.ISQLRow
+
+	for {
+		hasNext := rows.Next()
+		if !hasNext {
+			break
+		}
+		err = rows.Scan(rowPtr...)
+		if err != nil {
+			return dto.NewErroneousExecutorOutput(err)
+		}
+		outRows = append(outRows, sqldata.NewSQLRow(rowPtr))
+	}
+	resultStream := sqldata.NewChannelSQLResultStream()
+	rv := dto.NewExecutorOutput(
+		resultStream,
+		nil,
+		nil,
+		nil,
+		nil,
+	)
+	resultStream.Write(sqldata.NewSQLResult(columns, 0, 0, outRows))
+	resultStream.Close()
+	return rv
+}
+
 func EmptyProtectResultSet(rv dto.ExecutorOutput, columns []string) dto.ExecutorOutput {
 	return emptyProtectResultSet(rv, columns)
 }
@@ -406,12 +455,40 @@ func getOidForSchema(colSchema *openapistackql.Schema) oid.Oid {
 	}
 }
 
+func getOidForSQLType(colType *sql.ColumnType) oid.Oid {
+	if colType == nil {
+		return oid.T_text
+	}
+	switch strings.ToLower(colType.DatabaseTypeName()) {
+	case "object", "array":
+		return oid.T_text
+	case "boolean", "bool":
+		return oid.T_text
+	case "number", "int", "bigint", "smallint", "tinyint":
+		return oid.T_numeric
+	default:
+		return oid.T_text
+	}
+}
+
 func getPlaceholderColumn(table sqldata.ISQLTable, colName string, colSchema *openapistackql.Schema) sqldata.ISQLColumn {
 	return sqldata.NewSQLColumn(
 		table,
 		colName,
 		0,
 		uint32(getOidForSchema(colSchema)),
+		1024,
+		0,
+		"TextFormat",
+	)
+}
+
+func getPlaceholderColumnForNativeResult(table sqldata.ISQLTable, colName string, colSchema *sql.ColumnType) sqldata.ISQLColumn {
+	return sqldata.NewSQLColumn(
+		table,
+		colName,
+		0,
+		uint32(getOidForSQLType(colSchema)),
 		1024,
 		0,
 		"TextFormat",
