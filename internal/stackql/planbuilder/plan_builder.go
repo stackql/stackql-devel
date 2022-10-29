@@ -603,6 +603,8 @@ func (pgb *planGraphBuilder) handlePurge(pbi PlanBuilderInput) error {
 			default:
 				return dto.NewErroneousExecutorOutput(fmt.Errorf("purge target '%s' not supported", targetStr))
 			}
+			// This happens in all cases, provided the ourge is successful.
+			handlerCtx.LRUCache.Clear()
 			return util.PrepareResultSet(
 				dto.NewPrepareResultSetPlusRawDTO(
 					nil,
@@ -910,8 +912,8 @@ func BuildPlanFromContext(handlerCtx *handler.HandlerContext) (*plan.Plan, error
 		}
 	} else {
 		// First pass AST analysis; extract provider strings for auth.
-		provStrSlice, analyticsCacheMaterialDetected := astvisit.ExtractProviderStringsAndDetectAnalyticsCache(result.AST, handlerCtx.GetNamespaceCollection())
-		if analyticsCacheMaterialDetected {
+		provStrSlice, cacheExemptMaterialDetected := astvisit.ExtractProviderStringsAndDetectCacheExceptMaterial(result.AST, handlerCtx.GetNamespaceCollection())
+		if cacheExemptMaterialDetected {
 			qPlan.SetCacheable(false)
 		}
 		for _, p := range provStrSlice {

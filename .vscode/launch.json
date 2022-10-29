@@ -55,7 +55,7 @@
       "type": "go",
       "request": "attach",
       "mode": "local",
-      "processId": 96874
+      "processId": 61515
     },
     // DEBUG
     {

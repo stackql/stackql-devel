@@ -169,7 +169,7 @@ func (sl *sqLiteDialect) gcPurgeCache() error {
 func (sl *sqLiteDialect) gcPurgeEphemeral() error {
 	query := `
 	select distinct 
-		'DROP TABLE IF EXISTS "' || name || ' ; ' 
+		'DROP TABLE IF EXISTS "' || name || '" ; ' 
 	from 
 		sqlite_schema 
 	where 
