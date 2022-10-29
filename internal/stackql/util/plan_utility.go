@@ -360,6 +360,24 @@ func PrepareResultSet(payload dto.PrepareResultSetDTO) dto.ExecutorOutput {
 	return rv
 }
 
+func getColumnArr(colTypes []*sql.ColumnType) []sqldata.ISQLColumn {
+	var columns []sqldata.ISQLColumn
+
+	for _, col := range colTypes {
+		columns = append(columns, getPlaceholderColumnForNativeResult(nil, col.Name(), col))
+	}
+	return columns
+}
+
+func getRowPointers(colTypes []*sql.ColumnType) []any {
+	var rowPtr []any
+
+	for _, col := range colTypes {
+		rowPtr = append(rowPtr, getScannableObjectForNativeResult(col))
+	}
+	return rowPtr
+}
+
 func PrepareNativeResultSet(rows *sql.Rows) dto.ExecutorOutput {
 	if rows == nil {
 		return dto.NewExecutorOutput(
@@ -375,12 +393,7 @@ func PrepareNativeResultSet(rows *sql.Rows) dto.ExecutorOutput {
 		return dto.NewErroneousExecutorOutput(err)
 	}
 
-	var columns []sqldata.ISQLColumn
-
-	for _, col := range colTypes {
-		columns = append(columns, getPlaceholderColumnForNativeResult(nil, col.Name(), col))
-	}
-	rowPtr := make([]any, len(colTypes))
+	columns := getColumnArr(colTypes)
 
 	var outRows []sqldata.ISQLRow
 
@@ -389,6 +402,7 @@ func PrepareNativeResultSet(rows *sql.Rows) dto.ExecutorOutput {
 		if !hasNext {
 			break
 		}
+		rowPtr := getRowPointers(colTypes)
 		err = rows.Scan(rowPtr...)
 		if err != nil {
 			return dto.NewErroneousExecutorOutput(err)
@@ -493,6 +507,23 @@ func getPlaceholderColumnForNativeResult(table sqldata.ISQLTable, colName string
 		0,
 		"TextFormat",
 	)
+}
+
+func getScannableObjectForNativeResult(colSchema *sql.ColumnType) any {
+	switch strings.ToLower(colSchema.DatabaseTypeName()) {
+	case "int", "int32", "smallint", "tinyint":
+		return new(sql.NullInt32)
+	case "uint", "uint32":
+		return new(sql.NullInt64)
+	case "int64", "bigint":
+		return new(sql.NullInt64)
+	case "numeric", "decimal", "float", "float32", "float64":
+		return new(sql.NullFloat64)
+	case "bool":
+		return new(sql.NullBool)
+	default:
+		return new(sql.NullString)
+	}
 }
 
 func GetHeaderOnlyResultStream(colz []string) sqldata.ISQLResultStream {

@@ -306,6 +306,20 @@
       ],
     },
     {
+      "name": "native query",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
+      "args": [
+        "exec",
+        "--registry=${input:registryString}",
+        "--auth=${input:authString}",
+        "--tls.allowInsecure=true",
+        "NATIVEQUERY 'select * from sqlite_master';"
+      ],
+    },
+    {
       "name": "okta pagination",
       "type": "go",
       "request": "launch",
