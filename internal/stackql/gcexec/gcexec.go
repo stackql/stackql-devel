@@ -89,7 +89,7 @@ func (rc *basicGarbageCollectorExecutor) Collect() error {
 	defer rc.gcMutex.Unlock()
 	minId, minValid := rc.txnStore.Min()
 	if !minValid {
-		return nil
+		return rc.sqlDialect.GCCollectAll()
 	}
 	return rc.sqlDialect.GCCollectObsoleted(minId)
 }

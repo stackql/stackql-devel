@@ -14,6 +14,8 @@ import (
 type SQLDialect interface {
 	// GCAdd() will record a Txn as active
 	GCAdd(string, dto.TxnControlCounters, dto.TxnControlCounters) error
+	// GCCollectAll() will remove all records from data tables.
+	GCCollectAll() error
 	// GCCollectObsoleted() must be mutex-protected.
 	GCCollectObsoleted(minTransactionID int) error
 	// GCControlTablesPurge() will remove all data from non ring control tables.
@@ -115,6 +117,30 @@ func (sl *sqLiteDialect) gCCollectObsoleted(minTransactionID int) error {
 		maxTxnColName,
 		minTransactionID,
 	)
+	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery)
+	if err != nil {
+		return err
+	}
+	return sl.readExecGeneratedQueries(deleteQueryResultSet)
+}
+
+func (sl *sqLiteDialect) GCCollectAll() error {
+	return sl.gCCollectAll()
+}
+
+func (sl *sqLiteDialect) gCCollectAll() error {
+	obtainQuery := `
+		SELECT
+			'DELETE FROM "' || name || '"  ; '
+		FROM
+			sqlite_master 
+		where 
+			type = 'table'
+		  and
+			name not like '__iql__%%' 
+			and
+			name NOT LIKE 'sqlite_%%' 
+		`
 	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery)
 	if err != nil {
 		return err
