@@ -320,7 +320,7 @@ jobs:
 
   macosbuild:
     name: MacOS Build
-    runs-on: macos-latest
+    runs-on: macos-11
     steps:
     - name: Set up Go 1.x
       uses: actions/setup-go@v3
