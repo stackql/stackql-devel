@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"io/ioutil"
-	"strings"
 	"sync"
 	"time"
 
@@ -13,7 +12,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/util"
 
-	_ "github.com/stackql/go-sqlite3"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 var (
@@ -22,7 +21,7 @@ var (
 
 type postgresTcpEngine struct {
 	db                *sql.DB
-	fileName          string
+	connectionString  string
 	controlAttributes sqlcontrol.ControlAttributes
 	ctrlMutex         *sync.Mutex
 	sessionMutex      *sync.Mutex
@@ -30,7 +29,7 @@ type postgresTcpEngine struct {
 }
 
 func (se *postgresTcpEngine) IsMemory() bool {
-	return strings.Contains(se.fileName, ":memory:") || strings.Contains(se.fileName, "mode=memory")
+	return false
 }
 
 func (se *postgresTcpEngine) GetDB() (*sql.DB, error) {
@@ -38,15 +37,15 @@ func (se *postgresTcpEngine) GetDB() (*sql.DB, error) {
 }
 
 func newPostgresTcpEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAttributes) (*postgresTcpEngine, error) {
-	fileName := cfg.DbFilePath
-	if fileName == "" {
-		fileName = "file::memory:?cache=shared"
+	connectionString := cfg.DbFilePath
+	if connectionString == "" {
+		return nil, fmt.Errorf("cannot init postgres TCP connection with empty connection string")
 	}
-	db, err := sql.Open("sqlite3", fileName)
+	db, err := sql.Open("pgx", connectionString)
 	db.SetConnMaxLifetime(-1)
 	eng := &postgresTcpEngine{
 		db:                db,
-		fileName:          fileName,
+		connectionString:  connectionString,
 		controlAttributes: controlAttributes,
 		ctrlMutex:         &sync.Mutex{},
 		sessionMutex:      &sync.Mutex{},
@@ -61,7 +60,7 @@ func newPostgresTcpEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.Co
 	if err != nil {
 		return eng, err
 	}
-	logging.GetLogger().Infoln(fmt.Sprintf("opened db with file = '%s' and err  = '%v'", fileName, err))
+	logging.GetLogger().Infoln(fmt.Sprintf("opened postgres TCP db with connection string = '%s' and err  = '%v'", connectionString, err))
 	if err != nil {
 		return eng, err
 	}

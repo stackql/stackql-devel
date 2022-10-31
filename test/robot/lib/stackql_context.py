@@ -238,7 +238,9 @@ STACKQL_PG_RUBBISH_CERT_PATH_DOCKER :str = os.path.abspath(os.path.join(REPOSITO
 ANALYTICS_DB_INIT_PATH :str = os.path.abspath(os.path.join(REPOSITORY_ROOT, "test", "db", "cache_setup.sql"))
 ANALYTICS_DB_INIT_PATH_DOCKER :str = get_unix_path(os.path.join('/opt', 'stackql', "db", "cache_setup.sql"))
 
-ANALYTICS_SQL_BACKEND_CFG_STR :str = f'{{ "dbInitFilepath": "{ANALYTICS_DB_INIT_PATH}" }}'
+ANALYTICS_DB_INIT_PATH_UNIX :str = get_unix_path(ANALYTICS_DB_INIT_PATH)
+
+ANALYTICS_SQL_BACKEND_CFG_STR :str = f'{{ "dbInitFilepath": "{ANALYTICS_DB_INIT_PATH_UNIX}" }}'.replace(' ', '')
 ANALYTICS_SQL_BACKEND_CFG_STR_DOCKER :str = f'{{ "dbInitFilepath": "{ANALYTICS_DB_INIT_PATH_DOCKER}" }}'
 
 with open(os.path.join(REPOSITORY_ROOT, 'test', 'server', 'mtls', 'credentials', 'pg_client_cert.pem'), 'rb') as f:
