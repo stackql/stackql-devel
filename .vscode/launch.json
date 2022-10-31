@@ -383,8 +383,10 @@
       "program": "${workspaceFolder}/stackql",
       "args": [
         "srv",
+        "--pgsrv.port=5888",
+        "--tls.allowInsecure",
         "--auth=${input:authString}",
-        "{ \"url\": \"file://${workspaceFolder}/examples/registry\", \"localDocRoot\": \"${workspaceFolder}/examples/registry\", \"verifyConfig\": {\"nopVerify\": true } }"
+        "--registry=${input:registryString}"
       ],
     },
     {

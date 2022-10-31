@@ -363,8 +363,10 @@ func PrepareResultSet(payload dto.PrepareResultSetDTO) dto.ExecutorOutput {
 func getColumnArr(colTypes []*sql.ColumnType) []sqldata.ISQLColumn {
 	var columns []sqldata.ISQLColumn
 
+	table := sqldata.NewSQLTable(0, "meta_table")
+
 	for _, col := range colTypes {
-		columns = append(columns, getPlaceholderColumnForNativeResult(nil, col.Name(), col))
+		columns = append(columns, getPlaceholderColumnForNativeResult(table, col.Name(), col))
 	}
 	return columns
 }
@@ -378,22 +380,45 @@ func getRowPointers(colTypes []*sql.ColumnType) []any {
 	return rowPtr
 }
 
+func nativeProtect(rv dto.ExecutorOutput, columns []string) dto.ExecutorOutput {
+	if rv.GetSQLResult() == nil {
+		table := sqldata.NewSQLTable(0, "meta_table")
+		rCols := make([]sqldata.ISQLColumn, len(columns))
+		for f := range rCols {
+			rCols[f] = getPlaceholderColumn(table, columns[f], nil)
+		}
+		rv.GetSQLResult = func() sqldata.ISQLResultStream {
+			return sqldata.NewSimpleSQLResultStream(sqldata.NewSQLResult(rCols, 0, 0, []sqldata.ISQLRow{
+				sqldata.NewSQLRow([]interface{}{}),
+			}))
+		}
+	}
+	return rv
+}
+
 func PrepareNativeResultSet(rows *sql.Rows) dto.ExecutorOutput {
 	if rows == nil {
-		return dto.NewExecutorOutput(
+		emptyResult := dto.NewExecutorOutput(
 			nil,
 			nil,
 			nil,
 			&dto.BackendMessages{WorkingMessages: []string{"native sql nil result set"}},
 			nil,
 		)
+		return nativeProtect(emptyResult, []string{"error"})
 	}
 	colTypes, err := rows.ColumnTypes()
 	if err != nil {
-		return dto.NewErroneousExecutorOutput(err)
+		return nativeProtect(dto.NewErroneousExecutorOutput(err), []string{"error"})
 	}
 
 	columns := getColumnArr(colTypes)
+
+	var colz []string
+
+	for _, c := range colTypes {
+		colz = append(colz, c.Name())
+	}
 
 	var outRows []sqldata.ISQLRow
 
@@ -405,7 +430,7 @@ func PrepareNativeResultSet(rows *sql.Rows) dto.ExecutorOutput {
 		rowPtr := getRowPointers(colTypes)
 		err = rows.Scan(rowPtr...)
 		if err != nil {
-			return dto.NewErroneousExecutorOutput(err)
+			return nativeProtect(dto.NewErroneousExecutorOutput(err), []string{"error"})
 		}
 		outRows = append(outRows, sqldata.NewSQLRow(rowPtr))
 	}
@@ -419,6 +444,9 @@ func PrepareNativeResultSet(rows *sql.Rows) dto.ExecutorOutput {
 	)
 	resultStream.Write(sqldata.NewSQLResult(columns, 0, 0, outRows))
 	resultStream.Close()
+	if len(outRows) == 0 {
+		nativeProtect(rv, colz)
+	}
 	return rv
 }
 

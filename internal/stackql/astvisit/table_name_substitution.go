@@ -611,7 +611,7 @@ func (v *TableNameSubstitutionAstVisitor) Visit(node sqlparser.SQLNode) error {
 					return fmt.Errorf("cannot process table '%s'", exp.GetRawVal())
 				}
 				logging.GetLogger().Debugf("%v\n", exp)
-				discoID, err := v.handlerCtx.SQLEngine.GetCurrentDiscoveryGenerationId(tbl.GetHeirarchyIdentifiers().GetTableName())
+				discoID, err := v.handlerCtx.SQLEngine.GetCurrentDiscoveryGenerationId(tbl.GetHeirarchyIdentifiers().ProviderStr)
 				if err != nil {
 					return err
 				}

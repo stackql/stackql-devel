@@ -568,8 +568,8 @@ func (pgb *planGraphBuilder) handlePurge(pbi PlanBuilderInput) error {
 				return util.PrepareResultSet(
 					dto.NewPrepareResultSetPlusRawDTO(
 						nil,
-						nil,
-						nil,
+						map[string]map[string]interface{}{"0": {"message": "purge 'GLOBAL' completed"}},
+						[]string{"message"},
 						nil,
 						nil,
 						&dto.BackendMessages{
@@ -605,15 +605,17 @@ func (pgb *planGraphBuilder) handlePurge(pbi PlanBuilderInput) error {
 			}
 			// This happens in all cases, provided the ourge is successful.
 			handlerCtx.LRUCache.Clear()
+			purgeMsg := fmt.Sprintf("PURGE of type '%s' successfully completed", targetStr)
 			return util.PrepareResultSet(
 				dto.NewPrepareResultSetPlusRawDTO(
 					nil,
+					map[string]map[string]interface{}{"0": {"message": purgeMsg}},
+					[]string{"message"},
 					nil,
 					nil,
 					nil,
-					nil,
-					&dto.BackendMessages{
-						WorkingMessages: []string{fmt.Sprintf("PURGE of type '%s' successfully completed", targetStr)}},
+					// &dto.BackendMessages{
+					// 	WorkingMessages: []string{fmt.Sprintf("PURGE of type '%s' successfully completed", targetStr)}},
 					nil,
 				),
 			)

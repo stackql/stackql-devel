@@ -54,7 +54,8 @@ func (ss *RawNativeSelect) Build() error {
 			return dto.NewErroneousExecutorOutput(err)
 		}
 
-		return util.PrepareNativeResultSet(rows)
+		rv := util.PrepareNativeResultSet(rows)
+		return rv
 	}
 
 	graph := ss.graph
