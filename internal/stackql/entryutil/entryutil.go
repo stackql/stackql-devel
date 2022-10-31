@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/stackql/stackql/internal/stackql/bundle"
-	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/garbagecollector"
 	"github.com/stackql/stackql/internal/stackql/gcexec"
@@ -49,7 +48,7 @@ func BuildInputBundle(runtimeCtx dto.RuntimeCtx) (bundle.Bundle, error) {
 	if err != nil {
 		return nil, err
 	}
-	dialect, err := sqldialect.NewSQLDialect(se, namespaces, controlAttributes, constants.DefaultSQLDialect)
+	dialect, err := sqldialect.NewSQLDialect(se, namespaces, controlAttributes, sqlCfg.SQLDialect)
 	if err != nil {
 		return nil, err
 	}
