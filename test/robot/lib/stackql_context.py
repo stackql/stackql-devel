@@ -711,7 +711,7 @@ def get_variables(execution_env :str):
     'UPDATE_GITHUB_ORG':                                                    UPDATE_GITHUB_ORG,
   }
   if execution_env == 'docker':
-    rv['ANALYTICS_SQL_BACKEND_CFG_STR']                        = ANALYTICS_SQL_BACKEND_CFG_STR_DOCKER
+    rv['ANALYTICS_SQL_BACKEND_CFG_STR']                 = ANALYTICS_SQL_BACKEND_CFG_STR_DOCKER
     rv['AUTH_CFG_STR']                                  = AUTH_CFG_STR_DOCKER
     rv['GET_IAM_POLICY_AGG_ASC_INPUT_FILE']             = GET_IAM_POLICY_AGG_ASC_INPUT_FILE_DOCKER
     rv['JSON_INIT_FILE_PATH_AWS']                       = JSON_INIT_FILE_PATH_AWS
@@ -731,7 +731,7 @@ def get_variables(execution_env :str):
     rv['REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR']       = _REGISTRY_EXPERIMENTAL_DOCKER_NO_VERIFY
     rv['REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG_STR'] = _REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_DOCKER
   else:
-    rv['ANALYTICS_SQL_BACKEND_CFG_STR']                        = ANALYTICS_SQL_BACKEND_CFG_STR
+    rv['ANALYTICS_SQL_BACKEND_CFG_STR']                 = ANALYTICS_SQL_BACKEND_CFG_STR
     rv['AUTH_CFG_STR']                                  = AUTH_CFG_STR
     rv['GET_IAM_POLICY_AGG_ASC_INPUT_FILE']             = GET_IAM_POLICY_AGG_ASC_INPUT_FILE
     rv['JSON_INIT_FILE_PATH_AWS']                       = JSON_INIT_FILE_PATH_AWS

@@ -17,6 +17,7 @@ const (
 	TextStr                            string = "text"
 	PrettyTextStr                      string = "pptext"
 	DbEngineSQLite3Mem                 string = "sqlite3_memory"
+	DbEnginePostgresTCP                string = "postgres_tcp"
 	DefaultDbEngine                    string = DbEngineSQLite3Mem
 	SQLDialectSQLite3                  string = "sqlite3"
 	DefaultSQLDialect                  string = SQLDialectSQLite3

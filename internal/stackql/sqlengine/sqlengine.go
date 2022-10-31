@@ -2,8 +2,10 @@ package sqlengine
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
+	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 )
@@ -31,5 +33,12 @@ type SQLEngine interface {
 }
 
 func NewSQLEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAttributes) (SQLEngine, error) {
-	return newSQLiteEngine(cfg, controlAttributes)
+	switch cfg.DbEngine {
+	case constants.DbEngineSQLite3Mem:
+		return newSQLiteInProcessEngine(cfg, controlAttributes)
+	case constants.DbEnginePostgresTCP:
+		return newPostgresTcpEngine(cfg, controlAttributes)
+	default:
+		return nil, fmt.Errorf(`SQL backend DB Engine of type '%s' is not permitted`, cfg.DbEngine)
+	}
 }

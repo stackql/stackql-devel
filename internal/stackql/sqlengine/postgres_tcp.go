@@ -17,10 +17,10 @@ import (
 )
 
 var (
-	_ SQLEngine = &sqLiteEngine{}
+	_ SQLEngine = &postgresTcpEngine{}
 )
 
-type sqLiteEngine struct {
+type postgresTcpEngine struct {
 	db                *sql.DB
 	fileName          string
 	controlAttributes sqlcontrol.ControlAttributes
@@ -29,22 +29,22 @@ type sqLiteEngine struct {
 	discoveryMutex    *sync.Mutex
 }
 
-func (se *sqLiteEngine) IsMemory() bool {
+func (se *postgresTcpEngine) IsMemory() bool {
 	return strings.Contains(se.fileName, ":memory:") || strings.Contains(se.fileName, "mode=memory")
 }
 
-func (se *sqLiteEngine) GetDB() (*sql.DB, error) {
+func (se *postgresTcpEngine) GetDB() (*sql.DB, error) {
 	return se.db, nil
 }
 
-func newSQLiteEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAttributes) (*sqLiteEngine, error) {
+func newPostgresTcpEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAttributes) (*postgresTcpEngine, error) {
 	fileName := cfg.DbFilePath
 	if fileName == "" {
 		fileName = "file::memory:?cache=shared"
 	}
 	db, err := sql.Open("sqlite3", fileName)
 	db.SetConnMaxLifetime(-1)
-	eng := &sqLiteEngine{
+	eng := &postgresTcpEngine{
 		db:                db,
 		fileName:          fileName,
 		controlAttributes: controlAttributes,
@@ -68,7 +68,7 @@ func newSQLiteEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.Control
 	return eng, err
 }
 
-func (eng *sqLiteEngine) execFileSQLite(fileName string) error {
+func (eng *postgresTcpEngine) execFileSQLite(fileName string) error {
 	fileContents, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		return err
@@ -85,7 +85,7 @@ func (eng *sqLiteEngine) execFileSQLite(fileName string) error {
 //    call. Universal Coordinated Time (UTC) is used.
 // Therefore, this method will behave correctly provided that the column `colName`
 // is populated with `DateTime('now')`.
-func (eng *sqLiteEngine) TableOldestUpdateUTC(tableName string, requestEncoding string, updateColName string, requestEncodingColName string) (time.Time, *dto.TxnControlCounters) {
+func (eng *postgresTcpEngine) TableOldestUpdateUTC(tableName string, requestEncoding string, updateColName string, requestEncodingColName string) (time.Time, *dto.TxnControlCounters) {
 	genIdColName := eng.controlAttributes.GetControlGenIdColumnName()
 	ssnIdColName := eng.controlAttributes.GetControlSsnIdColumnName()
 	txnIdColName := eng.controlAttributes.GetControlTxnIdColumnName()
@@ -110,7 +110,7 @@ func (eng *sqLiteEngine) TableOldestUpdateUTC(tableName string, requestEncoding 
 	return time.Time{}, nil
 }
 
-func (eng *sqLiteEngine) IsTablePresent(tableName string, requestEncoding string, colName string) bool {
+func (eng *postgresTcpEngine) IsTablePresent(tableName string, requestEncoding string, colName string) bool {
 	rows, err := eng.db.Query(fmt.Sprintf(`SELECT count(*) as ct FROM "%s" WHERE iql_insert_encoded=?;`, tableName), requestEncoding)
 	if err == nil && rows != nil {
 		defer rows.Close()
@@ -126,7 +126,7 @@ func (eng *sqLiteEngine) IsTablePresent(tableName string, requestEncoding string
 	return false
 }
 
-func (eng *sqLiteEngine) execFileLocal(fileName string) error {
+func (eng *postgresTcpEngine) execFileLocal(fileName string) error {
 	expF, err := util.GetFilePathFromRepositoryRoot(fileName)
 	if err != nil {
 		return err
@@ -134,22 +134,22 @@ func (eng *sqLiteEngine) execFileLocal(fileName string) error {
 	return eng.execFileSQLite(expF)
 }
 
-func (eng *sqLiteEngine) ExecFileLocal(fileName string) error {
+func (eng *postgresTcpEngine) ExecFileLocal(fileName string) error {
 	return eng.execFileLocal(fileName)
 }
 
-func (eng *sqLiteEngine) ExecFile(fileName string) error {
+func (eng *postgresTcpEngine) ExecFile(fileName string) error {
 	return eng.execFileSQLite(fileName)
 }
 
-func (se sqLiteEngine) Exec(query string, varArgs ...interface{}) (sql.Result, error) {
+func (se postgresTcpEngine) Exec(query string, varArgs ...interface{}) (sql.Result, error) {
 	// logging.GetLogger().Infoln(fmt.Sprintf("exec query = %s", query))
 	res, err := se.db.Exec(query, varArgs...)
 	// logging.GetLogger().Infoln(fmt.Sprintf("res= %v, err = %v", res, err))
 	return res, err
 }
 
-func (se sqLiteEngine) ExecInTxn(queries []string) error {
+func (se postgresTcpEngine) ExecInTxn(queries []string) error {
 	txn, err := se.db.Begin()
 	if err != nil {
 		return err
@@ -165,54 +165,54 @@ func (se sqLiteEngine) ExecInTxn(queries []string) error {
 	return err
 }
 
-func (se sqLiteEngine) GetNextGenerationId() (int, error) {
+func (se postgresTcpEngine) GetNextGenerationId() (int, error) {
 	se.ctrlMutex.Lock()
 	defer se.ctrlMutex.Unlock()
 	return se.getNextGenerationId()
 }
 
-func (se sqLiteEngine) GetCurrentGenerationId() (int, error) {
+func (se postgresTcpEngine) GetCurrentGenerationId() (int, error) {
 	se.ctrlMutex.Lock()
 	defer se.ctrlMutex.Unlock()
 	return se.getCurrentGenerationId()
 }
 
-func (se sqLiteEngine) GetNextDiscoveryGenerationId(discoveryName string) (int, error) {
+func (se postgresTcpEngine) GetNextDiscoveryGenerationId(discoveryName string) (int, error) {
 	se.discoveryMutex.Lock()
 	defer se.discoveryMutex.Unlock()
 	return se.getNextProviderGenerationId(discoveryName)
 }
 
-func (se sqLiteEngine) GetCurrentDiscoveryGenerationId(discoveryName string) (int, error) {
+func (se postgresTcpEngine) GetCurrentDiscoveryGenerationId(discoveryName string) (int, error) {
 	se.discoveryMutex.Lock()
 	defer se.discoveryMutex.Unlock()
 	return se.getCurrentProviderGenerationId(discoveryName)
 }
 
-func (se sqLiteEngine) GetNextSessionId(generationId int) (int, error) {
+func (se postgresTcpEngine) GetNextSessionId(generationId int) (int, error) {
 	se.sessionMutex.Lock()
 	defer se.sessionMutex.Unlock()
 	return se.getNextSessionId(generationId)
 }
 
-func (se sqLiteEngine) GetCurrentSessionId(generationId int) (int, error) {
+func (se postgresTcpEngine) GetCurrentSessionId(generationId int) (int, error) {
 	se.sessionMutex.Lock()
 	defer se.sessionMutex.Unlock()
 	return se.getCurrentSessionId(generationId)
 }
 
-func (se sqLiteEngine) getCurrentGenerationId() (int, error) {
+func (se postgresTcpEngine) getCurrentGenerationId() (int, error) {
 	var retVal int
 	res := se.db.QueryRow(`SELECT lhs.iql_generation_id FROM "__iql__.control.generation" lhs INNER JOIN (SELECT max(created_dttm) AS max_dttm FROM "__iql__.control.generation" WHERE collected_dttm IS null) rhs ON  lhs.created_dttm = rhs.max_dttm WHERE lhs.collected_dttm IS null`)
 	err := res.Scan(&retVal)
 	return retVal, err
 }
 
-func (se sqLiteEngine) GetCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers) (dto.DBTable, error) {
+func (se postgresTcpEngine) GetCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers) (dto.DBTable, error) {
 	return se.getCurrentTable(tableHeirarchyIDs)
 }
 
-func (se sqLiteEngine) getCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers) (dto.DBTable, error) {
+func (se postgresTcpEngine) getCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers) (dto.DBTable, error) {
 	var tableName string
 	var discoID int
 	tableNamePattern := fmt.Sprintf("%s.generation_%%", tableHeirarchyIDs.GetTableName())
@@ -225,35 +225,35 @@ func (se sqLiteEngine) getCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifie
 	return dto.NewDBTable(tableName, discoID, tableHeirarchyIDs), err
 }
 
-func (se sqLiteEngine) getNextGenerationId() (int, error) {
+func (se postgresTcpEngine) getNextGenerationId() (int, error) {
 	var retVal int
 	res := se.db.QueryRow(`INSERT INTO "__iql__.control.generation" (generation_description, created_dttm) VALUES ('', strftime('%s', 'now')) RETURNING iql_generation_id`)
 	err := res.Scan(&retVal)
 	return retVal, err
 }
 
-func (se sqLiteEngine) getCurrentProviderGenerationId(providerName string) (int, error) {
+func (se postgresTcpEngine) getCurrentProviderGenerationId(providerName string) (int, error) {
 	var retVal int
 	res := se.db.QueryRow(`SELECT lhs.iql_discovery_generation_id FROM "__iql__.control.discovery_generation" lhs INNER JOIN (SELECT discovery_name, max(created_dttm) AS max_dttm FROM "__iql__.control.discovery_generation" WHERE collected_dttm IS null GROUP BY discovery_name) rhs ON  lhs.created_dttm = rhs.max_dttm AND lhs.discovery_name = rhs.discovery_name WHERE lhs.collected_dttm IS null AND lhs.discovery_name = ?`, providerName)
 	err := res.Scan(&retVal)
 	return retVal, err
 }
 
-func (se sqLiteEngine) getNextProviderGenerationId(providerName string) (int, error) {
+func (se postgresTcpEngine) getNextProviderGenerationId(providerName string) (int, error) {
 	var retVal int
 	res := se.db.QueryRow(`INSERT INTO "__iql__.control.discovery_generation" (discovery_name, created_dttm) VALUES (?, strftime('%s', 'now')) RETURNING iql_discovery_generation_id`, providerName)
 	err := res.Scan(&retVal)
 	return retVal, err
 }
 
-func (se sqLiteEngine) getCurrentSessionId(generationId int) (int, error) {
+func (se postgresTcpEngine) getCurrentSessionId(generationId int) (int, error) {
 	var retVal int
 	res := se.db.QueryRow(`SELECT lhs.iql_session_id FROM "__iql__.control.session" lhs INNER JOIN (SELECT max(created_dttm) AS max_dttm FROM "__iql__.control.session" WHERE collected_dttm IS null) rhs ON  lhs.created_dttm = rhs.max_dttm AND lhs.iql_genration_id = rhs.iql_generation_id WHERE lhs.iql_generation_id = ? AND lhs.collected_dttm IS null`, generationId)
 	err := res.Scan(&retVal)
 	return retVal, err
 }
 
-func (se sqLiteEngine) getNextSessionId(generationId int) (int, error) {
+func (se postgresTcpEngine) getNextSessionId(generationId int) (int, error) {
 	var retVal int
 	res := se.db.QueryRow(`INSERT INTO "__iql__.control.session" (iql_generation_id, created_dttm) VALUES (?, strftime('%s', 'now')) RETURNING iql_session_id`, generationId)
 	err := res.Scan(&retVal)
@@ -261,14 +261,14 @@ func (se sqLiteEngine) getNextSessionId(generationId int) (int, error) {
 	return retVal, err
 }
 
-func (se sqLiteEngine) CacheStoreGet(key string) ([]byte, error) {
+func (se postgresTcpEngine) CacheStoreGet(key string) ([]byte, error) {
 	var retVal []byte
 	res := se.db.QueryRow(`SELECT v FROM "__iql__.cache.key_val" WHERE k = ?`, key)
 	err := res.Scan(&retVal)
 	return retVal, err
 }
 
-func (se sqLiteEngine) CacheStoreGetAll() ([]dto.KeyVal, error) {
+func (se postgresTcpEngine) CacheStoreGetAll() ([]dto.KeyVal, error) {
 	var retVal []dto.KeyVal
 	res, err := se.db.Query(`SELECT k, v FROM "__iql__.cache.key_val"`)
 	if err != nil {
@@ -285,7 +285,7 @@ func (se sqLiteEngine) CacheStoreGetAll() ([]dto.KeyVal, error) {
 	return retVal, err
 }
 
-func (se sqLiteEngine) CacheStorePut(key string, val []byte, tablespace string, tablespaceID int) error {
+func (se postgresTcpEngine) CacheStorePut(key string, val []byte, tablespace string, tablespaceID int) error {
 	txn, err := se.db.Begin()
 	if err != nil {
 		return err
@@ -304,11 +304,11 @@ func (se sqLiteEngine) CacheStorePut(key string, val []byte, tablespace string, 
 	return err
 }
 
-func (se sqLiteEngine) Query(query string, varArgs ...interface{}) (*sql.Rows, error) {
+func (se postgresTcpEngine) Query(query string, varArgs ...interface{}) (*sql.Rows, error) {
 	return se.query(query, varArgs...)
 }
 
-func (se sqLiteEngine) query(query string, varArgs ...interface{}) (*sql.Rows, error) {
+func (se postgresTcpEngine) query(query string, varArgs ...interface{}) (*sql.Rows, error) {
 	// logging.GetLogger().Infoln(fmt.Sprintf("query = %s", query))
 	res, err := se.db.Query(query, varArgs...)
 	// logging.GetLogger().Infoln(fmt.Sprintf("res= %v, err = %v", res, err))
