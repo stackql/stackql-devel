@@ -36,6 +36,8 @@ DEFAULT_DB_FILE :str = os.path.abspath(os.path.join(TEST_ROOT_DIR, 'db/tmp/pytho
 DEFAULT_REGISTRY_CFG :str = f'{{ "url": "file://{PROVIDER_REGISTRY_ROOT_DIR}", "localDocRoot": "{PROVIDER_REGISTRY_ROOT_DIR}",  "useEmbedded": false }}'
 DEFAULT_EXECUTABLE :str = 'stackql'
 
+DEFAULT_SQL_BACKEND_CONFIG : str = f'{{ "dbFilepath": "{DEFAULT_DB_FILE}"  }}'
+
 TEST_COUNT :int = 0
 DEFAULT_TEST_NAME_TEMPLATE :str = 'TEST #{}'
 
@@ -101,9 +103,9 @@ parser.add_argument(
     help='enable verbose outputs for tests'
 )
 parser.add_argument(
-    '--dbfilepath',
+    '--sqlbackend',
     type=str,
-    default=DEFAULT_DB_FILE,
+    default=DEFAULT_SQL_BACKEND_CONFIG,
     help='db file to use as starting point'
 )
 parser.add_argument(
@@ -123,7 +125,7 @@ INVOCATION_BASE_ARGS = [
     # '--provider=google',
     f'--approot={args.appdir}',
     f'--loglevel={args.loglevel}',
-    f'--dbfilepath={args.dbfilepath}',
+    f'--sqlBackend={args.sqlbackend}',
     f'--registry={args.registry}'
 ]
 
