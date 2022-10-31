@@ -31,6 +31,16 @@
     },
     {
       "type": "pickString",
+      "id": "gcString",
+      "description": "GC Input arg String",
+      "default": "{}",
+      "options": [
+        "{}",
+        "{ \"isEager\": true }"
+      ]
+    },
+    {
+      "type": "pickString",
       "id": "namespaceString",
       "description": "Namespace JSON config String",
       "default": "{ \"analytics\": { \"ttl\": 86400, \"regex\": \"^stackql_analytics_(?P<objectName>.*)$\", \"template\": \"stackql_analytics_{{ .objectName }}\" } }",
@@ -386,6 +396,7 @@
         "--pgsrv.port=5888",
         "--tls.allowInsecure",
         "--auth=${input:authString}",
+        "--gc=${input:gcString}",
         "--registry=${input:registryString}"
       ],
     },
