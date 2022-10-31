@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/stackql/stackql/internal/stackql/bundle"
+	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/garbagecollector"
 	"github.com/stackql/stackql/internal/stackql/gcexec"
@@ -28,7 +29,11 @@ import (
 
 func BuildInputBundle(runtimeCtx dto.RuntimeCtx) (bundle.Bundle, error) {
 	controlAttributes := sqlcontrol.GetControlAttributes("standard")
-	se, err := buildSQLEngine(runtimeCtx, controlAttributes)
+	sqlCfg, err := dto.GetSQLBackendCfg(runtimeCtx.SQLBackendCfgRaw)
+	if err != nil {
+		return nil, err
+	}
+	se, err := buildSQLEngine(sqlCfg, controlAttributes)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +49,7 @@ func BuildInputBundle(runtimeCtx dto.RuntimeCtx) (bundle.Bundle, error) {
 	if err != nil {
 		return nil, err
 	}
-	dialect, err := sqldialect.NewSQLDialect(se, namespaces, controlAttributes, "sqlite")
+	dialect, err := sqldialect.NewSQLDialect(se, namespaces, controlAttributes, constants.DefaultSQLDialect)
 	if err != nil {
 		return nil, err
 	}
@@ -72,8 +77,7 @@ func initNamespaces(namespaceCfgRaw string, sqlEngine sqlengine.SQLEngine) (tabl
 	return tablenamespace.NewStandardTableNamespaceCollection(cfgs, sqlEngine)
 }
 
-func buildSQLEngine(runtimeCtx dto.RuntimeCtx, controlAttributes sqlcontrol.ControlAttributes) (sqlengine.SQLEngine, error) {
-	sqlCfg := sqlengine.NewSQLEngineConfig(runtimeCtx)
+func buildSQLEngine(sqlCfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAttributes) (sqlengine.SQLEngine, error) {
 	return sqlengine.NewSQLEngine(sqlCfg, controlAttributes)
 }
 

@@ -79,7 +79,7 @@
         "--auth=${input:authString}",
         "--registry=${input:registryString}",
         "--namespaces=${input:namespaceString}",
-        "--dbinitfilepath=${workspaceFolder}/test/db/cache_setup.sql",
+        "--sqlBackend={ \"dbInitFilepath\": \"${workspaceFolder}/test/db/cache_setup.sql\" }" ,
         "select r.name, col.login, col.type, col.role_name from github.repos.collaborators col inner join github.repos.repos r ON col.repo = r.name where col.owner = 'stackql' and r.org = 'stackql' order by r.name, col.login desc;"
       ],
     },

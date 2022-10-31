@@ -30,6 +30,6 @@ type SQLEngine interface {
 	TableOldestUpdateUTC(string, string, string, string) (time.Time, *dto.TxnControlCounters)
 }
 
-func NewSQLEngine(cfg SQLEngineConfig, controlAttributes sqlcontrol.ControlAttributes) (SQLEngine, error) {
+func NewSQLEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAttributes) (SQLEngine, error) {
 	return newSQLiteEngine(cfg, controlAttributes)
 }

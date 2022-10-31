@@ -238,6 +238,9 @@ STACKQL_PG_RUBBISH_CERT_PATH_DOCKER :str = os.path.abspath(os.path.join(REPOSITO
 ANALYTICS_DB_INIT_PATH :str = os.path.abspath(os.path.join(REPOSITORY_ROOT, "test", "db", "cache_setup.sql"))
 ANALYTICS_DB_INIT_PATH_DOCKER :str = get_unix_path(os.path.join('/opt', 'stackql', "db", "cache_setup.sql"))
 
+ANALYTICS_SQL_BACKEND_CFG_STR :str = f'{{ "dbInitFilepath": "{ANALYTICS_DB_INIT_PATH}" }}'
+ANALYTICS_SQL_BACKEND_CFG_STR_DOCKER :str = f'{{ "dbInitFilepath": "{ANALYTICS_DB_INIT_PATH_DOCKER}" }}'
+
 with open(os.path.join(REPOSITORY_ROOT, 'test', 'server', 'mtls', 'credentials', 'pg_client_cert.pem'), 'rb') as f:
   _CLIENT_CERT_ENCODED :str = base64.b64encode(f.read()).decode('utf-8')
 
@@ -708,7 +711,7 @@ def get_variables(execution_env :str):
     'UPDATE_GITHUB_ORG':                                                    UPDATE_GITHUB_ORG,
   }
   if execution_env == 'docker':
-    rv['ANALYTICS_DB_INIT_PATH']                        = ANALYTICS_DB_INIT_PATH_DOCKER
+    rv['ANALYTICS_SQL_BACKEND_CFG_STR']                        = ANALYTICS_SQL_BACKEND_CFG_STR_DOCKER
     rv['AUTH_CFG_STR']                                  = AUTH_CFG_STR_DOCKER
     rv['GET_IAM_POLICY_AGG_ASC_INPUT_FILE']             = GET_IAM_POLICY_AGG_ASC_INPUT_FILE_DOCKER
     rv['JSON_INIT_FILE_PATH_AWS']                       = JSON_INIT_FILE_PATH_AWS
@@ -728,7 +731,7 @@ def get_variables(execution_env :str):
     rv['REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR']       = _REGISTRY_EXPERIMENTAL_DOCKER_NO_VERIFY
     rv['REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG_STR'] = _REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_DOCKER
   else:
-    rv['ANALYTICS_DB_INIT_PATH']                        = ANALYTICS_DB_INIT_PATH
+    rv['ANALYTICS_SQL_BACKEND_CFG_STR']                        = ANALYTICS_SQL_BACKEND_CFG_STR
     rv['AUTH_CFG_STR']                                  = AUTH_CFG_STR
     rv['GET_IAM_POLICY_AGG_ASC_INPUT_FILE']             = GET_IAM_POLICY_AGG_ASC_INPUT_FILE
     rv['JSON_INIT_FILE_PATH_AWS']                       = JSON_INIT_FILE_PATH_AWS

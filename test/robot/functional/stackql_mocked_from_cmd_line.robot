@@ -389,7 +389,7 @@ GitHub Analytics Simple Select Repositories Collaborators
     ...    ${AUTH_CFG_STR}
     ...    ${SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS_SIMPLE}
     ...    ${SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS_EXPECTED}
-    ...    \-\-dbinitfilepath\=${ANALYTICS_DB_INIT_PATH}
+    ...    \-\-sqlBackend\=${ANALYTICS_SQL_BACKEND_CFG_STR}
     ...    \-\-namespaces\=${NAMESPACES_TTL_SIMPLE}
     ...    stdout=${CURDIR}/tmp/GitHub-Analytics-Select-Repositories-Collaborators.tmp
 
@@ -403,7 +403,7 @@ GitHub Analytics Transparent Select Repositories Collaborators
     ...    ${AUTH_CFG_STR}
     ...    ${SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS_TRANSPARENT}
     ...    ${SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS_EXPECTED}
-    ...    \-\-dbinitfilepath\=${ANALYTICS_DB_INIT_PATH}
+    ...    \-\-sqlBackend\=${ANALYTICS_SQL_BACKEND_CFG_STR}
     ...    \-\-namespaces\=${NAMESPACES_TTL_TRANSPARENT}
     ...    stdout=${CURDIR}/tmp/GitHub-Analytics-Select-Repositories-Collaborators.tmp
 

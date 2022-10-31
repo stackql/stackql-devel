@@ -37,8 +37,8 @@ func (se *sqLiteEngine) GetDB() (*sql.DB, error) {
 	return se.db, nil
 }
 
-func newSQLiteEngine(cfg SQLEngineConfig, controlAttributes sqlcontrol.ControlAttributes) (*sqLiteEngine, error) {
-	fileName := cfg.fileName
+func newSQLiteEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAttributes) (*sqLiteEngine, error) {
+	fileName := cfg.DbFilePath
 	if fileName == "" {
 		fileName = "file::memory:?cache=shared"
 	}
@@ -55,8 +55,8 @@ func newSQLiteEngine(cfg SQLEngineConfig, controlAttributes sqlcontrol.ControlAt
 	if err != nil {
 		return eng, err
 	}
-	if cfg.initFileName != "" {
-		err = eng.execFileSQLite(cfg.initFileName)
+	if cfg.DbInitFilePath != "" {
+		err = eng.execFileSQLite(cfg.DbInitFilePath)
 	}
 	if err != nil {
 		return eng, err
