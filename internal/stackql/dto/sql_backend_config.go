@@ -7,7 +7,7 @@ import (
 
 type SQLBackendCfg struct {
 	DbEngine       string `json:"dbEngine" yaml:"dbEngine"`
-	DbFilePath     string `json:"dbFilepath" yaml:"dbFilepath"`
+	DSN            string `json:"dsn" yaml:"dsn"`
 	DbInitFilePath string `json:"dbInitFilepath" yaml:"dbInitFilepath"`
 	SQLDialect     string `json:"sqlDialect" yaml:"sqlDialect"`
 }

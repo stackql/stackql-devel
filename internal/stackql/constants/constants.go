@@ -20,6 +20,7 @@ const (
 	DbEnginePostgresTCP                string = "postgres_tcp"
 	DefaultDbEngine                    string = DbEngineSQLite3Mem
 	SQLDialectSQLite3                  string = "sqlite3"
+	SQLDialectPostgres                 string = "postgres"
 	DefaultSQLDialect                  string = SQLDialectSQLite3
 	DefaulHttpBodyFormat               string = JsonStr
 	RequestBodyKeyPrefix               string = "data"

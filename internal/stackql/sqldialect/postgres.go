@@ -10,7 +10,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 )
 
-func newPostgresDialct(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes) (SQLDialect, error) {
+func newPostgresDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes) (SQLDialect, error) {
 	rv := &postgresDialect{
 		controlAttributes: controlAttributes,
 		namespaces:        namespaces,

@@ -10,7 +10,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 )
 
-func newSQLiteDialct(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes) (SQLDialect, error) {
+func newSQLiteDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes) (SQLDialect, error) {
 	rv := &sqLiteDialect{
 		controlAttributes: controlAttributes,
 		namespaces:        namespaces,

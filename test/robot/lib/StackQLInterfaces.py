@@ -124,7 +124,9 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     )
 
   def _docker_transform_args(self, *args) -> typing.Iterable:
-    return [ f"--namespaces='{b[13:]}'" if type(b) == str and b.startswith('--namespaces=') else b for b in list(args) ]
+    rv = [ f"--namespaces='{b[13:]}'" if type(b) == str and b.startswith('--namespaces=') else b for b in list(args) ]
+    rv = [ f"--sqlBackend='{b[13:]}'" if type(b) == str and b.startswith('--sqlBackend=') else b for b in list(rv) ]
+    return rv
 
   def _run_stackql_exec_command_docker(
     self,

@@ -37,7 +37,7 @@ func (se *postgresTcpEngine) GetDB() (*sql.DB, error) {
 }
 
 func newPostgresTcpEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAttributes) (*postgresTcpEngine, error) {
-	connectionString := cfg.DbFilePath
+	connectionString := cfg.DSN
 	if connectionString == "" {
 		return nil, fmt.Errorf("cannot init postgres TCP connection with empty connection string")
 	}
@@ -55,7 +55,7 @@ func newPostgresTcpEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.Co
 		return eng, err
 	}
 	if cfg.DbInitFilePath != "" {
-		err = eng.execFileSQLite(cfg.DbInitFilePath)
+		err = eng.execFile(cfg.DbInitFilePath)
 	}
 	if err != nil {
 		return eng, err
@@ -67,7 +67,7 @@ func newPostgresTcpEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.Co
 	return eng, err
 }
 
-func (eng *postgresTcpEngine) execFileSQLite(fileName string) error {
+func (eng *postgresTcpEngine) execFile(fileName string) error {
 	fileContents, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		return err
@@ -130,7 +130,7 @@ func (eng *postgresTcpEngine) execFileLocal(fileName string) error {
 	if err != nil {
 		return err
 	}
-	return eng.execFileSQLite(expF)
+	return eng.execFile(expF)
 }
 
 func (eng *postgresTcpEngine) ExecFileLocal(fileName string) error {
@@ -138,7 +138,7 @@ func (eng *postgresTcpEngine) ExecFileLocal(fileName string) error {
 }
 
 func (eng *postgresTcpEngine) ExecFile(fileName string) error {
-	return eng.execFileSQLite(fileName)
+	return eng.execFile(fileName)
 }
 
 func (se postgresTcpEngine) Exec(query string, varArgs ...interface{}) (sql.Result, error) {
@@ -308,8 +308,6 @@ func (se postgresTcpEngine) Query(query string, varArgs ...interface{}) (*sql.Ro
 }
 
 func (se postgresTcpEngine) query(query string, varArgs ...interface{}) (*sql.Rows, error) {
-	// logging.GetLogger().Infoln(fmt.Sprintf("query = %s", query))
 	res, err := se.db.Query(query, varArgs...)
-	// logging.GetLogger().Infoln(fmt.Sprintf("res= %v, err = %v", res, err))
 	return res, err
 }

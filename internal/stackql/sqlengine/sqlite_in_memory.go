@@ -38,7 +38,7 @@ func (se *sqLiteInProcessEngine) GetDB() (*sql.DB, error) {
 }
 
 func newSQLiteInProcessEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAttributes) (*sqLiteInProcessEngine, error) {
-	fileName := cfg.DbFilePath
+	fileName := cfg.DSN
 	if fileName == "" {
 		fileName = "file::memory:?cache=shared"
 	}

@@ -31,7 +31,9 @@ type SQLDialect interface {
 func NewSQLDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes, name string) (SQLDialect, error) {
 	switch strings.ToLower(name) {
 	case constants.SQLDialectSQLite3:
-		return newSQLiteDialct(sqlEngine, namespaces, controlAttributes)
+		return newSQLiteDialect(sqlEngine, namespaces, controlAttributes)
+	case constants.SQLDialectPostgres:
+		return newPostgresDialect(sqlEngine, namespaces, controlAttributes)
 	default:
 		return nil, fmt.Errorf("cannot accomodate sql dialect '%s'", name)
 	}
