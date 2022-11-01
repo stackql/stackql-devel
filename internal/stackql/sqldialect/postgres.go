@@ -27,7 +27,7 @@ type postgresDialect struct {
 }
 
 func (eng *postgresDialect) initSQLiteEngine() error {
-	_, err := eng.sqlEngine.Exec(sqlEngineSetupDDL)
+	_, err := eng.sqlEngine.Exec(postgresEngineSetupDDL)
 	return err
 }
 
@@ -77,20 +77,22 @@ func (sl *postgresDialect) gCCollectObsoleted(minTransactionID int) error {
 	obtainQuery := fmt.Sprintf(
 		`
 		SELECT
-			'DELETE FROM "' || name || '" WHERE "%s" < %d ; '
-		FROM
-			sqlite_master 
+			'DELETE FROM "' || table_name || '" WHERE "%s" < %d ; '
+		from 
+			information_schema.tables 
 		where 
-			type = 'table'
+			table_type = 'BASE TABLE' 
+			and 
+			table_catalog = ? 
+			and 
+			table_schema = ?
 		  and
-			name not like '__iql__%%' 
-			and
-			name NOT LIKE 'sqlite_%%' 
+			table_name not like '__iql__%%'
 		`,
 		maxTxnColName,
 		minTransactionID,
 	)
-	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery)
+	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery, sl.sqlEngine.GetTableCatalog(), sl.sqlEngine.GetTableSchema())
 	if err != nil {
 		return err
 	}
@@ -104,17 +106,19 @@ func (sl *postgresDialect) GCCollectAll() error {
 func (sl *postgresDialect) gCCollectAll() error {
 	obtainQuery := `
 		SELECT
-			'DELETE FROM "' || name || '"  ; '
-		FROM
-			sqlite_master 
+			'DELETE FROM "' || table_name || '"  ; '
+		from 
+			information_schema.tables 
 		where 
-			type = 'table'
+			table_type = 'BASE TABLE' 
+			and 
+			table_catalog = ? 
+			and 
+			table_schema = ?
 		  and
-			name not like '__iql__%%' 
-			and
-			name NOT LIKE 'sqlite_%%' 
+			table_name not like '__iql__%%'
 		`
-	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery)
+	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery, sl.sqlEngine.GetTableCatalog(), sl.sqlEngine.GetTableSchema())
 	if err != nil {
 		return err
 	}
@@ -128,15 +132,19 @@ func (sl *postgresDialect) GCControlTablesPurge() error {
 func (sl *postgresDialect) gcControlTablesPurge() error {
 	obtainQuery := `
 		SELECT
-		  'DELETE FROM "' || name || '" ; '
-		FROM
-			sqlite_master 
+		  'DELETE FROM "' || table_name || '" ; '
+			from 
+			information_schema.tables 
 		where 
-			type = 'table'
-			and
-			name like '__iql__%'
+			table_type = 'BASE TABLE' 
+			and 
+			table_catalog = ? 
+			and 
+			table_schema = ?
+		  and
+			table_name like '__iql__%%'
 		`
-	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery)
+	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery, sl.sqlEngine.GetTableCatalog(), sl.sqlEngine.GetTableSchema())
 	if err != nil {
 		return err
 	}
@@ -154,11 +162,19 @@ func (sl *postgresDialect) GCPurgeCache() error {
 func (sl *postgresDialect) gcPurgeCache() error {
 	query := `
 	select distinct 
-		'DROP TABLE IF EXISTS "' || name || '" ; ' 
-	from sqlite_schema 
-	where type = 'table' and name like ?
+		'DROP TABLE IF EXISTS "' || table_name || '" ; ' 
+	from 
+		information_schema.tables 
+	where 
+		table_type = 'BASE TABLE' 
+		and 
+		table_catalog = ? 
+		and 
+		table_schema = ?
+		and 
+		table_name like ?
 	`
-	rows, err := sl.sqlEngine.Query(query, sl.namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetLikeString())
+	rows, err := sl.sqlEngine.Query(query, sl.sqlEngine.GetTableCatalog(), sl.sqlEngine.GetTableSchema(), sl.namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetLikeString())
 	if err != nil {
 		return err
 	}
@@ -168,19 +184,21 @@ func (sl *postgresDialect) gcPurgeCache() error {
 func (sl *postgresDialect) gcPurgeEphemeral() error {
 	query := `
 	select distinct 
-		'DROP TABLE IF EXISTS "' || name || '" ; ' 
+		'DROP TABLE IF EXISTS "' || table_name || '" ; ' 
 	from 
-		sqlite_schema 
+		information_schema.tables 
 	where 
-		type = 'table' 
+		table_type = 'BASE TABLE' 
 		and 
-		name NOT like ? 
+		table_catalog = ? 
 		and 
-		name not like '__iql__%' 
-		and
-		name NOT LIKE 'sqlite_%' 
+		table_schema = ?
+		and 
+		table_name NOT like ? 
+		and 
+		table_name not like '__iql__%' 
 	`
-	rows, err := sl.sqlEngine.Query(query, sl.namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetLikeString())
+	rows, err := sl.sqlEngine.Query(query, sl.sqlEngine.GetTableCatalog(), sl.sqlEngine.GetTableSchema(), sl.namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetLikeString())
 	if err != nil {
 		return err
 	}
@@ -191,18 +209,24 @@ func (sl *postgresDialect) PurgeAll() error {
 	return sl.purgeAll()
 }
 
+func (sl *postgresDialect) GetSQLEngine() sqlengine.SQLEngine {
+	return sl.sqlEngine
+}
+
 func (sl *postgresDialect) purgeAll() error {
 	obtainQuery := `
 		SELECT
-			'DROP TABLE IF EXISTS "' || name || '" ; '
-		FROM
-			sqlite_master 
+			'DROP TABLE IF EXISTS "' || table_name || '" ; '
+		from 
+			information_schema.tables 
 		where 
-			type = 'table'
+			table_type = 'BASE TABLE' 
+			and 
+			table_catalog = ? 
+			and 
+			table_schema = ?
 		  AND
-			name NOT LIKE '__iql__%'
-			and
-			name NOT LIKE 'sqlite_%'
+			table_name NOT LIKE '__iql__%'
 		`
 	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery)
 	if err != nil {

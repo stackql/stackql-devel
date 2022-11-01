@@ -21,6 +21,7 @@ require (
 	github.com/stackql/go-openapistackql v0.0.10-beta13
 	github.com/stackql/go-sqlite3 v0.0.2-stackqlbeta04
 	github.com/stackql/go-suffix-map v0.0.1-alpha01
+	github.com/xo/dburl v0.12.4
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
 	gonum.org/v1/gonum v0.11.0

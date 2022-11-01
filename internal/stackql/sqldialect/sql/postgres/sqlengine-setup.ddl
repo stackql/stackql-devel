@@ -1,6 +1,6 @@
 
 CREATE TABLE IF NOT EXISTS "__iql__.control.generation" (
-   iql_generation_id INTEGER PRIMARY KEY AUTOINCREMENT
+   iql_generation_id BIGSERIAL PRIMARY KEY
   ,generation_description TEXT
   ,created_dttm INTEGER not null
   ,collected_dttm INTEGER default null
@@ -12,7 +12,7 @@ ON "__iql__.control.generation" (created_dttm)
 ;
 
 CREATE TABLE IF NOT EXISTS "__iql__.control.discovery_generation" (
-   iql_discovery_generation_id INTEGER PRIMARY KEY AUTOINCREMENT
+   iql_discovery_generation_id BIGSERIAL PRIMARY KEY
   ,discovery_name TEXT NOT NULL
   ,discovery_generation_description TEXT
   ,created_dttm INTEGER not null
@@ -25,7 +25,7 @@ ON "__iql__.control.discovery_generation" (created_dttm)
 ;
 
 CREATE TABLE IF NOT EXISTS "__iql__.control.session" (
-   iql_session_id INTEGER PRIMARY KEY AUTOINCREMENT
+   iql_session_id BIGSERIAL PRIMARY KEY
   ,iql_generation_id INTEGER NOT NULL
   ,session_description TEXT
   ,created_dttm INTEGER not null
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS "__iql__.control.gc.txn_table_x_ref" (
 ;
 
 CREATE TABLE IF NOT EXISTS "__iql__.control.gc.rings" (
-   ring_id INTEGER PRIMARY KEY AUTOINCREMENT
+   ring_id BIGSERIAL PRIMARY KEY
   ,ring_name TEXT not null UNIQUE
   ,current_value INTEGER not null DEFAULT 0
   ,current_offset INTEGER not null DEFAULT 0

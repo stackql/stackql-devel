@@ -27,7 +27,7 @@ type sqLiteDialect struct {
 }
 
 func (eng *sqLiteDialect) initSQLiteEngine() error {
-	_, err := eng.sqlEngine.Exec(sqlEngineSetupDDL)
+	_, err := eng.sqlEngine.Exec(sqLiteEngineSetupDDL)
 	return err
 }
 
@@ -99,6 +99,10 @@ func (sl *sqLiteDialect) gCCollectObsoleted(minTransactionID int) error {
 
 func (sl *sqLiteDialect) GCCollectAll() error {
 	return sl.gCCollectAll()
+}
+
+func (sl *sqLiteDialect) GetSQLEngine() sqlengine.SQLEngine {
+	return sl.sqlEngine
 }
 
 func (sl *sqLiteDialect) gCCollectAll() error {

@@ -14,6 +14,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
+	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/streaming"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
@@ -87,6 +88,7 @@ type PreparedStatementCtx struct {
 	txnCtrlCtrs             *dto.TxnControlCounters
 	selectTxnCtrlCtrs       []*dto.TxnControlCounters
 	namespaceCollection     tablenamespace.TableNamespaceCollection
+	sqlDialect              sqldialect.SQLDialect
 }
 
 func (ps *PreparedStatementCtx) SetKind(kind string) {
@@ -130,6 +132,7 @@ func NewPreparedStatementCtx(
 	txnCtrlCtrs *dto.TxnControlCounters,
 	secondaryCtrs []*dto.TxnControlCounters,
 	namespaceCollection tablenamespace.TableNamespaceCollection,
+	sqlDialect sqldialect.SQLDialect,
 ) *PreparedStatementCtx {
 	return &PreparedStatementCtx{
 		query:                   query,
@@ -145,6 +148,7 @@ func NewPreparedStatementCtx(
 		txnCtrlCtrs:             txnCtrlCtrs,
 		selectTxnCtrlCtrs:       secondaryCtrs,
 		namespaceCollection:     namespaceCollection,
+		sqlDialect:              sqlDialect,
 	}
 }
 
@@ -212,6 +216,7 @@ type DRMConfig interface {
 	GetGolangSlices([]ColumnMetadata) ([]interface{}, []string)
 	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
 	GetParserTableName(*dto.HeirarchyIdentifiers, int) sqlparser.TableName
+	GetSQLDialect() sqldialect.SQLDialect
 	GetTableName(*dto.HeirarchyIdentifiers, int) (string, error)
 	GenerateInsertDML(util.AnnotatedTabulation, *openapistackql.OperationStore, *dto.TxnControlCounters) (*PreparedStatementCtx, error)
 	GenerateSelectDML(util.AnnotatedTabulation, *dto.TxnControlCounters, string, string) (*PreparedStatementCtx, error)
@@ -227,6 +232,11 @@ type StaticDRMConfig struct {
 	namespaceCollection   tablenamespace.TableNamespaceCollection
 	controlAttributes     sqlcontrol.ControlAttributes
 	sqlEngine             sqlengine.SQLEngine
+	sqlDialect            sqldialect.SQLDialect
+}
+
+func (dc *StaticDRMConfig) GetSQLDialect() sqldialect.SQLDialect {
+	return dc.sqlDialect
 }
 
 func (dc *StaticDRMConfig) GetControlAttributes() sqlcontrol.ControlAttributes {
@@ -539,6 +549,7 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 			tcc,
 			nil,
 			dc.namespaceCollection,
+			dc.sqlDialect,
 		),
 		nil
 }
@@ -608,6 +619,7 @@ func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 		txnCtrlCtrs,
 		nil,
 		dc.namespaceCollection,
+		dc.sqlDialect,
 	), nil
 }
 
@@ -714,7 +726,7 @@ func (dc *StaticDRMConfig) QueryDML(dbEngine sqlengine.SQLEngine, ctxParameteriz
 	return dbEngine.Query(query, varArgs...)
 }
 
-func GetGoogleV1SQLiteConfig(sqlEngine sqlengine.SQLEngine, namespaceCollection tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes) (DRMConfig, error) {
+func GetDRMConfig(sqlDialect sqldialect.SQLDialect, namespaceCollection tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes) (DRMConfig, error) {
 	rv := &StaticDRMConfig{
 		typeMappings: map[string]DRMCoupling{
 			"array":   {RelationalType: "text", GolangKind: reflect.Slice},
@@ -729,7 +741,8 @@ func GetGoogleV1SQLiteConfig(sqlEngine sqlengine.SQLEngine, namespaceCollection 
 		defaultGolangValue:    sql.NullString{}, // string is default
 		namespaceCollection:   namespaceCollection,
 		controlAttributes:     controlAttributes,
-		sqlEngine:             sqlEngine,
+		sqlEngine:             sqlDialect.GetSQLEngine(),
+		sqlDialect:            sqlDialect,
 	}
 	return rv, nil
 }

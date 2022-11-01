@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"io/ioutil"
+	"strings"
 	"sync"
 	"time"
 
@@ -11,6 +12,8 @@ import (
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/util"
+
+	"github.com/xo/dburl"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
@@ -21,7 +24,10 @@ var (
 
 type postgresTcpEngine struct {
 	db                *sql.DB
-	connectionString  string
+	dsn               string
+	tableCatalog      string
+	tableSchema       string
+	dburl             *dburl.URL
 	controlAttributes sqlcontrol.ControlAttributes
 	ctrlMutex         *sync.Mutex
 	sessionMutex      *sync.Mutex
@@ -37,15 +43,26 @@ func (se *postgresTcpEngine) GetDB() (*sql.DB, error) {
 }
 
 func newPostgresTcpEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAttributes) (*postgresTcpEngine, error) {
-	connectionString := cfg.DSN
-	if connectionString == "" {
+	dsn := cfg.DSN
+	if dsn == "" {
 		return nil, fmt.Errorf("cannot init postgres TCP connection with empty connection string")
 	}
-	db, err := sql.Open("pgx", connectionString)
+	dbUrl, err := dburl.Parse(dsn)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing postgres dsn: %s", err.Error())
+	}
+	if dbUrl == nil {
+		return nil, fmt.Errorf("error parsing postgres dsn, nil url generated")
+	}
+	databaseName := strings.TrimLeft(dbUrl.Path, "/")
+	db, err := sql.Open("pgx", dsn)
 	db.SetConnMaxLifetime(-1)
 	eng := &postgresTcpEngine{
 		db:                db,
-		connectionString:  connectionString,
+		dsn:               dsn,
+		dburl:             dbUrl,
+		tableCatalog:      databaseName,
+		tableSchema:       "public",
 		controlAttributes: controlAttributes,
 		ctrlMutex:         &sync.Mutex{},
 		sessionMutex:      &sync.Mutex{},
@@ -60,11 +77,19 @@ func newPostgresTcpEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.Co
 	if err != nil {
 		return eng, err
 	}
-	logging.GetLogger().Infoln(fmt.Sprintf("opened postgres TCP db with connection string = '%s' and err  = '%v'", connectionString, err))
+	logging.GetLogger().Debugln(fmt.Sprintf("opened postgres TCP db with connection string = '%s' and err  = '%v'", dsn, err))
 	if err != nil {
 		return eng, err
 	}
 	return eng, err
+}
+
+func (eng *postgresTcpEngine) GetTableCatalog() string {
+	return eng.tableCatalog
+}
+
+func (eng *postgresTcpEngine) GetTableSchema() string {
+	return eng.tableSchema
 }
 
 func (eng *postgresTcpEngine) execFile(fileName string) error {
@@ -110,7 +135,7 @@ func (eng *postgresTcpEngine) TableOldestUpdateUTC(tableName string, requestEnco
 }
 
 func (eng *postgresTcpEngine) IsTablePresent(tableName string, requestEncoding string, colName string) bool {
-	rows, err := eng.db.Query(fmt.Sprintf(`SELECT count(*) as ct FROM "%s" WHERE iql_insert_encoded=?;`, tableName), requestEncoding)
+	rows, err := eng.db.Query(fmt.Sprintf(`SELECT count(*) as ct FROM "%s" WHERE iql_insert_encoded = ? `, tableName), requestEncoding)
 	if err == nil && rows != nil {
 		defer rows.Close()
 		rowExists := rows.Next()
@@ -142,9 +167,7 @@ func (eng *postgresTcpEngine) ExecFile(fileName string) error {
 }
 
 func (se postgresTcpEngine) Exec(query string, varArgs ...interface{}) (sql.Result, error) {
-	// logging.GetLogger().Infoln(fmt.Sprintf("exec query = %s", query))
 	res, err := se.db.Exec(query, varArgs...)
-	// logging.GetLogger().Infoln(fmt.Sprintf("res= %v, err = %v", res, err))
 	return res, err
 }
 

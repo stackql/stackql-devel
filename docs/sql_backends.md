@@ -9,6 +9,13 @@ List of drivers:
 
 - https://github.com/golang/go/wiki/SQLDrivers
 
+### Data Source Name (DSN) strings
+
+- [SQLite as per golang](https://github.com/mattn/go-sqlite3#dsn-examples).
+- [Postgres URI](https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING).
+
+## Backends
+
 ### SQLite
 
 The default implementation is embedded SQLite.  SQLite does not have a wire protocol or TCP-native version.
@@ -23,4 +30,16 @@ The default implementation is embedded SQLite.  SQLite does not have a wire prot
 #### Postgres in process
 
 https://github.com/fergusstrange/embedded-postgres
+
+#### Setup postgres DB
+
+```sql
+
+CREATE database "stackql";
+
+CREATE user stackql with password 'stackql';
+
+GRANT ALL PRIVILEGES on DATABASE stackql to stackql;
+
+```
 

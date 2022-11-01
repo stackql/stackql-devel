@@ -190,7 +190,7 @@ func (dp *StandardDependencyPlanner) Plan() error {
 	}
 	rewrittenWhereStr := astvisit.GenerateModifiedWhereClause(dp.rewrittenWhere, dp.handlerCtx.GetNamespaceCollection())
 	logging.GetLogger().Debugf("rewrittenWhereStr = '%s'", rewrittenWhereStr)
-	drmCfg, err := drm.GetGoogleV1SQLiteConfig(dp.handlerCtx.SQLEngine, dp.handlerCtx.GetNamespaceCollection(), dp.handlerCtx.ControlAttributes)
+	drmCfg, err := drm.GetDRMConfig(dp.handlerCtx.SQLDialect, dp.handlerCtx.GetNamespaceCollection(), dp.handlerCtx.ControlAttributes)
 	if err != nil {
 		return err
 	}
@@ -287,7 +287,7 @@ func (dp *StandardDependencyPlanner) processAcquire(
 	}
 	anTab := util.NewAnnotatedTabulation(tab, annotationCtx.GetHIDs(), annotationCtx.GetTableMeta().Alias)
 
-	discoGenId, err := docparser.OpenapiStackQLTabulationsPersistor(m, []util.AnnotatedTabulation{anTab}, dp.primitiveComposer.GetSQLEngine(), prov.Name, dp.handlerCtx.GetNamespaceCollection(), dp.handlerCtx.ControlAttributes)
+	discoGenId, err := docparser.OpenapiStackQLTabulationsPersistor(m, []util.AnnotatedTabulation{anTab}, dp.primitiveComposer.GetSQLEngine(), prov.Name, dp.handlerCtx.GetNamespaceCollection(), dp.handlerCtx.ControlAttributes, dp.handlerCtx.SQLDialect)
 	if err != nil {
 		return util.NewAnnotatedTabulation(nil, nil, ""), nil, err
 	}

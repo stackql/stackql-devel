@@ -213,5 +213,6 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 		txnCtrlCtrs,
 		secondaryCtrlCounters,
 		input.GetDRMConfig().GetNamespaceCollection(),
+		dc.GetSQLDialect(),
 	), nil
 }

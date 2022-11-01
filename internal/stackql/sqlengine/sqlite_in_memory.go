@@ -22,7 +22,7 @@ var (
 
 type sqLiteInProcessEngine struct {
 	db                *sql.DB
-	fileName          string
+	dsn               string
 	controlAttributes sqlcontrol.ControlAttributes
 	ctrlMutex         *sync.Mutex
 	sessionMutex      *sync.Mutex
@@ -30,7 +30,7 @@ type sqLiteInProcessEngine struct {
 }
 
 func (se *sqLiteInProcessEngine) IsMemory() bool {
-	return strings.Contains(se.fileName, ":memory:") || strings.Contains(se.fileName, "mode=memory")
+	return strings.Contains(se.dsn, ":memory:") || strings.Contains(se.dsn, "mode=memory")
 }
 
 func (se *sqLiteInProcessEngine) GetDB() (*sql.DB, error) {
@@ -38,15 +38,15 @@ func (se *sqLiteInProcessEngine) GetDB() (*sql.DB, error) {
 }
 
 func newSQLiteInProcessEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAttributes) (*sqLiteInProcessEngine, error) {
-	fileName := cfg.DSN
-	if fileName == "" {
-		fileName = "file::memory:?cache=shared"
+	dsn := cfg.DSN
+	if dsn == "" {
+		dsn = "file::memory:?cache=shared"
 	}
-	db, err := sql.Open("sqlite3", fileName)
+	db, err := sql.Open("sqlite3", dsn)
 	db.SetConnMaxLifetime(-1)
 	eng := &sqLiteInProcessEngine{
 		db:                db,
-		fileName:          fileName,
+		dsn:               dsn,
 		controlAttributes: controlAttributes,
 		ctrlMutex:         &sync.Mutex{},
 		sessionMutex:      &sync.Mutex{},
@@ -61,11 +61,19 @@ func newSQLiteInProcessEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontro
 	if err != nil {
 		return eng, err
 	}
-	logging.GetLogger().Infoln(fmt.Sprintf("opened db with file = '%s' and err  = '%v'", fileName, err))
+	logging.GetLogger().Infoln(fmt.Sprintf("opened db with file = '%s' and err  = '%v'", dsn, err))
 	if err != nil {
 		return eng, err
 	}
 	return eng, err
+}
+
+func (eng *sqLiteInProcessEngine) GetTableCatalog() string {
+	return ""
+}
+
+func (eng *sqLiteInProcessEngine) GetTableSchema() string {
+	return ""
 }
 
 func (eng *sqLiteInProcessEngine) execFileSQLite(fileName string) error {

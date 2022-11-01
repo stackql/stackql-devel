@@ -24,6 +24,8 @@ type SQLDialect interface {
 	GCPurgeCache() error
 	// GCPurgeCache() will completely wipe the cache.
 	GCPurgeEphemeral() error
+	//
+	GetSQLEngine() sqlengine.SQLEngine
 	// PurgeAll() drops all data tables, does **not** drop control tables.
 	PurgeAll() error
 }
