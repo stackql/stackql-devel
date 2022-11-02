@@ -55,6 +55,16 @@
       "id": "gcpProject",
       "description": "GCP Project arg String",
       "default": "lab-kr-network-01"
+    },
+    {
+      "type": "pickString",
+      "id": "sqlBackendString",
+      "description": "GC Input arg String",
+      "default": "{}",
+      "options": [
+        "{}",
+        "{ \"dbEngine\": \"postgres_tcp\", \"sqlDialect\": \"postgres\", \"dsn\": \"postgres://stackql:stackql@127.0.0.1:5432/stackql\" }"
+      ]
     }
   ],
   "configurations": [
@@ -243,6 +253,7 @@
         "--registry=${input:registryString}",
         "--auth=${input:authString}",
         "--tls.allowInsecure",
+        "--sqlBackend=${input:sqlBackendString}",
         "select url from github.repos.pages where owner = 'dummyorg' and repo = 'dummyapp.io' ;"
       ],
     },
@@ -340,6 +351,7 @@
         "--registry=${input:registryString}",
         "--auth=${input:authString}",
         "--tls.allowInsecure",
+        "--sqlBackend=${input:sqlBackendString}",
         "select ou.status, ou.profile from okta.user.users ou where ou.subdomain = 'dummyorg';"
       ],
     },

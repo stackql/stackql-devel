@@ -3,8 +3,11 @@ package sqldialect
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
+	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/dto"
+	"github.com/stackql/stackql/internal/stackql/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
@@ -31,6 +34,57 @@ func (eng *postgresDialect) initSQLiteEngine() error {
 	return err
 }
 
+func (eng *postgresDialect) generateDropTableStatement(relationalTable relationaldto.RelationalTable) string {
+	return fmt.Sprintf(`drop table if exists "%s"`, relationalTable.GetName())
+}
+
+func (eng *postgresDialect) GenerateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error) {
+	return eng.generateDDL(relationalTable, dropTable)
+}
+
+func (eng *postgresDialect) generateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error) {
+	var colDefs, retVal []string
+	if dropTable {
+		retVal = append(retVal, eng.generateDropTableStatement(relationalTable))
+	}
+	var rv strings.Builder
+	tableName := relationalTable.GetName()
+	rv.WriteString(fmt.Sprintf(`create table if not exists "%s" ( `, tableName))
+	colDefs = append(colDefs, fmt.Sprintf(`"iql_%s_id" BIGSERIAL PRIMARY KEY`, tableName))
+	genIdColName := eng.controlAttributes.GetControlGenIdColumnName()
+	sessionIdColName := eng.controlAttributes.GetControlSsnIdColumnName()
+	txnIdColName := eng.controlAttributes.GetControlTxnIdColumnName()
+	maxTxnIdColName := eng.controlAttributes.GetControlMaxTxnColumnName()
+	insIdColName := eng.controlAttributes.GetControlInsIdColumnName()
+	lastUpdateColName := eng.controlAttributes.GetControlLatestUpdateColumnName()
+	insertEncodedColName := eng.controlAttributes.GetControlInsertEncodedIdColumnName()
+	gcStatusColName := eng.controlAttributes.GetControlGCStatusColumnName()
+	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, genIdColName))
+	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, sessionIdColName))
+	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, txnIdColName))
+	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, maxTxnIdColName))
+	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, insIdColName))
+	colDefs = append(colDefs, fmt.Sprintf(`"%s" TEXT `, insertEncodedColName))
+	colDefs = append(colDefs, fmt.Sprintf(`"%s" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP `, lastUpdateColName))
+	colDefs = append(colDefs, fmt.Sprintf(`"%s" SMALLINT NOT NULL DEFAULT %d `, gcStatusColName, constants.GCBlack))
+	for _, col := range relationalTable.GetColumns() {
+		var b strings.Builder
+		colName := col.GetName()
+		colType := col.GetType()
+		b.WriteString(`"` + colName + `" `)
+		b.WriteString(colType)
+		colDefs = append(colDefs, b.String())
+	}
+	rv.WriteString(strings.Join(colDefs, " , "))
+	rv.WriteString(" ) ")
+	retVal = append(retVal, rv.String())
+	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), genIdColName, tableName, genIdColName))
+	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), sessionIdColName, tableName, sessionIdColName))
+	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), txnIdColName, tableName, txnIdColName))
+	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), insIdColName, tableName, insIdColName))
+	return retVal, nil
+}
+
 func (sl *postgresDialect) GCAdd(tableName string, parentTcc, lockableTcc dto.TxnControlCounters) error {
 	maxTxnColName := sl.controlAttributes.GetControlMaxTxnColumnName()
 	q := fmt.Sprintf(
@@ -43,9 +97,9 @@ func (sl *postgresDialect) GCAdd(tableName string, parentTcc, lockableTcc dto.Tx
 				"__iql__.control.gc.rings"
 		) AS r
 		WHERE 
-			"%s" = ? 
+			"%s" = $1 
 			AND 
-			"%s" = ? 
+			"%s" = $2 
 			AND
 			r.ring_name = 'transaction_id'
 			AND
@@ -83,9 +137,9 @@ func (sl *postgresDialect) gCCollectObsoleted(minTransactionID int) error {
 		where 
 			table_type = 'BASE TABLE' 
 			and 
-			table_catalog = ? 
+			table_catalog = $1
 			and 
-			table_schema = ?
+			table_schema = $2
 		  and
 			table_name not like '__iql__%%'
 		`,
@@ -112,9 +166,9 @@ func (sl *postgresDialect) gCCollectAll() error {
 		where 
 			table_type = 'BASE TABLE' 
 			and 
-			table_catalog = ? 
+			table_catalog = $1
 			and 
-			table_schema = ?
+			table_schema = $2
 		  and
 			table_name not like '__iql__%%'
 		`
@@ -138,9 +192,9 @@ func (sl *postgresDialect) gcControlTablesPurge() error {
 		where 
 			table_type = 'BASE TABLE' 
 			and 
-			table_catalog = ? 
+			table_catalog = $1
 			and 
-			table_schema = ?
+			table_schema = $2
 		  and
 			table_name like '__iql__%%'
 		`
@@ -168,11 +222,11 @@ func (sl *postgresDialect) gcPurgeCache() error {
 	where 
 		table_type = 'BASE TABLE' 
 		and 
-		table_catalog = ? 
+		table_catalog = $1
 		and 
-		table_schema = ?
+		table_schema = $2
 		and 
-		table_name like ?
+		table_name like $3
 	`
 	rows, err := sl.sqlEngine.Query(query, sl.sqlEngine.GetTableCatalog(), sl.sqlEngine.GetTableSchema(), sl.namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetLikeString())
 	if err != nil {
@@ -190,11 +244,11 @@ func (sl *postgresDialect) gcPurgeEphemeral() error {
 	where 
 		table_type = 'BASE TABLE' 
 		and 
-		table_catalog = ? 
+		table_catalog = $1
 		and 
-		table_schema = ?
+		table_schema = $2
 		and 
-		table_name NOT like ? 
+		table_name NOT like $3
 		and 
 		table_name not like '__iql__%' 
 	`
@@ -222,13 +276,13 @@ func (sl *postgresDialect) purgeAll() error {
 		where 
 			table_type = 'BASE TABLE' 
 			and 
-			table_catalog = ? 
+			table_catalog = $1 
 			and 
-			table_schema = ?
+			table_schema = $2
 		  AND
 			table_name NOT LIKE '__iql__%'
 		`
-	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery)
+	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery, sl.sqlEngine.GetTableCatalog(), sl.sqlEngine.GetTableSchema())
 	if err != nil {
 		return err
 	}

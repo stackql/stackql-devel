@@ -3,8 +3,11 @@ package sqldialect
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
+	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/dto"
+	"github.com/stackql/stackql/internal/stackql/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
@@ -125,8 +128,59 @@ func (sl *sqLiteDialect) gCCollectAll() error {
 	return sl.readExecGeneratedQueries(deleteQueryResultSet)
 }
 
+func (eng *sqLiteDialect) generateDropTableStatement(relationalTable relationaldto.RelationalTable) string {
+	return fmt.Sprintf(`drop table if exists "%s"`, relationalTable.GetName())
+}
+
 func (sl *sqLiteDialect) GCControlTablesPurge() error {
 	return sl.gcControlTablesPurge()
+}
+
+func (eng *sqLiteDialect) GenerateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error) {
+	return eng.generateDDL(relationalTable, dropTable)
+}
+
+func (eng *sqLiteDialect) generateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error) {
+	var colDefs, retVal []string
+	var rv strings.Builder
+	if dropTable {
+		retVal = append(retVal, eng.generateDropTableStatement(relationalTable))
+	}
+	tableName := relationalTable.GetName()
+	rv.WriteString(fmt.Sprintf(`create table if not exists "%s" ( `, tableName))
+	colDefs = append(colDefs, fmt.Sprintf(`"iql_%s_id" INTEGER PRIMARY KEY AUTOINCREMENT`, tableName))
+	genIdColName := eng.controlAttributes.GetControlGenIdColumnName()
+	sessionIdColName := eng.controlAttributes.GetControlSsnIdColumnName()
+	txnIdColName := eng.controlAttributes.GetControlTxnIdColumnName()
+	maxTxnIdColName := eng.controlAttributes.GetControlMaxTxnColumnName()
+	insIdColName := eng.controlAttributes.GetControlInsIdColumnName()
+	lastUpdateColName := eng.controlAttributes.GetControlLatestUpdateColumnName()
+	insertEncodedColName := eng.controlAttributes.GetControlInsertEncodedIdColumnName()
+	gcStatusColName := eng.controlAttributes.GetControlGCStatusColumnName()
+	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, genIdColName))
+	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, sessionIdColName))
+	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, txnIdColName))
+	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, maxTxnIdColName))
+	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, insIdColName))
+	colDefs = append(colDefs, fmt.Sprintf(`"%s" TEXT `, insertEncodedColName))
+	colDefs = append(colDefs, fmt.Sprintf(`"%s" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP `, lastUpdateColName))
+	colDefs = append(colDefs, fmt.Sprintf(`"%s" SMALLINT NOT NULL DEFAULT %d `, gcStatusColName, constants.GCBlack))
+	for _, col := range relationalTable.GetColumns() {
+		var b strings.Builder
+		colName := col.GetName()
+		colType := col.GetType()
+		b.WriteString(`"` + colName + `" `)
+		b.WriteString(colType)
+		colDefs = append(colDefs, b.String())
+	}
+	rv.WriteString(strings.Join(colDefs, " , "))
+	rv.WriteString(" ) ")
+	retVal = append(retVal, rv.String())
+	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), genIdColName, tableName, genIdColName))
+	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), sessionIdColName, tableName, sessionIdColName))
+	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), txnIdColName, tableName, txnIdColName))
+	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), insIdColName, tableName, insIdColName))
+	return retVal, nil
 }
 
 func (sl *sqLiteDialect) gcControlTablesPurge() error {

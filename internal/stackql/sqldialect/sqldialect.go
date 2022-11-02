@@ -6,6 +6,7 @@ import (
 
 	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/dto"
+	"github.com/stackql/stackql/internal/stackql/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
@@ -24,6 +25,8 @@ type SQLDialect interface {
 	GCPurgeCache() error
 	// GCPurgeCache() will completely wipe the cache.
 	GCPurgeEphemeral() error
+	//
+	GenerateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error)
 	//
 	GetSQLEngine() sqlengine.SQLEngine
 	// PurgeAll() drops all data tables, does **not** drop control tables.

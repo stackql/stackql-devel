@@ -9,10 +9,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
+	"github.com/stackql/stackql/internal/stackql/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
@@ -445,55 +445,23 @@ func (dc *StaticDRMConfig) inferColType(col util.Column) string {
 }
 
 func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, m *openapistackql.OperationStore, discoveryGenerationID int, dropTable bool) ([]string, error) {
-	var colDefs, retVal []string
-	var rv strings.Builder
 	tableName, err := dc.getTableName(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID)
 	if err != nil {
 		return nil, err
 	}
-	rv.WriteString(fmt.Sprintf(`create table if not exists "%s" ( `, tableName))
-	colDefs = append(colDefs, fmt.Sprintf(`"iql_%s_id" INTEGER PRIMARY KEY AUTOINCREMENT`, tableName))
-	genIdColName := dc.controlAttributes.GetControlGenIdColumnName()
-	sessionIdColName := dc.controlAttributes.GetControlSsnIdColumnName()
-	txnIdColName := dc.controlAttributes.GetControlTxnIdColumnName()
-	maxTxnIdColName := dc.controlAttributes.GetControlMaxTxnColumnName()
-	insIdColName := dc.controlAttributes.GetControlInsIdColumnName()
-	lastUpdateColName := dc.controlAttributes.GetControlLatestUpdateColumnName()
-	insertEncodedColName := dc.controlAttributes.GetControlInsertEncodedIdColumnName()
-	gcStatusColName := dc.controlAttributes.GetControlGCStatusColumnName()
-	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, genIdColName))
-	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, sessionIdColName))
-	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, txnIdColName))
-	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, maxTxnIdColName))
-	colDefs = append(colDefs, fmt.Sprintf(`"%s" INTEGER `, insIdColName))
-	colDefs = append(colDefs, fmt.Sprintf(`"%s" TEXT `, insertEncodedColName))
-	colDefs = append(colDefs, fmt.Sprintf(`"%s" DateTime NOT NULL DEFAULT CURRENT_TIMESTAMP `, lastUpdateColName))
-	colDefs = append(colDefs, fmt.Sprintf(`"%s" SMALLINT NOT NULL DEFAULT %d `, gcStatusColName, constants.GCBlack))
+	relationalTable := relationaldto.NewRelationalTable(tableName)
 	schemaAnalyzer := util.NewTableSchemaAnalyzer(tabAnn.GetTabulation().GetSchema(), m)
 	tableColumns := schemaAnalyzer.GetColumns()
 	for _, col := range tableColumns {
-		var b strings.Builder
 		colName := col.GetName()
 		colType := dc.inferColType(col)
-		b.WriteString(`"` + colName + `" `)
-		b.WriteString(dc.GetRelationalType(colType))
-		colDefs = append(colDefs, b.String())
+		relationalType := dc.GetRelationalType(colType)
+		// TODO: add drm logic to infer / transform width as suplied by openapi doc
+		colWidth := col.GetWidth()
+		relationalColumn := relationaldto.NewRelationalColumn(colName, relationalType, colWidth)
+		relationalTable.PushBackColumn(relationalColumn)
 	}
-	rv.WriteString(strings.Join(colDefs, " , "))
-	rv.WriteString(" ) ")
-	if dropTable {
-		dts, err := dc.generateDropTableStatement(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID)
-		if err != nil {
-			return nil, err
-		}
-		retVal = append(retVal, dts)
-	}
-	retVal = append(retVal, rv.String())
-	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), genIdColName, tableName, genIdColName))
-	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), sessionIdColName, tableName, sessionIdColName))
-	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), txnIdColName, tableName, txnIdColName))
-	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), insIdColName, tableName, insIdColName))
-	return retVal, nil
+	return dc.sqlDialect.GenerateDDL(relationalTable, dropTable)
 }
 
 func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulation, method *openapistackql.OperationStore, tcc *dto.TxnControlCounters) (*PreparedStatementCtx, error) {

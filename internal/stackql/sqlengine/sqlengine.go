@@ -36,7 +36,7 @@ type SQLEngine interface {
 
 func NewSQLEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAttributes) (SQLEngine, error) {
 	switch cfg.DbEngine {
-	case constants.DbEngineSQLite3Mem:
+	case constants.DbEngineSQLite3Embedded:
 		return newSQLiteInProcessEngine(cfg, controlAttributes)
 	case constants.DbEnginePostgresTCP:
 		return newPostgresTcpEngine(cfg, controlAttributes)

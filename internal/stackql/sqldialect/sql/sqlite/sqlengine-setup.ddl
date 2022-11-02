@@ -71,8 +71,8 @@ CREATE INDEX IF NOT EXISTS "idx.__iql__.control.gc.rings.ring_name"
 ON "__iql__.control.gc.rings" (ring_name)
 ;
 
-INSERT OR IGNORE INTO "__iql__.control.gc.rings" (ring_name) VALUES ("transaction_id");
+INSERT OR IGNORE INTO "__iql__.control.gc.rings" (ring_name) VALUES ('transaction_id');
 
-INSERT OR IGNORE INTO "__iql__.control.gc.rings" (ring_name) VALUES ("session_id");
+INSERT OR IGNORE INTO "__iql__.control.gc.rings" (ring_name) VALUES ('session_id');
 
 

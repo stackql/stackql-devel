@@ -18,7 +18,7 @@ List of drivers:
 
 ### SQLite
 
-The default implementation is embedded SQLite.  SQLite does not have a wire protocol or TCP-native version.
+The default implementation is **embedded** SQLite.  SQLite does **not** have a wire protocol or TCP-native version.
 
 ### Postgres
 
@@ -27,7 +27,7 @@ The default implementation is embedded SQLite.  SQLite does not have a wire prot
 - [Using golang SQL driver interfaces](https://github.com/jackc/pgx/wiki/Getting-started-with-pgx-through-database-sql#hello-world-from-postgresql).
 - [PGX native (improved performance)](https://github.com/jackc/pgx/wiki/Getting-started-with-pgx).
 
-#### Postgres in process
+#### Embedded Postgres
 
 https://github.com/fergusstrange/embedded-postgres
 

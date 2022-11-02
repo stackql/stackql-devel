@@ -101,20 +101,13 @@ func (eng *postgresTcpEngine) execFile(fileName string) error {
 	return err
 }
 
-// In SQLite, `DateTime` objects are not properly aware; the zone is not recorded.
-// That being said, those fields populated with `DateTime('now')` are UTC.
-// As per https://www.sqlite.org/lang_datefunc.html:
-//    The 'now' argument to date and time functions always returns exactly
-//    the same value for multiple invocations within the same sqlite3_step()
-//    call. Universal Coordinated Time (UTC) is used.
-// Therefore, this method will behave correctly provided that the column `colName`
-// is populated with `DateTime('now')`.
+// In Postgres, `Timestamp with time zone` objects are timezone-aware.
 func (eng *postgresTcpEngine) TableOldestUpdateUTC(tableName string, requestEncoding string, updateColName string, requestEncodingColName string) (time.Time, *dto.TxnControlCounters) {
 	genIdColName := eng.controlAttributes.GetControlGenIdColumnName()
 	ssnIdColName := eng.controlAttributes.GetControlSsnIdColumnName()
 	txnIdColName := eng.controlAttributes.GetControlTxnIdColumnName()
 	insIdColName := eng.controlAttributes.GetControlInsIdColumnName()
-	rows, err := eng.db.Query(fmt.Sprintf("SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%S', min(%s)) as oldest_update, %s, %s, %s, %s FROM \"%s\" WHERE %s = '%s';", updateColName, genIdColName, ssnIdColName, txnIdColName, insIdColName, tableName, requestEncodingColName, requestEncoding))
+	rows, err := eng.db.Query(fmt.Sprintf("SELECT min(%s) as oldest_update, %s, %s, %s, %s FROM \"%s\" WHERE %s = '%s';", updateColName, genIdColName, ssnIdColName, txnIdColName, insIdColName, tableName, requestEncodingColName, requestEncoding))
 	if err == nil && rows != nil {
 		defer rows.Close()
 		rowExists := rows.Next()
@@ -123,7 +116,7 @@ func (eng *postgresTcpEngine) TableOldestUpdateUTC(tableName string, requestEnco
 			tcc := dto.TxnControlCounters{}
 			err = rows.Scan(&oldest, &tcc.GenId, &tcc.SessionId, &tcc.TxnId, &tcc.InsertId)
 			if err == nil {
-				oldestTime, err := time.Parse("2006-01-02T15:04:05", oldest)
+				oldestTime, err := time.Parse("2006-01-02 11:11:11.111111+11", oldest)
 				if err == nil {
 					tcc.TableName = tableName
 					return oldestTime, &tcc
@@ -135,7 +128,7 @@ func (eng *postgresTcpEngine) TableOldestUpdateUTC(tableName string, requestEnco
 }
 
 func (eng *postgresTcpEngine) IsTablePresent(tableName string, requestEncoding string, colName string) bool {
-	rows, err := eng.db.Query(fmt.Sprintf(`SELECT count(*) as ct FROM "%s" WHERE iql_insert_encoded = ? `, tableName), requestEncoding)
+	rows, err := eng.db.Query(fmt.Sprintf(`SELECT count(*) as ct FROM "%s" WHERE iql_insert_encoded = $1 `, tableName), requestEncoding)
 	if err == nil && rows != nil {
 		defer rows.Close()
 		rowExists := rows.Next()
@@ -239,7 +232,7 @@ func (se postgresTcpEngine) getCurrentTable(tableHeirarchyIDs *dto.HeirarchyIden
 	var discoID int
 	tableNamePattern := fmt.Sprintf("%s.generation_%%", tableHeirarchyIDs.GetTableName())
 	tableNameLHSRemove := fmt.Sprintf("%s.generation_", tableHeirarchyIDs.GetTableName())
-	res := se.db.QueryRow(`select name, CAST(REPLACE(name, ?, '') AS INTEGER) from sqlite_schema where type = 'table' and name like ? ORDER BY name DESC limit 1`, tableNameLHSRemove, tableNamePattern)
+	res := se.db.QueryRow(`select name, CAST(REPLACE(name, $1, '') AS INTEGER) from sqlite_schema where type = 'table' and name like $2 ORDER BY name DESC limit 1`, tableNameLHSRemove, tableNamePattern)
 	err := res.Scan(&tableName, &discoID)
 	if err != nil {
 		logging.GetLogger().Errorln(fmt.Sprintf("err = %v for tableNamePattern = '%s' and tableNameLHSRemove = '%s'", err, tableNamePattern, tableNameLHSRemove))
@@ -249,35 +242,35 @@ func (se postgresTcpEngine) getCurrentTable(tableHeirarchyIDs *dto.HeirarchyIden
 
 func (se postgresTcpEngine) getNextGenerationId() (int, error) {
 	var retVal int
-	res := se.db.QueryRow(`INSERT INTO "__iql__.control.generation" (generation_description, created_dttm) VALUES ('', strftime('%s', 'now')) RETURNING iql_generation_id`)
+	res := se.db.QueryRow(`INSERT INTO "__iql__.control.generation" (generation_description, created_dttm) VALUES ('', current_timestamp) RETURNING iql_generation_id`)
 	err := res.Scan(&retVal)
 	return retVal, err
 }
 
 func (se postgresTcpEngine) getCurrentProviderGenerationId(providerName string) (int, error) {
 	var retVal int
-	res := se.db.QueryRow(`SELECT lhs.iql_discovery_generation_id FROM "__iql__.control.discovery_generation" lhs INNER JOIN (SELECT discovery_name, max(created_dttm) AS max_dttm FROM "__iql__.control.discovery_generation" WHERE collected_dttm IS null GROUP BY discovery_name) rhs ON  lhs.created_dttm = rhs.max_dttm AND lhs.discovery_name = rhs.discovery_name WHERE lhs.collected_dttm IS null AND lhs.discovery_name = ?`, providerName)
+	res := se.db.QueryRow(`SELECT lhs.iql_discovery_generation_id FROM "__iql__.control.discovery_generation" lhs INNER JOIN (SELECT discovery_name, max(created_dttm) AS max_dttm FROM "__iql__.control.discovery_generation" WHERE collected_dttm IS null GROUP BY discovery_name) rhs ON  lhs.created_dttm = rhs.max_dttm AND lhs.discovery_name = rhs.discovery_name WHERE lhs.collected_dttm IS null AND lhs.discovery_name = $1`, providerName)
 	err := res.Scan(&retVal)
 	return retVal, err
 }
 
 func (se postgresTcpEngine) getNextProviderGenerationId(providerName string) (int, error) {
 	var retVal int
-	res := se.db.QueryRow(`INSERT INTO "__iql__.control.discovery_generation" (discovery_name, created_dttm) VALUES (?, strftime('%s', 'now')) RETURNING iql_discovery_generation_id`, providerName)
+	res := se.db.QueryRow(`INSERT INTO "__iql__.control.discovery_generation" (discovery_name, created_dttm) VALUES ($1, current_timestamp) RETURNING iql_discovery_generation_id`, providerName)
 	err := res.Scan(&retVal)
 	return retVal, err
 }
 
 func (se postgresTcpEngine) getCurrentSessionId(generationId int) (int, error) {
 	var retVal int
-	res := se.db.QueryRow(`SELECT lhs.iql_session_id FROM "__iql__.control.session" lhs INNER JOIN (SELECT max(created_dttm) AS max_dttm FROM "__iql__.control.session" WHERE collected_dttm IS null) rhs ON  lhs.created_dttm = rhs.max_dttm AND lhs.iql_genration_id = rhs.iql_generation_id WHERE lhs.iql_generation_id = ? AND lhs.collected_dttm IS null`, generationId)
+	res := se.db.QueryRow(`SELECT lhs.iql_session_id FROM "__iql__.control.session" lhs INNER JOIN (SELECT max(created_dttm) AS max_dttm FROM "__iql__.control.session" WHERE collected_dttm IS null) rhs ON  lhs.created_dttm = rhs.max_dttm AND lhs.iql_genration_id = rhs.iql_generation_id WHERE lhs.iql_generation_id = $1 AND lhs.collected_dttm IS null`, generationId)
 	err := res.Scan(&retVal)
 	return retVal, err
 }
 
 func (se postgresTcpEngine) getNextSessionId(generationId int) (int, error) {
 	var retVal int
-	res := se.db.QueryRow(`INSERT INTO "__iql__.control.session" (iql_generation_id, created_dttm) VALUES (?, strftime('%s', 'now')) RETURNING iql_session_id`, generationId)
+	res := se.db.QueryRow(`INSERT INTO "__iql__.control.session" (iql_generation_id, created_dttm) VALUES ($1, current_timestamp) RETURNING iql_session_id`, generationId)
 	err := res.Scan(&retVal)
 	logging.GetLogger().Infoln(fmt.Sprintf("getNextSessionId(): generation id = %d, session id = %d", generationId, retVal))
 	return retVal, err
@@ -285,7 +278,7 @@ func (se postgresTcpEngine) getNextSessionId(generationId int) (int, error) {
 
 func (se postgresTcpEngine) CacheStoreGet(key string) ([]byte, error) {
 	var retVal []byte
-	res := se.db.QueryRow(`SELECT v FROM "__iql__.cache.key_val" WHERE k = ?`, key)
+	res := se.db.QueryRow(`SELECT v FROM "__iql__.cache.key_val" WHERE k = $1`, key)
 	err := res.Scan(&retVal)
 	return retVal, err
 }
@@ -312,12 +305,12 @@ func (se postgresTcpEngine) CacheStorePut(key string, val []byte, tablespace str
 	if err != nil {
 		return err
 	}
-	_, err = txn.Exec(`DELETE FROM "__iql__.cache.key_val" WHERE k = ?`, key)
+	_, err = txn.Exec(`DELETE FROM "__iql__.cache.key_val" WHERE k = $1`, key)
 	if err != nil {
 		txn.Rollback()
 		return err
 	}
-	_, err = txn.Exec(`INSERT INTO "__iql__.cache.key_val" (k, v, tablespace, tablespace_id) VALUES(?, ?, ?, ?)`, key, val, tablespace, tablespaceID)
+	_, err = txn.Exec(`INSERT INTO "__iql__.cache.key_val" (k, v, tablespace, tablespace_id) VALUES($1, $2, $3, $4)`, key, val, tablespace, tablespaceID)
 	if err != nil {
 		txn.Rollback()
 		return err
