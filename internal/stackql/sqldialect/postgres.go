@@ -128,18 +128,19 @@ func (eng *postgresDialect) composeSelectQuery(columns []relationaldto.Relationa
 	var controlWhereComparisons []string
 	i := 0
 	for _, alias := range tableAliases {
+		j := i * 4
 		if alias != "" {
 			gIDcn := fmt.Sprintf(`"%s"."%s"`, alias, genIdColName)
 			sIDcn := fmt.Sprintf(`"%s"."%s"`, alias, sessionIDColName)
 			tIDcn := fmt.Sprintf(`"%s"."%s"`, alias, txnIdColName)
 			iIDcn := fmt.Sprintf(`"%s"."%s"`, alias, insIdColName)
-			controlWhereComparisons = append(controlWhereComparisons, fmt.Sprintf(`%s = ? AND %s = ? AND %s = ? AND %s = ?`, gIDcn, sIDcn, tIDcn, iIDcn))
+			controlWhereComparisons = append(controlWhereComparisons, fmt.Sprintf(`%s = $%d AND %s = $%d AND %s = $%d AND %s = $%d`, gIDcn, j+1, sIDcn, j+2, tIDcn, j+3, iIDcn, j+4))
 		} else {
 			gIDcn := fmt.Sprintf(`"%s"`, genIdColName)
 			sIDcn := fmt.Sprintf(`"%s"`, sessionIDColName)
 			tIDcn := fmt.Sprintf(`"%s"`, txnIdColName)
 			iIDcn := fmt.Sprintf(`"%s"`, insIdColName)
-			controlWhereComparisons = append(controlWhereComparisons, fmt.Sprintf(`%s = ? AND %s = ? AND %s = ? AND %s = ?`, gIDcn, sIDcn, tIDcn, iIDcn))
+			controlWhereComparisons = append(controlWhereComparisons, fmt.Sprintf(`%s = $%d AND %s = $%d AND %s = $%d AND %s = $%d`, gIDcn, j+1, sIDcn, j+2, tIDcn, j+3, iIDcn, j+4))
 		}
 		i++
 	}
