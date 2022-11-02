@@ -232,7 +232,19 @@ func (se postgresTcpEngine) getCurrentTable(tableHeirarchyIDs *dto.HeirarchyIden
 	var discoID int
 	tableNamePattern := fmt.Sprintf("%s.generation_%%", tableHeirarchyIDs.GetTableName())
 	tableNameLHSRemove := fmt.Sprintf("%s.generation_", tableHeirarchyIDs.GetTableName())
-	res := se.db.QueryRow(`select name, CAST(REPLACE(name, $1, '') AS INTEGER) from sqlite_schema where type = 'table' and name like $2 ORDER BY name DESC limit 1`, tableNameLHSRemove, tableNamePattern)
+	res := se.db.QueryRow(`
+	select 
+		table_name, 
+		CAST(REPLACE(table_name, $1, '') AS INTEGER) 
+	from 
+		information_schema.tables 
+	where 
+		table_type = 'BASE TABLE'
+	  and 
+		table_name like $2 
+	ORDER BY table_name DESC 
+	limit 1
+	`, tableNameLHSRemove, tableNamePattern)
 	err := res.Scan(&tableName, &discoID)
 	if err != nil {
 		logging.GetLogger().Errorln(fmt.Sprintf("err = %v for tableNamePattern = '%s' and tableNameLHSRemove = '%s'", err, tableNamePattern, tableNameLHSRemove))

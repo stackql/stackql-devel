@@ -198,6 +198,74 @@ func (eng *sqLiteDialect) getGCHousekeepingQuery(tableName string, tcc dto.TxnCo
 	return fmt.Sprintf(templateQuery, tcc.GenId, tcc.SessionId, tcc.TxnId, tableName)
 }
 
+func (eng *sqLiteDialect) ComposeSelectQuery(columns []relationaldto.RelationalColumn, tableAliases []string, fromString string, rewrittenWhere string, selectSuffix string) (string, error) {
+	return eng.composeSelectQuery(columns, tableAliases, fromString, rewrittenWhere, selectSuffix)
+}
+
+func (eng *sqLiteDialect) composeSelectQuery(columns []relationaldto.RelationalColumn, tableAliases []string, fromString string, rewrittenWhere string, selectSuffix string) (string, error) {
+	var q strings.Builder
+	var quotedColNames []string
+	for _, col := range columns {
+		quotedColNames = append(quotedColNames, col.CanonicalSelectionString())
+	}
+	genIdColName := eng.controlAttributes.GetControlGenIdColumnName()
+	sessionIDColName := eng.controlAttributes.GetControlSsnIdColumnName()
+	txnIdColName := eng.controlAttributes.GetControlTxnIdColumnName()
+	insIdColName := eng.controlAttributes.GetControlInsIdColumnName()
+	var wq strings.Builder
+	var controlWhereComparisons []string
+	i := 0
+	for _, alias := range tableAliases {
+		if alias != "" {
+			gIDcn := fmt.Sprintf(`"%s"."%s"`, alias, genIdColName)
+			sIDcn := fmt.Sprintf(`"%s"."%s"`, alias, sessionIDColName)
+			tIDcn := fmt.Sprintf(`"%s"."%s"`, alias, txnIdColName)
+			iIDcn := fmt.Sprintf(`"%s"."%s"`, alias, insIdColName)
+			controlWhereComparisons = append(controlWhereComparisons, fmt.Sprintf(`%s = ? AND %s = ? AND %s = ? AND %s = ?`, gIDcn, sIDcn, tIDcn, iIDcn))
+		} else {
+			gIDcn := fmt.Sprintf(`"%s"`, genIdColName)
+			sIDcn := fmt.Sprintf(`"%s"`, sessionIDColName)
+			tIDcn := fmt.Sprintf(`"%s"`, txnIdColName)
+			iIDcn := fmt.Sprintf(`"%s"`, insIdColName)
+			controlWhereComparisons = append(controlWhereComparisons, fmt.Sprintf(`%s = ? AND %s = ? AND %s = ? AND %s = ?`, gIDcn, sIDcn, tIDcn, iIDcn))
+		}
+		i++
+	}
+	if len(controlWhereComparisons) > 0 {
+		controlWhereSubClause := fmt.Sprintf("( %s )", strings.Join(controlWhereComparisons, " AND "))
+		wq.WriteString(controlWhereSubClause)
+	}
+
+	if strings.TrimSpace(rewrittenWhere) != "" {
+		if len(controlWhereComparisons) > 0 {
+			wq.WriteString(fmt.Sprintf(" AND ( %s ) ", rewrittenWhere))
+		} else {
+			wq.WriteString(fmt.Sprintf(" ( %s ) ", rewrittenWhere))
+		}
+	}
+	whereExprsStr := wq.String()
+
+	q.WriteString(fmt.Sprintf(`SELECT %s FROM `, strings.Join(quotedColNames, ", ")))
+	q.WriteString(fromString)
+	if whereExprsStr != "" {
+		q.WriteString(" WHERE ")
+		q.WriteString(whereExprsStr)
+	}
+	q.WriteString(selectSuffix)
+
+	query := q.String()
+
+	return eng.sanitizeQueryString(query)
+}
+
+func (eng *sqLiteDialect) SanitizeQueryString(queryString string) (string, error) {
+	return eng.sanitizeQueryString(queryString)
+}
+
+func (eng *sqLiteDialect) sanitizeQueryString(queryString string) (string, error) {
+	return queryString, nil
+}
+
 func (eng *sqLiteDialect) GenerateInsertDML(relationalTable relationaldto.RelationalTable, tcc *dto.TxnControlCounters) (string, error) {
 	return eng.generateInsertDML(relationalTable, tcc)
 }

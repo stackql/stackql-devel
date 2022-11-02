@@ -13,6 +13,7 @@ import (
 )
 
 type SQLDialect interface {
+	ComposeSelectQuery([]relationaldto.RelationalColumn, []string, string, string, string) (string, error)
 	// GCAdd() will record a Txn as active
 	GCAdd(string, dto.TxnControlCounters, dto.TxnControlCounters) error
 	// GCCollectAll() will remove all records from data tables.
@@ -34,6 +35,7 @@ type SQLDialect interface {
 	GetSQLEngine() sqlengine.SQLEngine
 	// PurgeAll() drops all data tables, does **not** drop control tables.
 	PurgeAll() error
+	SanitizeQueryString(queryString string) (string, error)
 }
 
 func NewSQLDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes, name string) (SQLDialect, error) {
