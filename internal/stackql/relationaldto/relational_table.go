@@ -5,9 +5,11 @@ var (
 )
 
 type RelationalTable interface {
+	GetAlias() string
 	GetColumns() []RelationalColumn
 	GetName() string
 	PushBackColumn(RelationalColumn)
+	WithAlias(alias string) RelationalTable
 }
 
 func NewRelationalTable(name string) RelationalTable {
@@ -17,12 +19,22 @@ func NewRelationalTable(name string) RelationalTable {
 }
 
 type standardRelationalTable struct {
+	alias   string
 	name    string
 	columns []RelationalColumn
 }
 
 func (rt *standardRelationalTable) GetName() string {
 	return rt.name
+}
+
+func (rt *standardRelationalTable) GetAlias() string {
+	return rt.alias
+}
+
+func (rt *standardRelationalTable) WithAlias(alias string) RelationalTable {
+	rt.alias = alias
+	return rt
 }
 
 func (rt *standardRelationalTable) GetColumns() []RelationalColumn {

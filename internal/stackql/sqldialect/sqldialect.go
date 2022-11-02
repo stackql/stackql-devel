@@ -26,7 +26,10 @@ type SQLDialect interface {
 	// GCPurgeCache() will completely wipe the cache.
 	GCPurgeEphemeral() error
 	//
-	GenerateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error)
+	GenerateDDL(relationaldto.RelationalTable, bool) ([]string, error)
+	GenerateInsertDML(relationaldto.RelationalTable, *dto.TxnControlCounters) (string, error)
+	GenerateSelectDML(relationaldto.RelationalTable, *dto.TxnControlCounters, string, string) (string, error)
+	GetGCHousekeepingQuery(string, dto.TxnControlCounters) string
 	//
 	GetSQLEngine() sqlengine.SQLEngine
 	// PurgeAll() drops all data tables, does **not** drop control tables.

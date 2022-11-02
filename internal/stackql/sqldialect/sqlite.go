@@ -183,6 +183,91 @@ func (eng *sqLiteDialect) generateDDL(relationalTable relationaldto.RelationalTa
 	return retVal, nil
 }
 
+func (eng *sqLiteDialect) GetGCHousekeepingQuery(tableName string, tcc dto.TxnControlCounters) string {
+	return eng.getGCHousekeepingQuery(tableName, tcc)
+}
+
+func (eng *sqLiteDialect) getGCHousekeepingQuery(tableName string, tcc dto.TxnControlCounters) string {
+	templateQuery := `INSERT OR IGNORE INTO 
+	  "__iql__.control.gc.txn_table_x_ref" (
+			iql_generation_id, 
+			iql_session_id, 
+			iql_transaction_id, 
+			table_name
+		) values(%d, %d, %d, '%s')`
+	return fmt.Sprintf(templateQuery, tcc.GenId, tcc.SessionId, tcc.TxnId, tableName)
+}
+
+func (eng *sqLiteDialect) GenerateInsertDML(relationalTable relationaldto.RelationalTable, tcc *dto.TxnControlCounters) (string, error) {
+	return eng.generateInsertDML(relationalTable, tcc)
+}
+
+func (eng *sqLiteDialect) generateInsertDML(relationalTable relationaldto.RelationalTable, tcc *dto.TxnControlCounters) (string, error) {
+	var q strings.Builder
+	var quotedColNames, vals []string
+	q.WriteString(fmt.Sprintf(`INSERT INTO "%s" `, relationalTable.GetName()))
+	genIdColName := eng.controlAttributes.GetControlGenIdColumnName()
+	sessionIdColName := eng.controlAttributes.GetControlSsnIdColumnName()
+	txnIdColName := eng.controlAttributes.GetControlTxnIdColumnName()
+	insIdColName := eng.controlAttributes.GetControlInsIdColumnName()
+	insEncodedColName := eng.controlAttributes.GetControlInsertEncodedIdColumnName()
+	quotedColNames = append(quotedColNames, `"`+genIdColName+`" `)
+	quotedColNames = append(quotedColNames, `"`+sessionIdColName+`" `)
+	quotedColNames = append(quotedColNames, `"`+txnIdColName+`" `)
+	quotedColNames = append(quotedColNames, `"`+insIdColName+`" `)
+	quotedColNames = append(quotedColNames, `"`+insEncodedColName+`" `)
+	vals = append(vals, "?")
+	vals = append(vals, "?")
+	vals = append(vals, "?")
+	vals = append(vals, "?")
+	vals = append(vals, "?")
+	for _, col := range relationalTable.GetColumns() {
+		quotedColNames = append(quotedColNames, `"`+col.GetName()+`" `)
+		vals = append(vals, "?")
+	}
+	q.WriteString(fmt.Sprintf(" (%s) ", strings.Join(quotedColNames, ", ")))
+	q.WriteString(fmt.Sprintf(" VALUES (%s) ", strings.Join(vals, ", ")))
+	return q.String(), nil
+}
+
+func (eng *sqLiteDialect) GenerateSelectDML(relationalTable relationaldto.RelationalTable, txnCtrlCtrs *dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (string, error) {
+	return eng.generateSelectDML(relationalTable, txnCtrlCtrs, selectSuffix, rewrittenWhere)
+}
+
+func (eng *sqLiteDialect) generateSelectDML(relationalTable relationaldto.RelationalTable, txnCtrlCtrs *dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (string, error) {
+	var q strings.Builder
+	var quotedColNames []string
+	for _, col := range relationalTable.GetColumns() {
+		var colEntry strings.Builder
+		if col.GetDecorated() == "" {
+			colEntry.WriteString(fmt.Sprintf(`"%s" `, col.GetName()))
+			if col.GetAlias() != "" {
+				colEntry.WriteString(fmt.Sprintf(` AS "%s"`, col.GetAlias()))
+			}
+		} else {
+			colEntry.WriteString(fmt.Sprintf("%s ", col.GetDecorated()))
+		}
+		quotedColNames = append(quotedColNames, fmt.Sprintf("%s ", colEntry.String()))
+
+	}
+	genIdColName := eng.controlAttributes.GetControlGenIdColumnName()
+	sessionIDColName := eng.controlAttributes.GetControlSsnIdColumnName()
+	txnIdColName := eng.controlAttributes.GetControlTxnIdColumnName()
+	insIdColName := eng.controlAttributes.GetControlInsIdColumnName()
+	aliasStr := ""
+	if relationalTable.GetAlias() != "" {
+		aliasStr = fmt.Sprintf(` AS "%s" `, relationalTable.GetAlias())
+	}
+	q.WriteString(fmt.Sprintf(`SELECT %s FROM "%s" %s WHERE `, strings.Join(quotedColNames, ", "), relationalTable.GetName(), aliasStr))
+	q.WriteString(fmt.Sprintf(`( "%s" = ? AND "%s" = ? AND "%s" = ? AND "%s" = ? ) `, genIdColName, sessionIDColName, txnIdColName, insIdColName))
+	if strings.TrimSpace(rewrittenWhere) != "" {
+		q.WriteString(fmt.Sprintf(" AND ( %s ) ", rewrittenWhere))
+	}
+	q.WriteString(selectSuffix)
+
+	return q.String(), nil
+}
+
 func (sl *sqLiteDialect) gcControlTablesPurge() error {
 	obtainQuery := `
 		SELECT
