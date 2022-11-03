@@ -97,6 +97,8 @@ _NAMESPACES_TTL_SPECIALCASE_TRANSPARENT = '{ "analytics": { "ttl": 86400, "regex
 
 _GC_CFG_EAGER = '{ "isEager": true }'
 
+_SQL_BACKEND = '{ "isEager": true }'
+
 NAMESPACES_TTL_SIMPLE = _NAMESPACES_TTL_SIMPLE.replace(' ', '')
 NAMESPACES_TTL_TRANSPARENT = _NAMESPACES_TTL_TRANSPARENT.replace(' ', '')
 NAMESPACES_TTL_SPECIALCASE_TRANSPARENT = _NAMESPACES_TTL_SPECIALCASE_TRANSPARENT.replace(' ', '')
@@ -240,11 +242,30 @@ ANALYTICS_DB_INIT_PATH_DOCKER :str = get_unix_path(os.path.join('/opt', 'stackql
 
 ANALYTICS_DB_INIT_PATH_UNIX :str = get_unix_path(ANALYTICS_DB_INIT_PATH)
 
-ANALYTICS_SQL_BACKEND_CFG_STR :str = f'{{ "dbInitFilepath": "{ANALYTICS_DB_INIT_PATH_UNIX}" }}'.replace(' ', '')
-ANALYTICS_SQL_BACKEND_CFG_STR_DOCKER :str = f'{{ "dbInitFilepath": "{ANALYTICS_DB_INIT_PATH_DOCKER}" }}'
+_SQL_BACKEND_POSTGRES_DOCKER_DSN :str = 'postgres://stackql:stackql@postgres_stackql:6532/stackql'
+
+
+def get_analytics_sql_backend(execution_env :str, sql_backend_str :str) -> str:
+  if execution_env == 'native':
+    return f'{{ "dbInitFilepath": "{ANALYTICS_DB_INIT_PATH_UNIX}" }}'.replace(' ', '')
+  if execution_env == 'docker':
+    if sql_backend_str == 'postgres_tcp':
+      return f'{{ "dbEngine": "postgres_tcp", "dsn": "{_SQL_BACKEND_POSTGRES_DOCKER_DSN}", "sqlDialect": "postgres", "dbInitFilepath": "{ANALYTICS_DB_INIT_PATH_DOCKER}" }}'.replace(' ', '')
+    return f'{{ "dbInitFilepath": "{ANALYTICS_DB_INIT_PATH_DOCKER}" }}'.replace(' ', '')
+
+
+def get_canonical_sql_backend(execution_env :str, sql_backend_str :str) -> str:
+  if execution_env == 'native':
+    return '{}'
+  if execution_env == 'docker':
+    if sql_backend_str == 'postgres_tcp':
+      return f'{{ "dbEngine": "postgres_tcp", "dsn": "{_SQL_BACKEND_POSTGRES_DOCKER_DSN}", "sqlDialect": "postgres" }}'.replace(' ', '')
+    return '{}'
+
 
 with open(os.path.join(REPOSITORY_ROOT, 'test', 'server', 'mtls', 'credentials', 'pg_client_cert.pem'), 'rb') as f:
   _CLIENT_CERT_ENCODED :str = base64.b64encode(f.read()).decode('utf-8')
+
 
 # with open(os.path.join(REPOSITORY_ROOT, 'vol', 'srv', 'credentials', 'pg_client_cert.pem'), 'rb') as f:
 #   _DOCKER_CLIENT_CERT_ENCODED :str = base64.b64encode(f.read()).decode('utf-8')
@@ -545,7 +566,7 @@ REGISTRY_GOOGLE_PROVIDER_LIST_EXPECTED = get_output_from_local_file(os.path.join
 NATIVEQUERY_OKTA_APPS_ROW_COUNT_DISCO_ID_ONE = get_native_query_row_count_from_table('okta.application.Application.generation_1')
 NATIVEQUERY_OKTA_APPS_ROW_COUNT_DISCO_ID_TWO = get_native_query_row_count_from_table('okta.application.Application.generation_2')
 
-def get_variables(execution_env :str):
+def get_variables(execution_env :str, sql_backend_str :str):
   rv = {
     ## general config
     'AZURE_SECRET_STR':                               AZURE_SECRET_STR,
@@ -587,6 +608,8 @@ def get_variables(execution_env :str):
     'REGISTRY_NO_VERIFY_CFG_STR':                     _REGISTRY_NO_VERIFY,
     'REGISTRY_NULL':                                  _REGISTRY_NULL,
     'REPOSITORY_ROOT':                                REPOSITORY_ROOT,
+    'SQL_BACKEND_CFG_STR_ANALYTICS':                  get_analytics_sql_backend(execution_env, sql_backend_str),
+    'SQL_BACKEND_CFG_STR_CANONICAL':                  get_canonical_sql_backend(execution_env, sql_backend_str),
     'STACKQL_EXE':                                    STACKQL_EXE,
     ## queries and expectations
     'CREATE_AWS_VOLUME':                                                    CREATE_AWS_VOLUME,
@@ -713,7 +736,6 @@ def get_variables(execution_env :str):
     'UPDATE_GITHUB_ORG':                                                    UPDATE_GITHUB_ORG,
   }
   if execution_env == 'docker':
-    rv['ANALYTICS_SQL_BACKEND_CFG_STR']                 = ANALYTICS_SQL_BACKEND_CFG_STR_DOCKER
     rv['AUTH_CFG_STR']                                  = AUTH_CFG_STR_DOCKER
     rv['GET_IAM_POLICY_AGG_ASC_INPUT_FILE']             = GET_IAM_POLICY_AGG_ASC_INPUT_FILE_DOCKER
     rv['JSON_INIT_FILE_PATH_AWS']                       = JSON_INIT_FILE_PATH_AWS
@@ -733,7 +755,6 @@ def get_variables(execution_env :str):
     rv['REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR']       = _REGISTRY_EXPERIMENTAL_DOCKER_NO_VERIFY
     rv['REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG_STR'] = _REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_DOCKER
   else:
-    rv['ANALYTICS_SQL_BACKEND_CFG_STR']                 = ANALYTICS_SQL_BACKEND_CFG_STR
     rv['AUTH_CFG_STR']                                  = AUTH_CFG_STR
     rv['GET_IAM_POLICY_AGG_ASC_INPUT_FILE']             = GET_IAM_POLICY_AGG_ASC_INPUT_FILE
     rv['JSON_INIT_FILE_PATH_AWS']                       = JSON_INIT_FILE_PATH_AWS

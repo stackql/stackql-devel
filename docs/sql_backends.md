@@ -31,7 +31,18 @@ The default implementation is **embedded** SQLite.  SQLite does **not** have a w
 
 https://github.com/fergusstrange/embedded-postgres
 
-#### Setup postgres DB
+
+#### Setup postgres in docker
+
+```sh
+docker run -v "${PWD}/vol/postgres/setup:/docker-entrypoint-initdb.d:ro" -it --entrypoint bash postgres:14.5-bullseye
+```
+
+```sh
+docker run -v "$(pwd)/vol/postgres/setup:/docker-entrypoint-initdb.d:ro" -p 127.0.0.1:6532:5432/tcp -e POSTGRES_PASSWORD=password postgres:14.5-bullseye
+```
+
+#### Setup postgres DB locally
 
 ```sql
 

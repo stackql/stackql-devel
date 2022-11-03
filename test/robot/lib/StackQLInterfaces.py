@@ -21,9 +21,10 @@ from psycopg2_client import PsycoPG2Client
 class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
   ROBOT_LISTENER_API_VERSION = 2
 
-  def __init__(self, execution_platform='native'):
+  def __init__(self, execution_platform='native', sql_backend='sqlite_embedded'):
     self._counter = 0
     self._execution_platform=execution_platform
+    self._sql_backend=sql_backend
     self.ROBOT_LIBRARY_LISTENER = self
     Process.__init__(self)
 
@@ -59,7 +60,8 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     github_secret_str :str,
     k8s_secret_str :str,
     registry_cfg :RegistryCfg, 
-    auth_cfg_str :str, 
+    auth_cfg_str :str,
+    sql_backend_cfg_str :str,
     query,
     *args,
     **cfg
@@ -71,6 +73,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
         k8s_secret_str,
         registry_cfg, 
         auth_cfg_str, 
+        sql_backend_cfg_str,
         query,
         *args,
         **cfg
@@ -82,6 +85,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       k8s_secret_str,
       registry_cfg, 
       auth_cfg_str, 
+      sql_backend_cfg_str,
       query,
       *args,
       **cfg
@@ -96,6 +100,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     k8s_secret_str :str,
     registry_cfg :RegistryCfg, 
     auth_cfg_str :str, 
+    sql_backend_cfg_str :str,
     queries :typing.Iterable[str],
     *args,
     **cfg
@@ -106,7 +111,8 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
         github_secret_str,
         k8s_secret_str,
         registry_cfg, 
-        auth_cfg_str, 
+        auth_cfg_str,
+        sql_backend_cfg_str, 
         queries,
         *args,
         **cfg
@@ -118,6 +124,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       k8s_secret_str,
       registry_cfg, 
       auth_cfg_str, 
+      sql_backend_cfg_str,
       queries,
       *args,
       **cfg
@@ -134,7 +141,8 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     github_secret_str :str,
     k8s_secret_str :str,
     registry_cfg :RegistryCfg, 
-    auth_cfg_str :str, 
+    auth_cfg_str :str,
+    sql_backend_cfg_str :str,
     query,
     *args,
     **cfg
@@ -148,6 +156,8 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       supplied_args.append(f"--registry='{registry_cfg_str}'")
     if auth_cfg_str != "":
       supplied_args.append(f"--auth='{auth_cfg_str}'")
+    if sql_backend_cfg_str != "":
+      supplied_args.append(f"--sqlBackend='{sql_backend_cfg_str}'")
     supplied_args.append("--tls.allowInsecure=true")
     transformed_args = self._docker_transform_args(*args)
     supplied_args = supplied_args + transformed_args
@@ -191,6 +201,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     k8s_secret_str :str,
     registry_cfg :RegistryCfg, 
     auth_cfg_str :str, 
+    sql_backend_cfg_str :str,
     queries :typing.Iterable[str],
     *args,
     **cfg
@@ -202,6 +213,8 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       supplied_args.append(f"--registry='{registry_cfg_str}'")
     if auth_cfg_str != "":
       supplied_args.append(f"--auth='{auth_cfg_str}'")
+    if sql_backend_cfg_str != "":
+      supplied_args.append(f"--sqlBackend='{sql_backend_cfg_str}'")
     supplied_args.append("--tls.allowInsecure=true")
     transformed_args = self._docker_transform_args(*args)
     supplied_args = supplied_args + transformed_args
@@ -246,7 +259,8 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     github_secret_str :str,
     k8s_secret_str :str,
     registry_cfg :RegistryCfg, 
-    auth_cfg_str :str, 
+    auth_cfg_str :str,
+    sql_backend_cfg_str :str,
     query,
     *args,
     **cfg
@@ -261,6 +275,8 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       supplied_args.append(f"--registry={registry_cfg_str}")
     if auth_cfg_str != "":
       supplied_args.append(f"--auth={auth_cfg_str}")
+    if sql_backend_cfg_str != "":
+      supplied_args.append(f"--sqlBackend={sql_backend_cfg_str}")
     supplied_args.append("--tls.allowInsecure=true")
     res = super().run_process(
       *supplied_args,
@@ -281,6 +297,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     k8s_secret_str :str,
     registry_cfg :RegistryCfg, 
     auth_cfg_str :str, 
+    sql_backend_cfg_str :str,
     queries :typing.Iterable[str],
     *args,
     **cfg
@@ -295,8 +312,11 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       supplied_args.append(f"--registry={registry_cfg_str}")
     if auth_cfg_str != "":
       supplied_args.append(f"--auth={auth_cfg_str}")
+    if sql_backend_cfg_str != "":
+      supplied_args.append(f"--sqlBackend={sql_backend_cfg_str}")
     supplied_args.append("--tls.allowInsecure=true")
     supplied_args.append(f'--approot="{_TEST_APP_CACHE_ROOT}"')
+    supplied_args = supplied_args + list(args)
     stdout = cfg.get('stdout', subprocess.PIPE)
     stderr = cfg.get('stderr', subprocess.PIPE)
     shell_session = ShellSession()
@@ -373,6 +393,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     k8s_secret_str :str,
     registry_cfg :RegistryCfg, 
     auth_cfg_str :str, 
+    sql_backend_cfg_str :str,
     query :str,
     expected_output :str,
     *args,
@@ -386,6 +407,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       k8s_secret_str,
       registry_cfg, 
       auth_cfg_str, 
+      sql_backend_cfg_str, 
       query,
       *args,
       **cfg
@@ -402,6 +424,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     k8s_secret_str :str,
     registry_cfg :RegistryCfg, 
     auth_cfg_str :str, 
+    sql_backend_cfg_str :str,
     query :str,
     expected_output :str,
     *args,
@@ -414,6 +437,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       k8s_secret_str,
       registry_cfg, 
       auth_cfg_str, 
+      sql_backend_cfg_str,
       query,
       *args,
       **cfg
@@ -430,6 +454,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     k8s_secret_str :str,
     registry_cfg :RegistryCfg, 
     auth_cfg_str :str, 
+    sql_backend_cfg_str :str,
     queries :typing.Iterable[str],
     expected_output :str,
     *args,
@@ -442,6 +467,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       k8s_secret_str,
       registry_cfg, 
       auth_cfg_str, 
+      sql_backend_cfg_str,
       queries,
       *args,
       **cfg
@@ -457,7 +483,8 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     github_secret_str :str,
     k8s_secret_str :str,
     registry_cfg :RegistryCfg, 
-    auth_cfg_str :str, 
+    auth_cfg_str :str,
+    sql_backend_cfg_str :str,
     query :str,
     expected_output :str,
     *args,
@@ -470,6 +497,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       k8s_secret_str,
       registry_cfg, 
       auth_cfg_str, 
+      sql_backend_cfg_str,
       query,
       *args,
       **cfg
@@ -486,6 +514,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     k8s_secret_str :str,
     registry_cfg :RegistryCfg, 
     auth_cfg_str :str, 
+    sql_backend_cfg_str :str,
     query :str,
     expected_output :str,
     *args,
@@ -498,6 +527,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       k8s_secret_str,
       registry_cfg, 
       auth_cfg_str, 
+      sql_backend_cfg_str,
       query,
       *args,
       **cfg
@@ -519,6 +549,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     k8s_secret_str :str,
     registry_cfg :RegistryCfg, 
     auth_cfg_str :str,
+    sql_backend_cfg_str :str,
     query,
     expected_output :str,
     stdout_tmp_file :str,
@@ -530,6 +561,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       k8s_secret_str,
       registry_cfg, 
       auth_cfg_str, 
+      sql_backend_cfg_str,
       query,
       **{"stdout": stdout_tmp_file }
     )

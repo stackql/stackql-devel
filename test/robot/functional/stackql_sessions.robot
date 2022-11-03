@@ -11,6 +11,7 @@ Shell Session Simple
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SHELL_SESSION_SIMPLE_COMMANDS}
     ...    ${SHELL_SESSION_SIMPLE_EXPECTED}
     ...    stdout=${CURDIR}/tmp/Shell-Session-Simple.tmp
@@ -24,6 +25,7 @@ Shell Session Azure Compute Table Nomenclature Mutation Guard
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SHELL_COMMANDS_AZURE_COMPUTE_MUTATION_GUARD}
     ...    ${SHELL_COMMANDS_AZURE_COMPUTE_MUTATION_GUARD_EXPECTED}
     ...    stdout=${CURDIR}/tmp/Shell-Session-Azure-Compute-Table-Nomenclature-Mutation-Guard.tmp

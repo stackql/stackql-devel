@@ -648,6 +648,12 @@ jobs:
       run: |
         robot --variable EXECUTION_PLATFORM:docker -d test/robot/functional test/robot/functional
 
+    - name: Run POSTGRES BACKEND robot mocked functional tests
+      if: success()
+      timeout-minutes: 20
+      run: |
+        robot --variable EXECUTION_PLATFORM:docker --variable SQL_BACKEND:postgres_tcp -d test/robot/functional test/robot/functional
+
     - name: Output from mocked functional tests
       if: always()
       run: |

@@ -10,6 +10,7 @@ Google Container Agg Desc
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_CONTAINER_SUBNET_AGG_DESC}
     ...    ${SELECT_CONTAINER_SUBNET_AGG_DESC_EXPECTED}
 
@@ -21,6 +22,7 @@ Google Container Agg Asc
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_CONTAINER_SUBNET_AGG_ASC}
     ...    ${SELECT_CONTAINER_SUBNET_AGG_ASC_EXPECTED}
 
@@ -32,6 +34,7 @@ Google IAM Policy Agg
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    \-\-infile\=${GET_IAM_POLICY_AGG_ASC_INPUT_FILE}
     ...    ${GET_IAM_POLICY_AGG_ASC_EXPECTED}
     ...    \-o\=csv
@@ -45,6 +48,7 @@ Google Select Project IAM Policy
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_GOOGLE_CLOUDRESOURCEMANAGER_IAMPOLICY}
     ...    ${SELECT_GOOGLE_CLOUDRESOURCEMANAGER_IAMPOLICY_EXPECTED}
 
@@ -56,6 +60,7 @@ Google Select Project IAM Policy Filtered And Verify Like Filtering
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_GOOGLE_CLOUDRESOURCEMANAGER_IAMPOLICY_LIKE_FILTERED}
     ...    ${SELECT_GOOGLE_CLOUDRESOURCEMANAGER_IAMPOLICY_FILTERED_EXPECTED}
 
@@ -67,6 +72,7 @@ Google Select Project IAM Policy Filtered And Verify Where Filtering
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_EXPERIMENTAL_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_GOOGLE_CLOUDRESOURCEMANAGER_IAMPOLICY_COMPARISON_FILTERED}
     ...    ${SELECT_GOOGLE_CLOUDRESOURCEMANAGER_IAMPOLICY_FILTERED_EXPECTED}
 
@@ -78,6 +84,7 @@ Google Join Plus String Concatenated Select Expressions
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS}
     ...    ${SELECT_GOOGLE_JOIN_CONCATENATED_SELECT_EXPRESSIONS_EXPECTED}
     ...    ${CURDIR}/tmp/Google-Join-Plus-String-Concatenated-Select-Expressions.tmp
@@ -90,6 +97,7 @@ Google AcceleratorTypes SQL verb pre changeover
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_ACCELERATOR_TYPES_DESC}
     ...    ${SELECT_ACCELERATOR_TYPES_DESC_EXPECTED}
 
@@ -101,6 +109,7 @@ Google Machine Types Select Paginated
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_MACHINE_TYPES_DESC}
     ...    ${SELECT_MACHINE_TYPES_DESC_EXPECTED}
     ...    ${CURDIR}/tmp/Google-Machine-Types-Select-Paginated.tmp
@@ -113,6 +122,7 @@ Google AcceleratorTypes SQL verb post changeover
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_ACCELERATOR_TYPES_DESC}
     ...    ${SELECT_ACCELERATOR_TYPES_DESC_EXPECTED}
 
@@ -124,6 +134,7 @@ Okta Apps Select Simple
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_OKTA_APPS}
     ...    ${SELECT_OKTA_APPS_ASC_EXPECTED}
 
@@ -135,6 +146,7 @@ Okta Users Select Simple Paginated
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_OKTA_USERS_ASC}
     ...    ${SELECT_OKTA_USERS_ASC_EXPECTED}
     ...    ${CURDIR}/tmp/Okta-Users-Select-Simple-Paginated.tmp
@@ -147,6 +159,7 @@ AWS EC2 Volumes Select Simple
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_AWS_VOLUMES}
     ...    ${SELECT_AWS_VOLUMES_ASC_EXPECTED}
 
@@ -158,6 +171,7 @@ AWS IAM Users Select Simple
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_AWS_IAM_USERS_ASC}
     ...    ${SELECT_AWS_IAM_USERS_ASC_EXPECTED}
     ...    ${CURDIR}/tmp/AWS-IAM-Users-Select-Simple.tmp
@@ -170,6 +184,7 @@ AWS S3 Buckets Select Simple
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_AWS_S3_BUCKETS}
     ...    ${SELECT_AWS_S3_BUCKETS_EXPECTED}
     ...    ${CURDIR}/tmp/AWS-S3-Buckets-Select-Simple.tmp
@@ -182,6 +197,7 @@ AWS S3 Objects Select Simple
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_AWS_S3_OBJECTS}
     ...    ${SELECT_AWS_S3_OBJECTS_EXPECTED}
     ...    ${CURDIR}/tmp/AWS-S3-Objects-Select-Simple.tmp
@@ -194,6 +210,7 @@ AWS S3 Objects Null Select Simple
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_AWS_S3_OBJECTS_NULL}
     ...    ${SELECT_AWS_S3_OBJECTS_NULL_EXPECTED}
     ...    ${CURDIR}/tmp/AWS-S3-Objects-Null-Select-Simple.tmp
@@ -206,6 +223,7 @@ AWS S3 Bucket Locations Top Level Property Select Simple
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_AWS_S3_BUCKET_LOCATIONS}
     ...    ${SELECT_AWS_S3_BUCKET_LOCATIONS_EXPECTED}
     ...    ${CURDIR}/tmp/AWS-S3-Bucket-Locations-Top-Level-Property-Select-Simple.tmp
@@ -218,6 +236,7 @@ AWS EC2 VPN Gateways Null Select Simple
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_AWS_EC2_VPN_GATEWAYS_NULL}
     ...    ${SELECT_AWS_EC2_VPN_GATEWAYS_NULL_EXPECTED}
     ...    ${CURDIR}/tmp/AWS-EC2-VPN-Gateways-Null-Select-Simple.tmp
@@ -230,6 +249,7 @@ AWS Cloud Control VPCs Select Simple
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_AWS_CLOUD_CONTROL_VPCS_DESC}
     ...    ${SELECT_AWS_CLOUD_CONTROL_VPCS_DESC_EXPECTED}
 
@@ -241,6 +261,7 @@ AWS Cloud Control Operations Select Simple
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_AWS_CLOUD_CONTROL_OPERATIONS_DESC}
     ...    ${SELECT_AWS_CLOUD_CONTROL_OPERATIONS_DESC_EXPECTED}
     ...    ${CURDIR}/tmp/AWS-Cloud-Control-Operations-Select-Simple.tmp
@@ -253,6 +274,7 @@ AWS EC2 Volume Insert Simple
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${CREATE_AWS_VOLUME}
     ...    The operation completed successfully
 
@@ -264,6 +286,7 @@ AWS EC2 Volume Update Simple
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${UPDATE_AWS_EC2_VOLUME}
     ...    The operation completed successfully
 
@@ -275,6 +298,7 @@ GitHub Orgs Org Update Simple
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${UPDATE_GITHUB_ORG}
     ...    The operation completed successfully
 
@@ -286,6 +310,7 @@ AWS Cloud Control Log Group Insert Simple
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${CREATE_AWS_CLOUD_CONTROL_LOG_GROUP}
     ...    The operation completed successfully
 
@@ -297,6 +322,7 @@ AWS Cloud Control Log Group Delete Simple
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${DELETE_AWS_CLOUD_CONTROL_LOG_GROUP}
     ...    The operation completed successfully
 
@@ -308,6 +334,7 @@ AWS Cloud Control Log Group Update Simple
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${UPDATE_AWS_CLOUD_CONTROL_REQUEST_LOG_GROUP}
     ...    The operation completed successfully
 
@@ -319,6 +346,7 @@ GitHub Pages Select Top Level Object
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_GITHUB_REPOS_PAGES_SINGLE}
     ...    ${SELECT_GITHUB_REPOS_PAGES_SINGLE_EXPECTED}
 
@@ -330,6 +358,7 @@ GitHub Scim Users Select
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_GITHUB_SCIM_USERS}
     ...    ${SELECT_GITHUB_SCIM_USERS_EXPECTED}
 
@@ -341,6 +370,7 @@ GitHub SAML Identities Select GraphQL
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_GITHUB_SAML_IDENTITIES}
     ...    ${SELECT_GITHUB_SAML_IDENTITIES_EXPECTED}
     ...    ${CURDIR}/tmp/GitHub-SAML-Identities-Select-GraphQL.tmp
@@ -353,6 +383,7 @@ GitHub Branch Names Paginated Select
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_GITHUB_BRANCHES_NAMES_DESC}
     ...    ${SELECT_GITHUB_BRANCHES_NAMES_DESC_EXPECTED}
     ...    ${CURDIR}/tmp/GitHub-Branch-Names-Paginated-Select.tmp
@@ -365,6 +396,7 @@ GitHub Tags Paginated Count
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_GITHUB_TAGS_COUNT}
     ...    ${SELECT_GITHUB_TAGS_COUNT_EXPECTED}
 
@@ -376,6 +408,7 @@ GitHub Repository IDs Select
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_GITHUB_REPOS_IDS_ASC}
     ...    ${SELECT_GITHUB_REPOS_IDS_ASC_EXPECTED}
 
@@ -387,9 +420,9 @@ GitHub Analytics Simple Select Repositories Collaborators
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_ANALYTICS}
     ...    ${SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS_SIMPLE}
     ...    ${SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS_EXPECTED}
-    ...    \-\-sqlBackend\=${ANALYTICS_SQL_BACKEND_CFG_STR}
     ...    \-\-namespaces\=${NAMESPACES_TTL_SIMPLE}
     ...    stdout=${CURDIR}/tmp/GitHub-Analytics-Select-Repositories-Collaborators.tmp
 
@@ -401,9 +434,9 @@ GitHub Analytics Transparent Select Repositories Collaborators
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_ANALYTICS}
     ...    ${SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS_TRANSPARENT}
     ...    ${SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS_EXPECTED}
-    ...    \-\-sqlBackend\=${ANALYTICS_SQL_BACKEND_CFG_STR}
     ...    \-\-namespaces\=${NAMESPACES_TTL_TRANSPARENT}
     ...    stdout=${CURDIR}/tmp/GitHub-Analytics-Select-Repositories-Collaborators.tmp
 
@@ -415,6 +448,7 @@ GitHub Repository With Functions Select
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_GITHUB_REPOS_WITH_USEFUL_FUNCTIONS}
     ...    ${SELECT_GITHUB_REPOS_WITH_USEFUL_FUNCTIONS_EXPECTED}
     ...    ${CURDIR}/tmp/GitHub-Repository-With-Functions-Select.tmp
@@ -427,6 +461,7 @@ GitHub Join Input Params Select
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_GITHUB_JOIN_IN_PARAMS}
     ...    ${SELECT_GITHUB_JOIN_IN_PARAMS_EXPECTED}
     ...    ${CURDIR}/tmp/GitHub-Join-Input-Params-Select.tmp
@@ -439,6 +474,7 @@ Filter on Implicit Selectable Object
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_GITHUB_REPOS_FILTERED_SINGLE}
     ...    ${SELECT_GITHUB_REPOS_FILTERED_SINGLE_EXPECTED}
 
@@ -450,6 +486,7 @@ Join GCP Okta Cross Provider
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_CONTRIVED_GCP_OKTA_JOIN}
     ...    ${SELECT_CONTRIVED_GCP_OKTA_JOIN_EXPECTED}
 
@@ -461,6 +498,7 @@ Join GCP Okta Cross Provider JSON Dependent Keyword in Table Name
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_CONTRIVED_GCP_GITHUB_JSON_DEPENDENT_JOIN}
     ...    ${SELECT_CONTRIVED_GCP_GITHUB_JSON_DEPENDENT_JOIN_EXPECTED}
 
@@ -472,6 +510,7 @@ Join GCP Three Way
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_CONTRIVED_GCP_THREE_WAY_JOIN}
     ...    ${SELECT_CONTRIVED_GCP_THREE_WAY_JOIN_EXPECTED}
 
@@ -483,6 +522,7 @@ Join GCP Self
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_CONTRIVED_GCP_SELF_JOIN}
     ...    ${SELECT_CONTRIVED_GCP_SELF_JOIN_EXPECTED}
 
@@ -494,6 +534,7 @@ K8S Nodes Select Leveraging JSON Path
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_K8S_NODES_ASC}
     ...    ${SELECT_K8S_NODES_ASC_EXPECTED}
 
@@ -505,6 +546,7 @@ Google Compute Instance IAM Policy Select
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_GOOGLE_COMPUTE_INSTANCE_IAM_POLICY}
     ...    ${SELECT_GOOGLE_COMPUTE_INSTANCE_IAM_POLICY_EXPECTED}
 
@@ -516,6 +558,7 @@ Google IAM Policy Show Insert
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SHOW_INSERT_GOOGLE_IAM_SERVICE_ACCOUNTS}
     ...    ${SHOW_INSERT_GOOGLE_IAM_SERVICE_ACCOUNTS_EXPECTED}
 
@@ -528,6 +571,7 @@ Google Compute Instance IAM Policy Show Insert Error
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SHOW_INSERT_GOOGLE_COMPUTE_INSTANCE_IAM_POLICY_ERROR}
     ...    ${SHOW_INSERT_GOOGLE_COMPUTE_INSTANCE_IAM_POLICY_ERROR_EXPECTED}
 
@@ -539,6 +583,7 @@ Registry List All
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_MOCKED_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${REGISTRY_LIST} 
     ...    ${REGISTRY_LIST_EXPECTED}
 
@@ -550,6 +595,7 @@ Registry List Google Provider
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_MOCKED_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${REGISTRY_GOOGLE_PROVIDER_LIST} 
     ...    ${REGISTRY_GOOGLE_PROVIDER_LIST_EXPECTED}
 
@@ -562,6 +608,7 @@ Data Flow Sequential Join Paginated Select Github
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}    
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_GITHUB_JOIN_DATA_FLOW_SEQUENTIAL} 
     ...    ${SELECT_GITHUB_JOIN_DATA_FLOW_SEQUENTIAL_EXPECTED}
     ...    ${CURDIR}/tmp/Data-Flow-Sequential-Join-Paginated-Select-Github.tmp
@@ -574,6 +621,7 @@ Paginated and Data Flow Sequential Join Github Okta SAML
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}    
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_GITHUB_OKTA_SAML_JOIN} 
     ...    ${SELECT_GITHUB_OKTA_SAML_JOIN_EXPECTED}
     ...    ${CURDIR}/tmp/Paginated-and-Data-Flow-Sequential-Join-Github-Okta-SAML.tmp
@@ -586,6 +634,7 @@ Data Flow Sequential Join Select With Functions Github
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_GITHUB_SCIM_JOIN_WITH_FUNCTIONS} 
     ...    ${SELECT_GITHUB_SCIM_JOIN_WITH_FUNCTIONS_EXPECTED}
     ...    ${CURDIR}/tmp/Data-Flow-Sequential-Join-Select-With-Functions-Github.tmp
@@ -599,6 +648,7 @@ Page Limited Select Github
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_GITHUB_ORGS_MEMBERS} 
     ...    ${SELECT_GITHUB_ORGS_MEMBERS_PAGE_LIMITED_EXPECTED}
     ...    stdout=${CURDIR}/tmp/Page-Limited-Select-Github.tmp
