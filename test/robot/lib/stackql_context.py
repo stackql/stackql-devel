@@ -242,7 +242,7 @@ ANALYTICS_DB_INIT_PATH_DOCKER :str = get_unix_path(os.path.join('/opt', 'stackql
 
 ANALYTICS_DB_INIT_PATH_UNIX :str = get_unix_path(ANALYTICS_DB_INIT_PATH)
 
-_SQL_BACKEND_POSTGRES_DOCKER_DSN :str = 'postgres://stackql:stackql@postgres_stackql:6532/stackql'
+_SQL_BACKEND_POSTGRES_DOCKER_DSN :str = 'postgres://stackql:stackql@postgres_stackql:5432/stackql'
 
 
 def get_analytics_sql_backend(execution_env :str, sql_backend_str :str) -> str:

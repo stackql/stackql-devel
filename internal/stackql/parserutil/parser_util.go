@@ -41,7 +41,7 @@ func GetTableNameFromTableExpr(node sqlparser.TableExpr) (sqlparser.TableName, e
 			return tn, nil
 		}
 	}
-	return sqlparser.TableName{}, fmt.Errorf("table expression too colmplex")
+	return sqlparser.TableName{}, fmt.Errorf("table expression too complex")
 }
 
 func NewUnaliasedColumnHandle(name string) ColumnHandle {
@@ -425,7 +425,7 @@ func inferColNameFromExpr(node *sqlparser.AliasedExpr) ColumnHandle {
 	switch expr := node.Expr.(type) {
 	case *sqlparser.ColName:
 		retVal.Name = expr.Name.String()
-		retVal.DecoratedColumn = sqlparser.String(expr)
+		retVal.DecoratedColumn = expr.GetRawVal()
 		retVal.IsColumn = true
 	case *sqlparser.FuncExpr:
 		// As a shortcut, functions are integral types
@@ -460,7 +460,6 @@ func inferColNameFromExpr(node *sqlparser.AliasedExpr) ColumnHandle {
 			switch ex := expr.Exprs[0].(type) {
 			case *sqlparser.AliasedExpr:
 				rv := inferColNameFromExpr(ex)
-				rv.DecoratedColumn = sqlparser.String(expr)
 				rv.Alias = alias
 				return rv
 			}

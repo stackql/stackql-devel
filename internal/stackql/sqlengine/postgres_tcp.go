@@ -56,6 +56,18 @@ func newPostgresTcpEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.Co
 	}
 	databaseName := strings.TrimLeft(dbUrl.Path, "/")
 	db, err := sql.Open("pgx", dsn)
+	retryCount := 0
+	for {
+		if retryCount >= cfg.InitMaxRetries || err == nil {
+			break
+		}
+		time.Sleep(time.Duration(cfg.InitRetryInitialDelay) * time.Second)
+		db, err = sql.Open("pgx", dsn)
+		retryCount++
+	}
+	if err != nil {
+		return nil, err
+	}
 	db.SetConnMaxLifetime(-1)
 	eng := &postgresTcpEngine{
 		db:                db,

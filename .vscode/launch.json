@@ -258,6 +258,21 @@
       ],
     },
     {
+      "name": "google case sensitive",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
+      "args": [
+        "exec",
+        "--registry=${input:registryString}",
+        "--auth=${input:authString}",
+        "--tls.allowInsecure",
+        "--sqlBackend=${input:sqlBackendString}",
+        "select ipCidrRange, sum(5) cc  from  google.container.`projects.aggregated.usableSubnetworks` where projectsId = 'testing-project' group by ipCidrRange having sum(5) >= 5 order by ipCidrRange desc;"
+      ],
+    },
+    {
       "name": "GRAPHQL select * from github.scim.saml_ids",
       "type": "go",
       "request": "launch",

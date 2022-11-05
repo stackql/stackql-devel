@@ -38,6 +38,9 @@ type standardRelationalColumn struct {
 
 func (rc *standardRelationalColumn) CanonicalSelectionString() string {
 	if rc.decorated != "" {
+		if !strings.ContainsAny(rc.decorated, " '`\t\n\"()") {
+			return fmt.Sprintf(`"%s"`, rc.decorated)
+		}
 		return fmt.Sprintf("%s ", rc.decorated)
 	}
 	var colStringBuilder strings.Builder

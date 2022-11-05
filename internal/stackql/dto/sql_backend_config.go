@@ -6,10 +6,12 @@ import (
 )
 
 type SQLBackendCfg struct {
-	DbEngine       string `json:"dbEngine" yaml:"dbEngine"`
-	DSN            string `json:"dsn" yaml:"dsn"`
-	DbInitFilePath string `json:"dbInitFilepath" yaml:"dbInitFilepath"`
-	SQLDialect     string `json:"sqlDialect" yaml:"sqlDialect"`
+	DbEngine              string `json:"dbEngine" yaml:"dbEngine"`
+	DSN                   string `json:"dsn" yaml:"dsn"`
+	DbInitFilePath        string `json:"dbInitFilepath" yaml:"dbInitFilepath"`
+	SQLDialect            string `json:"sqlDialect" yaml:"sqlDialect"`
+	InitMaxRetries        int    `json:"initMaxRetries" yaml:"initMaxRetries"`
+	InitRetryInitialDelay int    `json:"initRetryInitialDelay" yaml:"initRetryInitialDelay"`
 }
 
 func GetSQLBackendCfg(s string) (SQLBackendCfg, error) {
@@ -20,6 +22,12 @@ func GetSQLBackendCfg(s string) (SQLBackendCfg, error) {
 	}
 	if rv.SQLDialect == "" {
 		rv.SQLDialect = constants.DefaultSQLDialect
+	}
+	if rv.InitMaxRetries < 1 {
+		rv.InitMaxRetries = 10
+	}
+	if rv.InitRetryInitialDelay < 1 {
+		rv.InitRetryInitialDelay = 10
 	}
 	return rv, err
 }

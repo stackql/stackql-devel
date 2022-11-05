@@ -11,11 +11,7 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-type SQLAstVisitor interface {
-	Visit(sqlparser.SQLNode) error
-}
-
-type DRMAstVisitor struct {
+type FormatAstVisitor struct {
 	iDColumnName                   string
 	rewrittenQuery                 string
 	gcQueries                      []string
@@ -27,8 +23,8 @@ type DRMAstVisitor struct {
 	containsNativeBackendMaterial  bool
 }
 
-func NewDRMAstVisitor(iDColumnName string, shouldCollectTables bool, namespaceCollection tablenamespace.TableNamespaceCollection) *DRMAstVisitor {
-	return &DRMAstVisitor{
+func NewFormatAstVisitor(iDColumnName string, shouldCollectTables bool, namespaceCollection tablenamespace.TableNamespaceCollection) *FormatAstVisitor {
+	return &FormatAstVisitor{
 		iDColumnName:        iDColumnName,
 		tablesCited:         make(map[*sqlparser.AliasedTableExpr]sqlparser.TableName),
 		params:              make(map[sqlparser.SQLNode]interface{}),
@@ -37,7 +33,7 @@ func NewDRMAstVisitor(iDColumnName string, shouldCollectTables bool, namespaceCo
 	}
 }
 
-func (v *DRMAstVisitor) GetProviderStrings() []string {
+func (v *FormatAstVisitor) GetProviderStrings() []string {
 	var retVal []string
 	for _, tName := range v.tablesCited {
 		tx := dto.ResolveResourceTerminalHeirarchyIdentifiers(tName)
@@ -48,31 +44,31 @@ func (v *DRMAstVisitor) GetProviderStrings() []string {
 	return retVal
 }
 
-func (v *DRMAstVisitor) ContainsAnalyticsCacheMaterial() bool {
+func (v *FormatAstVisitor) ContainsAnalyticsCacheMaterial() bool {
 	return v.containsAnalyticsCacheMaterial
 }
 
-func (v *DRMAstVisitor) ContainsNativeBackendMaterial() bool {
+func (v *FormatAstVisitor) ContainsNativeBackendMaterial() bool {
 	return v.containsNativeBackendMaterial
 }
 
-func (v *DRMAstVisitor) ContainsCacheExceptMaterial() bool {
+func (v *FormatAstVisitor) ContainsCacheExceptMaterial() bool {
 	return v.containsAnalyticsCacheMaterial || v.containsNativeBackendMaterial
 }
 
-func (v *DRMAstVisitor) GetRewrittenQuery() string {
+func (v *FormatAstVisitor) GetRewrittenQuery() string {
 	return v.rewrittenQuery
 }
 
-func (v *DRMAstVisitor) GetGCQueries() []string {
+func (v *FormatAstVisitor) GetGCQueries() []string {
 	return v.gcQueries
 }
 
-func (v *DRMAstVisitor) GetParameters() map[sqlparser.SQLNode]interface{} {
+func (v *FormatAstVisitor) GetParameters() map[sqlparser.SQLNode]interface{} {
 	return v.params
 }
 
-func (v *DRMAstVisitor) GetStringifiedParameters() map[string]interface{} {
+func (v *FormatAstVisitor) GetStringifiedParameters() map[string]interface{} {
 	rv := make(map[string]interface{})
 	for k, v := range v.params {
 		switch k := k.(type) {
@@ -83,7 +79,7 @@ func (v *DRMAstVisitor) GetStringifiedParameters() map[string]interface{} {
 	return rv
 }
 
-func (v *DRMAstVisitor) generateQIDComparison(ta sqlparser.TableIdent) *sqlparser.ComparisonExpr {
+func (v *FormatAstVisitor) generateQIDComparison(ta sqlparser.TableIdent) *sqlparser.ComparisonExpr {
 	return &sqlparser.ComparisonExpr{
 		Left:     &sqlparser.ColName{Qualifier: sqlparser.TableName{Name: ta}, Name: sqlparser.NewColIdent(v.iDColumnName)},
 		Right:    sqlparser.NewValArg([]byte(":" + v.iDColumnName)),
@@ -91,7 +87,7 @@ func (v *DRMAstVisitor) generateQIDComparison(ta sqlparser.TableIdent) *sqlparse
 	}
 }
 
-func (v *DRMAstVisitor) computeQIDWhereSubTree() (sqlparser.Expr, error) {
+func (v *FormatAstVisitor) computeQIDWhereSubTree() (sqlparser.Expr, error) {
 	tblCount := len(v.tablesCited)
 	if tblCount == 0 {
 		return nil, nil
@@ -122,7 +118,7 @@ func (v *DRMAstVisitor) computeQIDWhereSubTree() (sqlparser.Expr, error) {
 	return retVal, nil
 }
 
-func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
+func (v *FormatAstVisitor) Visit(node sqlparser.SQLNode) error {
 	buf := sqlparser.NewTrackedBuffer(nil)
 
 	switch node := node.(type) {
@@ -153,7 +149,7 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 			node.SelectExprs.Accept(v)
 			selectExprStr = v.GetRewrittenQuery()
 		}
-		fromVis := NewDRMAstVisitor(v.iDColumnName, true, v.namespaceCollection)
+		fromVis := NewFormatAstVisitor(v.iDColumnName, true, v.namespaceCollection)
 		if node.From != nil {
 			node.From.Accept(fromVis)
 			v.tablesCited = fromVis.tablesCited
@@ -819,9 +815,9 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 		v.rewrittenQuery = buf.String()
 
 	case *sqlparser.JoinTableExpr:
-		lVis := NewDRMAstVisitor("", true, v.namespaceCollection)
+		lVis := NewFormatAstVisitor("", true, v.namespaceCollection)
 		node.LeftExpr.Accept(lVis)
-		rVis := NewDRMAstVisitor("", true, v.namespaceCollection)
+		rVis := NewFormatAstVisitor("", true, v.namespaceCollection)
 		node.RightExpr.Accept(rVis)
 		if lVis.ContainsAnalyticsCacheMaterial() || rVis.ContainsAnalyticsCacheMaterial() {
 			v.containsAnalyticsCacheMaterial = true
@@ -1085,44 +1081,20 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 		v.rewrittenQuery = buf.String()
 
 	case sqlparser.GroupBy:
-		var colz []string
+		prefix := " group by "
 		for _, n := range node {
-			switch n := n.(type) {
-			case *sqlparser.ColName:
-				if n.Qualifier.GetRawVal() == "" {
-					colz = append(colz, fmt.Sprintf(`"%s"`, n.Name.GetRawVal()))
-				} else {
-					colz = append(colz, fmt.Sprintf(`"%s"."%s"`, n.Qualifier.GetRawVal(), n.Name.GetRawVal()))
-				}
-			default:
-				colz = append(colz, sqlparser.String(n))
-			}
+			buf.AstPrintf(node, "%s%v", prefix, n)
+			prefix = ", "
 		}
-		if len(colz) > 0 {
-			v.rewrittenQuery = fmt.Sprintf(" group by %s", strings.Join(colz, ", "))
-		} else {
-			v.rewrittenQuery = ""
-		}
+		v.rewrittenQuery = strings.ReplaceAll(buf.String(), `'`, `"`)
 
 	case sqlparser.OrderBy:
-		var colz []string
-		for _, orderNode := range node {
-			switch n := orderNode.Expr.(type) {
-			case *sqlparser.ColName:
-				if n.Qualifier.GetRawVal() == "" {
-					colz = append(colz, fmt.Sprintf(`"%s" %s`, n.Name.GetRawVal(), orderNode.Direction))
-				} else {
-					colz = append(colz, fmt.Sprintf(`"%s"."%s" %s`, n.Qualifier.GetRawVal(), n.Name.GetRawVal(), orderNode.Direction))
-				}
-			default:
-				colz = append(colz, fmt.Sprintf("%s %s", sqlparser.String(n), orderNode.Direction))
-			}
+		prefix := " order by "
+		for _, n := range node {
+			buf.AstPrintf(node, "%s%v", prefix, n)
+			prefix = ", "
 		}
-		if len(colz) > 0 {
-			v.rewrittenQuery = fmt.Sprintf(" order by %s", strings.Join(colz, ", "))
-		} else {
-			v.rewrittenQuery = ""
-		}
+		v.rewrittenQuery = buf.String()
 
 	case *sqlparser.Order:
 		if node, ok := node.Expr.(*sqlparser.NullVal); ok {

@@ -39,7 +39,13 @@ docker run -v "${PWD}/vol/postgres/setup:/docker-entrypoint-initdb.d:ro" -it --e
 ```
 
 ```sh
-docker run -v "$(pwd)/vol/postgres/setup:/docker-entrypoint-initdb.d:ro" -p 127.0.0.1:6532:5432/tcp -e POSTGRES_PASSWORD=password postgres:14.5-bullseye
+docker run --rm -v "$(pwd)/vol/postgres/setup:/docker-entrypoint-initdb.d:ro" -p 127.0.0.1:6532:5432/tcp -e POSTGRES_PASSWORD=password postgres:14.5-bullseye
+```
+
+Docker compose troubleshoot
+
+```
+docker-compose -p execrun run --rm -e OKTA_SECRET_KEY=some-dummy-api-key -e GITHUB_SECRET_KEY=some-dummy-github-key -e K8S_SECRET_KEY=some-k8s-token -e AZ_ACCESS_TOKEN=dummy_azure_token stackqlsrv bash -c "sleep 5 && stackql exec --registry='{\"url\": \"file:///opt/stackql/registry\", \"localDocRoot\": \"/opt/stackql/registry\", \"verifyConfig\": {\"nopVerify\": true}}' --auth='{\"google\": {\"credentialsfilepath\": \"/opt/stackql/credentials/dummy/google/docker-functional-test-dummy-sa-key.json\", \"type\": \"service_account\"}, \"okta\": {\"credentialsenvvar\": \"OKTA_SECRET_KEY\", \"type\": \"api_key\"}, \"aws\": {\"type\": \"aws_signing_v4\", \"credentialsfilepath\": \"/opt/stackql/credentials/dummy/aws/functional-test-dummy-aws-key.txt\", \"keyID\": \"NON_SECRET\"}, \"github\": {\"type\": \"basic\", \"credentialsenvvar\": \"GITHUB_SECRET_KEY\"}, \"k8s\": {\"credentialsenvvar\": \"K8S_SECRET_KEY\", \"type\": \"api_key\", \"valuePrefix\": \"Bearer \"}, \"azure\": {\"type\": \"api_key\", \"valuePrefix\": \"Bearer \", \"credentialsenvvar\": \"AZ_ACCESS_TOKEN\"}}' --sqlBackend='{\"dbEngine\":\"postgres_tcp\",\"dsn\":\"postgres://stackql:stackql@postgres_stackql:6532/stackql\",\"sqlDialect\":\"postgres\"}' --tls.allowInsecure=true 'select name from google.compute.machineTypes where project = '\"'\"'testing-project'\"'\"' and zone = '\"'\"'australia-southeast1-a'\"'\"' order by name desc;'"
 ```
 
 #### Setup postgres DB locally
