@@ -10,15 +10,17 @@ var (
 )
 
 type RelationalColumn interface {
-	CanonicalSelectionString() string
+	CanonicalSelectionString(string) string
 	GetAlias() string
 	GetDecorated() string
 	GetName() string
+	GetQualifier() string
 	GetType() string
 	GetWidth() int
 	WithAlias(string) RelationalColumn
 	WithDecorated(string) RelationalColumn
-	WithWidth(width int) RelationalColumn
+	WithQualifier(string) RelationalColumn
+	WithWidth(int) RelationalColumn
 }
 
 func NewRelationalColumn(colName string, colType string) RelationalColumn {
@@ -33,10 +35,11 @@ type standardRelationalColumn struct {
 	colType   string
 	colName   string
 	decorated string
+	qualifier string
 	width     int
 }
 
-func (rc *standardRelationalColumn) CanonicalSelectionString() string {
+func (rc *standardRelationalColumn) CanonicalSelectionString(delim string) string {
 	if rc.decorated != "" {
 		// if !strings.ContainsAny(rc.decorated, " '`\t\n\"().") {
 		// 	return fmt.Sprintf(`"%s" `, rc.decorated)
@@ -53,6 +56,10 @@ func (rc *standardRelationalColumn) CanonicalSelectionString() string {
 
 func (rc *standardRelationalColumn) GetName() string {
 	return rc.colName
+}
+
+func (rc *standardRelationalColumn) GetQualifier() string {
+	return rc.qualifier
 }
 
 func (rc *standardRelationalColumn) GetType() string {
@@ -73,6 +80,11 @@ func (rc *standardRelationalColumn) GetDecorated() string {
 
 func (rc *standardRelationalColumn) WithDecorated(decorated string) RelationalColumn {
 	rc.decorated = decorated
+	return rc
+}
+
+func (rc *standardRelationalColumn) WithQualifier(qualifier string) RelationalColumn {
+	rc.qualifier = qualifier
 	return rc
 }
 

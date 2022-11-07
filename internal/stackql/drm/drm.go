@@ -532,7 +532,7 @@ func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 		}
 		columns = append(columns, NewColDescriptor(col, typeStr))
 		// TODO: logic to infer column width
-		relationalColumn := relationaldto.NewRelationalColumn(col.Name, typeStr)
+		relationalColumn := relationaldto.NewRelationalColumn(col.Name, typeStr).WithQualifier(col.Qualifier)
 		if col.DecoratedCol == "" {
 			if col.Alias != "" {
 				relationalColumn = relationalColumn.WithAlias(col.Alias)
@@ -541,7 +541,7 @@ func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 			relationalColumn = relationalColumn.WithDecorated(col.DecoratedCol)
 		}
 		relationalTable.PushBackColumn(relationalColumn)
-		quotedColNames = append(quotedColNames, fmt.Sprintf("%s ", relationalColumn.CanonicalSelectionString()))
+		quotedColNames = append(quotedColNames, fmt.Sprintf("%s ", relationalColumn.CanonicalSelectionString("")))
 	}
 	queryString, err := dc.sqlDialect.GenerateSelectDML(relationalTable, txnCtrlCtrs, selectSuffix, rewrittenWhere)
 

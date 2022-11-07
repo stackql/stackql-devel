@@ -130,7 +130,7 @@ func (eng *postgresDialect) composeSelectQuery(columns []relationaldto.Relationa
 	var q strings.Builder
 	var quotedColNames []string
 	for _, col := range columns {
-		quotedColNames = append(quotedColNames, col.CanonicalSelectionString())
+		quotedColNames = append(quotedColNames, col.CanonicalSelectionString(""))
 	}
 	genIdColName := eng.controlAttributes.GetControlGenIdColumnName()
 	sessionIDColName := eng.controlAttributes.GetControlSsnIdColumnName()

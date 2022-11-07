@@ -425,7 +425,11 @@ func inferColNameFromExpr(node *sqlparser.AliasedExpr) ColumnHandle {
 	switch expr := node.Expr.(type) {
 	case *sqlparser.ColName:
 		retVal.Name = expr.Name.String()
-		retVal.DecoratedColumn = expr.GetRawVal()
+		retVal.Qualifier = expr.Qualifier.GetRawVal()
+		decoratedCol := expr.GetRawVal()
+		// if decoratedCol != retVal.Name {
+		retVal.DecoratedColumn = decoratedCol
+		//}
 		retVal.IsColumn = true
 	case *sqlparser.FuncExpr:
 		// As a shortcut, functions are integral types
