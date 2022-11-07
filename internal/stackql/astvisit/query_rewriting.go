@@ -186,7 +186,7 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 
 	switch node := node.(type) {
 	case *sqlparser.Select:
-		v.selectSuffix = GenerateModifiedSelectSuffix(node, v.namespaceCollection)
+		v.selectSuffix = GenerateModifiedSelectSuffix(node, v.handlerCtx.SQLDialect, v.namespaceCollection)
 		var options string
 		addIf := func(b bool, s string) {
 			if b {
@@ -218,7 +218,7 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			if err != nil {
 				return err
 			}
-			fromVis := NewDRMAstVisitor("", true, v.namespaceCollection)
+			fromVis := NewDRMAstVisitor("", true, v.handlerCtx.SQLDialect, v.namespaceCollection)
 			if node.From != nil {
 				node.From.Accept(fromVis)
 				v.fromStr = fromVis.GetRewrittenQuery()

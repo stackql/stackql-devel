@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/stackql/stackql/internal/stackql/dto"
+	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 
 	"vitess.io/vitess/go/sqltypes"
@@ -25,15 +26,17 @@ type DRMAstVisitor struct {
 	namespaceCollection            tablenamespace.TableNamespaceCollection
 	containsAnalyticsCacheMaterial bool
 	containsNativeBackendMaterial  bool
+	sqlDialect                     sqldialect.SQLDialect
 }
 
-func NewDRMAstVisitor(iDColumnName string, shouldCollectTables bool, namespaceCollection tablenamespace.TableNamespaceCollection) *DRMAstVisitor {
+func NewDRMAstVisitor(iDColumnName string, shouldCollectTables bool, sqlDialect sqldialect.SQLDialect, namespaceCollection tablenamespace.TableNamespaceCollection) *DRMAstVisitor {
 	return &DRMAstVisitor{
 		iDColumnName:        iDColumnName,
 		tablesCited:         make(map[*sqlparser.AliasedTableExpr]sqlparser.TableName),
 		params:              make(map[sqlparser.SQLNode]interface{}),
 		shouldCollectTables: shouldCollectTables,
 		namespaceCollection: namespaceCollection,
+		sqlDialect:          sqlDialect,
 	}
 }
 
@@ -153,7 +156,7 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 			node.SelectExprs.Accept(v)
 			selectExprStr = v.GetRewrittenQuery()
 		}
-		fromVis := NewDRMAstVisitor(v.iDColumnName, true, v.namespaceCollection)
+		fromVis := NewDRMAstVisitor(v.iDColumnName, true, v.sqlDialect, v.namespaceCollection)
 		if node.From != nil {
 			node.From.Accept(fromVis)
 			v.tablesCited = fromVis.tablesCited
@@ -819,9 +822,9 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 		v.rewrittenQuery = buf.String()
 
 	case *sqlparser.JoinTableExpr:
-		lVis := NewDRMAstVisitor("", true, v.namespaceCollection)
+		lVis := NewDRMAstVisitor("", true, v.sqlDialect, v.namespaceCollection)
 		node.LeftExpr.Accept(lVis)
-		rVis := NewDRMAstVisitor("", true, v.namespaceCollection)
+		rVis := NewDRMAstVisitor("", true, v.sqlDialect, v.namespaceCollection)
 		node.RightExpr.Accept(rVis)
 		if lVis.ContainsAnalyticsCacheMaterial() || rVis.ContainsAnalyticsCacheMaterial() {
 			v.containsAnalyticsCacheMaterial = true
@@ -1090,9 +1093,9 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 			switch n := n.(type) {
 			case *sqlparser.ColName:
 				if n.Qualifier.GetRawVal() == "" {
-					colz = append(colz, fmt.Sprintf(`"%s"`, n.Name.GetRawVal()))
+					colz = append(colz, v.sqlDialect.DelimitGroupByColumn(n.Name.GetRawVal()))
 				} else {
-					colz = append(colz, fmt.Sprintf(`"%s"."%s"`, n.Qualifier.GetRawVal(), n.Name.GetRawVal()))
+					colz = append(colz, fmt.Sprintf(`%s.%s`, v.sqlDialect.DelimitGroupByColumn(n.Qualifier.GetRawVal()), v.sqlDialect.DelimitGroupByColumn(n.Name.GetRawVal())))
 				}
 			default:
 				colz = append(colz, sqlparser.String(n))
@@ -1110,9 +1113,9 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 			switch n := orderNode.Expr.(type) {
 			case *sqlparser.ColName:
 				if n.Qualifier.GetRawVal() == "" {
-					colz = append(colz, fmt.Sprintf(`"%s" %s`, n.Name.GetRawVal(), orderNode.Direction))
+					colz = append(colz, fmt.Sprintf(`%s %s`, v.sqlDialect.DelimitOrderByColumn(n.Name.GetRawVal()), orderNode.Direction))
 				} else {
-					colz = append(colz, fmt.Sprintf(`"%s"."%s" %s`, n.Qualifier.GetRawVal(), n.Name.GetRawVal(), orderNode.Direction))
+					colz = append(colz, fmt.Sprintf(`%s.%s %s`, v.sqlDialect.DelimitOrderByColumn(n.Qualifier.GetRawVal()), v.sqlDialect.DelimitOrderByColumn(n.Name.GetRawVal()), orderNode.Direction))
 				}
 			default:
 				colz = append(colz, fmt.Sprintf("%s %s", sqlparser.String(n), orderNode.Direction))

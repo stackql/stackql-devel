@@ -422,6 +422,14 @@ func (sl *sqLiteDialect) purgeAll() error {
 	return sl.readExecGeneratedQueries(deleteQueryResultSet)
 }
 
+func (eng *sqLiteDialect) DelimitGroupByColumn(term string) string {
+	return term
+}
+
+func (eng *sqLiteDialect) DelimitOrderByColumn(term string) string {
+	return term
+}
+
 func (sl *sqLiteDialect) readExecGeneratedQueries(queryResultSet *sql.Rows) error {
 	defer queryResultSet.Close()
 	var queries []string

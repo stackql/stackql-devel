@@ -110,6 +110,18 @@ func (eng *postgresDialect) getGCHousekeepingQuery(tableName string, tcc dto.Txn
 	return fmt.Sprintf(templateQuery, tcc.GenId, tcc.SessionId, tcc.TxnId, tableName)
 }
 
+func (eng *postgresDialect) DelimitGroupByColumn(term string) string {
+	return eng.quoteWrapTerm(term)
+}
+
+func (eng *postgresDialect) DelimitOrderByColumn(term string) string {
+	return eng.quoteWrapTerm(term)
+}
+
+func (eng *postgresDialect) quoteWrapTerm(term string) string {
+	return fmt.Sprintf(`"%s"`, term)
+}
+
 func (eng *postgresDialect) ComposeSelectQuery(columns []relationaldto.RelationalColumn, tableAliases []string, fromString string, rewrittenWhere string, selectSuffix string) (string, error) {
 	return eng.composeSelectQuery(columns, tableAliases, fromString, rewrittenWhere, selectSuffix)
 }

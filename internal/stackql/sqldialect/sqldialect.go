@@ -14,6 +14,8 @@ import (
 
 type SQLDialect interface {
 	ComposeSelectQuery([]relationaldto.RelationalColumn, []string, string, string, string) (string, error)
+	DelimitGroupByColumn(term string) string
+	DelimitOrderByColumn(term string) string
 	// GCAdd() will record a Txn as active
 	GCAdd(string, dto.TxnControlCounters, dto.TxnControlCounters) error
 	// GCCollectAll() will remove all records from data tables.

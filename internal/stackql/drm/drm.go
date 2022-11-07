@@ -257,6 +257,7 @@ func (dc *StaticDRMConfig) ExtractObjectFromSQLRows(r *sql.Rows, nonControlColum
 }
 
 func (dc *StaticDRMConfig) extractObjectFromSQLRows(r *sql.Rows, nonControlColumns []ColumnMetadata, stream streaming.MapStream) (map[string]map[string]interface{}, map[int]map[int]interface{}) {
+	defer r.Close()
 	altKeys := make(map[string]map[string]interface{})
 	rawRows := make(map[int]map[int]interface{})
 	var ks []int
