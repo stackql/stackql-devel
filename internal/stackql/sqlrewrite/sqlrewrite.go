@@ -124,16 +124,9 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 				}
 			}
 		}
-		relationalColumn := relationaldto.NewRelationalColumn(col.Name, typeStr).WithQualifier(col.Qualifier)
+		relationalColumn := relationaldto.NewRelationalColumn(col.Name, typeStr).WithQualifier(col.Qualifier).WithAlias(col.Alias).WithDecorated(col.DecoratedCol)
 		columns = append(columns, drm.NewColDescriptor(col, typeStr))
 		// TODO: Need a way to handle postgres differences. This is a fragile point
-		if col.DecoratedCol == "" {
-			if col.Alias != "" {
-				relationalColumn = relationalColumn.WithAlias(col.Alias)
-			}
-		} else {
-			relationalColumn = relationalColumn.WithDecorated(col.DecoratedCol)
-		}
 		relationalColumns = append(relationalColumns, relationalColumn)
 	}
 	genIdColName := dc.GetControlAttributes().GetControlGenIdColumnName()
