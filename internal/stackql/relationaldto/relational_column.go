@@ -10,7 +10,8 @@ var (
 )
 
 type RelationalColumn interface {
-	CanonicalSelectionString(string) string
+	CanonicalSelectionString() string
+	DelimitedSelectionString(string) string
 	GetAlias() string
 	GetDecorated() string
 	GetName() string
@@ -39,7 +40,7 @@ type standardRelationalColumn struct {
 	width     int
 }
 
-func (rc *standardRelationalColumn) CanonicalSelectionString(delim string) string {
+func (rc *standardRelationalColumn) CanonicalSelectionString() string {
 	if rc.decorated != "" {
 		// if !strings.ContainsAny(rc.decorated, " '`\t\n\"().") {
 		// 	return fmt.Sprintf(`"%s" `, rc.decorated)
@@ -50,6 +51,27 @@ func (rc *standardRelationalColumn) CanonicalSelectionString(delim string) strin
 	colStringBuilder.WriteString(fmt.Sprintf(`"%s" `, rc.colName))
 	if rc.alias != "" {
 		colStringBuilder.WriteString(fmt.Sprintf(` AS "%s"`, rc.alias))
+	}
+	return colStringBuilder.String()
+}
+
+func (rc *standardRelationalColumn) DelimitedSelectionString(delim string) string {
+	if rc.decorated != "" {
+		// if !strings.ContainsAny(rc.decorated, " '`\t\n\"().") {
+		// 	return fmt.Sprintf(`"%s" `, rc.decorated)
+		// }
+		if rc.decorated == rc.colName {
+			return fmt.Sprintf("%s%s%s ", delim, rc.colName, delim)
+		}
+		if rc.decorated == rc.qualifier+"."+rc.colName {
+			return fmt.Sprintf("%s%s%s.%s%s%s ", delim, rc.qualifier, delim, delim, rc.colName, delim)
+		}
+		return fmt.Sprintf("%s ", rc.decorated)
+	}
+	var colStringBuilder strings.Builder
+	colStringBuilder.WriteString(fmt.Sprintf(`%s%s%s `, delim, rc.colName, delim))
+	if rc.alias != "" {
+		colStringBuilder.WriteString(fmt.Sprintf(` AS %s%s%s`, delim, rc.alias, delim))
 	}
 	return colStringBuilder.String()
 }

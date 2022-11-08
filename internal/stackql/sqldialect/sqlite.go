@@ -206,7 +206,7 @@ func (eng *sqLiteDialect) composeSelectQuery(columns []relationaldto.RelationalC
 	var q strings.Builder
 	var quotedColNames []string
 	for _, col := range columns {
-		quotedColNames = append(quotedColNames, col.CanonicalSelectionString(""))
+		quotedColNames = append(quotedColNames, col.CanonicalSelectionString())
 	}
 	genIdColName := eng.controlAttributes.GetControlGenIdColumnName()
 	sessionIDColName := eng.controlAttributes.GetControlSsnIdColumnName()
