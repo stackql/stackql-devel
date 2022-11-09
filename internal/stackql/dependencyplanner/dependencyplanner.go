@@ -189,6 +189,10 @@ func (dp *StandardDependencyPlanner) Plan() error {
 		return fmt.Errorf("data flow: there are too many weakly connected components; found = %d, max = 1", weaklyConnectedComponentCount)
 	}
 	rewrittenWhereStr := astvisit.GenerateModifiedWhereClause(dp.rewrittenWhere, dp.handlerCtx.SQLDialect, dp.handlerCtx.GetNamespaceCollection())
+	// rewrittenWhereStr, err = dp.handlerCtx.SQLDialect.SanitizeWhereQueryString(rewrittenWhereStr)
+	// if err != nil {
+	// 	return err
+	// }
 	logging.GetLogger().Debugf("rewrittenWhereStr = '%s'", rewrittenWhereStr)
 	drmCfg, err := drm.GetDRMConfig(dp.handlerCtx.SQLDialect, dp.handlerCtx.GetNamespaceCollection(), dp.handlerCtx.ControlAttributes)
 	if err != nil {

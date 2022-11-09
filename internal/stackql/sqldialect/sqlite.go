@@ -266,6 +266,14 @@ func (eng *sqLiteDialect) sanitizeQueryString(queryString string) (string, error
 	return queryString, nil
 }
 
+func (eng *sqLiteDialect) SanitizeWhereQueryString(queryString string) (string, error) {
+	return eng.sanitizeWhereQueryString(queryString)
+}
+
+func (eng *sqLiteDialect) sanitizeWhereQueryString(queryString string) (string, error) {
+	return queryString, nil
+}
+
 func (eng *sqLiteDialect) GenerateInsertDML(relationalTable relationaldto.RelationalTable, tcc *dto.TxnControlCounters) (string, error) {
 	return eng.generateInsertDML(relationalTable, tcc)
 }
@@ -400,6 +408,14 @@ func (sl *sqLiteDialect) gcPurgeEphemeral() error {
 
 func (sl *sqLiteDialect) PurgeAll() error {
 	return sl.purgeAll()
+}
+
+func (sl *sqLiteDialect) GetOperatorOr() string {
+	return "||"
+}
+
+func (sl *sqLiteDialect) GetOperatorStringConcat() string {
+	return "|"
 }
 
 func (sl *sqLiteDialect) purgeAll() error {

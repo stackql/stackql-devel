@@ -291,7 +291,7 @@
     //   ],
     // },
     {
-      "name": "google WHERE case sensitive",
+      "name": "google WHERE docker defective",
       "type": "go",
       "request": "launch",
       "mode": "debug",
@@ -302,7 +302,7 @@
         "--auth=${input:authString}",
         "--tls.allowInsecure",
         "--sqlBackend=${input:sqlBackendString}",
-        "SELECT role, members, condition from google.cloudresourcemanager.project_iam_policies where projectsId = 'testproject' order by role asc;"
+        "select  kind, name  from  google.compute.acceleratorTypes where project = 'testing-project' and zone = 'australia-southeast1-a' order by name desc;'"
       ],
     },
     {

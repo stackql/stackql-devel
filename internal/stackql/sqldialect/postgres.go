@@ -56,6 +56,20 @@ func (eng *postgresDialect) sanitizeQueryString(queryString string) (string, err
 	), nil
 }
 
+func (eng *postgresDialect) SanitizeWhereQueryString(queryString string) (string, error) {
+	return eng.sanitizeWhereQueryString(queryString)
+}
+
+func (eng *postgresDialect) sanitizeWhereQueryString(queryString string) (string, error) {
+	return strings.ReplaceAll(
+		strings.ReplaceAll(
+			strings.ReplaceAll(queryString, "`", `"`),
+			"||", "OR",
+		),
+		"|", "||",
+	), nil
+}
+
 func (eng *postgresDialect) generateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error) {
 	var colDefs, retVal []string
 	if dropTable {
