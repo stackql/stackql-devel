@@ -38,6 +38,7 @@ type SQLDialect interface {
 	// PurgeAll() drops all data tables, does **not** drop control tables.
 	PurgeAll() error
 	SanitizeQueryString(queryString string) (string, error)
+	// **NOTE**: SanitizeWhereQueryString() is **NOT** idempotent.
 	SanitizeWhereQueryString(queryString string) (string, error)
 	GetOperatorOr() string
 	GetOperatorStringConcat() string

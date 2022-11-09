@@ -47,13 +47,7 @@ func (eng *postgresDialect) SanitizeQueryString(queryString string) (string, err
 }
 
 func (eng *postgresDialect) sanitizeQueryString(queryString string) (string, error) {
-	return strings.ReplaceAll(
-		strings.ReplaceAll(
-			strings.ReplaceAll(queryString, "`", `"`),
-			"||", "OR",
-		),
-		"|", "||",
-	), nil
+	return strings.ReplaceAll(queryString, "`", `"`), nil
 }
 
 func (eng *postgresDialect) SanitizeWhereQueryString(queryString string) (string, error) {

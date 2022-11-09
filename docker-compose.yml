@@ -139,4 +139,4 @@ services:
     environment:
       - POSTGRES_PASSWORD=stackql
     ports:
-      - "7432:5432/tcp"
+      - "5432/tcp"
