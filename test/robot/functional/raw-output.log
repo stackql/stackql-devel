@@ -32,41 +32,14 @@ Google Container Agg Desc                                             | PASS |
 ------------------------------------------------------------------------------
 Google Container Agg Asc                                              | PASS |
 ------------------------------------------------------------------------------
-Google IAM Policy Agg                                                 | FAIL |
-!= members,roles
-"[""user:joeblow@myoutfit.com"",""user:somejimbo@gmail.com""]","roles/owner,roles/resourcemanager.folderAdmin,roles/resourcemanager.organizationAdmin"
-"[""user:joeblow@myoutfit.com""]","roles/billing.admin,roles/compute.networkUser,roles/compute.xpnAdmin,roles/container.clusterAdmin,roles/orgpolicy.policyAdmin,roles/resourcemanager.projectCreator"
+Google IAM Policy Agg                                                 | PASS |
+Skipping postgres backend test due to unsupported function group_concat
 ------------------------------------------------------------------------------
-Google Select Project IAM Policy                                      | FAIL |
-!= |--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|-----------|
-|                 role                 |                                                               members                                                                | condition |
-|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|-----------|
-| roles/appengine.serviceAgent         | ["serviceAccount:service-1231231231230@gcp-gae-service.iam.gserviceaccount.com"]                                                     | null      |
-|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|-----------|
-| roles/cloudbuild.builds.builder      | ["serviceAccount:1231231231230@cloudbuild.gserviceaccount.com"]                                                                      | null      |
-|--------------------------------------|-----------------------------------------------------------------------------------------------------------------...
-    [ Message content over the limit has been removed. ]
-...-----|--------------------------------------------------------------------------------------------------------------------------------------|-----------|
-| roles/firestore.serviceAgent         | ["serviceAccount:service-1231231231230@gcp-sa-firestore.iam.gserviceaccount.com"]                                                    | null      |
-|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|-----------|
-| roles/owner                          | ["serviceAccount:testproject-provisioner@testproject.iam.gserviceaccount.com","user:joeblow@testorg.io","user:johnsmith@testorg.io"] | null      |
-|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|-----------|
-| roles/pubsub.serviceAgent            | ["serviceAccount:service-1231231231230@gcp-sa-pubsub.iam.gserviceaccount.com"]                                                       | null      |
-|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|-----------|
+Google Select Project IAM Policy                                      | PASS |
 ------------------------------------------------------------------------------
-Google Select Project IAM Policy Filtered And Verify Like Filtering   | FAIL |
-!= |-------------|--------------------------------------------------------------------------------------------------------------------------------------|-----------|
-|    role     |                                                               members                                                                | condition |
-|-------------|--------------------------------------------------------------------------------------------------------------------------------------|-----------|
-| roles/owner | ["serviceAccount:testproject-provisioner@testproject.iam.gserviceaccount.com","user:joeblow@testorg.io","user:johnsmith@testorg.io"] | null      |
-|-------------|--------------------------------------------------------------------------------------------------------------------------------------|-----------|
+Google Select Project IAM Policy Filtered And Verify Like Filtering   | PASS |
 ------------------------------------------------------------------------------
-Google Select Project IAM Policy Filtered And Verify Where Filtering  | FAIL |
-!= |-------------|--------------------------------------------------------------------------------------------------------------------------------------|-----------|
-|    role     |                                                               members                                                                | condition |
-|-------------|--------------------------------------------------------------------------------------------------------------------------------------|-----------|
-| roles/owner | ["serviceAccount:testproject-provisioner@testproject.iam.gserviceaccount.com","user:joeblow@testorg.io","user:johnsmith@testorg.io"] | null      |
-|-------------|--------------------------------------------------------------------------------------------------------------------------------------|-----------|
+Google Select Project IAM Policy Filtered And Verify Where Filtering  | PASS |
 ------------------------------------------------------------------------------
 Google Join Plus String Concatenated Select Expressions               | FAIL |
 != |---------------------------------------------------------------------------------------------|--------------|--------------------------------------------------------------------------------------------------------------------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|----------------------------------------------------|
@@ -77,74 +50,52 @@ Google Join Plus String Concatenated Select Expressions               | FAIL |
 |                                                                                             |              |                                                                                                                    |                    |                                                                                                                                              | "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-11-bullseye-v20220519"}}]   |                                                    |
 |---------------------------------------------------------------------------------------------|--------------|--------------------------------------------------------------------------------------------------------------------|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|----------------------------------------------------|
 ------------------------------------------------------------------------------
-Google AcceleratorTypes SQL verb pre changeover                       | FAIL |
-!= |-------------------------|---------------------|
-|          kind           |        name         |
-|-------------------------|---------------------|
-| compute#acceleratorType | nvidia-tesla-t4-vws |
-|-------------------------|---------------------|
-| compute#acceleratorType | nvidia-tesla-t4     |
-|-------------------------|---------------------|
-| compute#acceleratorType | nvidia-tesla-p4-vws |
-|-------------------------|---------------------|
-| compute#acceleratorType | nvidia-tesla-p4     |
-|-------------------------|---------------------|
+Google AcceleratorTypes SQL verb pre changeover                       | PASS |
 ------------------------------------------------------------------------------
 Google Machine Types Select Paginated                                 | FAIL |
-!= |--------------------|
-|        name        |
-|--------------------|
-| p9-c2-standard-8   |
-|--------------------|
-| p9-c2-standard-60  |
-|--------------------|
-| p9-c2-standard-4   |
-|--------------------|
-| p9-c2-standard-30  |
-|--------------------|
-| p9-c2-standard-16  |
-|--------------------|
-| p8-c2-standard-8   |
-|--------------------|
-| p8-c2-standard-60  |
-|--------------------|
-| p8-c2-standard-4   |
-|--------------------|
-| p8-c2-standard-30  |
+Multiline strings are different:
+--- first
++++ second
+@@ -71,6 +71,16 @@
+ |--------------------|
+ | p3-c2-standard-16  |
+ |--------------------|
++| p20-c2-standard-8  |
++|--------------------|
++| p20-c2-standard-60 |
++|--------------------|
++| p20-c2-standard-4  |
++|--------------------|
++| p20-c2-standard-30 |
++|--------------------|
++| p20-c2-standard-16 |
++|--------------------|
+ | p2-c2-standard-8   |
+ |--------------------|
+ | p2-c2-standard-60  |
     [ Message content over the limit has been removed. ]
-| p10-c2-standard-8  |
-|--------------------|
-| p10-c2-standard-60 |
-|--------------------|
-| p10-c2-standard-4  |
-|--------------------|
-| p10-c2-standard-30 |
-|--------------------|
-| p10-c2-standard-16 |
-|--------------------|
-| p1-c2-standard-8   |
-|--------------------|
-| p1-c2-standard-60  |
-|--------------------|
-| p1-c2-standard-4   |
-|--------------------|
-| p1-c2-standard-30  |
-|--------------------|
-| p1-c2-standard-16  |
-|--------------------|
+-| p11-c2-standard-8  |
+-|--------------------|
+-| p11-c2-standard-60 |
+-|--------------------|
+-| p11-c2-standard-4  |
+-|--------------------|
+-| p11-c2-standard-30 |
+-|--------------------|
+-| p11-c2-standard-16 |
+-|--------------------|
+-| p10-c2-standard-8  |
+-|--------------------|
+-| p10-c2-standard-60 |
+-|--------------------|
+-| p10-c2-standard-4  |
+-|--------------------|
+-| p10-c2-standard-30 |
+-|--------------------|
+-| p10-c2-standard-16 |
+ |--------------------|
 ------------------------------------------------------------------------------
-Google AcceleratorTypes SQL verb post changeover                      | FAIL |
-!= |-------------------------|---------------------|
-|          kind           |        name         |
-|-------------------------|---------------------|
-| compute#acceleratorType | nvidia-tesla-t4-vws |
-|-------------------------|---------------------|
-| compute#acceleratorType | nvidia-tesla-t4     |
-|-------------------------|---------------------|
-| compute#acceleratorType | nvidia-tesla-p4-vws |
-|-------------------------|---------------------|
-| compute#acceleratorType | nvidia-tesla-p4     |
-|-------------------------|---------------------|
+Google AcceleratorTypes SQL verb post changeover                      | PASS |
 ------------------------------------------------------------------------------
 Okta Apps Select Simple                                               | PASS |
 ------------------------------------------------------------------------------
@@ -271,37 +222,11 @@ AWS Cloud Control Log Group Update Simple                             | PASS |
 ------------------------------------------------------------------------------
 GitHub Pages Select Top Level Object                                  | PASS |
 ------------------------------------------------------------------------------
-GitHub Scim Users Select                                              | FAIL |
-!= |--------------|----------------------|----------------------|--------------------------------------|
-|     name     |       userName       |      externalId      |                  id                  |
-|--------------|----------------------|----------------------|--------------------------------------|
-| Mona Octocat | octocat@github.com   | 00u1dhhb1fkIGP7RL1d8 | 5fc0c238-1112-11e8-8e45-920c87bdbd75 |
-|--------------|----------------------|----------------------|--------------------------------------|
-| Crazy Dude   | crazydude@github.com | 00u1dhhb1fkIGP7RL1d9 | 5fc0c238-1112-11e8-8e45-920c87bdbd76 |
-|--------------|----------------------|----------------------|--------------------------------------|
+GitHub Scim Users Select                                              | PASS |
+Skipping postgres backend test due to unsupported function json_extract
 ------------------------------------------------------------------------------
-GitHub SAML Identities Select GraphQL                                 | FAIL |
-!= |--------------------------------------|---------------------------|--------------|
-|                 guid                 |          saml_id          | github_login |
-|--------------------------------------|---------------------------|--------------|
-| 4d8ca614-05b3-11ed-8b3b-954c779e608e | sherlockholmes1@gmail.com | some-jimbo-1 |
-|--------------------------------------|---------------------------|--------------|
-| 4d8ca614-05b3-11ed-8b3b-954c779e608e | sherlockholmes2@gmail.com | some-jimbo-2 |
-|--------------------------------------|---------------------------|--------------|
-| 2b03a0f4-05bb-11ed-9795-a2b270ddb7b3 | sherlockholmes3@gmail.com | some-jimbo-3 |
-|--------------------------------------|---------------------------|--------------|
-| 4d8ca614-05b3-11ed-8b3b-954c779e608e | sherlockholmes4@gmail.com | some-jimbo-4 |
-    [ Message content over the limit has been removed. ]
-| 4d8ca614-05b3-11ed-8b3b-954c779e608e | sherlockholmes5@gmail.com | some-jimbo-5 |
-|--------------------------------------|---------------------------|--------------|
-| 2b03a0f4-05bb-11ed-9795-a2b270ddb7b3 | sherlockholmes6@gmail.com | some-jimbo-6 |
-|--------------------------------------|---------------------------|--------------|
-| 4d8ca614-05b3-11ed-8b3b-954c779e608e | sherlockholmes7@gmail.com | some-jimbo-7 |
-|--------------------------------------|---------------------------|--------------|
-| 4d8ca614-05b3-11ed-8b3b-954c779e608e | sherlockholmes8@gmail.com | some-jimbo-8 |
-|--------------------------------------|---------------------------|--------------|
-| 2b03a0f4-05bb-11ed-9795-a2b270ddb7b3 | sherlockholmes9@gmail.com | some-jimbo-9 |
-|--------------------------------------|---------------------------|--------------|
+GitHub SAML Identities Select GraphQL                                 | PASS |
+Skipping postgres backend test due to unsupported function json_extract
 ------------------------------------------------------------------------------
 GitHub Branch Names Paginated Select                                  | PASS |
 ------------------------------------------------------------------------------
@@ -400,29 +325,14 @@ GitHub Analytics Transparent Select Repositories Collaborators        | FAIL |
 | vitess                          | fredjones | User | admin     |
 |---------------------------------|-----------|------|-----------|
 ------------------------------------------------------------------------------
-GitHub Repository With Functions Select                               | FAIL |
-!= |---------------------------|----------------|---------------------|---------------|---------------------|
-|           name            | extracted_team |     user_suffix     | is_docusaurus | unicode_lib_version |
-|---------------------------|----------------|---------------------|---------------|---------------------|
-| docusaurus-plugin-hubspot | repos          | username = dummyorg |             1 | 3.35.4              |
-|---------------------------|----------------|---------------------|---------------|---------------------|
-| dummyapp.io               | repos          | username = dummyorg |             0 | 3.35.4              |
-|---------------------------|----------------|---------------------|---------------|---------------------|
-| gatsby-plugin-smartlook   | repos          | username = dummyorg |             0 | 3.35.4              |
-|---------------------------|----------------|---------------------|---------------|---------------------|
+GitHub Repository With Functions Select                               | PASS |
+Skipping postgres backend test due to unsupported function split_part
 ------------------------------------------------------------------------------
 GitHub Join Input Params Select                                       | PASS |
 ------------------------------------------------------------------------------
 Filter on Implicit Selectable Object                                  | PASS |
 ------------------------------------------------------------------------------
-Join GCP Okta Cross Provider                                          | FAIL |
-!= |---------------|---------------------|---------------------|----------|---------------|----------------------|
-|     name      |         id          |       d2_name       |  status  |     label     |        d2_id         |
-|---------------|---------------------|---------------------|----------|---------------|----------------------|
-| demo-disk-xx4 | 3236826943903762399 | oidc_client         | ACTIVE   | demo-disk-xx4 | 0oa3fwm4zsW5jR5V55d7 |
-|---------------|---------------------|---------------------|----------|---------------|----------------------|
-| demo-disk-xx5 | 3236826943903762400 | template_basic_auth | INACTIVE | demo-disk-xx5 | 0oa3pssr5jYavmnNF5d7 |
-|---------------|---------------------|---------------------|----------|---------------|----------------------|
+Join GCP Okta Cross Provider                                          | PASS |
 ------------------------------------------------------------------------------
 Join GCP Okta Cross Provider JSON Dependent Keyword in Table Name     | FAIL |
 != |---------------|-----------------|------------------------------------------|---------------------|-------------|
@@ -433,29 +343,9 @@ Join GCP Okta Cross Provider JSON Dependent Keyword in Table Name     | FAIL |
 | instance-1-b  | RUNNING         | 219001a1ecac6c17e8e3a45f7c9182341e4cf71b | joeblow@example.com | 2022-06-12  |
 |---------------|-----------------|------------------------------------------|---------------------|-------------|
 ------------------------------------------------------------------------------
-Join GCP Three Way                                                    | FAIL |
-!= |---------------|---------------------|-------------------|------------------|
-|       n       |         id          |    description    |  s1_description  |
-|---------------|---------------------|-------------------|------------------|
-| demo-disk-xx5 | 3236826943903762400 | matchable network | matchable subnet |
-|---------------|---------------------|-------------------|------------------|
+Join GCP Three Way                                                    | PASS |
 ------------------------------------------------------------------------------
-Join GCP Self                                                         | FAIL |
-!= |---------------|---------------------|---------------------|
-|       n       |         id          |        d2_id        |
-|---------------|---------------------|---------------------|
-| demo-disk-qq1 | 6957941705271944342 | 6957941705271944342 |
-|---------------|---------------------|---------------------|
-| demo-disk-qq2 | 1624656788334582894 | 1624656788334582894 |
-|---------------|---------------------|---------------------|
-| demo-disk-xx2 | 3236826943903762397 | 3236826943903762397 |
-|---------------|---------------------|---------------------|
-| demo-disk-xx3 | 3236826943903762398 | 3236826943903762398 |
-|---------------|---------------------|---------------------|
-| demo-disk-xx4 | 3236826943903762399 | 3236826943903762399 |
-|---------------|---------------------|---------------------|
-| demo-disk-xx5 | 3236826943903762400 | 3236826943903762400 |
-|---------------|---------------------|---------------------|
+Join GCP Self                                                         | PASS |
 ------------------------------------------------------------------------------
 K8S Nodes Select Leveraging JSON Path                                 | FAIL |
 != |-----------------------------------------------------|--------------------------------------|----------------------|
@@ -519,22 +409,22 @@ Data Flow Sequential Join Select With Functions Github                | FAIL |
 ------------------------------------------------------------------------------
 Page Limited Select Github                                            | PASS |
 ------------------------------------------------------------------------------
-Basic Query mTLS Returns OK                                           curdir = '/Users/admin/stackql/stackql-devel/test/robot/functional'
+Basic Query mTLS Returns OK                                           curdir = '/home/runner/work/stackql-devel/stackql-devel/test/robot/functional'
 psql_exe = 'psql'
-Basic Query mTLS Returns OK                                           | PASS |
+| PASS |
 ------------------------------------------------------------------------------
-Basic Query unencrypted Returns OK                                    curdir = '/Users/admin/stackql/stackql-devel/test/robot/functional'
+Basic Query unencrypted Returns OK                                    curdir = '/home/runner/work/stackql-devel/stackql-devel/test/robot/functional'
 psql_exe = 'psql'
-Basic Query unencrypted Returns OK                                    | PASS |
+| PASS |
 ------------------------------------------------------------------------------
-Erroneous mTLS Config Plus Basic Query Returns Error                  curdir = '/Users/admin/stackql/stackql-devel/test/robot/functional'
+Erroneous mTLS Config Plus Basic Query Returns Error                  curdir = '/home/runner/work/stackql-devel/stackql-devel/test/robot/functional'
 psql_exe = 'psql'
-Erroneous mTLS Config Plus Basic Query Returns Error                  | PASS |
+| PASS |
 ------------------------------------------------------------------------------
 Suite Stackql Mocked From Cmd Line (s1-s2) ending.
 Suite Stackql Mocked From Cmd Line (s1-s2) ending.
 Functional.Stackql Mocked From Cmd Line                               | FAIL |
-55 tests, 28 passed, 27 failed
+55 tests, 40 passed, 15 failed
 ==============================================================================
 Functional.Stackql Sessions                                                   
 ==============================================================================
@@ -568,10 +458,10 @@ PG Session Postgres Client Setup Queries                              | PASS |
 PG Session Postgres Client V2 Setup Queries                           | PASS |
 ------------------------------------------------------------------------------
 PG Session Postgres Client Typed Queries                              | FAIL |
-InternalError: sql insert error: 'failed to encode args[5]: unable to encode 1.660714274285e+09 into text format for text (OID 25): cannot find encode plan' from query: INSERT INTO "aws.cloud_control.ProgressEvent.generation_4"  ("iql_generation_id" , "iql_session_id" , "iql_txn_id" , "iql_insert_id" , "iql_insert_encoded" , "EventTime" , "Operation" , "RequestToken" , "ResourceModel" , "RetryAfter" , "StatusMessage" , "ErrorCode" , "Identifier" , "OperationStatus" , "TypeName" , "data__ResourceRequestStatusFilter" )  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+InternalError: sql insert error: 'failed to encode args[11]: unable to encode 1.660714274285e+09 into text format for text (OID 25): cannot find encode plan' from query: INSERT INTO "aws.cloud_control.ProgressEvent.generation_4"  ("iql_generation_id" , "iql_session_id" , "iql_txn_id" , "iql_insert_id" , "iql_insert_encoded" , "Operation" , "OperationStatus" , "RetryAfter" , "StatusMessage" , "TypeName" , "ErrorCode" , "EventTime" , "Identifier" , "RequestToken" , "ResourceModel" , "data__ResourceRequestStatusFilter" )  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
 ------------------------------------------------------------------------------
 PG Session Postgres Client V2 Typed Queries                           | FAIL |
-InternalError: sql insert error: 'failed to encode args[5]: unable to encode 1.660714274285e+09 into text format for text (OID 25): cannot find encode plan' from query: INSERT INTO "aws.cloud_control.ProgressEvent.generation_4"  ("iql_generation_id" , "iql_session_id" , "iql_txn_id" , "iql_insert_id" , "iql_insert_encoded" , "EventTime" , "Operation" , "RequestToken" , "ResourceModel" , "RetryAfter" , "StatusMessage" , "ErrorCode" , "Identifier" , "OperationStatus" , "TypeName" , "data__ResourceRequestStatusFilter" )  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+InternalError: sql insert error: 'failed to encode args[11]: unable to encode 1.660714274285e+09 into text format for text (OID 25): cannot find encode plan' from query: INSERT INTO "aws.cloud_control.ProgressEvent.generation_4"  ("iql_generation_id" , "iql_session_id" , "iql_txn_id" , "iql_insert_id" , "iql_insert_encoded" , "Operation" , "OperationStatus" , "RetryAfter" , "StatusMessage" , "TypeName" , "ErrorCode" , "EventTime" , "Identifier" , "RequestToken" , "ResourceModel" , "data__ResourceRequestStatusFilter" )  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
 ------------------------------------------------------------------------------
 Suite Stackql Sessions (s1-s3) ending.
 Suite Stackql Sessions (s1-s3) ending.
@@ -581,8 +471,8 @@ Functional.Stackql Sessions                                           | FAIL |
 Suite Functional (s1) ending.
 Suite Functional (s1) ending.
 Functional                                                            | FAIL |
-74 tests, 44 passed, 30 failed
+74 tests, 56 passed, 18 failed
 ==============================================================================
-Output:  /Users/admin/stackql/stackql-devel/test/robot/functional/output.xml
-Log:     /Users/admin/stackql/stackql-devel/test/robot/functional/log.html
-Report:  /Users/admin/stackql/stackql-devel/test/robot/functional/report.html
+Output:  /home/runner/work/stackql-devel/stackql-devel/test/robot/functional/output.xml
+Log:     /home/runner/work/stackql-devel/stackql-devel/test/robot/functional/log.html
+Report:  /home/runner/work/stackql-devel/stackql-devel/test/robot/functional/report.html
