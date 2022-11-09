@@ -47,7 +47,13 @@ func (eng *postgresDialect) SanitizeQueryString(queryString string) (string, err
 }
 
 func (eng *postgresDialect) sanitizeQueryString(queryString string) (string, error) {
-	return strings.ReplaceAll(queryString, "`", `"`), nil
+	return strings.ReplaceAll(
+		strings.ReplaceAll(
+			strings.ReplaceAll(queryString, "`", `"`),
+			"||", "OR",
+		),
+		"|", "||",
+	), nil
 }
 
 func (eng *postgresDialect) generateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error) {
@@ -325,6 +331,14 @@ func (sl *postgresDialect) gCCollectObsoleted(minTransactionID int) error {
 
 func (sl *postgresDialect) GCCollectAll() error {
 	return sl.gCCollectAll()
+}
+
+func (sl *postgresDialect) GetOperatorOr() string {
+	return "OR"
+}
+
+func (sl *postgresDialect) GetOperatorStringConcat() string {
+	return "||"
 }
 
 func (sl *postgresDialect) gCCollectAll() error {
