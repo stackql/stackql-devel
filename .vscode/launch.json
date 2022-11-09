@@ -302,7 +302,7 @@
         "--auth=${input:authString}",
         "--tls.allowInsecure",
         "--sqlBackend=${input:sqlBackendString}",
-        "select  kind, name  from  google.compute.acceleratorTypes where project = 'testing-project' and zone = 'australia-southeast1-a' order by name desc;'"
+        "select  kind, name  from  google.compute.acceleratorTypes where project = 'testing-project' and zone = 'australia-southeast1-a' order by name desc;"
       ],
     },
     {
