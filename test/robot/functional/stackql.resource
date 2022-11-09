@@ -74,7 +74,7 @@ Start StackQL PG Server mTLS
                         ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
     ELSE IF    "${EXECUTION_PLATFORM}" == "docker"
         ${process} =    Start Process    docker\-compose
-                        ...  \-p     mtls\-${_DOCKER_PORT}
+                        ...  \-p     stackqlpgsrv\-mtls\-${_DOCKER_PORT}
                         ...  run
                         ...  \-\-rm    \-p${_SRV_PORT_MTLS}:${_DOCKER_PORT}/tcp
                         ...  stackqlsrv
@@ -100,7 +100,7 @@ Start StackQL PG Server unencrypted
                         ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-unencrypted-${_SRV_PORT_UNENCRYPTED}.txt
     ELSE IF    "${EXECUTION_PLATFORM}" == "docker"
         ${process} =    Start Process    docker\-compose    \-\-log\-level    ERROR
-                        ...  \-p     unencrypted
+                        ...  \-p     stackqlpgsrv\-unencrypted
                         ...  run
                         ...  \-\-rm    \-p${_SRV_PORT_UNENCRYPTED}:${PG_SRV_PORT_DOCKER_UNENCRYPTED}/tcp
                         ...  stackqlsrv
@@ -111,3 +111,13 @@ Start StackQL PG Server unencrypted
                         ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-unencrypted-${_SRV_PORT_UNENCRYPTED}.txt
     END
     [Return]    ${process}
+
+Stackql Per Test Teardown
+    IF    "${EXECUTION_PLATFORM}" == "docker" and "${SQL_BACKEND}" == "postgres_tcp"
+        ${res} =         Run Process    bash    \-c    docker kill $(docker ps \-\-filter name\=execrun \-q)
+        Log     Container killed
+        # Should Be Equal As Integers    ${res.rc}    0
+        ${restwo} =         Run Process    bash    \-c    docker rm $(docker ps \-\-filter status\=exited \-q)
+        Log     Container removed
+        # Should Be Equal As Integers    ${restwo.rc}    0
+    END

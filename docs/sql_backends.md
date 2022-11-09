@@ -60,3 +60,62 @@ GRANT ALL PRIVILEGES on DATABASE stackql to stackql;
 
 ```
 
+#### Postgres integration bug checklist
+
+- [ ] ERROR: function group_concat(text) does not exist
+- [ ] syntax error at or near "like"
+- [ ] ERROR: column "projectsId" of relation "google.cloudresourcemanager.Binding.generation_1" does not exist
+- [ ] ERROR: syntax error at or near "".profile, '$.login')""
+- [ ] ERROR: column "VolumeId" does not exist
+- [ ] `AWS IAM Users Select Simple` sort order different to SQLite.
+- [ ] sql insert error: 'failed to encode args[11]: unable to encode 13 into text format for text
+- [ ] ERROR: function json_extract(text, unknown) does not exist
+- [ ] ERROR: column "JSON_EXTRACT(samlIdentity, '$.nameId')" does not exist
+- [ ] ERROR: column "count(*)" does not exist
+- [ ] ERROR: syntax error at or near "PRAGMA"
+- [ ] ERROR: column "split_part(teams_url, '/', 4)" does not exist
+- [ ] ERROR: syntax error at or near "".""
+- [ ] "err = sql: no rows in result set for tableNamePattern = 'k8s.core_v1.io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta.generation_%' and tableNameLHSRemove = 'k8s.core_v1.io.k8s.apimachinery.pkg.apis.meta.v1.ObjectMeta.generation_'"
+- [ ] ERROR: column "eTag" does not exist
+- [ ] `PG Session Anayltics Cache Behaviour Canonical` cacheing does not work, same other cache test.
+
+Failing tests checklist:
+
+- [ ] Google IAM Policy Agg                                                 
+- [ ] Google Select Project IAM Policy                                      
+- [ ] Google Select Project IAM Policy Filtered And Verify Like Filtering   
+- [ ] Google Select Project IAM Policy Filtered And Verify Where Filtering  
+- [ ] Google Join Plus String Concatenated Select Expressions               
+- [ ] Google AcceleratorTypes SQL verb pre changeover                       
+- [ ] Google Machine Types Select Paginated                                 
+- [ ] Google AcceleratorTypes SQL verb post changeover                      
+- [ ] Okta Users Select Simple Paginated                                    
+- [ ] AWS EC2 Volumes Select Simple                                         
+- [ ] AWS IAM Users Select Simple                                           
+- [ ] AWS S3 Objects Select Simple                                          
+- [ ] AWS Cloud Control Operations Select Simple                            
+- [ ] GitHub Scim Users Select                                              
+- [ ] GitHub SAML Identities Select GraphQL                                 
+- [ ] GitHub Tags Paginated Count                                           
+- [ ] GitHub Analytics Simple Select Repositories Collaborators             
+- [ ] GitHub Analytics Transparent Select Repositories Collaborators        
+- [ ] GitHub Repository With Functions Select                               
+- [ ] Join GCP Okta Cross Provider                                          
+- [ ] Join GCP Okta Cross Provider JSON Dependent Keyword in Table Name     
+- [ ] Join GCP Three Way                                                    
+- [ ] Join GCP Self                                                         
+- [ ] K8S Nodes Select Leveraging JSON Path                                 
+- [ ] Google Compute Instance IAM Policy Select                             
+- [ ] Paginated and Data Flow Sequential Join Github Okta SAML              
+- [ ] Data Flow Sequential Join Select With Functions Github                
+- [ ] Functional.Stackql Mocked From Cmd Line                               
+- [ ] PG Session Anayltics Cache Behaviour Canonical                        
+- [ ] PG Session Postgres Client Typed Queries                              
+- [ ] PG Session Postgres Client V2 Typed Queries  
+
+
+Some debugging:
+
+- Google Select Project IAM Policy
+
+

@@ -180,7 +180,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       "stackqlsrv",
       "bash",
       "-c",
-      f"stackql exec {' '.join(supplied_args)} '{query_escaped}'",
+      f"sleep 5 && stackql exec {' '.join(supplied_args)} '{query_escaped}'",
       **cfg
     )
     self.log(res.stdout)

@@ -1,5 +1,6 @@
 *** Settings ***
 Resource          ${CURDIR}/stackql.resource
+Test Teardown     Stackql Per Test Teardown
 
 *** Test Cases *** 
 Google Container Agg Desc
@@ -27,6 +28,7 @@ Google Container Agg Asc
     ...    ${SELECT_CONTAINER_SUBNET_AGG_ASC_EXPECTED}
 
 Google IAM Policy Agg
+    Pass Execution If    "${SQL_BACKEND}" == "postgres_tcp"    Skipping postgres backend test due to unsupported function group_concat
     Should StackQL Exec Inline Equal
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
@@ -351,6 +353,7 @@ GitHub Pages Select Top Level Object
     ...    ${SELECT_GITHUB_REPOS_PAGES_SINGLE_EXPECTED}
 
 GitHub Scim Users Select
+    Pass Execution If    "${SQL_BACKEND}" == "postgres_tcp"    Skipping postgres backend test due to unsupported function json_extract
     Should StackQL Exec Inline Equal
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
@@ -363,6 +366,7 @@ GitHub Scim Users Select
     ...    ${SELECT_GITHUB_SCIM_USERS_EXPECTED}
 
 GitHub SAML Identities Select GraphQL
+    Pass Execution If    "${SQL_BACKEND}" == "postgres_tcp"    Skipping postgres backend test due to unsupported function json_extract
     Should Horrid Query StackQL Inline Equal
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
@@ -441,6 +445,7 @@ GitHub Analytics Transparent Select Repositories Collaborators
     ...    stdout=${CURDIR}/tmp/GitHub-Analytics-Select-Repositories-Collaborators.tmp
 
 GitHub Repository With Functions Select
+    Pass Execution If    "${SQL_BACKEND}" == "postgres_tcp"    Skipping postgres backend test due to unsupported function split_part
     Should Horrid Query StackQL Inline Equal
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
