@@ -1,0 +1,8 @@
+SELECT json_extract_path_text("saml"."samlIdentity", 'username') , "om"."login" , "ou"."status"  FROM "github.scim..generation_1" as saml join "okta.user.User.generation_2" as ou  on json_extract_path_text("saml"."samlIdentity", 'username') = json_extract_path_text("ou"."profile", 'login') join "github.orgs.simple-user.generation_1" as om  on json_extract_path_text("saml"."user", 'login') = "om"."login" WHERE ( "ou"."iql_generation_id" = $1 AND "ou"."iql_session_id" = $2 AND "ou"."iql_txn_id" = $3 AND "ou"."iql_insert_id" = $4 AND "saml"."iql_generation_id" = $5 AND "saml"."iql_session_id" = $6 AND "saml"."iql_txn_id" = $7 AND "saml"."iql_insert_id" = $8 AND "om"."iql_generation_id" = $9 AND "om"."iql_session_id" = $10 AND "om"."iql_txn_id" = $11 AND "om"."iql_insert_id" = $12 ) AND ( 1 = 1 and 1 = 1 and 1 = 1 )  order by "om"."login" desc
+
+
+
+
+SELECT json_extract_path_text("saml"."samlIdentity", 'username') , "om"."login" , "ou"."status"  FROM "github.scim..generation_1" as saml join "okta.user.User.generation_2" as ou  on json_extract_path_text("saml"."samlIdentity", 'username') = json_extract_path_text("ou"."profile", 'login') join "github.orgs.simple-user.generation_1" as om  on json_extract_path_text("saml"."user", 'login') = "om"."login" WHERE ( true ) AND ( 1 = 1 and 1 = 1 and 1 = 1 )  order by "om"."login" desc
+
+SELECT json_extract_path_text("saml"."samlIdentity", 'username') FROM "github.scim..generation_1" as saml;

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
+	"github.com/stackql/stackql/internal/stackql/astformat"
 	"github.com/stackql/stackql/internal/stackql/logging"
 
 	"vitess.io/vitess/go/vt/sqlparser"
@@ -48,13 +49,13 @@ func NewUnaliasedColumnHandle(name string) ColumnHandle {
 	return ColumnHandle{Name: name}
 }
 
-func ExtractSelectColumnNames(selStmt *sqlparser.Select) ([]ColumnHandle, error) {
+func ExtractSelectColumnNames(selStmt *sqlparser.Select, formatter sqlparser.NodeFormatter) ([]ColumnHandle, error) {
 	var colNames []ColumnHandle
 	var err error
 	for _, node := range selStmt.SelectExprs {
 		switch node := node.(type) {
 		case *sqlparser.AliasedExpr:
-			colNames = append(colNames, inferColNameFromExpr(node))
+			colNames = append(colNames, inferColNameFromExpr(node, formatter))
 		case *sqlparser.StarExpr:
 
 		}
@@ -399,8 +400,8 @@ func GetColumnUsageTypesForExec(exec *sqlparser.Exec) ([]ColumnUsageMetadata, er
 	return colMetaSlice, nil
 }
 
-func InferColNameFromExpr(node *sqlparser.AliasedExpr) ColumnHandle {
-	return inferColNameFromExpr(node)
+func InferColNameFromExpr(node *sqlparser.AliasedExpr, formatter sqlparser.NodeFormatter) ColumnHandle {
+	return inferColNameFromExpr(node, formatter)
 }
 
 func GetStringFromStringFunc(fe *sqlparser.FuncExpr) (string, error) {
@@ -416,7 +417,7 @@ func GetStringFromStringFunc(fe *sqlparser.FuncExpr) (string, error) {
 	return "", fmt.Errorf("cannot extract string from func '%s'", fe.Name)
 }
 
-func inferColNameFromExpr(node *sqlparser.AliasedExpr) ColumnHandle {
+func inferColNameFromExpr(node *sqlparser.AliasedExpr, formatter sqlparser.NodeFormatter) ColumnHandle {
 	alias := node.As.GetRawVal()
 	retVal := ColumnHandle{
 		Alias: alias,
@@ -434,7 +435,7 @@ func inferColNameFromExpr(node *sqlparser.AliasedExpr) ColumnHandle {
 	case *sqlparser.FuncExpr:
 		// As a shortcut, functions are integral types
 		funcNameLowered := expr.Name.Lowered()
-		retVal.Name = sqlparser.String(expr)
+		retVal.Name = astformat.String(expr, formatter)
 		if len(funcNameLowered) >= 4 && funcNameLowered[0:4] == "json" {
 			retVal.DecoratedColumn = strings.ReplaceAll(retVal.Name, `\"`, `"`)
 			return retVal
@@ -442,8 +443,8 @@ func inferColNameFromExpr(node *sqlparser.AliasedExpr) ColumnHandle {
 		if len(expr.Exprs) == 1 {
 			switch ex := expr.Exprs[0].(type) {
 			case *sqlparser.AliasedExpr:
-				rv := inferColNameFromExpr(ex)
-				rv.DecoratedColumn = sqlparser.String(expr)
+				rv := inferColNameFromExpr(ex, formatter)
+				rv.DecoratedColumn = astformat.String(expr, formatter)
 				rv.Alias = alias
 				return rv
 			}
@@ -452,7 +453,7 @@ func inferColNameFromExpr(node *sqlparser.AliasedExpr) ColumnHandle {
 			for _, exp := range expr.Exprs {
 				switch ex := exp.(type) {
 				case *sqlparser.AliasedExpr:
-					rv := inferColNameFromExpr(ex)
+					rv := inferColNameFromExpr(ex, formatter)
 					exprsDecorated = append(exprsDecorated, rv.DecoratedColumn)
 				}
 			}
@@ -463,12 +464,12 @@ func inferColNameFromExpr(node *sqlparser.AliasedExpr) ColumnHandle {
 		case "substr":
 			switch ex := expr.Exprs[0].(type) {
 			case *sqlparser.AliasedExpr:
-				rv := inferColNameFromExpr(ex)
+				rv := inferColNameFromExpr(ex, formatter)
 				rv.Alias = alias
 				return rv
 			}
 		default:
-			retVal.DecoratedColumn = sqlparser.String(expr)
+			retVal.DecoratedColumn = astformat.String(expr, formatter)
 		}
 	case *sqlparser.ConvertExpr:
 		switch ex := expr.Expr.(type) {
@@ -477,18 +478,18 @@ func inferColNameFromExpr(node *sqlparser.AliasedExpr) ColumnHandle {
 				Alias: "",
 				Expr:  ex,
 			}
-			rv.DecoratedColumn = fmt.Sprintf("CAST(%s AS %s)", sqlparser.String(ex), sqlparser.String(expr.Type))
+			rv.DecoratedColumn = fmt.Sprintf("CAST(%s AS %s)", astformat.String(ex, formatter), astformat.String(expr.Type, formatter))
 			rv.Alias = alias
 			return rv
 		}
 	case *sqlparser.SQLVal:
 		// As a shortcut, functions are integral types
-		retVal.Name = sqlparser.String(expr)
+		retVal.Name = astformat.String(expr, formatter)
 		retVal.Type = expr.Type
 		retVal.Val = expr
 		retVal.DecoratedColumn = ExtractStringRepresentationOfValueColumn(expr)
 	default:
-		retVal.DecoratedColumn = sqlparser.String(expr)
+		retVal.DecoratedColumn = astformat.String(expr, formatter)
 	}
 	retVal.DecoratedColumn = strings.ReplaceAll(retVal.DecoratedColumn, `\"`, `"`)
 	return retVal

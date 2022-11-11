@@ -480,7 +480,7 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 			relationalType = dc.GetRelationalType(schema.Type)
 		}
 		columns = append(columns, NewColDescriptor(col, relationalType))
-		relationalColumn := relationaldto.NewRelationalColumn(col.Name, relationalType)
+		relationalColumn := relationaldto.NewRelationalColumn(col.Name, relationalType).WithParserNode(col.Node)
 		relationalTable.PushBackColumn(relationalColumn)
 	}
 	queryString, err := dc.sqlDialect.GenerateInsertDML(relationalTable, tcc)
@@ -532,7 +532,7 @@ func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 		}
 		columns = append(columns, NewColDescriptor(col, typeStr))
 		// TODO: logic to infer column width
-		relationalColumn := relationaldto.NewRelationalColumn(col.Name, typeStr).WithQualifier(col.Qualifier)
+		relationalColumn := relationaldto.NewRelationalColumn(col.Name, typeStr).WithQualifier(col.Qualifier).WithParserNode(col.Node)
 		if col.DecoratedCol == "" {
 			if col.Alias != "" {
 				relationalColumn = relationalColumn.WithAlias(col.Alias)

@@ -5,19 +5,22 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/stackql/stackql/internal/stackql/astfuncrewrite"
 	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
+	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-func newSQLiteDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes) (SQLDialect, error) {
+func newSQLiteDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter) (SQLDialect, error) {
 	rv := &sqLiteDialect{
 		controlAttributes: controlAttributes,
 		namespaces:        namespaces,
 		sqlEngine:         sqlEngine,
+		formatter:         formatter,
 	}
 	err := rv.initSQLiteEngine()
 	return rv, err
@@ -27,11 +30,24 @@ type sqLiteDialect struct {
 	controlAttributes sqlcontrol.ControlAttributes
 	namespaces        tablenamespace.TableNamespaceCollection
 	sqlEngine         sqlengine.SQLEngine
+	formatter         sqlparser.NodeFormatter
 }
 
 func (eng *sqLiteDialect) initSQLiteEngine() error {
 	_, err := eng.sqlEngine.Exec(sqLiteEngineSetupDDL)
 	return err
+}
+
+func (sl *sqLiteDialect) GetName() string {
+	return constants.SQLDialectSQLite3
+}
+
+func (sl *sqLiteDialect) GetASTFormatter() sqlparser.NodeFormatter {
+	return sl.formatter
+}
+
+func (sl *sqLiteDialect) GetASTFuncRewriter() astfuncrewrite.ASTFuncRewriter {
+	return astfuncrewrite.GetNopFuncRewriter()
 }
 
 func (sl *sqLiteDialect) GCAdd(tableName string, parentTcc, lockableTcc dto.TxnControlCounters) error {

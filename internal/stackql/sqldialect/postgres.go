@@ -5,19 +5,22 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/stackql/stackql/internal/stackql/astfuncrewrite"
 	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
+	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-func newPostgresDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes) (SQLDialect, error) {
+func newPostgresDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter) (SQLDialect, error) {
 	rv := &postgresDialect{
 		controlAttributes: controlAttributes,
 		namespaces:        namespaces,
 		sqlEngine:         sqlEngine,
+		formatter:         formatter,
 	}
 	err := rv.initSQLiteEngine()
 	return rv, err
@@ -27,6 +30,7 @@ type postgresDialect struct {
 	controlAttributes sqlcontrol.ControlAttributes
 	namespaces        tablenamespace.TableNamespaceCollection
 	sqlEngine         sqlengine.SQLEngine
+	formatter         sqlparser.NodeFormatter
 }
 
 func (eng *postgresDialect) initSQLiteEngine() error {
@@ -36,6 +40,14 @@ func (eng *postgresDialect) initSQLiteEngine() error {
 
 func (eng *postgresDialect) generateDropTableStatement(relationalTable relationaldto.RelationalTable) string {
 	return fmt.Sprintf(`drop table if exists "%s"`, relationalTable.GetName())
+}
+
+func (sl *postgresDialect) GetASTFormatter() sqlparser.NodeFormatter {
+	return sl.formatter
+}
+
+func (sl *postgresDialect) GetASTFuncRewriter() astfuncrewrite.ASTFuncRewriter {
+	return astfuncrewrite.GetPostgresASTFuncRewriter()
 }
 
 func (eng *postgresDialect) GenerateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error) {
@@ -403,6 +415,10 @@ func (sl *postgresDialect) GCPurgeEphemeral() error {
 
 func (sl *postgresDialect) GCPurgeCache() error {
 	return sl.gcPurgeCache()
+}
+
+func (sl *postgresDialect) GetName() string {
+	return constants.SQLDialectPostgres
 }
 
 func (sl *postgresDialect) gcPurgeCache() error {

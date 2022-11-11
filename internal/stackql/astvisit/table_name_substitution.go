@@ -160,6 +160,7 @@ type TableNameSubstitutionAstVisitor struct {
 	colRefs              parserutil.ColTableMap
 	columnNames          []parserutil.ColumnHandle
 	columnDescriptors    []openapistackql.ColumnDescriptor
+	formatter            sqlparser.NodeFormatter
 	//
 	selectExprsStr string
 	whereExprsStr  string
@@ -572,7 +573,7 @@ func (v *TableNameSubstitutionAstVisitor) Visit(node sqlparser.SQLNode) error {
 		if err != nil {
 			return err
 		}
-		col := parserutil.InferColNameFromExpr(node)
+		col := parserutil.InferColNameFromExpr(node, v.formatter)
 		v.columnNames = append(v.columnNames, col)
 		cd := openapistackql.NewColumnDescriptor(col.Alias, col.Name, col.Qualifier, col.DecoratedColumn, node, schema, col.Val)
 		v.columnDescriptors = append(v.columnDescriptors, cd)

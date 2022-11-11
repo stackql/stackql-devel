@@ -27,9 +27,10 @@ type DRMAstVisitor struct {
 	containsAnalyticsCacheMaterial bool
 	containsNativeBackendMaterial  bool
 	sqlDialect                     sqldialect.SQLDialect
+	formatter                      sqlparser.NodeFormatter
 }
 
-func NewDRMAstVisitor(iDColumnName string, shouldCollectTables bool, sqlDialect sqldialect.SQLDialect, namespaceCollection tablenamespace.TableNamespaceCollection) *DRMAstVisitor {
+func NewDRMAstVisitor(iDColumnName string, shouldCollectTables bool, sqlDialect sqldialect.SQLDialect, formatter sqlparser.NodeFormatter, namespaceCollection tablenamespace.TableNamespaceCollection) *DRMAstVisitor {
 	return &DRMAstVisitor{
 		iDColumnName:        iDColumnName,
 		tablesCited:         make(map[*sqlparser.AliasedTableExpr]sqlparser.TableName),
@@ -37,8 +38,14 @@ func NewDRMAstVisitor(iDColumnName string, shouldCollectTables bool, sqlDialect 
 		shouldCollectTables: shouldCollectTables,
 		namespaceCollection: namespaceCollection,
 		sqlDialect:          sqlDialect,
+		formatter:           formatter,
 	}
 }
+
+// func (v *DRMAstVisitor) WithFormatter(formatter sqlparser.NodeFormatter) *DRMAstVisitor {
+// 	v.formatter = formatter
+// 	return v
+// }
 
 func (v *DRMAstVisitor) GetProviderStrings() []string {
 	var retVal []string
@@ -126,7 +133,7 @@ func (v *DRMAstVisitor) computeQIDWhereSubTree() (sqlparser.Expr, error) {
 }
 
 func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
-	buf := sqlparser.NewTrackedBuffer(nil)
+	buf := sqlparser.NewTrackedBuffer(v.formatter)
 
 	switch node := node.(type) {
 	case *sqlparser.Select:
@@ -153,10 +160,11 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 			commentStr = v.GetRewrittenQuery()
 		}
 		if node.SelectExprs != nil {
-			node.SelectExprs.Accept(v)
-			selectExprStr = v.GetRewrittenQuery()
+			selVis := NewDRMAstVisitor(v.iDColumnName, true, v.sqlDialect, v.formatter, v.namespaceCollection)
+			node.SelectExprs.Accept(selVis)
+			selectExprStr = selVis.GetRewrittenQuery()
 		}
-		fromVis := NewDRMAstVisitor(v.iDColumnName, true, v.sqlDialect, v.namespaceCollection)
+		fromVis := NewDRMAstVisitor(v.iDColumnName, true, v.sqlDialect, v.formatter, v.namespaceCollection)
 		if node.From != nil {
 			node.From.Accept(fromVis)
 			v.tablesCited = fromVis.tablesCited
@@ -813,6 +821,7 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 		v.containsNativeBackendMaterial = true
 
 	case sqlparser.JoinCondition:
+		v.Visit(node.On)
 		if node.On != nil {
 			buf.AstPrintf(node, " on %v", node.On)
 		}
@@ -822,17 +831,19 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 		v.rewrittenQuery = buf.String()
 
 	case *sqlparser.JoinTableExpr:
-		lVis := NewDRMAstVisitor("", true, v.sqlDialect, v.namespaceCollection)
+		lVis := NewDRMAstVisitor("", true, v.sqlDialect, v.formatter, v.namespaceCollection)
 		node.LeftExpr.Accept(lVis)
-		rVis := NewDRMAstVisitor("", true, v.sqlDialect, v.namespaceCollection)
+		rVis := NewDRMAstVisitor("", true, v.sqlDialect, v.formatter, v.namespaceCollection)
 		node.RightExpr.Accept(rVis)
+		conditionVis := NewDRMAstVisitor("", true, v.sqlDialect, v.formatter, v.namespaceCollection)
+		node.Condition.Accept(conditionVis)
 		if lVis.ContainsAnalyticsCacheMaterial() || rVis.ContainsAnalyticsCacheMaterial() {
 			v.containsAnalyticsCacheMaterial = true
 		}
 		if lVis.ContainsNativeBackendMaterial() || rVis.ContainsNativeBackendMaterial() {
 			v.containsNativeBackendMaterial = true
 		}
-		buf.AstPrintf(node, "%s %s %s%v", lVis.GetRewrittenQuery(), node.Join, rVis.GetRewrittenQuery(), node.Condition)
+		buf.AstPrintf(node, "%s %s %s %s", lVis.GetRewrittenQuery(), node.Join, rVis.GetRewrittenQuery(), conditionVis.GetRewrittenQuery())
 		bs := buf.String()
 		v.rewrittenQuery = bs
 
@@ -882,6 +893,10 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 		v.rewrittenQuery = buf.String()
 
 	case *sqlparser.ComparisonExpr:
+		lVis := NewDRMAstVisitor("", true, v.sqlDialect, v.formatter, v.namespaceCollection)
+		node.Left.Accept(lVis)
+		rVis := NewDRMAstVisitor("", true, v.sqlDialect, v.formatter, v.namespaceCollection)
+		node.Right.Accept(rVis)
 		switch lt := node.Left.(type) {
 		case *sqlparser.ColName:
 			switch rt := node.Right.(type) {
@@ -896,7 +911,7 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 				v.params[lt] = rt
 			}
 		}
-		buf.AstPrintf(node, "%v %s %v", node.Left, node.Operator, node.Right)
+		buf.AstPrintf(node, "%s %s %s", lVis.GetRewrittenQuery(), node.Operator, rVis.GetRewrittenQuery())
 		if node.Escape != nil {
 			buf.AstPrintf(node, " escape %v", node.Escape)
 		}
@@ -992,6 +1007,13 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 		v.rewrittenQuery = buf.String()
 
 	case *sqlparser.FuncExpr:
+		newNode, err := v.sqlDialect.GetASTFuncRewriter().RewriteFunc(node)
+		if err != nil {
+			return err
+		}
+		node.Distinct = newNode.Distinct
+		node.Exprs = newNode.Exprs
+		node.Name = newNode.Name
 		var distinct string
 		if node.Distinct {
 			distinct = "distinct "
