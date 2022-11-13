@@ -25,6 +25,9 @@ const (
 	SQLFuncJSONExtractSQLite           string = "json_extract"
 	SQLFuncJSONExtractPostgres         string = "json_extract_path_text"
 	SQLFuncJSONExtractConformed        string = SQLFuncJSONExtractSQLite
+	SQLFuncGroupConcatSQLite           string = "group_concat"
+	SQLFuncGroupConcatPostgres         string = "string_agg"
+	SQLFuncGroupConcatConformed        string = SQLFuncGroupConcatSQLite
 	DefaulHttpBodyFormat               string = JsonStr
 	RequestBodyKeyPrefix               string = "data"
 	RequestBodyKeyDelimiter            string = "__"

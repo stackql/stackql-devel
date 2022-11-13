@@ -1,21 +1,27 @@
 package astvisit
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
+	"github.com/stackql/stackql/internal/stackql/constants"
+	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"vitess.io/vitess/go/sqltypes"
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
 type ParamAstVisitor struct {
-	params parserutil.ParameterMap
+	params      parserutil.ParameterMap
+	execParams  parserutil.ParameterMap
+	execPayload *dto.ExecPayload
 }
 
 func NewParamAstVisitor(iDColumnName string, shouldCollectTables bool) *ParamAstVisitor {
 	return &ParamAstVisitor{
-		params: parserutil.NewParameterMap(),
+		params:     parserutil.NewParameterMap(),
+		execParams: parserutil.NewParameterMap(),
 	}
 }
 
@@ -29,6 +35,33 @@ func (v *ParamAstVisitor) GetStringifiedParameters() map[string]interface{} {
 		rv[k.String()] = v
 	}
 	return rv
+}
+
+func (v *ParamAstVisitor) parseExecPayload(node *sqlparser.ExecVarDef, payloadType string) (*dto.ExecPayload, error) {
+	var b []byte
+	m := make(map[string][]string)
+	var pm map[string]interface{}
+	switch val := node.Val.(type) {
+	case *sqlparser.SQLVal:
+		b = val.Val
+	default:
+		return nil, fmt.Errorf("payload map of SQL type = '%T' not allowed", val)
+	}
+	switch payloadType {
+	case constants.JsonStr, "application/json":
+		m["Content-Type"] = []string{"application/json"}
+		err := json.Unmarshal(b, &pm)
+		if err != nil {
+			return nil, err
+		}
+	default:
+		return nil, fmt.Errorf("payload map of declared type = '%T' not allowed", payloadType)
+	}
+	return &dto.ExecPayload{
+		Payload:    b,
+		Header:     m,
+		PayloadMap: pm,
+	}, nil
 }
 
 func (v *ParamAstVisitor) Visit(node sqlparser.SQLNode) error {
@@ -661,6 +694,21 @@ func (v *ParamAstVisitor) Visit(node sqlparser.SQLNode) error {
 			return err
 		}
 		return node.Right.Accept(v)
+
+	case *sqlparser.Exec:
+		for _, n := range node.ExecVarDefs {
+			k, err := parserutil.NewUnknownTypeColumnarReference(n.ColIdent)
+			if err != nil {
+				return err
+			}
+			v.execParams.Set(k, parserutil.NewComparisonParameterMetadata(
+				nil,
+				n.Val,
+			))
+		}
+		// if node.OptExecPayload != nil {
+		// 	v.execPayload = v.parseExecPayload(node.OptExecPayload, )
+		// }
 
 	case *sqlparser.OrExpr:
 		err = node.Left.Accept(v)

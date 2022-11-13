@@ -291,6 +291,36 @@
       ],
     },
     {
+      "name": "google unknown docker defective",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
+      "args": [
+        "exec",
+        "--registry=${input:registryString}",
+        "--auth=${input:authString}",
+        "--tls.allowInsecure",
+        "--sqlBackend=${input:sqlBackendString}",
+        "SELECT etag FROM google.compute.instances_iam_policies WHERE project = 'testing-project' AND zone = 'australia-southeast1-a' AND resource = '000000001';"
+      ],
+    },
+    {
+      "name": "google unknown2 docker defective",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
+      "args": [
+        "exec",
+        "--registry=${input:registryString}",
+        "--auth=${input:authString}",
+        "--tls.allowInsecure",
+        "--sqlBackend=${input:sqlBackendString}",
+        "select   members,  GROUP_CONCAT(role) as roles from   (     exec /*+ SHOWRESULTS */     google.cloudresourcemanager.organizations.getIamPolicy     @organizationsId = '123456789012'   ) GROUP BY members;"
+      ],
+    },
+    {
       "name": "google WHERE docker defective",
       "type": "go",
       "request": "launch",

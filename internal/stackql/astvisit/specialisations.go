@@ -108,6 +108,16 @@ func ExtractParamsFromWhereClause(node *sqlparser.Where) parserutil.ParameterMap
 	return v.GetParameters()
 }
 
+func ExtractParamsFromExecSubqueryClause(node *sqlparser.ExecSubquery) parserutil.ParameterMap {
+	v := NewParamAstVisitor("", false)
+	if node != nil && node.Exec != nil {
+		node.Exec.Accept(v)
+	} else {
+		return parserutil.NewParameterMap()
+	}
+	return v.GetParameters()
+}
+
 func ExtractParamsFromFromClause(node sqlparser.TableExprs) parserutil.ParameterMap {
 	v := NewParamAstVisitor("", false)
 	for _, expr := range node {

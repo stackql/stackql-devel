@@ -6,3 +6,10 @@ SELECT json_extract_path_text("saml"."samlIdentity", 'username') , "om"."login" 
 SELECT json_extract_path_text("saml"."samlIdentity", 'username') , "om"."login" , "ou"."status"  FROM "github.scim..generation_1" as saml join "okta.user.User.generation_2" as ou  on json_extract_path_text("saml"."samlIdentity", 'username') = json_extract_path_text("ou"."profile", 'login') join "github.orgs.simple-user.generation_1" as om  on json_extract_path_text("saml"."user", 'login') = "om"."login" WHERE ( true ) AND ( 1 = 1 and 1 = 1 and 1 = 1 )  order by "om"."login" desc
 
 SELECT json_extract_path_text("saml"."samlIdentity", 'username') FROM "github.scim..generation_1" as saml;
+
+
+
+SELECT "eTag"  FROM "google.compute.Policy.generation_3" WHERE ( "iql_generation_id" = $1 AND "iql_session_id" = $2 AND "iql_txn_id" = $3 AND "iql_insert_id" = $4 ) AND ( 1 = 1 and 1 = 1 and 1 = 1 ) 
+
+
+SELECT "members" , string_concat("role", ',')  FROM "google.cloudresourcemanager.Binding.generation_3" WHERE ( "iql_generation_id" = $1 AND "iql_session_id" = $2 AND "iql_txn_id" = $3 AND "iql_insert_id" = $4 ) AND ( true )  group by "members"

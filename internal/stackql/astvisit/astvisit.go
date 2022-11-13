@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/stackql/stackql/internal/stackql/astformat"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
@@ -1005,6 +1006,19 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 	case *sqlparser.CollateExpr:
 		buf.AstPrintf(node, "%v collate %s", node.Expr, node.Charset)
 		v.rewrittenQuery = buf.String()
+
+	case *sqlparser.ExecSubquery:
+		if node.Exec == nil {
+			return fmt.Errorf("cannont accomodate nil exec table container")
+		}
+		// if v.shouldCollectTables {
+		// 	switch te := node.Exec.MethodName.(type) {
+		// 	case sqlparser.TableName:
+		// 		v.tablesCited[node] = te
+		// 	}
+		// }
+		s := astformat.String(node.Exec.MethodName, v.sqlDialect.GetASTFormatter())
+		v.rewrittenQuery = s
 
 	case *sqlparser.FuncExpr:
 		newNode, err := v.sqlDialect.GetASTFuncRewriter().RewriteFunc(node)

@@ -24,7 +24,18 @@ func PostgresSelectExprsFormatter(buf *sqlparser.TrackedBuffer, node sqlparser.S
 			buf.WriteString(sb.String())
 			return
 		}
+		// if strings.ToLower(node.Name.GetRawVal()) == constants.SQLFuncGroupConcatConformed {
+		// 	sb := sqlparser.NewTrackedBuffer(PostgresSelectExprsFormatter)
+		// 	sb.AstPrintf(node, "%s(%v, %s)", constants.SQLFuncGroupConcatPostgres, node.Exprs[0], "','")
+		// 	buf.WriteString(sb.String())
+		// 	return
+		// }
 		node.Format(buf)
+		return
+	case *sqlparser.GroupConcatExpr:
+		sb := sqlparser.NewTrackedBuffer(PostgresSelectExprsFormatter)
+		sb.AstPrintf(node, "%s(%v, %s)", constants.SQLFuncGroupConcatPostgres, node.Exprs[0], `','`)
+		buf.WriteString(sb.String())
 		return
 
 	default:

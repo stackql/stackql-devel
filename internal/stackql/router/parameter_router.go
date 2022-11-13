@@ -95,6 +95,7 @@ func (pr *StandardParameterRouter) AnalyzeDependencies() error {
 // Essentially, not required so long as:
 //   - in params
 //   - result set data
+//
 // ...are guaranteed present in same table.
 func (pr *StandardParameterRouter) GetOnConditionsToRewrite() map[*sqlparser.ComparisonExpr]struct{} {
 	rv := make(map[*sqlparser.ComparisonExpr]struct{})

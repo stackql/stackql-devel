@@ -20,6 +20,12 @@ type StandardComparisonParameterMetadata struct {
 	table  sqlparser.SQLNode
 }
 
+type ExecVarDefParameterMetadata struct {
+	Parent *sqlparser.Exec
+	Val    interface{}
+	table  sqlparser.SQLNode
+}
+
 type PlaceholderParameterMetadata struct {
 	placeholderVal struct{}
 }

@@ -221,6 +221,7 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 		TxnCounterMgr:       inputBundle.GetTxnCounterManager(),
 		TxnStore:            inputBundle.GetTxnStore(),
 		namespaceCollection: inputBundle.GetNamespaceCollection(),
+		formatter:           inputBundle.GetSQLDialect().GetASTFormatter(),
 	}
 	drmCfg, err := drm.GetDRMConfig(inputBundle.GetSQLDialect(), rv.namespaceCollection, controlAttributes)
 	if err != nil {

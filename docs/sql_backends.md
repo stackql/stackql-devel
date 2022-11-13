@@ -82,13 +82,8 @@ GRANT ALL PRIVILEGES on DATABASE stackql to stackql;
 Failing tests checklist:
 
 - [ ] Google IAM Policy Agg                                                 
-- [ ] Google Select Project IAM Policy                                      
-- [ ] Google Select Project IAM Policy Filtered And Verify Like Filtering   
-- [ ] Google Select Project IAM Policy Filtered And Verify Where Filtering  
 - [ ] Google Join Plus String Concatenated Select Expressions               
-- [ ] Google AcceleratorTypes SQL verb pre changeover                       
 - [ ] Google Machine Types Select Paginated                                 
-- [ ] Google AcceleratorTypes SQL verb post changeover                      
 - [ ] Okta Users Select Simple Paginated                                    
 - [ ] AWS EC2 Volumes Select Simple                                         
 - [ ] AWS IAM Users Select Simple                                           
@@ -96,23 +91,17 @@ Failing tests checklist:
 - [ ] AWS Cloud Control Operations Select Simple                            
 - [ ] GitHub Scim Users Select                                              
 - [ ] GitHub SAML Identities Select GraphQL                                 
-- [ ] GitHub Tags Paginated Count                                           
 - [ ] GitHub Analytics Simple Select Repositories Collaborators             
 - [ ] GitHub Analytics Transparent Select Repositories Collaborators        
 - [ ] GitHub Repository With Functions Select                               
-- [ ] Join GCP Okta Cross Provider                                          
 - [ ] Join GCP Okta Cross Provider JSON Dependent Keyword in Table Name     
-- [ ] Join GCP Three Way                                                    
-- [ ] Join GCP Self                                                         
 - [ ] K8S Nodes Select Leveraging JSON Path                                 
 - [ ] Google Compute Instance IAM Policy Select                             
-- [ ] Paginated and Data Flow Sequential Join Github Okta SAML              
 - [ ] Data Flow Sequential Join Select With Functions Github                
 - [ ] Functional.Stackql Mocked From Cmd Line                               
 - [ ] PG Session Anayltics Cache Behaviour Canonical                        
 - [ ] PG Session Postgres Client Typed Queries                              
-- [ ] PG Session Postgres Client V2 Typed Queries  
-
+- [ ] PG Session Postgres Client V2 Typed Queries
 
 Some debugging:
 
