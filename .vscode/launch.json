@@ -9,6 +9,7 @@
       "id": "queryString",
       "description": "SQL Query string",
       "options": [
+        "select `Key`, Size, StorageClass from  aws.s3.objects where region = 'ap-southeast-1' and bucket = 'stackql-trial-bucket-01' order by `Key` ASC;",
         "select name from google.compute.machineTypes where project = 'testing-project' and zone = 'australia-southeast1-a' order by name desc;",
         "show providers;"
       ],

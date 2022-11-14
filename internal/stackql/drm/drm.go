@@ -438,7 +438,7 @@ func (dc *StaticDRMConfig) inferColType(col util.Column) string {
 	return relationalType
 }
 
-func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, m *openapistackql.OperationStore, discoveryGenerationID int, dropTable bool) ([]string, error) {
+func (dc *StaticDRMConfig) genRelationalTable(tabAnn util.AnnotatedTabulation, m *openapistackql.OperationStore, discoveryGenerationID int) (relationaldto.RelationalTable, error) {
 	tableName, err := dc.getTableName(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID)
 	if err != nil {
 		return nil, err
@@ -454,6 +454,14 @@ func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, m *opena
 		colWidth := col.GetWidth()
 		relationalColumn := relationaldto.NewRelationalColumn(colName, relationalType).WithWidth(colWidth)
 		relationalTable.PushBackColumn(relationalColumn)
+	}
+	return relationalTable, nil
+}
+
+func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, m *openapistackql.OperationStore, discoveryGenerationID int, dropTable bool) ([]string, error) {
+	relationalTable, err := dc.genRelationalTable(tabAnn, m, discoveryGenerationID)
+	if err != nil {
+		return nil, err
 	}
 	return dc.sqlDialect.GenerateDDL(relationalTable, dropTable)
 }
@@ -615,7 +623,13 @@ func (dc *StaticDRMConfig) generateVarArgs(cp PreparedStatementParameterized, is
 					return retVal, err
 				}
 				varArgs = append(varArgs, string(b))
+			case string:
+				varArgs = append(varArgs, va)
 			default:
+				if strings.ToLower(col.Coupling.RelationalType) == "text" {
+					varArgs = append(varArgs, fmt.Sprintf("%v", va))
+					continue
+				}
 				varArgs = append(varArgs, va)
 			}
 		}

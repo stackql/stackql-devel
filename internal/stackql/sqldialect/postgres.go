@@ -235,7 +235,11 @@ func (eng *postgresDialect) generateInsertDML(relationalTable relationaldto.Rela
 	i := 1
 	for _, col := range relationalTable.GetColumns() {
 		quotedColNames = append(quotedColNames, `"`+col.GetName()+`" `)
-		vals = append(vals, fmt.Sprintf("$%d", 5+i))
+		if strings.ToLower(col.GetType()) != "text" {
+			vals = append(vals, fmt.Sprintf("$%d", 5+i))
+		} else {
+			vals = append(vals, fmt.Sprintf("CAST($%d AS TEXT)", 5+i))
+		}
 		i++
 	}
 	q.WriteString(fmt.Sprintf(" (%s) ", strings.Join(quotedColNames, ", ")))
