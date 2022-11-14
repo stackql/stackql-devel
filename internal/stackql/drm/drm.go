@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
@@ -626,7 +627,7 @@ func (dc *StaticDRMConfig) generateVarArgs(cp PreparedStatementParameterized, is
 			case string:
 				varArgs = append(varArgs, va)
 			default:
-				if strings.ToLower(col.Coupling.RelationalType) == "text" {
+				if strings.ToLower(col.Coupling.RelationalType) == "text" && strings.ToLower(dc.sqlDialect.GetName()) == constants.SQLDialectPostgres {
 					varArgs = append(varArgs, fmt.Sprintf("%v", va))
 					continue
 				}

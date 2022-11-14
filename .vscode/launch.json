@@ -502,7 +502,7 @@
       ],
     },
     {
-      "name": "run server;",
+      "name": "run server",
       "type": "go",
       "request": "launch",
       "mode": "debug",
@@ -513,7 +513,8 @@
         "--tls.allowInsecure",
         "--auth=${input:authString}",
         "--gc=${input:gcString}",
-        "--registry=${input:registryString}"
+        "--registry=${input:registryString}",
+        "--sqlBackend=${input:sqlBackendString}"
       ],
     },
     {
