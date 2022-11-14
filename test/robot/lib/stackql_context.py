@@ -250,7 +250,7 @@ def get_analytics_db_init_path(sql_backend_str :str) -> str:
 ANALYTICS_DB_INIT_PATH_DOCKER :str = get_unix_path(os.path.join('/opt', 'stackql', "db", "cache_setup.sql"))
 
 def get_analytics_db_init_path_unix(sql_backend_str :str) ->str:
-  get_unix_path(get_analytics_db_init_path(sql_backend_str))
+  return get_unix_path(get_analytics_db_init_path(sql_backend_str))
 
 _SQL_BACKEND_POSTGRES_DOCKER_DSN :str = 'postgres://stackql:stackql@postgres_stackql:5432/stackql'
 

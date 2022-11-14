@@ -110,7 +110,10 @@ func (eng *postgresTcpEngine) execFile(fileName string) error {
 		return err
 	}
 	_, err = eng.db.Exec(string(fileContents))
-	return err
+	if err != nil {
+		return fmt.Errorf("stackql postgres db exec file error: %s", err.Error())
+	}
+	return nil
 }
 
 // In Postgres, `Timestamp with time zone` objects are timezone-aware.
