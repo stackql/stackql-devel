@@ -119,20 +119,17 @@ func (eng *postgresTcpEngine) TableOldestUpdateUTC(tableName string, requestEnco
 	ssnIdColName := eng.controlAttributes.GetControlSsnIdColumnName()
 	txnIdColName := eng.controlAttributes.GetControlTxnIdColumnName()
 	insIdColName := eng.controlAttributes.GetControlInsIdColumnName()
-	rows, err := eng.db.Query(fmt.Sprintf("SELECT min(%s) as oldest_update, %s, %s, %s, %s FROM \"%s\" WHERE %s = '%s';", updateColName, genIdColName, ssnIdColName, txnIdColName, insIdColName, tableName, requestEncodingColName, requestEncoding))
+	rows, err := eng.db.Query(fmt.Sprintf("SELECT min(%s) as oldest_update, %s, %s, %s, %s FROM \"%s\" WHERE %s = '%s' GROUP BY %s, %s, %s, %s;", updateColName, genIdColName, ssnIdColName, txnIdColName, insIdColName, tableName, requestEncodingColName, requestEncoding, genIdColName, ssnIdColName, txnIdColName, insIdColName))
 	if err == nil && rows != nil {
 		defer rows.Close()
 		rowExists := rows.Next()
 		if rowExists {
-			var oldest string
+			var oldestTime time.Time
 			tcc := dto.TxnControlCounters{}
-			err = rows.Scan(&oldest, &tcc.GenId, &tcc.SessionId, &tcc.TxnId, &tcc.InsertId)
+			err = rows.Scan(&oldestTime, &tcc.GenId, &tcc.SessionId, &tcc.TxnId, &tcc.InsertId)
 			if err == nil {
-				oldestTime, err := time.Parse("2006-01-02 11:11:11.111111+11", oldest)
-				if err == nil {
-					tcc.TableName = tableName
-					return oldestTime, &tcc
-				}
+				tcc.TableName = tableName
+				return oldestTime, &tcc
 			}
 		}
 	}

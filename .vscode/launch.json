@@ -254,6 +254,7 @@
         "--auth=${input:authString}",
         "--tls.allowInsecure",
         "--sqlBackend=${input:sqlBackendString}",
+        "--namespaces=${input:namespaceString}",
         "${input:queryString}"
       ],
     },
@@ -514,6 +515,7 @@
         "--auth=${input:authString}",
         "--gc=${input:gcString}",
         "--registry=${input:registryString}",
+        "--namespaces=${input:namespaceString}",
         "--sqlBackend=${input:sqlBackendString}"
       ],
     },

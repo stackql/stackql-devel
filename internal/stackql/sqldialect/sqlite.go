@@ -12,11 +12,10 @@ import (
 	"github.com/stackql/stackql/internal/stackql/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
-	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-func newSQLiteDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter) (SQLDialect, error) {
+func newSQLiteDialect(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString string, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter) (SQLDialect, error) {
 	rv := &sqLiteDialect{
 		defaultGolangKind:     reflect.String,
 		defaultRelationalType: "text",
@@ -28,24 +27,24 @@ func newSQLiteDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.T
 			"object":  {RelationalType: "text", GolangKind: reflect.Map},
 			"string":  {RelationalType: "text", GolangKind: reflect.String},
 		},
-		controlAttributes: controlAttributes,
-		namespaces:        namespaces,
-		sqlEngine:         sqlEngine,
-		formatter:         formatter,
+		controlAttributes:            controlAttributes,
+		analyticsNamespaceLikeString: analyticsNamespaceLikeString,
+		sqlEngine:                    sqlEngine,
+		formatter:                    formatter,
 	}
 	err := rv.initSQLiteEngine()
 	return rv, err
 }
 
 type sqLiteDialect struct {
-	controlAttributes     sqlcontrol.ControlAttributes
-	namespaces            tablenamespace.TableNamespaceCollection
-	sqlEngine             sqlengine.SQLEngine
-	formatter             sqlparser.NodeFormatter
-	typeMappings          map[string]dto.DRMCoupling
-	defaultRelationalType string
-	defaultGolangKind     reflect.Kind
-	defaultGolangValue    interface{}
+	controlAttributes            sqlcontrol.ControlAttributes
+	analyticsNamespaceLikeString string
+	sqlEngine                    sqlengine.SQLEngine
+	formatter                    sqlparser.NodeFormatter
+	typeMappings                 map[string]dto.DRMCoupling
+	defaultRelationalType        string
+	defaultGolangKind            reflect.Kind
+	defaultGolangValue           interface{}
 }
 
 func (eng *sqLiteDialect) initSQLiteEngine() error {
@@ -408,7 +407,7 @@ func (sl *sqLiteDialect) gcPurgeCache() error {
 	from sqlite_schema 
 	where type = 'table' and name like ?
 	`
-	rows, err := sl.sqlEngine.Query(query, sl.namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetLikeString())
+	rows, err := sl.sqlEngine.Query(query, sl.analyticsNamespaceLikeString)
 	if err != nil {
 		return err
 	}
@@ -430,7 +429,7 @@ func (sl *sqLiteDialect) gcPurgeEphemeral() error {
 		and
 		name NOT LIKE 'sqlite_%' 
 	`
-	rows, err := sl.sqlEngine.Query(query, sl.namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetLikeString())
+	rows, err := sl.sqlEngine.Query(query, sl.analyticsNamespaceLikeString)
 	if err != nil {
 		return err
 	}
@@ -546,4 +545,8 @@ func (eng *sqLiteDialect) GetGolangKind(discoType string) reflect.Kind {
 
 func (eng *sqLiteDialect) getDefaultGolangKind() reflect.Kind {
 	return eng.defaultGolangKind
+}
+
+func (eng *sqLiteDialect) QueryNamespaced(colzString, actualTableName, requestEncodingColName, requestEncoding string) (*sql.Rows, error) {
+	return eng.sqlEngine.Query(fmt.Sprintf(`SELECT %s FROM "%s" WHERE "%s" = ?`, colzString, actualTableName, requestEncodingColName), requestEncoding)
 }

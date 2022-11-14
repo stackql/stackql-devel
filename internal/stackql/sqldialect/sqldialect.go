@@ -1,6 +1,7 @@
 package sqldialect
 
 import (
+	"database/sql"
 	"fmt"
 	"reflect"
 	"strings"
@@ -12,7 +13,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
-	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
@@ -52,6 +52,8 @@ type SQLDialect interface {
 	GetGolangKind(string) reflect.Kind
 	GetGolangValue(string) interface{}
 	GetRelationalType(string) string
+
+	QueryNamespaced(string, string, string, string) (*sql.Rows, error)
 }
 
 func getNodeFormatter(name string) sqlparser.NodeFormatter {
@@ -61,14 +63,14 @@ func getNodeFormatter(name string) sqlparser.NodeFormatter {
 	return nil
 }
 
-func NewSQLDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes, name string) (SQLDialect, error) {
+func NewSQLDialect(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString string, controlAttributes sqlcontrol.ControlAttributes, name string) (SQLDialect, error) {
 	nameLowered := strings.ToLower(name)
 	formatter := getNodeFormatter(nameLowered)
 	switch nameLowered {
 	case constants.SQLDialectSQLite3:
-		return newSQLiteDialect(sqlEngine, namespaces, controlAttributes, formatter)
+		return newSQLiteDialect(sqlEngine, analyticsNamespaceLikeString, controlAttributes, formatter)
 	case constants.SQLDialectPostgres:
-		return newPostgresDialect(sqlEngine, namespaces, controlAttributes, formatter)
+		return newPostgresDialect(sqlEngine, analyticsNamespaceLikeString, controlAttributes, formatter)
 	default:
 		return nil, fmt.Errorf("cannot accomodate sql dialect '%s'", name)
 	}

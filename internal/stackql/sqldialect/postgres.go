@@ -12,11 +12,10 @@ import (
 	"github.com/stackql/stackql/internal/stackql/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
-	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-func newPostgresDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter) (SQLDialect, error) {
+func newPostgresDialect(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString string, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter) (SQLDialect, error) {
 	rv := &postgresDialect{
 		defaultGolangKind:     reflect.String,
 		defaultRelationalType: "text",
@@ -29,23 +28,23 @@ func newPostgresDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace
 			"string":  {RelationalType: "text", GolangKind: reflect.String},
 			"number":  {RelationalType: "numeric", GolangKind: reflect.Float64},
 		},
-		controlAttributes: controlAttributes,
-		namespaces:        namespaces,
-		sqlEngine:         sqlEngine,
-		formatter:         formatter,
+		controlAttributes:            controlAttributes,
+		analyticsNamespaceLikeString: analyticsNamespaceLikeString,
+		sqlEngine:                    sqlEngine,
+		formatter:                    formatter,
 	}
 	err := rv.initSQLiteEngine()
 	return rv, err
 }
 
 type postgresDialect struct {
-	controlAttributes     sqlcontrol.ControlAttributes
-	namespaces            tablenamespace.TableNamespaceCollection
-	sqlEngine             sqlengine.SQLEngine
-	formatter             sqlparser.NodeFormatter
-	typeMappings          map[string]dto.DRMCoupling
-	defaultRelationalType string
-	defaultGolangKind     reflect.Kind
+	controlAttributes            sqlcontrol.ControlAttributes
+	analyticsNamespaceLikeString string
+	sqlEngine                    sqlengine.SQLEngine
+	formatter                    sqlparser.NodeFormatter
+	typeMappings                 map[string]dto.DRMCoupling
+	defaultRelationalType        string
+	defaultGolangKind            reflect.Kind
 }
 
 func (eng *postgresDialect) initSQLiteEngine() error {
@@ -455,7 +454,7 @@ func (sl *postgresDialect) gcPurgeCache() error {
 		and 
 		table_name like $3
 	`
-	rows, err := sl.sqlEngine.Query(query, sl.sqlEngine.GetTableCatalog(), sl.sqlEngine.GetTableSchema(), sl.namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetLikeString())
+	rows, err := sl.sqlEngine.Query(query, sl.sqlEngine.GetTableCatalog(), sl.sqlEngine.GetTableSchema(), sl.analyticsNamespaceLikeString)
 	if err != nil {
 		return err
 	}
@@ -479,7 +478,7 @@ func (sl *postgresDialect) gcPurgeEphemeral() error {
 		and 
 		table_name not like '__iql__%' 
 	`
-	rows, err := sl.sqlEngine.Query(query, sl.sqlEngine.GetTableCatalog(), sl.sqlEngine.GetTableSchema(), sl.namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetLikeString())
+	rows, err := sl.sqlEngine.Query(query, sl.sqlEngine.GetTableCatalog(), sl.sqlEngine.GetTableSchema(), sl.analyticsNamespaceLikeString)
 	if err != nil {
 		return err
 	}
@@ -591,4 +590,8 @@ func (eng *postgresDialect) GetGolangKind(discoType string) reflect.Kind {
 
 func (eng *postgresDialect) getDefaultGolangKind() reflect.Kind {
 	return eng.defaultGolangKind
+}
+
+func (eng *postgresDialect) QueryNamespaced(colzString string, actualTableName string, requestEncodingColName string, requestEncoding string) (*sql.Rows, error) {
+	return eng.sqlEngine.Query(fmt.Sprintf(`SELECT %s FROM "%s" WHERE "%s" = $1`, colzString, actualTableName, requestEncodingColName), requestEncoding)
 }
