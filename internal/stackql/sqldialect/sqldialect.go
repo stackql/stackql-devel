@@ -2,6 +2,7 @@ package sqldialect
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/stackql/stackql/internal/stackql/astformat"
@@ -48,6 +49,9 @@ type SQLDialect interface {
 	GetOperatorOr() string
 	GetOperatorStringConcat() string
 	GetName() string
+	GetGolangKind(string) reflect.Kind
+	GetGolangValue(string) interface{}
+	GetRelationalType(string) string
 }
 
 func getNodeFormatter(name string) sqlparser.NodeFormatter {

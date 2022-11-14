@@ -83,12 +83,8 @@ Failing tests checklist:
 
 - [ ] Google IAM Policy Agg                                                 
 - [ ] Google Join Plus String Concatenated Select Expressions               
-- [ ] Google Machine Types Select Paginated                                 
 - [ ] Okta Users Select Simple Paginated                                    
 - [ ] AWS EC2 Volumes Select Simple                                         
-- [ ] AWS IAM Users Select Simple                                           
-- [ ] AWS S3 Objects Select Simple                                          
-- [ ] AWS Cloud Control Operations Select Simple                            
 - [ ] GitHub SAML Identities Select GraphQL                                 
 - [ ] GitHub Analytics Simple Select Repositories Collaborators             
 - [ ] GitHub Analytics Transparent Select Repositories Collaborators        
@@ -99,7 +95,7 @@ Failing tests checklist:
 - [ ] Functional.Stackql Mocked From Cmd Line                               
 - [ ] PG Session Anayltics Cache Behaviour Canonical                        
 - [ ] PG Session Postgres Client Typed Queries                              
-- [ ] PG Session Postgres Client V2 Typed Queries                           
+- [ ] PG Session Postgres Client V2 Typed Queries                          
 
 Some debugging:
 

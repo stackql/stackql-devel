@@ -3,6 +3,7 @@ package sqldialect
 import (
 	"database/sql"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/stackql/stackql/internal/stackql/astfuncrewrite"
@@ -17,6 +18,16 @@ import (
 
 func newSQLiteDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter) (SQLDialect, error) {
 	rv := &sqLiteDialect{
+		defaultGolangKind:     reflect.String,
+		defaultRelationalType: "text",
+		typeMappings: map[string]dto.DRMCoupling{
+			"array":   {RelationalType: "text", GolangKind: reflect.Slice},
+			"boolean": {RelationalType: "boolean", GolangKind: reflect.Bool},
+			"int":     {RelationalType: "integer", GolangKind: reflect.Int},
+			"integer": {RelationalType: "integer", GolangKind: reflect.Int},
+			"object":  {RelationalType: "text", GolangKind: reflect.Map},
+			"string":  {RelationalType: "text", GolangKind: reflect.String},
+		},
 		controlAttributes: controlAttributes,
 		namespaces:        namespaces,
 		sqlEngine:         sqlEngine,
@@ -27,10 +38,14 @@ func newSQLiteDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.T
 }
 
 type sqLiteDialect struct {
-	controlAttributes sqlcontrol.ControlAttributes
-	namespaces        tablenamespace.TableNamespaceCollection
-	sqlEngine         sqlengine.SQLEngine
-	formatter         sqlparser.NodeFormatter
+	controlAttributes     sqlcontrol.ControlAttributes
+	namespaces            tablenamespace.TableNamespaceCollection
+	sqlEngine             sqlengine.SQLEngine
+	formatter             sqlparser.NodeFormatter
+	typeMappings          map[string]dto.DRMCoupling
+	defaultRelationalType string
+	defaultGolangKind     reflect.Kind
+	defaultGolangValue    interface{}
 }
 
 func (eng *sqLiteDialect) initSQLiteEngine() error {
@@ -479,4 +494,56 @@ func (sl *sqLiteDialect) readExecGeneratedQueries(queryResultSet *sql.Rows) erro
 	}
 	err := sl.sqlEngine.ExecInTxn(queries)
 	return err
+}
+
+func (eng *sqLiteDialect) GetRelationalType(discoType string) string {
+	return eng.getRelationalType(discoType)
+}
+
+func (eng *sqLiteDialect) getRelationalType(discoType string) string {
+	rv, ok := eng.typeMappings[discoType]
+	if ok {
+		return rv.RelationalType
+	}
+	return eng.defaultRelationalType
+}
+
+func (eng *sqLiteDialect) GetGolangValue(discoType string) interface{} {
+	return eng.getGolangValue(discoType)
+}
+
+func (eng *sqLiteDialect) getGolangValue(discoType string) interface{} {
+	rv, ok := eng.typeMappings[discoType]
+	if !ok {
+		return eng.getDefaultGolangValue()
+	}
+	switch rv.GolangKind {
+	case reflect.String:
+		return &sql.NullString{}
+	case reflect.Array:
+		return &sql.NullString{}
+	case reflect.Bool:
+		return &sql.NullBool{}
+	case reflect.Map:
+		return &sql.NullString{}
+	case reflect.Int:
+		return &sql.NullInt64{}
+	}
+	return eng.getDefaultGolangValue()
+}
+
+func (eng *sqLiteDialect) getDefaultGolangValue() interface{} {
+	return &sql.NullString{}
+}
+
+func (eng *sqLiteDialect) GetGolangKind(discoType string) reflect.Kind {
+	rv, ok := eng.typeMappings[discoType]
+	if !ok {
+		return eng.getDefaultGolangKind()
+	}
+	return rv.GolangKind
+}
+
+func (eng *sqLiteDialect) getDefaultGolangKind() reflect.Kind {
+	return eng.defaultGolangKind
 }

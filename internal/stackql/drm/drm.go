@@ -30,13 +30,8 @@ type DRM interface {
 	DRMConfig
 }
 
-type DRMCoupling struct {
-	RelationalType string
-	GolangKind     reflect.Kind
-}
-
 type ColumnMetadata struct {
-	Coupling DRMCoupling
+	Coupling dto.DRMCoupling
 	Column   openapistackql.ColumnDescriptor
 }
 
@@ -70,7 +65,7 @@ func (cd ColumnMetadata) getTypeFromVal() string {
 
 func NewColDescriptor(col openapistackql.ColumnDescriptor, relTypeStr string) ColumnMetadata {
 	return ColumnMetadata{
-		Coupling: DRMCoupling{RelationalType: relTypeStr, GolangKind: reflect.String},
+		Coupling: dto.DRMCoupling{RelationalType: relTypeStr, GolangKind: reflect.String},
 		Column:   col,
 	}
 }
@@ -219,14 +214,11 @@ type DRMConfig interface {
 }
 
 type StaticDRMConfig struct {
-	typeMappings          map[string]DRMCoupling
-	defaultRelationalType string
-	defaultGolangKind     reflect.Kind
-	defaultGolangValue    interface{}
-	namespaceCollection   tablenamespace.TableNamespaceCollection
-	controlAttributes     sqlcontrol.ControlAttributes
-	sqlEngine             sqlengine.SQLEngine
-	sqlDialect            sqldialect.SQLDialect
+	defaultGolangValue  interface{}
+	namespaceCollection tablenamespace.TableNamespaceCollection
+	controlAttributes   sqlcontrol.ControlAttributes
+	sqlEngine           sqlengine.SQLEngine
+	sqlDialect          sqldialect.SQLDialect
 }
 
 func (dc *StaticDRMConfig) GetSQLDialect() sqldialect.SQLDialect {
@@ -239,14 +231,6 @@ func (dc *StaticDRMConfig) GetControlAttributes() sqlcontrol.ControlAttributes {
 
 func (dc *StaticDRMConfig) getControlAttributes() sqlcontrol.ControlAttributes {
 	return dc.controlAttributes
-}
-
-func (dc *StaticDRMConfig) getDefaultGolangValue() interface{} {
-	return &sql.NullString{}
-}
-
-func (dc *StaticDRMConfig) getDefaultGolangKind() reflect.Kind {
-	return dc.defaultGolangKind
 }
 
 func (dc *StaticDRMConfig) GetGolangSlices(nonControlColumns []ColumnMetadata) ([]interface{}, []string) {
@@ -302,7 +286,7 @@ func (dc *StaticDRMConfig) getGolangSlices(nonControlColumns []ColumnMetadata) (
 	var ifArr []interface{}
 	for i < len(nonControlColumns) {
 		x := nonControlColumns[i]
-		y := dc.getGolangValue(x.GetType())
+		y := dc.sqlDialect.GetGolangValue(x.GetType())
 		ifArr = append(ifArr, y)
 		keyArr = append(keyArr, x.Column.GetIdentifier())
 		i++
@@ -311,11 +295,7 @@ func (dc *StaticDRMConfig) getGolangSlices(nonControlColumns []ColumnMetadata) (
 }
 
 func (dc *StaticDRMConfig) GetRelationalType(discoType string) string {
-	rv, ok := dc.typeMappings[discoType]
-	if ok {
-		return rv.RelationalType
-	}
-	return dc.defaultRelationalType
+	return dc.sqlDialect.GetRelationalType(discoType)
 }
 
 func (dc *StaticDRMConfig) GetNamespaceCollection() tablenamespace.TableNamespaceCollection {
@@ -323,27 +303,7 @@ func (dc *StaticDRMConfig) GetNamespaceCollection() tablenamespace.TableNamespac
 }
 
 func (dc *StaticDRMConfig) GetGolangValue(discoType string) interface{} {
-	return dc.getGolangValue(discoType)
-}
-
-func (dc *StaticDRMConfig) getGolangValue(discoType string) interface{} {
-	rv, ok := dc.typeMappings[discoType]
-	if !ok {
-		return dc.getDefaultGolangValue()
-	}
-	switch rv.GolangKind {
-	case reflect.String:
-		return &sql.NullString{}
-	case reflect.Array:
-		return &sql.NullString{}
-	case reflect.Bool:
-		return &sql.NullBool{}
-	case reflect.Map:
-		return &sql.NullString{}
-	case reflect.Int:
-		return &sql.NullInt64{}
-	}
-	return dc.getDefaultGolangValue()
+	return dc.sqlDialect.GetGolangValue(discoType)
 }
 
 func (dc *StaticDRMConfig) ExtractFromGolangValue(val interface{}) interface{} {
@@ -362,16 +322,14 @@ func (dc *StaticDRMConfig) extractFromGolangValue(val interface{}) interface{} {
 		retVal, _ = (*v).Value()
 	case *sql.NullInt64:
 		retVal, _ = (*v).Value()
+	case *sql.NullFloat64:
+		retVal, _ = (*v).Value()
 	}
 	return retVal
 }
 
 func (dc *StaticDRMConfig) GetGolangKind(discoType string) reflect.Kind {
-	rv, ok := dc.typeMappings[discoType]
-	if !ok {
-		return dc.getDefaultGolangKind()
-	}
-	return rv.GolangKind
+	return dc.sqlDialect.GetGolangKind(discoType)
 }
 
 func (dc *StaticDRMConfig) GetCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers, dbEngine sqlengine.SQLEngine) (dto.DBTable, error) {
@@ -450,10 +408,10 @@ func (dc *StaticDRMConfig) genRelationalTable(tabAnn util.AnnotatedTabulation, m
 	for _, col := range tableColumns {
 		colName := col.GetName()
 		colType := dc.inferColType(col)
-		relationalType := dc.GetRelationalType(colType)
+		// relationalType := dc.GetRelationalType(colType)
 		// TODO: add drm logic to infer / transform width as suplied by openapi doc
 		colWidth := col.GetWidth()
-		relationalColumn := relationaldto.NewRelationalColumn(colName, relationalType).WithWidth(colWidth)
+		relationalColumn := relationaldto.NewRelationalColumn(colName, colType).WithWidth(colWidth)
 		relationalTable.PushBackColumn(relationalColumn)
 	}
 	return relationalTable, nil
@@ -690,21 +648,10 @@ func (dc *StaticDRMConfig) QueryDML(dbEngine sqlengine.SQLEngine, ctxParameteriz
 
 func GetDRMConfig(sqlDialect sqldialect.SQLDialect, namespaceCollection tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes) (DRMConfig, error) {
 	rv := &StaticDRMConfig{
-		typeMappings: map[string]DRMCoupling{
-			"array":   {RelationalType: "text", GolangKind: reflect.Slice},
-			"boolean": {RelationalType: "boolean", GolangKind: reflect.Bool},
-			"int":     {RelationalType: "integer", GolangKind: reflect.Int},
-			"integer": {RelationalType: "integer", GolangKind: reflect.Int},
-			"object":  {RelationalType: "text", GolangKind: reflect.Map},
-			"string":  {RelationalType: "text", GolangKind: reflect.String},
-		},
-		defaultRelationalType: "text",
-		defaultGolangKind:     reflect.String,
-		defaultGolangValue:    sql.NullString{}, // string is default
-		namespaceCollection:   namespaceCollection,
-		controlAttributes:     controlAttributes,
-		sqlEngine:             sqlDialect.GetSQLEngine(),
-		sqlDialect:            sqlDialect,
+		namespaceCollection: namespaceCollection,
+		controlAttributes:   controlAttributes,
+		sqlEngine:           sqlDialect.GetSQLEngine(),
+		sqlDialect:          sqlDialect,
 	}
 	return rv, nil
 }

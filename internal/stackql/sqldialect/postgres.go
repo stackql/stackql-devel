@@ -3,6 +3,7 @@ package sqldialect
 import (
 	"database/sql"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/stackql/stackql/internal/stackql/astfuncrewrite"
@@ -17,6 +18,17 @@ import (
 
 func newPostgresDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter) (SQLDialect, error) {
 	rv := &postgresDialect{
+		defaultGolangKind:     reflect.String,
+		defaultRelationalType: "text",
+		typeMappings: map[string]dto.DRMCoupling{
+			"array":   {RelationalType: "text", GolangKind: reflect.Slice},
+			"boolean": {RelationalType: "boolean", GolangKind: reflect.Bool},
+			"int":     {RelationalType: "integer", GolangKind: reflect.Int},
+			"integer": {RelationalType: "integer", GolangKind: reflect.Int},
+			"object":  {RelationalType: "text", GolangKind: reflect.Map},
+			"string":  {RelationalType: "text", GolangKind: reflect.String},
+			"number":  {RelationalType: "numeric", GolangKind: reflect.Float64},
+		},
 		controlAttributes: controlAttributes,
 		namespaces:        namespaces,
 		sqlEngine:         sqlEngine,
@@ -27,10 +39,13 @@ func newPostgresDialect(sqlEngine sqlengine.SQLEngine, namespaces tablenamespace
 }
 
 type postgresDialect struct {
-	controlAttributes sqlcontrol.ControlAttributes
-	namespaces        tablenamespace.TableNamespaceCollection
-	sqlEngine         sqlengine.SQLEngine
-	formatter         sqlparser.NodeFormatter
+	controlAttributes     sqlcontrol.ControlAttributes
+	namespaces            tablenamespace.TableNamespaceCollection
+	sqlEngine             sqlengine.SQLEngine
+	formatter             sqlparser.NodeFormatter
+	typeMappings          map[string]dto.DRMCoupling
+	defaultRelationalType string
+	defaultGolangKind     reflect.Kind
 }
 
 func (eng *postgresDialect) initSQLiteEngine() error {
@@ -518,4 +533,62 @@ func (sl *postgresDialect) readExecGeneratedQueries(queryResultSet *sql.Rows) er
 	}
 	err := sl.sqlEngine.ExecInTxn(queries)
 	return err
+}
+
+func (eng *postgresDialect) zz(tableName string, tcc dto.TxnControlCounters) string {
+	return eng.getGCHousekeepingQuery(tableName, tcc)
+}
+
+func (eng *postgresDialect) GetRelationalType(discoType string) string {
+	return eng.getRelationalType(discoType)
+}
+
+func (eng *postgresDialect) getRelationalType(discoType string) string {
+	rv, ok := eng.typeMappings[discoType]
+	if ok {
+		return rv.RelationalType
+	}
+	return eng.defaultRelationalType
+}
+
+func (eng *postgresDialect) GetGolangValue(discoType string) interface{} {
+	return eng.getGolangValue(discoType)
+}
+
+func (eng *postgresDialect) getGolangValue(discoType string) interface{} {
+	rv, ok := eng.typeMappings[discoType]
+	if !ok {
+		return eng.getDefaultGolangValue()
+	}
+	switch rv.GolangKind {
+	case reflect.String:
+		return &sql.NullString{}
+	case reflect.Array:
+		return &sql.NullString{}
+	case reflect.Bool:
+		return &sql.NullBool{}
+	case reflect.Map:
+		return &sql.NullString{}
+	case reflect.Int:
+		return &sql.NullInt64{}
+	case reflect.Float64:
+		return &sql.NullFloat64{}
+	}
+	return eng.getDefaultGolangValue()
+}
+
+func (eng *postgresDialect) getDefaultGolangValue() interface{} {
+	return &sql.NullString{}
+}
+
+func (eng *postgresDialect) GetGolangKind(discoType string) reflect.Kind {
+	rv, ok := eng.typeMappings[discoType]
+	if !ok {
+		return eng.getDefaultGolangKind()
+	}
+	return rv.GolangKind
+}
+
+func (eng *postgresDialect) getDefaultGolangKind() reflect.Kind {
+	return eng.defaultGolangKind
 }
