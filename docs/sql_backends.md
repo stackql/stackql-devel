@@ -89,19 +89,17 @@ Failing tests checklist:
 - [ ] AWS IAM Users Select Simple                                           
 - [ ] AWS S3 Objects Select Simple                                          
 - [ ] AWS Cloud Control Operations Select Simple                            
-- [ ] GitHub Scim Users Select                                              
 - [ ] GitHub SAML Identities Select GraphQL                                 
 - [ ] GitHub Analytics Simple Select Repositories Collaborators             
 - [ ] GitHub Analytics Transparent Select Repositories Collaborators        
 - [ ] GitHub Repository With Functions Select                               
 - [ ] Join GCP Okta Cross Provider JSON Dependent Keyword in Table Name     
 - [ ] K8S Nodes Select Leveraging JSON Path                                 
-- [ ] Google Compute Instance IAM Policy Select                             
 - [ ] Data Flow Sequential Join Select With Functions Github                
 - [ ] Functional.Stackql Mocked From Cmd Line                               
 - [ ] PG Session Anayltics Cache Behaviour Canonical                        
 - [ ] PG Session Postgres Client Typed Queries                              
-- [ ] PG Session Postgres Client V2 Typed Queries
+- [ ] PG Session Postgres Client V2 Typed Queries                           
 
 Some debugging:
 
