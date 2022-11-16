@@ -3,6 +3,7 @@ package bundle
 import (
 	"github.com/stackql/stackql/internal/stackql/garbagecollector"
 	"github.com/stackql/stackql/internal/stackql/kstore"
+	"github.com/stackql/stackql/internal/stackql/pginternal"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
@@ -15,6 +16,7 @@ type Bundle interface {
 	GetControlAttributes() sqlcontrol.ControlAttributes
 	GetGC() garbagecollector.GarbageCollector
 	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
+	GetPGInternalRouter() pginternal.PGInternalRouter
 	GetSQLDialect() sqldialect.SQLDialect
 	GetSQLEngine() sqlengine.SQLEngine
 	GetTxnCounterManager() txncounter.TxnCounterManager
@@ -26,6 +28,7 @@ func NewBundle(
 	namespaces tablenamespace.TableNamespaceCollection,
 	sqlEngine sqlengine.SQLEngine,
 	sqlDialect sqldialect.SQLDialect,
+	pgInternalRouter pginternal.PGInternalRouter,
 	controlAttributes sqlcontrol.ControlAttributes,
 	txnStore kstore.KStore,
 	txnCtrMgr txncounter.TxnCounterManager,
@@ -39,6 +42,7 @@ func NewBundle(
 		txnStore:          txnStore,
 		txnCtrMgr:         txnCtrMgr,
 		formatter:         sqlDialect.GetASTFormatter(),
+		pgInternalRouter:  pgInternalRouter,
 	}
 }
 
@@ -51,10 +55,15 @@ type simpleBundle struct {
 	txnStore          kstore.KStore
 	txnCtrMgr         txncounter.TxnCounterManager
 	formatter         sqlparser.NodeFormatter
+	pgInternalRouter  pginternal.PGInternalRouter
 }
 
 func (sb *simpleBundle) GetControlAttributes() sqlcontrol.ControlAttributes {
 	return sb.controlAttributes
+}
+
+func (sb *simpleBundle) GetPGInternalRouter() pginternal.PGInternalRouter {
+	return sb.pgInternalRouter
 }
 
 func (sb *simpleBundle) GetASTFormatter() sqlparser.NodeFormatter {

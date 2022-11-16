@@ -15,6 +15,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/garbagecollector"
 	"github.com/stackql/stackql/internal/stackql/kstore"
 	"github.com/stackql/stackql/internal/stackql/netutils"
+	"github.com/stackql/stackql/internal/stackql/pginternal"
 	"github.com/stackql/stackql/internal/stackql/provider"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqldialect"
@@ -48,6 +49,7 @@ type HandlerContext struct {
 	TxnStore            kstore.KStore
 	namespaceCollection tablenamespace.TableNamespaceCollection
 	formatter           sqlparser.NodeFormatter
+	pgInternalRouter    pginternal.PGInternalRouter
 }
 
 func getProviderMap(providerName string, providerDesc openapistackql.ProviderDescription) map[string]interface{} {
@@ -155,6 +157,10 @@ func (hc *HandlerContext) GetNamespaceCollection() tablenamespace.TableNamespace
 	return hc.namespaceCollection
 }
 
+func (hc *HandlerContext) GetPGInternalRouter() pginternal.PGInternalRouter {
+	return hc.pgInternalRouter
+}
+
 func GetRegistry(runtimeCtx dto.RuntimeCtx) (openapistackql.RegistryAPI, error) {
 	return getRegistry(runtimeCtx)
 }
@@ -222,6 +228,7 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 		TxnStore:            inputBundle.GetTxnStore(),
 		namespaceCollection: inputBundle.GetNamespaceCollection(),
 		formatter:           inputBundle.GetSQLDialect().GetASTFormatter(),
+		pgInternalRouter:    inputBundle.GetPGInternalRouter(),
 	}
 	drmCfg, err := drm.GetDRMConfig(inputBundle.GetSQLDialect(), rv.namespaceCollection, controlAttributes)
 	if err != nil {

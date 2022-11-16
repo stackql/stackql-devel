@@ -15,6 +15,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/iqlerror"
 	"github.com/stackql/stackql/internal/stackql/kstore"
+	"github.com/stackql/stackql/internal/stackql/pginternal"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
@@ -52,6 +53,11 @@ func BuildInputBundle(runtimeCtx dto.RuntimeCtx) (bundle.Bundle, error) {
 	if err != nil {
 		return nil, err
 	}
+	pgInternalCfg, err := dto.GetPGInternalCfg(runtimeCtx.DBInternalCfgRaw)
+	if err != nil {
+		return nil, err
+	}
+	pgInternal, err := pginternal.GetPGInternalRouter(pgInternalCfg, dialect)
 	namespaces, err = namespaces.WithSQLDialect(dialect)
 	if err != nil {
 		return nil, err
@@ -69,7 +75,7 @@ func BuildInputBundle(runtimeCtx dto.RuntimeCtx) (bundle.Bundle, error) {
 	if err != nil {
 		return nil, err
 	}
-	return bundle.NewBundle(gc, namespaces, se, dialect, controlAttributes, txnStore, txnCtrMgr), nil
+	return bundle.NewBundle(gc, namespaces, se, dialect, pgInternal, controlAttributes, txnStore, txnCtrMgr), nil
 }
 
 func initNamespaces(namespaceCfgRaw string, sqlEngine sqlengine.SQLEngine) (tablenamespace.TableNamespaceCollection, error) {
