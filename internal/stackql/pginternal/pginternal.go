@@ -13,7 +13,7 @@ import (
 var (
 	_                        PGInternalRouter = &standardPGInternalRouter{}
 	multipleWhitespaceRegexp *regexp.Regexp   = regexp.MustCompile(`\s+`)
-	internalTableRegexp      *regexp.Regexp   = regexp.MustCompile(`(?i)^(?:public\.)?(?:pg_type|pg_catalog.*|current_schema)`)
+	internalTableRegexp      *regexp.Regexp   = regexp.MustCompile(`(?i)^(?:public\.)?(?:pg_type|pg_namespace|pg_catalog.*|current_schema)`)
 	showHousekeepingRegexp   *regexp.Regexp   = regexp.MustCompile(`(?i)(?:\s+transaction\s+isolation\s+level|standard_conforming_strings)`)
 )
 
