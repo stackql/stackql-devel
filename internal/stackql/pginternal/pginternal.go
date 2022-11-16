@@ -11,10 +11,10 @@ import (
 )
 
 var (
-	_                           PGInternalRouter = &standardPGInternalRouter{}
-	multipleWhitespaceRegexp    *regexp.Regexp   = regexp.MustCompile(`\s+`)
-	internalTableRegexp         *regexp.Regexp   = regexp.MustCompile(`(?i)^(?:public\.)?(?:pg_type|pg_catalog.*|current_schema)`)
-	showTxnIsolationLevelRegexp *regexp.Regexp   = regexp.MustCompile(`(?i)show\s+transaction\s+isolation\s+level`)
+	_                        PGInternalRouter = &standardPGInternalRouter{}
+	multipleWhitespaceRegexp *regexp.Regexp   = regexp.MustCompile(`\s+`)
+	internalTableRegexp      *regexp.Regexp   = regexp.MustCompile(`(?i)^(?:public\.)?(?:pg_type|pg_catalog.*|current_schema)`)
+	showHousekeepingRegexp   *regexp.Regexp   = regexp.MustCompile(`(?i)(?:\s+transaction\s+isolation\s+level|standard_conforming_strings)`)
 )
 
 type PGInternalRouter interface {
@@ -64,8 +64,13 @@ func (pgr *standardPGInternalRouter) analyzeSelect(node *sqlparser.Select) (cons
 }
 
 func (pgr *standardPGInternalRouter) analyzeShow(node *sqlparser.Show) (constants.BackendQueryType, bool) {
+	if node.Type != "" && showHousekeepingRegexp.MatchString(node.Type) {
+		return constants.BackendQuery, true
+	}
 	if pgr.analyzeTableName(node.OnTable) {
-		return constants.BackendQuery, pgr.analyzeTableName(node.OnTable)
+		if pgr.analyzeTableName(node.OnTable) {
+			return constants.BackendQuery, true
+		}
 	}
 	return pgr.negative()
 }
