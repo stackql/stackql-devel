@@ -925,7 +925,7 @@ func BuildPlanFromContext(handlerCtx *handler.HandlerContext) (*plan.Plan, error
 	pGBuilder := newPlanGraphBuilder(handlerCtx.RuntimeContext.ExecutionConcurrencyLimit)
 
 	// Before analysing AST, see if we can pass stright to SQL backend
-	opType, ok := handlerCtx.GetPGInternalRouter().CanRoute(result.AST)
+	opType, ok := handlerCtx.GetDBMSInternalRouter().CanRoute(result.AST)
 	if ok {
 		logging.GetLogger().Debugf("%v", opType)
 		pbi, err := NewPlanBuilderInput(handlerCtx, result.AST, nil, nil, nil, nil, nil, *tcc)

@@ -782,7 +782,7 @@ func (p *primitiveGenerator) analyzeSchemaVsMap(handlerCtx *handler.HandlerConte
 
 func isPGSetupQuery(pbi PlanBuilderInput) (nativedb.Select, bool) {
 	handlerCtx := pbi.GetHandlerCtx()
-	routeType, canRoute := handlerCtx.GetPGInternalRouter().CanRoute(pbi.GetStatement())
+	routeType, canRoute := handlerCtx.GetDBMSInternalRouter().CanRoute(pbi.GetStatement())
 	logging.GetLogger().Debugf("canRoute = %t, routeType = %v\n", canRoute, routeType)
 	qStripped := multipleWhitespaceRegexp.ReplaceAllString(pbi.GetRawQuery(), " ")
 	if qStripped == "select relname, nspname, relkind from pg_catalog.pg_class c, pg_catalog.pg_namespace n where relkind in ('r', 'v', 'm', 'f') and nspname not in ('pg_catalog', 'information_schema', 'pg_toast', 'pg_temp_1') and n.oid = relnamespace order by nspname, relname" {
@@ -823,7 +823,7 @@ func isPGSetupQuery(pbi PlanBuilderInput) (nativedb.Select, bool) {
 
 func (p *primitiveGenerator) analyzePGInternal(pbi PlanBuilderInput) error {
 	handlerCtx := pbi.GetHandlerCtx()
-	if backendQueryType, ok := handlerCtx.GetPGInternalRouter().CanRoute(pbi.GetStatement()); ok {
+	if backendQueryType, ok := handlerCtx.GetDBMSInternalRouter().CanRoute(pbi.GetStatement()); ok {
 		if backendQueryType == constants.BackendQuery {
 			bldr := primitivebuilder.NewRawNativeSelect(p.PrimitiveComposer.GetGraph(), handlerCtx, pbi.GetTxnCtrlCtrs(), pbi.GetRawQuery())
 			p.PrimitiveComposer.SetBuilder(bldr)

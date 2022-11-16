@@ -10,12 +10,12 @@ import (
 	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/go-openapistackql/pkg/nomenclature"
 	"github.com/stackql/stackql/internal/stackql/bundle"
+	"github.com/stackql/stackql/internal/stackql/dbmsinternal"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/garbagecollector"
 	"github.com/stackql/stackql/internal/stackql/kstore"
 	"github.com/stackql/stackql/internal/stackql/netutils"
-	"github.com/stackql/stackql/internal/stackql/pginternal"
 	"github.com/stackql/stackql/internal/stackql/provider"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqldialect"
@@ -49,7 +49,7 @@ type HandlerContext struct {
 	TxnStore            kstore.KStore
 	namespaceCollection tablenamespace.TableNamespaceCollection
 	formatter           sqlparser.NodeFormatter
-	pgInternalRouter    pginternal.PGInternalRouter
+	pgInternalRouter    dbmsinternal.DBMSInternalRouter
 }
 
 func getProviderMap(providerName string, providerDesc openapistackql.ProviderDescription) map[string]interface{} {
@@ -157,7 +157,7 @@ func (hc *HandlerContext) GetNamespaceCollection() tablenamespace.TableNamespace
 	return hc.namespaceCollection
 }
 
-func (hc *HandlerContext) GetPGInternalRouter() pginternal.PGInternalRouter {
+func (hc *HandlerContext) GetDBMSInternalRouter() dbmsinternal.DBMSInternalRouter {
 	return hc.pgInternalRouter
 }
 
@@ -228,7 +228,7 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 		TxnStore:            inputBundle.GetTxnStore(),
 		namespaceCollection: inputBundle.GetNamespaceCollection(),
 		formatter:           inputBundle.GetSQLDialect().GetASTFormatter(),
-		pgInternalRouter:    inputBundle.GetPGInternalRouter(),
+		pgInternalRouter:    inputBundle.GetDBMSInternalRouter(),
 	}
 	drmCfg, err := drm.GetDRMConfig(inputBundle.GetSQLDialect(), rv.namespaceCollection, controlAttributes)
 	if err != nil {

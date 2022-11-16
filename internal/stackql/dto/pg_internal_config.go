@@ -4,12 +4,13 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type PGInternalCfg struct {
-	IsEager bool `json:"isEager" yaml:"isEager"`
+type DBMSInternalCfg struct {
+	ShowRegex  string `json:"showRegex" yaml:"showRegex"`
+	TableRegex string `json:"tableRegex" yaml:"tableRegex"`
 }
 
-func GetPGInternalCfg(s string) (PGInternalCfg, error) {
-	rv := PGInternalCfg{}
+func GetDBMSInternalCfg(s string) (DBMSInternalCfg, error) {
+	rv := DBMSInternalCfg{}
 	err := yaml.Unmarshal([]byte(s), &rv)
 	return rv, err
 }

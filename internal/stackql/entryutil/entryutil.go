@@ -9,13 +9,13 @@ import (
 	"strings"
 
 	"github.com/stackql/stackql/internal/stackql/bundle"
+	"github.com/stackql/stackql/internal/stackql/dbmsinternal"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/garbagecollector"
 	"github.com/stackql/stackql/internal/stackql/gcexec"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/iqlerror"
 	"github.com/stackql/stackql/internal/stackql/kstore"
-	"github.com/stackql/stackql/internal/stackql/pginternal"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
@@ -53,11 +53,11 @@ func BuildInputBundle(runtimeCtx dto.RuntimeCtx) (bundle.Bundle, error) {
 	if err != nil {
 		return nil, err
 	}
-	pgInternalCfg, err := dto.GetPGInternalCfg(runtimeCtx.DBInternalCfgRaw)
+	pgInternalCfg, err := dto.GetDBMSInternalCfg(runtimeCtx.DBInternalCfgRaw)
 	if err != nil {
 		return nil, err
 	}
-	pgInternal, err := pginternal.GetPGInternalRouter(pgInternalCfg, dialect)
+	pgInternal, err := dbmsinternal.GetDBMSInternalRouter(pgInternalCfg, dialect)
 	namespaces, err = namespaces.WithSQLDialect(dialect)
 	if err != nil {
 		return nil, err
