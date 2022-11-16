@@ -1,6 +1,6 @@
 import sqlalchemy
 
-eng = sqlalchemy.create_engine('postgresql://stackql:stackql@127.0.0.1:5888/stackql')
+eng = sqlalchemy.create_engine('postgresql://stackql:stackql@127.0.0.1:5474/stackql')
 
 ## this is the sticking point for now
 conn = eng.raw_connection()
