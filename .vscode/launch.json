@@ -92,7 +92,7 @@
       "default": "{}",
       "options": [
         "{}",
-        "{ \"tableRegex\": \"(?i)^(?:public\\\\.)?(?:pg_.*|current_schema)\" }"
+        "{ \"tableRegex\": \"(?i)^(?:public\\\\.)?(?:pg_.*|current_schema|information_schema)\" }"
       ]
     }
     // dbInternalString
