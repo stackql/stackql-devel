@@ -10,24 +10,24 @@ CREATE user stackql_ops with password 'stackql';
 
 GRANT ALL PRIVILEGES on DATABASE stackql to stackql;
 
-\connect stackql;
+-- \connect stackql;
 
-CREATE schema stackql;
+-- CREATE schema stackql;
 
-CREATE schema stackql_control;
+-- CREATE schema stackql_control;
 
-CREATE schema stackql_intel;
+-- CREATE schema stackql_intel;
 
-CREATE schema stackql_ops;
+-- CREATE schema stackql_ops;
 
-GRANT ALL PRIVILEGES on SCHEMA stackql to stackql;
+-- GRANT ALL PRIVILEGES on SCHEMA stackql to stackql;
 
-GRANT ALL PRIVILEGES on SCHEMA stackql_control to stackql;
+-- GRANT ALL PRIVILEGES on SCHEMA stackql_control to stackql;
 
-GRANT ALL PRIVILEGES on SCHEMA stackql_intel to stackql;
+-- GRANT ALL PRIVILEGES on SCHEMA stackql_intel to stackql;
 
-GRANT ALL PRIVILEGES on SCHEMA stackql_ops to stackql;
+-- GRANT ALL PRIVILEGES on SCHEMA stackql_ops to stackql;
 
-GRANT ALL PRIVILEGES on SCHEMA stackql_intel to stackql_intel;
+-- GRANT ALL PRIVILEGES on SCHEMA stackql_intel to stackql_intel;
 
-GRANT ALL PRIVILEGES on SCHEMA stackql_ops to stackql_ops;
+-- GRANT ALL PRIVILEGES on SCHEMA stackql_ops to stackql_ops;
