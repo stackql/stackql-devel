@@ -12,7 +12,7 @@ GRANT ALL PRIVILEGES on DATABASE stackql to stackql;
 
 \connect stackql;
 
-CREATE schema stackql;
+CREATE schema stackql_raw;
 
 CREATE schema stackql_control;
 
@@ -20,7 +20,7 @@ CREATE schema stackql_intel;
 
 CREATE schema stackql_ops;
 
-GRANT ALL PRIVILEGES on SCHEMA stackql to stackql;
+GRANT ALL PRIVILEGES on SCHEMA stackql_raw to stackql;
 
 GRANT ALL PRIVILEGES on SCHEMA stackql_control to stackql;
 
