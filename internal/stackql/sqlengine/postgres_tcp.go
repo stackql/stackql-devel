@@ -72,7 +72,7 @@ func newPostgresTcpEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.Co
 	pingErr := db.Ping()
 	retryCount = 0
 	for {
-		if retryCount >= cfg.InitMaxRetries || err == nil {
+		if retryCount >= cfg.InitMaxRetries || pingErr == nil {
 			break
 		}
 		time.Sleep(time.Duration(cfg.InitRetryInitialDelay) * time.Second)
