@@ -16,6 +16,10 @@ import (
 )
 
 func newPostgresDialect(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString string, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter, sqlCfg dto.SQLBackendCfg) (SQLDialect, error) {
+	catalogName, err := sqlCfg.GetDatabaseName()
+	if err != nil {
+		return nil, err
+	}
 	rv := &postgresDialect{
 		defaultGolangKind:     reflect.String,
 		defaultRelationalType: "text",
@@ -33,8 +37,9 @@ func newPostgresDialect(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeStr
 		sqlEngine:                    sqlEngine,
 		formatter:                    formatter,
 		tableSchema:                  "public",
+		tableCatalog:                 catalogName,
 	}
-	err := rv.initPostgresEngine()
+	err = rv.initPostgresEngine()
 	return rv, err
 }
 
