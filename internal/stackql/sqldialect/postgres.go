@@ -15,7 +15,7 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-func newPostgresDialect(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString string, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter) (SQLDialect, error) {
+func newPostgresDialect(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString string, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter, sqlCfg dto.SQLBackendCfg) (SQLDialect, error) {
 	rv := &postgresDialect{
 		defaultGolangKind:     reflect.String,
 		defaultRelationalType: "text",
@@ -45,6 +45,8 @@ type postgresDialect struct {
 	typeMappings                 map[string]dto.DRMCoupling
 	defaultRelationalType        string
 	defaultGolangKind            reflect.Kind
+	tableSchema                  string
+	tableCatalog                 string
 }
 
 func (eng *postgresDialect) initPostgresEngine() error {
@@ -54,6 +56,14 @@ func (eng *postgresDialect) initPostgresEngine() error {
 
 func (eng *postgresDialect) generateDropTableStatement(relationalTable relationaldto.RelationalTable) string {
 	return fmt.Sprintf(`drop table if exists "%s"`, relationalTable.GetName())
+}
+
+func (eng *postgresDialect) GetFullyQualifiedTableName(unqualifiedTableName string) (string, error) {
+	return eng.getFullyQualifiedTableName(unqualifiedTableName)
+}
+
+func (eng *postgresDialect) getFullyQualifiedTableName(unqualifiedTableName string) (string, error) {
+	return fmt.Sprintf(`"%s"."%s"`, eng.tableSchema, unqualifiedTableName), nil
 }
 
 func (sl *postgresDialect) GetASTFormatter() sqlparser.NodeFormatter {
@@ -97,7 +107,7 @@ func (eng *postgresDialect) generateDDL(relationalTable relationaldto.Relational
 	}
 	var rv strings.Builder
 	tableName := relationalTable.GetName()
-	rv.WriteString(fmt.Sprintf(`create table if not exists "%s" ( `, tableName))
+	rv.WriteString(fmt.Sprintf(`create table if not exists "%s"."%s" ( `, eng.tableSchema, tableName))
 	colDefs = append(colDefs, fmt.Sprintf(`"iql_%s_id" BIGSERIAL PRIMARY KEY`, tableName))
 	genIdColName := eng.controlAttributes.GetControlGenIdColumnName()
 	sessionIdColName := eng.controlAttributes.GetControlSsnIdColumnName()
@@ -230,7 +240,7 @@ func (eng *postgresDialect) GenerateInsertDML(relationalTable relationaldto.Rela
 func (eng *postgresDialect) generateInsertDML(relationalTable relationaldto.RelationalTable, tcc *dto.TxnControlCounters) (string, error) {
 	var q strings.Builder
 	var quotedColNames, vals []string
-	q.WriteString(fmt.Sprintf(`INSERT INTO "%s" `, relationalTable.GetName()))
+	q.WriteString(fmt.Sprintf(`INSERT INTO "%s"."%s" `, eng.tableSchema, relationalTable.GetName()))
 	genIdColName := eng.controlAttributes.GetControlGenIdColumnName()
 	sessionIdColName := eng.controlAttributes.GetControlSsnIdColumnName()
 	txnIdColName := eng.controlAttributes.GetControlTxnIdColumnName()
@@ -289,7 +299,7 @@ func (eng *postgresDialect) generateSelectDML(relationalTable relationaldto.Rela
 	if relationalTable.GetAlias() != "" {
 		aliasStr = fmt.Sprintf(` AS "%s" `, relationalTable.GetAlias())
 	}
-	q.WriteString(fmt.Sprintf(`SELECT %s FROM "%s" %s WHERE `, strings.Join(quotedColNames, ", "), relationalTable.GetName(), aliasStr))
+	q.WriteString(fmt.Sprintf(`SELECT %s FROM "%s"."%s" %s WHERE `, strings.Join(quotedColNames, ", "), eng.tableCatalog, relationalTable.GetName(), aliasStr))
 	q.WriteString(fmt.Sprintf(`( "%s" = $1 AND "%s" = $2 AND "%s" = $3 AND "%s" = $4 ) `, genIdColName, sessionIDColName, txnIdColName, insIdColName))
 	if strings.TrimSpace(rewrittenWhere) != "" {
 		q.WriteString(fmt.Sprintf(" AND ( %s ) ", rewrittenWhere))
@@ -360,7 +370,7 @@ func (sl *postgresDialect) gCCollectObsoleted(minTransactionID int) error {
 		maxTxnColName,
 		minTransactionID,
 	)
-	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery, sl.sqlEngine.GetTableCatalog(), sl.sqlEngine.GetTableSchema())
+	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery, sl.tableCatalog, sl.tableSchema)
 	if err != nil {
 		return err
 	}
@@ -394,7 +404,7 @@ func (sl *postgresDialect) gCCollectAll() error {
 		  and
 			table_name not like '__iql__%%'
 		`
-	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery, sl.sqlEngine.GetTableCatalog(), sl.sqlEngine.GetTableSchema())
+	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery, sl.tableCatalog, sl.tableSchema)
 	if err != nil {
 		return err
 	}
@@ -420,7 +430,7 @@ func (sl *postgresDialect) gcControlTablesPurge() error {
 		  and
 			table_name like '__iql__%%'
 		`
-	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery, sl.sqlEngine.GetTableCatalog(), sl.sqlEngine.GetTableSchema())
+	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery, sl.tableCatalog, sl.tableSchema)
 	if err != nil {
 		return err
 	}
@@ -454,7 +464,7 @@ func (sl *postgresDialect) gcPurgeCache() error {
 		and 
 		table_name like $3
 	`
-	rows, err := sl.sqlEngine.Query(query, sl.sqlEngine.GetTableCatalog(), sl.sqlEngine.GetTableSchema(), sl.analyticsNamespaceLikeString)
+	rows, err := sl.sqlEngine.Query(query, sl.tableCatalog, sl.tableSchema, sl.analyticsNamespaceLikeString)
 	if err != nil {
 		return err
 	}
@@ -478,7 +488,7 @@ func (sl *postgresDialect) gcPurgeEphemeral() error {
 		and 
 		table_name not like '__iql__%' 
 	`
-	rows, err := sl.sqlEngine.Query(query, sl.sqlEngine.GetTableCatalog(), sl.sqlEngine.GetTableSchema(), sl.analyticsNamespaceLikeString)
+	rows, err := sl.sqlEngine.Query(query, sl.tableCatalog, sl.tableSchema, sl.analyticsNamespaceLikeString)
 	if err != nil {
 		return err
 	}
@@ -508,7 +518,7 @@ func (sl *postgresDialect) purgeAll() error {
 		  AND
 			table_name NOT LIKE '__iql__%'
 		`
-	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery, sl.sqlEngine.GetTableCatalog(), sl.sqlEngine.GetTableSchema())
+	deleteQueryResultSet, err := sl.sqlEngine.Query(obtainQuery, sl.tableCatalog, sl.tableSchema)
 	if err != nil {
 		return err
 	}

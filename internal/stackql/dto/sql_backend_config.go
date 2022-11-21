@@ -1,7 +1,11 @@
 package dto
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/stackql/stackql/internal/stackql/constants"
+	"github.com/xo/dburl"
 	"gopkg.in/yaml.v2"
 )
 
@@ -12,6 +16,20 @@ type SQLBackendCfg struct {
 	SQLDialect            string `json:"sqlDialect" yaml:"sqlDialect"`
 	InitMaxRetries        int    `json:"initMaxRetries" yaml:"initMaxRetries"`
 	InitRetryInitialDelay int    `json:"initRetryInitialDelay" yaml:"initRetryInitialDelay"`
+}
+
+func (sqlCfg SQLBackendCfg) GetDatabaseName() (string, error) {
+	if sqlCfg.DSN == "" {
+		return "", fmt.Errorf("GetDatabaseName() cannot accomodate empty DSN")
+	}
+	dbUrl, err := dburl.Parse(sqlCfg.DSN)
+	if err != nil {
+		return "", fmt.Errorf("error parsing postgres dsn: %s", err.Error())
+	}
+	if dbUrl == nil {
+		return "", fmt.Errorf("error parsing postgres dsn, nil url generated")
+	}
+	return strings.TrimLeft(dbUrl.Path, "/"), nil
 }
 
 func GetSQLBackendCfg(s string) (SQLBackendCfg, error) {
