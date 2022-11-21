@@ -32,6 +32,7 @@ func newPostgresDialect(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeStr
 		analyticsNamespaceLikeString: analyticsNamespaceLikeString,
 		sqlEngine:                    sqlEngine,
 		formatter:                    formatter,
+		tableSchema:                  "public",
 	}
 	err := rv.initPostgresEngine()
 	return rv, err
