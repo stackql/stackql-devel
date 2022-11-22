@@ -15,6 +15,7 @@ var (
 	internalTableRegexp    *regexp.Regexp     = regexp.MustCompile(`(?i)^(?:public\.)?(?:pg_type|pg_namespace|pg_catalog.*|current_schema)`)
 	showHousekeepingRegexp *regexp.Regexp     = regexp.MustCompile(`(?i)(?:\s+transaction\s+isolation\s+level|standard_conforming_strings)`)
 	funcNameRegexp         *regexp.Regexp     = regexp.MustCompile(`(?i)(?:pg_.*)`)
+	internalSchemaRegexp   *regexp.Regexp     = regexp.MustCompile(`(?i)^(?:stackql_intel|stackql_history)`)
 )
 
 type DBMSInternalRouter interface {
@@ -25,6 +26,7 @@ func GetDBMSInternalRouter(cfg dto.DBMSInternalCfg, sqlDialect sqldialect.SQLDia
 	showRegexp := showHousekeepingRegexp
 	tableRegexp := internalTableRegexp
 	funcRegexp := funcNameRegexp
+	schemaRegexp := internalSchemaRegexp
 	var err error
 	if cfg.ShowRegex != "" {
 		showRegexp, err = regexp.Compile(cfg.ShowRegex)
@@ -34,6 +36,12 @@ func GetDBMSInternalRouter(cfg dto.DBMSInternalCfg, sqlDialect sqldialect.SQLDia
 	}
 	if cfg.TableRegex != "" {
 		tableRegexp, err = regexp.Compile(cfg.TableRegex)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if cfg.SchemaRegex != "" {
+		schemaRegexp, err = regexp.Compile(cfg.SchemaRegex)
 		if err != nil {
 			return nil, err
 		}
@@ -50,6 +58,7 @@ func GetDBMSInternalRouter(cfg dto.DBMSInternalCfg, sqlDialect sqldialect.SQLDia
 		showRegexp:     showRegexp,
 		tableRegexp:    tableRegexp,
 		funcNameRegexp: funcRegexp,
+		schemaRegexp:   schemaRegexp,
 	}, nil
 }
 
@@ -57,6 +66,7 @@ type standardDBMSInternalRouter struct {
 	cfg            dto.DBMSInternalCfg
 	sqlDialect     sqldialect.SQLDialect
 	showRegexp     *regexp.Regexp
+	schemaRegexp   *regexp.Regexp
 	tableRegexp    *regexp.Regexp
 	funcNameRegexp *regexp.Regexp
 }
@@ -152,6 +162,16 @@ func (pgr *standardDBMSInternalRouter) analyzeTableExpr(node sqlparser.TableExpr
 }
 
 func (pgr *standardDBMSInternalRouter) analyzeTableName(node sqlparser.TableName) bool {
+	if node.QualifierSecond.GetRawVal() == "" && node.QualifierThird.GetRawVal() == "" && node.Qualifier.GetRawVal() != "" {
+		if pgr.analyzeTableIdentForSchema(node.Qualifier) {
+			return true
+		}
+	}
 	rawName := node.GetRawVal()
 	return pgr.tableRegexp.MatchString(rawName)
+}
+
+func (pgr *standardDBMSInternalRouter) analyzeTableIdentForSchema(node sqlparser.TableIdent) bool {
+	rawName := node.GetRawVal()
+	return pgr.schemaRegexp.MatchString(rawName)
 }
