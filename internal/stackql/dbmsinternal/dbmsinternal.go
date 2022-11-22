@@ -60,9 +60,11 @@ func (pgr *standardDBMSInternalRouter) CanRoute(node sqlparser.SQLNode) (constan
 		logging.GetLogger().Debugf("node = %v\n", node)
 		return pgr.analyzeSelect(node)
 	case *sqlparser.Set:
-		return constants.BackendExec, true
+		return pgr.affirmativeExec()
 	case *sqlparser.Show:
 		return pgr.analyzeShow(node)
+	case *sqlparser.Begin, *sqlparser.Commit, *sqlparser.Rollback:
+		return pgr.affirmativeExec()
 	}
 	return pgr.negative()
 }
@@ -71,23 +73,31 @@ func (pgr *standardDBMSInternalRouter) negative() (constants.BackendQueryType, b
 	return constants.BackendNop, false
 }
 
+func (pgr *standardDBMSInternalRouter) affirmativeQuery() (constants.BackendQueryType, bool) {
+	return constants.BackendQuery, true
+}
+
+func (pgr *standardDBMSInternalRouter) affirmativeExec() (constants.BackendQueryType, bool) {
+	return constants.BackendExec, true
+}
+
 func (pgr *standardDBMSInternalRouter) analyzeSelect(node *sqlparser.Select) (constants.BackendQueryType, bool) {
 	if len(node.From) < 1 {
 		return pgr.negative()
 	}
 	if pgr.analyzeTableExpr(node.From[0]) {
-		return constants.BackendQuery, true
+		return pgr.affirmativeQuery()
 	}
 	return pgr.negative()
 }
 
 func (pgr *standardDBMSInternalRouter) analyzeShow(node *sqlparser.Show) (constants.BackendQueryType, bool) {
 	if node.Type != "" && pgr.showRegexp.MatchString(node.Type) {
-		return constants.BackendQuery, true
+		return pgr.affirmativeQuery()
 	}
 	if pgr.analyzeTableName(node.OnTable) {
 		if pgr.analyzeTableName(node.OnTable) {
-			return constants.BackendQuery, true
+			return pgr.affirmativeQuery()
 		}
 	}
 	return pgr.negative()

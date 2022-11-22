@@ -39,8 +39,28 @@ func newPostgresDialect(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeStr
 		tableSchema:                  "public",
 		tableCatalog:                 catalogName,
 	}
+	viewSchemataEnabled, err := rv.inferViewSchemataEnabled(sqlCfg.Schemata)
+	if err != nil {
+		return nil, err
+	}
+	if viewSchemataEnabled {
+		rv.viewSchemataEnabled = viewSchemataEnabled
+		rv.tableSchema = sqlCfg.GetTableSchemaName()
+		rv.opsViewSchema = sqlCfg.GetOpsViewSchemaName()
+		rv.intelViewSchema = sqlCfg.GetIntelViewSchemaName()
+	}
 	err = rv.initPostgresEngine()
-	return rv, err
+	if err != nil {
+		return nil, err
+	}
+	return rv, nil
+}
+
+func (eng *postgresDialect) inferViewSchemataEnabled(schemataCfg dto.SQLBackendSchemata) (bool, error) {
+	if schemataCfg.TableSchema == "" || schemataCfg.OpsViewSchema == "" || schemataCfg.IntelViewSchema == "" {
+		return false, nil
+	}
+	return true, nil
 }
 
 type postgresDialect struct {
@@ -52,6 +72,9 @@ type postgresDialect struct {
 	defaultRelationalType        string
 	defaultGolangKind            reflect.Kind
 	tableSchema                  string
+	viewSchemataEnabled          bool
+	opsViewSchema                string
+	intelViewSchema              string
 	tableCatalog                 string
 }
 
