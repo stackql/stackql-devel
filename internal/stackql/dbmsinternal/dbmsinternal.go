@@ -14,6 +14,7 @@ var (
 	_                      DBMSInternalRouter = &standardDBMSInternalRouter{}
 	internalTableRegexp    *regexp.Regexp     = regexp.MustCompile(`(?i)^(?:public\.)?(?:pg_type|pg_namespace|pg_catalog.*|current_schema)`)
 	showHousekeepingRegexp *regexp.Regexp     = regexp.MustCompile(`(?i)(?:\s+transaction\s+isolation\s+level|standard_conforming_strings)`)
+	funcNameRegexp         *regexp.Regexp     = regexp.MustCompile(`(?i)(?:pg_.*)`)
 )
 
 type DBMSInternalRouter interface {
@@ -23,6 +24,7 @@ type DBMSInternalRouter interface {
 func GetDBMSInternalRouter(cfg dto.DBMSInternalCfg, sqlDialect sqldialect.SQLDialect) (DBMSInternalRouter, error) {
 	showRegexp := showHousekeepingRegexp
 	tableRegexp := internalTableRegexp
+	funcRegexp := funcNameRegexp
 	var err error
 	if cfg.ShowRegex != "" {
 		showRegexp, err = regexp.Compile(cfg.ShowRegex)
@@ -36,19 +38,27 @@ func GetDBMSInternalRouter(cfg dto.DBMSInternalCfg, sqlDialect sqldialect.SQLDia
 			return nil, err
 		}
 	}
+	if cfg.FuncRegex != "" {
+		funcRegexp, err = regexp.Compile(cfg.FuncRegex)
+		if err != nil {
+			return nil, err
+		}
+	}
 	return &standardDBMSInternalRouter{
-		cfg:         cfg,
-		sqlDialect:  sqlDialect,
-		showRegexp:  showRegexp,
-		tableRegexp: tableRegexp,
+		cfg:            cfg,
+		sqlDialect:     sqlDialect,
+		showRegexp:     showRegexp,
+		tableRegexp:    tableRegexp,
+		funcNameRegexp: funcRegexp,
 	}, nil
 }
 
 type standardDBMSInternalRouter struct {
-	cfg         dto.DBMSInternalCfg
-	sqlDialect  sqldialect.SQLDialect
-	showRegexp  *regexp.Regexp
-	tableRegexp *regexp.Regexp
+	cfg            dto.DBMSInternalCfg
+	sqlDialect     sqldialect.SQLDialect
+	showRegexp     *regexp.Regexp
+	tableRegexp    *regexp.Regexp
+	funcNameRegexp *regexp.Regexp
 }
 
 func (pgr *standardDBMSInternalRouter) CanRoute(node sqlparser.SQLNode) (constants.BackendQueryType, bool) {
@@ -81,7 +91,25 @@ func (pgr *standardDBMSInternalRouter) affirmativeExec() (constants.BackendQuery
 	return constants.BackendExec, true
 }
 
+func (pgr *standardDBMSInternalRouter) analyzeSelectExprs(selectExprs sqlparser.SelectExprs) bool {
+	for _, n := range selectExprs {
+		switch n := n.(type) {
+		case *sqlparser.AliasedExpr:
+			switch et := n.Expr.(type) {
+			case *sqlparser.FuncExpr:
+				if pgr.funcNameRegexp.MatchString(et.Name.GetRawVal()) {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
 func (pgr *standardDBMSInternalRouter) analyzeSelect(node *sqlparser.Select) (constants.BackendQueryType, bool) {
+	if pgr.analyzeSelectExprs(node.SelectExprs) {
+		return pgr.affirmativeQuery()
+	}
 	if len(node.From) < 1 {
 		return pgr.negative()
 	}
