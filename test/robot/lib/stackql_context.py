@@ -735,6 +735,7 @@ def get_variables(execution_env :str, sql_backend_str :str):
     'SELECT_OKTA_APPS_ASC_EXPECTED':                                        SELECT_OKTA_APPS_ASC_EXPECTED,
     'SELECT_OKTA_USERS_ASC':                                                SELECT_OKTA_USERS_ASC,
     'SELECT_OKTA_USERS_ASC_EXPECTED':                                       SELECT_OKTA_USERS_ASC_EXPECTED,
+    'SELECT_POSTGRES_BACKEND_PID_ARR':                                      [ 'SELECT pg_backend_pid();' ],
     'SELECT_POSTGRES_CATALOG_JOIN_ARR':                                     [ SELECT_POSTGRES_CATALOG_JOIN ],
     'SELECT_POSTGRES_CATALOG_JOIN_TUPLE_EXPECTED':                          SELECT_POSTGRES_CATALOG_JOIN_TUPLE_EXPECTED,
     'SHELL_COMMANDS_AZURE_COMPUTE_MUTATION_GUARD':                          [ SELECT_AZURE_COMPUTE_VIRTUAL_MACHINES, SELECT_AZURE_COMPUTE_PUBLIC_KEYS ],
