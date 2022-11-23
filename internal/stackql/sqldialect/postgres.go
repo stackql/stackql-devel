@@ -180,10 +180,10 @@ func (eng *postgresDialect) generateDDL(relationalTable relationaldto.Relational
 	rv.WriteString(strings.Join(colDefs, " , "))
 	rv.WriteString(" ) ")
 	retVal = append(retVal, rv.String())
-	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), genIdColName, tableName, genIdColName))
-	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), sessionIdColName, tableName, sessionIdColName))
-	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), txnIdColName, tableName, txnIdColName))
-	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), insIdColName, tableName, insIdColName))
+	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s"."%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), genIdColName, eng.tableSchema, tableName, genIdColName))
+	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s"."%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), sessionIdColName, eng.tableSchema, tableName, sessionIdColName))
+	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s"."%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), txnIdColName, eng.tableSchema, tableName, txnIdColName))
+	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s"."%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), insIdColName, eng.tableSchema, tableName, insIdColName))
 	if eng.viewSchemataEnabled {
 		intelViewDDL, err := eng.generateViewDDL(eng.tableSchema, eng.intelViewSchema, relationalTable)
 		if err != nil {
