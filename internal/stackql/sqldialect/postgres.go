@@ -129,6 +129,22 @@ func (eng *postgresDialect) sanitizeWhereQueryString(queryString string) (string
 	), nil
 }
 
+func (eng *postgresDialect) generateViewDDL(srcSchemaName string, destSchemaName string, relationalTable relationaldto.RelationalTable) (string, error) {
+	var colNames []string
+	var createViewBuilder strings.Builder
+	createViewBuilder.WriteString(fmt.Sprintf(`create or replace view "%s"."%s" AS `, destSchemaName, relationalTable.GetBaseName()))
+	for _, col := range relationalTable.GetColumns() {
+		var b strings.Builder
+		colName := col.GetName()
+		b.WriteString(`"` + colName + `" `)
+		colNames = append(colNames, b.String())
+	}
+	createViewBuilder.WriteString(fmt.Sprintf(`select %s from "%s"."%s" `, strings.Join(colNames, ", "), srcSchemaName, relationalTable.GetName()))
+	createViewBuilder.WriteString(fmt.Sprintf(`where  ; `))
+	retVal := createViewBuilder.String()
+	return retVal, nil
+}
+
 func (eng *postgresDialect) generateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error) {
 	var colDefs, retVal []string
 	if dropTable {
@@ -169,6 +185,13 @@ func (eng *postgresDialect) generateDDL(relationalTable relationaldto.Relational
 	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), sessionIdColName, tableName, sessionIdColName))
 	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), txnIdColName, tableName, txnIdColName))
 	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), insIdColName, tableName, insIdColName))
+	if eng.viewSchemataEnabled {
+		intelViewDDL, err := eng.generateViewDDL(eng.tableSchema, eng.intelViewSchema, relationalTable)
+		if err != nil {
+			return nil, err
+		}
+		retVal = append(retVal, intelViewDDL)
+	}
 	return retVal, nil
 }
 

@@ -251,7 +251,7 @@ func (se postgresTcpEngine) getCurrentTable(tableHeirarchyIDs *dto.HeirarchyIden
 	if err != nil {
 		logging.GetLogger().Errorln(fmt.Sprintf("err = %v for tableNamePattern = '%s' and tableNameLHSRemove = '%s'", err, tableNamePattern, tableNameLHSRemove))
 	}
-	return dto.NewDBTable(tableName, discoID, tableHeirarchyIDs), err
+	return dto.NewDBTable(tableName, tableHeirarchyIDs.GetTableName(), discoID, tableHeirarchyIDs), err
 }
 
 func (se postgresTcpEngine) getNextGenerationId() (int, error) {
