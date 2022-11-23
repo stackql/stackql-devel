@@ -139,8 +139,7 @@ func (eng *postgresDialect) generateViewDDL(srcSchemaName string, destSchemaName
 		b.WriteString(`"` + colName + `" `)
 		colNames = append(colNames, b.String())
 	}
-	createViewBuilder.WriteString(fmt.Sprintf(`select %s from "%s"."%s" `, strings.Join(colNames, ", "), srcSchemaName, relationalTable.GetName()))
-	createViewBuilder.WriteString(fmt.Sprintf(`where  ; `))
+	createViewBuilder.WriteString(fmt.Sprintf(`select %s from "%s"."%s" ;`, strings.Join(colNames, ", "), srcSchemaName, relationalTable.GetName()))
 	retVal := createViewBuilder.String()
 	return retVal, nil
 }
