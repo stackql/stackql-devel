@@ -36,5 +36,5 @@ SQLAlchemy Session Postgres Intel Views Exist
     ...    ${POSTGRES_URL_UNENCRYPTED_CONN}
     ...    ${SELECT_ACCELERATOR_TYPES_DESC_SEQUENCE}
     ...    8
-    ...    stdout=${CURDIR}/tmp/SQLAlchemy-Session-Postgres-Catalog-Join.tmp
+    ...    stdout=${CURDIR}/tmp/SQLAlchemy-Session-Postgres-Intel-Views-Exist.tmp
     [Teardown]    NONE

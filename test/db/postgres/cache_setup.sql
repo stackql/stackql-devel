@@ -1,6 +1,6 @@
 BEGIN TRANSACTION;
 
-CREATE TABLE IF NOT EXISTS "stackql_analytics_github.repos.repos" ( 
+CREATE TABLE IF NOT EXISTS "stackql_raw"."stackql_analytics_github.repos.repos" ( 
   "iql_github.repos.minimal-repository.generation_1_id" BIGSERIAL PRIMARY KEY ,
   "iql_generation_id" INTEGER  ,
   "iql_session_id" INTEGER  ,
@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS "stackql_analytics_github.repos.repos" (
   "org" text 
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" 
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" 
 VALUES(
 2,
 1,
@@ -194,7 +194,7 @@ false,
 );
 
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 3,
 1,
 3,
@@ -314,7 +314,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 4,
 1,
 3,
@@ -429,7 +429,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 5,
 1,
 3,
@@ -549,7 +549,7 @@ false,
 );
 
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 6,
 1,
 3,
@@ -645,7 +645,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 7,
 1,
 3,
@@ -741,7 +741,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 8,
 1,
 3,
@@ -838,7 +838,7 @@ false,
 );
 
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 9,
 1,
 3,
@@ -958,7 +958,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 10,
 1,
 3,
@@ -1077,7 +1077,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 11,
 1,
 3,
@@ -1192,7 +1192,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 12,
 1,
 3,
@@ -1313,7 +1313,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 13,
 1,
 3,
@@ -1432,7 +1432,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 14,
 1,
 3,
@@ -1551,7 +1551,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 15,
 1,
 3,
@@ -1669,7 +1669,7 @@ false,
 0,
 'stackql');
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 16,
 1,
 3,
@@ -1788,7 +1788,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 17,
 1,
 3,
@@ -1907,7 +1907,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 18,
 1,
 3,
@@ -2028,7 +2028,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 19,
 1,
 3,
@@ -2151,7 +2151,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 20,
 1,
 3,
@@ -2270,7 +2270,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
   21,
 1,
 3,
@@ -2389,7 +2389,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 22,
 1,
 3,
@@ -2508,7 +2508,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 23,
 1,
 3,
@@ -2627,7 +2627,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 24,
 1,
 3,
@@ -2746,7 +2746,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 25,
 1,
 3,
@@ -2865,7 +2865,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 26,
 1,
 3,
@@ -2989,7 +2989,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 27,
 1,
 3,
@@ -3108,7 +3108,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(28,
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(28,
 1,
 3,
 2,
@@ -3226,7 +3226,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(29,
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(29,
 1,
 3,
 2,
@@ -3344,7 +3344,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 30,
 1,
 3,
@@ -3471,7 +3471,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 31,
 1,
 3,
@@ -3592,7 +3592,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 32,
 1,
 3,
@@ -3715,7 +3715,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 33,
 1,
 3,
@@ -3834,7 +3834,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 34,
 1,
 3,
@@ -3961,7 +3961,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 35,
 1,
 3,
@@ -4080,7 +4080,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 36,
 1,
 3,
@@ -4199,7 +4199,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 37,
 1,
 3,
@@ -4318,7 +4318,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 38,
 1,
 3,
@@ -4445,7 +4445,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(
 39,
 1,
 3,
@@ -4564,7 +4564,7 @@ false,
 'stackql'
 );
 
-INSERT INTO "stackql_analytics_github.repos.repos" VALUES(40,
+INSERT INTO "stackql_raw"."stackql_analytics_github.repos.repos" VALUES(40,
 1,
 3,
 2,
@@ -10597,10 +10597,10 @@ NULL,
 -- INSERT INTO sqlite_sequence VALUES('stackql_analytics_github.repos.collaborators',
 -- 156);
 
-CREATE INDEX if not exists "idx_github_repos_minimal-repository_generation_1_iql_generation_id" on "stackql_analytics_github.repos.repos" ( "iql_generation_id" ) ;
-CREATE INDEX if not exists "idx_github_repos_minimal-repository_generation_1_iql_session_id" on "stackql_analytics_github.repos.repos" ( "iql_session_id" ) ;
-CREATE INDEX if not exists "idx_github_repos_minimal-repository_generation_1_iql_txn_id" on "stackql_analytics_github.repos.repos" ( "iql_txn_id" ) ;
-CREATE INDEX if not exists "idx_github_repos_minimal-repository_generation_1_iql_insert_id" on "stackql_analytics_github.repos.repos" ( "iql_insert_id" ) ;
+CREATE INDEX if not exists "idx_github_repos_minimal-repository_generation_1_iql_generation_id" on "stackql_raw"."stackql_analytics_github.repos.repos" ( "iql_generation_id" ) ;
+CREATE INDEX if not exists "idx_github_repos_minimal-repository_generation_1_iql_session_id" on "stackql_raw"."stackql_analytics_github.repos.repos" ( "iql_session_id" ) ;
+CREATE INDEX if not exists "idx_github_repos_minimal-repository_generation_1_iql_txn_id" on "stackql_raw"."stackql_analytics_github.repos.repos" ( "iql_txn_id" ) ;
+CREATE INDEX if not exists "idx_github_repos_minimal-repository_generation_1_iql_insert_id" on "stackql_raw"."stackql_analytics_github.repos.repos" ( "iql_insert_id" ) ;
 CREATE INDEX if not exists "idx_github_repos_collaborator_generation_1_iql_generation_id" on "stackql_analytics_github.repos.collaborators" ( "iql_generation_id" ) ;
 CREATE INDEX if not exists "idx_github_repos_collaborator_generation_1_iql_session_id" on "stackql_analytics_github.repos.collaborators" ( "iql_session_id" ) ;
 CREATE INDEX if not exists "idx_github_repos_collaborator_generation_1_iql_txn_id" on "stackql_analytics_github.repos.collaborators" ( "iql_txn_id" ) ;
