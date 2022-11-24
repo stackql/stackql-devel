@@ -20,6 +20,7 @@
         "select r.name, col.login, col.type, col.role_name from stackql_analytics_github.repos.collaborators col inner join stackql_analytics_github.repos.repos r ON col.repo = r.name where col.owner = 'stackql' and r.org = 'stackql' order by r.name, col.login desc;",
         "SELECT * from stackql_intel.\"google.compute.acceleratorTypes\"",
         "select r.name, col.login, col.type, col.role_name from github.repos.collaborators col inner join github.repos.repos r ON col.repo = r.name where col.owner = 'dummyorg' and r.org = 'dummyorg' order by r.name, col.login desc;",
+        "select r.name, col.login, col.type, col.role_name from stackql_analytics_github.repos.collaborators col inner join stackql_analytics_github.repos.repos r ON col.repo = r.name where col.owner = 'stackql' and r.org = 'stackql' order by r.name, col.login desc;",
         "show providers;"
       ],
       "default": "show providers;"
@@ -88,7 +89,7 @@
         "{ \"dbEngine\": \"postgres_tcp\", \"sqlDialect\": \"postgres\", \"dsn\": \"postgres://stackql:stackql@127.0.0.1:5432/stackql\" }",
         "{ \"dbEngine\": \"postgres_tcp\", \"sqlDialect\": \"postgres\", \"dsn\": \"postgres://stackql:stackql@127.0.0.1:7432/stackql\" }",
         "{ \"dbEngine\": \"postgres_tcp\", \"sqlDialect\": \"postgres\", \"dsn\": \"postgres://stackql:stackql@127.0.0.1:7432/stackql\", \"schemata\": { \"tableSchema\": \"stackql_raw\", \"intelViewSchema\": \"stackql_intel\", \"opsViewSchema\": \"stackql_ops\" } }",
-        "{ \"dbInitFilepath\": \"${workspaceFolder}/test/db/postgres/cache_setup.sql\", \"dbEngine\": \"postgres_tcp\", \"sqlDialect\": \"postgres\", \"dsn\": \"postgres://stackql:stackql@127.0.0.1:7432/stackql\" }"
+        "{ \"dbInitFilepath\": \"${workspaceFolder}/test/db/postgres/cache_setup.sql\", \"dbEngine\": \"postgres_tcp\", \"sqlDialect\": \"postgres\", \"dsn\": \"postgres://stackql:stackql@127.0.0.1:7432/stackql\", \"schemata\": { \"tableSchema\": \"stackql_raw\", \"intelViewSchema\": \"stackql_intel\", \"opsViewSchema\": \"stackql_ops\" } }"
       ]
     },
     {

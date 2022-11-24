@@ -21,6 +21,10 @@ func newPostgresDialect(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeStr
 	if err != nil {
 		return nil, err
 	}
+	tableSchemaName := sqlCfg.GetTableSchemaName()
+	if tableSchemaName == "" {
+		tableSchemaName = "public"
+	}
 	rv := &postgresDialect{
 		defaultGolangKind:     reflect.String,
 		defaultRelationalType: "text",
@@ -37,7 +41,7 @@ func newPostgresDialect(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeStr
 		analyticsNamespaceLikeString: analyticsNamespaceLikeString,
 		sqlEngine:                    sqlEngine,
 		formatter:                    formatter,
-		tableSchema:                  "public",
+		tableSchema:                  tableSchemaName,
 		tableCatalog:                 catalogName,
 	}
 	viewSchemataEnabled, err := rv.inferViewSchemataEnabled(sqlCfg.Schemata)
