@@ -700,5 +700,5 @@ func (eng *postgresDialect) getDefaultGolangKind() reflect.Kind {
 }
 
 func (eng *postgresDialect) QueryNamespaced(colzString string, actualTableName string, requestEncodingColName string, requestEncoding string) (*sql.Rows, error) {
-	return eng.sqlEngine.Query(fmt.Sprintf(`SELECT %s FROM "%s" WHERE "%s" = $1`, colzString, actualTableName, requestEncodingColName), requestEncoding)
+	return eng.sqlEngine.Query(fmt.Sprintf(`SELECT %s FROM "%s"."%s" WHERE "%s" = $1`, colzString, eng.tableSchema, actualTableName, requestEncodingColName), requestEncoding)
 }
