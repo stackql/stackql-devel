@@ -11,6 +11,8 @@
       "options": [
         "select \"Key\", Size, StorageClass from  aws.s3.objects where region = 'ap-southeast-1' and bucket = 'stackql-trial-bucket-01' order by \"Key\" ASC;",
         "SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND c.relkind in ('r', 'p')",
+        "select  kind, name  from  google.compute.acceleratorTypes where project = 'testing-project' and zone = 'australia-southeast1-a' order by name desc;",
+        "select  kind, name  from  stackql_intel.\"google.compute.acceleratorTypes\" where project = 'testing-project' and zone like '%australia-southeast1-a' order by name desc;",
         "select name from google.compute.machineTypes where project = 'testing-project' and zone = 'australia-southeast1-a' order by name desc;",
         "select oid, typbasetype from pg_type where typname = 'lo'",
         "SELECT pg_backend_pid()",

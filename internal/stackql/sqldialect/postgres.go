@@ -129,9 +129,10 @@ func (eng *postgresDialect) sanitizeWhereQueryString(queryString string) (string
 	), nil
 }
 
-func (eng *postgresDialect) generateViewDDL(srcSchemaName string, destSchemaName string, relationalTable relationaldto.RelationalTable) (string, error) {
-	var colNames []string
+func (eng *postgresDialect) generateViewDDL(srcSchemaName string, destSchemaName string, relationalTable relationaldto.RelationalTable) ([]string, error) {
+	var colNames, retVal []string
 	var createViewBuilder strings.Builder
+	retVal = append(retVal, fmt.Sprintf(`drop view if exists "%s"."%s" ; `, destSchemaName, relationalTable.GetBaseName()))
 	createViewBuilder.WriteString(fmt.Sprintf(`create or replace view "%s"."%s" AS `, destSchemaName, relationalTable.GetBaseName()))
 	for _, col := range relationalTable.GetColumns() {
 		var b strings.Builder
@@ -140,7 +141,7 @@ func (eng *postgresDialect) generateViewDDL(srcSchemaName string, destSchemaName
 		colNames = append(colNames, b.String())
 	}
 	createViewBuilder.WriteString(fmt.Sprintf(`select %s from "%s"."%s" ;`, strings.Join(colNames, ", "), srcSchemaName, relationalTable.GetName()))
-	retVal := createViewBuilder.String()
+	retVal = append(retVal, createViewBuilder.String())
 	return retVal, nil
 }
 
@@ -189,7 +190,7 @@ func (eng *postgresDialect) generateDDL(relationalTable relationaldto.Relational
 		if err != nil {
 			return nil, err
 		}
-		retVal = append(retVal, intelViewDDL)
+		retVal = append(retVal, intelViewDDL...)
 	}
 	return retVal, nil
 }
