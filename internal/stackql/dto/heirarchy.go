@@ -35,9 +35,9 @@ func NewHeirarchyIdentifiers(prov, svc, rsc, method string) *HeirarchyIdentifier
 
 func (hi *HeirarchyIdentifiers) GetTableName() string {
 	if hi.ProviderStr != "" {
-		return fmt.Sprintf("%s.%s.%s", hi.ProviderStr, hi.ServiceStr, hi.ResourceStr)
+		return fmt.Sprintf("%s.%s.%s.%s", hi.ProviderStr, hi.ServiceStr, hi.ResourceStr, hi.MethodStr)
 	}
-	return fmt.Sprintf("%s.%s", hi.ServiceStr, hi.ResourceStr)
+	return fmt.Sprintf("%s.%s.%s", hi.ServiceStr, hi.ResourceStr, hi.MethodStr)
 }
 
 func (hi *HeirarchyIdentifiers) GetStackQLTableName() string {
