@@ -50,19 +50,6 @@ func (cd ColumnMetadata) GetType() string {
 	return parserutil.ExtractStringRepresentationOfValueColumn(cd.Column.Val)
 }
 
-func (cd ColumnMetadata) getTypeFromVal() string {
-	switch cd.Column.Val.Type {
-	case sqlparser.BitVal, sqlparser.HexNum, sqlparser.HexVal, sqlparser.StrVal:
-		return "string"
-	case sqlparser.FloatVal:
-		return "float"
-	case sqlparser.IntVal:
-		return "int"
-	default:
-		return "string"
-	}
-}
-
 func NewColDescriptor(col openapistackql.ColumnDescriptor, relTypeStr string) ColumnMetadata {
 	return ColumnMetadata{
 		Coupling: dto.DRMCoupling{RelationalType: relTypeStr, GolangKind: reflect.String},
@@ -214,7 +201,6 @@ type DRMConfig interface {
 }
 
 type StaticDRMConfig struct {
-	defaultGolangValue  interface{}
 	namespaceCollection tablenamespace.TableNamespaceCollection
 	controlAttributes   sqlcontrol.ControlAttributes
 	sqlEngine           sqlengine.SQLEngine
@@ -376,18 +362,6 @@ func (dc *StaticDRMConfig) getParserTableName(hIds *dto.HeirarchyIdentifiers, di
 		QualifierSecond: sqlparser.NewTableIdent(hIds.ServiceStr),
 		QualifierThird:  sqlparser.NewTableIdent(hIds.ProviderStr),
 	}
-}
-
-func (dc *StaticDRMConfig) inferTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) (string, error) {
-	return dc.getTableName(hIds, discoveryGenerationID)
-}
-
-func (dc *StaticDRMConfig) generateDropTableStatement(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) (string, error) {
-	tableName, err := dc.getTableName(hIds, discoveryGenerationID)
-	if err != nil {
-		return "", err
-	}
-	return fmt.Sprintf(`drop table if exists "%s"`, tableName), nil
 }
 
 func (dc *StaticDRMConfig) inferColType(col util.Column) string {

@@ -18,10 +18,11 @@ type Heirarchy struct {
 }
 
 type HeirarchyIdentifiers struct {
-	ProviderStr string
-	ServiceStr  string
-	ResourceStr string
-	MethodStr   string
+	ProviderStr       string
+	ServiceStr        string
+	ResourceStr       string
+	ResponseSchemaStr string
+	MethodStr         string
 }
 
 func NewHeirarchyIdentifiers(prov, svc, rsc, method string) *HeirarchyIdentifiers {
@@ -33,11 +34,22 @@ func NewHeirarchyIdentifiers(prov, svc, rsc, method string) *HeirarchyIdentifier
 	}
 }
 
+func (hi *HeirarchyIdentifiers) WithResponseSchemaStr(rss string) *HeirarchyIdentifiers {
+	hi.ResponseSchemaStr = rss
+	return hi
+}
+
 func (hi *HeirarchyIdentifiers) GetTableName() string {
 	if hi.ProviderStr != "" {
-		return fmt.Sprintf("%s.%s.%s.%s", hi.ProviderStr, hi.ServiceStr, hi.ResourceStr, hi.MethodStr)
+		if hi.ResponseSchemaStr == "" {
+			return fmt.Sprintf("%s.%s.%s", hi.ProviderStr, hi.ServiceStr, hi.ResourceStr)
+		}
+		return fmt.Sprintf("%s.%s.%s.%s", hi.ProviderStr, hi.ServiceStr, hi.ResourceStr, hi.ResponseSchemaStr)
 	}
-	return fmt.Sprintf("%s.%s.%s", hi.ServiceStr, hi.ResourceStr, hi.MethodStr)
+	if hi.ResponseSchemaStr == "" {
+		return fmt.Sprintf("%s.%s", hi.ServiceStr, hi.ResourceStr)
+	}
+	return fmt.Sprintf("%s.%s.%s", hi.ServiceStr, hi.ResourceStr, hi.ResponseSchemaStr)
 }
 
 func (hi *HeirarchyIdentifiers) GetStackQLTableName() string {

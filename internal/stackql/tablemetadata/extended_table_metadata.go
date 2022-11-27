@@ -143,6 +143,14 @@ func (ex ExtendedTableMetadata) GetMethodStr() (string, error) {
 	return ex.HeirarchyObjects.HeirarchyIds.MethodStr, nil
 }
 
+func (ex *ExtendedTableMetadata) WithResponseSchemaStr(rss string) (*ExtendedTableMetadata, error) {
+	if ex.HeirarchyObjects == nil {
+		return ex, fmt.Errorf("ExtendedTableMetadata.WithResponseSchemaStr(): cannot resolve HeirarchyObjects")
+	}
+	ex.HeirarchyObjects.HeirarchyIds.ResponseSchemaStr = rss
+	return ex, nil
+}
+
 func (ex ExtendedTableMetadata) GetTableName() (string, error) {
 	if ex.HeirarchyObjects == nil || ex.HeirarchyObjects.HeirarchyIds.GetTableName() == "" {
 		return "", fmt.Errorf("cannot resolve TableName")
