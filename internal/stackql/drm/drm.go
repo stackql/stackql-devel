@@ -184,7 +184,7 @@ func NewPreparedStatementParameterized(ctx *PreparedStatementCtx, args map[strin
 type DRMConfig interface {
 	ExtractFromGolangValue(interface{}) interface{}
 	ExtractObjectFromSQLRows(r *sql.Rows, nonControlColumns []ColumnMetadata, stream streaming.MapStream) (map[string]map[string]interface{}, map[int]map[int]interface{})
-	GetCurrentTable(*dto.HeirarchyIdentifiers, sqlengine.SQLEngine) (dto.DBTable, error)
+	GetCurrentTable(*dto.HeirarchyIdentifiers) (dto.DBTable, error)
 	GetRelationalType(string) string
 	GenerateDDL(util.AnnotatedTabulation, *openapistackql.OperationStore, int, bool) ([]string, error)
 	GetControlAttributes() sqlcontrol.ControlAttributes
@@ -193,7 +193,7 @@ type DRMConfig interface {
 	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
 	GetParserTableName(*dto.HeirarchyIdentifiers, int) sqlparser.TableName
 	GetSQLDialect() sqldialect.SQLDialect
-	GetTableName(*dto.HeirarchyIdentifiers, int) (string, error)
+	GetTable(*dto.HeirarchyIdentifiers, int) (dto.DBTable, error)
 	GenerateInsertDML(util.AnnotatedTabulation, *openapistackql.OperationStore, *dto.TxnControlCounters) (*PreparedStatementCtx, error)
 	GenerateSelectDML(util.AnnotatedTabulation, *dto.TxnControlCounters, string, string) (*PreparedStatementCtx, error)
 	ExecuteInsertDML(sqlengine.SQLEngine, *PreparedStatementCtx, map[string]interface{}, string) (sql.Result, error)
@@ -209,6 +209,10 @@ type StaticDRMConfig struct {
 
 func (dc *StaticDRMConfig) GetSQLDialect() sqldialect.SQLDialect {
 	return dc.sqlDialect
+}
+
+func (dc *StaticDRMConfig) GetTable(hids *dto.HeirarchyIdentifiers, discoveryID int) (dto.DBTable, error) {
+	return dc.sqlDialect.GetTable(hids, discoveryID)
 }
 
 func (dc *StaticDRMConfig) GetControlAttributes() sqlcontrol.ControlAttributes {
@@ -320,7 +324,7 @@ func (dc *StaticDRMConfig) GetGolangKind(discoType string) reflect.Kind {
 	return dc.sqlDialect.GetGolangKind(discoType)
 }
 
-func (dc *StaticDRMConfig) GetCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers, dbEngine sqlengine.SQLEngine) (dto.DBTable, error) {
+func (dc *StaticDRMConfig) GetCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers) (dto.DBTable, error) {
 	tn := tableHeirarchyIDs.GetTableName()
 	if dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tn) {
 		templatedName, err := dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().RenderTemplate(tn)
@@ -329,7 +333,7 @@ func (dc *StaticDRMConfig) GetCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdent
 		}
 		return dto.NewDBTableAnalytics(templatedName, -1, tableHeirarchyIDs), nil
 	}
-	return dbEngine.GetCurrentTable(tableHeirarchyIDs)
+	return dc.sqlDialect.GetCurrentTable(tableHeirarchyIDs)
 }
 
 func (dc *StaticDRMConfig) GetTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) (string, error) {
@@ -378,7 +382,7 @@ func (dc *StaticDRMConfig) genRelationalTable(tabAnn util.AnnotatedTabulation, m
 	if err != nil {
 		return nil, err
 	}
-	relationalTable := relationaldto.NewRelationalTable(tableName, tabAnn.GetInputTableName())
+	relationalTable := relationaldto.NewRelationalTable(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID, tableName, tabAnn.GetInputTableName())
 	schemaAnalyzer := util.NewTableSchemaAnalyzer(tabAnn.GetTabulation().GetSchema(), m)
 	tableColumns := schemaAnalyzer.GetColumns()
 	for _, col := range tableColumns {
@@ -403,7 +407,7 @@ func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, m *opena
 
 func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulation, method *openapistackql.OperationStore, tcc *dto.TxnControlCounters) (*PreparedStatementCtx, error) {
 	var columns []ColumnMetadata
-	tableName, err := dc.GetCurrentTable(tabAnnotated.GetHeirarchyIdentifiers(), dc.sqlEngine)
+	tableName, err := dc.GetCurrentTable(tabAnnotated.GetHeirarchyIdentifiers())
 	if err != nil {
 		return nil, err
 	}
@@ -413,7 +417,7 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 	insIdColName := dc.controlAttributes.GetControlInsIdColumnName()
 	insEncodedColName := dc.controlAttributes.GetControlInsertEncodedIdColumnName()
 
-	relationalTable := relationaldto.NewRelationalTable(tableName.GetName(), tabAnnotated.GetInputTableName())
+	relationalTable := relationaldto.NewRelationalTable(tabAnnotated.GetHeirarchyIdentifiers(), tableName.GetDiscoveryID(), tableName.GetName(), tabAnnotated.GetInputTableName())
 	schemaAnalyzer := util.NewTableSchemaAnalyzer(tabAnnotated.GetTabulation().GetSchema(), method)
 	tableColumns := schemaAnalyzer.GetColumnDescriptors(tabAnnotated)
 	for _, col := range tableColumns {
@@ -457,11 +461,11 @@ func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 	if tabAnnotated.GetAlias() != "" {
 		aliasStr = fmt.Sprintf(` AS "%s" `, tabAnnotated.GetAlias())
 	}
-	tn, err := dc.GetCurrentTable(tabAnnotated.GetHeirarchyIdentifiers(), dc.sqlEngine)
+	tn, err := dc.GetCurrentTable(tabAnnotated.GetHeirarchyIdentifiers())
 	if err != nil {
 		return nil, err
 	}
-	relationalTable := relationaldto.NewRelationalTable(tn.GetName(), tabAnnotated.GetInputTableName()).WithAlias(aliasStr)
+	relationalTable := relationaldto.NewRelationalTable(tabAnnotated.GetHeirarchyIdentifiers(), tn.GetDiscoveryID(), tn.GetName(), tabAnnotated.GetInputTableName()).WithAlias(aliasStr)
 	for _, col := range tabAnnotated.GetTabulation().GetColumns() {
 		var typeStr string
 		if col.Schema != nil {

@@ -635,7 +635,7 @@ func (v *FromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 				// }
 
 				// fqtn, err := v.sqlDialect.GetFullyQualifiedTableName(str)
-				dbTbl, err := v.dc.GetCurrentTable(anCtx.GetHIDs(), v.sqlDialect.GetSQLEngine())
+				dbTbl, err := v.dc.GetCurrentTable(anCtx.GetHIDs())
 				if err != nil {
 					return err
 				}
