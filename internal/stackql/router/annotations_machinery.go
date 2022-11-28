@@ -40,7 +40,7 @@ func obtainAnnotationCtx(
 	}
 	tn, err := tbl.GetTableName()
 	if err == nil && namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tn) {
-		name, _ = tbl.GetResourceStr()
+		name, _ = tbl.GetResponseSchemaStr()
 	}
 	hIds := dto.NewHeirarchyIdentifiers(provStr, svcStr, rscStr, methodStr).WithResponseSchemaStr(name)
 	return taxonomy.NewStaticStandardAnnotationCtx(itemObjS, hIds, tbl, parameters), nil
