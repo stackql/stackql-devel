@@ -77,7 +77,7 @@ func (se *sqLiteDialect) getCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentif
 	var discoID int
 	tableNameStump, err := se.getTableNameStump(tableHeirarchyIDs)
 	if err != nil {
-		return dto.NewDBTable("", "", 0, tableHeirarchyIDs), err
+		return dto.NewDBTable("", "", "", 0, tableHeirarchyIDs), err
 	}
 	tableNamePattern := fmt.Sprintf("%s.generation_%%", tableNameStump)
 	tableNameLHSRemove := fmt.Sprintf("%s.generation_", tableNameStump)
@@ -86,7 +86,7 @@ func (se *sqLiteDialect) getCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentif
 	if err != nil {
 		logging.GetLogger().Errorln(fmt.Sprintf("err = %v for tableNamePattern = '%s' and tableNameLHSRemove = '%s'", err, tableNamePattern, tableNameLHSRemove))
 	}
-	return dto.NewDBTable(tableName, tableHeirarchyIDs.GetTableName(), discoID, tableHeirarchyIDs), err
+	return dto.NewDBTable(tableName, tableNameStump, tableHeirarchyIDs.GetTableName(), discoID, tableHeirarchyIDs), err
 }
 
 func (sl *sqLiteDialect) GetName() string {

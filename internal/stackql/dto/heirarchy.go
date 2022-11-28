@@ -123,23 +123,25 @@ func ResolveResourceTerminalHeirarchyIdentifiers(node sqlparser.TableName) *Heir
 
 type DBTable struct {
 	name        string
+	nameStump   string
 	baseName    string
 	discoveryID int
 	hIDs        *HeirarchyIdentifiers
 	namespace   string
 }
 
-func NewDBTable(name string, baseName string, discoveryID int, hIDs *HeirarchyIdentifiers) DBTable {
-	return newDBTable(name, baseName, discoveryID, hIDs, "")
+func NewDBTable(name string, nameStump string, baseName string, discoveryID int, hIDs *HeirarchyIdentifiers) DBTable {
+	return newDBTable(name, nameStump, baseName, discoveryID, hIDs, "")
 }
 
 func NewDBTableAnalytics(name string, discoveryID int, hIDs *HeirarchyIdentifiers) DBTable {
-	return newDBTable(name, name, discoveryID, hIDs, constants.AnalyticsPrefix)
+	return newDBTable(name, name, name, discoveryID, hIDs, constants.AnalyticsPrefix)
 }
 
-func newDBTable(name string, baseName string, discoveryID int, hIDs *HeirarchyIdentifiers, namespace string) DBTable {
+func newDBTable(name string, nameStump string, baseName string, discoveryID int, hIDs *HeirarchyIdentifiers, namespace string) DBTable {
 	return DBTable{
 		name:        name,
+		nameStump:   nameStump,
 		baseName:    baseName,
 		discoveryID: discoveryID,
 		hIDs:        hIDs,
@@ -149,6 +151,10 @@ func newDBTable(name string, baseName string, discoveryID int, hIDs *HeirarchyId
 
 func (dbt DBTable) GetName() string {
 	return dbt.name
+}
+
+func (dbt DBTable) GetNameStump() string {
+	return dbt.nameStump
 }
 
 func (dbt DBTable) GetBaseName() string {

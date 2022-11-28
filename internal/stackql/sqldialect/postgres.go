@@ -745,10 +745,10 @@ func (se *postgresDialect) GetTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers,
 func (se *postgresDialect) getTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers, discoveryId int) (dto.DBTable, error) {
 	tableNameStump, err := se.getTableNameStump(tableHeirarchyIDs)
 	if err != nil {
-		return dto.NewDBTable("", "", 0, tableHeirarchyIDs), err
+		return dto.NewDBTable("", "", "", 0, tableHeirarchyIDs), err
 	}
 	tableName := fmt.Sprintf("%s.generation_%d", tableNameStump, discoveryId)
-	return dto.NewDBTable(tableName, tableHeirarchyIDs.GetTableName(), discoveryId, tableHeirarchyIDs), err
+	return dto.NewDBTable(tableName, tableNameStump, tableHeirarchyIDs.GetTableName(), discoveryId, tableHeirarchyIDs), err
 }
 
 func (se *postgresDialect) GetCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers) (dto.DBTable, error) {
@@ -769,7 +769,7 @@ func (se *postgresDialect) getCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdent
 	var discoID int
 	tableNameStump, err := se.getTableNameStump(tableHeirarchyIDs)
 	if err != nil {
-		return dto.NewDBTable("", "", 0, tableHeirarchyIDs), err
+		return dto.NewDBTable("", "", "", 0, tableHeirarchyIDs), err
 	}
 	tableNamePattern := fmt.Sprintf("%s.generation_%%", tableNameStump)
 	tableNameLHSRemove := fmt.Sprintf("%s.generation_", tableNameStump)
@@ -790,5 +790,5 @@ func (se *postgresDialect) getCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdent
 	if err != nil {
 		logging.GetLogger().Errorln(fmt.Sprintf("err = %v for tableNamePattern = '%s' and tableNameLHSRemove = '%s'", err, tableNamePattern, tableNameLHSRemove))
 	}
-	return dto.NewDBTable(tableName, tableHeirarchyIDs.GetTableName(), discoID, tableHeirarchyIDs), err
+	return dto.NewDBTable(tableName, tableNameStump, tableHeirarchyIDs.GetTableName(), discoID, tableHeirarchyIDs), err
 }

@@ -341,11 +341,15 @@ func (dc *StaticDRMConfig) GetTableName(hIds *dto.HeirarchyIdentifiers, discover
 }
 
 func (dc *StaticDRMConfig) getTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) (string, error) {
-	unadornedTableName := hIds.GetTableName()
+	tbl, err := dc.sqlDialect.GetTable(hIds, discoveryGenerationID)
+	if err != nil {
+		return "", err
+	}
+	unadornedTableName := tbl.GetNameStump()
 	if dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(unadornedTableName) {
 		return dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().RenderTemplate(unadornedTableName)
 	}
-	return fmt.Sprintf("%s.generation_%d", hIds.GetTableName(), discoveryGenerationID), nil
+	return tbl.GetName(), nil
 }
 
 func (dc *StaticDRMConfig) GetParserTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) sqlparser.TableName {
