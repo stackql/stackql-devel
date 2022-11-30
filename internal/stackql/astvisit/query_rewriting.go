@@ -26,14 +26,14 @@ func (v *QueryRewriteAstVisitor) getNextAlias() string {
 }
 
 func (v *QueryRewriteAstVisitor) getStarColumns(
-	tbl *tablemetadata.ExtendedTableMetadata,
+	tbl tablemetadata.ExtendedTableMetadata,
 ) ([]openapistackql.ColumnDescriptor, error) {
 	schema, _, err := tbl.GetResponseSchemaAndMediaType()
 	if err != nil {
 		return nil, err
 	}
 	itemObjS, selectItemsKey, err := tbl.GetSelectSchemaAndObjectPath()
-	tbl.SelectItemsKey = selectItemsKey
+	tbl.SetSelectItemsKey(selectItemsKey)
 	unsuitableSchemaMsg := "QueryRewriteAstVisitor.getStarColumns(): schema unsuitable for select query"
 	if err != nil {
 		return nil, fmt.Errorf(unsuitableSchemaMsg)
@@ -493,7 +493,7 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		}
 
 	case *sqlparser.StarExpr:
-		var tbl *tablemetadata.ExtendedTableMetadata
+		var tbl tablemetadata.ExtendedTableMetadata
 		if node.TableName.IsEmpty() {
 			if len(v.tables) != 1 {
 				return fmt.Errorf("unaliased star expr not permitted for table count = %d", len(v.tables))

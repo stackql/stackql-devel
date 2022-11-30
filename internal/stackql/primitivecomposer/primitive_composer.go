@@ -41,7 +41,7 @@ type PrimitiveComposer interface {
 	GetSQLDialect() sqldialect.SQLDialect
 	GetSymbol(k interface{}) (symtab.SymTabEntry, error)
 	GetSymTab() symtab.SymTab
-	GetTable(node sqlparser.SQLNode) (*tablemetadata.ExtendedTableMetadata, error)
+	GetTable(node sqlparser.SQLNode) (tablemetadata.ExtendedTableMetadata, error)
 	GetTableFilter() func(openapistackql.ITable) (openapistackql.ITable, error)
 	GetTables() taxonomy.TblMap
 	GetTxnCounterManager() txncounter.TxnCounterManager
@@ -63,7 +63,7 @@ type PrimitiveComposer interface {
 	SetRoot(root primitivegraph.PrimitiveNode)
 	SetSelectPreparedStatementCtx(ctx *drm.PreparedStatementCtx)
 	SetSymbol(k interface{}, v symtab.SymTabEntry) error
-	SetTable(node sqlparser.SQLNode, table *tablemetadata.ExtendedTableMetadata)
+	SetTable(node sqlparser.SQLNode, table tablemetadata.ExtendedTableMetadata)
 	SetTableFilter(tableFilter func(openapistackql.ITable) (openapistackql.ITable, error))
 	SetTxnCtrlCtrs(tc *dto.TxnControlCounters)
 	SetValOnlyCols(m map[int]map[string]interface{})
@@ -311,11 +311,11 @@ func (pb *StandardPrimitiveComposer) SetAwait(await bool) {
 	pb.await = await
 }
 
-func (pb *StandardPrimitiveComposer) GetTable(node sqlparser.SQLNode) (*tablemetadata.ExtendedTableMetadata, error) {
+func (pb *StandardPrimitiveComposer) GetTable(node sqlparser.SQLNode) (tablemetadata.ExtendedTableMetadata, error) {
 	return pb.tables.GetTable(node)
 }
 
-func (pb *StandardPrimitiveComposer) SetTable(node sqlparser.SQLNode, table *tablemetadata.ExtendedTableMetadata) {
+func (pb *StandardPrimitiveComposer) SetTable(node sqlparser.SQLNode, table tablemetadata.ExtendedTableMetadata) {
 	pb.tables.SetTable(node, table)
 }
 

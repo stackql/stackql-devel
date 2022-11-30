@@ -24,7 +24,7 @@ import (
 type GraphQLSingleSelectAcquire struct {
 	graph                      *primitivegraph.PrimitiveGraph
 	handlerCtx                 *handler.HandlerContext
-	tableMeta                  *tablemetadata.ExtendedTableMetadata
+	tableMeta                  tablemetadata.ExtendedTableMetadata
 	drmCfg                     drm.DRMConfig
 	insertPreparedStatementCtx *drm.PreparedStatementCtx
 	insertionContainer         tableinsertioncontainer.TableInsertionContainer
@@ -37,7 +37,7 @@ type GraphQLSingleSelectAcquire struct {
 func newGraphQLSingleSelectAcquire(
 	graph *primitivegraph.PrimitiveGraph,
 	handlerCtx *handler.HandlerContext,
-	tableMeta *tablemetadata.ExtendedTableMetadata,
+	tableMeta tablemetadata.ExtendedTableMetadata,
 	insertCtx *drm.PreparedStatementCtx,
 	insertionContainer tableinsertioncontainer.TableInsertionContainer,
 	rowSort func(map[string]map[string]interface{}) []string,

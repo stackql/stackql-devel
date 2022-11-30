@@ -184,16 +184,16 @@ func NewPreparedStatementParameterized(ctx *PreparedStatementCtx, args map[strin
 type DRMConfig interface {
 	ExtractFromGolangValue(interface{}) interface{}
 	ExtractObjectFromSQLRows(r *sql.Rows, nonControlColumns []ColumnMetadata, stream streaming.MapStream) (map[string]map[string]interface{}, map[int]map[int]interface{})
-	GetCurrentTable(*dto.HeirarchyIdentifiers) (dto.DBTable, error)
+	GetCurrentTable(dto.HeirarchyIdentifiers) (dto.DBTable, error)
 	GetRelationalType(string) string
 	GenerateDDL(util.AnnotatedTabulation, *openapistackql.OperationStore, int, bool) ([]string, error)
 	GetControlAttributes() sqlcontrol.ControlAttributes
 	GetGolangValue(string) interface{}
 	GetGolangSlices([]ColumnMetadata) ([]interface{}, []string)
 	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
-	GetParserTableName(*dto.HeirarchyIdentifiers, int) sqlparser.TableName
+	GetParserTableName(dto.HeirarchyIdentifiers, int) sqlparser.TableName
 	GetSQLDialect() sqldialect.SQLDialect
-	GetTable(*dto.HeirarchyIdentifiers, int) (dto.DBTable, error)
+	GetTable(dto.HeirarchyIdentifiers, int) (dto.DBTable, error)
 	GenerateInsertDML(util.AnnotatedTabulation, *openapistackql.OperationStore, *dto.TxnControlCounters) (*PreparedStatementCtx, error)
 	GenerateSelectDML(util.AnnotatedTabulation, *dto.TxnControlCounters, string, string) (*PreparedStatementCtx, error)
 	ExecuteInsertDML(sqlengine.SQLEngine, *PreparedStatementCtx, map[string]interface{}, string) (sql.Result, error)
@@ -211,7 +211,7 @@ func (dc *StaticDRMConfig) GetSQLDialect() sqldialect.SQLDialect {
 	return dc.sqlDialect
 }
 
-func (dc *StaticDRMConfig) GetTable(hids *dto.HeirarchyIdentifiers, discoveryID int) (dto.DBTable, error) {
+func (dc *StaticDRMConfig) GetTable(hids dto.HeirarchyIdentifiers, discoveryID int) (dto.DBTable, error) {
 	return dc.sqlDialect.GetTable(hids, discoveryID)
 }
 
@@ -324,7 +324,7 @@ func (dc *StaticDRMConfig) GetGolangKind(discoType string) reflect.Kind {
 	return dc.sqlDialect.GetGolangKind(discoType)
 }
 
-func (dc *StaticDRMConfig) GetCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers) (dto.DBTable, error) {
+func (dc *StaticDRMConfig) GetCurrentTable(tableHeirarchyIDs dto.HeirarchyIdentifiers) (dto.DBTable, error) {
 	tn := tableHeirarchyIDs.GetTableName()
 	if dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tn) {
 		templatedName, err := dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().RenderTemplate(tn)
@@ -336,11 +336,11 @@ func (dc *StaticDRMConfig) GetCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdent
 	return dc.sqlDialect.GetCurrentTable(tableHeirarchyIDs)
 }
 
-func (dc *StaticDRMConfig) GetTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) (string, error) {
+func (dc *StaticDRMConfig) GetTableName(hIds dto.HeirarchyIdentifiers, discoveryGenerationID int) (string, error) {
 	return dc.getTableName(hIds, discoveryGenerationID)
 }
 
-func (dc *StaticDRMConfig) getTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) (string, error) {
+func (dc *StaticDRMConfig) getTableName(hIds dto.HeirarchyIdentifiers, discoveryGenerationID int) (string, error) {
 	tbl, err := dc.sqlDialect.GetTable(hIds, discoveryGenerationID)
 	if err != nil {
 		return "", err
@@ -352,23 +352,23 @@ func (dc *StaticDRMConfig) getTableName(hIds *dto.HeirarchyIdentifiers, discover
 	return tbl.GetName(), nil
 }
 
-func (dc *StaticDRMConfig) GetParserTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) sqlparser.TableName {
+func (dc *StaticDRMConfig) GetParserTableName(hIds dto.HeirarchyIdentifiers, discoveryGenerationID int) sqlparser.TableName {
 	return dc.getParserTableName(hIds, discoveryGenerationID)
 }
 
-func (dc *StaticDRMConfig) getParserTableName(hIds *dto.HeirarchyIdentifiers, discoveryGenerationID int) sqlparser.TableName {
+func (dc *StaticDRMConfig) getParserTableName(hIds dto.HeirarchyIdentifiers, discoveryGenerationID int) sqlparser.TableName {
 	if dc.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(hIds.GetTableName()) {
 		return sqlparser.TableName{
-			Name:            sqlparser.NewTableIdent(hIds.ResourceStr),
-			Qualifier:       sqlparser.NewTableIdent(hIds.ServiceStr),
-			QualifierSecond: sqlparser.NewTableIdent(hIds.ProviderStr),
+			Name:            sqlparser.NewTableIdent(hIds.GetResourceStr()),
+			Qualifier:       sqlparser.NewTableIdent(hIds.GetServiceStr()),
+			QualifierSecond: sqlparser.NewTableIdent(hIds.GetProviderStr()),
 		}
 	}
 	return sqlparser.TableName{
 		Name:            sqlparser.NewTableIdent(fmt.Sprintf("generation_%d", discoveryGenerationID)),
-		Qualifier:       sqlparser.NewTableIdent(hIds.ResourceStr),
-		QualifierSecond: sqlparser.NewTableIdent(hIds.ServiceStr),
-		QualifierThird:  sqlparser.NewTableIdent(hIds.ProviderStr),
+		Qualifier:       sqlparser.NewTableIdent(hIds.GetResourceStr()),
+		QualifierSecond: sqlparser.NewTableIdent(hIds.GetServiceStr()),
+		QualifierThird:  sqlparser.NewTableIdent(hIds.GetProviderStr()),
 	}
 }
 

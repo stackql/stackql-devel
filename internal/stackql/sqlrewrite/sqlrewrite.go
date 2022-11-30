@@ -148,7 +148,7 @@ func GenerateSelectDML(input SQLRewriteInput) (*drm.PreparedStatementCtx, error)
 			secondaryCtrlCounters = append(secondaryCtrlCounters, secondaryCtr)
 		}
 		v := tb.GetTableMetadata()
-		alias := v.Alias
+		alias := v.GetAlias()
 		tableAliases = append(tableAliases, alias)
 		i++
 	}

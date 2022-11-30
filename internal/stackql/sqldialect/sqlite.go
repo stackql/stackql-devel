@@ -54,11 +54,11 @@ func (eng *sqLiteDialect) initSQLiteEngine() error {
 	return err
 }
 
-func (se *sqLiteDialect) GetTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers, discoveryId int) (dto.DBTable, error) {
+func (se *sqLiteDialect) GetTable(tableHeirarchyIDs dto.HeirarchyIdentifiers, discoveryId int) (dto.DBTable, error) {
 	return se.getTable(tableHeirarchyIDs, discoveryId)
 }
 
-func (se *sqLiteDialect) getTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers, discoveryId int) (dto.DBTable, error) {
+func (se *sqLiteDialect) getTable(tableHeirarchyIDs dto.HeirarchyIdentifiers, discoveryId int) (dto.DBTable, error) {
 	tableNameStump, err := se.getTableNameStump(tableHeirarchyIDs)
 	if err != nil {
 		return dto.NewDBTable("", "", "", 0, tableHeirarchyIDs), err
@@ -67,15 +67,15 @@ func (se *sqLiteDialect) getTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers, d
 	return dto.NewDBTable(tableName, tableNameStump, tableHeirarchyIDs.GetTableName(), discoveryId, tableHeirarchyIDs), err
 }
 
-func (se *sqLiteDialect) GetCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers) (dto.DBTable, error) {
+func (se *sqLiteDialect) GetCurrentTable(tableHeirarchyIDs dto.HeirarchyIdentifiers) (dto.DBTable, error) {
 	return se.getCurrentTable(tableHeirarchyIDs)
 }
 
-func (se *sqLiteDialect) getTableNameStump(tableHeirarchyIDs *dto.HeirarchyIdentifiers) (string, error) {
+func (se *sqLiteDialect) getTableNameStump(tableHeirarchyIDs dto.HeirarchyIdentifiers) (string, error) {
 	return tableHeirarchyIDs.GetTableName(), nil
 }
 
-func (se *sqLiteDialect) getCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers) (dto.DBTable, error) {
+func (se *sqLiteDialect) getCurrentTable(tableHeirarchyIDs dto.HeirarchyIdentifiers) (dto.DBTable, error) {
 	var tableName string
 	var discoID int
 	tableNameStump, err := se.getTableNameStump(tableHeirarchyIDs)

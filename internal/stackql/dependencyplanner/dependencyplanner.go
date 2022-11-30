@@ -293,7 +293,7 @@ func (dp *StandardDependencyPlanner) processAcquire(
 	case media.MediaTypeTextXML, media.MediaTypeXML:
 		tab = tab.RenameColumnsToXml()
 	}
-	anTab := util.NewAnnotatedTabulation(tab, annotationCtx.GetHIDs(), inputTableName, annotationCtx.GetTableMeta().Alias)
+	anTab := util.NewAnnotatedTabulation(tab, annotationCtx.GetHIDs(), inputTableName, annotationCtx.GetTableMeta().GetAlias())
 
 	discoGenId, err := docparser.OpenapiStackQLTabulationsPersistor(m, []util.AnnotatedTabulation{anTab}, dp.primitiveComposer.GetSQLEngine(), prov.Name, dp.handlerCtx.GetNamespaceCollection(), dp.handlerCtx.ControlAttributes, dp.handlerCtx.SQLDialect)
 	if err != nil {
@@ -351,7 +351,7 @@ func (dp *StandardDependencyPlanner) generateSelectDML(e dataflow.DataFlowEdge, 
 	if err != nil {
 		return nil, err
 	}
-	alias := ann.GetTableMeta().Alias
+	alias := ann.GetTableMeta().GetAlias()
 	tn, err := dp.handlerCtx.DrmConfig.GetTable(ann.GetHIDs(), dp.tcc.GenId)
 	if err != nil {
 		return nil, err

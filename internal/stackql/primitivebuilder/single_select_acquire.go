@@ -26,7 +26,7 @@ import (
 type SingleSelectAcquire struct {
 	graph                      *primitivegraph.PrimitiveGraph
 	handlerCtx                 *handler.HandlerContext
-	tableMeta                  *tablemetadata.ExtendedTableMetadata
+	tableMeta                  tablemetadata.ExtendedTableMetadata
 	drmCfg                     drm.DRMConfig
 	insertPreparedStatementCtx *drm.PreparedStatementCtx
 	insertionContainer         tableinsertioncontainer.TableInsertionContainer
@@ -71,7 +71,7 @@ func NewSingleSelectAcquire(
 func newSingleSelectAcquire(
 	graph *primitivegraph.PrimitiveGraph,
 	handlerCtx *handler.HandlerContext,
-	tableMeta *tablemetadata.ExtendedTableMetadata,
+	tableMeta tablemetadata.ExtendedTableMetadata,
 	insertCtx *drm.PreparedStatementCtx,
 	insertionContainer tableinsertioncontainer.TableInsertionContainer,
 	rowSort func(map[string]map[string]interface{}) []string,
@@ -119,6 +119,7 @@ func (ss *SingleSelectAcquire) Build() error {
 		return err
 	}
 	ex := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+		// TODO: fix cloning ops
 		currentTcc := *ss.insertPreparedStatementCtx.GetGCCtrlCtrs()
 		ss.graph.AddTxnControlCounters(currentTcc)
 		mr := prov.InferMaxResultsElement(m)
@@ -164,10 +165,11 @@ func (ss *SingleSelectAcquire) Build() error {
 				ss.drmCfg.ExtractObjectFromSQLRows(r, nonControlColumns, ss.stream)
 				return dto.ExecutorOutput{}
 			}
+			// TODO: fix cloning ops
 			response, apiErr := httpmiddleware.HttpApiCallFromRequest(*(ss.handlerCtx), prov, m, reqCtx.Request.Clone(reqCtx.Request.Context()))
 			housekeepingDone := false
-			npt := prov.InferNextPageResponseElement(ss.tableMeta.HeirarchyObjects.Heirarchy)
-			nptRequest := prov.InferNextPageRequestElement(ss.tableMeta.HeirarchyObjects.Heirarchy)
+			npt := prov.InferNextPageResponseElement(ss.tableMeta.GetHeirarchyObjects())
+			nptRequest := prov.InferNextPageRequestElement(ss.tableMeta.GetHeirarchyObjects())
 			pageCount := 1
 			for {
 				if apiErr != nil {
@@ -188,8 +190,8 @@ func (ss *SingleSelectAcquire) Build() error {
 				switch pl := target.(type) {
 				// add case for xml object,
 				case map[string]interface{}:
-					if ss.tableMeta.SelectItemsKey != "" && ss.tableMeta.SelectItemsKey != "/*" {
-						items, ok = pl[ss.tableMeta.SelectItemsKey]
+					if ss.tableMeta.GetSelectItemsKey() != "" && ss.tableMeta.GetSelectItemsKey() != "/*" {
+						items, ok = pl[ss.tableMeta.GetSelectItemsKey()]
 						if !ok {
 							items = []interface{}{
 								pl,

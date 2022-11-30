@@ -727,11 +727,11 @@ func (eng *postgresDialect) QueryNamespaced(colzString string, actualTableName s
 	return eng.sqlEngine.Query(fmt.Sprintf(`SELECT %s FROM "%s"."%s" WHERE "%s" = $1`, colzString, eng.tableSchema, actualTableName, requestEncodingColName), requestEncoding)
 }
 
-func (se *postgresDialect) GetTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers, discoveryId int) (dto.DBTable, error) {
+func (se *postgresDialect) GetTable(tableHeirarchyIDs dto.HeirarchyIdentifiers, discoveryId int) (dto.DBTable, error) {
 	return se.getTable(tableHeirarchyIDs, discoveryId)
 }
 
-func (se *postgresDialect) getTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers, discoveryId int) (dto.DBTable, error) {
+func (se *postgresDialect) getTable(tableHeirarchyIDs dto.HeirarchyIdentifiers, discoveryId int) (dto.DBTable, error) {
 	tableNameStump, err := se.getTableNameStump(tableHeirarchyIDs)
 	if err != nil {
 		return dto.NewDBTable("", "", "", 0, tableHeirarchyIDs), err
@@ -740,13 +740,13 @@ func (se *postgresDialect) getTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers,
 	return dto.NewDBTable(tableName, tableNameStump, tableHeirarchyIDs.GetTableName(), discoveryId, tableHeirarchyIDs), err
 }
 
-func (se *postgresDialect) GetCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers) (dto.DBTable, error) {
+func (se *postgresDialect) GetCurrentTable(tableHeirarchyIDs dto.HeirarchyIdentifiers) (dto.DBTable, error) {
 	return se.getCurrentTable(tableHeirarchyIDs)
 }
 
 // In postgres, 63 chars is default length for IDs such as table names
 // https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
-func (se *postgresDialect) getTableNameStump(tableHeirarchyIDs *dto.HeirarchyIdentifiers) (string, error) {
+func (se *postgresDialect) getTableNameStump(tableHeirarchyIDs dto.HeirarchyIdentifiers) (string, error) {
 	rawTableName := tableHeirarchyIDs.GetTableName()
 	maxRawTableNameWidth := constants.PostgresIDMaxWidth - (len(".generation_") + constants.MaxDigits32BitUnsigned)
 	if len(rawTableName) > maxRawTableNameWidth {
@@ -755,7 +755,7 @@ func (se *postgresDialect) getTableNameStump(tableHeirarchyIDs *dto.HeirarchyIde
 	return rawTableName, nil
 }
 
-func (se *postgresDialect) getCurrentTable(tableHeirarchyIDs *dto.HeirarchyIdentifiers) (dto.DBTable, error) {
+func (se *postgresDialect) getCurrentTable(tableHeirarchyIDs dto.HeirarchyIdentifiers) (dto.DBTable, error) {
 	var tableName string
 	var discoID int
 	tableNameStump, err := se.getTableNameStump(tableHeirarchyIDs)

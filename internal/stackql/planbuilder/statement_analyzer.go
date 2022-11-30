@@ -443,7 +443,7 @@ func (pb *primitiveGenerator) analyzeWhere(where *sqlparser.Where, existingParam
 	requiredParameters := suffix.NewParameterSuffixMap()
 	remainingRequiredParameters := suffix.NewParameterSuffixMap()
 	optionalParameters := suffix.NewParameterSuffixMap()
-	tbVisited := map[*tablemetadata.ExtendedTableMetadata]struct{}{}
+	tbVisited := map[tablemetadata.ExtendedTableMetadata]struct{}{}
 	for _, tb := range pb.PrimitiveComposer.GetTables() {
 		if _, ok := tbVisited[tb]; ok {
 			continue
@@ -524,11 +524,11 @@ func (p *primitiveGenerator) parseComments(comments sqlparser.Comments) {
 	}
 }
 
-func (p *primitiveGenerator) persistHerarchyToBuilder(heirarchy *tablemetadata.HeirarchyObjects, node sqlparser.SQLNode) {
+func (p *primitiveGenerator) persistHerarchyToBuilder(heirarchy tablemetadata.HeirarchyObjects, node sqlparser.SQLNode) {
 	p.PrimitiveComposer.SetTable(node, tablemetadata.NewExtendedTableMetadata(heirarchy, taxonomy.GetTableNameFromStatement(node, p.PrimitiveComposer.GetASTFormatter()), taxonomy.GetAliasFromStatement(node)))
 }
 
-func (p *primitiveGenerator) analyzeUnaryExec(pbi PlanBuilderInput, handlerCtx *handler.HandlerContext, node *sqlparser.Exec, selectNode *sqlparser.Select, cols []parserutil.ColumnHandle) (*tablemetadata.ExtendedTableMetadata, error) {
+func (p *primitiveGenerator) analyzeUnaryExec(pbi PlanBuilderInput, handlerCtx *handler.HandlerContext, node *sqlparser.Exec, selectNode *sqlparser.Select, cols []parserutil.ColumnHandle) (tablemetadata.ExtendedTableMetadata, error) {
 	err := p.inferHeirarchyAndPersist(handlerCtx, node, nil)
 	if err != nil {
 		return nil, err
@@ -1053,7 +1053,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 	return fmt.Errorf("cannot process cartesian join select just yet")
 }
 
-func (p *primitiveGenerator) buildRequestContext(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, meta *tablemetadata.ExtendedTableMetadata, execContext *httpbuild.ExecContext, rowsToInsert map[int]map[int]interface{}) (httpbuild.HTTPArmoury, error) {
+func (p *primitiveGenerator) buildRequestContext(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, meta tablemetadata.ExtendedTableMetadata, execContext *httpbuild.ExecContext, rowsToInsert map[int]map[int]interface{}) (httpbuild.HTTPArmoury, error) {
 	m, err := meta.GetMethod()
 	if err != nil {
 		return nil, err
@@ -1070,7 +1070,7 @@ func (p *primitiveGenerator) buildRequestContext(handlerCtx *handler.HandlerCont
 	if err != nil {
 		return nil, err
 	}
-	meta.GetHttpArmoury = func() (httpbuild.HTTPArmoury, error) { return httpArmoury, nil }
+	meta.WithGetHttpArmoury(func() (httpbuild.HTTPArmoury, error) { return httpArmoury, nil })
 	return httpArmoury, err
 }
 
