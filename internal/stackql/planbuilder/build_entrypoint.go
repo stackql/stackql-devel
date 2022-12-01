@@ -13,8 +13,8 @@ import (
 func BuildPlanFromContext(handlerCtx *handler.HandlerContext) (*plan.Plan, error) {
 	defer handlerCtx.GarbageCollector.Close()
 	tcc, err := dto.NewTxnControlCounters(handlerCtx.TxnCounterMgr)
-	handlerCtx.TxnStore.Put(tcc.TxnId)
-	defer handlerCtx.TxnStore.Del(tcc.TxnId)
+	handlerCtx.TxnStore.Put(tcc.GetTxnID())
+	defer handlerCtx.TxnStore.Del(tcc.GetTxnID())
 	logging.GetLogger().Debugf("tcc = %v\n", tcc)
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func BuildPlanFromContext(handlerCtx *handler.HandlerContext) (*plan.Plan, error
 	opType, ok := handlerCtx.GetDBMSInternalRouter().CanRoute(result.AST)
 	if ok {
 		logging.GetLogger().Debugf("%v", opType)
-		pbi, err := NewPlanBuilderInput(handlerCtx, result.AST, nil, nil, nil, nil, nil, *tcc)
+		pbi, err := NewPlanBuilderInput(handlerCtx, result.AST, nil, nil, nil, nil, nil, tcc.Clone())
 		if err != nil {
 			return nil, err
 		}
@@ -120,14 +120,14 @@ func BuildPlanFromContext(handlerCtx *handler.HandlerContext) (*plan.Plan, error
 	tpv := astvisit.NewPlaceholderParamAstVisitor("", false)
 	tpv.Visit(ast)
 
-	pbi, err := NewPlanBuilderInput(handlerCtx, ast, tVis.GetTables(), aVis.GetAliasedColumns(), tVis.GetAliasMap(), aVis.GetColRefs(), tpv.GetParameters(), *tcc)
+	pbi, err := NewPlanBuilderInput(handlerCtx, ast, tVis.GetTables(), aVis.GetAliasedColumns(), tVis.GetAliasMap(), aVis.GetColRefs(), tpv.GetParameters(), tcc.Clone())
 	if err != nil {
 		return nil, err
 	}
 
 	if sel, ok := isPGSetupQuery(pbi); ok {
 		if sel != nil {
-			pbi, err := NewPlanBuilderInput(handlerCtx, result.AST, nil, nil, nil, nil, nil, *tcc)
+			pbi, err := NewPlanBuilderInput(handlerCtx, result.AST, nil, nil, nil, nil, nil, tcc.Clone())
 			if err != nil {
 				return nil, err
 			}
@@ -136,7 +136,7 @@ func BuildPlanFromContext(handlerCtx *handler.HandlerContext) (*plan.Plan, error
 				return nil, createInstructionError
 			}
 		} else {
-			pbi, err := NewPlanBuilderInput(handlerCtx, nil, nil, nil, nil, nil, nil, *tcc)
+			pbi, err := NewPlanBuilderInput(handlerCtx, nil, nil, nil, nil, nil, nil, tcc.Clone())
 			if err != nil {
 				return nil, err
 			}

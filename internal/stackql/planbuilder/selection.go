@@ -53,7 +53,7 @@ func (p *primitiveGenerator) assembleUnarySelectionBuilder(
 	// 	return err
 	// }
 	ctrs := pbi.GetTxnCtrlCtrs()
-	insPsc, err := p.PrimitiveComposer.GetDRMConfig().GenerateInsertDML(annotatedInsertTabulation, method, &ctrs)
+	insPsc, err := p.PrimitiveComposer.GetDRMConfig().GenerateInsertDML(annotatedInsertTabulation, method, ctrs)
 	if err != nil {
 		return err
 	}

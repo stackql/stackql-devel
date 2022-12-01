@@ -53,7 +53,7 @@ func (v *QueryRewriteAstVisitor) getStarColumns(
 	return columnDescriptors, nil
 }
 
-func (v *QueryRewriteAstVisitor) GenerateSelectDML() (*drm.PreparedStatementCtx, error) {
+func (v *QueryRewriteAstVisitor) GenerateSelectDML() (drm.PreparedStatementCtx, error) {
 	rewriteInput := sqlrewrite.NewStandardSQLRewriteInput(
 		v.dc,
 		v.columnDescriptors,
@@ -76,9 +76,9 @@ type QueryRewriteAstVisitor struct {
 	annotations           taxonomy.AnnotationCtxMap
 	discoGenIDs           map[sqlparser.SQLNode]int
 	annotatedTabulations  taxonomy.AnnotatedTabulationMap
-	selectCtx             *drm.PreparedStatementCtx
-	baseCtrlCounters      *dto.TxnControlCounters
-	secondaryCtrlCounters []*dto.TxnControlCounters
+	selectCtx             drm.PreparedStatementCtx
+	baseCtrlCounters      dto.TxnControlCounters
+	secondaryCtrlCounters []dto.TxnControlCounters
 	colRefs               parserutil.ColTableMap
 	columnNames           []parserutil.ColumnHandle
 	columnDescriptors     []openapistackql.ColumnDescriptor
@@ -101,8 +101,8 @@ func NewQueryRewriteAstVisitor(
 	discoGenIDs map[sqlparser.SQLNode]int,
 	colRefs parserutil.ColTableMap,
 	dc drm.DRMConfig,
-	txnCtrlCtrs *dto.TxnControlCounters,
-	secondaryTccs []*dto.TxnControlCounters,
+	txnCtrlCtrs dto.TxnControlCounters,
+	secondaryTccs []dto.TxnControlCounters,
 	rewrittenWhere string,
 	namespaceCollection tablenamespace.TableNamespaceCollection,
 ) *QueryRewriteAstVisitor {
@@ -136,7 +136,7 @@ func (v *QueryRewriteAstVisitor) GetColumnDescriptors() []openapistackql.ColumnD
 	return v.columnDescriptors
 }
 
-func (v *QueryRewriteAstVisitor) GetSelectContext() (*drm.PreparedStatementCtx, bool) {
+func (v *QueryRewriteAstVisitor) GetSelectContext() (drm.PreparedStatementCtx, bool) {
 	if v.selectCtx != nil {
 		return v.selectCtx, true
 	}

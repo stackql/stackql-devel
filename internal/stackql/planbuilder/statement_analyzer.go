@@ -131,7 +131,6 @@ func (p *primitiveGenerator) analyzeUnion(pbi PlanBuilderInput) error {
 	}
 	pChild := p.addChildPrimitiveGenerator(node.FirstStatement, leaf)
 	counters := pbi.GetTxnCtrlCtrs()
-	ctrPtr := &counters
 	sPbi, err := NewPlanBuilderInput(handlerCtx, node.FirstStatement, nil, nil, nil, nil, nil, counters)
 	if err != nil {
 		return err
@@ -140,7 +139,7 @@ func (p *primitiveGenerator) analyzeUnion(pbi PlanBuilderInput) error {
 	if err != nil {
 		return err
 	}
-	var selectStatementContexts []*drm.PreparedStatementCtx
+	var selectStatementContexts []drm.PreparedStatementCtx
 	for _, rhsStmt := range node.UnionSelects {
 		i++
 		leaf, err := p.PrimitiveComposer.GetSymTab().NewLeaf(i)
@@ -148,8 +147,8 @@ func (p *primitiveGenerator) analyzeUnion(pbi PlanBuilderInput) error {
 			return err
 		}
 		pChild := p.addChildPrimitiveGenerator(rhsStmt.Statement, leaf)
-		ctrPtr = ctrPtr.CloneAndIncrementInsertID()
-		sPbi, err := NewPlanBuilderInput(handlerCtx, rhsStmt.Statement, nil, nil, nil, nil, nil, *ctrPtr)
+		ctrClone := counters.CloneAndIncrementInsertID()
+		sPbi, err := NewPlanBuilderInput(handlerCtx, rhsStmt.Statement, nil, nil, nil, nil, nil, ctrClone)
 		if err != nil {
 			return err
 		}
@@ -640,7 +639,10 @@ func (p *primitiveGenerator) analyzeExec(pbi PlanBuilderInput) error {
 		return fmt.Errorf("could not cast node of type '%T' to required Exec", pbi.GetStatement())
 	}
 	tbl, err := p.analyzeUnaryExec(pbi, handlerCtx, node, nil, nil)
-	insertionContainer := tableinsertioncontainer.NewTableInsertionContainer(tbl, handlerCtx.SQLEngine)
+	insertionContainer, err := tableinsertioncontainer.NewTableInsertionContainer(tbl, handlerCtx.SQLEngine)
+	if err != nil {
+		return err
+	}
 	if err != nil {
 		logging.GetLogger().Infoln(fmt.Sprintf("error analyzing EXEC as selection: '%s'", err.Error()))
 		return err
@@ -1021,7 +1023,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 				pbi.GetStatement(),
 				tblz,
 				p.PrimitiveComposer,
-				&tcc,
+				tcc,
 			)
 			if err != nil {
 				return err
@@ -1044,7 +1046,10 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 			if err != nil {
 				return err
 			}
-			insertionContainer := tableinsertioncontainer.NewTableInsertionContainer(tbl, handlerCtx.SQLEngine)
+			insertionContainer, err := tableinsertioncontainer.NewTableInsertionContainer(tbl, handlerCtx.SQLEngine)
+			if err != nil {
+				return err
+			}
 			pChild.PrimitiveComposer.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveComposer.GetGraph(), pChild.PrimitiveComposer.GetTxnCtrlCtrs(), handlerCtx, insertionContainer, pChild.PrimitiveComposer.GetInsertPreparedStatementCtx(), pChild.PrimitiveComposer.GetSelectPreparedStatementCtx(), nil))
 			return nil
 		}

@@ -230,7 +230,7 @@ func (eng *postgresDialect) getGCHousekeepingQuery(tableName string, tcc dto.Txn
 		) values(%d, %d, %d, '%s')
 		ON CONFLICT (iql_generation_id, iql_session_id, iql_transaction_id, table_name) DO NOTHING
 		`
-	return fmt.Sprintf(templateQuery, tcc.GenId, tcc.SessionId, tcc.TxnId, tableName)
+	return fmt.Sprintf(templateQuery, tcc.GetGenID(), tcc.GetSessionID(), tcc.GetTxnID(), tableName)
 }
 
 func (eng *postgresDialect) DelimitGroupByColumn(term string) string {
@@ -306,11 +306,11 @@ func (eng *postgresDialect) composeSelectQuery(columns []relationaldto.Relationa
 	return eng.sanitizeQueryString(query)
 }
 
-func (eng *postgresDialect) GenerateInsertDML(relationalTable relationaldto.RelationalTable, tcc *dto.TxnControlCounters) (string, error) {
+func (eng *postgresDialect) GenerateInsertDML(relationalTable relationaldto.RelationalTable, tcc dto.TxnControlCounters) (string, error) {
 	return eng.generateInsertDML(relationalTable, tcc)
 }
 
-func (eng *postgresDialect) generateInsertDML(relationalTable relationaldto.RelationalTable, tcc *dto.TxnControlCounters) (string, error) {
+func (eng *postgresDialect) generateInsertDML(relationalTable relationaldto.RelationalTable, tcc dto.TxnControlCounters) (string, error) {
 	var q strings.Builder
 	var quotedColNames, vals []string
 	tableName, err := relationalTable.GetName()
@@ -348,11 +348,11 @@ func (eng *postgresDialect) generateInsertDML(relationalTable relationaldto.Rela
 	return q.String(), nil
 }
 
-func (eng *postgresDialect) GenerateSelectDML(relationalTable relationaldto.RelationalTable, txnCtrlCtrs *dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (string, error) {
+func (eng *postgresDialect) GenerateSelectDML(relationalTable relationaldto.RelationalTable, txnCtrlCtrs dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (string, error) {
 	return eng.generateSelectDML(relationalTable, txnCtrlCtrs, selectSuffix, rewrittenWhere)
 }
 
-func (eng *postgresDialect) generateSelectDML(relationalTable relationaldto.RelationalTable, txnCtrlCtrs *dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (string, error) {
+func (eng *postgresDialect) generateSelectDML(relationalTable relationaldto.RelationalTable, txnCtrlCtrs dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (string, error) {
 	var q strings.Builder
 	var quotedColNames []string
 	for _, col := range relationalTable.GetColumns() {
@@ -423,7 +423,7 @@ func (sl *postgresDialect) GCAdd(tableName string, parentTcc, lockableTcc dto.Tx
 		maxTxnColName,
 		maxTxnColName,
 	)
-	_, err := sl.sqlEngine.Exec(q, lockableTcc.TxnId, lockableTcc.InsertId)
+	_, err := sl.sqlEngine.Exec(q, lockableTcc.GetTxnID(), lockableTcc.GetInsertID())
 	return err
 }
 
@@ -516,7 +516,7 @@ func (eng *postgresDialect) IsTablePresent(tableName string, requestEncoding str
 }
 
 // In Postgres, `Timestamp with time zone` objects are timezone-aware.
-func (eng *postgresDialect) TableOldestUpdateUTC(tableName string, requestEncoding string, updateColName string, requestEncodingColName string) (time.Time, *dto.TxnControlCounters) {
+func (eng *postgresDialect) TableOldestUpdateUTC(tableName string, requestEncoding string, updateColName string, requestEncodingColName string) (time.Time, dto.TxnControlCounters) {
 	genIdColName := eng.controlAttributes.GetControlGenIdColumnName()
 	ssnIdColName := eng.controlAttributes.GetControlSsnIdColumnName()
 	txnIdColName := eng.controlAttributes.GetControlTxnIdColumnName()
@@ -527,11 +527,14 @@ func (eng *postgresDialect) TableOldestUpdateUTC(tableName string, requestEncodi
 		rowExists := rows.Next()
 		if rowExists {
 			var oldestTime time.Time
-			tcc := dto.TxnControlCounters{}
-			err = rows.Scan(&oldestTime, &tcc.GenId, &tcc.SessionId, &tcc.TxnId, &tcc.InsertId)
+			tcc, err := dto.NewTxnControlCounters(nil)
+			if err != nil {
+				return time.Time{}, nil
+			}
+			err = rows.Scan(&oldestTime, tcc.GetGenID(), tcc.GetSessionID(), tcc.GetTxnID(), tcc.GetInsertID())
 			if err == nil {
-				tcc.TableName = tableName
-				return oldestTime, &tcc
+				tcc.SetTableName(tableName)
+				return oldestTime, tcc
 			}
 		}
 	}

@@ -137,7 +137,7 @@ func (sl *sqLiteDialect) GCAdd(tableName string, parentTcc, lockableTcc dto.TxnC
 		maxTxnColName,
 		maxTxnColName,
 	)
-	_, err := sl.sqlEngine.Exec(q, lockableTcc.TxnId, lockableTcc.InsertId)
+	_, err := sl.sqlEngine.Exec(q, lockableTcc.GetTxnID(), lockableTcc.GetInsertID())
 	return err
 }
 
@@ -287,7 +287,7 @@ func (eng *sqLiteDialect) IsTablePresent(tableName string, requestEncoding strin
 //
 // Therefore, this method will behave correctly provided that the column `colName`
 // is populated with `DateTime('now')`.
-func (eng *sqLiteDialect) TableOldestUpdateUTC(tableName string, requestEncoding string, updateColName string, requestEncodingColName string) (time.Time, *dto.TxnControlCounters) {
+func (eng *sqLiteDialect) TableOldestUpdateUTC(tableName string, requestEncoding string, updateColName string, requestEncodingColName string) (time.Time, dto.TxnControlCounters) {
 	genIdColName := eng.controlAttributes.GetControlGenIdColumnName()
 	ssnIdColName := eng.controlAttributes.GetControlSsnIdColumnName()
 	txnIdColName := eng.controlAttributes.GetControlTxnIdColumnName()
@@ -298,13 +298,16 @@ func (eng *sqLiteDialect) TableOldestUpdateUTC(tableName string, requestEncoding
 		rowExists := rows.Next()
 		if rowExists {
 			var oldest string
-			tcc := dto.TxnControlCounters{}
-			err = rows.Scan(&oldest, &tcc.GenId, &tcc.SessionId, &tcc.TxnId, &tcc.InsertId)
+			tcc, err := dto.NewTxnControlCounters(nil)
+			if err != nil {
+				return time.Time{}, nil
+			}
+			err = rows.Scan(&oldest, tcc.GetGenID(), tcc.GetSessionID(), tcc.GetTxnID(), tcc.GetInsertID())
 			if err == nil {
 				oldestTime, err := time.Parse("2006-01-02T15:04:05", oldest)
 				if err == nil {
-					tcc.TableName = tableName
-					return oldestTime, &tcc
+					tcc.SetTableName(tableName)
+					return oldestTime, tcc
 				}
 			}
 		}
@@ -324,7 +327,7 @@ func (eng *sqLiteDialect) getGCHousekeepingQuery(tableName string, tcc dto.TxnCo
 			iql_transaction_id, 
 			table_name
 		) values(%d, %d, %d, '%s')`
-	return fmt.Sprintf(templateQuery, tcc.GenId, tcc.SessionId, tcc.TxnId, tableName)
+	return fmt.Sprintf(templateQuery, tcc.GetGenID(), tcc.GetSessionID(), tcc.GetTxnID(), tableName)
 }
 
 func (eng *sqLiteDialect) ComposeSelectQuery(columns []relationaldto.RelationalColumn, tableAliases []string, fromString string, rewrittenWhere string, selectSuffix string) (string, error) {
@@ -411,11 +414,11 @@ func (eng *sqLiteDialect) sanitizeWhereQueryString(queryString string) (string, 
 	return queryString, nil
 }
 
-func (eng *sqLiteDialect) GenerateInsertDML(relationalTable relationaldto.RelationalTable, tcc *dto.TxnControlCounters) (string, error) {
+func (eng *sqLiteDialect) GenerateInsertDML(relationalTable relationaldto.RelationalTable, tcc dto.TxnControlCounters) (string, error) {
 	return eng.generateInsertDML(relationalTable, tcc)
 }
 
-func (eng *sqLiteDialect) generateInsertDML(relationalTable relationaldto.RelationalTable, tcc *dto.TxnControlCounters) (string, error) {
+func (eng *sqLiteDialect) generateInsertDML(relationalTable relationaldto.RelationalTable, tcc dto.TxnControlCounters) (string, error) {
 	var q strings.Builder
 	var quotedColNames, vals []string
 	tableName, err := relationalTable.GetName()
@@ -447,11 +450,11 @@ func (eng *sqLiteDialect) generateInsertDML(relationalTable relationaldto.Relati
 	return q.String(), nil
 }
 
-func (eng *sqLiteDialect) GenerateSelectDML(relationalTable relationaldto.RelationalTable, txnCtrlCtrs *dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (string, error) {
+func (eng *sqLiteDialect) GenerateSelectDML(relationalTable relationaldto.RelationalTable, txnCtrlCtrs dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (string, error) {
 	return eng.generateSelectDML(relationalTable, txnCtrlCtrs, selectSuffix, rewrittenWhere)
 }
 
-func (eng *sqLiteDialect) generateSelectDML(relationalTable relationaldto.RelationalTable, txnCtrlCtrs *dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (string, error) {
+func (eng *sqLiteDialect) generateSelectDML(relationalTable relationaldto.RelationalTable, txnCtrlCtrs dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (string, error) {
 	var q strings.Builder
 	var quotedColNames []string
 	for _, col := range relationalTable.GetColumns() {

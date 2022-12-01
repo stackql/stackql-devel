@@ -57,7 +57,18 @@ func NewColDescriptor(col openapistackql.ColumnDescriptor, relTypeStr string) Co
 	}
 }
 
-type PreparedStatementCtx struct {
+type PreparedStatementCtx interface {
+	//
+	GetAllCtrlCtrs() []dto.TxnControlCounters
+	GetGCCtrlCtrs() dto.TxnControlCounters
+	GetNonControlColumns() []ColumnMetadata
+	GetGCHousekeepingQueries() string
+	GetQuery() string
+	SetGCCtrlCtrs(tcc dto.TxnControlCounters)
+	SetKind(kind string)
+}
+
+type standardPreparedStatementCtx struct {
 	query                   string
 	kind                    string // string annotation applicable only in some cases eg UNION [ALL]
 	genIdControlColName     string
@@ -68,34 +79,34 @@ type PreparedStatementCtx struct {
 	insEncodedColName       string
 	nonControlColumns       []ColumnMetadata
 	ctrlColumnRepeats       int
-	txnCtrlCtrs             *dto.TxnControlCounters
-	selectTxnCtrlCtrs       []*dto.TxnControlCounters
+	txnCtrlCtrs             dto.TxnControlCounters
+	selectTxnCtrlCtrs       []dto.TxnControlCounters
 	namespaceCollection     tablenamespace.TableNamespaceCollection
 	sqlDialect              sqldialect.SQLDialect
 }
 
-func (ps *PreparedStatementCtx) SetKind(kind string) {
+func (ps *standardPreparedStatementCtx) SetKind(kind string) {
 	ps.kind = kind
 }
 
-func (ps *PreparedStatementCtx) GetQuery() string {
+func (ps *standardPreparedStatementCtx) GetQuery() string {
 	return ps.query
 }
 
-func (ps *PreparedStatementCtx) GetGCCtrlCtrs() *dto.TxnControlCounters {
+func (ps *standardPreparedStatementCtx) GetGCCtrlCtrs() dto.TxnControlCounters {
 	return ps.txnCtrlCtrs
 }
 
-func (ps *PreparedStatementCtx) SetGCCtrlCtrs(tcc *dto.TxnControlCounters) {
+func (ps *standardPreparedStatementCtx) SetGCCtrlCtrs(tcc dto.TxnControlCounters) {
 	ps.txnCtrlCtrs = tcc
 }
 
-func (ps *PreparedStatementCtx) GetNonControlColumns() []ColumnMetadata {
+func (ps *standardPreparedStatementCtx) GetNonControlColumns() []ColumnMetadata {
 	return ps.nonControlColumns
 }
 
-func (ps *PreparedStatementCtx) GetAllCtrlCtrs() []*dto.TxnControlCounters {
-	var rv []*dto.TxnControlCounters
+func (ps *standardPreparedStatementCtx) GetAllCtrlCtrs() []dto.TxnControlCounters {
+	var rv []dto.TxnControlCounters
 	rv = append(rv, ps.txnCtrlCtrs)
 	rv = append(rv, ps.selectTxnCtrlCtrs...)
 	return rv
@@ -112,12 +123,12 @@ func NewPreparedStatementCtx(
 	insEncodedColName string,
 	nonControlColumns []ColumnMetadata,
 	ctrlColumnRepeats int,
-	txnCtrlCtrs *dto.TxnControlCounters,
-	secondaryCtrs []*dto.TxnControlCounters,
+	txnCtrlCtrs dto.TxnControlCounters,
+	secondaryCtrs []dto.TxnControlCounters,
 	namespaceCollection tablenamespace.TableNamespaceCollection,
 	sqlDialect sqldialect.SQLDialect,
-) *PreparedStatementCtx {
-	return &PreparedStatementCtx{
+) PreparedStatementCtx {
+	return &standardPreparedStatementCtx{
 		query:                   query,
 		kind:                    kind,
 		genIdControlColName:     genIdControlColName,
@@ -135,46 +146,116 @@ func NewPreparedStatementCtx(
 	}
 }
 
-func NewQueryOnlyPreparedStatementCtx(query string) *PreparedStatementCtx {
-	return &PreparedStatementCtx{query: query, ctrlColumnRepeats: 0}
+func NewQueryOnlyPreparedStatementCtx(query string) PreparedStatementCtx {
+	return &standardPreparedStatementCtx{query: query, ctrlColumnRepeats: 0}
 }
 
-func (ps PreparedStatementCtx) GetGCHousekeepingQueries() string {
+func (ps standardPreparedStatementCtx) GetGCHousekeepingQueries() string {
 	var housekeepingQueries []string
 	for _, table := range ps.TableNames {
-		housekeepingQueries = append(housekeepingQueries, ps.sqlDialect.GetGCHousekeepingQuery(table, *ps.txnCtrlCtrs))
+		housekeepingQueries = append(housekeepingQueries, ps.sqlDialect.GetGCHousekeepingQuery(table, ps.txnCtrlCtrs))
 	}
 	return strings.Join(housekeepingQueries, "; ")
 }
 
-type PreparedStatementParameterized struct {
-	Ctx                 *PreparedStatementCtx
+type PreparedStatementParameterized interface {
+	//
+	AddChild(int, PreparedStatementParameterized)
+	GetArgs() map[string]interface{}
+	GetChildren() map[int]PreparedStatementParameterized
+	GetCtx() PreparedStatementCtx
+	GetRequestEncoding() string
+	IsControlArgsRequired() bool
+	WithRequestEncoding(string) PreparedStatementParameterized
+}
+
+type standardPreparedStatementParameterized struct {
+	ctx                 PreparedStatementCtx
 	args                map[string]interface{}
 	controlArgsRequired bool
 	requestEncoding     string
 	children            map[int]PreparedStatementParameterized
 }
 
-func (ps PreparedStatementParameterized) AddChild(key int, val PreparedStatementParameterized) {
+func (ps *standardPreparedStatementParameterized) WithRequestEncoding(reqEnc string) PreparedStatementParameterized {
+	ps.requestEncoding = reqEnc
+	return ps
+}
+
+func (ps *standardPreparedStatementParameterized) GetRequestEncoding() string {
+	return ps.requestEncoding
+}
+
+func (ps *standardPreparedStatementParameterized) IsControlArgsRequired() bool {
+	return ps.controlArgsRequired
+}
+
+func (ps *standardPreparedStatementParameterized) GetArgs() map[string]interface{} {
+	return ps.args
+}
+
+func (ps *standardPreparedStatementParameterized) AddChild(key int, val PreparedStatementParameterized) {
 	ps.children[key] = val
 }
 
-type PreparedStatementArgs struct {
+func (ps *standardPreparedStatementParameterized) GetChildren() map[int]PreparedStatementParameterized {
+	return ps.children
+}
+
+func (ps *standardPreparedStatementParameterized) GetCtx() PreparedStatementCtx {
+	return ps.ctx
+}
+
+type PreparedStatementArgs interface {
+	//
+	GetArgs() []interface{}
+	GetChild(int) PreparedStatementArgs
+	GetChildren() map[int]PreparedStatementArgs
+	GetQuery() string
+	SetArgs([]interface{})
+	SetChild(int, PreparedStatementArgs)
+}
+
+type standardPreparedStatementArgs struct {
 	query    string
 	args     []interface{}
 	children map[int]PreparedStatementArgs
 }
 
 func NewPreparedStatementArgs(query string) PreparedStatementArgs {
-	return PreparedStatementArgs{
+	return &standardPreparedStatementArgs{
 		query:    query,
 		children: make(map[int]PreparedStatementArgs),
 	}
 }
 
-func NewPreparedStatementParameterized(ctx *PreparedStatementCtx, args map[string]interface{}, controlArgsRequired bool) PreparedStatementParameterized {
-	return PreparedStatementParameterized{
-		Ctx:                 ctx,
+func (ca *standardPreparedStatementArgs) GetChild(k int) PreparedStatementArgs {
+	return ca.children[k]
+}
+
+func (ca *standardPreparedStatementArgs) GetChildren() map[int]PreparedStatementArgs {
+	return ca.children
+}
+
+func (ca *standardPreparedStatementArgs) GetArgs() []interface{} {
+	return ca.args
+}
+
+func (ca *standardPreparedStatementArgs) GetQuery() string {
+	return ca.query
+}
+
+func (ca *standardPreparedStatementArgs) SetChild(i int, a PreparedStatementArgs) {
+	ca.children[i] = a
+}
+
+func (ca *standardPreparedStatementArgs) SetArgs(args []interface{}) {
+	ca.args = args
+}
+
+func NewPreparedStatementParameterized(ctx PreparedStatementCtx, args map[string]interface{}, controlArgsRequired bool) PreparedStatementParameterized {
+	return &standardPreparedStatementParameterized{
+		ctx:                 ctx,
 		args:                args,
 		controlArgsRequired: controlArgsRequired,
 		children:            make(map[int]PreparedStatementParameterized),
@@ -194,9 +275,9 @@ type DRMConfig interface {
 	GetParserTableName(dto.HeirarchyIdentifiers, int) sqlparser.TableName
 	GetSQLDialect() sqldialect.SQLDialect
 	GetTable(dto.HeirarchyIdentifiers, int) (dto.DBTable, error)
-	GenerateInsertDML(util.AnnotatedTabulation, *openapistackql.OperationStore, *dto.TxnControlCounters) (*PreparedStatementCtx, error)
-	GenerateSelectDML(util.AnnotatedTabulation, *dto.TxnControlCounters, string, string) (*PreparedStatementCtx, error)
-	ExecuteInsertDML(sqlengine.SQLEngine, *PreparedStatementCtx, map[string]interface{}, string) (sql.Result, error)
+	GenerateInsertDML(util.AnnotatedTabulation, *openapistackql.OperationStore, dto.TxnControlCounters) (PreparedStatementCtx, error)
+	GenerateSelectDML(util.AnnotatedTabulation, dto.TxnControlCounters, string, string) (PreparedStatementCtx, error)
+	ExecuteInsertDML(sqlengine.SQLEngine, PreparedStatementCtx, map[string]interface{}, string) (sql.Result, error)
 	QueryDML(sqlengine.SQLEngine, PreparedStatementParameterized) (*sql.Rows, error)
 }
 
@@ -412,7 +493,7 @@ func (dc *StaticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, m *opena
 	return dc.sqlDialect.GenerateDDL(relationalTable, dropTable)
 }
 
-func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulation, method *openapistackql.OperationStore, tcc *dto.TxnControlCounters) (*PreparedStatementCtx, error) {
+func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulation, method *openapistackql.OperationStore, tcc dto.TxnControlCounters) (PreparedStatementCtx, error) {
 	var columns []ColumnMetadata
 	tableName, err := dc.GetCurrentTable(tabAnnotated.GetHeirarchyIdentifiers())
 	if err != nil {
@@ -463,7 +544,7 @@ func (dc *StaticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 		nil
 }
 
-func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulation, txnCtrlCtrs *dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (*PreparedStatementCtx, error) {
+func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulation, txnCtrlCtrs dto.TxnControlCounters, selectSuffix, rewrittenWhere string) (PreparedStatementCtx, error) {
 	var quotedColNames []string
 	var columns []ColumnMetadata
 
@@ -530,18 +611,18 @@ func (dc *StaticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 
 func (dc *StaticDRMConfig) generateControlVarArgs(cp PreparedStatementParameterized, isInsert bool) ([]interface{}, error) {
 	var varArgs []interface{}
-	if cp.controlArgsRequired {
-		ctrSlice := cp.Ctx.GetAllCtrlCtrs()
+	if cp.IsControlArgsRequired() {
+		ctrSlice := cp.GetCtx().GetAllCtrlCtrs()
 		for _, ctrs := range ctrSlice {
 			if ctrs == nil {
 				continue
 			}
-			varArgs = append(varArgs, ctrs.GenId)
-			varArgs = append(varArgs, ctrs.SessionId)
-			varArgs = append(varArgs, ctrs.TxnId)
-			varArgs = append(varArgs, ctrs.InsertId)
+			varArgs = append(varArgs, ctrs.GetGenID())
+			varArgs = append(varArgs, ctrs.GetSessionID())
+			varArgs = append(varArgs, ctrs.GetTxnID())
+			varArgs = append(varArgs, ctrs.GetInsertID())
 			if isInsert {
-				varArgs = append(varArgs, cp.requestEncoding)
+				varArgs = append(varArgs, cp.GetRequestEncoding())
 			}
 		}
 	}
@@ -549,18 +630,19 @@ func (dc *StaticDRMConfig) generateControlVarArgs(cp PreparedStatementParameteri
 }
 
 func (dc *StaticDRMConfig) generateVarArgs(cp PreparedStatementParameterized, isInsert bool) (PreparedStatementArgs, error) {
-	retVal := NewPreparedStatementArgs(cp.Ctx.GetQuery())
-	for i, child := range cp.children {
+	retVal := NewPreparedStatementArgs(cp.GetCtx().GetQuery())
+	for i, child := range cp.GetChildren() {
 		chidRv, err := dc.generateVarArgs(child, isInsert)
 		if err != nil {
 			return retVal, err
 		}
-		retVal.children[i] = chidRv
+		retVal.SetChild(i, chidRv)
 	}
 	varArgs, _ := dc.generateControlVarArgs(cp, isInsert)
-	if cp.args != nil && len(cp.args) > 0 {
-		for _, col := range cp.Ctx.GetNonControlColumns() {
-			va, ok := cp.args[col.GetName()]
+	psArgs := cp.GetArgs()
+	if psArgs != nil && len(psArgs) > 0 {
+		for _, col := range cp.GetCtx().GetNonControlColumns() {
+			va, ok := psArgs[col.GetName()]
 			if !ok {
 				varArgs = append(varArgs, nil)
 				continue
@@ -583,23 +665,23 @@ func (dc *StaticDRMConfig) generateVarArgs(cp PreparedStatementParameterized, is
 			}
 		}
 	}
-	retVal.args = varArgs
+	retVal.SetArgs(varArgs)
 	return retVal, nil
 }
 
-func (dc *StaticDRMConfig) ExecuteInsertDML(dbEngine sqlengine.SQLEngine, ctx *PreparedStatementCtx, payload map[string]interface{}, requestEncoding string) (sql.Result, error) {
+func (dc *StaticDRMConfig) ExecuteInsertDML(dbEngine sqlengine.SQLEngine, ctx PreparedStatementCtx, payload map[string]interface{}, requestEncoding string) (sql.Result, error) {
 	if ctx == nil {
 		return nil, fmt.Errorf("cannot execute on nil PreparedStatementContext")
 	}
-	stmtArgs, err := dc.generateVarArgs(PreparedStatementParameterized{Ctx: ctx, args: payload, controlArgsRequired: true, requestEncoding: requestEncoding}, true)
+	stmtArgs, err := dc.generateVarArgs(NewPreparedStatementParameterized(ctx, payload, true).WithRequestEncoding(requestEncoding), true)
 	if err != nil {
 		return nil, err
 	}
-	return dbEngine.Exec(stmtArgs.query, stmtArgs.args...)
+	return dbEngine.Exec(stmtArgs.GetQuery(), stmtArgs.GetArgs()...)
 }
 
 func (dc *StaticDRMConfig) QueryDML(dbEngine sqlengine.SQLEngine, ctxParameterized PreparedStatementParameterized) (*sql.Rows, error) {
-	if ctxParameterized.Ctx == nil {
+	if ctxParameterized.GetCtx() == nil {
 		return nil, fmt.Errorf("cannot execute based upon nil PreparedStatementContext")
 	}
 	rootArgs, err := dc.generateVarArgs(ctxParameterized, false)
@@ -608,29 +690,29 @@ func (dc *StaticDRMConfig) QueryDML(dbEngine sqlengine.SQLEngine, ctxParameteriz
 	}
 	var varArgs []interface{}
 	j := 0
-	query := rootArgs.query
+	query := rootArgs.GetQuery()
 	var childQueryStrings []interface{} // dunno why
 	var keys []int
-	for i := range rootArgs.children {
+	for i := range rootArgs.GetChildren() {
 		keys = append(keys, i)
 	}
 	sort.Ints(keys)
 	for _, k := range keys {
-		cp := rootArgs.children[k]
-		logging.GetLogger().Infoln(fmt.Sprintf("adding child query = %s", cp.query))
-		childQueryStrings = append(childQueryStrings, cp.query)
-		if len(rootArgs.args) >= k {
-			varArgs = append(varArgs, rootArgs.args[j:k]...)
+		cp := rootArgs.GetChild(k)
+		logging.GetLogger().Infoln(fmt.Sprintf("adding child query = %s", cp.GetQuery()))
+		childQueryStrings = append(childQueryStrings, cp.GetQuery())
+		if len(rootArgs.GetArgs()) >= k {
+			varArgs = append(varArgs, rootArgs.GetArgs()[j:k]...)
 		}
-		varArgs = append(varArgs, cp.args...)
+		varArgs = append(varArgs, cp.GetArgs()...)
 		j = k
 	}
 	logging.GetLogger().Infoln(fmt.Sprintf("raw query = %s", query))
 	if len(childQueryStrings) > 0 {
-		query = fmt.Sprintf(rootArgs.query, childQueryStrings...)
+		query = fmt.Sprintf(rootArgs.GetQuery(), childQueryStrings...)
 	}
-	if len(rootArgs.args) >= j {
-		varArgs = append(varArgs, rootArgs.args[j:]...)
+	if len(rootArgs.GetArgs()) >= j {
+		varArgs = append(varArgs, rootArgs.GetArgs()[j:]...)
 	}
 	logging.GetLogger().Infoln(fmt.Sprintf("query = %s", query))
 	return dbEngine.Query(query, varArgs...)

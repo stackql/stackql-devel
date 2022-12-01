@@ -10,7 +10,7 @@ import (
 )
 
 type SimpleSQLMapStream struct {
-	selectCtx       *drm.PreparedStatementCtx
+	selectCtx       drm.PreparedStatementCtx
 	insertContainer tableinsertioncontainer.TableInsertionContainer
 	drmCfg          drm.DRMConfig
 	sqlEngine       sqlengine.SQLEngine
@@ -19,7 +19,7 @@ type SimpleSQLMapStream struct {
 }
 
 func NewSimpleSQLMapStream(
-	selectCtx *drm.PreparedStatementCtx,
+	selectCtx drm.PreparedStatementCtx,
 	insertContainer tableinsertioncontainer.TableInsertionContainer,
 	drmCfg drm.DRMConfig,
 	sqlEngine sqlengine.SQLEngine,
