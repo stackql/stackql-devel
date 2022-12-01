@@ -298,14 +298,12 @@ func (eng *sqLiteDialect) TableOldestUpdateUTC(tableName string, requestEncoding
 		rowExists := rows.Next()
 		if rowExists {
 			var oldest string
-			tcc, err := dto.NewTxnControlCounters(nil)
-			if err != nil {
-				return time.Time{}, nil
-			}
-			err = rows.Scan(&oldest, tcc.GetGenID(), tcc.GetSessionID(), tcc.GetTxnID(), tcc.GetInsertID())
+			var genID, sessionID, txnID, insertID int
+			err = rows.Scan(&oldest, &genID, &sessionID, &txnID, &insertID)
 			if err == nil {
 				oldestTime, err := time.Parse("2006-01-02T15:04:05", oldest)
 				if err == nil {
+					tcc := dto.NewTxnControlCountersFromVals(genID, sessionID, txnID, insertID)
 					tcc.SetTableName(tableName)
 					return oldestTime, tcc
 				}

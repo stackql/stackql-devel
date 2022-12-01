@@ -54,6 +54,15 @@ func NewTxnControlCounters(txnCtrMgr txncounter.TxnCounterManager) (TxnControlCo
 	}, nil
 }
 
+func NewTxnControlCountersFromVals(genId, ssnId, txnId, insertId int) TxnControlCounters {
+	return &standardTxnControlCounters{
+		genId:     genId,
+		sessionId: ssnId,
+		txnId:     txnId,
+		insertId:  insertId,
+	}
+}
+
 func (tc *standardTxnControlCounters) SetTxnID(tID int) {
 	tc.txnId = tID
 }

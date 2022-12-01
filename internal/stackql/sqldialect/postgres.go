@@ -527,12 +527,10 @@ func (eng *postgresDialect) TableOldestUpdateUTC(tableName string, requestEncodi
 		rowExists := rows.Next()
 		if rowExists {
 			var oldestTime time.Time
-			tcc, err := dto.NewTxnControlCounters(nil)
-			if err != nil {
-				return time.Time{}, nil
-			}
-			err = rows.Scan(&oldestTime, tcc.GetGenID(), tcc.GetSessionID(), tcc.GetTxnID(), tcc.GetInsertID())
+			var genID, sessionID, txnID, insertID int
+			err = rows.Scan(&oldestTime, &genID, &sessionID, &txnID, &insertID)
 			if err == nil {
+				tcc := dto.NewTxnControlCountersFromVals(genID, sessionID, txnID, insertID)
 				tcc.SetTableName(tableName)
 				return oldestTime, tcc
 			}
