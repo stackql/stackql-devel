@@ -2,8 +2,8 @@ package planbuilder
 
 import (
 	"github.com/stackql/stackql/internal/stackql/astvisit"
-	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
+	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parse"
 	"github.com/stackql/stackql/internal/stackql/plan"
@@ -12,7 +12,7 @@ import (
 
 func BuildPlanFromContext(handlerCtx *handler.HandlerContext) (*plan.Plan, error) {
 	defer handlerCtx.GarbageCollector.Close()
-	tcc, err := dto.NewTxnControlCounters(handlerCtx.TxnCounterMgr)
+	tcc, err := internaldto.NewTxnControlCounters(handlerCtx.TxnCounterMgr)
 	handlerCtx.TxnStore.Put(tcc.GetTxnID())
 	defer handlerCtx.TxnStore.Del(tcc.GetTxnID())
 	logging.GetLogger().Debugf("tcc = %v\n", tcc)

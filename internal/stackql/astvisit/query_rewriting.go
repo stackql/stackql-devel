@@ -8,8 +8,8 @@ import (
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/stackql/internal/stackql/drm"
-	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
+	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/sqlrewrite"
@@ -77,8 +77,8 @@ type QueryRewriteAstVisitor struct {
 	discoGenIDs           map[sqlparser.SQLNode]int
 	annotatedTabulations  taxonomy.AnnotatedTabulationMap
 	selectCtx             drm.PreparedStatementCtx
-	baseCtrlCounters      dto.TxnControlCounters
-	secondaryCtrlCounters []dto.TxnControlCounters
+	baseCtrlCounters      internaldto.TxnControlCounters
+	secondaryCtrlCounters []internaldto.TxnControlCounters
 	colRefs               parserutil.ColTableMap
 	columnNames           []parserutil.ColumnHandle
 	columnDescriptors     []openapistackql.ColumnDescriptor
@@ -101,8 +101,8 @@ func NewQueryRewriteAstVisitor(
 	discoGenIDs map[sqlparser.SQLNode]int,
 	colRefs parserutil.ColTableMap,
 	dc drm.DRMConfig,
-	txnCtrlCtrs dto.TxnControlCounters,
-	secondaryTccs []dto.TxnControlCounters,
+	txnCtrlCtrs internaldto.TxnControlCounters,
+	secondaryTccs []internaldto.TxnControlCounters,
 	rewrittenWhere string,
 	namespaceCollection tablenamespace.TableNamespaceCollection,
 ) *QueryRewriteAstVisitor {

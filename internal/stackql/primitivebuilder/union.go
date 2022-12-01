@@ -2,8 +2,8 @@ package primitivebuilder
 
 import (
 	"github.com/stackql/stackql/internal/stackql/drm"
-	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
+	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/streaming"
@@ -20,7 +20,7 @@ type Union struct {
 }
 
 func (un *Union) Build() error {
-	unionEx := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+	unionEx := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 		us := drm.NewPreparedStatementParameterized(un.unionCtx, nil, false)
 		i := 0
 		us.AddChild(i, drm.NewPreparedStatementParameterized(un.lhs, nil, true))

@@ -8,8 +8,8 @@ import (
 	"github.com/stackql/stackql/internal/stackql/dataflow"
 	"github.com/stackql/stackql/internal/stackql/docparser"
 	"github.com/stackql/stackql/internal/stackql/drm"
-	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
+	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/primitivebuilder"
@@ -34,10 +34,10 @@ type StandardDependencyPlanner struct {
 	colRefs            parserutil.ColTableMap
 	handlerCtx         *handler.HandlerContext
 	execSlice          []primitivebuilder.Builder
-	primaryTcc, tcc    dto.TxnControlCounters
+	primaryTcc, tcc    internaldto.TxnControlCounters
 	primitiveComposer  primitivecomposer.PrimitiveComposer
 	rewrittenWhere     *sqlparser.Where
-	secondaryTccs      []dto.TxnControlCounters
+	secondaryTccs      []internaldto.TxnControlCounters
 	sqlStatement       sqlparser.SQLNode
 	tableSlice         []tableinsertioncontainer.TableInsertionContainer
 	tblz               taxonomy.TblMap
@@ -58,7 +58,7 @@ func NewStandardDependencyPlanner(
 	sqlStatement sqlparser.SQLNode,
 	tblz taxonomy.TblMap,
 	primitiveComposer primitivecomposer.PrimitiveComposer,
-	tcc dto.TxnControlCounters,
+	tcc internaldto.TxnControlCounters,
 ) (DependencyPlanner, error) {
 	if tcc == nil {
 		return nil, fmt.Errorf("violation of StandardDependencyPlanner invariant: txn counter cannot be nil")
@@ -233,7 +233,7 @@ func (dp *StandardDependencyPlanner) Plan() error {
 	return nil
 }
 
-func (dp *StandardDependencyPlanner) processOrphan(sqlNode sqlparser.SQLNode, annotationCtx taxonomy.AnnotationCtx, inStream streaming.MapStream) (drm.PreparedStatementCtx, dto.TxnControlCounters, error) {
+func (dp *StandardDependencyPlanner) processOrphan(sqlNode sqlparser.SQLNode, annotationCtx taxonomy.AnnotationCtx, inStream streaming.MapStream) (drm.PreparedStatementCtx, internaldto.TxnControlCounters, error) {
 	anTab, tcc, err := dp.processAcquire(sqlNode, annotationCtx, inStream)
 	if err != nil {
 		return nil, nil, err
@@ -274,7 +274,7 @@ func (dp *StandardDependencyPlanner) processAcquire(
 	sqlNode sqlparser.SQLNode,
 	annotationCtx taxonomy.AnnotationCtx,
 	stream streaming.MapStream,
-) (util.AnnotatedTabulation, dto.TxnControlCounters, error) {
+) (util.AnnotatedTabulation, internaldto.TxnControlCounters, error) {
 	inputTableName, err := annotationCtx.GetInputTableName()
 	if err != nil {
 		return util.NewAnnotatedTabulation(nil, nil, "", ""), nil, err
@@ -312,7 +312,7 @@ func (dp *StandardDependencyPlanner) processAcquire(
 	return anTab, dp.tcc, nil
 }
 
-func (dp *StandardDependencyPlanner) getStreamFromEdge(e dataflow.DataFlowEdge, ac taxonomy.AnnotationCtx, tcc dto.TxnControlCounters) (streaming.MapStream, error) {
+func (dp *StandardDependencyPlanner) getStreamFromEdge(e dataflow.DataFlowEdge, ac taxonomy.AnnotationCtx, tcc internaldto.TxnControlCounters) (streaming.MapStream, error) {
 	if e.IsSQL() {
 		selectCtx, err := dp.generateSelectDML(e, tcc)
 		if err != nil {
@@ -351,7 +351,7 @@ func (dp *StandardDependencyPlanner) getStreamFromEdge(e dataflow.DataFlowEdge, 
 	return streaming.NewSimpleProjectionMapStream(projection, staticParams), nil
 }
 
-func (dp *StandardDependencyPlanner) generateSelectDML(e dataflow.DataFlowEdge, tcc dto.TxnControlCounters) (drm.PreparedStatementCtx, error) {
+func (dp *StandardDependencyPlanner) generateSelectDML(e dataflow.DataFlowEdge, tcc internaldto.TxnControlCounters) (drm.PreparedStatementCtx, error) {
 	ann := e.GetSource().GetAnnotation()
 	columnDescriptors, err := e.GetColumnDescriptors()
 	if err != nil {

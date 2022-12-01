@@ -6,9 +6,9 @@ import (
 
 	"github.com/stackql/go-openapistackql/pkg/graphql"
 	"github.com/stackql/stackql/internal/stackql/drm"
-	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/httpmiddleware"
+	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
@@ -28,7 +28,7 @@ type GraphQLSingleSelectAcquire struct {
 	drmCfg                     drm.DRMConfig
 	insertPreparedStatementCtx drm.PreparedStatementCtx
 	insertionContainer         tableinsertioncontainer.TableInsertionContainer
-	txnCtrlCtr                 dto.TxnControlCounters
+	txnCtrlCtr                 internaldto.TxnControlCounters
 	rowSort                    func(map[string]map[string]interface{}) []string
 	root                       primitivegraph.PrimitiveNode
 	stream                     streaming.MapStream
@@ -43,7 +43,7 @@ func newGraphQLSingleSelectAcquire(
 	rowSort func(map[string]map[string]interface{}) []string,
 	stream streaming.MapStream,
 ) Builder {
-	var tcc dto.TxnControlCounters
+	var tcc internaldto.TxnControlCounters
 	if insertCtx != nil {
 		tcc = insertCtx.GetGCCtrlCtrs()
 	}
@@ -84,7 +84,7 @@ func (ss *GraphQLSingleSelectAcquire) Build() error {
 	if !ok {
 		return fmt.Errorf("could not build graphql exection for table")
 	}
-	ex := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+	ex := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 		currentTcc := ss.insertPreparedStatementCtx.GetGCCtrlCtrs().Clone()
 		ss.graph.AddTxnControlCounters(currentTcc)
 
@@ -93,23 +93,23 @@ func (ss *GraphQLSingleSelectAcquire) Build() error {
 			housekeepingDone := false
 			client, err := httpmiddleware.GetAuthenticatedClient(*ss.handlerCtx, prov)
 			if err != nil {
-				return dto.NewErroneousExecutorOutput(err)
+				return internaldto.NewErroneousExecutorOutput(err)
 			}
 			paramMap, err := reqCtx.Parameters.ToFlatMap()
 			if err != nil {
-				return dto.NewErroneousExecutorOutput(err)
+				return internaldto.NewErroneousExecutorOutput(err)
 			}
 			cursorJsonPath, ok := gql.GetCursorJSONPath()
 			if !ok {
-				return dto.NewErroneousExecutorOutput(fmt.Errorf("cannot perform graphql action without cursor json path"))
+				return internaldto.NewErroneousExecutorOutput(fmt.Errorf("cannot perform graphql action without cursor json path"))
 			}
 			responseJsonPath, ok := gql.GetResponseJSONPath()
 			if !ok {
-				return dto.NewErroneousExecutorOutput(fmt.Errorf("cannot perform graphql action without response json path"))
+				return internaldto.NewErroneousExecutorOutput(fmt.Errorf("cannot perform graphql action without response json path"))
 			}
 			tableName, err := ss.tableMeta.GetTableName()
 			if err != nil {
-				return dto.NewErroneousExecutorOutput(err)
+				return internaldto.NewErroneousExecutorOutput(err)
 			}
 			reqEncoding := reqCtx.Encode()
 			olderTcc, isMatch := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(tableName, reqEncoding, ss.drmCfg.GetControlAttributes().GetControlLatestUpdateColumnName(), ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIdColumnName())
@@ -124,10 +124,10 @@ func (ss *GraphQLSingleSelectAcquire) Build() error {
 				ss.insertPreparedStatementCtx.SetGCCtrlCtrs(olderTcc)
 				r, sqlErr := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Read(tableName, reqEncoding, ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIdColumnName(), nonControlColumnNames)
 				if sqlErr != nil {
-					dto.NewErroneousExecutorOutput(sqlErr)
+					internaldto.NewErroneousExecutorOutput(sqlErr)
 				}
 				ss.drmCfg.ExtractObjectFromSQLRows(r, nonControlColumns, ss.stream)
-				return dto.ExecutorOutput{}
+				return internaldto.ExecutorOutput{}
 			}
 			graphQLReader, err := graphql.NewStandardGQLReader(
 				client,
@@ -140,7 +140,7 @@ func (ss *GraphQLSingleSelectAcquire) Build() error {
 				cursorJsonPath,
 			)
 			if err != nil {
-				return dto.NewErroneousExecutorOutput(err)
+				return internaldto.NewErroneousExecutorOutput(err)
 			}
 			for {
 				response, err := graphQLReader.Read()
@@ -151,18 +151,18 @@ func (ss *GraphQLSingleSelectAcquire) Build() error {
 						housekeepingDone = true
 					}
 					if err != nil {
-						return dto.NewErroneousExecutorOutput(err)
+						return internaldto.NewErroneousExecutorOutput(err)
 					}
 					err = ss.stream.Write(response)
 					if err != nil {
-						return dto.NewErroneousExecutorOutput(err)
+						return internaldto.NewErroneousExecutorOutput(err)
 					}
 					for _, item := range response {
 						// TODO: handle request encoding
 						r, err := ss.drmCfg.ExecuteInsertDML(ss.handlerCtx.SQLEngine, ss.insertPreparedStatementCtx, item, "")
 						logging.GetLogger().Infoln(fmt.Sprintf("insert result = %v, error = %v", r, err))
 						if err != nil {
-							return dto.NewErroneousExecutorOutput(err)
+							return internaldto.NewErroneousExecutorOutput(err)
 						}
 					}
 				}
@@ -170,11 +170,11 @@ func (ss *GraphQLSingleSelectAcquire) Build() error {
 					break
 				}
 				if err != nil {
-					return dto.NewErroneousExecutorOutput(err)
+					return internaldto.NewErroneousExecutorOutput(err)
 				}
 			}
 		}
-		return dto.ExecutorOutput{}
+		return internaldto.ExecutorOutput{}
 	}
 
 	prep := func() drm.PreparedStatementCtx {

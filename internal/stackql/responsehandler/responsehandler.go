@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
+	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/output"
 )
@@ -21,7 +21,7 @@ func handleEmptyWriter(outputWriter output.IOutputWriter, err error) {
 	}
 }
 
-func HandleResponse(handlerCtx *handler.HandlerContext, response dto.ExecutorOutput) error {
+func HandleResponse(handlerCtx *handler.HandlerContext, response internaldto.ExecutorOutput) error {
 	var outputWriter output.IOutputWriter
 	var err error
 	logging.GetLogger().Debugln(fmt.Sprintf("response from query = '%v'", response.GetSQLResult()))
@@ -34,7 +34,7 @@ func HandleResponse(handlerCtx *handler.HandlerContext, response dto.ExecutorOut
 		outputWriter, err = output.GetOutputWriter(
 			handlerCtx.Outfile,
 			handlerCtx.OutErrFile,
-			dto.OutputContext{
+			internaldto.OutputContext{
 				RuntimeContext: handlerCtx.RuntimeContext,
 				Result:         response.GetSQLResult(),
 			},
@@ -48,7 +48,7 @@ func HandleResponse(handlerCtx *handler.HandlerContext, response dto.ExecutorOut
 		outputWriter, err = output.GetOutputWriter(
 			handlerCtx.Outfile,
 			handlerCtx.OutErrFile,
-			dto.OutputContext{
+			internaldto.OutputContext{
 				RuntimeContext: handlerCtx.RuntimeContext,
 				Result:         response.GetSQLResult(),
 			},

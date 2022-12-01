@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/stackql/stackql/internal/stackql/astformat"
-	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
+	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 
@@ -16,25 +16,25 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-func GetHeirarchyIDs(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode) (dto.HeirarchyIdentifiers, error) {
+func GetHeirarchyIDs(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode) (internaldto.HeirarchyIdentifiers, error) {
 	return getHids(handlerCtx, node)
 }
 
-func getHids(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode) (dto.HeirarchyIdentifiers, error) {
-	var hIds dto.HeirarchyIdentifiers
+func getHids(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode) (internaldto.HeirarchyIdentifiers, error) {
+	var hIds internaldto.HeirarchyIdentifiers
 	switch n := node.(type) {
 	case *sqlparser.Exec:
-		hIds = dto.ResolveMethodTerminalHeirarchyIdentifiers(n.MethodName)
+		hIds = internaldto.ResolveMethodTerminalHeirarchyIdentifiers(n.MethodName)
 	case *sqlparser.ExecSubquery:
-		hIds = dto.ResolveMethodTerminalHeirarchyIdentifiers(n.Exec.MethodName)
+		hIds = internaldto.ResolveMethodTerminalHeirarchyIdentifiers(n.Exec.MethodName)
 	case *sqlparser.Select:
 		currentSvcRsc, err := parserutil.TableFromSelectNode(n)
 		if err != nil {
 			return nil, err
 		}
-		hIds = dto.ResolveResourceTerminalHeirarchyIdentifiers(currentSvcRsc)
+		hIds = internaldto.ResolveResourceTerminalHeirarchyIdentifiers(currentSvcRsc)
 	case sqlparser.TableName:
-		hIds = dto.ResolveResourceTerminalHeirarchyIdentifiers(n)
+		hIds = internaldto.ResolveResourceTerminalHeirarchyIdentifiers(n)
 	case *sqlparser.AliasedTableExpr:
 		return getHids(handlerCtx, n.Expr)
 	case *sqlparser.DescribeTable:
@@ -42,26 +42,26 @@ func getHids(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode) (dto.He
 	case *sqlparser.Show:
 		switch strings.ToUpper(n.Type) {
 		case "INSERT":
-			hIds = dto.ResolveResourceTerminalHeirarchyIdentifiers(n.OnTable)
+			hIds = internaldto.ResolveResourceTerminalHeirarchyIdentifiers(n.OnTable)
 		case "METHODS":
-			hIds = dto.ResolveResourceTerminalHeirarchyIdentifiers(n.OnTable)
+			hIds = internaldto.ResolveResourceTerminalHeirarchyIdentifiers(n.OnTable)
 		default:
 			return nil, fmt.Errorf("cannot resolve taxonomy for SHOW statement of type = '%s'", strings.ToUpper(n.Type))
 		}
 	case *sqlparser.Insert:
-		hIds = dto.ResolveResourceTerminalHeirarchyIdentifiers(n.Table)
+		hIds = internaldto.ResolveResourceTerminalHeirarchyIdentifiers(n.Table)
 	case *sqlparser.Update:
 		currentSvcRsc, err := parserutil.ExtractSingleTableFromTableExprs(n.TableExprs)
 		if err != nil {
 			return nil, err
 		}
-		hIds = dto.ResolveResourceTerminalHeirarchyIdentifiers(*currentSvcRsc)
+		hIds = internaldto.ResolveResourceTerminalHeirarchyIdentifiers(*currentSvcRsc)
 	case *sqlparser.Delete:
 		currentSvcRsc, err := parserutil.ExtractSingleTableFromTableExprs(n.TableExprs)
 		if err != nil {
 			return nil, err
 		}
-		hIds = dto.ResolveResourceTerminalHeirarchyIdentifiers(*currentSvcRsc)
+		hIds = internaldto.ResolveResourceTerminalHeirarchyIdentifiers(*currentSvcRsc)
 	default:
 		return nil, fmt.Errorf("cannot resolve taxonomy")
 	}
@@ -103,7 +103,7 @@ func GetTableNameFromStatement(node sqlparser.SQLNode, formatter sqlparser.NodeF
 //   - Supplied parameters that are **not** consumed in Hierarchy inference
 //   - Error if applicable.
 func GetHeirarchyFromStatement(handlerCtx *handler.HandlerContext, node sqlparser.SQLNode, parameters map[string]interface{}) (tablemetadata.HeirarchyObjects, map[string]interface{}, error) {
-	var hIds dto.HeirarchyIdentifiers
+	var hIds internaldto.HeirarchyIdentifiers
 	getFirstAvailableMethod := false
 	remainingParams := make(map[string]interface{})
 	for k, v := range parameters {

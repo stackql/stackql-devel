@@ -5,8 +5,8 @@ import (
 
 	"github.com/stackql/stackql/internal/stackql/astvisit"
 	"github.com/stackql/stackql/internal/stackql/docparser"
-	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
+	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 	"github.com/stackql/stackql/internal/stackql/util"
@@ -21,7 +21,7 @@ func (p *primitiveGenerator) assembleUnarySelectionBuilder(
 	handlerCtx *handler.HandlerContext,
 	node sqlparser.SQLNode,
 	rewrittenWhere *sqlparser.Where,
-	hIds dto.HeirarchyIdentifiers,
+	hIds internaldto.HeirarchyIdentifiers,
 	schema *openapistackql.Schema,
 	tbl tablemetadata.ExtendedTableMetadata,
 	selectTabulation *openapistackql.Tabulation,
@@ -122,7 +122,7 @@ func (p *primitiveGenerator) analyzeUnarySelection(
 	}
 	insertTabulation := itemObjS.Tabulate(false)
 
-	hIds := dto.NewHeirarchyIdentifiers(provStr, svcStr, itemObjS.GetName(), "")
+	hIds := internaldto.NewHeirarchyIdentifiers(provStr, svcStr, itemObjS.GetName(), "")
 	selectTabulation := itemObjS.Tabulate(true)
 
 	return p.assembleUnarySelectionBuilder(

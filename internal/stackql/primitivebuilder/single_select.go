@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/stackql/stackql/internal/stackql/drm"
-	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
+	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
@@ -19,7 +19,7 @@ type SingleSelect struct {
 	drmCfg                     drm.DRMConfig
 	selectPreparedStatementCtx drm.PreparedStatementCtx
 	insertionContainers        []tableinsertioncontainer.TableInsertionContainer
-	txnCtrlCtr                 dto.TxnControlCounters
+	txnCtrlCtr                 internaldto.TxnControlCounters
 	rowSort                    func(map[string]map[string]interface{}) []string
 	root                       primitivegraph.PrimitiveNode
 	stream                     streaming.MapStream
@@ -55,7 +55,7 @@ func (ss *SingleSelect) GetTail() primitivegraph.PrimitiveNode {
 
 func (ss *SingleSelect) Build() error {
 
-	selectEx := func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+	selectEx := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 
 		// select phase
 		logging.GetLogger().Infoln(fmt.Sprintf("running select with control parameters: %v", ss.selectPreparedStatementCtx.GetGCCtrlCtrs()))

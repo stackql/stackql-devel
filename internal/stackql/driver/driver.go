@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/jeroenrinzema/psql-wire/pkg/sqldata"
-	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
+	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/querysubmit"
 	"github.com/stackql/stackql/internal/stackql/responsehandler"
@@ -21,12 +21,12 @@ func ProcessDryRun(handlerCtx *handler.HandlerContext) {
 		},
 	}
 	logging.GetLogger().Debugln("dryrun query underway...")
-	response := util.PrepareResultSet(dto.NewPrepareResultSetDTO(nil, resultMap, nil, nil, nil, nil))
+	response := util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, resultMap, nil, nil, nil, nil))
 	responsehandler.HandleResponse(handlerCtx, response)
 }
 
 func throwErr(err error, handlerCtx *handler.HandlerContext) {
-	response := dto.NewExecutorOutput(nil, nil, nil, nil, err)
+	response := internaldto.NewExecutorOutput(nil, nil, nil, nil, err)
 	responsehandler.HandleResponse(handlerCtx, response)
 }
 
@@ -85,8 +85,8 @@ func NewStackQLBackend(handlerCtx *handler.HandlerContext) (*StackQLBackend, err
 	}, nil
 }
 
-func processQueryOrQueries(handlerCtx *handler.HandlerContext) ([]dto.ExecutorOutput, bool) {
-	var retVal []dto.ExecutorOutput
+func processQueryOrQueries(handlerCtx *handler.HandlerContext) ([]internaldto.ExecutorOutput, bool) {
+	var retVal []internaldto.ExecutorOutput
 	cmdString := handlerCtx.RawQuery
 	for _, s := range strings.Split(cmdString, ";") {
 		if s == "" {

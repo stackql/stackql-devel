@@ -14,6 +14,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/httpbuild"
+	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/iqlerror"
 	"github.com/stackql/stackql/internal/stackql/iqlutil"
 	"github.com/stackql/stackql/internal/stackql/logging"
@@ -335,7 +336,7 @@ func (pb *primitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sqlparser.
 	if !ok {
 		return nil, "", fmt.Errorf("unexpected: %v", sqlparser.String(expr))
 	}
-	colName := dto.GeneratePutativelyUniqueColumnID(qualifiedName.Qualifier, qualifiedName.Name.GetRawVal())
+	colName := internaldto.GeneratePutativelyUniqueColumnID(qualifiedName.Qualifier, qualifiedName.Name.GetRawVal())
 	symTabEntry, symTabErr := pb.PrimitiveComposer.GetSymbol(colName)
 	_, requiredParamPresent := requiredParameters.Get(colName)
 	_, optionalParamPresent := optionalParameters.Get(colName)
@@ -583,7 +584,7 @@ func (p *primitiveGenerator) analyzeUnaryExec(pbi PlanBuilderInput, handlerCtx *
 	if err != nil && method.Request != nil {
 		return nil, err
 	}
-	var execPayload *dto.ExecPayload
+	var execPayload *internaldto.ExecPayload
 	if node.OptExecPayload != nil {
 		mediaType := "application/json"
 		if method.Request != nil && method.Request.BodyMediaType != "" {
@@ -660,7 +661,7 @@ func (p *primitiveGenerator) analyzeExec(pbi PlanBuilderInput) error {
 	return nil
 }
 
-func (p *primitiveGenerator) parseExecPayload(node *sqlparser.ExecVarDef, payloadType string) (*dto.ExecPayload, error) {
+func (p *primitiveGenerator) parseExecPayload(node *sqlparser.ExecVarDef, payloadType string) (*internaldto.ExecPayload, error) {
 	var b []byte
 	m := make(map[string][]string)
 	var pm map[string]interface{}
@@ -680,7 +681,7 @@ func (p *primitiveGenerator) parseExecPayload(node *sqlparser.ExecVarDef, payloa
 	default:
 		return nil, fmt.Errorf("payload map of declared type = '%T' not allowed", payloadType)
 	}
-	return &dto.ExecPayload{
+	return &internaldto.ExecPayload{
 		Payload:    b,
 		Header:     m,
 		PayloadMap: pm,
@@ -1363,14 +1364,14 @@ func (p *primitiveGenerator) analyzeSleep(pbi PlanBuilderInput) error {
 	p.PrimitiveComposer.SetRoot(
 		graph.CreatePrimitiveNode(
 			primitive.NewLocalPrimitive(
-				func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+				func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 					time.Sleep(time.Duration(sleepDuration) * time.Millisecond)
-					msgs := dto.BackendMessages{
+					msgs := internaldto.BackendMessages{
 						WorkingMessages: []string{
 							fmt.Sprintf("Success: slept for %d milliseconds", sleepDuration),
 						},
 					}
-					return dto.NewExecutorOutput(nil, nil, nil, &msgs, nil)
+					return internaldto.NewExecutorOutput(nil, nil, nil, &msgs, nil)
 				},
 			),
 		),

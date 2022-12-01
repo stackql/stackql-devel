@@ -2,16 +2,16 @@ package taxonomy
 
 import (
 	"github.com/stackql/go-openapistackql/openapistackql"
-	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/httpbuild"
+	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/streaming"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 	"github.com/stackql/stackql/internal/stackql/util"
 )
 
 type AnnotationCtx interface {
-	GetHIDs() dto.HeirarchyIdentifiers
+	GetHIDs() internaldto.HeirarchyIdentifiers
 	IsDynamic() bool
 	GetInputTableName() (string, error)
 	GetParameters() map[string]interface{}
@@ -24,14 +24,14 @@ type AnnotationCtx interface {
 type standardAnnotationCtx struct {
 	isDynamic  bool
 	schema     *openapistackql.Schema
-	hIDs       dto.HeirarchyIdentifiers
+	hIDs       internaldto.HeirarchyIdentifiers
 	tableMeta  tablemetadata.ExtendedTableMetadata
 	parameters map[string]interface{}
 }
 
 func NewStaticStandardAnnotationCtx(
 	schema *openapistackql.Schema,
-	hIds dto.HeirarchyIdentifiers,
+	hIds internaldto.HeirarchyIdentifiers,
 	tableMeta tablemetadata.ExtendedTableMetadata,
 	parameters map[string]interface{},
 ) AnnotationCtx {
@@ -102,7 +102,7 @@ func (ac *standardAnnotationCtx) Prepare(
 	return nil
 }
 
-func (ac *standardAnnotationCtx) GetHIDs() dto.HeirarchyIdentifiers {
+func (ac *standardAnnotationCtx) GetHIDs() internaldto.HeirarchyIdentifiers {
 	return ac.hIDs
 }
 

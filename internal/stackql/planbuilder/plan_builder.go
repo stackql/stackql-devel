@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
-	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/handler"
+	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/iqlerror"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
@@ -47,7 +47,7 @@ type PlanBuilderInput interface {
 	GetSleep() (*sqlparser.Sleep, bool)
 	GetStatement() sqlparser.SQLNode
 	GetTableExprs() sqlparser.TableExprs
-	GetTxnCtrlCtrs() dto.TxnControlCounters
+	GetTxnCtrlCtrs() internaldto.TxnControlCounters
 	GetUnion() (*sqlparser.Union, bool)
 	GetUpdate() (*sqlparser.Update, bool)
 	GetUse() (*sqlparser.Use, bool)
@@ -65,7 +65,7 @@ type StandardPlanBuilderInput struct {
 	assignedAliasedColumns parserutil.TableExprMap
 	tables                 sqlparser.TableExprs
 	paramsPlaceheld        parserutil.ParameterMap
-	tcc                    dto.TxnControlCounters
+	tcc                    internaldto.TxnControlCounters
 }
 
 func NewPlanBuilderInput(
@@ -76,7 +76,7 @@ func NewPlanBuilderInput(
 	aliasedTables parserutil.TableAliasMap,
 	colRefs parserutil.ColTableMap,
 	paramsPlaceheld parserutil.ParameterMap,
-	tcc dto.TxnControlCounters,
+	tcc internaldto.TxnControlCounters,
 ) (PlanBuilderInput, error) {
 	rv := &StandardPlanBuilderInput{
 		handlerCtx:             handlerCtx,
@@ -105,7 +105,7 @@ func (pbi *StandardPlanBuilderInput) GetStatement() sqlparser.SQLNode {
 	return pbi.stmt
 }
 
-func (pbi *StandardPlanBuilderInput) GetTxnCtrlCtrs() dto.TxnControlCounters {
+func (pbi *StandardPlanBuilderInput) GetTxnCtrlCtrs() internaldto.TxnControlCounters {
 	return pbi.tcc
 }
 
@@ -323,7 +323,7 @@ func (pgb *planGraphBuilder) handleAuth(pbi PlanBuilderInput) error {
 	}
 	pr := primitive.NewMetaDataPrimitive(
 		prov,
-		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 			authType := strings.ToLower(node.Type)
 			if node.KeyFilePath != "" {
 				authCtx.KeyFilePath = node.KeyFilePath
@@ -332,7 +332,7 @@ func (pgb *planGraphBuilder) handleAuth(pbi PlanBuilderInput) error {
 				authCtx.KeyEnvVar = node.KeyEnvVar
 			}
 			_, err := prov.Auth(authCtx, authType, true)
-			return dto.NewExecutorOutput(nil, nil, nil, nil, err)
+			return internaldto.NewExecutorOutput(nil, nil, nil, nil, err)
 		})
 	pgb.planGraph.CreatePrimitiveNode(pr)
 	return nil
@@ -360,8 +360,8 @@ func (pgb *planGraphBuilder) handleAuthRevoke(pbi PlanBuilderInput) error {
 	}
 	pr := primitive.NewMetaDataPrimitive(
 		prov,
-		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
-			return dto.NewExecutorOutput(nil, nil, nil, nil, prov.AuthRevoke(authCtx))
+		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
+			return internaldto.NewExecutorOutput(nil, nil, nil, nil, prov.AuthRevoke(authCtx))
 		})
 	pgb.planGraph.CreatePrimitiveNode(pr)
 	return nil
@@ -390,7 +390,7 @@ func (pgb *planGraphBuilder) handleDescribe(pbi PlanBuilderInput) error {
 	var full bool = strings.TrimSpace(strings.ToUpper(node.Full)) == "FULL"
 	pr := primitive.NewMetaDataPrimitive(
 		prov,
-		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 			return primitiveGenerator.describeInstructionExecutor(handlerCtx, md, extended, full)
 		})
 	pgb.planGraph.CreatePrimitiveNode(pr)
@@ -515,14 +515,14 @@ func (pgb *planGraphBuilder) handleRegistry(pbi PlanBuilderInput) error {
 		return err
 	}
 	pr := primitive.NewLocalPrimitive(
-		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 			switch at := strings.ToLower(node.ActionType); at {
 			case "pull":
 				err := reg.PullAndPersistProviderArchive(node.ProviderId, node.ProviderVersion)
 				if err != nil {
-					return dto.NewErroneousExecutorOutput(err)
+					return internaldto.NewErroneousExecutorOutput(err)
 				}
-				return util.PrepareResultSet(dto.NewPrepareResultSetPlusRawDTO(nil, nil, nil, nil, nil, &dto.BackendMessages{WorkingMessages: []string{fmt.Sprintf("%s provider, version '%s' successfully installed", node.ProviderId, node.ProviderVersion)}}, nil))
+				return util.PrepareResultSet(internaldto.NewPrepareResultSetPlusRawDTO(nil, nil, nil, nil, nil, &internaldto.BackendMessages{WorkingMessages: []string{fmt.Sprintf("%s provider, version '%s' successfully installed", node.ProviderId, node.ProviderVersion)}}, nil))
 			case "list":
 				var colz []string
 				var provz map[string]openapistackql.ProviderDescription
@@ -530,7 +530,7 @@ func (pgb *planGraphBuilder) handleRegistry(pbi PlanBuilderInput) error {
 				if node.ProviderId == "" {
 					provz, err = reg.ListAllAvailableProviders()
 					if err != nil {
-						return dto.NewErroneousExecutorOutput(err)
+						return internaldto.NewErroneousExecutorOutput(err)
 					}
 					colz = []string{"provider", "version"}
 					var dks []string
@@ -550,7 +550,7 @@ func (pgb *planGraphBuilder) handleRegistry(pbi PlanBuilderInput) error {
 				} else {
 					provz, err = reg.ListAllProviderVersions(node.ProviderId)
 					if err != nil {
-						return dto.NewErroneousExecutorOutput(err)
+						return internaldto.NewErroneousExecutorOutput(err)
 					}
 					colz = []string{"provider", "versions"}
 					i := 0
@@ -562,9 +562,9 @@ func (pgb *planGraphBuilder) handleRegistry(pbi PlanBuilderInput) error {
 						i++
 					}
 				}
-				return util.PrepareResultSet(dto.NewPrepareResultSetPlusRawDTO(nil, keys, colz, nil, nil, nil, nil))
+				return util.PrepareResultSet(internaldto.NewPrepareResultSetPlusRawDTO(nil, keys, colz, nil, nil, nil, nil))
 			default:
-				return dto.NewErroneousExecutorOutput(fmt.Errorf("registry action '%s' no supported", at))
+				return internaldto.NewErroneousExecutorOutput(fmt.Errorf("registry action '%s' no supported", at))
 			}
 		},
 	)
@@ -581,20 +581,20 @@ func (pgb *planGraphBuilder) handlePurge(pbi PlanBuilderInput) error {
 	}
 	// primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 	pr := primitive.NewLocalPrimitive(
-		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 			if node.IsGlobal {
 				err := handlerCtx.GarbageCollector.Purge()
 				if err != nil {
-					return dto.NewErroneousExecutorOutput(err)
+					return internaldto.NewErroneousExecutorOutput(err)
 				}
 				return util.PrepareResultSet(
-					dto.NewPrepareResultSetPlusRawDTO(
+					internaldto.NewPrepareResultSetPlusRawDTO(
 						nil,
 						map[string]map[string]interface{}{"0": {"message": "purge 'GLOBAL' completed"}},
 						[]string{"message"},
 						nil,
 						nil,
-						&dto.BackendMessages{
+						&internaldto.BackendMessages{
 							WorkingMessages: []string{fmt.Sprintf("Global PURGE successfully completed")}},
 						nil,
 					),
@@ -605,38 +605,38 @@ func (pgb *planGraphBuilder) handlePurge(pbi PlanBuilderInput) error {
 			case "cache":
 				err := handlerCtx.GarbageCollector.PurgeCache()
 				if err != nil {
-					return dto.NewErroneousExecutorOutput(err)
+					return internaldto.NewErroneousExecutorOutput(err)
 				}
 			case "conservative":
 				err := handlerCtx.GarbageCollector.Collect()
 				if err != nil {
-					return dto.NewErroneousExecutorOutput(err)
+					return internaldto.NewErroneousExecutorOutput(err)
 				}
 			case "control_tables":
 				err := handlerCtx.GarbageCollector.PurgeControlTables()
 				if err != nil {
-					return dto.NewErroneousExecutorOutput(err)
+					return internaldto.NewErroneousExecutorOutput(err)
 				}
 			case "ephemeral":
 				err := handlerCtx.GarbageCollector.PurgeEphemeral()
 				if err != nil {
-					return dto.NewErroneousExecutorOutput(err)
+					return internaldto.NewErroneousExecutorOutput(err)
 				}
 			default:
-				return dto.NewErroneousExecutorOutput(fmt.Errorf("purge target '%s' not supported", targetStr))
+				return internaldto.NewErroneousExecutorOutput(fmt.Errorf("purge target '%s' not supported", targetStr))
 			}
 			// This happens in all cases, provided the ourge is successful.
 			handlerCtx.LRUCache.Clear()
 			purgeMsg := fmt.Sprintf("PURGE of type '%s' successfully completed", targetStr)
 			return util.PrepareResultSet(
-				dto.NewPrepareResultSetPlusRawDTO(
+				internaldto.NewPrepareResultSetPlusRawDTO(
 					nil,
 					map[string]map[string]interface{}{"0": {"message": purgeMsg}},
 					[]string{"message"},
 					nil,
 					nil,
 					nil,
-					// &dto.BackendMessages{
+					// &internaldto.BackendMessages{
 					// 	WorkingMessages: []string{fmt.Sprintf("PURGE of type '%s' successfully completed", targetStr)}},
 					nil,
 				),
@@ -820,7 +820,7 @@ func (pgb *planGraphBuilder) handleShow(pbi PlanBuilderInput) error {
 	}
 	pr := primitive.NewMetaDataPrimitive(
 		primitiveGenerator.PrimitiveComposer.GetProvider(),
-		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 			return primitiveGenerator.showInstructionExecutor(node, handlerCtx)
 		})
 	pgb.planGraph.CreatePrimitiveNode(pr)
@@ -854,18 +854,18 @@ func (pgb *planGraphBuilder) handleUse(pbi PlanBuilderInput) error {
 	}
 	pr := primitive.NewMetaDataPrimitive(
 		primitiveGenerator.PrimitiveComposer.GetProvider(),
-		func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 			handlerCtx.CurrentProvider = node.DBName.GetRawVal()
-			return dto.NewExecutorOutput(nil, nil, nil, nil, nil)
+			return internaldto.NewExecutorOutput(nil, nil, nil, nil, nil)
 		})
 	pgb.planGraph.CreatePrimitiveNode(pr)
 	return nil
 }
 
 func createErroneousPlan(handlerCtx *handler.HandlerContext, qPlan *plan.Plan, rowSort func(map[string]map[string]interface{}) []string, err error) (*plan.Plan, error) {
-	qPlan.Instructions = primitive.NewLocalPrimitive(func(pc primitive.IPrimitiveCtx) dto.ExecutorOutput {
+	qPlan.Instructions = primitive.NewLocalPrimitive(func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 		return util.PrepareResultSet(
-			dto.PrepareResultSetDTO{
+			internaldto.PrepareResultSetDTO{
 				OutputBody:  nil,
 				Msg:         nil,
 				RowMap:      nil,
