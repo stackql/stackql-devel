@@ -312,7 +312,7 @@ func extractNextPageTokenFromHeader(res *response.Response, tokenKey internaldto
 		return ""
 	}
 	header := r.Header
-	if tokenKey.Transformer != nil {
+	if tokenKey.IsTransformerPresent() {
 		tf, err := tokenKey.Transformer(header)
 		if err != nil {
 			return ""

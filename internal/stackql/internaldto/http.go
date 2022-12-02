@@ -47,6 +47,7 @@ type HTTPElement interface {
 	GetType() HTTPElementType
 	SetTransformer(transformer func(interface{}) (interface{}, error))
 	Transformer(interface{}) (interface{}, error)
+	IsTransformerPresent() bool
 }
 
 type standardHTTPElement struct {
@@ -61,6 +62,10 @@ func (he *standardHTTPElement) GetName() string {
 
 func (he *standardHTTPElement) GetType() HTTPElementType {
 	return he.httpElemType
+}
+
+func (he *standardHTTPElement) IsTransformerPresent() bool {
+	return he.transformer != nil
 }
 
 func (he *standardHTTPElement) Transformer(input interface{}) (interface{}, error) {
