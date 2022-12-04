@@ -21,6 +21,7 @@ type HeirarchyObjects interface {
 	GetSelectableObjectSchema() (*openapistackql.Schema, error)
 	GetSelectSchemaAndObjectPath() (*openapistackql.Schema, string, error)
 	GetTableName() string
+	IsView() bool
 	LookupSelectItemsKey() string
 	SetProvider(provider.IProvider)
 	// De facto inheritance
@@ -28,11 +29,12 @@ type HeirarchyObjects interface {
 	GetResource() *openapistackql.Resource
 	GetMethodSet() openapistackql.MethodSet
 	GetMethod() *openapistackql.OperationStore
-	SetServiceHdl(*openapistackql.Service)
-	SetResource(*openapistackql.Resource)
-	SetMethodSet(openapistackql.MethodSet)
+	SetIsView(bool)
 	SetMethod(*openapistackql.OperationStore)
+	SetMethodSet(openapistackql.MethodSet)
 	SetMethodStr(string)
+	SetResource(*openapistackql.Resource)
+	SetServiceHdl(*openapistackql.Service)
 }
 
 func NewHeirarchyObjects(hIDs internaldto.HeirarchyIdentifiers) HeirarchyObjects {
@@ -46,10 +48,19 @@ type standardHeirarchyObjects struct {
 	hr           internaldto.Heirarchy
 	heirarchyIds internaldto.HeirarchyIdentifiers
 	prov         provider.IProvider
+	isView       bool
 }
 
 func (ho *standardHeirarchyObjects) GetServiceHdl() *openapistackql.Service {
 	return ho.hr.GetServiceHdl()
+}
+
+func (ho *standardHeirarchyObjects) IsView() bool {
+	return ho.isView
+}
+
+func (ho *standardHeirarchyObjects) SetIsView(isView bool) {
+	ho.isView = isView
 }
 
 func (ho *standardHeirarchyObjects) GetResource() *openapistackql.Resource {
