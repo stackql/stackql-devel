@@ -222,6 +222,34 @@ func (eng *postgresDialect) generateDDL(relationalTable relationaldto.Relational
 	return retVal, nil
 }
 
+func (eng *postgresDialect) CreateView(viewName string, rawDDL string, translatedDDL string) error {
+	return eng.createView(viewName, rawDDL, translatedDDL)
+}
+
+func (eng *postgresDialect) createView(viewName string, rawDDL string, translatedDDL string) error {
+	return nil
+}
+
+func (eng *postgresDialect) ViewExists(viewName string) bool {
+	return eng.viewExists(viewName)
+}
+
+func (eng *postgresDialect) viewExists(viewName string) bool {
+	q := `SELECT count(*) AS view_count FROM "__iql__.views" WHERE view_name = $1 and deleted_dttm IS NULL`
+	row := eng.sqlEngine.QueryRow(q, viewName)
+	if row != nil {
+		var viewCount int
+		err := row.Scan(&viewCount)
+		if err != nil {
+			return false
+		}
+		if viewCount == 1 {
+			return true
+		}
+	}
+	return false
+}
+
 func (eng *postgresDialect) GetGCHousekeepingQuery(tableName string, tcc internaldto.TxnControlCounters) string {
 	return eng.getGCHousekeepingQuery(tableName, tcc)
 }

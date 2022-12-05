@@ -47,7 +47,6 @@ type sqLiteDialect struct {
 	typeMappings                 map[string]internaldto.DRMCoupling
 	defaultRelationalType        string
 	defaultGolangKind            reflect.Kind
-	defaultGolangValue           interface{}
 }
 
 func (eng *sqLiteDialect) initSQLiteEngine() error {
@@ -265,6 +264,34 @@ func (eng *sqLiteDialect) generateDDL(relationalTable relationaldto.RelationalTa
 	}
 	retVal = append(retVal, rawViewDDL...)
 	return retVal, nil
+}
+
+func (eng *sqLiteDialect) ViewExists(viewName string) bool {
+	return eng.viewExists(viewName)
+}
+
+func (eng *sqLiteDialect) viewExists(viewName string) bool {
+	q := `SELECT count(*) AS view_count FROM "__iql__.views" WHERE view_name = ? and deleted_dttm IS NULL`
+	row := eng.sqlEngine.QueryRow(q, viewName)
+	if row != nil {
+		var viewCount int
+		err := row.Scan(&viewCount)
+		if err != nil {
+			return false
+		}
+		if viewCount == 1 {
+			return true
+		}
+	}
+	return false
+}
+
+func (eng *sqLiteDialect) CreateView(viewName string, rawDDL string, translatedDDL string) error {
+	return eng.createView(viewName, rawDDL, translatedDDL)
+}
+
+func (eng *sqLiteDialect) createView(viewName string, rawDDL string, translatedDDL string) error {
+	return nil
 }
 
 func (eng *sqLiteDialect) generateViewDDL(relationalTable relationaldto.RelationalTable) ([]string, error) {
