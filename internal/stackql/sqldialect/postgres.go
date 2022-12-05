@@ -207,6 +207,11 @@ func (eng *postgresDialect) generateDDL(relationalTable relationaldto.Relational
 	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s"."%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), sessionIdColName, eng.tableSchema, tableName, sessionIdColName))
 	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s"."%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), txnIdColName, eng.tableSchema, tableName, txnIdColName))
 	retVal = append(retVal, fmt.Sprintf(`create index if not exists "idx_%s_%s" on "%s"."%s" ( "%s" ) `, strings.ReplaceAll(tableName, ".", "_"), insIdColName, eng.tableSchema, tableName, insIdColName))
+	rawViewDDL, err := eng.generateViewDDL(eng.tableSchema, eng.tableSchema, relationalTable)
+	if err != nil {
+		return nil, err
+	}
+	retVal = append(retVal, rawViewDDL...)
 	if eng.viewSchemataEnabled {
 		intelViewDDL, err := eng.generateViewDDL(eng.tableSchema, eng.intelViewSchema, relationalTable)
 		if err != nil {

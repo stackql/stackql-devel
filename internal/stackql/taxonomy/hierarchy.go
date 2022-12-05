@@ -92,6 +92,8 @@ func GetTableNameFromStatement(node sqlparser.SQLNode, formatter sqlparser.NodeF
 		default:
 			return astformat.String(n.Expr, formatter)
 		}
+	case *sqlparser.Exec:
+		return n.MethodName.GetRawVal()
 	default:
 		return astformat.String(n, formatter)
 	}
