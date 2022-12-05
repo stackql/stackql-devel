@@ -65,9 +65,11 @@ func getHids(handlerCtx handler.HandlerContext, node sqlparser.SQLNode) (interna
 	default:
 		return nil, fmt.Errorf("cannot resolve taxonomy")
 	}
-	if hIds.GetProviderStr() == "" {
+	isView := handlerCtx.GetSQLDialect().ViewExists(hIds.GetTableName())
+	hIds = hIds.WithIsView(isView)
+	if !(hIds.IsView()) && hIds.GetProviderStr() == "" {
 		if handlerCtx.GetCurrentProvider() == "" {
-			return nil, fmt.Errorf("No provider selected, please set a provider using the USE command, or specify a three part object identifier in your IQL query.")
+			return nil, fmt.Errorf("No provider selected, please set a provider using the USE command, or specify a three part object identifier in your IQL query")
 		}
 		hIds.WithProviderStr(handlerCtx.GetCurrentProvider())
 	}
@@ -144,9 +146,10 @@ func GetHeirarchyFromStatement(handlerCtx handler.HandlerContext, node sqlparser
 	default:
 		return nil, remainingParams, fmt.Errorf("cannot resolve taxonomy")
 	}
-	isView := handlerCtx.GetSQLDialect().ViewExists(hIds.GetTableName())
 	retVal := tablemetadata.NewHeirarchyObjects(hIds)
-	retVal.SetIsView(isView)
+	if retVal.IsView() {
+		return retVal, remainingParams, fmt.Errorf("error extracting hierarchy: views not yet supported")
+	}
 	prov, err := handlerCtx.GetProvider(hIds.GetProviderStr())
 	retVal.SetProvider(prov)
 	if err != nil {

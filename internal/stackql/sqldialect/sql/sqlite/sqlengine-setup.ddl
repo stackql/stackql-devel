@@ -79,6 +79,7 @@ CREATE TABLE IF NOT EXISTS "__iql__.views" (
    iql_view_id INTEGER PRIMARY KEY AUTOINCREMENT
   ,view_name TEXT NOT NULL UNIQUE
   ,view_ddl TEXT
+  ,view_stackql_ddl TEXT
   ,created_dttm DateTime not null default CURRENT_TIMESTAMP
   ,deleted_dttm DateTime DEFAULT null
 )
@@ -86,5 +87,17 @@ CREATE TABLE IF NOT EXISTS "__iql__.views" (
 
 CREATE INDEX IF NOT EXISTS "idx.__iql__.views" 
 ON "__iql__.views" (view_name)
+;
+
+INSERT OR IGNORE INTO "__iql__.views" (
+  view_name,
+  view_ddl,
+  view_stackql_ddl
+) 
+VALUES (
+  'stackql_providers',
+  'SHOW PROVIDERS',
+  'SHOW PROVIDERS'
+)
 ;
 

@@ -86,6 +86,7 @@ CREATE TABLE IF NOT EXISTS "__iql__.views" (
    iql_view_id BIGSERIAL PRIMARY KEY
   ,view_name TEXT NOT NULL UNIQUE
   ,view_ddl TEXT
+  ,view_stackql_ddl TEXT
   ,created_dttm TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
   ,deleted_dttm TIMESTAMP WITH TIME ZONE DEFAULT null
 )
@@ -93,5 +94,18 @@ CREATE TABLE IF NOT EXISTS "__iql__.views" (
 
 CREATE INDEX IF NOT EXISTS "idx.__iql__.views" 
 ON "__iql__.views" (view_name)
+;
+
+INSERT INTO "__iql__.views" (
+  view_name,
+  view_ddl,
+  view_stackql_ddl
+) 
+VALUES (
+  'stackql_providers',
+  'SHOW PROVIDERS',
+  'SHOW PROVIDERS'
+)
+ON CONFLICT (view_name) DO NOTHING
 ;
 

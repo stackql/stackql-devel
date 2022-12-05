@@ -29,7 +29,6 @@ type HeirarchyObjects interface {
 	GetResource() *openapistackql.Resource
 	GetMethodSet() openapistackql.MethodSet
 	GetMethod() *openapistackql.OperationStore
-	SetIsView(bool)
 	SetMethod(*openapistackql.OperationStore)
 	SetMethodSet(openapistackql.MethodSet)
 	SetMethodStr(string)
@@ -48,7 +47,6 @@ type standardHeirarchyObjects struct {
 	hr           internaldto.Heirarchy
 	heirarchyIds internaldto.HeirarchyIdentifiers
 	prov         provider.IProvider
-	isView       bool
 }
 
 func (ho *standardHeirarchyObjects) GetServiceHdl() *openapistackql.Service {
@@ -56,11 +54,7 @@ func (ho *standardHeirarchyObjects) GetServiceHdl() *openapistackql.Service {
 }
 
 func (ho *standardHeirarchyObjects) IsView() bool {
-	return ho.isView
-}
-
-func (ho *standardHeirarchyObjects) SetIsView(isView bool) {
-	ho.isView = isView
+	return ho.heirarchyIds.IsView()
 }
 
 func (ho *standardHeirarchyObjects) GetResource() *openapistackql.Resource {
