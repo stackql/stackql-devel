@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/stackql/stackql/internal/stackql/astindirect"
 	"github.com/stackql/stackql/internal/stackql/astvisit"
 	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/dependencyplanner"
@@ -1021,8 +1022,17 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 
 func (p *primitiveGenerator) expandTable(tbl tablemetadata.ExtendedTableMetadata) error {
 
-	if tbl.IsView() {
+	if viewDTO, isView := tbl.GetView(); isView {
 		// TODO: recursive descent analysis
+		viewIndirect, err := astindirect.NewViewIndirect(viewDTO)
+		if err != nil {
+			return err
+		}
+		viewAST, err := viewIndirect.GetSelectAST()
+		if err != nil {
+			return err
+		}
+		logging.GetLogger().Debugf("viewAST = %v\n", viewAST)
 		return fmt.Errorf("error analyzing from clause: views not yet supported")
 	}
 	svc, err := tbl.GetService()

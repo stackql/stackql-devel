@@ -5,6 +5,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/httpbuild"
 	"github.com/stackql/stackql/internal/stackql/internaldto"
+	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/streaming"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 	"github.com/stackql/stackql/internal/stackql/util"
@@ -15,7 +16,7 @@ import (
 type AnnotationCtx interface {
 	GetHIDs() internaldto.HeirarchyIdentifiers
 	IsDynamic() bool
-	IsView() bool
+	GetView() (internaldto.ViewDTO, bool)
 	GetInputTableName() (string, error)
 	GetParameters() map[string]interface{}
 	GetSchema() *openapistackql.Schema
@@ -51,8 +52,8 @@ func (ac *standardAnnotationCtx) IsDynamic() bool {
 	return ac.isDynamic
 }
 
-func (ac *standardAnnotationCtx) IsView() bool {
-	return ac.hIDs.IsView()
+func (ac *standardAnnotationCtx) GetView() (internaldto.ViewDTO, bool) {
+	return ac.hIDs.GetView()
 }
 
 func (ac *standardAnnotationCtx) SetDynamic() {
@@ -77,7 +78,10 @@ func (ac *standardAnnotationCtx) Prepare(
 	}
 	// LAZY EVAL if dynamic
 	if ac.isDynamic {
-		if ac.IsView() {
+		viewDTO, isView := ac.GetView()
+		// TODO: fill this out
+		if isView {
+			logging.GetLogger().Debugf("viewDTO = %v\n", viewDTO)
 		}
 		ac.tableMeta.WithGetHttpArmoury(
 			func() (httpbuild.HTTPArmoury, error) {

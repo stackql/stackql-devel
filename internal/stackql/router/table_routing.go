@@ -38,7 +38,7 @@ func (v *TableRouteAstVisitor) analyzeAliasedTable(tb *sqlparser.AliasedTableExp
 		if err != nil {
 			return nil, err
 		}
-		if hIDs.IsView() {
+		if _, isView := hIDs.GetView(); isView {
 
 			// TODO: Route the view
 			//sv := NewTableRouteAstVisitor(v.handlerCtx, nil)

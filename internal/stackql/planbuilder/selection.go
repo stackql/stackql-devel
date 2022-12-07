@@ -123,8 +123,10 @@ func (p *primitiveGenerator) analyzeUnarySelection(
 	insertTabulation := itemObjS.Tabulate(false)
 
 	hIds := internaldto.NewHeirarchyIdentifiers(provStr, svcStr, itemObjS.GetName(), "")
-	isView := handlerCtx.GetSQLDialect().ViewExists(hIds.GetTableName())
-	hIds = hIds.WithIsView(isView)
+	viewDTO, isView := handlerCtx.GetSQLDialect().GetView(hIds.GetTableName())
+	if isView {
+		hIds = hIds.WithView(viewDTO)
+	}
 	selectTabulation := itemObjS.Tabulate(true)
 
 	return p.assembleUnarySelectionBuilder(

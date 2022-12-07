@@ -16,7 +16,7 @@ func obtainAnnotationCtx(
 	parameters map[string]interface{},
 	namespaceCollection tablenamespace.TableNamespaceCollection,
 ) (taxonomy.AnnotationCtx, error) {
-	if tbl.IsView() {
+	if _, isView := tbl.GetView(); isView {
 		// TODO: upgrade this flow; nil == YUCK!!!
 		return taxonomy.NewStaticStandardAnnotationCtx(nil, tbl.GetHeirarchyObjects().GetHeirarchyIds(), tbl, parameters), nil
 	}
@@ -47,7 +47,9 @@ func obtainAnnotationCtx(
 		name, _ = tbl.GetResponseSchemaStr()
 	}
 	hIds := internaldto.NewHeirarchyIdentifiers(provStr, svcStr, rscStr, methodStr).WithResponseSchemaStr(name)
-	isView := sqlDialect.ViewExists(hIds.GetTableName())
-	hIds = hIds.WithIsView(isView)
+	viewDTO, isView := sqlDialect.GetView(hIds.GetTableName())
+	if isView {
+		hIds = hIds.WithView(viewDTO)
+	}
 	return taxonomy.NewStaticStandardAnnotationCtx(itemObjS, hIds, tbl, parameters), nil
 }
