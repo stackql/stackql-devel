@@ -26,7 +26,6 @@ type AnnotationCtx interface {
 
 type standardAnnotationCtx struct {
 	isDynamic  bool
-	isView     bool
 	schema     *openapistackql.Schema
 	hIDs       internaldto.HeirarchyIdentifiers
 	tableMeta  tablemetadata.ExtendedTableMetadata
@@ -76,8 +75,10 @@ func (ac *standardAnnotationCtx) Prepare(
 	if err != nil {
 		return err
 	}
+	// LAZY EVAL if dynamic
 	if ac.isDynamic {
-		// LAZY EVAL
+		if ac.IsView() {
+		}
 		ac.tableMeta.WithGetHttpArmoury(
 			func() (httpbuild.HTTPArmoury, error) {
 				httpArmoury, err := httpbuild.BuildHTTPRequestCtxFromAnnotation(stream, pr, opStore, svc, nil, nil)

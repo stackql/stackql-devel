@@ -17,7 +17,7 @@ func obtainAnnotationCtx(
 	namespaceCollection tablenamespace.TableNamespaceCollection,
 ) (taxonomy.AnnotationCtx, error) {
 	if tbl.IsView() {
-		// TODO: upgrade this flow
+		// TODO: upgrade this flow; nil == YUCK!!!
 		return taxonomy.NewStaticStandardAnnotationCtx(nil, tbl.GetHeirarchyObjects().GetHeirarchyIds(), tbl, parameters), nil
 	}
 	schema, mediaType, err := tbl.GetResponseSchemaAndMediaType()

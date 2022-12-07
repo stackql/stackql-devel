@@ -16,7 +16,7 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-func GetHeirarchyIDs(handlerCtx handler.HandlerContext, node sqlparser.SQLNode) (internaldto.HeirarchyIdentifiers, error) {
+func GetHeirarchyIDsFromParserNode(handlerCtx handler.HandlerContext, node sqlparser.SQLNode) (internaldto.HeirarchyIdentifiers, error) {
 	return getHids(handlerCtx, node)
 }
 

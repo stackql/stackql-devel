@@ -944,53 +944,9 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 		pChild = p.addChildPrimitiveGenerator(fromExpr, leaf)
 
 		for _, tbl := range tblz {
-			//
-			if tbl.IsView() {
-				return fmt.Errorf("error analyzing from clause: views not yet supported")
-			}
-			svc, err := tbl.GetService()
+			err := p.expandTable(tbl)
 			if err != nil {
 				return err
-			}
-			for _, sv := range svc.Servers {
-				for k := range sv.Variables {
-					colEntry := symtab.NewSymTabEntry(
-						pChild.PrimitiveComposer.GetDRMConfig().GetRelationalType("string"),
-						"",
-						"server",
-					)
-					uid := fmt.Sprintf("%s.%s", tbl.GetUniqueId(), k)
-					pChild.PrimitiveComposer.SetSymbol(uid, colEntry)
-				}
-				break
-			}
-
-			if err != nil {
-				return err
-			}
-			//
-			responseSchema, err := tbl.GetSelectableObjectSchema()
-			if err != nil {
-				return err
-			}
-			cols, err := responseSchema.GetProperties()
-			if err != nil {
-				return err
-			}
-			if len(cols) == 0 {
-				cols = openapistackql.Schemas{openapistackql.AnonymousColumnName: responseSchema}
-			}
-			for colName, colSchema := range cols {
-				if colSchema == nil {
-					return fmt.Errorf("could not infer column information")
-				}
-				colEntry := symtab.NewSymTabEntry(
-					pChild.PrimitiveComposer.GetDRMConfig().GetRelationalType(colSchema.Type),
-					colSchema,
-					"",
-				)
-				uid := fmt.Sprintf("%s.%s", tbl.GetUniqueId(), colName)
-				pChild.PrimitiveComposer.SetSymbol(uid, colEntry)
 			}
 		}
 	}
@@ -1061,6 +1017,59 @@ func (p *primitiveGenerator) analyzeSelect(pbi PlanBuilderInput) error {
 
 	}
 	return fmt.Errorf("cannot process cartesian join select just yet")
+}
+
+func (p *primitiveGenerator) expandTable(tbl tablemetadata.ExtendedTableMetadata) error {
+
+	if tbl.IsView() {
+		// TODO: recursive descent analysis
+		return fmt.Errorf("error analyzing from clause: views not yet supported")
+	}
+	svc, err := tbl.GetService()
+	if err != nil {
+		return err
+	}
+	for _, sv := range svc.Servers {
+		for k := range sv.Variables {
+			colEntry := symtab.NewSymTabEntry(
+				p.PrimitiveComposer.GetDRMConfig().GetRelationalType("string"),
+				"",
+				"server",
+			)
+			uid := fmt.Sprintf("%s.%s", tbl.GetUniqueId(), k)
+			p.PrimitiveComposer.SetSymbol(uid, colEntry)
+		}
+		break
+	}
+
+	if err != nil {
+		return err
+	}
+	//
+	responseSchema, err := tbl.GetSelectableObjectSchema()
+	if err != nil {
+		return err
+	}
+	cols, err := responseSchema.GetProperties()
+	if err != nil {
+		return err
+	}
+	if len(cols) == 0 {
+		cols = openapistackql.Schemas{openapistackql.AnonymousColumnName: responseSchema}
+	}
+	for colName, colSchema := range cols {
+		if colSchema == nil {
+			return fmt.Errorf("could not infer column information")
+		}
+		colEntry := symtab.NewSymTabEntry(
+			p.PrimitiveComposer.GetDRMConfig().GetRelationalType(colSchema.Type),
+			colSchema,
+			"",
+		)
+		uid := fmt.Sprintf("%s.%s", tbl.GetUniqueId(), colName)
+		p.PrimitiveComposer.SetSymbol(uid, colEntry)
+	}
+	return nil
 }
 
 func (p *primitiveGenerator) buildRequestContext(handlerCtx handler.HandlerContext, node sqlparser.SQLNode, meta tablemetadata.ExtendedTableMetadata, execContext httpbuild.ExecContext, rowsToInsert map[int]map[int]interface{}) (httpbuild.HTTPArmoury, error) {

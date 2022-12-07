@@ -87,6 +87,8 @@ type HeirarchyIdentifiers interface {
 	GetStackQLTableName() string
 	GetTableName() string
 	IsView() bool
+	GetSubAST() sqlparser.Statement
+	SetSubAST(sqlparser.Statement)
 	SetMethodStr(string)
 	WithIsView(bool) HeirarchyIdentifiers
 	WithProviderStr(string) HeirarchyIdentifiers
@@ -100,10 +102,19 @@ type standardHeirarchyIdentifiers struct {
 	responseSchemaStr string
 	methodStr         string
 	isView            bool
+	viewAST           sqlparser.Statement
 }
 
 func (hi *standardHeirarchyIdentifiers) SetMethodStr(mStr string) {
 	hi.methodStr = mStr
+}
+
+func (hi *standardHeirarchyIdentifiers) SetSubAST(viewAST sqlparser.Statement) {
+	hi.viewAST = viewAST
+}
+
+func (hi *standardHeirarchyIdentifiers) GetSubAST() sqlparser.Statement {
+	return hi.viewAST
 }
 
 func (hi *standardHeirarchyIdentifiers) GetProviderStr() string {
