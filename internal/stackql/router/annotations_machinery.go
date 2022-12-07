@@ -4,14 +4,14 @@ import (
 	"fmt"
 
 	"github.com/stackql/stackql/internal/stackql/internaldto"
-	"github.com/stackql/stackql/internal/stackql/sqlengine"
+	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 )
 
 func obtainAnnotationCtx(
-	sqlEngine sqlengine.SQLEngine,
+	sqlDialect sqldialect.SQLDialect,
 	tbl tablemetadata.ExtendedTableMetadata,
 	parameters map[string]interface{},
 	namespaceCollection tablenamespace.TableNamespaceCollection,
@@ -43,5 +43,7 @@ func obtainAnnotationCtx(
 		name, _ = tbl.GetResponseSchemaStr()
 	}
 	hIds := internaldto.NewHeirarchyIdentifiers(provStr, svcStr, rscStr, methodStr).WithResponseSchemaStr(name)
+	isView := sqlDialect.ViewExists(hIds.GetTableName())
+	hIds = hIds.WithIsView(isView)
 	return taxonomy.NewStaticStandardAnnotationCtx(itemObjS, hIds, tbl, parameters), nil
 }

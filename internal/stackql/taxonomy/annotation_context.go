@@ -13,6 +13,7 @@ import (
 type AnnotationCtx interface {
 	GetHIDs() internaldto.HeirarchyIdentifiers
 	IsDynamic() bool
+	IsView() bool
 	GetInputTableName() (string, error)
 	GetParameters() map[string]interface{}
 	GetSchema() *openapistackql.Schema
@@ -23,6 +24,7 @@ type AnnotationCtx interface {
 
 type standardAnnotationCtx struct {
 	isDynamic  bool
+	isView     bool
 	schema     *openapistackql.Schema
 	hIDs       internaldto.HeirarchyIdentifiers
 	tableMeta  tablemetadata.ExtendedTableMetadata
@@ -46,6 +48,10 @@ func NewStaticStandardAnnotationCtx(
 
 func (ac *standardAnnotationCtx) IsDynamic() bool {
 	return ac.isDynamic
+}
+
+func (ac *standardAnnotationCtx) IsView() bool {
+	return ac.hIDs.IsView()
 }
 
 func (ac *standardAnnotationCtx) SetDynamic() {
