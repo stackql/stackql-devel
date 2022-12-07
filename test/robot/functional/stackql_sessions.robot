@@ -89,7 +89,6 @@ PG Session Postgres Client AWS Method Signature Polymorphism
     [Teardown]    NONE
 
 PG Session Postgres Client Typed Queries
-    Pass Execution If    "${SQL_BACKEND}" == "postgres_tcp"    TODO: FIX THIS... Skipping postgres backend test.
     Should PG Client Session Inline Equal
     ...    ${PSQL_MTLS_CONN_STR_UNIX}
     ...    ${SELECT_AWS_CLOUD_CONTROL_EVENTS_MINIMAL}
@@ -98,7 +97,6 @@ PG Session Postgres Client Typed Queries
     [Teardown]    NONE
 
 PG Session Postgres Client V2 Typed Queries
-    Pass Execution If    "${SQL_BACKEND}" == "postgres_tcp"    TODO: FIX THIS... Skipping postgres backend test.
     Should PG Client V2 Session Inline Equal
     ...    ${PSQL_MTLS_CONN_STR_UNIX}
     ...    ${SELECT_AWS_CLOUD_CONTROL_EVENTS_MINIMAL}
