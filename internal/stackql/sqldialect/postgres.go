@@ -230,11 +230,11 @@ func (eng *postgresDialect) createView(viewName string, rawDDL string, translate
 	return nil
 }
 
-func (eng *postgresDialect) GetView(viewName string) (internaldto.ViewDTO, bool) {
-	return eng.getView(viewName)
+func (eng *postgresDialect) GetViewByName(viewName string) (internaldto.ViewDTO, bool) {
+	return eng.getViewByName(viewName)
 }
 
-func (eng *postgresDialect) getView(viewName string) (internaldto.ViewDTO, bool) {
+func (eng *postgresDialect) getViewByName(viewName string) (internaldto.ViewDTO, bool) {
 	q := `SELECT view_ddl FROM "__iql__.views" WHERE view_name = $1 and deleted_dttm IS NULL`
 	row := eng.sqlEngine.QueryRow(q, viewName)
 	if row != nil {

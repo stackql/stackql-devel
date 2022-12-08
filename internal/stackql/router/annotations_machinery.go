@@ -47,7 +47,7 @@ func obtainAnnotationCtx(
 		name, _ = tbl.GetResponseSchemaStr()
 	}
 	hIds := internaldto.NewHeirarchyIdentifiers(provStr, svcStr, rscStr, methodStr).WithResponseSchemaStr(name)
-	viewDTO, isView := sqlDialect.GetView(hIds.GetTableName())
+	viewDTO, isView := sqlDialect.GetViewByName(hIds.GetTableName())
 	if isView {
 		hIds = hIds.WithView(viewDTO)
 	}

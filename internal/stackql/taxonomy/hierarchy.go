@@ -66,7 +66,7 @@ func getHids(handlerCtx handler.HandlerContext, node sqlparser.SQLNode) (interna
 	default:
 		return nil, fmt.Errorf("cannot resolve taxonomy")
 	}
-	viewDTO, isView := handlerCtx.GetSQLDialect().GetView(hIds.GetTableName())
+	viewDTO, isView := handlerCtx.GetSQLDialect().GetViewByName(hIds.GetTableName())
 	if isView {
 		hIds = hIds.WithView(viewDTO)
 	}

@@ -266,11 +266,11 @@ func (eng *sqLiteDialect) generateDDL(relationalTable relationaldto.RelationalTa
 	return retVal, nil
 }
 
-func (eng *sqLiteDialect) GetView(viewName string) (internaldto.ViewDTO, bool) {
-	return eng.getView(viewName)
+func (eng *sqLiteDialect) GetViewByName(viewName string) (internaldto.ViewDTO, bool) {
+	return eng.getViewByName(viewName)
 }
 
-func (eng *sqLiteDialect) getView(viewName string) (internaldto.ViewDTO, bool) {
+func (eng *sqLiteDialect) getViewByName(viewName string) (internaldto.ViewDTO, bool) {
 	q := `SELECT view_ddl FROM "__iql__.views" WHERE view_name = ? and deleted_dttm IS NULL`
 	row := eng.sqlEngine.QueryRow(q, viewName)
 	if row != nil {
