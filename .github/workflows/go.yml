@@ -400,7 +400,6 @@ jobs:
       uses: Vampire/setup-wsl@v1
       with:
         additional-packages:
-          robotframework
           python3
           openssl
           openjdk-11-jre
