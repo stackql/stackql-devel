@@ -365,6 +365,10 @@ jobs:
       with:
         name: stackql_linux_amd64
         path: build/stackql
+
+    - shell: wsl-bash {0}
+      name: Install Python dependencies
+      run: chmod +x build/stackql/stackql
     
     - name: Setup WSL with secrets.ACTIONS_PRIVATE_PACKAGE_SECRET dependencies
       uses: Vampire/setup-wsl@v1
