@@ -379,10 +379,11 @@ jobs:
           [automount]
           options = "metadata"
 
-    - shell: wsl-bash {0}
-      name: Install Python dependencies
+    - shell: wsl-bash -u root {0}
+      name: Stackql permissions
       run:  |
-        chmod +x build/stackql/stackql
+        chmod a+rwx build/stackql
+        ls -al build/stackql
 
     - shell: wsl-bash -u root {0}
       name: Install Python dependencies
