@@ -359,71 +359,52 @@ jobs:
         name: stackql_linux_amd64
         path: build/stackql
     
-    - name: Install Python dependencies
+    - name: Setup WSL with secrets.ACTIONS_PRIVATE_PACKAGE_SECRET dependencies
       uses: Vampire/setup-wsl@v1
       with:
         additional-packages:
-          python3
-        wsl-shell-command: pip3 install -r requirements.txt
-    
-    - name: Generate rewritten registry for simulations
-      uses: Vampire/setup-wsl@v1
-      with:
-        additional-packages:
-          python3
-        wsl-shell-command: python3 test/python/registry-rewrite.py
-
-    - name: Mock Server Download
-      uses: Vampire/setup-wsl@v1
-      with:
-        additional-packages:
-          openjdk-11-jre
           maven
-        wsl-shell-command: |
+          openjdk-11-jre
+          openssl
+          python3
+          python3-pip
+
+    - shell: wsl-bash -u root {0}
+      name: Install Python dependencies
+      run: pip3 install -r requirements.txt
+    
+    - shell: wsl-bash {0}
+      name: Generate rewritten registry for simulations
+      run: python3 test/python/registry-rewrite.py
+
+    - shell: wsl-bash {0}
+      name: Mock Server Download
+      run: |
           mvn \
           org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy \
           -Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded \
           -DoutputDirectory=test/downloads
 
-    - name: Create certificates for robot tests
-      uses: Vampire/setup-wsl@v1
-      with:
-        additional-packages:
-          openssl
-        wsl-shell-command:  |
+    - shell: wsl-bash {0}
+      name: Create certificates for robot tests
+      run: |
           openssl req -x509 -keyout test/server/mtls/credentials/pg_server_key.pem -out test/server/mtls/credentials/pg_server_cert.pem -config test/server/mtls/openssl.cnf -days 365
           openssl req -x509 -keyout test/server/mtls/credentials/pg_client_key.pem -out test/server/mtls/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
           openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365 
 
-    - name: Run robot mocked functional tests
-      if: success()
-      uses: Vampire/setup-wsl@v1
-      with:
-        additional-packages:
-          python3
-          openssl
-          openjdk-11-jre
-          maven
-        wsl-shell-command: |
+    - shell: wsl-bash {0}
+      name: Run robot mocked functional tests
+      run: |
           robot test/robot/functional
 
-    - name: Output from mocked functional tests
-      if: always()
-      uses: Vampire/setup-wsl@v1
-      with:
-        wsl-shell-command: |
+    - shell: wsl-bash {0}
+      name: Output from mocked functional tests
+      run: |
           cat ./output.xml
     
-    - name: Run robot integration tests
-      if: success() && startsWith(${{ steps.git_ref_parse.outputs.SOURCE_TAG }}, 'build-release')
-      uses: Vampire/setup-wsl@v1
-      with:
-        additional-packages:
-          python3
-          openssl
-          openjdk-11-jre
-          maven
-        wsl-shell-command: |
+    - shell: wsl-bash {0}
+      name: Run robot integration tests
+      run: |
           robot test/robot/integration
 
 
