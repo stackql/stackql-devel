@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/stackql/stackql/internal/stackql/astanalysis/annotatedast"
 	"github.com/stackql/stackql/internal/stackql/astformat"
 	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/sqldialect"
@@ -29,9 +30,10 @@ type DRMAstVisitor struct {
 	containsNativeBackendMaterial  bool
 	sqlDialect                     sqldialect.SQLDialect
 	formatter                      sqlparser.NodeFormatter
+	annotatedAST                   annotatedast.AnnotatedAst
 }
 
-func NewDRMAstVisitor(iDColumnName string, shouldCollectTables bool, sqlDialect sqldialect.SQLDialect, formatter sqlparser.NodeFormatter, namespaceCollection tablenamespace.TableNamespaceCollection) *DRMAstVisitor {
+func NewDRMAstVisitor(annotatedAST annotatedast.AnnotatedAst, iDColumnName string, shouldCollectTables bool, sqlDialect sqldialect.SQLDialect, formatter sqlparser.NodeFormatter, namespaceCollection tablenamespace.TableNamespaceCollection) *DRMAstVisitor {
 	return &DRMAstVisitor{
 		iDColumnName:        iDColumnName,
 		tablesCited:         make(map[*sqlparser.AliasedTableExpr]sqlparser.TableName),
@@ -40,6 +42,7 @@ func NewDRMAstVisitor(iDColumnName string, shouldCollectTables bool, sqlDialect 
 		namespaceCollection: namespaceCollection,
 		sqlDialect:          sqlDialect,
 		formatter:           formatter,
+		annotatedAST:        annotatedAST,
 	}
 }
 
@@ -156,11 +159,11 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 			commentStr = v.GetRewrittenQuery()
 		}
 		if node.SelectExprs != nil {
-			selVis := NewDRMAstVisitor(v.iDColumnName, true, v.sqlDialect, v.formatter, v.namespaceCollection)
+			selVis := NewDRMAstVisitor(v.annotatedAST, v.iDColumnName, true, v.sqlDialect, v.formatter, v.namespaceCollection)
 			node.SelectExprs.Accept(selVis)
 			selectExprStr = selVis.GetRewrittenQuery()
 		}
-		fromVis := NewDRMAstVisitor(v.iDColumnName, true, v.sqlDialect, v.formatter, v.namespaceCollection)
+		fromVis := NewDRMAstVisitor(v.annotatedAST, v.iDColumnName, true, v.sqlDialect, v.formatter, v.namespaceCollection)
 		if node.From != nil {
 			node.From.Accept(fromVis)
 			v.tablesCited = fromVis.tablesCited
@@ -827,11 +830,11 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 		v.rewrittenQuery = buf.String()
 
 	case *sqlparser.JoinTableExpr:
-		lVis := NewDRMAstVisitor("", true, v.sqlDialect, v.formatter, v.namespaceCollection)
+		lVis := NewDRMAstVisitor(v.annotatedAST, "", true, v.sqlDialect, v.formatter, v.namespaceCollection)
 		node.LeftExpr.Accept(lVis)
-		rVis := NewDRMAstVisitor("", true, v.sqlDialect, v.formatter, v.namespaceCollection)
+		rVis := NewDRMAstVisitor(v.annotatedAST, "", true, v.sqlDialect, v.formatter, v.namespaceCollection)
 		node.RightExpr.Accept(rVis)
-		conditionVis := NewDRMAstVisitor("", true, v.sqlDialect, v.formatter, v.namespaceCollection)
+		conditionVis := NewDRMAstVisitor(v.annotatedAST, "", true, v.sqlDialect, v.formatter, v.namespaceCollection)
 		node.Condition.Accept(conditionVis)
 		if lVis.ContainsAnalyticsCacheMaterial() || rVis.ContainsAnalyticsCacheMaterial() {
 			v.containsAnalyticsCacheMaterial = true
@@ -889,9 +892,9 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 		v.rewrittenQuery = buf.String()
 
 	case *sqlparser.ComparisonExpr:
-		lVis := NewDRMAstVisitor("", true, v.sqlDialect, v.formatter, v.namespaceCollection)
+		lVis := NewDRMAstVisitor(v.annotatedAST, "", true, v.sqlDialect, v.formatter, v.namespaceCollection)
 		node.Left.Accept(lVis)
-		rVis := NewDRMAstVisitor("", true, v.sqlDialect, v.formatter, v.namespaceCollection)
+		rVis := NewDRMAstVisitor(v.annotatedAST, "", true, v.sqlDialect, v.formatter, v.namespaceCollection)
 		node.Right.Accept(rVis)
 		switch lt := node.Left.(type) {
 		case *sqlparser.ColName:

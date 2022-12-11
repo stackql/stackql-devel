@@ -116,7 +116,7 @@ func (p *primitiveGenerator) analyzeUnion(pbi planbuilderinput.PlanBuilderInput)
 	if !ok {
 		return fmt.Errorf("could not cast statement of type '%T' to required Union", pbi.GetStatement())
 	}
-	unionQuery := astvisit.GenerateUnionTemplateQuery(node, handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection())
+	unionQuery := astvisit.GenerateUnionTemplateQuery(pbi.GetAnnotatedAST(), node, handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection())
 	i := 0
 	leaf, err := p.PrimitiveComposer.GetSymTab().NewLeaf(i)
 	if err != nil {
@@ -124,7 +124,7 @@ func (p *primitiveGenerator) analyzeUnion(pbi planbuilderinput.PlanBuilderInput)
 	}
 	pChild := p.addChildPrimitiveGenerator(node.FirstStatement, leaf)
 	counters := pbi.GetTxnCtrlCtrs()
-	sPbi, err := planbuilderinput.NewPlanBuilderInput(handlerCtx, node.FirstStatement, nil, nil, nil, nil, nil, counters)
+	sPbi, err := planbuilderinput.NewPlanBuilderInput(pbi.GetAnnotatedAST(), handlerCtx, node.FirstStatement, nil, nil, nil, nil, nil, counters)
 	if err != nil {
 		return err
 	}
@@ -141,7 +141,7 @@ func (p *primitiveGenerator) analyzeUnion(pbi planbuilderinput.PlanBuilderInput)
 		}
 		pChild := p.addChildPrimitiveGenerator(rhsStmt.Statement, leaf)
 		ctrClone := counters.CloneAndIncrementInsertID()
-		sPbi, err := planbuilderinput.NewPlanBuilderInput(handlerCtx, rhsStmt.Statement, nil, nil, nil, nil, nil, ctrClone)
+		sPbi, err := planbuilderinput.NewPlanBuilderInput(pbi.GetAnnotatedAST(), handlerCtx, rhsStmt.Statement, nil, nil, nil, nil, nil, ctrClone)
 		if err != nil {
 			return err
 		}
@@ -797,6 +797,8 @@ func (p *primitiveGenerator) analyzePGInternal(pbi planbuilderinput.PlanBuilderI
 
 func (p *primitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBuilderInput) error {
 
+	annotatedAST := pbi.GetAnnotatedAST()
+
 	handlerCtx := pbi.GetHandlerCtx()
 	node, ok := pbi.GetSelect()
 	if !ok {
@@ -831,11 +833,12 @@ func (p *primitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBuilderInput
 	//     parameters will need to have Hierarchies attached after they are inferred.
 	//     Then semantic anlaysis and data flow can be instrumented.
 	//   - TODO: add support for views and subqueries.
-	whereParamMap := astvisit.ExtractParamsFromWhereClause(node.Where)
-	onParamMap := astvisit.ExtractParamsFromFromClause(node.From)
+	whereParamMap := astvisit.ExtractParamsFromWhereClause(annotatedAST, node.Where)
+	onParamMap := astvisit.ExtractParamsFromFromClause(annotatedAST, node.From)
 
 	// TODO: There is god awful object <-> namespacing inside here: abstract it.
 	paramRouter := router.NewParameterRouter(
+		annotatedAST,
 		pbi.GetAliasedTables(),
 		pbi.GetAssignedAliasedColumns(),
 		whereParamMap,
@@ -928,6 +931,7 @@ func (p *primitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBuilderInput
 		case *sqlparser.JoinTableExpr, *sqlparser.AliasedTableExpr:
 			tcc := pbi.GetTxnCtrlCtrs()
 			dp, err := dependencyplanner.NewStandardDependencyPlanner(
+				annotatedAST,
 				handlerCtx,
 				dataFlows,
 				colRefs,
@@ -1199,7 +1203,7 @@ func (p *primitiveGenerator) analyzeDelete(pbi planbuilderinput.PlanBuilderInput
 		return fmt.Errorf("could not cast node of type '%T' to required Delete", pbi.GetStatement())
 	}
 	p.parseComments(node.Comments)
-	paramMap := astvisit.ExtractParamsFromWhereClause(node.Where)
+	paramMap := astvisit.ExtractParamsFromWhereClause(pbi.GetAnnotatedAST(), node.Where)
 
 	err := p.inferHeirarchyAndPersist(handlerCtx, node, paramMap.GetStringified())
 	if err != nil {

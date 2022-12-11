@@ -7,6 +7,7 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
+	"github.com/stackql/stackql/internal/stackql/astanalysis/annotatedast"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internaldto"
@@ -85,6 +86,7 @@ type QueryRewriteAstVisitor struct {
 	tableSlice            []tableinsertioncontainer.TableInsertionContainer
 	namespaceCollection   tablenamespace.TableNamespaceCollection
 	formatter             sqlparser.NodeFormatter
+	annotatedAST          annotatedast.AnnotatedAst
 	//
 	fromStr       string
 	whereExprsStr string
@@ -94,6 +96,7 @@ type QueryRewriteAstVisitor struct {
 }
 
 func NewQueryRewriteAstVisitor(
+	annotatedAST annotatedast.AnnotatedAst,
 	handlerCtx handler.HandlerContext,
 	tables taxonomy.TblMap,
 	tableSlice []tableinsertioncontainer.TableInsertionContainer,
@@ -107,6 +110,7 @@ func NewQueryRewriteAstVisitor(
 	namespaceCollection tablenamespace.TableNamespaceCollection,
 ) *QueryRewriteAstVisitor {
 	rv := &QueryRewriteAstVisitor{
+		annotatedAST:          annotatedAST,
 		handlerCtx:            handlerCtx,
 		tables:                tables,
 		tableSlice:            tableSlice,
@@ -148,7 +152,7 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 
 	switch node := node.(type) {
 	case *sqlparser.Select:
-		v.selectSuffix = GenerateModifiedSelectSuffix(node, v.handlerCtx.GetSQLDialect(), v.handlerCtx.GetASTFormatter(), v.namespaceCollection)
+		v.selectSuffix = GenerateModifiedSelectSuffix(v.annotatedAST, node, v.handlerCtx.GetSQLDialect(), v.handlerCtx.GetASTFormatter(), v.namespaceCollection)
 		var options string
 		addIf := func(b bool, s string) {
 			if b {
@@ -180,7 +184,7 @@ func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			if err != nil {
 				return err
 			}
-			fromVis := NewFromRewriteAstVisitor("", true, v.handlerCtx.GetSQLDialect(), v.formatter, v.namespaceCollection, v.annotations, v.dc)
+			fromVis := NewFromRewriteAstVisitor(v.annotatedAST, "", true, v.handlerCtx.GetSQLDialect(), v.formatter, v.namespaceCollection, v.annotations, v.dc)
 			if node.From != nil {
 				node.From.Accept(fromVis)
 				v.fromStr = fromVis.GetRewrittenQuery()

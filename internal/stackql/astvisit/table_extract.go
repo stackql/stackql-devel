@@ -6,18 +6,21 @@ import (
 
 	"vitess.io/vitess/go/vt/sqlparser"
 
+	"github.com/stackql/stackql/internal/stackql/astanalysis/annotatedast"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 )
 
 type TableExtractAstVisitor struct {
-	tables      sqlparser.TableExprs
-	tableAiases parserutil.TableAliasMap
+	tables       sqlparser.TableExprs
+	tableAiases  parserutil.TableAliasMap
+	annotatedAST annotatedast.AnnotatedAst
 }
 
-func NewTableExtractAstVisitor() *TableExtractAstVisitor {
+func NewTableExtractAstVisitor(annotatedAST annotatedast.AnnotatedAst) *TableExtractAstVisitor {
 	return &TableExtractAstVisitor{
-		tableAiases: make(parserutil.TableAliasMap),
+		annotatedAST: annotatedAST,
+		tableAiases:  make(parserutil.TableAliasMap),
 	}
 }
 

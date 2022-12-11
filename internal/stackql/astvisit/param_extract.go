@@ -4,18 +4,21 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/stackql/stackql/internal/stackql/astanalysis/annotatedast"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"vitess.io/vitess/go/sqltypes"
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
 type ParamAstVisitor struct {
-	params parserutil.ParameterMap
+	params       parserutil.ParameterMap
+	annotatedAST annotatedast.AnnotatedAst
 }
 
-func NewParamAstVisitor(iDColumnName string, shouldCollectTables bool) *ParamAstVisitor {
+func NewParamAstVisitor(annotatedAST annotatedast.AnnotatedAst, iDColumnName string, shouldCollectTables bool) *ParamAstVisitor {
 	return &ParamAstVisitor{
-		params: parserutil.NewParameterMap(),
+		annotatedAST: annotatedAST,
+		params:       parserutil.NewParameterMap(),
 	}
 }
 

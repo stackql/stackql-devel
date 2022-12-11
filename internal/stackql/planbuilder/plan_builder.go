@@ -510,7 +510,7 @@ func (pgb *planGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuilderInput)
 		if nonValCols > 0 {
 			switch rowsNode := node.Rows.(type) {
 			case *sqlparser.Select:
-				selPbi, err := planbuilderinput.NewPlanBuilderInput(pbi.GetHandlerCtx(), rowsNode, pbi.GetTableExprs(), pbi.GetAssignedAliasedColumns(), pbi.GetAliasedTables(), pbi.GetColRefs(), pbi.GetPlaceholderParams(), pbi.GetTxnCtrlCtrs())
+				selPbi, err := planbuilderinput.NewPlanBuilderInput(pbi.GetAnnotatedAST(), pbi.GetHandlerCtx(), rowsNode, pbi.GetTableExprs(), pbi.GetAssignedAliasedColumns(), pbi.GetAliasedTables(), pbi.GetColRefs(), pbi.GetPlaceholderParams(), pbi.GetTxnCtrlCtrs())
 				if err != nil {
 					return err
 				}

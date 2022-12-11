@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/stackql/stackql/internal/stackql/astanalysis/annotatedast"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"vitess.io/vitess/go/sqltypes"
 	"vitess.io/vitess/go/vt/sqlparser"
@@ -11,12 +12,14 @@ import (
 
 // Extracts "parameters" with null values for subsequent analyses.
 type PlaceholderParamAstVisitor struct {
-	params parserutil.ParameterMap
+	params       parserutil.ParameterMap
+	annotatedAST annotatedast.AnnotatedAst
 }
 
-func NewPlaceholderParamAstVisitor(iDColumnName string, shouldCollectTables bool) *PlaceholderParamAstVisitor {
+func NewPlaceholderParamAstVisitor(annotatedAST annotatedast.AnnotatedAst, iDColumnName string, shouldCollectTables bool) *PlaceholderParamAstVisitor {
 	return &PlaceholderParamAstVisitor{
-		params: parserutil.NewParameterMap(),
+		annotatedAST: annotatedAST,
+		params:       parserutil.NewParameterMap(),
 	}
 }
 

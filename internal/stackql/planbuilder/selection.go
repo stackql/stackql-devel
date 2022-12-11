@@ -69,7 +69,13 @@ func (p *primitiveGenerator) assembleUnarySelectionBuilder(
 		}
 		selectTabulation.PushBackColumn(openapistackql.NewColumnDescriptor(col.Alias, col.Name, col.Qualifier, col.DecoratedColumn, col.Expr, foundSchema, col.Val))
 	}
-	selPsc, err := p.PrimitiveComposer.GetDRMConfig().GenerateSelectDML(util.NewAnnotatedTabulation(selectTabulation, hIds, inputTableName, tbl.GetAlias()), insPsc.GetGCCtrlCtrs(), astvisit.GenerateModifiedSelectSuffix(node, handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection()), astvisit.GenerateModifiedWhereClause(rewrittenWhere, handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection()))
+	selectSuffix := astvisit.GenerateModifiedSelectSuffix(pbi.GetAnnotatedAST(), node, handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection())
+	selPsc, err := p.PrimitiveComposer.GetDRMConfig().GenerateSelectDML(
+		util.NewAnnotatedTabulation(selectTabulation, hIds, inputTableName, tbl.GetAlias()),
+		insPsc.GetGCCtrlCtrs(),
+		selectSuffix,
+		astvisit.GenerateModifiedWhereClause(pbi.GetAnnotatedAST(), rewrittenWhere, handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection()),
+	)
 	if err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ import (
 
 	"vitess.io/vitess/go/vt/sqlparser"
 
+	"github.com/stackql/stackql/internal/stackql/astanalysis/annotatedast"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
@@ -15,9 +16,11 @@ type LeftoverReferencesAstVisitor struct {
 	colRefs                           parserutil.ColTableMap
 	tableToAnnotationCtx              map[sqlparser.TableExpr]taxonomy.AnnotationCtx
 	thisIterationTableToAnnotationCtx map[sqlparser.TableExpr]taxonomy.AnnotationCtx
+	annotatedAST                      annotatedast.AnnotatedAst
 }
 
 func NewLeftoverReferencesAstVisitor(
+	annotatedAST annotatedast.AnnotatedAst,
 	colRefs parserutil.ColTableMap,
 	tableToAnnotationCtx map[sqlparser.TableExpr]taxonomy.AnnotationCtx,
 ) *LeftoverReferencesAstVisitor {
@@ -26,6 +29,7 @@ func NewLeftoverReferencesAstVisitor(
 		copyColRefs[k] = v
 	}
 	return &LeftoverReferencesAstVisitor{
+		annotatedAST:                      annotatedAST,
 		colRefs:                           copyColRefs,
 		tableToAnnotationCtx:              tableToAnnotationCtx,
 		thisIterationTableToAnnotationCtx: make(map[sqlparser.TableExpr]taxonomy.AnnotationCtx),

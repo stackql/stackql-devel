@@ -12,9 +12,14 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
+var (
+	_ AstExpandVisitor = &indirectExpandAstVisitor{}
+)
+
 type AstExpandVisitor interface {
+	sqlparser.SQLAstVisitor
 	GetAnnotatedAST() annotatedast.AnnotatedAst
-	Visit(sqlparser.SQLNode) error
+	Analyze() error
 }
 
 type indirectExpandAstVisitor struct {
@@ -27,15 +32,11 @@ type indirectExpandAstVisitor struct {
 }
 
 func NewIndirectExpandAstVisitor(
-	astRootNode sqlparser.Statement,
+	annotatedAST annotatedast.AnnotatedAst,
 	sqlDialect sqldialect.SQLDialect,
 	formatter sqlparser.NodeFormatter,
 	namespaceCollection tablenamespace.TableNamespaceCollection,
 ) (AstExpandVisitor, error) {
-	annotatedAST, err := annotatedast.NewAnnotatedAst(astRootNode)
-	if err != nil {
-		return nil, err
-	}
 	rv := &indirectExpandAstVisitor{
 		namespaceCollection: namespaceCollection,
 		sqlDialect:          sqlDialect,
@@ -47,6 +48,10 @@ func NewIndirectExpandAstVisitor(
 
 func (v *indirectExpandAstVisitor) GetAnnotatedAST() annotatedast.AnnotatedAst {
 	return v.annotatedAST
+}
+
+func (v *indirectExpandAstVisitor) Analyze() error {
+	return v.Visit(v.annotatedAST.GetAST())
 }
 
 func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
@@ -631,7 +636,10 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 		v.containsNativeBackendMaterial = true
 
 	case sqlparser.JoinCondition:
-		v.Visit(node.On)
+		err := node.On.Accept(v)
+		if err != nil {
+			return err
+		}
 		if node.On != nil {
 			buf.AstPrintf(node, " on %v", node.On)
 		}
