@@ -1,6 +1,7 @@
 package earlyanalysis
 
 import (
+	"github.com/stackql/stackql/internal/stackql/astanalysis/astexpand"
 	"github.com/stackql/stackql/internal/stackql/astvisit"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internaldto"
@@ -95,8 +96,19 @@ func (sp *standardInitialPasses) initialPasses(handlerCtx handler.HandlerContext
 		return nil
 	}
 
-	// First pass AST analysis; extract provider strings for auth.
-	provStrSlice, isCacheExemptMaterialDetected := astvisit.ExtractProviderStringsAndDetectCacheExceptMaterial(result.AST, handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection())
+	// First pass AST analysis; annotate and expand AST for indirects (views).
+	astExpandVisitor, err := astexpand.NewIndirectExpandAstVisitor(result.AST, handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection())
+	if err != nil {
+		return err
+	}
+	err = astExpandVisitor.Visit(result.AST)
+	if err != nil {
+		return err
+	}
+	annotatedAST := astExpandVisitor.GetAnnotatedAST()
+
+	// Second pass AST analysis; extract provider strings for auth.
+	provStrSlice, isCacheExemptMaterialDetected := astvisit.ExtractProviderStringsAndDetectCacheExceptMaterial(annotatedAST.GetAST(), handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection())
 	sp.isCacheExemptMaterialDetected = isCacheExemptMaterialDetected
 	for _, p := range provStrSlice {
 		_, err := handlerCtx.GetProvider(p)
@@ -105,16 +117,16 @@ func (sp *standardInitialPasses) initialPasses(handlerCtx handler.HandlerContext
 		}
 	}
 
-	ast := result.AST
+	ast := annotatedAST.GetAST()
 
-	// Second pass AST analysis; extract provider strings for auth.
+	// Third pass AST analysis; extract provider strings for auth.
 	// Extracts:
 	//   - parser objects representing tables.
 	//   - mapping of string aliases to tables.
 	tVis := astvisit.NewTableExtractAstVisitor()
 	tVis.Visit(ast)
 
-	// Third pass AST analysis.
+	// Fourth pass AST analysis.
 	// Accepts slice of parser table objects
 	// extracted from previous analysis.
 	// Extracts:
@@ -124,7 +136,7 @@ func (sp *standardInitialPasses) initialPasses(handlerCtx handler.HandlerContext
 	aVis := astvisit.NewTableAliasAstVisitor(tVis.GetTables())
 	aVis.Visit(ast)
 
-	// Fourth pass AST analysis.
+	// Fifth pass AST analysis.
 	// Extracts:
 	//   - Columnar parameters with null values.
 	//     Useful for method matching.
