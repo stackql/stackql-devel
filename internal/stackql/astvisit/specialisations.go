@@ -12,7 +12,7 @@ import (
 )
 
 func GenerateModifiedSelectSuffix(annotatedAST annotatedast.AnnotatedAst, node sqlparser.SQLNode, sqlDialect sqldialect.SQLDialect, formatter sqlparser.NodeFormatter, namespaceCollection tablenamespace.TableNamespaceCollection) string {
-	v := NewDRMAstVisitor(annotatedAST, "", false, sqlDialect, formatter, namespaceCollection)
+	v := NewFramentRewriteAstVisitor(annotatedAST, "", false, sqlDialect, formatter, namespaceCollection)
 	switch node := node.(type) {
 	case *sqlparser.Select:
 		var options string
@@ -58,7 +58,7 @@ func GenerateModifiedSelectSuffix(annotatedAST annotatedast.AnnotatedAst, node s
 }
 
 func GenerateUnionTemplateQuery(annotatedAST annotatedast.AnnotatedAst, node *sqlparser.Union, sqlDialect sqldialect.SQLDialect, formatter sqlparser.NodeFormatter, namespaceCollection tablenamespace.TableNamespaceCollection) string {
-	v := NewDRMAstVisitor(annotatedAST, "", false, sqlDialect, formatter, namespaceCollection)
+	v := NewFramentRewriteAstVisitor(annotatedAST, "", false, sqlDialect, formatter, namespaceCollection)
 
 	var sb strings.Builder
 	sb.WriteString("%s ")
@@ -87,7 +87,7 @@ func GenerateUnionTemplateQuery(annotatedAST annotatedast.AnnotatedAst, node *sq
 }
 
 func GenerateModifiedWhereClause(annotatedAST annotatedast.AnnotatedAst, node *sqlparser.Where, sqlDialect sqldialect.SQLDialect, formatter sqlparser.NodeFormatter, namespaceCollection tablenamespace.TableNamespaceCollection) string {
-	v := NewDRMAstVisitor(annotatedAST, "", false, sqlDialect, formatter, namespaceCollection)
+	v := NewFramentRewriteAstVisitor(annotatedAST, "", false, sqlDialect, formatter, namespaceCollection)
 	var whereStr string
 	if node != nil && node.Expr != nil {
 		node.Expr.Accept(v)
