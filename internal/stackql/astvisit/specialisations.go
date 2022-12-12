@@ -52,7 +52,7 @@ func GenerateModifiedSelectSuffix(annotatedAST annotatedast.AnnotatedAst, node s
 		rq := fmt.Sprintf("%v%v%v%v%s",
 			groupByStr, havingStr, orderByStr,
 			limitStr, node.Lock)
-		v.rewrittenQuery = rq
+		v.SetRewrittenQuery(rq)
 	}
 	return v.GetRewrittenQuery()
 }
@@ -81,7 +81,7 @@ func GenerateUnionTemplateQuery(annotatedAST annotatedast.AnnotatedAst, node *sq
 			orderByStr,
 			limitStr,
 			node.Lock))
-	v.rewrittenQuery = sb.String()
+	v.SetRewrittenQuery(sb.String())
 
 	return v.GetRewrittenQuery()
 }
@@ -95,7 +95,7 @@ func GenerateModifiedWhereClause(annotatedAST annotatedast.AnnotatedAst, node *s
 	} else {
 		return "true"
 	}
-	v.rewrittenQuery = whereStr
+	v.SetRewrittenQuery(whereStr)
 	return v.GetRewrittenQuery()
 }
 

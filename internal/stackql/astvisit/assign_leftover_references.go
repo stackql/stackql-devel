@@ -12,7 +12,17 @@ import (
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 )
 
-type LeftoverReferencesAstVisitor struct {
+var (
+	_ LeftoverReferencesAstVisitor = &standardLeftoverReferencesAstVisitor{}
+)
+
+// TODO: must be view-aware.
+type LeftoverReferencesAstVisitor interface {
+	sqlparser.SQLAstVisitor
+	GetTablesFoundThisIteration() map[sqlparser.TableExpr]taxonomy.AnnotationCtx
+}
+
+type standardLeftoverReferencesAstVisitor struct {
 	colRefs                           parserutil.ColTableMap
 	tableToAnnotationCtx              map[sqlparser.TableExpr]taxonomy.AnnotationCtx
 	thisIterationTableToAnnotationCtx map[sqlparser.TableExpr]taxonomy.AnnotationCtx
@@ -23,12 +33,12 @@ func NewLeftoverReferencesAstVisitor(
 	annotatedAST annotatedast.AnnotatedAst,
 	colRefs parserutil.ColTableMap,
 	tableToAnnotationCtx map[sqlparser.TableExpr]taxonomy.AnnotationCtx,
-) *LeftoverReferencesAstVisitor {
+) LeftoverReferencesAstVisitor {
 	copyColRefs := make(parserutil.ColTableMap)
 	for k, v := range colRefs {
 		copyColRefs[k] = v
 	}
-	return &LeftoverReferencesAstVisitor{
+	return &standardLeftoverReferencesAstVisitor{
 		annotatedAST:                      annotatedAST,
 		colRefs:                           copyColRefs,
 		tableToAnnotationCtx:              tableToAnnotationCtx,
@@ -36,11 +46,11 @@ func NewLeftoverReferencesAstVisitor(
 	}
 }
 
-func (v *LeftoverReferencesAstVisitor) GetTablesFoundThisIteration() map[sqlparser.TableExpr]taxonomy.AnnotationCtx {
+func (v *standardLeftoverReferencesAstVisitor) GetTablesFoundThisIteration() map[sqlparser.TableExpr]taxonomy.AnnotationCtx {
 	return v.thisIterationTableToAnnotationCtx
 }
 
-func (v *LeftoverReferencesAstVisitor) findTableLeftover(colName *sqlparser.ColName) (sqlparser.TableExpr, error) {
+func (v *standardLeftoverReferencesAstVisitor) findTableLeftover(colName *sqlparser.ColName) (sqlparser.TableExpr, error) {
 	for tb, md := range v.tableToAnnotationCtx {
 		// TODO: make recursive for views
 		tm := md.GetTableMeta()
@@ -66,7 +76,7 @@ func (v *LeftoverReferencesAstVisitor) findTableLeftover(colName *sqlparser.ColN
 	return nil, fmt.Errorf("could not locate table corresponding to expression '%s'", colName.GetRawVal())
 }
 
-func (v *LeftoverReferencesAstVisitor) Visit(node sqlparser.SQLNode) error {
+func (v *standardLeftoverReferencesAstVisitor) Visit(node sqlparser.SQLNode) error {
 	var err error
 
 	switch node := node.(type) {

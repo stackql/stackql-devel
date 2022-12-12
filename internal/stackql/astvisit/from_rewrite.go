@@ -15,7 +15,20 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-type FromRewriteAstVisitor struct {
+var (
+	_ FromRewriteAstVisitor = &standardFromRewriteAstVisitor{}
+)
+
+type FromRewriteAstVisitor interface {
+	sqlparser.SQLAstVisitor
+	ContainsAnalyticsCacheMaterial() bool
+	ContainsCacheExceptMaterial() bool
+	ContainsNativeBackendMaterial() bool
+	GetRewrittenQuery() string
+}
+
+// Need not be view-aware.
+type standardFromRewriteAstVisitor struct {
 	iDColumnName                   string
 	rewrittenQuery                 string
 	shouldCollectTables            bool
@@ -38,8 +51,8 @@ func NewFromRewriteAstVisitor(
 	namespaceCollection tablenamespace.TableNamespaceCollection,
 	annotations taxonomy.AnnotationCtxMap,
 	dc drm.DRMConfig,
-) *FromRewriteAstVisitor {
-	return &FromRewriteAstVisitor{
+) FromRewriteAstVisitor {
+	return &standardFromRewriteAstVisitor{
 		annotatedAST:        annotatedAST,
 		iDColumnName:        iDColumnName,
 		shouldCollectTables: shouldCollectTables,
@@ -51,23 +64,23 @@ func NewFromRewriteAstVisitor(
 	}
 }
 
-func (v *FromRewriteAstVisitor) ContainsAnalyticsCacheMaterial() bool {
+func (v *standardFromRewriteAstVisitor) ContainsAnalyticsCacheMaterial() bool {
 	return v.containsAnalyticsCacheMaterial
 }
 
-func (v *FromRewriteAstVisitor) ContainsNativeBackendMaterial() bool {
+func (v *standardFromRewriteAstVisitor) ContainsNativeBackendMaterial() bool {
 	return v.containsNativeBackendMaterial
 }
 
-func (v *FromRewriteAstVisitor) ContainsCacheExceptMaterial() bool {
+func (v *standardFromRewriteAstVisitor) ContainsCacheExceptMaterial() bool {
 	return v.containsAnalyticsCacheMaterial || v.containsNativeBackendMaterial
 }
 
-func (v *FromRewriteAstVisitor) GetRewrittenQuery() string {
+func (v *standardFromRewriteAstVisitor) GetRewrittenQuery() string {
 	return v.rewrittenQuery
 }
 
-func (v *FromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
+func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 	buf := sqlparser.NewTrackedBuffer(v.formatter)
 
 	switch node := node.(type) {

@@ -11,32 +11,43 @@ import (
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 )
 
-type TableExtractAstVisitor struct {
+var (
+	_ ParserTableExtractAstVisitor = &standardParserTableExtractAstVisitor{}
+)
+
+// TODO: must be view-aware **but** scoped at statement level.
+type ParserTableExtractAstVisitor interface {
+	sqlparser.SQLAstVisitor
+	GetAliasMap() parserutil.TableAliasMap
+	GetTables() sqlparser.TableExprs
+}
+
+type standardParserTableExtractAstVisitor struct {
 	tables       sqlparser.TableExprs
 	tableAiases  parserutil.TableAliasMap
 	annotatedAST annotatedast.AnnotatedAst
 }
 
-func NewTableExtractAstVisitor(annotatedAST annotatedast.AnnotatedAst) *TableExtractAstVisitor {
-	return &TableExtractAstVisitor{
+func NewTableExtractAstVisitor(annotatedAST annotatedast.AnnotatedAst) ParserTableExtractAstVisitor {
+	return &standardParserTableExtractAstVisitor{
 		annotatedAST: annotatedAST,
 		tableAiases:  make(parserutil.TableAliasMap),
 	}
 }
 
-func (v *TableExtractAstVisitor) GetTables() sqlparser.TableExprs {
+func (v *standardParserTableExtractAstVisitor) GetTables() sqlparser.TableExprs {
 	return v.tables
 }
 
-func (v *TableExtractAstVisitor) GetAliasMap() parserutil.TableAliasMap {
+func (v *standardParserTableExtractAstVisitor) GetAliasMap() parserutil.TableAliasMap {
 	return v.tableAiases
 }
 
-func (v *TableExtractAstVisitor) MergeTableExprs() sqlparser.TableExprs {
+func (v *standardParserTableExtractAstVisitor) MergeTableExprs() sqlparser.TableExprs {
 	return v.tables
 }
 
-func (v *TableExtractAstVisitor) Visit(node sqlparser.SQLNode) error {
+func (v *standardParserTableExtractAstVisitor) Visit(node sqlparser.SQLNode) error {
 	var err error
 
 	switch node := node.(type) {

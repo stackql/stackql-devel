@@ -20,57 +20,17 @@ import (
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 )
 
-func (v *QueryRewriteAstVisitor) getNextAlias() string {
-	v.anonColCounter++
-	i := v.anonColCounter
-	return fmt.Sprintf("col_%d", i)
+var (
+	_ QueryRewriteAstVisitor = &standardQueryRewriteAstVisitor{}
+)
+
+type QueryRewriteAstVisitor interface {
+	sqlparser.SQLAstVisitor
+	GenerateSelectDML() (drm.PreparedStatementCtx, error)
+	WithFormatter(formatter sqlparser.NodeFormatter) QueryRewriteAstVisitor
 }
 
-func (v *QueryRewriteAstVisitor) getStarColumns(
-	tbl tablemetadata.ExtendedTableMetadata,
-) ([]openapistackql.ColumnDescriptor, error) {
-	schema, _, err := tbl.GetResponseSchemaAndMediaType()
-	if err != nil {
-		return nil, err
-	}
-	itemObjS, selectItemsKey, err := tbl.GetSelectSchemaAndObjectPath()
-	tbl.SetSelectItemsKey(selectItemsKey)
-	unsuitableSchemaMsg := "QueryRewriteAstVisitor.getStarColumns(): schema unsuitable for select query"
-	if err != nil {
-		return nil, fmt.Errorf(unsuitableSchemaMsg)
-	}
-	if itemObjS == nil {
-		return nil, fmt.Errorf(unsuitableSchemaMsg)
-	}
-	var cols []parserutil.ColumnHandle
-	colNames := itemObjS.GetAllColumns()
-	for _, v := range colNames {
-		cols = append(cols, parserutil.NewUnaliasedColumnHandle(v))
-	}
-	var columnDescriptors []openapistackql.ColumnDescriptor
-	for _, col := range cols {
-		columnDescriptors = append(columnDescriptors, openapistackql.NewColumnDescriptor(col.Alias, col.Name, col.Qualifier, col.DecoratedColumn, nil, schema, col.Val))
-	}
-	return columnDescriptors, nil
-}
-
-func (v *QueryRewriteAstVisitor) GenerateSelectDML() (drm.PreparedStatementCtx, error) {
-	rewriteInput := sqlrewrite.NewStandardSQLRewriteInput(
-		v.dc,
-		v.columnDescriptors,
-		v.baseCtrlCounters,
-		v.selectSuffix,
-		v.whereExprsStr,
-		v.secondaryCtrlCounters,
-		v.tables,
-		v.fromStr,
-		v.tableSlice,
-		v.namespaceCollection,
-	)
-	return sqlrewrite.GenerateSelectDML(rewriteInput)
-}
-
-type QueryRewriteAstVisitor struct {
+type standardQueryRewriteAstVisitor struct {
 	handlerCtx            handler.HandlerContext
 	dc                    drm.DRMConfig
 	tables                taxonomy.TblMap
@@ -108,8 +68,8 @@ func NewQueryRewriteAstVisitor(
 	secondaryTccs []internaldto.TxnControlCounters,
 	rewrittenWhere string,
 	namespaceCollection tablenamespace.TableNamespaceCollection,
-) *QueryRewriteAstVisitor {
-	rv := &QueryRewriteAstVisitor{
+) QueryRewriteAstVisitor {
+	rv := &standardQueryRewriteAstVisitor{
 		annotatedAST:          annotatedAST,
 		handlerCtx:            handlerCtx,
 		tables:                tables,
@@ -127,27 +87,79 @@ func NewQueryRewriteAstVisitor(
 	return rv
 }
 
-func (v *QueryRewriteAstVisitor) WithFormatter(formatter sqlparser.NodeFormatter) *QueryRewriteAstVisitor {
+func (v *standardQueryRewriteAstVisitor) getNextAlias() string {
+	v.anonColCounter++
+	i := v.anonColCounter
+	return fmt.Sprintf("col_%d", i)
+}
+
+func (v *standardQueryRewriteAstVisitor) getStarColumns(
+	tbl tablemetadata.ExtendedTableMetadata,
+) ([]openapistackql.ColumnDescriptor, error) {
+	schema, _, err := tbl.GetResponseSchemaAndMediaType()
+	if err != nil {
+		return nil, err
+	}
+	itemObjS, selectItemsKey, err := tbl.GetSelectSchemaAndObjectPath()
+	tbl.SetSelectItemsKey(selectItemsKey)
+	unsuitableSchemaMsg := "standardQueryRewriteAstVisitor.getStarColumns(): schema unsuitable for select query"
+	if err != nil {
+		return nil, fmt.Errorf(unsuitableSchemaMsg)
+	}
+	if itemObjS == nil {
+		return nil, fmt.Errorf(unsuitableSchemaMsg)
+	}
+	var cols []parserutil.ColumnHandle
+	colNames := itemObjS.GetAllColumns()
+	for _, v := range colNames {
+		cols = append(cols, parserutil.NewUnaliasedColumnHandle(v))
+	}
+	var columnDescriptors []openapistackql.ColumnDescriptor
+	for _, col := range cols {
+		columnDescriptors = append(columnDescriptors, openapistackql.NewColumnDescriptor(col.Alias, col.Name, col.Qualifier, col.DecoratedColumn, nil, schema, col.Val))
+	}
+	return columnDescriptors, nil
+}
+
+func (v *standardQueryRewriteAstVisitor) GenerateSelectDML() (drm.PreparedStatementCtx, error) {
+	rewriteInput := sqlrewrite.NewStandardSQLRewriteInput(
+		v.dc,
+		v.columnDescriptors,
+		v.baseCtrlCounters,
+		v.selectSuffix,
+		v.whereExprsStr,
+		v.secondaryCtrlCounters,
+		v.tables,
+		v.fromStr,
+		v.tableSlice,
+		v.namespaceCollection,
+	)
+	return sqlrewrite.GenerateSelectDML(rewriteInput)
+}
+
+// Need not be view-aware.
+
+func (v *standardQueryRewriteAstVisitor) WithFormatter(formatter sqlparser.NodeFormatter) QueryRewriteAstVisitor {
 	v.formatter = formatter
 	return v
 }
 
-func (v *QueryRewriteAstVisitor) GetTableMap() taxonomy.TblMap {
+func (v *standardQueryRewriteAstVisitor) GetTableMap() taxonomy.TblMap {
 	return v.tables
 }
 
-func (v *QueryRewriteAstVisitor) GetColumnDescriptors() []openapistackql.ColumnDescriptor {
+func (v *standardQueryRewriteAstVisitor) GetColumnDescriptors() []openapistackql.ColumnDescriptor {
 	return v.columnDescriptors
 }
 
-func (v *QueryRewriteAstVisitor) GetSelectContext() (drm.PreparedStatementCtx, bool) {
+func (v *standardQueryRewriteAstVisitor) GetSelectContext() (drm.PreparedStatementCtx, bool) {
 	if v.selectCtx != nil {
 		return v.selectCtx, true
 	}
 	return nil, false
 }
 
-func (v *QueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
+func (v *standardQueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 	var err error
 
 	switch node := node.(type) {

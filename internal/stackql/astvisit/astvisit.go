@@ -14,11 +14,25 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-type SQLAstVisitor interface {
-	Visit(sqlparser.SQLNode) error
+var (
+	_ DRMAstVisitor = &standardDRMAstVisitor{}
+)
+
+type DRMAstVisitor interface {
+	sqlparser.SQLAstVisitor
+	ComputeQIDWhereSubTree() (sqlparser.Expr, error)
+	ContainsAnalyticsCacheMaterial() bool
+	ContainsCacheExceptMaterial() bool
+	ContainsNativeBackendMaterial() bool
+	GetGCQueries() []string
+	GetProviderStrings() []string
+	GetRewrittenQuery() string
+	GetParserTablesCited() map[*sqlparser.AliasedTableExpr]sqlparser.TableName
+	SetRewrittenQuery(string)
 }
 
-type DRMAstVisitor struct {
+// TODO: must be view-aware.
+type standardDRMAstVisitor struct {
 	iDColumnName                   string
 	rewrittenQuery                 string
 	gcQueries                      []string
@@ -33,8 +47,8 @@ type DRMAstVisitor struct {
 	annotatedAST                   annotatedast.AnnotatedAst
 }
 
-func NewDRMAstVisitor(annotatedAST annotatedast.AnnotatedAst, iDColumnName string, shouldCollectTables bool, sqlDialect sqldialect.SQLDialect, formatter sqlparser.NodeFormatter, namespaceCollection tablenamespace.TableNamespaceCollection) *DRMAstVisitor {
-	return &DRMAstVisitor{
+func NewDRMAstVisitor(annotatedAST annotatedast.AnnotatedAst, iDColumnName string, shouldCollectTables bool, sqlDialect sqldialect.SQLDialect, formatter sqlparser.NodeFormatter, namespaceCollection tablenamespace.TableNamespaceCollection) DRMAstVisitor {
+	return &standardDRMAstVisitor{
 		iDColumnName:        iDColumnName,
 		tablesCited:         make(map[*sqlparser.AliasedTableExpr]sqlparser.TableName),
 		params:              make(map[sqlparser.SQLNode]interface{}),
@@ -46,7 +60,15 @@ func NewDRMAstVisitor(annotatedAST annotatedast.AnnotatedAst, iDColumnName strin
 	}
 }
 
-func (v *DRMAstVisitor) GetProviderStrings() []string {
+func (v *standardDRMAstVisitor) SetRewrittenQuery(query string) {
+	v.rewrittenQuery = query
+}
+
+func (v *standardDRMAstVisitor) GetParserTablesCited() map[*sqlparser.AliasedTableExpr]sqlparser.TableName {
+	return v.tablesCited
+}
+
+func (v *standardDRMAstVisitor) GetProviderStrings() []string {
 	var retVal []string
 	for _, tName := range v.tablesCited {
 		tx := internaldto.ResolveResourceTerminalHeirarchyIdentifiers(tName)
@@ -57,31 +79,31 @@ func (v *DRMAstVisitor) GetProviderStrings() []string {
 	return retVal
 }
 
-func (v *DRMAstVisitor) ContainsAnalyticsCacheMaterial() bool {
+func (v *standardDRMAstVisitor) ContainsAnalyticsCacheMaterial() bool {
 	return v.containsAnalyticsCacheMaterial
 }
 
-func (v *DRMAstVisitor) ContainsNativeBackendMaterial() bool {
+func (v *standardDRMAstVisitor) ContainsNativeBackendMaterial() bool {
 	return v.containsNativeBackendMaterial
 }
 
-func (v *DRMAstVisitor) ContainsCacheExceptMaterial() bool {
+func (v *standardDRMAstVisitor) ContainsCacheExceptMaterial() bool {
 	return v.containsAnalyticsCacheMaterial || v.containsNativeBackendMaterial
 }
 
-func (v *DRMAstVisitor) GetRewrittenQuery() string {
+func (v *standardDRMAstVisitor) GetRewrittenQuery() string {
 	return v.rewrittenQuery
 }
 
-func (v *DRMAstVisitor) GetGCQueries() []string {
+func (v *standardDRMAstVisitor) GetGCQueries() []string {
 	return v.gcQueries
 }
 
-func (v *DRMAstVisitor) GetParameters() map[sqlparser.SQLNode]interface{} {
+func (v *standardDRMAstVisitor) GetParameters() map[sqlparser.SQLNode]interface{} {
 	return v.params
 }
 
-func (v *DRMAstVisitor) GetStringifiedParameters() map[string]interface{} {
+func (v *standardDRMAstVisitor) GetStringifiedParameters() map[string]interface{} {
 	rv := make(map[string]interface{})
 	for k, v := range v.params {
 		switch k := k.(type) {
@@ -92,7 +114,7 @@ func (v *DRMAstVisitor) GetStringifiedParameters() map[string]interface{} {
 	return rv
 }
 
-func (v *DRMAstVisitor) generateQIDComparison(ta sqlparser.TableIdent) *sqlparser.ComparisonExpr {
+func (v *standardDRMAstVisitor) generateQIDComparison(ta sqlparser.TableIdent) *sqlparser.ComparisonExpr {
 	return &sqlparser.ComparisonExpr{
 		Left:     &sqlparser.ColName{Qualifier: sqlparser.TableName{Name: ta}, Name: sqlparser.NewColIdent(v.iDColumnName)},
 		Right:    sqlparser.NewValArg([]byte(":" + v.iDColumnName)),
@@ -100,7 +122,7 @@ func (v *DRMAstVisitor) generateQIDComparison(ta sqlparser.TableIdent) *sqlparse
 	}
 }
 
-func (v *DRMAstVisitor) computeQIDWhereSubTree() (sqlparser.Expr, error) {
+func (v *standardDRMAstVisitor) ComputeQIDWhereSubTree() (sqlparser.Expr, error) {
 	tblCount := len(v.tablesCited)
 	if tblCount == 0 {
 		return nil, nil
@@ -131,7 +153,7 @@ func (v *DRMAstVisitor) computeQIDWhereSubTree() (sqlparser.Expr, error) {
 	return retVal, nil
 }
 
-func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
+func (v *standardDRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 	buf := sqlparser.NewTrackedBuffer(v.formatter)
 
 	switch node := node.(type) {
@@ -166,7 +188,7 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 		fromVis := NewDRMAstVisitor(v.annotatedAST, v.iDColumnName, true, v.sqlDialect, v.formatter, v.namespaceCollection)
 		if node.From != nil {
 			node.From.Accept(fromVis)
-			v.tablesCited = fromVis.tablesCited
+			v.tablesCited = fromVis.GetParserTablesCited()
 			fromStr = fromVis.GetRewrittenQuery()
 		}
 		if fromVis.ContainsAnalyticsCacheMaterial() {
@@ -175,7 +197,7 @@ func (v *DRMAstVisitor) Visit(node sqlparser.SQLNode) error {
 		if fromVis.ContainsNativeBackendMaterial() {
 			v.containsNativeBackendMaterial = true
 		}
-		qIdSubtree, _ := fromVis.computeQIDWhereSubTree()
+		qIdSubtree, _ := fromVis.ComputeQIDWhereSubTree()
 		augmentedWhere := node.Where
 		if qIdSubtree != nil {
 			if augmentedWhere != nil {

@@ -112,6 +112,7 @@ func (sp *standardInitialPasses) initialPasses(handlerCtx handler.HandlerContext
 	}
 
 	// Second pass AST analysis; extract provider strings for auth.
+	//   - TODO: must be view-aware.
 	provStrSlice, isCacheExemptMaterialDetected := astvisit.ExtractProviderStringsAndDetectCacheExceptMaterial(annotatedAST, annotatedAST.GetAST(), handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection())
 	sp.isCacheExemptMaterialDetected = isCacheExemptMaterialDetected
 	for _, p := range provStrSlice {
@@ -123,7 +124,7 @@ func (sp *standardInitialPasses) initialPasses(handlerCtx handler.HandlerContext
 
 	ast := annotatedAST.GetAST()
 
-	// Third pass AST analysis; extract provider strings for auth.
+	// Third pass AST analysis; extract parser table objects.
 	// Extracts:
 	//   - parser objects representing tables.
 	//   - mapping of string aliases to tables.

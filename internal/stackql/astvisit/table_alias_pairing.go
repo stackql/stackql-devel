@@ -11,7 +11,18 @@ import (
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 )
 
-type TableAliasAstVisitor struct {
+var (
+	_ ParserTableAliasPairingAstVisitor = &standardParserTableAliasPairingAstVisitor{}
+)
+
+type ParserTableAliasPairingAstVisitor interface {
+	sqlparser.SQLAstVisitor
+	GetColRefs() parserutil.ColTableMap
+	GetAliasedColumns() parserutil.TableExprMap
+}
+
+// TODO: must be view-aware **but** scoped at statement level.
+type standardParserTableAliasPairingAstVisitor struct {
 	aliasedColumns parserutil.TableExprMap
 	aliasMap       parserutil.TableAliasMap
 	colRefs        parserutil.ColTableMap
@@ -19,8 +30,8 @@ type TableAliasAstVisitor struct {
 	annotatedAST   annotatedast.AnnotatedAst
 }
 
-func NewTableAliasAstVisitor(annotatedAST annotatedast.AnnotatedAst, tables sqlparser.TableExprs) *TableAliasAstVisitor {
-	return &TableAliasAstVisitor{
+func NewTableAliasAstVisitor(annotatedAST annotatedast.AnnotatedAst, tables sqlparser.TableExprs) ParserTableAliasPairingAstVisitor {
+	return &standardParserTableAliasPairingAstVisitor{
 		aliasedColumns: make(parserutil.TableExprMap),
 		aliasMap:       make(parserutil.TableAliasMap),
 		colRefs:        make(parserutil.ColTableMap),
@@ -48,7 +59,7 @@ func tableExprMatchesQualifier(expr sqlparser.TableExpr, qualifier sqlparser.Tab
 	return false
 }
 
-func (v *TableAliasAstVisitor) findTableFromQualifier(qualifier sqlparser.TableName) (sqlparser.TableExpr, error) {
+func (v *standardParserTableAliasPairingAstVisitor) findTableFromQualifier(qualifier sqlparser.TableName) (sqlparser.TableExpr, error) {
 	for _, tb := range v.tables {
 		if tableExprMatchesQualifier(tb, qualifier) {
 			v.aliasedColumns[qualifier] = tb
@@ -58,19 +69,19 @@ func (v *TableAliasAstVisitor) findTableFromQualifier(qualifier sqlparser.TableN
 	return nil, fmt.Errorf("could not locate table corresponding to expression '%s'", qualifier.GetRawVal())
 }
 
-func (v *TableAliasAstVisitor) GetAliasedColumns() parserutil.TableExprMap {
+func (v *standardParserTableAliasPairingAstVisitor) GetAliasedColumns() parserutil.TableExprMap {
 	return v.aliasedColumns
 }
 
-func (v *TableAliasAstVisitor) GetAliasMap() parserutil.TableAliasMap {
+func (v *standardParserTableAliasPairingAstVisitor) GetAliasMap() parserutil.TableAliasMap {
 	return v.aliasMap
 }
 
-func (v *TableAliasAstVisitor) GetColRefs() parserutil.ColTableMap {
+func (v *standardParserTableAliasPairingAstVisitor) GetColRefs() parserutil.ColTableMap {
 	return v.colRefs
 }
 
-func (v *TableAliasAstVisitor) Visit(node sqlparser.SQLNode) error {
+func (v *standardParserTableAliasPairingAstVisitor) Visit(node sqlparser.SQLNode) error {
 	var err error
 
 	switch node := node.(type) {
