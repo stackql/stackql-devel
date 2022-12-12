@@ -29,12 +29,14 @@ func NewViewIndirect(viewDTO internaldto.ViewDTO) (Indirect, error) {
 }
 
 type Indirect interface {
-	GetSelectAST() (sqlparser.SelectStatement, error)
+	Parse() error
+	GetSelectAST() sqlparser.SelectStatement
 	GetType() IndirectType
 }
 
 type view struct {
-	viewDTO internaldto.ViewDTO
+	viewDTO    internaldto.ViewDTO
+	selectStmt sqlparser.SelectStatement
 }
 
 func (v *view) GetType() IndirectType {
@@ -45,15 +47,20 @@ func (v *view) getAST() (sqlparser.Statement, error) {
 	return parse.ParseQuery(v.viewDTO.GetRawQuery())
 }
 
-func (v *view) GetSelectAST() (sqlparser.SelectStatement, error) {
+func (v *view) GetSelectAST() sqlparser.SelectStatement {
+	return v.selectStmt
+}
+
+func (v *view) Parse() error {
 	parseResult, err := v.getAST()
 	if err != nil {
-		return nil, err
+		return err
 	}
 	switch pr := parseResult.(type) {
 	case sqlparser.SelectStatement:
-		return pr, nil
+		v.selectStmt = pr
+		return nil
 	default:
-		return nil, fmt.Errorf("view of type '%T' not yet supported", pr)
+		return fmt.Errorf("view of type '%T' not yet supported", pr)
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/stackql/stackql/internal/stackql/astanalysis/annotatedast"
+	"github.com/stackql/stackql/internal/stackql/astindirect"
 	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 
@@ -29,6 +30,7 @@ type indirectExpandAstVisitor struct {
 	sqlDialect                     sqldialect.SQLDialect
 	annotatedAST                   annotatedast.AnnotatedAst
 	formatter                      sqlparser.NodeFormatter
+	indirectMap                    map[sqlparser.TableName]astindirect.Indirect
 }
 
 func NewIndirectExpandAstVisitor(
@@ -42,6 +44,7 @@ func NewIndirectExpandAstVisitor(
 		sqlDialect:          sqlDialect,
 		annotatedAST:        annotatedAST,
 		formatter:           formatter,
+		indirectMap:         make(map[sqlparser.TableName]astindirect.Indirect),
 	}
 	return rv, nil
 }
@@ -621,10 +624,26 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 		if v.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(str) {
 			v.containsAnalyticsCacheMaterial = true
 			var err error
-			str, err = v.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().RenderTemplate(str)
+			_, err = v.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().RenderTemplate(str)
 			if err != nil {
 				return err
 			}
+		}
+		if viewDTO, isView := v.sqlDialect.GetViewByName(node.GetRawVal()); isView {
+			indirect, err := astindirect.NewViewIndirect(viewDTO)
+			if err != nil {
+				return nil
+			}
+			err = indirect.Parse()
+			if err != nil {
+				return nil
+			}
+			// Views must be recursively expanded
+			err = v.Visit(indirect.GetSelectAST())
+			if err != nil {
+				return nil
+			}
+			v.indirectMap[node] = indirect
 		}
 		return nil
 

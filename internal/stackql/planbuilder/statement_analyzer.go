@@ -982,10 +982,12 @@ func (p *primitiveGenerator) expandTable(tbl tablemetadata.ExtendedTableMetadata
 		if err != nil {
 			return err
 		}
-		viewAST, err := viewIndirect.GetSelectAST()
+		err = viewIndirect.Parse()
 		if err != nil {
 			return err
 		}
+		viewAST := viewIndirect.GetSelectAST()
+
 		// leaf, err := p.PrimitiveComposer.GetSymTab().NewLeaf(0)
 		// if err != nil {
 		// 	return err

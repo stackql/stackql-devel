@@ -42,6 +42,7 @@ func (v *LeftoverReferencesAstVisitor) GetTablesFoundThisIteration() map[sqlpars
 
 func (v *LeftoverReferencesAstVisitor) findTableLeftover(colName *sqlparser.ColName) (sqlparser.TableExpr, error) {
 	for tb, md := range v.tableToAnnotationCtx {
+		// TODO: make recursive for views
 		tm := md.GetTableMeta()
 		if tm == nil {
 			return nil, fmt.Errorf("cannot accomodate nil tables")
