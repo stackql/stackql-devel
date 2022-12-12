@@ -93,7 +93,17 @@ func (sp *standardInitialPasses) initialPasses(handlerCtx handler.HandlerContext
 	if ok {
 		sp.instructionType = InternallyRoutableInstruction
 		logging.GetLogger().Debugf("%v", opType)
-		pbi, err := planbuilderinput.NewPlanBuilderInput(annotatedAST, handlerCtx, result.AST, nil, nil, nil, nil, nil, tcc.Clone())
+		pbi, err := planbuilderinput.NewPlanBuilderInput(
+			annotatedAST,
+			handlerCtx,
+			result.AST,
+			nil,
+			nil,
+			nil,
+			nil,
+			nil,
+			tcc.Clone(),
+		)
 		if err != nil {
 			return err
 		}
@@ -112,7 +122,6 @@ func (sp *standardInitialPasses) initialPasses(handlerCtx handler.HandlerContext
 	}
 
 	// Second pass AST analysis; extract provider strings for auth.
-	//   - TODO: must be view-aware.
 	provStrSlice, isCacheExemptMaterialDetected := astvisit.ExtractProviderStringsAndDetectCacheExceptMaterial(annotatedAST, annotatedAST.GetAST(), handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection())
 	sp.isCacheExemptMaterialDetected = isCacheExemptMaterialDetected
 	for _, p := range provStrSlice {
@@ -149,7 +158,17 @@ func (sp *standardInitialPasses) initialPasses(handlerCtx handler.HandlerContext
 	tpv := astvisit.NewPlaceholderParamAstVisitor(annotatedAST, "", false)
 	tpv.Visit(ast)
 
-	pbi, err := planbuilderinput.NewPlanBuilderInput(annotatedAST, handlerCtx, ast, tVis.GetTables(), aVis.GetAliasedColumns(), tVis.GetAliasMap(), aVis.GetColRefs(), tpv.GetParameters(), tcc.Clone())
+	pbi, err := planbuilderinput.NewPlanBuilderInput(
+		annotatedAST,
+		handlerCtx,
+		ast,
+		tVis.GetTables(),
+		aVis.GetAliasedColumns(),
+		tVis.GetAliasMap(),
+		aVis.GetColRefs(),
+		tpv.GetParameters(),
+		tcc.Clone(),
+	)
 	if err != nil {
 		return err
 	}
@@ -157,7 +176,17 @@ func (sp *standardInitialPasses) initialPasses(handlerCtx handler.HandlerContext
 	if sel, ok := planbuilderinput.IsPGSetupQuery(pbi); ok {
 		if sel != nil {
 			sp.instructionType = DummiedPGInstruction
-			pbi, err := planbuilderinput.NewPlanBuilderInput(annotatedAST, handlerCtx, result.AST, nil, nil, nil, nil, nil, tcc.Clone())
+			pbi, err := planbuilderinput.NewPlanBuilderInput(
+				annotatedAST,
+				handlerCtx,
+				result.AST,
+				nil,
+				nil,
+				nil,
+				nil,
+				nil,
+				tcc.Clone(),
+			)
 			if err != nil {
 				return err
 			}
@@ -165,7 +194,17 @@ func (sp *standardInitialPasses) initialPasses(handlerCtx handler.HandlerContext
 			return nil
 		} else {
 			sp.instructionType = NopInstruction
-			pbi, err := planbuilderinput.NewPlanBuilderInput(annotatedAST, handlerCtx, nil, nil, nil, nil, nil, nil, tcc.Clone())
+			pbi, err := planbuilderinput.NewPlanBuilderInput(
+				annotatedAST,
+				handlerCtx,
+				nil,
+				nil,
+				nil,
+				nil,
+				nil,
+				nil,
+				tcc.Clone(),
+			)
 			if err != nil {
 				return err
 			}

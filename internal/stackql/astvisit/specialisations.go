@@ -128,7 +128,7 @@ func ExtractParamsFromFromClause(annotatedAST annotatedast.AnnotatedAst, node sq
 }
 
 func ExtractProviderStringsAndDetectCacheExceptMaterial(annotatedAST annotatedast.AnnotatedAst, node sqlparser.SQLNode, sqlDialect sqldialect.SQLDialect, formatter sqlparser.NodeFormatter, namespaceCollection tablenamespace.TableNamespaceCollection) ([]string, bool) {
-	v := NewDRMAstVisitor(annotatedAST, "", true, sqlDialect, formatter, namespaceCollection)
+	v := NewProviderStringAstVisitor(annotatedAST, sqlDialect, formatter, namespaceCollection)
 	node.Accept(v)
 	return v.GetProviderStrings(), v.ContainsCacheExceptMaterial()
 }
