@@ -21,25 +21,20 @@ var (
 
 type FromRewriteAstVisitor interface {
 	sqlparser.SQLAstVisitor
-	ContainsAnalyticsCacheMaterial() bool
-	ContainsCacheExceptMaterial() bool
-	ContainsNativeBackendMaterial() bool
 	GetRewrittenQuery() string
 }
 
 // Need not be view-aware.
 type standardFromRewriteAstVisitor struct {
-	iDColumnName                   string
-	rewrittenQuery                 string
-	shouldCollectTables            bool
-	namespaceCollection            tablenamespace.TableNamespaceCollection
-	containsAnalyticsCacheMaterial bool
-	containsNativeBackendMaterial  bool
-	sqlDialect                     sqldialect.SQLDialect
-	formatter                      sqlparser.NodeFormatter
-	annotations                    taxonomy.AnnotationCtxMap
-	dc                             drm.DRMConfig
-	annotatedAST                   annotatedast.AnnotatedAst
+	iDColumnName        string
+	rewrittenQuery      string
+	shouldCollectTables bool
+	namespaceCollection tablenamespace.TableNamespaceCollection
+	sqlDialect          sqldialect.SQLDialect
+	formatter           sqlparser.NodeFormatter
+	annotations         taxonomy.AnnotationCtxMap
+	dc                  drm.DRMConfig
+	annotatedAST        annotatedast.AnnotatedAst
 }
 
 func NewFromRewriteAstVisitor(
@@ -62,18 +57,6 @@ func NewFromRewriteAstVisitor(
 		annotations:         annotations,
 		dc:                  dc,
 	}
-}
-
-func (v *standardFromRewriteAstVisitor) ContainsAnalyticsCacheMaterial() bool {
-	return v.containsAnalyticsCacheMaterial
-}
-
-func (v *standardFromRewriteAstVisitor) ContainsNativeBackendMaterial() bool {
-	return v.containsNativeBackendMaterial
-}
-
-func (v *standardFromRewriteAstVisitor) ContainsCacheExceptMaterial() bool {
-	return v.containsAnalyticsCacheMaterial || v.containsNativeBackendMaterial
 }
 
 func (v *standardFromRewriteAstVisitor) GetRewrittenQuery() string {
@@ -695,7 +678,6 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 
 	case *sqlparser.NativeQuery:
 		buf.AstPrintf(node, "NATIVEQUERY '&s'", strings.ReplaceAll(node.QueryString, "'", "''"))
-		v.containsNativeBackendMaterial = true
 
 	case sqlparser.JoinCondition:
 		v.Visit(node.On)
@@ -714,12 +696,6 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		node.RightExpr.Accept(rVis)
 		conditionVis := NewFromRewriteAstVisitor(v.annotatedAST, "", true, v.sqlDialect, v.formatter, v.namespaceCollection, v.annotations, v.dc)
 		node.Condition.Accept(conditionVis)
-		if lVis.ContainsAnalyticsCacheMaterial() || rVis.ContainsAnalyticsCacheMaterial() {
-			v.containsAnalyticsCacheMaterial = true
-		}
-		if lVis.ContainsNativeBackendMaterial() || rVis.ContainsNativeBackendMaterial() {
-			v.containsNativeBackendMaterial = true
-		}
 		buf.AstPrintf(node, "%s %s %s %s", lVis.GetRewrittenQuery(), node.Join, rVis.GetRewrittenQuery(), conditionVis.GetRewrittenQuery())
 		bs := buf.String()
 		v.rewrittenQuery = bs

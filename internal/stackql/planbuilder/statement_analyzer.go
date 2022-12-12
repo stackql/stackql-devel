@@ -988,21 +988,13 @@ func (p *primitiveGenerator) expandTable(tbl tablemetadata.ExtendedTableMetadata
 		}
 		viewAST := viewIndirect.GetSelectAST()
 
-		// leaf, err := p.PrimitiveComposer.GetSymTab().NewLeaf(0)
-		// if err != nil {
-		// 	return err
-		// }
-		// var fromExpr sqlparser.TableExprs
-		// switch selStmt := viewAST.(type) {
-		// case *sqlparser.Select:
-		// 	fromExpr = selStmt.From
-		// default:
-		// 	fmt.Errorf("cannot support view body of type '%T'", selStmt)
-		// }
-		// pChild := p.addChildPrimitiveGenerator(fromExpr, leaf)
+		// TODO: add view columns into symtab
+
 		logging.GetLogger().Debugf("viewAST = %v\n", viewAST)
 		return fmt.Errorf("error analyzing from clause: views not yet supported")
 	}
+	// TODO: encapsulate the mapping of openapi schemas to symbol table entries.
+	//   - This operates atop DRM.
 	svc, err := tbl.GetService()
 	if err != nil {
 		return err

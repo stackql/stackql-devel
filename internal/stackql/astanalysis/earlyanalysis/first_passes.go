@@ -120,9 +120,10 @@ func (sp *standardInitialPasses) initialPasses(handlerCtx handler.HandlerContext
 	if err != nil {
 		return err
 	}
+	annotatedAST = astExpandVisitor.GetAnnotatedAST()
 
 	// Second pass AST analysis; extract provider strings for auth.
-	provStrSlice, isCacheExemptMaterialDetected := astvisit.ExtractProviderStringsAndDetectCacheExceptMaterial(annotatedAST, annotatedAST.GetAST(), handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection())
+	provStrSlice, isCacheExemptMaterialDetected := astvisit.ExtractProviderStringsAndDetectCacheExemptMaterial(annotatedAST, annotatedAST.GetAST(), handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection())
 	sp.isCacheExemptMaterialDetected = isCacheExemptMaterialDetected
 	for _, p := range provStrSlice {
 		_, err := handlerCtx.GetProvider(p)

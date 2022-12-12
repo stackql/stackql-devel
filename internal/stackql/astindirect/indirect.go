@@ -3,6 +3,7 @@ package astindirect
 import (
 	"fmt"
 
+	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/parse"
 
 	"github.com/stackql/stackql/internal/stackql/internaldto"
@@ -37,6 +38,7 @@ type Indirect interface {
 type view struct {
 	viewDTO    internaldto.ViewDTO
 	selectStmt sqlparser.SelectStatement
+	selCtx     drm.PreparedStatementCtx
 }
 
 func (v *view) GetType() IndirectType {
@@ -49,6 +51,15 @@ func (v *view) getAST() (sqlparser.Statement, error) {
 
 func (v *view) GetSelectAST() sqlparser.SelectStatement {
 	return v.selectStmt
+}
+
+func (v *view) GetSelectionCtx() (drm.PreparedStatementCtx, error) {
+	return v.selCtx, nil
+}
+
+func (v *view) Analyze() error {
+
+	return nil
 }
 
 func (v *view) Parse() error {

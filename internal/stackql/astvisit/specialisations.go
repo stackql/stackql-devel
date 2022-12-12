@@ -127,8 +127,8 @@ func ExtractParamsFromFromClause(annotatedAST annotatedast.AnnotatedAst, node sq
 	return v.GetParameters()
 }
 
-func ExtractProviderStringsAndDetectCacheExceptMaterial(annotatedAST annotatedast.AnnotatedAst, node sqlparser.SQLNode, sqlDialect sqldialect.SQLDialect, formatter sqlparser.NodeFormatter, namespaceCollection tablenamespace.TableNamespaceCollection) ([]string, bool) {
+func ExtractProviderStringsAndDetectCacheExemptMaterial(annotatedAST annotatedast.AnnotatedAst, node sqlparser.SQLNode, sqlDialect sqldialect.SQLDialect, formatter sqlparser.NodeFormatter, namespaceCollection tablenamespace.TableNamespaceCollection) ([]string, bool) {
 	v := NewProviderStringAstVisitor(annotatedAST, sqlDialect, formatter, namespaceCollection)
 	node.Accept(v)
-	return v.GetProviderStrings(), v.ContainsCacheExceptMaterial()
+	return v.GetProviderStrings(), v.ContainsCacheExemptMaterial()
 }

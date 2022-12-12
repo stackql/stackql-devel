@@ -20,7 +20,7 @@ var (
 type ProviderStringAstVisitor interface {
 	sqlparser.SQLAstVisitor
 	ContainsAnalyticsCacheMaterial() bool
-	ContainsCacheExceptMaterial() bool
+	ContainsCacheExemptMaterial() bool
 	ContainsNativeBackendMaterial() bool
 	GetProviderStrings() []string
 	GetParserTablesCited() map[*sqlparser.AliasedTableExpr]sqlparser.TableName
@@ -51,7 +51,7 @@ func (v *standardProviderStringAstVisitor) GetParserTablesCited() map[*sqlparser
 	return v.tablesCited
 }
 
-func (v *standardProviderStringAstVisitor) ContainsCacheExceptMaterial() bool {
+func (v *standardProviderStringAstVisitor) ContainsCacheExemptMaterial() bool {
 	return v.containsAnalyticsCacheMaterial || v.containsNativeBackendMaterial
 }
 

@@ -30,7 +30,6 @@ type indirectExpandAstVisitor struct {
 	sqlDialect                     sqldialect.SQLDialect
 	annotatedAST                   annotatedast.AnnotatedAst
 	formatter                      sqlparser.NodeFormatter
-	indirectMap                    map[sqlparser.TableName]astindirect.Indirect
 }
 
 func NewIndirectExpandAstVisitor(
@@ -44,7 +43,6 @@ func NewIndirectExpandAstVisitor(
 		sqlDialect:          sqlDialect,
 		annotatedAST:        annotatedAST,
 		formatter:           formatter,
-		indirectMap:         make(map[sqlparser.TableName]astindirect.Indirect),
 	}
 	return rv, nil
 }
@@ -643,7 +641,7 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 			if err != nil {
 				return nil
 			}
-			v.indirectMap[node] = indirect
+			v.annotatedAST.SetIndirect(node, indirect)
 		}
 		return nil
 

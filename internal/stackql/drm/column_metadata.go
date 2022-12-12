@@ -3,6 +3,7 @@ package drm
 import (
 	"reflect"
 
+	"github.com/lib/pq/oid"
 	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
@@ -13,7 +14,7 @@ var (
 )
 
 type ColumnMetadata interface {
-	GetColumn() openapistackql.ColumnDescriptor
+	GetColumnOID() oid.Oid
 	GetIdentifier() string
 	GetName() string
 	GetRelationalType() string
@@ -25,8 +26,8 @@ type standardColumnMetadata struct {
 	column   openapistackql.ColumnDescriptor
 }
 
-func (cd *standardColumnMetadata) GetColumn() openapistackql.ColumnDescriptor {
-	return cd.column
+func (cd *standardColumnMetadata) GetColumnOID() oid.Oid {
+	return getOidForSchema(cd.column.Schema)
 }
 
 func (cd *standardColumnMetadata) GetName() string {
@@ -42,6 +43,24 @@ func (cd *standardColumnMetadata) GetType() string {
 		return cd.column.Schema.Type
 	}
 	return parserutil.ExtractStringRepresentationOfValueColumn(cd.column.Val)
+}
+
+func getOidForSchema(colSchema *openapistackql.Schema) oid.Oid {
+	if colSchema == nil {
+		return oid.T_text
+	}
+	switch colSchema.Type {
+	case "object", "array":
+		return oid.T_text
+	// case "integer":
+	// 	return oid.T_numeric
+	case "boolean", "bool":
+		return oid.T_text
+	case "number":
+		return oid.T_numeric
+	default:
+		return oid.T_text
+	}
 }
 
 func (cd *standardColumnMetadata) GetRelationalType() string {
