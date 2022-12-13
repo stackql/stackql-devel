@@ -5,6 +5,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
+	"github.com/stackql/stackql/internal/stackql/parse"
 	"github.com/stackql/stackql/internal/stackql/plan"
 )
 
@@ -36,11 +37,16 @@ func BuildPlanFromContext(handlerCtx handler.HandlerContext) (*plan.Plan, error)
 	)
 	var rowSort func(map[string]map[string]interface{}) []string
 
+	statement, err := parse.ParseQuery(handlerCtx.GetQuery())
+	if err != nil {
+		return createErroneousPlan(handlerCtx, qPlan, rowSort, err)
+	}
+
 	earlyPassScreenerAnalyzer, err := earlyanalysis.NewEarlyScreenerAnalyzer()
 	if err != nil {
 		return createErroneousPlan(handlerCtx, qPlan, rowSort, err)
 	}
-	err = earlyPassScreenerAnalyzer.Analyze(handlerCtx, tcc)
+	err = earlyPassScreenerAnalyzer.Analyze(statement, handlerCtx, tcc)
 	if err != nil {
 		return createErroneousPlan(handlerCtx, qPlan, rowSort, err)
 	}

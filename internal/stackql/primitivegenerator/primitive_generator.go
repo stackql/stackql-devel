@@ -1,4 +1,4 @@
-package planbuilder
+package primitivegenerator
 
 import (
 	"fmt"
@@ -16,6 +16,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/iqlutil"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/metadatavisitors"
+	"github.com/stackql/stackql/internal/stackql/planbuilderinput"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivecomposer"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
@@ -34,28 +35,49 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-type primitiveGenerator struct {
-	Parent            *primitiveGenerator
-	Children          []*primitiveGenerator
+var (
+	_ PrimitiveGenerator = &standardPrimitiveGenerator{}
+)
+
+type PrimitiveGenerator interface {
+	AnalyzeInsert(pbi planbuilderinput.PlanBuilderInput) error
+	AnalyzeNop(pbi planbuilderinput.PlanBuilderInput) error
+	AnalyzeUpdate(pbi planbuilderinput.PlanBuilderInput) error
+	AnalyzePGInternal(pbi planbuilderinput.PlanBuilderInput) error
+	AnalyzeRegistry(pbi planbuilderinput.PlanBuilderInput) error
+	AnalyzeStatement(pbi planbuilderinput.PlanBuilderInput) error
+	DeleteExecutor(handlerCtx handler.HandlerContext, node *sqlparser.Delete) (primitive.IPrimitive, error)
+	DescribeInstructionExecutor(handlerCtx handler.HandlerContext, tbl tablemetadata.ExtendedTableMetadata, extended bool, full bool) internaldto.ExecutorOutput
+	ExecExecutor(handlerCtx handler.HandlerContext, node *sqlparser.Exec) (primitivegraph.PrimitiveNode, error)
+	InsertableValsExecutor(handlerCtx handler.HandlerContext, vals map[int]map[int]interface{}) (primitive.IPrimitive, error)
+	InsertExecutor(handlerCtx handler.HandlerContext, node sqlparser.SQLNode, rowSort func(map[string]map[string]interface{}) []string) (primitive.IPrimitive, error)
+	LocalSelectExecutor(handlerCtx handler.HandlerContext, node *sqlparser.Select, rowSort func(map[string]map[string]interface{}) []string) (primitive.IPrimitive, error)
+	UpdateableValsExecutor(handlerCtx handler.HandlerContext, vals map[*sqlparser.ColName]interface{}) (primitive.IPrimitive, error)
+	ShowInstructionExecutor(node *sqlparser.Show, handlerCtx handler.HandlerContext) internaldto.ExecutorOutput
+}
+
+type standardPrimitiveGenerator struct {
+	Parent            *standardPrimitiveGenerator
+	Children          []*standardPrimitiveGenerator
 	PrimitiveComposer primitivecomposer.PrimitiveComposer
 }
 
-func newRootPrimitiveGenerator(ast sqlparser.SQLNode, handlerCtx handler.HandlerContext, graph *primitivegraph.PrimitiveGraph) *primitiveGenerator {
+func NewRootPrimitiveGenerator(ast sqlparser.SQLNode, handlerCtx handler.HandlerContext, graph *primitivegraph.PrimitiveGraph) *standardPrimitiveGenerator {
 	tblMap := make(taxonomy.TblMap)
 	symTab := symtab.NewHashMapTreeSymTab()
-	return &primitiveGenerator{
+	return &standardPrimitiveGenerator{
 		PrimitiveComposer: primitivecomposer.NewPrimitiveComposer(nil, ast, handlerCtx.GetDrmConfig(), handlerCtx.GetTxnCounterMgr(), graph, tblMap, symTab, handlerCtx.GetSQLEngine(), handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter()),
 	}
 }
 
-func (pb *primitiveGenerator) addChildPrimitiveGenerator(ast sqlparser.SQLNode, leaf symtab.SymTab) *primitiveGenerator {
+func (pb *standardPrimitiveGenerator) addChildPrimitiveGenerator(ast sqlparser.SQLNode, leaf symtab.SymTab) *standardPrimitiveGenerator {
 	tables := pb.PrimitiveComposer.GetTables()
 	switch node := ast.(type) {
 	case sqlparser.Statement:
 		logging.GetLogger().Infoln(fmt.Sprintf("creating new table map for node = %v", node))
 		tables = make(taxonomy.TblMap)
 	}
-	retVal := &primitiveGenerator{
+	retVal := &standardPrimitiveGenerator{
 		Parent: pb,
 		PrimitiveComposer: primitivecomposer.NewPrimitiveComposer(
 			pb.PrimitiveComposer,
@@ -75,7 +97,7 @@ func (pb *primitiveGenerator) addChildPrimitiveGenerator(ast sqlparser.SQLNode, 
 	return retVal
 }
 
-func (pb *primitiveGenerator) comparisonExprToFilterFunc(table openapistackql.ITable, parentNode *sqlparser.Show, expr *sqlparser.ComparisonExpr) (func(openapistackql.ITable) (openapistackql.ITable, error), error) {
+func (pb *standardPrimitiveGenerator) comparisonExprToFilterFunc(table openapistackql.ITable, parentNode *sqlparser.Show, expr *sqlparser.ComparisonExpr) (func(openapistackql.ITable) (openapistackql.ITable, error), error) {
 	qualifiedName, ok := expr.Left.(*sqlparser.ColName)
 	if !ok {
 		return nil, fmt.Errorf("unexpected: %v", sqlparser.String(expr))
@@ -214,7 +236,7 @@ func filterMethods(methods openapistackql.Methods, tableFilter func(openapistack
 	return methods, err
 }
 
-func (pb *primitiveGenerator) inferProviderForShow(node *sqlparser.Show, handlerCtx handler.HandlerContext) error {
+func (pb *standardPrimitiveGenerator) inferProviderForShow(node *sqlparser.Show, handlerCtx handler.HandlerContext) error {
 	nodeTypeUpperCase := strings.ToUpper(node.Type)
 	switch nodeTypeUpperCase {
 	case "AUTH":
@@ -256,7 +278,7 @@ func (pb *primitiveGenerator) inferProviderForShow(node *sqlparser.Show, handler
 	return nil
 }
 
-func (pb *primitiveGenerator) showInstructionExecutor(node *sqlparser.Show, handlerCtx handler.HandlerContext) internaldto.ExecutorOutput {
+func (pb *standardPrimitiveGenerator) ShowInstructionExecutor(node *sqlparser.Show, handlerCtx handler.HandlerContext) internaldto.ExecutorOutput {
 	extended := strings.TrimSpace(strings.ToUpper(node.Extended)) == "EXTENDED"
 	nodeTypeUpperCase := strings.ToUpper(node.Type)
 	var keys map[string]map[string]interface{}
@@ -409,7 +431,7 @@ func prepareErroneousResultSet(rowMap map[string]map[string]interface{}, columnO
 	)
 }
 
-func (pb *primitiveGenerator) describeInstructionExecutor(handlerCtx handler.HandlerContext, tbl tablemetadata.ExtendedTableMetadata, extended bool, full bool) internaldto.ExecutorOutput {
+func (pb *standardPrimitiveGenerator) DescribeInstructionExecutor(handlerCtx handler.HandlerContext, tbl tablemetadata.ExtendedTableMetadata, extended bool, full bool) internaldto.ExecutorOutput {
 	schema, err := tbl.GetSelectableObjectSchema()
 	if err != nil {
 		return internaldto.NewErroneousExecutorOutput(err)
@@ -426,7 +448,7 @@ func (pb *primitiveGenerator) describeInstructionExecutor(handlerCtx handler.Han
 	return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, keys, columnOrder, util.DescribeRowSort, err, nil))
 }
 
-func (pb *primitiveGenerator) insertExecutor(handlerCtx handler.HandlerContext, node sqlparser.SQLNode, rowSort func(map[string]map[string]interface{}) []string) (primitive.IPrimitive, error) {
+func (pb *standardPrimitiveGenerator) InsertExecutor(handlerCtx handler.HandlerContext, node sqlparser.SQLNode, rowSort func(map[string]map[string]interface{}) []string) (primitive.IPrimitive, error) {
 	switch node := node.(type) {
 	case *sqlparser.Insert, *sqlparser.Update:
 	default:
@@ -577,7 +599,7 @@ func (pb *primitiveGenerator) insertExecutor(handlerCtx handler.HandlerContext, 
 	return insertPrimitive, nil
 }
 
-func (pb *primitiveGenerator) localSelectExecutor(handlerCtx handler.HandlerContext, node *sqlparser.Select, rowSort func(map[string]map[string]interface{}) []string) (primitive.IPrimitive, error) {
+func (pb *standardPrimitiveGenerator) LocalSelectExecutor(handlerCtx handler.HandlerContext, node *sqlparser.Select, rowSort func(map[string]map[string]interface{}) []string) (primitive.IPrimitive, error) {
 	return primitive.NewLocalPrimitive(
 		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 			var columnOrder []string
@@ -605,7 +627,7 @@ func (pb *primitiveGenerator) localSelectExecutor(handlerCtx handler.HandlerCont
 		}), nil
 }
 
-func (pb *primitiveGenerator) insertableValsExecutor(handlerCtx handler.HandlerContext, vals map[int]map[int]interface{}) (primitive.IPrimitive, error) {
+func (pb *standardPrimitiveGenerator) InsertableValsExecutor(handlerCtx handler.HandlerContext, vals map[int]map[int]interface{}) (primitive.IPrimitive, error) {
 	return primitive.NewLocalPrimitive(
 		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 			keys := make(map[string]map[string]interface{})
@@ -637,7 +659,7 @@ func (pb *primitiveGenerator) insertableValsExecutor(handlerCtx handler.HandlerC
 		}), nil
 }
 
-func (pb *primitiveGenerator) updateableValsExecutor(handlerCtx handler.HandlerContext, vals map[*sqlparser.ColName]interface{}) (primitive.IPrimitive, error) {
+func (pb *standardPrimitiveGenerator) UpdateableValsExecutor(handlerCtx handler.HandlerContext, vals map[*sqlparser.ColName]interface{}) (primitive.IPrimitive, error) {
 	return primitive.NewLocalPrimitive(
 		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 			keys := make(map[string]map[string]interface{})
@@ -666,7 +688,7 @@ func (pb *primitiveGenerator) updateableValsExecutor(handlerCtx handler.HandlerC
 		}), nil
 }
 
-func (pb *primitiveGenerator) deleteExecutor(handlerCtx handler.HandlerContext, node *sqlparser.Delete) (primitive.IPrimitive, error) {
+func (pb *standardPrimitiveGenerator) DeleteExecutor(handlerCtx handler.HandlerContext, node *sqlparser.Delete) (primitive.IPrimitive, error) {
 	tbl, err := pb.PrimitiveComposer.GetTable(node)
 	if err != nil {
 		return nil, err
@@ -694,7 +716,7 @@ func (pb *primitiveGenerator) deleteExecutor(handlerCtx handler.HandlerContext, 
 			target, err = m.DeprecatedProcessResponse(response)
 			handlerCtx.LogHTTPResponseMap(target)
 
-			logging.GetLogger().Infoln(fmt.Sprintf("deleteExecutor() target = %v", target))
+			logging.GetLogger().Infoln(fmt.Sprintf("DeleteExecutor() target = %v", target))
 			if err != nil {
 				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(
 					nil,
@@ -753,18 +775,18 @@ func generateSuccessMessagesFromHeirarchy(meta tablemetadata.ExtendedTableMetada
 	return successMsgs
 }
 
-func (pb *primitiveGenerator) isShowResults() bool {
+func (pb *standardPrimitiveGenerator) isShowResults() bool {
 	return pb.PrimitiveComposer.GetCommentDirectives() != nil && pb.PrimitiveComposer.GetCommentDirectives().IsSet("SHOWRESULTS")
 }
 
-func (pb *primitiveGenerator) generateResultIfNeededfunc(resultMap map[string]map[string]interface{}, body map[string]interface{}, msg *internaldto.BackendMessages, err error) internaldto.ExecutorOutput {
+func (pb *standardPrimitiveGenerator) generateResultIfNeededfunc(resultMap map[string]map[string]interface{}, body map[string]interface{}, msg *internaldto.BackendMessages, err error) internaldto.ExecutorOutput {
 	if pb.isShowResults() {
 		return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, resultMap, nil, nil, nil, nil))
 	}
 	return internaldto.NewExecutorOutput(nil, body, nil, msg, err)
 }
 
-func (pb *primitiveGenerator) execExecutor(handlerCtx handler.HandlerContext, node *sqlparser.Exec) (primitivegraph.PrimitiveNode, error) {
+func (pb *standardPrimitiveGenerator) ExecExecutor(handlerCtx handler.HandlerContext, node *sqlparser.Exec) (primitivegraph.PrimitiveNode, error) {
 	if pb.isShowResults() && pb.PrimitiveComposer.GetBuilder() != nil {
 		err := pb.PrimitiveComposer.GetBuilder().Build()
 		if err != nil {
@@ -853,7 +875,7 @@ func (pb *primitiveGenerator) execExecutor(handlerCtx handler.HandlerContext, no
 	return graph.CreatePrimitiveNode(pr), nil
 }
 
-func (pb *primitiveGenerator) composeAsyncMonitor(handlerCtx handler.HandlerContext, precursor primitive.IPrimitive, meta tablemetadata.ExtendedTableMetadata) (primitive.IPrimitive, error) {
+func (pb *standardPrimitiveGenerator) composeAsyncMonitor(handlerCtx handler.HandlerContext, precursor primitive.IPrimitive, meta tablemetadata.ExtendedTableMetadata) (primitive.IPrimitive, error) {
 	prov, err := meta.GetProvider()
 	if err != nil {
 		return nil, err

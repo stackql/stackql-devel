@@ -1,4 +1,4 @@
-package astexpand
+package earlyanalysis
 
 import (
 	"fmt"
@@ -6,6 +6,8 @@ import (
 
 	"github.com/stackql/stackql/internal/stackql/astanalysis/annotatedast"
 	"github.com/stackql/stackql/internal/stackql/astindirect"
+	"github.com/stackql/stackql/internal/stackql/handler"
+	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 
@@ -30,19 +32,25 @@ type indirectExpandAstVisitor struct {
 	sqlDialect                     sqldialect.SQLDialect
 	annotatedAST                   annotatedast.AnnotatedAst
 	formatter                      sqlparser.NodeFormatter
+	handlerCtx                     handler.HandlerContext
+	tcc                            internaldto.TxnControlCounters
 }
 
-func NewIndirectExpandAstVisitor(
+func newIndirectExpandAstVisitor(
+	handlerCtx handler.HandlerContext,
 	annotatedAST annotatedast.AnnotatedAst,
 	sqlDialect sqldialect.SQLDialect,
 	formatter sqlparser.NodeFormatter,
 	namespaceCollection tablenamespace.TableNamespaceCollection,
+	tcc internaldto.TxnControlCounters,
 ) (AstExpandVisitor, error) {
 	rv := &indirectExpandAstVisitor{
 		namespaceCollection: namespaceCollection,
 		sqlDialect:          sqlDialect,
 		annotatedAST:        annotatedAST,
 		formatter:           formatter,
+		handlerCtx:          handlerCtx,
+		tcc:                 tcc,
 	}
 	return rv, nil
 }
@@ -637,7 +645,11 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 				return nil
 			}
 			// Views must be recursively expanded
-			err = v.Visit(indirect.GetSelectAST())
+			childAnalyzer, err := NewEarlyScreenerAnalyzer()
+			if err != nil {
+				return err
+			}
+			err = childAnalyzer.Analyze(indirect.GetSelectAST(), v.handlerCtx, v.tcc)
 			if err != nil {
 				return nil
 			}

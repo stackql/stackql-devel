@@ -16,6 +16,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/planbuilderinput"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivebuilder"
+	"github.com/stackql/stackql/internal/stackql/primitivegenerator"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/util"
 
@@ -105,14 +106,14 @@ func (pgb *planGraphBuilder) createInstructionFor(pbi planbuilderinput.PlanBuild
 }
 
 func (pgb *planGraphBuilder) nop(pbi planbuilderinput.PlanBuilderInput) error {
-	primitiveGenerator := newRootPrimitiveGenerator(nil, pbi.GetHandlerCtx(), pgb.planGraph)
-	err := primitiveGenerator.analyzeNop(pbi)
+	primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(nil, pbi.GetHandlerCtx(), pgb.planGraph)
+	err := primitiveGenerator.AnalyzeNop(pbi)
 	return err
 }
 
 func (pgb *planGraphBuilder) pgInternal(pbi planbuilderinput.PlanBuilderInput) error {
-	primitiveGenerator := newRootPrimitiveGenerator(nil, pbi.GetHandlerCtx(), pgb.planGraph)
-	err := primitiveGenerator.analyzePGInternal(pbi)
+	primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(nil, pbi.GetHandlerCtx(), pgb.planGraph)
+	err := primitiveGenerator.AnalyzePGInternal(pbi)
 	if err != nil {
 		return err
 	}
@@ -130,12 +131,12 @@ func (pgb *planGraphBuilder) handleAuth(pbi planbuilderinput.PlanBuilderInput) e
 	if !ok {
 		return fmt.Errorf("could not cast node of type '%T' to required Auth", pbi.GetStatement())
 	}
-	primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
+	primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 	prov, err := handlerCtx.GetProvider(node.Provider)
 	if err != nil {
 		return err
 	}
-	err = primitiveGenerator.analyzeStatement(pbi)
+	err = primitiveGenerator.AnalyzeStatement(pbi)
 	if err != nil {
 		logging.GetLogger().Debugln(fmt.Sprintf("err = %s", err.Error()))
 		return err
@@ -168,8 +169,8 @@ func (pgb *planGraphBuilder) handleAuthRevoke(pbi planbuilderinput.PlanBuilderIn
 	if !ok {
 		return fmt.Errorf("could not cast statement of type '%T' to required AuthRevoke", stmt)
 	}
-	primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
-	err := primitiveGenerator.analyzeStatement(pbi)
+	primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
+	err := primitiveGenerator.AnalyzeStatement(pbi)
 	if err != nil {
 		return err
 	}
@@ -196,8 +197,8 @@ func (pgb *planGraphBuilder) handleDescribe(pbi planbuilderinput.PlanBuilderInpu
 	if !ok {
 		return fmt.Errorf("could not cast node of type '%T' to required DescribeTable", pbi.GetStatement())
 	}
-	primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
-	err := primitiveGenerator.analyzeStatement(pbi)
+	primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
+	err := primitiveGenerator.AnalyzeStatement(pbi)
 	if err != nil {
 		return err
 	}
@@ -214,7 +215,7 @@ func (pgb *planGraphBuilder) handleDescribe(pbi planbuilderinput.PlanBuilderInpu
 	pr := primitive.NewMetaDataPrimitive(
 		prov,
 		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
-			return primitiveGenerator.describeInstructionExecutor(handlerCtx, md, extended, full)
+			return primitiveGenerator.DescribeInstructionExecutor(handlerCtx, md, extended, full)
 		})
 	pgb.planGraph.CreatePrimitiveNode(pr)
 	return nil
@@ -227,8 +228,8 @@ func (pgb *planGraphBuilder) handleSelect(pbi planbuilderinput.PlanBuilderInput)
 		return nil, nil, fmt.Errorf("could not cast statement of type '%T' to required Select", pbi.GetStatement())
 	}
 	if !handlerCtx.GetRuntimeContext().TestWithoutApiCalls {
-		primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
-		err := primitiveGenerator.analyzeStatement(pbi)
+		primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
+		err := primitiveGenerator.AnalyzeStatement(pbi)
 		if err != nil {
 			logging.GetLogger().Infoln(fmt.Sprintf("select statement analysis error = '%s'", err.Error()))
 			return nil, nil, err
@@ -245,7 +246,7 @@ func (pgb *planGraphBuilder) handleSelect(pbi planbuilderinput.PlanBuilderInput)
 			}
 		}
 		if isLocallyExecutable {
-			pr, err := primitiveGenerator.localSelectExecutor(handlerCtx, node, util.DefaultRowSort)
+			pr, err := primitiveGenerator.LocalSelectExecutor(handlerCtx, node, util.DefaultRowSort)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -274,8 +275,8 @@ func (pgb *planGraphBuilder) handleUnion(pbi planbuilderinput.PlanBuilderInput) 
 	if !ok {
 		return nil, nil, fmt.Errorf("could not cast node of type '%T' to required Delete", pbi.GetStatement())
 	}
-	primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
-	err := primitiveGenerator.analyzeStatement(pbi)
+	primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
+	err := primitiveGenerator.AnalyzeStatement(pbi)
 	if err != nil {
 		logging.GetLogger().Infoln(fmt.Sprintf("select statement analysis error = '%s'", err.Error()))
 		return nil, nil, err
@@ -304,12 +305,12 @@ func (pgb *planGraphBuilder) handleDelete(pbi planbuilderinput.PlanBuilderInput)
 		return fmt.Errorf("could not cast node of type '%T' to required Delete", pbi.GetStatement())
 	}
 	if !handlerCtx.GetRuntimeContext().TestWithoutApiCalls {
-		primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
-		err := primitiveGenerator.analyzeStatement(pbi)
+		primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
+		err := primitiveGenerator.AnalyzeStatement(pbi)
 		if err != nil {
 			return err
 		}
-		pr, err := primitiveGenerator.deleteExecutor(handlerCtx, node)
+		pr, err := primitiveGenerator.DeleteExecutor(handlerCtx, node)
 		if err != nil {
 			return err
 		}
@@ -328,8 +329,8 @@ func (pgb *planGraphBuilder) handleRegistry(pbi planbuilderinput.PlanBuilderInpu
 	if !ok {
 		return fmt.Errorf("could not cast statement of type '%T' to required Registry", pbi.GetStatement())
 	}
-	primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
-	err := primitiveGenerator.analyzeRegistry(pbi)
+	primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
+	err := primitiveGenerator.AnalyzeRegistry(pbi)
 	if err != nil {
 		return err
 	}
@@ -402,7 +403,7 @@ func (pgb *planGraphBuilder) handlePurge(pbi planbuilderinput.PlanBuilderInput) 
 	if !ok {
 		return fmt.Errorf("could not cast statement of type '%T' to required Purge", pbi.GetStatement())
 	}
-	// primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
+	// primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 	pr := primitive.NewLocalPrimitive(
 		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 			if node.IsGlobal {
@@ -495,8 +496,8 @@ func (pgb *planGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuilderInput)
 		return fmt.Errorf("could not cast statement of type '%T' to required Insert", pbi.GetStatement())
 	}
 	if !handlerCtx.GetRuntimeContext().TestWithoutApiCalls {
-		primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
-		err := primitiveGenerator.analyzeInsert(pbi)
+		primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
+		err := primitiveGenerator.AnalyzeInsert(pbi)
 		if err != nil {
 			return err
 		}
@@ -522,14 +523,14 @@ func (pgb *planGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuilderInput)
 				return fmt.Errorf("insert with rows of type '%T' not currently supported", rowsNode)
 			}
 		} else {
-			selectPrimitive, err = primitiveGenerator.insertableValsExecutor(handlerCtx, insertValOnlyRows)
+			selectPrimitive, err = primitiveGenerator.InsertableValsExecutor(handlerCtx, insertValOnlyRows)
 			if err != nil {
 				return err
 			}
 			sn := pgb.planGraph.CreatePrimitiveNode(selectPrimitive)
 			selectPrimitiveNode = &sn
 		}
-		pr, err := primitiveGenerator.insertExecutor(handlerCtx, node, util.DefaultRowSort)
+		pr, err := primitiveGenerator.InsertExecutor(handlerCtx, node, util.DefaultRowSort)
 		if err != nil {
 			return err
 		}
@@ -555,8 +556,8 @@ func (pgb *planGraphBuilder) handleUpdate(pbi planbuilderinput.PlanBuilderInput)
 		return fmt.Errorf("could not cast statement of type '%T' to required Insert", pbi.GetStatement())
 	}
 	if !handlerCtx.GetRuntimeContext().TestWithoutApiCalls {
-		primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
-		err := primitiveGenerator.analyzeUpdate(pbi)
+		primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
+		err := primitiveGenerator.AnalyzeUpdate(pbi)
 		if err != nil {
 			return err
 		}
@@ -571,14 +572,14 @@ func (pgb *planGraphBuilder) handleUpdate(pbi planbuilderinput.PlanBuilderInput)
 			// TODO: support dynamic content
 			return fmt.Errorf("update does not currently support dynamic content")
 		} else {
-			selectPrimitive, err = primitiveGenerator.updateableValsExecutor(handlerCtx, insertValOnlyRows)
+			selectPrimitive, err = primitiveGenerator.UpdateableValsExecutor(handlerCtx, insertValOnlyRows)
 			if err != nil {
 				return err
 			}
 			sn := pgb.planGraph.CreatePrimitiveNode(selectPrimitive)
 			selectPrimitiveNode = &sn
 		}
-		pr, err := primitiveGenerator.insertExecutor(handlerCtx, node, util.DefaultRowSort)
+		pr, err := primitiveGenerator.InsertExecutor(handlerCtx, node, util.DefaultRowSort)
 		if err != nil {
 			return err
 		}
@@ -603,12 +604,12 @@ func (pgb *planGraphBuilder) handleExec(pbi planbuilderinput.PlanBuilderInput) e
 		return fmt.Errorf("could not cast node of type '%T' to required Exec", pbi.GetStatement())
 	}
 	if !handlerCtx.GetRuntimeContext().TestWithoutApiCalls {
-		primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
-		err := primitiveGenerator.analyzeStatement(pbi)
+		primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
+		err := primitiveGenerator.AnalyzeStatement(pbi)
 		if err != nil {
 			return err
 		}
-		_, err = primitiveGenerator.execExecutor(handlerCtx, node)
+		_, err = primitiveGenerator.ExecExecutor(handlerCtx, node)
 		if err != nil {
 			return err
 		}
@@ -625,8 +626,8 @@ func (pgb *planGraphBuilder) handleShow(pbi planbuilderinput.PlanBuilderInput) e
 	if !ok {
 		return fmt.Errorf("could not cast statement of type '%T' to required Show", pbi.GetStatement())
 	}
-	primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
-	err := primitiveGenerator.analyzeStatement(pbi)
+	primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
+	err := primitiveGenerator.AnalyzeStatement(pbi)
 	if err != nil {
 		return err
 	}
@@ -644,7 +645,7 @@ func (pgb *planGraphBuilder) handleShow(pbi planbuilderinput.PlanBuilderInput) e
 	pr := primitive.NewMetaDataPrimitive(
 		primitiveGenerator.PrimitiveComposer.GetProvider(),
 		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
-			return primitiveGenerator.showInstructionExecutor(node, handlerCtx)
+			return primitiveGenerator.ShowInstructionExecutor(node, handlerCtx)
 		})
 	pgb.planGraph.CreatePrimitiveNode(pr)
 	return nil
@@ -656,8 +657,8 @@ func (pgb *planGraphBuilder) handleSleep(pbi planbuilderinput.PlanBuilderInput) 
 	if !ok {
 		return fmt.Errorf("could not cast statement of type '%T' to required Sleep", pbi.GetStatement())
 	}
-	primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
-	err := primitiveGenerator.analyzeStatement(pbi)
+	primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
+	err := primitiveGenerator.AnalyzeStatement(pbi)
 	if err != nil {
 		return err
 	}
@@ -670,8 +671,8 @@ func (pgb *planGraphBuilder) handleUse(pbi planbuilderinput.PlanBuilderInput) er
 	if !ok {
 		return fmt.Errorf("node type '%T' is incorrect; expected *Use", node)
 	}
-	primitiveGenerator := newRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
-	err := primitiveGenerator.analyzeStatement(pbi)
+	primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
+	err := primitiveGenerator.AnalyzeStatement(pbi)
 	if err != nil {
 		return err
 	}

@@ -1,4 +1,4 @@
-package planbuilder
+package primitivegenerator
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-func (p *primitiveGenerator) assembleUnarySelectionBuilder(
+func (p *standardPrimitiveGenerator) assembleUnarySelectionBuilder(
 	pbi planbuilderinput.PlanBuilderInput,
 	handlerCtx handler.HandlerContext,
 	node sqlparser.SQLNode,
@@ -85,7 +85,7 @@ func (p *primitiveGenerator) assembleUnarySelectionBuilder(
 	return nil
 }
 
-func (p *primitiveGenerator) analyzeUnarySelection(
+func (p *standardPrimitiveGenerator) analyzeUnarySelection(
 	pbi planbuilderinput.PlanBuilderInput,
 	handlerCtx handler.HandlerContext,
 	node sqlparser.SQLNode,

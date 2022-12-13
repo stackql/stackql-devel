@@ -2,12 +2,10 @@ package earlyanalysis
 
 import (
 	"github.com/stackql/stackql/internal/stackql/astanalysis/annotatedast"
-	"github.com/stackql/stackql/internal/stackql/astanalysis/astexpand"
 	"github.com/stackql/stackql/internal/stackql/astvisit"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
-	"github.com/stackql/stackql/internal/stackql/parse"
 	"github.com/stackql/stackql/internal/stackql/planbuilderinput"
 	"vitess.io/vitess/go/vt/sqlparser"
 )
@@ -23,7 +21,7 @@ const (
 )
 
 type Analyzer interface {
-	Analyze(handlerCtx handler.HandlerContext, tcc internaldto.TxnControlCounters) error
+	Analyze(statement sqlparser.Statement, handlerCtx handler.HandlerContext, tcc internaldto.TxnControlCounters) error
 }
 
 type InitialPassesScreener interface {
@@ -69,15 +67,12 @@ func (sp *standardInitialPasses) IsCacheExemptMaterialDetected() bool {
 	return sp.isCacheExemptMaterialDetected
 }
 
-func (sp *standardInitialPasses) Analyze(handlerCtx handler.HandlerContext, tcc internaldto.TxnControlCounters) error {
-	return sp.initialPasses(handlerCtx, tcc)
+func (sp *standardInitialPasses) Analyze(statement sqlparser.Statement, handlerCtx handler.HandlerContext, tcc internaldto.TxnControlCounters) error {
+	return sp.initialPasses(statement, handlerCtx, tcc)
 }
 
-func (sp *standardInitialPasses) initialPasses(handlerCtx handler.HandlerContext, tcc internaldto.TxnControlCounters) error {
-	statement, err := parse.ParseQuery(handlerCtx.GetQuery())
-	if err != nil {
-		return err
-	}
+func (sp *standardInitialPasses) initialPasses(statement sqlparser.Statement, handlerCtx handler.HandlerContext, tcc internaldto.TxnControlCounters) error {
+
 	result, err := sqlparser.RewriteAST(statement)
 	sp.result = result
 	if err != nil {
@@ -112,7 +107,7 @@ func (sp *standardInitialPasses) initialPasses(handlerCtx handler.HandlerContext
 	}
 
 	// First pass AST analysis; annotate and expand AST for indirects (views).
-	astExpandVisitor, err := astexpand.NewIndirectExpandAstVisitor(annotatedAST, handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection())
+	astExpandVisitor, err := newIndirectExpandAstVisitor(handlerCtx, annotatedAST, handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection(), tcc)
 	if err != nil {
 		return err
 	}
