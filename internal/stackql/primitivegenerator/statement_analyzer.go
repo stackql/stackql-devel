@@ -122,13 +122,13 @@ func (p *standardPrimitiveGenerator) analyzeUnion(pbi planbuilderinput.PlanBuild
 	if err != nil {
 		return err
 	}
-	pChild := p.addChildPrimitiveGenerator(node.FirstStatement, leaf)
+	pChild := p.AddChildPrimitiveGenerator(node.FirstStatement, leaf)
 	counters := pbi.GetTxnCtrlCtrs()
 	sPbi, err := planbuilderinput.NewPlanBuilderInput(pbi.GetAnnotatedAST(), handlerCtx, node.FirstStatement, nil, nil, nil, nil, nil, counters)
 	if err != nil {
 		return err
 	}
-	err = pChild.analyzeSelectStatement(sPbi)
+	err = pChild.AnalyzeSelectStatement(sPbi)
 	if err != nil {
 		return err
 	}
@@ -139,17 +139,17 @@ func (p *standardPrimitiveGenerator) analyzeUnion(pbi planbuilderinput.PlanBuild
 		if err != nil {
 			return err
 		}
-		pChild := p.addChildPrimitiveGenerator(rhsStmt.Statement, leaf)
+		pChild := p.AddChildPrimitiveGenerator(rhsStmt.Statement, leaf)
 		ctrClone := counters.CloneAndIncrementInsertID()
 		sPbi, err := planbuilderinput.NewPlanBuilderInput(pbi.GetAnnotatedAST(), handlerCtx, rhsStmt.Statement, nil, nil, nil, nil, nil, ctrClone)
 		if err != nil {
 			return err
 		}
-		err = pChild.analyzeSelectStatement(sPbi)
+		err = pChild.AnalyzeSelectStatement(sPbi)
 		if err != nil {
 			return err
 		}
-		ctx := pChild.PrimitiveComposer.GetSelectPreparedStatementCtx()
+		ctx := pChild.GetPrimitiveComposer().GetSelectPreparedStatementCtx()
 		ctx.SetKind(rhsStmt.Type)
 		selectStatementContexts = append(selectStatementContexts, ctx)
 	}
@@ -158,7 +158,7 @@ func (p *standardPrimitiveGenerator) analyzeUnion(pbi planbuilderinput.PlanBuild
 		p.PrimitiveComposer.GetGraph(),
 		handlerCtx,
 		drm.NewQueryOnlyPreparedStatementCtx(unionQuery),
-		pChild.PrimitiveComposer.GetSelectPreparedStatementCtx(),
+		pChild.GetPrimitiveComposer().GetSelectPreparedStatementCtx(),
 		selectStatementContexts,
 	)
 	p.PrimitiveComposer.SetBuilder(bldr)
@@ -166,13 +166,13 @@ func (p *standardPrimitiveGenerator) analyzeUnion(pbi planbuilderinput.PlanBuild
 	return nil
 }
 
-func (p *standardPrimitiveGenerator) analyzeSelectStatement(pbi planbuilderinput.PlanBuilderInput) error {
+func (p *standardPrimitiveGenerator) AnalyzeSelectStatement(pbi planbuilderinput.PlanBuilderInput) error {
 	node := pbi.GetStatement()
 	switch node.(type) {
 	case *sqlparser.Select:
 		return p.analyzeSelect(pbi)
 	case *sqlparser.ParenSelect:
-		return p.analyzeSelectStatement(pbi)
+		return p.AnalyzeSelectStatement(pbi)
 	case *sqlparser.Union:
 		return p.analyzeUnion(pbi)
 	}
@@ -520,7 +520,7 @@ func (p *standardPrimitiveGenerator) persistHerarchyToBuilder(heirarchy tablemet
 	p.PrimitiveComposer.SetTable(node, tablemetadata.NewExtendedTableMetadata(heirarchy, taxonomy.GetTableNameFromStatement(node, p.PrimitiveComposer.GetASTFormatter()), taxonomy.GetAliasFromStatement(node)))
 }
 
-func (p *standardPrimitiveGenerator) analyzeUnaryExec(pbi planbuilderinput.PlanBuilderInput, handlerCtx handler.HandlerContext, node *sqlparser.Exec, selectNode *sqlparser.Select, cols []parserutil.ColumnHandle) (tablemetadata.ExtendedTableMetadata, error) {
+func (p *standardPrimitiveGenerator) AnalyzeUnaryExec(pbi planbuilderinput.PlanBuilderInput, handlerCtx handler.HandlerContext, node *sqlparser.Exec, selectNode *sqlparser.Select, cols []parserutil.ColumnHandle) (tablemetadata.ExtendedTableMetadata, error) {
 	err := p.inferHeirarchyAndPersist(handlerCtx, node, nil)
 	if err != nil {
 		return nil, err
@@ -630,7 +630,7 @@ func (p *standardPrimitiveGenerator) analyzeExec(pbi planbuilderinput.PlanBuilde
 	if !ok {
 		return fmt.Errorf("could not cast node of type '%T' to required Exec", pbi.GetStatement())
 	}
-	tbl, err := p.analyzeUnaryExec(pbi, handlerCtx, node, nil, nil)
+	tbl, err := p.AnalyzeUnaryExec(pbi, handlerCtx, node, nil, nil)
 	insertionContainer, err := tableinsertioncontainer.NewTableInsertionContainer(tbl, handlerCtx.GetSQLEngine())
 	if err != nil {
 		return err
@@ -677,15 +677,6 @@ func (p *standardPrimitiveGenerator) parseExecPayload(node *sqlparser.ExecVarDef
 		m,
 		pm,
 	), nil
-}
-
-func contains(slice []interface{}, elem interface{}) bool {
-	for _, a := range slice {
-		if a == elem {
-			return true
-		}
-	}
-	return false
 }
 
 func (p *standardPrimitiveGenerator) analyzeSchemaVsMap(handlerCtx handler.HandlerContext, schema *openapistackql.Schema, payload map[string]interface{}, method *openapistackql.OperationStore) error {
@@ -815,7 +806,7 @@ func (p *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBuil
 		return p.AnalyzeNop(pbi)
 	}
 
-	var pChild *standardPrimitiveGenerator
+	var pChild PrimitiveGenerator
 	var err error
 
 	// BLOCK  ParameterHierarchy
@@ -894,7 +885,7 @@ func (p *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBuil
 		if err != nil {
 			return err
 		}
-		pChild = p.addChildPrimitiveGenerator(fromExpr, leaf)
+		pChild = p.AddChildPrimitiveGenerator(fromExpr, leaf)
 
 		for _, tbl := range tblz {
 			err := p.expandTable(tbl)
@@ -949,7 +940,7 @@ func (p *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBuil
 			}
 			bld := dp.GetBldr()
 			selCtx := dp.GetSelectCtx()
-			pChild.PrimitiveComposer.SetBuilder(bld)
+			pChild.GetPrimitiveComposer().SetBuilder(bld)
 			p.PrimitiveComposer.SetSelectPreparedStatementCtx(selCtx)
 			return nil
 		case *sqlparser.ExecSubquery:
@@ -957,7 +948,7 @@ func (p *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBuil
 			if err != nil {
 				return err
 			}
-			tbl, err := pChild.analyzeUnaryExec(pbi, handlerCtx, ft.Exec, node, cols)
+			tbl, err := pChild.AnalyzeUnaryExec(pbi, handlerCtx, ft.Exec, node, cols)
 			if err != nil {
 				return err
 			}
@@ -965,7 +956,7 @@ func (p *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBuil
 			if err != nil {
 				return err
 			}
-			pChild.PrimitiveComposer.SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.PrimitiveComposer.GetGraph(), pChild.PrimitiveComposer.GetTxnCtrlCtrs(), handlerCtx, insertionContainer, pChild.PrimitiveComposer.GetInsertPreparedStatementCtx(), pChild.PrimitiveComposer.GetSelectPreparedStatementCtx(), nil))
+			pChild.GetPrimitiveComposer().SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.GetPrimitiveComposer().GetGraph(), pChild.GetPrimitiveComposer().GetTxnCtrlCtrs(), handlerCtx, insertionContainer, pChild.GetPrimitiveComposer().GetInsertPreparedStatementCtx(), pChild.GetPrimitiveComposer().GetSelectPreparedStatementCtx(), nil))
 			return nil
 		}
 
