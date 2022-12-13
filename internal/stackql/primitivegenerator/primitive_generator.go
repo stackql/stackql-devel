@@ -3,15 +3,11 @@ package primitivegenerator
 import (
 	"fmt"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 
-	"github.com/stackql/stackql/internal/stackql/asyncmonitor"
 	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/handler"
-	"github.com/stackql/stackql/internal/stackql/httpbuild"
-	"github.com/stackql/stackql/internal/stackql/httpmiddleware"
 	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/iqlutil"
 	"github.com/stackql/stackql/internal/stackql/logging"
@@ -46,28 +42,26 @@ type PrimitiveGenerator interface {
 	AnalyzePGInternal(pbi planbuilderinput.PlanBuilderInput) error
 	AnalyzeRegistry(pbi planbuilderinput.PlanBuilderInput) error
 	AnalyzeStatement(pbi planbuilderinput.PlanBuilderInput) error
-	DeleteExecutor(handlerCtx handler.HandlerContext, node *sqlparser.Delete) (primitive.IPrimitive, error)
-	DescribeInstructionExecutor(handlerCtx handler.HandlerContext, tbl tablemetadata.ExtendedTableMetadata, extended bool, full bool) internaldto.ExecutorOutput
-	ExecExecutor(handlerCtx handler.HandlerContext, node *sqlparser.Exec) (primitivegraph.PrimitiveNode, error)
-	InsertableValsExecutor(handlerCtx handler.HandlerContext, vals map[int]map[int]interface{}) (primitive.IPrimitive, error)
-	InsertExecutor(handlerCtx handler.HandlerContext, node sqlparser.SQLNode, rowSort func(map[string]map[string]interface{}) []string) (primitive.IPrimitive, error)
-	LocalSelectExecutor(handlerCtx handler.HandlerContext, node *sqlparser.Select, rowSort func(map[string]map[string]interface{}) []string) (primitive.IPrimitive, error)
-	UpdateableValsExecutor(handlerCtx handler.HandlerContext, vals map[*sqlparser.ColName]interface{}) (primitive.IPrimitive, error)
-	ShowInstructionExecutor(node *sqlparser.Show, handlerCtx handler.HandlerContext) internaldto.ExecutorOutput
+	GetPrimitiveComposer() primitivecomposer.PrimitiveComposer
+	IsShowResults() bool
 }
 
 type standardPrimitiveGenerator struct {
-	Parent            *standardPrimitiveGenerator
-	Children          []*standardPrimitiveGenerator
+	Parent            PrimitiveGenerator
+	Children          []PrimitiveGenerator
 	PrimitiveComposer primitivecomposer.PrimitiveComposer
 }
 
-func NewRootPrimitiveGenerator(ast sqlparser.SQLNode, handlerCtx handler.HandlerContext, graph *primitivegraph.PrimitiveGraph) *standardPrimitiveGenerator {
+func NewRootPrimitiveGenerator(ast sqlparser.SQLNode, handlerCtx handler.HandlerContext, graph *primitivegraph.PrimitiveGraph) PrimitiveGenerator {
 	tblMap := make(taxonomy.TblMap)
 	symTab := symtab.NewHashMapTreeSymTab()
 	return &standardPrimitiveGenerator{
 		PrimitiveComposer: primitivecomposer.NewPrimitiveComposer(nil, ast, handlerCtx.GetDrmConfig(), handlerCtx.GetTxnCounterMgr(), graph, tblMap, symTab, handlerCtx.GetSQLEngine(), handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter()),
 	}
+}
+
+func (pb *standardPrimitiveGenerator) GetPrimitiveComposer() primitivecomposer.PrimitiveComposer {
+	return pb.PrimitiveComposer
 }
 
 func (pb *standardPrimitiveGenerator) addChildPrimitiveGenerator(ast sqlparser.SQLNode, leaf symtab.SymTab) *standardPrimitiveGenerator {
@@ -448,157 +442,6 @@ func (pb *standardPrimitiveGenerator) DescribeInstructionExecutor(handlerCtx han
 	return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, keys, columnOrder, util.DescribeRowSort, err, nil))
 }
 
-func (pb *standardPrimitiveGenerator) InsertExecutor(handlerCtx handler.HandlerContext, node sqlparser.SQLNode, rowSort func(map[string]map[string]interface{}) []string) (primitive.IPrimitive, error) {
-	switch node := node.(type) {
-	case *sqlparser.Insert, *sqlparser.Update:
-	default:
-		return nil, fmt.Errorf("mutation executor: cannnot accomodate node of type '%T'", node)
-	}
-	tbl, err := pb.PrimitiveComposer.GetTable(node)
-	if err != nil {
-		return nil, err
-	}
-	prov, err := tbl.GetProvider()
-	if err != nil {
-		return nil, err
-	}
-	svc, err := tbl.GetService()
-	if err != nil {
-		return nil, err
-	}
-	m, err := tbl.GetMethod()
-	if err != nil {
-		return nil, err
-	}
-	_, _, err = tbl.GetResponseSchemaAndMediaType()
-	if err != nil {
-		return nil, err
-	}
-	insertPrimitive := primitive.NewHTTPRestPrimitive(
-		prov,
-		nil,
-		nil,
-		nil,
-	)
-	ex := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
-		input, inputExists := insertPrimitive.GetInputFromAlias("")
-		if !inputExists {
-			return internaldto.NewErroneousExecutorOutput(fmt.Errorf("input does not exist"))
-		}
-		inputStream, err := input.ResultToMap()
-		if err != nil {
-			return internaldto.NewErroneousExecutorOutput(err)
-		}
-		rr, err := inputStream.Read()
-		if err != nil {
-			return internaldto.NewErroneousExecutorOutput(err)
-		}
-		inputMap, err := rr.GetMap()
-		if err != nil {
-			return internaldto.NewErroneousExecutorOutput(err)
-		}
-		httpArmoury, err := httpbuild.BuildHTTPRequestCtx(node, prov, m, svc, inputMap, nil)
-		if err != nil {
-			return internaldto.NewErroneousExecutorOutput(err)
-		}
-		var target map[string]interface{}
-
-		var zeroArityExecutors []func() internaldto.ExecutorOutput
-		for _, r := range httpArmoury.GetRequestParams() {
-			req := r
-			zeroArityEx := func() internaldto.ExecutorOutput {
-				// logging.GetLogger().Infoln(fmt.Sprintf("req.BodyBytes = %s", string(req.BodyBytes)))
-				// req.Context.SetBody(bytes.NewReader(req.BodyBytes))
-				// logging.GetLogger().Infoln(fmt.Sprintf("req.Context = %v", req.Context))
-				response, apiErr := httpmiddleware.HttpApiCallFromRequest(handlerCtx.Clone(), prov, m, req.GetRequest())
-				if apiErr != nil {
-					return internaldto.NewErroneousExecutorOutput(apiErr)
-				}
-
-				target, err = m.DeprecatedProcessResponse(response)
-				handlerCtx.LogHTTPResponseMap(target)
-				if err != nil {
-					return internaldto.NewErroneousExecutorOutput(err)
-				}
-				pb.composeAsyncMonitor(handlerCtx, insertPrimitive, tbl)
-				if err != nil {
-					return internaldto.NewErroneousExecutorOutput(err)
-				}
-				logging.GetLogger().Infoln(fmt.Sprintf("target = %v", target))
-				items, ok := target[tbl.LookupSelectItemsKey()]
-				keys := make(map[string]map[string]interface{})
-				if ok {
-					iArr, ok := items.([]interface{})
-					if ok && len(iArr) > 0 {
-						for i := range iArr {
-							item, ok := iArr[i].(map[string]interface{})
-							if ok {
-								keys[strconv.Itoa(i)] = item
-							}
-						}
-					}
-				}
-				msgs := internaldto.BackendMessages{}
-				if err == nil {
-					msgs.WorkingMessages = generateSuccessMessagesFromHeirarchy(tbl)
-				} else {
-					msgs.WorkingMessages = []string{err.Error()}
-				}
-				return internaldto.NewExecutorOutput(nil, target, nil, &msgs, err)
-			}
-			zeroArityExecutors = append(zeroArityExecutors, zeroArityEx)
-		}
-		resultSet := internaldto.NewErroneousExecutorOutput(fmt.Errorf("no executions detected"))
-		msgs := internaldto.BackendMessages{}
-		if !pb.PrimitiveComposer.IsAwait() {
-			for _, ei := range zeroArityExecutors {
-				execInstance := ei
-				resultSet = execInstance()
-				if resultSet.Msg != nil && resultSet.Msg.WorkingMessages != nil && len(resultSet.Msg.WorkingMessages) > 0 {
-					for _, m := range resultSet.Msg.WorkingMessages {
-						msgs.WorkingMessages = append(msgs.WorkingMessages, m)
-					}
-				}
-				if resultSet.Err != nil {
-					resultSet.Msg = &msgs
-					return resultSet
-				}
-			}
-			resultSet.Msg = &msgs
-			return resultSet
-		}
-		for _, eI := range zeroArityExecutors {
-			execInstance := eI
-			dependentInsertPrimitive := primitive.NewHTTPRestPrimitive(
-				prov,
-				nil,
-				nil,
-				nil,
-			)
-			err = dependentInsertPrimitive.SetExecutor(func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
-				return execInstance()
-			})
-			if err != nil {
-				return internaldto.NewErroneousExecutorOutput(err)
-			}
-			execPrim, err := pb.composeAsyncMonitor(handlerCtx, dependentInsertPrimitive, tbl)
-			if err != nil {
-				return internaldto.NewErroneousExecutorOutput(err)
-			}
-			resultSet = execPrim.Execute(pc)
-			if resultSet.Err != nil {
-				return resultSet
-			}
-		}
-		return resultSet
-	}
-	err = insertPrimitive.SetExecutor(ex)
-	if err != nil {
-		return nil, err
-	}
-	return insertPrimitive, nil
-}
-
 func (pb *standardPrimitiveGenerator) LocalSelectExecutor(handlerCtx handler.HandlerContext, node *sqlparser.Select, rowSort func(map[string]map[string]interface{}) []string) (primitive.IPrimitive, error) {
 	return primitive.NewLocalPrimitive(
 		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
@@ -627,277 +470,10 @@ func (pb *standardPrimitiveGenerator) LocalSelectExecutor(handlerCtx handler.Han
 		}), nil
 }
 
-func (pb *standardPrimitiveGenerator) InsertableValsExecutor(handlerCtx handler.HandlerContext, vals map[int]map[int]interface{}) (primitive.IPrimitive, error) {
-	return primitive.NewLocalPrimitive(
-		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
-			keys := make(map[string]map[string]interface{})
-			row := make(map[string]interface{})
-			var rowKeys []int
-			var colKeys []int
-			var columnOrder []string
-			for k, _ := range vals {
-				rowKeys = append(rowKeys, k)
-			}
-			for _, v := range vals {
-				for ck, _ := range v {
-					colKeys = append(colKeys, ck)
-				}
-				break
-			}
-			sort.Ints(rowKeys)
-			sort.Ints(colKeys)
-			for _, ck := range colKeys {
-				columnOrder = append(columnOrder, "val_"+strconv.Itoa(ck))
-			}
-			for idx := range colKeys {
-				col := vals[0][idx]
-				colName := columnOrder[idx]
-				row[colName] = col
-			}
-			keys["0"] = row
-			return util.PrepareResultSet(internaldto.NewPrepareResultSetPlusRawDTO(nil, keys, columnOrder, nil, nil, nil, vals))
-		}), nil
-}
-
-func (pb *standardPrimitiveGenerator) UpdateableValsExecutor(handlerCtx handler.HandlerContext, vals map[*sqlparser.ColName]interface{}) (primitive.IPrimitive, error) {
-	return primitive.NewLocalPrimitive(
-		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
-			keys := make(map[string]map[string]interface{})
-			row := make(map[string]interface{})
-			rawRow := make(map[int]interface{})
-			var columnOrder []string
-			i := 0
-			lookupMap := make(map[string]*sqlparser.ColName)
-			for k, _ := range vals {
-				columnOrder = append(columnOrder, k.Name.GetRawVal())
-				lookupMap[k.Name.GetRawVal()] = k
-			}
-			sort.Strings(columnOrder)
-			for _, rk := range columnOrder {
-				k := lookupMap[rk]
-				v := vals[k]
-				row[k.Name.GetRawVal()] = v
-				rawRow[i] = v
-				i++
-			}
-			keys["0"] = row
-			rawRows := map[int]map[int]interface{}{
-				0: rawRow,
-			}
-			return util.PrepareResultSet(internaldto.NewPrepareResultSetPlusRawDTO(nil, keys, columnOrder, nil, nil, nil, rawRows))
-		}), nil
-}
-
-func (pb *standardPrimitiveGenerator) DeleteExecutor(handlerCtx handler.HandlerContext, node *sqlparser.Delete) (primitive.IPrimitive, error) {
-	tbl, err := pb.PrimitiveComposer.GetTable(node)
-	if err != nil {
-		return nil, err
-	}
-	prov, err := tbl.GetProvider()
-	if err != nil {
-		return nil, err
-	}
-	m, err := tbl.GetMethod()
-	if err != nil {
-		return nil, err
-	}
-	ex := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
-		var target map[string]interface{}
-		keys := make(map[string]map[string]interface{})
-		httpArmoury, err := tbl.GetHttpArmoury()
-		if err != nil {
-			return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, nil, nil, nil, err, nil))
-		}
-		for _, req := range httpArmoury.GetRequestParams() {
-			response, apiErr := httpmiddleware.HttpApiCallFromRequest(handlerCtx.Clone(), prov, m, req.GetRequest())
-			if apiErr != nil {
-				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil))
-			}
-			target, err = m.DeprecatedProcessResponse(response)
-			handlerCtx.LogHTTPResponseMap(target)
-
-			logging.GetLogger().Infoln(fmt.Sprintf("DeleteExecutor() target = %v", target))
-			if err != nil {
-				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(
-					nil,
-					nil,
-					nil,
-					nil,
-					err,
-					nil,
-				))
-			}
-			logging.GetLogger().Infoln(fmt.Sprintf("target = %v", target))
-			items, ok := target[prov.GetDefaultKeyForDeleteItems()]
-			if ok {
-				iArr, ok := items.([]interface{})
-				if ok && len(iArr) > 0 {
-					for i := range iArr {
-						item, ok := iArr[i].(map[string]interface{})
-						if ok {
-							keys[strconv.Itoa(i)] = item
-						}
-					}
-				}
-			}
-		}
-		msgs := internaldto.BackendMessages{}
-		if err == nil {
-			msgs.WorkingMessages = generateSuccessMessagesFromHeirarchy(tbl)
-		}
-		return pb.generateResultIfNeededfunc(keys, target, &msgs, err)
-	}
-	deletePrimitive := primitive.NewHTTPRestPrimitive(
-		prov,
-		ex,
-		nil,
-		nil,
-	)
-	if !pb.PrimitiveComposer.IsAwait() {
-		return deletePrimitive, nil
-	}
-	return pb.composeAsyncMonitor(handlerCtx, deletePrimitive, tbl)
-}
-
-func generateSuccessMessagesFromHeirarchy(meta tablemetadata.ExtendedTableMetadata) []string {
-	successMsgs := []string{
-		"The operation completed successfully",
-	}
-	m, methodErr := meta.GetMethod()
-	prov, err := meta.GetProvider()
-	if methodErr == nil && err == nil && m != nil && prov != nil && prov.GetProviderString() == "google" {
-		if m.APIMethod == "select" || m.APIMethod == "get" || m.APIMethod == "list" || m.APIMethod == "aggregatedList" {
-			successMsgs = []string{
-				"The operation completed successfully, consider using a SELECT statement if you are performing an operation that returns data, see https://docs.stackql.io/language-spec/select for more information",
-			}
-		}
-	}
-	return successMsgs
+func (pb *standardPrimitiveGenerator) IsShowResults() bool {
+	return pb.isShowResults()
 }
 
 func (pb *standardPrimitiveGenerator) isShowResults() bool {
 	return pb.PrimitiveComposer.GetCommentDirectives() != nil && pb.PrimitiveComposer.GetCommentDirectives().IsSet("SHOWRESULTS")
-}
-
-func (pb *standardPrimitiveGenerator) generateResultIfNeededfunc(resultMap map[string]map[string]interface{}, body map[string]interface{}, msg *internaldto.BackendMessages, err error) internaldto.ExecutorOutput {
-	if pb.isShowResults() {
-		return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, resultMap, nil, nil, nil, nil))
-	}
-	return internaldto.NewExecutorOutput(nil, body, nil, msg, err)
-}
-
-func (pb *standardPrimitiveGenerator) ExecExecutor(handlerCtx handler.HandlerContext, node *sqlparser.Exec) (primitivegraph.PrimitiveNode, error) {
-	if pb.isShowResults() && pb.PrimitiveComposer.GetBuilder() != nil {
-		err := pb.PrimitiveComposer.GetBuilder().Build()
-		if err != nil {
-			return primitivegraph.PrimitiveNode{}, err
-		}
-		return pb.PrimitiveComposer.GetBuilder().GetRoot(), nil
-	}
-	var target map[string]interface{}
-	tbl, err := pb.PrimitiveComposer.GetTable(node)
-	if err != nil {
-		return primitivegraph.PrimitiveNode{}, err
-	}
-	prov, err := tbl.GetProvider()
-	if err != nil {
-		return primitivegraph.PrimitiveNode{}, err
-	}
-	m, err := tbl.GetMethod()
-	if err != nil {
-		return primitivegraph.PrimitiveNode{}, err
-	}
-	ex := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
-		var err error
-		var columnOrder []string
-		keys := make(map[string]map[string]interface{})
-		httpArmoury, err := tbl.GetHttpArmoury()
-		if err != nil {
-			return internaldto.NewErroneousExecutorOutput(err)
-		}
-		for i, req := range httpArmoury.GetRequestParams() {
-			response, apiErr := httpmiddleware.HttpApiCallFromRequest(handlerCtx.Clone(), prov, m, req.GetRequest())
-			if apiErr != nil {
-				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil))
-			}
-			target, err = m.DeprecatedProcessResponse(response)
-			handlerCtx.LogHTTPResponseMap(target)
-			if err != nil {
-				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(
-					nil,
-					nil,
-					nil,
-					nil,
-					err,
-					nil,
-				))
-			}
-			logging.GetLogger().Infoln(fmt.Sprintf("target = %v", target))
-			items, ok := target[tbl.LookupSelectItemsKey()]
-			if ok {
-				iArr, ok := items.([]interface{})
-				if ok && len(iArr) > 0 {
-					for i := range iArr {
-						item, ok := iArr[i].(map[string]interface{})
-						if ok {
-							keys[strconv.Itoa(i)] = item
-						}
-					}
-				}
-			} else {
-				keys[fmt.Sprintf("%d", i)] = target
-			}
-			// optional data return pattern to be included in grammar subsequently
-			// return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, keys, columnOrder, nil, err, nil))
-			logging.GetLogger().Debugln(fmt.Sprintf("keys = %v", keys))
-			logging.GetLogger().Debugln(fmt.Sprintf("columnOrder = %v", columnOrder))
-		}
-		msgs := internaldto.BackendMessages{}
-		if err == nil {
-			msgs.WorkingMessages = generateSuccessMessagesFromHeirarchy(tbl)
-		}
-		return pb.generateResultIfNeededfunc(keys, target, &msgs, err)
-	}
-	execPrimitive := primitive.NewHTTPRestPrimitive(
-		prov,
-		ex,
-		nil,
-		nil,
-	)
-	graph := pb.PrimitiveComposer.GetGraph()
-	if !pb.PrimitiveComposer.IsAwait() {
-		return graph.CreatePrimitiveNode(execPrimitive), nil
-	}
-	pr, err := pb.composeAsyncMonitor(handlerCtx, execPrimitive, tbl)
-	if err != nil {
-		return primitivegraph.PrimitiveNode{}, err
-	}
-	return graph.CreatePrimitiveNode(pr), nil
-}
-
-func (pb *standardPrimitiveGenerator) composeAsyncMonitor(handlerCtx handler.HandlerContext, precursor primitive.IPrimitive, meta tablemetadata.ExtendedTableMetadata) (primitive.IPrimitive, error) {
-	prov, err := meta.GetProvider()
-	if err != nil {
-		return nil, err
-	}
-	asm, err := asyncmonitor.NewAsyncMonitor(handlerCtx, prov)
-	if err != nil {
-		return nil, err
-	}
-	// might be pointless
-	_, err = handlerCtx.GetAuthContext(prov.GetProviderString())
-	if err != nil {
-		return nil, err
-	}
-	//
-	pl := internaldto.NewBasicPrimitiveContext(
-		handlerCtx.GetAuthContext,
-		handlerCtx.GetOutfile(),
-		handlerCtx.GetOutErrFile(),
-	)
-	primitive, err := asm.GetMonitorPrimitive(meta.GetHeirarchyObjects(), precursor, pl, pb.PrimitiveComposer.GetCommentDirectives())
-	if err != nil {
-		return nil, err
-	}
-	return primitive, err
 }

@@ -18,6 +18,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/primitivebuilder"
 	"github.com/stackql/stackql/internal/stackql/primitivegenerator"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
+	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 	"github.com/stackql/stackql/internal/stackql/util"
 
 	"vitess.io/vitess/go/vt/sqlparser"
@@ -108,6 +109,14 @@ func (pgb *planGraphBuilder) createInstructionFor(pbi planbuilderinput.PlanBuild
 func (pgb *planGraphBuilder) nop(pbi planbuilderinput.PlanBuilderInput) error {
 	primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(nil, pbi.GetHandlerCtx(), pgb.planGraph)
 	err := primitiveGenerator.AnalyzeNop(pbi)
+	if err != nil {
+		return err
+	}
+	builder := primitiveGenerator.GetPrimitiveComposer().GetBuilder()
+	if builder == nil {
+		return fmt.Errorf("nil nop builder")
+	}
+	err = builder.Build()
 	return err
 }
 
@@ -117,7 +126,7 @@ func (pgb *planGraphBuilder) pgInternal(pbi planbuilderinput.PlanBuilderInput) e
 	if err != nil {
 		return err
 	}
-	builder := primitiveGenerator.PrimitiveComposer.GetBuilder()
+	builder := primitiveGenerator.GetPrimitiveComposer().GetBuilder()
 	if builder == nil {
 		return fmt.Errorf("nil pg internal builder")
 	}
@@ -202,7 +211,7 @@ func (pgb *planGraphBuilder) handleDescribe(pbi planbuilderinput.PlanBuilderInpu
 	if err != nil {
 		return err
 	}
-	md, err := primitiveGenerator.PrimitiveComposer.GetTable(node)
+	md, err := primitiveGenerator.GetPrimitiveComposer().GetTable(node)
 	if err != nil {
 		return err
 	}
@@ -215,7 +224,7 @@ func (pgb *planGraphBuilder) handleDescribe(pbi planbuilderinput.PlanBuilderInpu
 	pr := primitive.NewMetaDataPrimitive(
 		prov,
 		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
-			return primitiveGenerator.DescribeInstructionExecutor(handlerCtx, md, extended, full)
+			return primitivebuilder.NewDescribeInstructionExecutor(handlerCtx, md, extended, full)
 		})
 	pgb.planGraph.CreatePrimitiveNode(pr)
 	return nil
@@ -234,26 +243,31 @@ func (pgb *planGraphBuilder) handleSelect(pbi planbuilderinput.PlanBuilderInput)
 			logging.GetLogger().Infoln(fmt.Sprintf("select statement analysis error = '%s'", err.Error()))
 			return nil, nil, err
 		}
-		builder := primitiveGenerator.PrimitiveComposer.GetBuilder()
+		builder := primitiveGenerator.GetPrimitiveComposer().GetBuilder()
 		_, isNativeSelect := builder.(*primitivebuilder.NativeSelect)
 		_, isRawNativeSelect := builder.(*primitivebuilder.RawNativeSelect)
 		_, isRawNativeExec := builder.(*primitivebuilder.RawNativeExec)
 		isLocallyExecutable := !isNativeSelect && !isRawNativeSelect && !isRawNativeExec
 		// check tables only if not native
 		if isLocallyExecutable {
-			for _, val := range primitiveGenerator.PrimitiveComposer.GetTables() {
+			for _, val := range primitiveGenerator.GetPrimitiveComposer().GetTables() {
 				isLocallyExecutable = isLocallyExecutable && val.IsLocallyExecutable()
 			}
 		}
 		if isLocallyExecutable {
-			pr, err := primitiveGenerator.LocalSelectExecutor(handlerCtx, node, util.DefaultRowSort)
+			var colz []map[string]interface{}
+			for idx := range primitiveGenerator.GetPrimitiveComposer().GetValOnlyColKeys() {
+				col := primitiveGenerator.GetPrimitiveComposer().GetValOnlyCol(idx)
+				colz = append(colz, col)
+			}
+			pr, err := primitivebuilder.NewLocalSelectExecutor(handlerCtx, node, util.DefaultRowSort, colz)
 			if err != nil {
 				return nil, nil, err
 			}
 			rv := pgb.planGraph.CreatePrimitiveNode(pr)
 			return &rv, &rv, nil
 		}
-		if primitiveGenerator.PrimitiveComposer.GetBuilder() == nil {
+		if primitiveGenerator.GetPrimitiveComposer().GetBuilder() == nil {
 			return nil, nil, fmt.Errorf("builder not created for select, cannot proceed")
 		}
 		err = builder.Build()
@@ -282,13 +296,13 @@ func (pgb *planGraphBuilder) handleUnion(pbi planbuilderinput.PlanBuilderInput) 
 		return nil, nil, err
 	}
 	isLocallyExecutable := true
-	for _, val := range primitiveGenerator.PrimitiveComposer.GetTables() {
+	for _, val := range primitiveGenerator.GetPrimitiveComposer().GetTables() {
 		isLocallyExecutable = isLocallyExecutable && val.IsLocallyExecutable()
 	}
-	if primitiveGenerator.PrimitiveComposer.GetBuilder() == nil {
+	if primitiveGenerator.GetPrimitiveComposer().GetBuilder() == nil {
 		return nil, nil, fmt.Errorf("builder not created for union, cannot proceed")
 	}
-	builder := primitiveGenerator.PrimitiveComposer.GetBuilder()
+	builder := primitiveGenerator.GetPrimitiveComposer().GetBuilder()
 	err = builder.Build()
 	if err != nil {
 		return nil, nil, err
@@ -310,11 +324,22 @@ func (pgb *planGraphBuilder) handleDelete(pbi planbuilderinput.PlanBuilderInput)
 		if err != nil {
 			return err
 		}
-		pr, err := primitiveGenerator.DeleteExecutor(handlerCtx, node)
+		tbl, err := primitiveGenerator.GetPrimitiveComposer().GetTable(node)
 		if err != nil {
 			return err
 		}
-		pgb.planGraph.CreatePrimitiveNode(pr)
+		bldr := primitivebuilder.NewDelete(
+			pgb.planGraph,
+			handlerCtx,
+			node,
+			tbl,
+			nil,
+			primitiveGenerator.GetPrimitiveComposer().IsAwait(),
+		)
+		err = bldr.Build()
+		if err != nil {
+			return err
+		}
 		return nil
 	} else {
 		pr := primitive.NewHTTPRestPrimitive(nil, nil, nil, nil)
@@ -523,23 +548,33 @@ func (pgb *planGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuilderInput)
 				return fmt.Errorf("insert with rows of type '%T' not currently supported", rowsNode)
 			}
 		} else {
-			selectPrimitive, err = primitiveGenerator.InsertableValsExecutor(handlerCtx, insertValOnlyRows)
+			selectPrimitive, err = primitivebuilder.NewInsertableValsPrimitive(handlerCtx, insertValOnlyRows)
 			if err != nil {
 				return err
 			}
 			sn := pgb.planGraph.CreatePrimitiveNode(selectPrimitive)
 			selectPrimitiveNode = &sn
 		}
-		pr, err := primitiveGenerator.InsertExecutor(handlerCtx, node, util.DefaultRowSort)
-		if err != nil {
-			return err
-		}
 		if selectPrimitiveNode == nil {
 			return fmt.Errorf("nil selection for insert -- cannot work")
 		}
-		pr.SetInputAlias("", selectPrimitiveNode.ID())
-		prNode := pgb.planGraph.CreatePrimitiveNode(pr)
-		pgb.planGraph.NewDependency(*selectPrimitiveNode, prNode, 1.0)
+		tbl, err := primitiveGenerator.GetPrimitiveComposer().GetTable(node)
+		if err != nil {
+			return err
+		}
+		bldr := primitivebuilder.NewInsert(
+			pgb.planGraph,
+			handlerCtx,
+			node,
+			tbl,
+			selectPrimitiveNode,
+			primitiveGenerator.GetPrimitiveComposer().GetCommentDirectives(),
+			primitiveGenerator.GetPrimitiveComposer().IsAwait(),
+		)
+		err = bldr.Build()
+		if err != nil {
+			return err
+		}
 		return nil
 	} else {
 		pr := primitive.NewHTTPRestPrimitive(nil, nil, nil, nil)
@@ -572,23 +607,33 @@ func (pgb *planGraphBuilder) handleUpdate(pbi planbuilderinput.PlanBuilderInput)
 			// TODO: support dynamic content
 			return fmt.Errorf("update does not currently support dynamic content")
 		} else {
-			selectPrimitive, err = primitiveGenerator.UpdateableValsExecutor(handlerCtx, insertValOnlyRows)
+			selectPrimitive, err = primitivebuilder.NewUpdateableValsPrimitive(handlerCtx, insertValOnlyRows)
 			if err != nil {
 				return err
 			}
 			sn := pgb.planGraph.CreatePrimitiveNode(selectPrimitive)
 			selectPrimitiveNode = &sn
 		}
-		pr, err := primitiveGenerator.InsertExecutor(handlerCtx, node, util.DefaultRowSort)
-		if err != nil {
-			return err
-		}
 		if selectPrimitiveNode == nil {
 			return fmt.Errorf("nil selection for insert -- cannot work")
 		}
-		pr.SetInputAlias("", selectPrimitiveNode.ID())
-		prNode := pgb.planGraph.CreatePrimitiveNode(pr)
-		pgb.planGraph.NewDependency(*selectPrimitiveNode, prNode, 1.0)
+		tbl, err := primitiveGenerator.GetPrimitiveComposer().GetTable(node)
+		if err != nil {
+			return err
+		}
+		bldr := primitivebuilder.NewInsert(
+			pgb.planGraph,
+			handlerCtx,
+			node,
+			tbl,
+			selectPrimitiveNode,
+			primitiveGenerator.GetPrimitiveComposer().GetCommentDirectives(),
+			primitiveGenerator.GetPrimitiveComposer().IsAwait(),
+		)
+		err = bldr.Build()
+		if err != nil {
+			return err
+		}
 		return nil
 	} else {
 		pr := primitive.NewHTTPRestPrimitive(nil, nil, nil, nil)
@@ -609,7 +654,27 @@ func (pgb *planGraphBuilder) handleExec(pbi planbuilderinput.PlanBuilderInput) e
 		if err != nil {
 			return err
 		}
-		_, err = primitiveGenerator.ExecExecutor(handlerCtx, node)
+		//
+		if primitiveGenerator.IsShowResults() && primitiveGenerator.GetPrimitiveComposer().GetBuilder() != nil {
+			err := primitiveGenerator.GetPrimitiveComposer().GetBuilder().Build()
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+		tbl, err := primitiveGenerator.GetPrimitiveComposer().GetTable(node)
+		if err != nil {
+			return err
+		}
+		bldr := primitivebuilder.NewExec(
+			primitiveGenerator.GetPrimitiveComposer().GetGraph(),
+			handlerCtx,
+			node,
+			tbl,
+			primitiveGenerator.GetPrimitiveComposer().IsAwait(),
+			primitiveGenerator.IsShowResults(),
+		)
+		err = bldr.Build()
 		if err != nil {
 			return err
 		}
@@ -632,20 +697,39 @@ func (pgb *planGraphBuilder) handleShow(pbi planbuilderinput.PlanBuilderInput) e
 		return err
 	}
 	nodeTypeUpper := strings.ToUpper(node.Type)
+	var tbl tablemetadata.ExtendedTableMetadata
 	switch nodeTypeUpper {
 	case "TRANSACTION_ISOLATION_LEVEL":
-		builder := primitiveGenerator.PrimitiveComposer.GetBuilder()
+		builder := primitiveGenerator.GetPrimitiveComposer().GetBuilder()
 		_, isNativeSelect := builder.(*primitivebuilder.NativeSelect)
 		if isNativeSelect {
 			err := builder.Build()
 			return err
 		}
 		return fmt.Errorf("improper usage of 'show transaction isolation level'")
+	case "INSERT":
+		tbl, err = primitiveGenerator.GetPrimitiveComposer().GetTable(node)
+		if err != nil {
+			return err
+		}
+	case "METHODS":
+		tbl, err = primitiveGenerator.GetPrimitiveComposer().GetTable(node.OnTable)
+		if err != nil {
+			// TODO: fix this for readability
+		}
 	}
+	prov := primitiveGenerator.GetPrimitiveComposer().GetProvider()
 	pr := primitive.NewMetaDataPrimitive(
-		primitiveGenerator.PrimitiveComposer.GetProvider(),
+		prov,
 		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
-			return primitiveGenerator.ShowInstructionExecutor(node, handlerCtx)
+			return primitivebuilder.NewShowInstructionExecutor(
+				node,
+				prov,
+				tbl,
+				handlerCtx,
+				primitiveGenerator.GetPrimitiveComposer().GetCommentDirectives(),
+				primitiveGenerator.GetPrimitiveComposer().GetTableFilter(),
+			)
 		})
 	pgb.planGraph.CreatePrimitiveNode(pr)
 	return nil
@@ -677,7 +761,7 @@ func (pgb *planGraphBuilder) handleUse(pbi planbuilderinput.PlanBuilderInput) er
 		return err
 	}
 	pr := primitive.NewMetaDataPrimitive(
-		primitiveGenerator.PrimitiveComposer.GetProvider(),
+		primitiveGenerator.GetPrimitiveComposer().GetProvider(),
 		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 			handlerCtx.SetCurrentProvider(node.DBName.GetRawVal())
 			return internaldto.NewExecutorOutput(nil, nil, nil, nil, nil)

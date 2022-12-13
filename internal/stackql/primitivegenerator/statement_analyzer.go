@@ -621,8 +621,7 @@ func (p *standardPrimitiveGenerator) AnalyzeNop(pbi planbuilderinput.PlanBuilder
 			handlerCtx.GetSQLEngine(),
 		),
 	)
-	err := p.PrimitiveComposer.GetBuilder().Build()
-	return err
+	return nil
 }
 
 func (p *standardPrimitiveGenerator) analyzeExec(pbi planbuilderinput.PlanBuilderInput) error {

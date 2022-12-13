@@ -49,10 +49,6 @@ func (p *standardPrimitiveGenerator) assembleUnarySelectionBuilder(
 	if err != nil {
 		return err
 	}
-	// tableDTO, err := p.PrimitiveComposer.GetDRMConfig().GetCurrentTable(hIds, handlerCtx.GetSQLEngine())
-	// if err != nil {
-	// 	return err
-	// }
 	ctrs := pbi.GetTxnCtrlCtrs()
 	insPsc, err := p.PrimitiveComposer.GetDRMConfig().GenerateInsertDML(annotatedInsertTabulation, method, ctrs)
 	if err != nil {
