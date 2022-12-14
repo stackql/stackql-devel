@@ -39,6 +39,7 @@ type PrimitiveGenerator interface {
 	AnalyzeSelectStatement(pbi planbuilderinput.PlanBuilderInput) error
 	AnalyzeStatement(pbi planbuilderinput.PlanBuilderInput) error
 	AnalyzeUnaryExec(pbi planbuilderinput.PlanBuilderInput, handlerCtx handler.HandlerContext, node *sqlparser.Exec, selectNode *sqlparser.Select, cols []parserutil.ColumnHandle) (tablemetadata.ExtendedTableMetadata, error)
+	CreateIndirectPrimitiveGenerator(ast sqlparser.SQLNode, handlerCtx handler.HandlerContext) PrimitiveGenerator
 	GetPrimitiveComposer() primitivecomposer.PrimitiveComposer
 	IsShowResults() bool
 }
@@ -46,6 +47,7 @@ type PrimitiveGenerator interface {
 type standardPrimitiveGenerator struct {
 	Parent            PrimitiveGenerator
 	Children          []PrimitiveGenerator
+	indirects         []PrimitiveGenerator
 	PrimitiveComposer primitivecomposer.PrimitiveComposer
 }
 
@@ -59,6 +61,12 @@ func NewRootPrimitiveGenerator(ast sqlparser.SQLNode, handlerCtx handler.Handler
 
 func (pb *standardPrimitiveGenerator) GetPrimitiveComposer() primitivecomposer.PrimitiveComposer {
 	return pb.PrimitiveComposer
+}
+
+func (pb *standardPrimitiveGenerator) CreateIndirectPrimitiveGenerator(ast sqlparser.SQLNode, handlerCtx handler.HandlerContext) PrimitiveGenerator {
+	rv := NewRootPrimitiveGenerator(ast, handlerCtx, pb.PrimitiveComposer.GetGraph())
+	pb.indirects = append(pb.indirects, rv)
+	return rv
 }
 
 func (pb *standardPrimitiveGenerator) AddChildPrimitiveGenerator(ast sqlparser.SQLNode, leaf symtab.SymTab) PrimitiveGenerator {

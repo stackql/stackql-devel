@@ -658,6 +658,11 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 				return nil
 			}
 			// TODO: analyze select
+			indirectPrimitiveGenerator := v.primitiveGenerator.CreateIndirectPrimitiveGenerator(indirect.GetSelectAST(), v.handlerCtx)
+			err = indirectPrimitiveGenerator.AnalyzeSelectStatement(childAnalyzer.GetPlanBuilderInput())
+			if err != nil {
+				return err
+			}
 			v.annotatedAST.SetIndirect(node, indirect)
 		}
 		return nil
