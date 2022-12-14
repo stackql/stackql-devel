@@ -435,6 +435,9 @@ func (pb *standardPrimitiveGenerator) analyzeWhere(where *sqlparser.Where, exist
 	optionalParameters := suffix.NewParameterSuffixMap()
 	tbVisited := map[tablemetadata.ExtendedTableMetadata]struct{}{}
 	for _, tb := range pb.PrimitiveComposer.GetTables() {
+		if _, isView := tb.GetView(); isView {
+			continue
+		}
 		if _, ok := tbVisited[tb]; ok {
 			continue
 		}
@@ -800,7 +803,8 @@ func (p *standardPrimitiveGenerator) expandTable(tbl tablemetadata.ExtendedTable
 		// TODO: add view columns into symtab
 
 		logging.GetLogger().Debugf("viewAST = %v\n", viewAST)
-		return fmt.Errorf("error analyzing from clause: views not yet supported")
+		return nil
+		// return fmt.Errorf("error analyzing from clause: views not yet supported")
 	}
 	// TODO: encapsulate the mapping of openapi schemas to symbol table entries.
 	//   - This operates atop DRM.
