@@ -7,6 +7,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/planbuilderinput"
+	"github.com/stackql/stackql/internal/stackql/primitivegenerator"
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
@@ -40,8 +41,10 @@ var (
 	_ InitialPassesScreenerAnalyzer = &standardInitialPasses{}
 )
 
-func NewEarlyScreenerAnalyzer() (InitialPassesScreenerAnalyzer, error) {
-	return &standardInitialPasses{}, nil
+func NewEarlyScreenerAnalyzer(primitiveGenerator primitivegenerator.PrimitiveGenerator) (InitialPassesScreenerAnalyzer, error) {
+	return &standardInitialPasses{
+		primitiveGenerator: primitiveGenerator,
+	}, nil
 }
 
 type standardInitialPasses struct {
@@ -49,6 +52,7 @@ type standardInitialPasses struct {
 	isCacheExemptMaterialDetected bool
 	planBuilderInput              planbuilderinput.PlanBuilderInput
 	result                        *sqlparser.RewriteASTResult
+	primitiveGenerator            primitivegenerator.PrimitiveGenerator
 }
 
 func (sp *standardInitialPasses) GetInstructionType() InstructionType {
@@ -107,7 +111,7 @@ func (sp *standardInitialPasses) initialPasses(statement sqlparser.Statement, ha
 	}
 
 	// First pass AST analysis; annotate and expand AST for indirects (views).
-	astExpandVisitor, err := newIndirectExpandAstVisitor(handlerCtx, annotatedAST, handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection(), tcc)
+	astExpandVisitor, err := newIndirectExpandAstVisitor(handlerCtx, annotatedAST, sp.primitiveGenerator, handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection(), tcc)
 	if err != nil {
 		return err
 	}

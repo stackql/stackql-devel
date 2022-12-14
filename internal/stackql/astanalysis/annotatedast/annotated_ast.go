@@ -8,6 +8,7 @@ import (
 type AnnotatedAst interface {
 	GetAST() sqlparser.Statement
 	GetIndirect(sqlparser.SQLNode) (astindirect.Indirect, bool)
+	GetIndirects() map[string]astindirect.Indirect
 	SetIndirect(node sqlparser.SQLNode, indirect astindirect.Indirect)
 }
 
@@ -28,6 +29,10 @@ func (aa *standardAnnotatedAst) GetIndirect(node sqlparser.SQLNode) (astindirect
 	default:
 		return nil, false
 	}
+}
+
+func (aa *standardAnnotatedAst) GetIndirects() map[string]astindirect.Indirect {
+	return aa.tableIndirects
 }
 
 func (aa *standardAnnotatedAst) SetIndirect(node sqlparser.SQLNode, indirect astindirect.Indirect) {

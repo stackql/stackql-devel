@@ -45,6 +45,10 @@ func (v *view) GetType() IndirectType {
 	return ViewType
 }
 
+func (v *view) GetTables() sqlparser.TableExprs {
+	return nil
+}
+
 func (v *view) getAST() (sqlparser.Statement, error) {
 	return parse.ParseQuery(v.viewDTO.GetRawQuery())
 }
@@ -56,6 +60,14 @@ func (v *view) GetSelectAST() sqlparser.SelectStatement {
 func (v *view) GetSelectionCtx() (drm.PreparedStatementCtx, error) {
 	return v.selCtx, nil
 }
+
+// func (v *view) SetPlanBuilderInput(planBuilderInput planbuilderinput.PlanBuilderInput) {
+// 	v.planBuilderInput = planBuilderInput
+// }
+
+// func (v *view) GetPlanBuilderInput() (planbuilderinput.PlanBuilderInput, bool) {
+// 	return v.planBuilderInput, v.planBuilderInput != nil
+// }
 
 func (v *view) Analyze() error {
 
