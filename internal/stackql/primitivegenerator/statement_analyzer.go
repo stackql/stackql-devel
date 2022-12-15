@@ -803,8 +803,8 @@ func (p *standardPrimitiveGenerator) expandTable(tbl tablemetadata.ExtendedTable
 		// TODO: add view columns into symtab
 
 		logging.GetLogger().Debugf("viewAST = %v\n", viewAST)
-		return nil
-		// return fmt.Errorf("error analyzing from clause: views not yet supported")
+		// return nil
+		return fmt.Errorf("error analyzing from clause: views not yet supported")
 	}
 	// TODO: encapsulate the mapping of openapi schemas to symbol table entries.
 	//   - This operates atop DRM.
