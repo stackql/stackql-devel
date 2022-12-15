@@ -38,6 +38,7 @@ func newPostgresDialect(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeStr
 			"object":  internaldto.NewDRMCoupling("text", reflect.Map),
 			"string":  internaldto.NewDRMCoupling("text", reflect.String),
 			"number":  internaldto.NewDRMCoupling("numeric", reflect.Float64),
+			"numeric": internaldto.NewDRMCoupling("numeric", reflect.Float64),
 		},
 		controlAttributes:            controlAttributes,
 		analyticsNamespaceLikeString: analyticsNamespaceLikeString,
@@ -794,6 +795,9 @@ func (se *postgresDialect) getCurrentTable(tableHeirarchyIDs internaldto.Heirarc
 	tableNameStump, err := se.getTableNameStump(tableHeirarchyIDs)
 	if err != nil {
 		return internaldto.NewDBTable("", "", "", 0, tableHeirarchyIDs), err
+	}
+	if _, isView := tableHeirarchyIDs.GetView(); isView {
+		return internaldto.NewDBTable(tableNameStump, tableNameStump, tableHeirarchyIDs.GetTableName(), discoID, tableHeirarchyIDs), nil
 	}
 	tableNamePattern := fmt.Sprintf("%s.generation_%%", tableNameStump)
 	tableNameLHSRemove := fmt.Sprintf("%s.generation_", tableNameStump)

@@ -1,20 +1,18 @@
 package sqlrewrite
 
 import (
-	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
-	"vitess.io/vitess/go/vt/sqlparser"
 )
 
 type SQLRewriteInput interface {
 	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
 	GetDRMConfig() drm.DRMConfig
-	GetColumnDescriptors() []openapistackql.ColumnDescriptor
+	GetColumnDescriptors() []relationaldto.RelationalColumn
 	GetBaseControlCounters() internaldto.TxnControlCounters
 	GetFromString() string
 	GetSelectSuffix() string
@@ -26,7 +24,7 @@ type SQLRewriteInput interface {
 
 type StandardSQLRewriteInput struct {
 	dc                       drm.DRMConfig
-	columnDescriptors        []openapistackql.ColumnDescriptor
+	columnDescriptors        []relationaldto.RelationalColumn
 	baseControlCounters      internaldto.TxnControlCounters
 	selectSuffix             string
 	rewrittenWhere           string
@@ -39,7 +37,7 @@ type StandardSQLRewriteInput struct {
 
 func NewStandardSQLRewriteInput(
 	dc drm.DRMConfig,
-	columnDescriptors []openapistackql.ColumnDescriptor,
+	columnDescriptors []relationaldto.RelationalColumn,
 	baseControlCounters internaldto.TxnControlCounters,
 	selectSuffix string,
 	rewrittenWhere string,
@@ -71,7 +69,7 @@ func (ri *StandardSQLRewriteInput) GetNamespaceCollection() tablenamespace.Table
 	return ri.namespaceCollection
 }
 
-func (ri *StandardSQLRewriteInput) GetColumnDescriptors() []openapistackql.ColumnDescriptor {
+func (ri *StandardSQLRewriteInput) GetColumnDescriptors() []relationaldto.RelationalColumn {
 	return ri.columnDescriptors
 }
 
@@ -114,18 +112,8 @@ func GenerateSelectDML(input SQLRewriteInput) (drm.PreparedStatementCtx, error) 
 	var relationalColumns []relationaldto.RelationalColumn
 	var tableAliases []string
 	for _, col := range cols {
-		var typeStr string
-		if col.Schema != nil {
-			typeStr = dc.GetRelationalType(col.Schema.Type)
-		} else {
-			if col.Val != nil {
-				switch col.Val.Type {
-				case sqlparser.BitVal:
-				}
-			}
-		}
-		relationalColumn := relationaldto.NewRelationalColumn(col.Name, typeStr).WithQualifier(col.Qualifier).WithAlias(col.Alias).WithDecorated(col.DecoratedCol).WithParserNode(col.Node)
-		columns = append(columns, drm.NewColDescriptor(col, typeStr))
+		relationalColumn := col
+		columns = append(columns, drm.NewRelayedColDescriptor(relationalColumn, relationalColumn.GetType()))
 		// TODO: Need a way to handle postgres differences. This is a fragile point
 		relationalColumns = append(relationalColumns, relationalColumn)
 	}
