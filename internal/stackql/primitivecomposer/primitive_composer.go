@@ -57,6 +57,7 @@ type PrimitiveComposer interface {
 	SetColumnOrder(co []parserutil.ColumnHandle)
 	SetColVisited(colname string, isVisited bool)
 	SetCommentDirectives(dirs sqlparser.CommentDirectives)
+	SetDataflowDependent(val PrimitiveComposer)
 	SetInsertPreparedStatementCtx(ctx drm.PreparedStatementCtx)
 	SetInsertValOnlyRows(m map[int]map[int]interface{})
 	SetLikeAbleColumns(cols []string)
@@ -78,6 +79,8 @@ type standardPrimitiveComposer struct {
 	children []PrimitiveComposer
 
 	indirects []PrimitiveComposer
+
+	dataflowDependent PrimitiveComposer
 
 	await bool
 
@@ -158,6 +161,10 @@ func (pb *standardPrimitiveComposer) AddChild(val PrimitiveComposer) {
 
 func (pb *standardPrimitiveComposer) AddIndirect(val PrimitiveComposer) {
 	pb.indirects = append(pb.indirects, val)
+}
+
+func (pb *standardPrimitiveComposer) SetDataflowDependent(val PrimitiveComposer) {
+	pb.dataflowDependent = val
 }
 
 func (pb *standardPrimitiveComposer) GetSymbol(k interface{}) (symtab.SymTabEntry, error) {

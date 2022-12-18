@@ -170,6 +170,7 @@ func (p *standardPrimitiveGenerator) AnalyzeSelectStatement(pbi planbuilderinput
 	case *sqlparser.Select:
 		return p.analyzeSelect(pbi)
 	case *sqlparser.ParenSelect:
+		// TODO: convert pbi to publish select
 		return p.AnalyzeSelectStatement(pbi)
 	case *sqlparser.Union:
 		return p.analyzeUnion(pbi)
@@ -397,36 +398,6 @@ func (pb *standardPrimitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sq
 		Operator: expr.Operator,
 		Escape:   expr.Escape,
 	}, colName, nil
-}
-
-func (pb *standardPrimitiveGenerator) resolveMethods(where *sqlparser.Where) error {
-	requiredParameters := suffix.NewParameterSuffixMap()
-	// remainingRequiredParameters := suffix.NewParameterSuffixMap()
-	optionalParameters := suffix.NewParameterSuffixMap()
-	for _, tb := range pb.PrimitiveComposer.GetTables() {
-		tbID := tb.GetUniqueId()
-		method, err := tb.GetMethod()
-		if err != nil {
-			return err
-		}
-		for k, v := range method.GetRequiredParameters() {
-			key := fmt.Sprintf("%s.%s", tbID, k)
-			_, keyExists := requiredParameters.Get(key)
-			if keyExists {
-				return fmt.Errorf("key already is required: %s", k)
-			}
-			requiredParameters.Put(key, v)
-		}
-		for k, vOpt := range method.GetOptionalParameters() {
-			key := fmt.Sprintf("%s.%s", tbID, k)
-			_, keyExists := optionalParameters.Get(key)
-			if keyExists {
-				return fmt.Errorf("key already is optional: %s", k)
-			}
-			optionalParameters.Put(key, vOpt)
-		}
-	}
-	return nil
 }
 
 func (pb *standardPrimitiveGenerator) analyzeWhere(where *sqlparser.Where, existingParams map[string]interface{}) (*sqlparser.Where, []string, error) {
