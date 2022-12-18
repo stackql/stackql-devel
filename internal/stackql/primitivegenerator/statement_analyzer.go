@@ -406,7 +406,7 @@ func (pb *standardPrimitiveGenerator) analyzeWhere(where *sqlparser.Where, exist
 	optionalParameters := suffix.NewParameterSuffixMap()
 	tbVisited := map[tablemetadata.ExtendedTableMetadata]struct{}{}
 	for _, tb := range pb.PrimitiveComposer.GetTables() {
-		if _, isView := tb.GetView(); isView {
+		if _, isView := tb.GetIndirect(); isView {
 			continue
 		}
 		if _, ok := tbVisited[tb]; ok {
@@ -414,12 +414,8 @@ func (pb *standardPrimitiveGenerator) analyzeWhere(where *sqlparser.Where, exist
 		}
 		tbVisited[tb] = struct{}{}
 		tbID := tb.GetUniqueId()
-		method, err := tb.GetMethod()
-		if err != nil {
-			return nil, nil, err
-		}
 		// This method needs to incorporate request body parameters
-		reqParams := method.GetRequiredParameters()
+		reqParams := tb.GetRequiredParameters()
 		for k, v := range reqParams {
 			key := fmt.Sprintf("%s.%s", tbID, k)
 			_, keyExists := requiredParameters.Get(key)
@@ -429,7 +425,7 @@ func (pb *standardPrimitiveGenerator) analyzeWhere(where *sqlparser.Where, exist
 			requiredParameters.Put(key, v)
 		}
 		// This method needs to incorporate request body parameters
-		for k, vOpt := range method.GetOptionalParameters() {
+		for k, vOpt := range tb.GetOptionalParameters() {
 			key := fmt.Sprintf("%s.%s", tbID, k)
 			_, keyExists := optionalParameters.Get(key)
 			if keyExists {
