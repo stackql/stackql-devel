@@ -698,6 +698,19 @@ Basic View Returns Results
     ...    SELECT * FROM stackql_repositories ;
     ...    dummyapp.io
 
+Basic View of Union Returns Results
+    Pass Execution If    "${SQL_BACKEND}" == "postgres_tcp"    TODO: FIX THIS... Skipping postgres backend test likely due to case sensitivity and incorrect XML property aliasing
+    Should Stackql Exec Inline Contain
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    select aws_region, VolumeId, Encrypted, Size from aws_ec2_all_volumes ;
+    ...    sa\-east\-1
+
 Weird ID WSL bug query
     # ID cannot be handled as integer on WSL
     Should Horrid Query StackQL Inline Equal
