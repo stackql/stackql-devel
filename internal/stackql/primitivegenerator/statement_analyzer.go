@@ -123,6 +123,7 @@ func (p *standardPrimitiveGenerator) analyzeUnion(pbi planbuilderinput.PlanBuild
 	pChild := p.AddChildPrimitiveGenerator(node.FirstStatement, leaf)
 	counters := pbi.GetTxnCtrlCtrs()
 	sPbi, err := planbuilderinput.NewPlanBuilderInput(pbi.GetAnnotatedAST(), handlerCtx, node.FirstStatement, nil, nil, nil, nil, nil, counters)
+	sPbi.SetIsTccSetAheadOfTime(true)
 	if err != nil {
 		return err
 	}
@@ -133,10 +134,13 @@ func (p *standardPrimitiveGenerator) analyzeUnion(pbi planbuilderinput.PlanBuild
 	var selectStatementContexts []drm.PreparedStatementCtx
 
 	ctx := pChild.GetPrimitiveComposer().GetSelectPreparedStatementCtx()
+	ctx.SetGCCtrlCtrs(counters)
 	selectStatementContexts = append(selectStatementContexts, ctx)
 
 	unionNonControlColumns := pChild.GetPrimitiveComposer().GetSelectPreparedStatementCtx().GetNonControlColumns()
 	unionSelectCtx := drm.NewQueryOnlyPreparedStatementCtx(unionQuery, unionNonControlColumns)
+
+	ctrClone := counters.Clone()
 
 	for _, rhsStmt := range node.UnionSelects {
 		i++
@@ -145,17 +149,19 @@ func (p *standardPrimitiveGenerator) analyzeUnion(pbi planbuilderinput.PlanBuild
 			return err
 		}
 		pChild := p.AddChildPrimitiveGenerator(rhsStmt.Statement, leaf)
-		ctrClone := counters.CloneAndIncrementInsertID()
+		ctrClone = ctrClone.CloneAndIncrementInsertID()
 		sPbi, err := planbuilderinput.NewPlanBuilderInput(pbi.GetAnnotatedAST(), handlerCtx, rhsStmt.Statement, nil, nil, nil, nil, nil, ctrClone)
 		if err != nil {
 			return err
 		}
+		sPbi.SetIsTccSetAheadOfTime(true)
 		err = pChild.AnalyzeSelectStatement(sPbi)
 		if err != nil {
 			return err
 		}
 		ctx := pChild.GetPrimitiveComposer().GetSelectPreparedStatementCtx()
 		ctx.SetKind(rhsStmt.Type)
+		ctx.SetGCCtrlCtrs(ctrClone)
 		selectStatementContexts = append(selectStatementContexts, ctx)
 		// unionSelectCtx
 	}

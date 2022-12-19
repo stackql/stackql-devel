@@ -53,6 +53,7 @@ type PrimitiveComposer interface {
 	GetValOnlyColKeys() []int
 	GetWhere() *sqlparser.Where
 	IsAwait() bool
+	IsTccSetAheadOfTime() bool
 	NewChildPrimitiveComposer(ast sqlparser.SQLNode) PrimitiveComposer
 	SetAwait(await bool)
 	SetBuilder(builder primitivebuilder.Builder)
@@ -62,6 +63,7 @@ type PrimitiveComposer interface {
 	SetDataflowDependent(val PrimitiveComposer)
 	SetInsertPreparedStatementCtx(ctx drm.PreparedStatementCtx)
 	SetInsertValOnlyRows(m map[int]map[int]interface{})
+	SetIsTccSetAheadOfTime(bool)
 	SetLikeAbleColumns(cols []string)
 	SetProvider(prov provider.IProvider)
 	SetRoot(root primitivegraph.PrimitiveNode)
@@ -132,6 +134,8 @@ type standardPrimitiveComposer struct {
 	formatter sqlparser.NodeFormatter
 
 	unionNonControlColumns []drm.ColumnMetadata
+
+	tccSetAheadOfTime bool
 }
 
 func (pb *standardPrimitiveComposer) GetNonControlColumns() []drm.ColumnMetadata {
@@ -147,6 +151,14 @@ func (pb *standardPrimitiveComposer) SetUnionNonControlColumns(unionNonControlCo
 
 func (pb *standardPrimitiveComposer) ShouldCollectGarbage() bool {
 	return pb.parent == nil
+}
+
+func (pb *standardPrimitiveComposer) IsTccSetAheadOfTime() bool {
+	return pb.tccSetAheadOfTime
+}
+
+func (pb *standardPrimitiveComposer) SetIsTccSetAheadOfTime(tccSetAheadOfTime bool) {
+	pb.tccSetAheadOfTime = tccSetAheadOfTime
 }
 
 func (pb *standardPrimitiveComposer) SetTxnCtrlCtrs(tc internaldto.TxnControlCounters) {

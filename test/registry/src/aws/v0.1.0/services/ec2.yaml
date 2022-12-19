@@ -34,7 +34,7 @@ externalDocs:
   description: Amazon Web Services documentation
   url: 'https://docs.aws.amazon.com/ec2/'
 servers:
-  - url: 'https://{region}.ec2.amazonaws.com'
+  - url: 'https://ec2.{region}.amazonaws.com'
     variables:
       region:
         description: The AWS region

@@ -41,6 +41,8 @@ type PlanBuilderInput interface {
 	GetUnion() (*sqlparser.Union, bool)
 	GetUpdate() (*sqlparser.Update, bool)
 	GetUse() (*sqlparser.Use, bool)
+	IsTccSetAheadOfTime() bool
+	SetIsTccSetAheadOfTime(bool)
 
 	WithParameterRouter(router.ParameterRouter) PlanBuilderInput
 	WithTableRouteVisitor(tableRouteVisitor router.TableRouteAstVisitor) PlanBuilderInput
@@ -60,6 +62,7 @@ type StandardPlanBuilderInput struct {
 	tableRouteVisitor      router.TableRouteAstVisitor
 	onConditionDataFlows   dataflow.DataFlowCollection
 	onConditionsToRewrite  map[*sqlparser.ComparisonExpr]struct{}
+	tccSetAheadOfTime      bool
 }
 
 func NewPlanBuilderInput(
@@ -134,6 +137,14 @@ func (pbi *StandardPlanBuilderInput) Clone() PlanBuilderInput {
 
 func (pbi *StandardPlanBuilderInput) GetOnConditionsToRewrite() map[*sqlparser.ComparisonExpr]struct{} {
 	return pbi.onConditionsToRewrite
+}
+
+func (pbi *StandardPlanBuilderInput) IsTccSetAheadOfTime() bool {
+	return pbi.tccSetAheadOfTime
+}
+
+func (pbi *StandardPlanBuilderInput) SetIsTccSetAheadOfTime(tccSetAheadOfTime bool) {
+	pbi.tccSetAheadOfTime = tccSetAheadOfTime
 }
 
 func (pbi *StandardPlanBuilderInput) GetOnConditionDataFlows() (dataflow.DataFlowCollection, bool) {

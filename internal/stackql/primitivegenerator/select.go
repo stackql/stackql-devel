@@ -126,6 +126,7 @@ func (p *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBuil
 		switch ft := node.From[0].(type) {
 		case *sqlparser.JoinTableExpr, *sqlparser.AliasedTableExpr:
 			tcc := pbi.GetTxnCtrlCtrs()
+			tccAheadOfTime := pbi.IsTccSetAheadOfTime()
 			dp, err := dependencyplanner.NewStandardDependencyPlanner(
 				annotatedAST,
 				handlerCtx,
@@ -136,6 +137,7 @@ func (p *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBuil
 				tblz,
 				p.PrimitiveComposer,
 				tcc,
+				tccAheadOfTime,
 			)
 			if err != nil {
 				return err
