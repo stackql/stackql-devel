@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/iqlutil"
 	"github.com/stackql/stackql/internal/stackql/logging"
@@ -40,6 +41,7 @@ type PrimitiveGenerator interface {
 	AnalyzeStatement(pbi planbuilderinput.PlanBuilderInput) error
 	AnalyzeUnaryExec(pbi planbuilderinput.PlanBuilderInput, handlerCtx handler.HandlerContext, node *sqlparser.Exec, selectNode *sqlparser.Select, cols []parserutil.ColumnHandle) (tablemetadata.ExtendedTableMetadata, error)
 	CreateIndirectPrimitiveGenerator(ast sqlparser.SQLNode, handlerCtx handler.HandlerContext) PrimitiveGenerator
+	GetNonControlColumns() []drm.ColumnMetadata
 	GetPrimitiveComposer() primitivecomposer.PrimitiveComposer
 	WithDataFlowDependentPrimitiveGenerator(PrimitiveGenerator) PrimitiveGenerator
 	IsShowResults() bool
@@ -59,6 +61,13 @@ func NewRootPrimitiveGenerator(ast sqlparser.SQLNode, handlerCtx handler.Handler
 	return &standardPrimitiveGenerator{
 		PrimitiveComposer: primitivecomposer.NewPrimitiveComposer(nil, ast, handlerCtx.GetDrmConfig(), handlerCtx.GetTxnCounterMgr(), graph, tblMap, symTab, handlerCtx.GetSQLEngine(), handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter()),
 	}
+}
+
+func (pb *standardPrimitiveGenerator) GetNonControlColumns() []drm.ColumnMetadata {
+	if pb.GetPrimitiveComposer() != nil {
+		return pb.GetPrimitiveComposer().GetNonControlColumns()
+	}
+	return nil
 }
 
 func (pb *standardPrimitiveGenerator) WithDataFlowDependentPrimitiveGenerator(dependent PrimitiveGenerator) PrimitiveGenerator {

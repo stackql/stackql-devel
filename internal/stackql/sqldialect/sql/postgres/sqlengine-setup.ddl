@@ -107,3 +107,38 @@ VALUES (
 ON CONFLICT (view_name) DO NOTHING
 ;
 
+INSERT INTO "__iql__.views" (
+  view_name,
+  view_ddl
+) 
+VALUES (
+  'aws_ec2_all_volumes',
+  'select 
+    ''ap-southeast-2'' AS region, 
+    VolumeId, 
+    Encrypted, 
+    Size
+  from aws.ec2.volumes 
+  where region = ''ap-southeast-2'' 
+  UNION ALL 
+  SELECT 
+    ''ap-southeast-1'' AS region, 
+    VolumeId, 
+    Encrypted, 
+    Size 
+  from aws.ec2.volumes 
+  where region = ''ap-southeast-1'' 
+  UNION ALL 
+  SELECT 
+    ''ap-northeast-1'' AS region, 
+    VolumeId, 
+    Encrypted, 
+    Size 
+  FROM aws.ec2.volumes 
+  where region = ''ap-northeast-1''  
+  order by Size asc'
+)
+ON CONFLICT (view_name) DO NOTHING
+;
+
+

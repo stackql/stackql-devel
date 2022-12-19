@@ -43,3 +43,8 @@ Some aspects of subquery analysis and execution will be similar to views, but no
 To be continued...
 
 
+## Some example views
+
+```sql
+select 'ap-southeast-2' AS region, VolumeId, Encrypted, Size from aws.ec2.volumes where region = 'ap-southeast-2' UNION ALL SELECT 'ap-southeast-1' AS region, VolumeId, Encrypted, Size from aws.ec2.volumes where region = 'ap-southeast-1' UNION ALL SELECT 'ap-northeast-1' AS region, VolumeId, Encrypted, Size from aws.ec2.volumes where region = 'ap-northeast-1'  order by Size asc ;
+```

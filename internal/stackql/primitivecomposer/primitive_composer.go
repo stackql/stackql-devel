@@ -34,10 +34,12 @@ type PrimitiveComposer interface {
 	GetInsertPreparedStatementCtx() drm.PreparedStatementCtx
 	GetInsertValOnlyRows() map[int]map[int]interface{}
 	GetLikeAbleColumns() []string
+	GetNonControlColumns() []drm.ColumnMetadata
 	GetParent() PrimitiveComposer
 	GetProvider() provider.IProvider
 	GetRoot() primitivegraph.PrimitiveNode
 	GetSelectPreparedStatementCtx() drm.PreparedStatementCtx
+	GetIndirectSelectPreparedStatementCtx() drm.PreparedStatementCtx
 	GetSQLEngine() sqlengine.SQLEngine
 	GetSQLDialect() sqldialect.SQLDialect
 	GetSymbol(k interface{}) (symtab.SymTabEntry, error)
@@ -68,6 +70,8 @@ type PrimitiveComposer interface {
 	SetTable(node sqlparser.SQLNode, table tablemetadata.ExtendedTableMetadata)
 	SetTableFilter(tableFilter func(openapistackql.ITable) (openapistackql.ITable, error))
 	SetTxnCtrlCtrs(tc internaldto.TxnControlCounters)
+	SetUnionSelectPreparedStatementCtx(ctx drm.PreparedStatementCtx)
+	SetUnionNonControlColumns([]drm.ColumnMetadata)
 	SetValOnlyCols(m map[int]map[string]interface{})
 	SetWhere(where *sqlparser.Where)
 	ShouldCollectGarbage() bool
@@ -108,10 +112,11 @@ type standardPrimitiveComposer struct {
 	txnCtrlCtrs       internaldto.TxnControlCounters
 
 	// per query -- SELECT only
-	insertValOnlyRows          map[int]map[int]interface{}
-	valOnlyCols                map[int]map[string]interface{}
-	insertPreparedStatementCtx drm.PreparedStatementCtx
-	selectPreparedStatementCtx drm.PreparedStatementCtx
+	insertValOnlyRows               map[int]map[int]interface{}
+	valOnlyCols                     map[int]map[string]interface{}
+	insertPreparedStatementCtx      drm.PreparedStatementCtx
+	selectPreparedStatementCtx      drm.PreparedStatementCtx
+	unionSelectPreparedStatementCtx drm.PreparedStatementCtx
 
 	// TODO: universally retire in favour of builder, which returns primitive.IPrimitive
 	root primitivegraph.PrimitiveNode
@@ -125,6 +130,19 @@ type standardPrimitiveComposer struct {
 	sqlDialect sqldialect.SQLDialect
 
 	formatter sqlparser.NodeFormatter
+
+	unionNonControlColumns []drm.ColumnMetadata
+}
+
+func (pb *standardPrimitiveComposer) GetNonControlColumns() []drm.ColumnMetadata {
+	if pb.GetSelectPreparedStatementCtx() != nil {
+		return pb.GetSelectPreparedStatementCtx().GetNonControlColumns()
+	}
+	return pb.unionNonControlColumns
+}
+
+func (pb *standardPrimitiveComposer) SetUnionNonControlColumns(unionNonControlColumns []drm.ColumnMetadata) {
+	pb.unionNonControlColumns = unionNonControlColumns
 }
 
 func (pb *standardPrimitiveComposer) ShouldCollectGarbage() bool {
@@ -285,7 +303,18 @@ func (pb *standardPrimitiveComposer) SetSelectPreparedStatementCtx(ctx drm.Prepa
 	pb.selectPreparedStatementCtx = ctx
 }
 
+func (pb *standardPrimitiveComposer) SetUnionSelectPreparedStatementCtx(ctx drm.PreparedStatementCtx) {
+	pb.unionSelectPreparedStatementCtx = ctx
+}
+
 func (pb *standardPrimitiveComposer) GetSelectPreparedStatementCtx() drm.PreparedStatementCtx {
+	return pb.selectPreparedStatementCtx
+}
+
+func (pb *standardPrimitiveComposer) GetIndirectSelectPreparedStatementCtx() drm.PreparedStatementCtx {
+	if pb.unionSelectPreparedStatementCtx != nil {
+		return pb.unionSelectPreparedStatementCtx
+	}
 	return pb.selectPreparedStatementCtx
 }
 

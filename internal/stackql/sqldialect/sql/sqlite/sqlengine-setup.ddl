@@ -99,3 +99,29 @@ VALUES (
 )
 ;
 
+
+INSERT OR IGNORE INTO "__iql__.views" (
+  view_name,
+  view_ddl
+) 
+VALUES (
+  'aws_ec2_all_volumes',
+  'select 
+    ''ap-southeast-2'' AS region, 
+    VolumeId, 
+    Encrypted, 
+    Size
+  from aws.ec2.volumes 
+  where region = ''ap-southeast-2'' 
+  UNION ALL 
+  SELECT 
+    ''ap-southeast-1'' AS region, 
+    VolumeId, 
+    Encrypted, 
+    Size 
+  from aws.ec2.volumes 
+  where region = ''ap-southeast-1''
+  ORDER BY Size ASC
+  ;'
+)
+;

@@ -131,6 +131,13 @@ func (p *standardPrimitiveGenerator) analyzeUnion(pbi planbuilderinput.PlanBuild
 		return err
 	}
 	var selectStatementContexts []drm.PreparedStatementCtx
+
+	ctx := pChild.GetPrimitiveComposer().GetSelectPreparedStatementCtx()
+	selectStatementContexts = append(selectStatementContexts, ctx)
+
+	unionNonControlColumns := pChild.GetPrimitiveComposer().GetSelectPreparedStatementCtx().GetNonControlColumns()
+	unionSelectCtx := drm.NewQueryOnlyPreparedStatementCtx(unionQuery, unionNonControlColumns)
+
 	for _, rhsStmt := range node.UnionSelects {
 		i++
 		leaf, err := p.PrimitiveComposer.GetSymTab().NewLeaf(i)
@@ -150,16 +157,18 @@ func (p *standardPrimitiveGenerator) analyzeUnion(pbi planbuilderinput.PlanBuild
 		ctx := pChild.GetPrimitiveComposer().GetSelectPreparedStatementCtx()
 		ctx.SetKind(rhsStmt.Type)
 		selectStatementContexts = append(selectStatementContexts, ctx)
+		// unionSelectCtx
 	}
+	unionSelectCtx.SetIndirectContexts(selectStatementContexts)
 
 	bldr := primitivebuilder.NewUnion(
 		p.PrimitiveComposer.GetGraph(),
 		handlerCtx,
-		drm.NewQueryOnlyPreparedStatementCtx(unionQuery),
-		pChild.GetPrimitiveComposer().GetSelectPreparedStatementCtx(),
-		selectStatementContexts,
+		unionSelectCtx,
 	)
 	p.PrimitiveComposer.SetBuilder(bldr)
+	// p.PrimitiveComposer.SetUnionNonControlColumns(unionNonControlColumns)
+	p.PrimitiveComposer.SetSelectPreparedStatementCtx(unionSelectCtx)
 
 	return nil
 }
