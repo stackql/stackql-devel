@@ -43,3 +43,20 @@ Some aspects of subquery analysis and execution will be similar to views, but no
 To be continued...
 
 
+```sql
+
+-- FAULTY
+SELECT Properties , JSON_EXTRACT(Properties, '$.Arn') AS \"Arn\" , JSON_EXTRACT(Properties, '$.BucketName') AS \"BucketName\" , JSON_EXTRACT(Properties, '$.DomainName') AS \"DomainName\" , JSON_EXTRACT(Properties, '$.RegionalDomainName') AS \"RegionalDomainName\" , JSON_EXTRACT(Properties, '$.DualStackDomainName') AS \"DualStackDomainName\" , JSON_EXTRACT(Properties, '$.WebsiteURL') AS \"WebsiteURL\" , JSON_EXTRACT(Properties, '$.OwnershipControls.Rules[0].ObjectOwnership') AS \"ObjectOwnership\" , iif(JSON_EXTRACT(Properties, '$.PublicAccessBlockConfiguration.RestrictPublicBuckets') = 0, 'false', 'true') AS \"RestrictPublicBuckets\" , iif(JSON_EXTRACT(Properties, '$.PublicAccessBlockConfiguration.BlockPublicPolicy') = 0, 'false', 'true') AS \"BlockPublicPolicy\" , iif(JSON_EXTRACT(Properties, '$.PublicAccessBlockConfiguration.BlockPublicAcls') = 0, 'false', 'true') AS \"BlockPublicAcls\" , iif(JSON_EXTRACT(Properties, '$.PublicAccessBlockConfiguration.IgnorePublicAcls') = 0, 'false', 'true') AS \"IgnorePublicAcls\" , JSON_EXTRACT(Properties, '$.Tags') AS \"Tags\"  FROM \"aws.cloud_control.resources.ResourceDescription.generation_1\" WHERE ( \"iql_generation_id\" = ? AND \"iql_session_id\" = ? AND \"iql_txn_id\" = ? AND \"iql_insert_id\" = ? ) AND ( 1 = 1 and 1 = 1 and 1 = 1 )
+
+
+-- OK
+
+
+
+
+
+
+SELECT 
+  Properties , 
+  JSON_EXTRACT(Properties, '$.Arn') , JSON_EXTRACT(Properties, '$.BucketName') , JSON_EXTRACT(Properties, '$.DomainName') , JSON_EXTRACT(Properties, '$.RegionalDomainName') , JSON_EXTRACT(Properties, '$.DualStackDomainName') , JSON_EXTRACT(Properties, '$.WebsiteURL') , JSON_EXTRACT(Properties, '$.OwnershipControls.Rules[0].ObjectOwnership') , iif(JSON_EXTRACT(Properties, '$.PublicAccessBlockConfiguration.RestrictPublicBuckets') = 0, 'false', 'true') , iif(JSON_EXTRACT(Properties, '$.PublicAccessBlockConfiguration.BlockPublicPolicy') = 0, 'false', 'true') , iif(JSON_EXTRACT(Properties, '$.PublicAccessBlockConfiguration.BlockPublicAcls') = 0, 'false', 'true') , iif(JSON_EXTRACT(Properties, '$.PublicAccessBlockConfiguration.IgnorePublicAcls') = 0, 'false', 'true') , JSON_EXTRACT(Properties, '$.Tags')  FROM \"aws.cloud_control.resources.ResourceDescription.generation_1\" WHERE ( \"iql_generation_id\" = ? AND \"iql_session_id\" = ? AND \"iql_txn_id\" = ? AND \"iql_insert_id\" = ? ) AND ( 1 = 1 and 1 = 1 and 1 = 1 ) 
+```

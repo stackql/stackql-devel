@@ -105,7 +105,11 @@ func (dc *staticDRMConfig) OpenapiColumnsToRelationalColumn(col openapistackql.C
 			}
 		}
 	}
-	relationalColumn := relationaldto.NewRelationalColumn(col.Name, typeStr).WithQualifier(col.Qualifier).WithAlias(col.Alias).WithDecorated(col.DecoratedCol).WithParserNode(col.Node)
+	decoratedCol := col.DecoratedCol
+	// if col.Alias != "" {
+	// 	decoratedCol = fmt.Sprintf(`%s AS "%s"`, decoratedCol, col.Alias)
+	// }
+	relationalColumn := relationaldto.NewRelationalColumn(col.Name, typeStr).WithQualifier(col.Qualifier).WithAlias(col.Alias).WithDecorated(decoratedCol).WithParserNode(col.Node)
 	if schemaExists {
 		inferredOID := getOidForSchema(col.Schema)
 		relationalColumn = relationalColumn.WithOID(inferredOID)

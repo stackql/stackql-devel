@@ -60,7 +60,7 @@ func (v *view) GetColumns() []drm.ColumnMetadata {
 
 func (v *view) GetColumnByName(name string) (drm.ColumnMetadata, bool) {
 	for _, col := range v.selCtx.GetNonControlColumns() {
-		if col.GetName() == name {
+		if col.GetIdentifier() == name {
 			return col, true
 		}
 	}
