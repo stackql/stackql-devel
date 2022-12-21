@@ -122,7 +122,7 @@ func (dc *staticDRMConfig) OpenapiColumnsToRelationalColumn(col openapistackql.C
 func (dc *staticDRMConfig) ColumnsToRelationalColumns(cols []ColumnMetadata) []relationaldto.RelationalColumn {
 	var relationalColumns []relationaldto.RelationalColumn
 	for _, col := range cols {
-		relationalColumn := relationaldto.NewRelationalColumn(col.GetName(), col.GetRelationalType()).WithAlias(col.GetIdentifier())
+		relationalColumn := relationaldto.NewRelationalColumn(col.GetIdentifier(), col.GetRelationalType()).WithAlias(col.GetIdentifier()).WithDecorated(col.GetIdentifier())
 		relationalColumns = append(relationalColumns, relationalColumn)
 	}
 	return relationalColumns

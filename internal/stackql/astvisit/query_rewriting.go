@@ -105,6 +105,7 @@ func (v *standardQueryRewriteAstVisitor) getStarColumns(
 	// }
 	if indirect, isIndirect := tbl.GetIndirect(); isIndirect {
 		rv := v.dc.ColumnsToRelationalColumns(indirect.GetColumns())
+		// rv := relationaldto.NewRelationalColumn(col.Name, r.GetType()).WithDecorated(col.DecoratedColumn)
 		return rv, nil
 	}
 	schema, _, err := tbl.GetResponseSchemaAndMediaType()

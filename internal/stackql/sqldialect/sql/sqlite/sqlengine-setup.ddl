@@ -254,7 +254,6 @@ VALUES (
   'aws_cc_bucket_detail',
   '
   SELECT 
-  Properties,
   JSON_EXTRACT(Properties, ''$.Arn'') as Arn,
   JSON_EXTRACT(Properties, ''$.BucketName'') as BucketName,
   JSON_EXTRACT(Properties, ''$.DomainName'') as DomainName,
