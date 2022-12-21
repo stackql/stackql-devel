@@ -414,6 +414,7 @@ func (pb *standardPrimitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sq
 }
 
 func (pb *standardPrimitiveGenerator) analyzeWhere(where *sqlparser.Where, existingParams map[string]interface{}) (*sqlparser.Where, []string, error) {
+	// TODO: move this logic to PrimitiveComposer object.
 	requiredParameters := suffix.NewParameterSuffixMap()
 	remainingRequiredParameters := suffix.NewParameterSuffixMap()
 	optionalParameters := suffix.NewParameterSuffixMap()
@@ -438,7 +439,8 @@ func (pb *standardPrimitiveGenerator) analyzeWhere(where *sqlparser.Where, exist
 			requiredParameters.Put(key, v)
 		}
 		// This method needs to incorporate request body parameters
-		for k, vOpt := range tb.GetOptionalParameters() {
+		tblOptParams := tb.GetOptionalParameters()
+		for k, vOpt := range tblOptParams {
 			key := fmt.Sprintf("%s.%s", tbID, k)
 			_, keyExists := optionalParameters.Get(key)
 			if keyExists {
@@ -990,7 +992,10 @@ func (p *standardPrimitiveGenerator) analyzeDelete(pbi planbuilderinput.PlanBuil
 		return fmt.Errorf("could not cast node of type '%T' to required Delete", pbi.GetStatement())
 	}
 	p.parseComments(node.Comments)
-	paramMap := astvisit.ExtractParamsFromWhereClause(pbi.GetAnnotatedAST(), node.Where)
+	paramMap, ok := pbi.GetAnnotatedAST().GetWhereParamMapsEntry(node.Where)
+	if !ok {
+		return fmt.Errorf("where parameters not found; should be anlaysed a priori")
+	}
 
 	err := p.inferHeirarchyAndPersist(handlerCtx, node, paramMap.GetStringified())
 	if err != nil {
