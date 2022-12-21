@@ -386,6 +386,7 @@ func (pr *standardParameterRouter) route(tb sqlparser.TableExpr, handlerCtx hand
 	stringParams := tpc.GetStringified()
 	notOnParams := tpc.GetNotOnCoupling()
 	notOnStringParams := notOnParams.GetStringified()
+	// TODO: add parent params into the mix here.
 	hr, remainingParams, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, tb, notOnStringParams)
 	if err != nil {
 		hr, remainingParams, err = taxonomy.GetHeirarchyFromStatement(handlerCtx, tb, stringParams)
