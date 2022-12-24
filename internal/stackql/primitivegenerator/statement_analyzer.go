@@ -838,7 +838,7 @@ func (p *standardPrimitiveGenerator) AnalyzeInsert(pbi planbuilderinput.PlanBuil
 	if !ok {
 		return fmt.Errorf("could not cast node of type '%T' to required Insert", pbi.GetStatement())
 	}
-	err := p.inferHeirarchyAndPersist(handlerCtx, node, pbi.GetPlaceholderParams().GetStringified())
+	err := p.inferHeirarchyAndPersist(handlerCtx, node, pbi.GetPlaceholderParams())
 	if err != nil {
 		return err
 	}
@@ -909,7 +909,7 @@ func (p *standardPrimitiveGenerator) AnalyzeUpdate(pbi planbuilderinput.PlanBuil
 	if !ok {
 		return fmt.Errorf("could not cast node of type '%T' to required Update", pbi.GetStatement())
 	}
-	err := p.inferHeirarchyAndPersist(handlerCtx, node, pbi.GetPlaceholderParams().GetStringified())
+	err := p.inferHeirarchyAndPersist(handlerCtx, node, pbi.GetPlaceholderParams())
 	if err != nil {
 		return err
 	}
@@ -950,8 +950,8 @@ func (p *standardPrimitiveGenerator) AnalyzeUpdate(pbi planbuilderinput.PlanBuil
 	return nil
 }
 
-func (p *standardPrimitiveGenerator) inferHeirarchyAndPersist(handlerCtx handler.HandlerContext, node sqlparser.SQLNode, parameters map[string]interface{}) error {
-	heirarchy, _, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, node, parameters)
+func (p *standardPrimitiveGenerator) inferHeirarchyAndPersist(handlerCtx handler.HandlerContext, node sqlparser.SQLNode, parameters parserutil.ColumnKeyedDatastore) error {
+	heirarchy, err := taxonomy.GetHeirarchyFromStatement(handlerCtx, node, parameters)
 	if err != nil {
 		return err
 	}
@@ -971,7 +971,7 @@ func (p *standardPrimitiveGenerator) analyzeDelete(pbi planbuilderinput.PlanBuil
 		return fmt.Errorf("where parameters not found; should be anlaysed a priori")
 	}
 
-	err := p.inferHeirarchyAndPersist(handlerCtx, node, paramMap.GetStringified())
+	err := p.inferHeirarchyAndPersist(handlerCtx, node, paramMap)
 	if err != nil {
 		return err
 	}

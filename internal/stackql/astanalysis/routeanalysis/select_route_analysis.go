@@ -140,6 +140,7 @@ func (sp *standardSelectRoutePass) RoutePass() error {
 	pbi = pbi.WithTableRouteVisitor(v)
 
 	onConditionsToRewrite := v.GetParameterRouter().GetOnConditionsToRewrite()
+	// TODO: ensure this only contains actual data flows, not normal on conitions
 	onConditionDataFlows, err := v.GetParameterRouter().GetOnConditionDataFlows()
 	if err != nil {
 		return err
