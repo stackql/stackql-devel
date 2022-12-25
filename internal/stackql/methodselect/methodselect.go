@@ -64,9 +64,9 @@ func (sel *DefaultMethodSelector) getMethodByName(resource *openapistackql.Resou
 func (sel *DefaultMethodSelector) getMethodByNameAndParameters(resource *openapistackql.Resource, methodName string, parameters parserutil.ColumnKeyedDatastore) (*openapistackql.OperationStore, error) {
 	stringifiedParams := parameters.GetStringified()
 	m, remainingParams, ok := resource.GetFirstMethodMatchFromSQLVerb(methodName, stringifiedParams)
-	parameters.AndStringMap(remainingParams)
 	if !ok {
 		return nil, fmt.Errorf("no appropriate method = '%s' for resource = '%s'", methodName, resource.Name)
 	}
+	parameters.DeleteStringMap(remainingParams)
 	return m, nil
 }

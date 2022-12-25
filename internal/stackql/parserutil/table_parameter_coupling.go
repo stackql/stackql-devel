@@ -44,6 +44,11 @@ func (tpc *standardTableParameterCoupling) AndStringMap(rhs map[string]interface
 	return tpc
 }
 
+func (tpc *standardTableParameterCoupling) DeleteStringMap(rhs map[string]interface{}) ColumnKeyedDatastore {
+	tpc.paramMap.DeleteStringMap(rhs)
+	return tpc
+}
+
 func (tpc *standardTableParameterCoupling) Clone() TableParameterCoupling {
 	colMappings := make(map[string]ColumnarReference)
 	for k, v := range tpc.colMappings {

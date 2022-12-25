@@ -7,4 +7,5 @@ type ColumnKeyedDatastore interface {
 	DeleteByString(string) bool
 	GetStringified() map[string]interface{}
 	AndStringMap(map[string]interface{}) ColumnKeyedDatastore
+	DeleteStringMap(map[string]interface{}) ColumnKeyedDatastore
 }

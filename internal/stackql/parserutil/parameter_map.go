@@ -85,6 +85,16 @@ func (pm standardParameterMap) AndStringMap(rhs map[string]interface{}) ColumnKe
 	return pm
 }
 
+func (pm standardParameterMap) DeleteStringMap(rhs map[string]interface{}) ColumnKeyedDatastore {
+	abbreviatedMap := pm.GetAbbreviatedStringified()
+	for k, _ := range abbreviatedMap {
+		if _, ok := rhs[k]; ok {
+			pm.deleteByAbbreviatedString(k)
+		}
+	}
+	return pm
+}
+
 func (pm standardParameterMap) ContainsString(s string) bool {
 	for k, _ := range pm.m {
 		if k.GetStringKey() == s {
