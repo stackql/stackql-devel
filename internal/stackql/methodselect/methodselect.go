@@ -67,6 +67,10 @@ func (sel *DefaultMethodSelector) getMethodByNameAndParameters(resource *openapi
 	if !ok {
 		return nil, fmt.Errorf("no appropriate method = '%s' for resource = '%s'", methodName, resource.Name)
 	}
+	// TODO: fix this bodge and
+	//       refactor such that:
+	//         - Server selection and variable assignment is AOT and binding
+	//         - Server selection is passed in to `Paramaterize()`
 	if resource != nil && resource.Service != nil && resource.Service.Servers != nil {
 		for _, srv := range resource.Service.Servers {
 			for k := range srv.Variables {
