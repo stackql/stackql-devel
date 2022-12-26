@@ -8,6 +8,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/astindirect"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internaldto"
+	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/primitivegenerator"
 	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
@@ -36,6 +37,7 @@ type indirectExpandAstVisitor struct {
 	handlerCtx                     handler.HandlerContext
 	tcc                            internaldto.TxnControlCounters
 	primitiveGenerator             primitivegenerator.PrimitiveGenerator
+	whereParams                    parserutil.ParameterMap
 }
 
 func newIndirectExpandAstVisitor(
@@ -45,6 +47,7 @@ func newIndirectExpandAstVisitor(
 	sqlDialect sqldialect.SQLDialect,
 	formatter sqlparser.NodeFormatter,
 	namespaceCollection tablenamespace.TableNamespaceCollection,
+	whereParams parserutil.ParameterMap,
 	tcc internaldto.TxnControlCounters,
 ) (AstExpandVisitor, error) {
 	rv := &indirectExpandAstVisitor{
@@ -55,6 +58,7 @@ func newIndirectExpandAstVisitor(
 		formatter:           formatter,
 		handlerCtx:          handlerCtx,
 		tcc:                 tcc,
+		whereParams:         whereParams,
 	}
 	return rv, nil
 }
