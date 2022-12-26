@@ -67,6 +67,13 @@ func (sel *DefaultMethodSelector) getMethodByNameAndParameters(resource *openapi
 	if !ok {
 		return nil, fmt.Errorf("no appropriate method = '%s' for resource = '%s'", methodName, resource.Name)
 	}
+	if resource != nil && resource.Service != nil && resource.Service.Servers != nil {
+		for _, srv := range resource.Service.Servers {
+			for k := range srv.Variables {
+				delete(remainingParams, k)
+			}
+		}
+	}
 	parameters.DeleteStringMap(remainingParams)
 	return m, nil
 }
