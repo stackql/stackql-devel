@@ -201,11 +201,19 @@ func GetHeirarchyFromStatement(handlerCtx handler.HandlerContext, node sqlparser
 			}
 		}
 		for _, srv := range svcHdl.Servers {
-			for k, _ := range srv.Variables {
+			for k := range srv.Variables {
 				logging.GetLogger().Debugf("server paramter = '%s'\n", k)
-				// parameters.DeleteByString(k)
+				parameters.DeleteByString(k)
 			}
 		}
+		// for _, srv := range svcHdl.Servers {
+		// 	for k, _ := range srv.Variables {
+		// 		_, ok := remainingParams[k]
+		// 		if ok {
+		// 			delete(remainingParams, k)
+		// 		}
+		// 	}
+		// }
 		method = meth
 		retVal.SetMethodStr(methStr)
 	}
