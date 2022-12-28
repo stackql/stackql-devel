@@ -54,7 +54,7 @@ type standardPrimitiveGenerator struct {
 	PrimitiveComposer primitivecomposer.PrimitiveComposer
 }
 
-func NewRootPrimitiveGenerator(ast sqlparser.SQLNode, handlerCtx handler.HandlerContext, graph *primitivegraph.PrimitiveGraph) PrimitiveGenerator {
+func NewRootPrimitiveGenerator(ast sqlparser.SQLNode, handlerCtx handler.HandlerContext, graph primitivegraph.PrimitiveGraph) PrimitiveGenerator {
 	tblMap := make(taxonomy.TblMap)
 	symTab := symtab.NewHashMapTreeSymTab()
 	return &standardPrimitiveGenerator{

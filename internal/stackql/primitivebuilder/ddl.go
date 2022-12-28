@@ -14,7 +14,7 @@ import (
 )
 
 type ddl struct {
-	graph      *primitivegraph.PrimitiveGraph
+	graph      primitivegraph.PrimitiveGraph
 	ddlObject  *sqlparser.DDL
 	handlerCtx handler.HandlerContext
 	root, tail primitivegraph.PrimitiveNode
@@ -67,7 +67,7 @@ func (un *ddl) Build() error {
 	return nil
 }
 
-func NewDDL(graph *primitivegraph.PrimitiveGraph, handlerCtx handler.HandlerContext, ddlObject *sqlparser.DDL) Builder {
+func NewDDL(graph primitivegraph.PrimitiveGraph, handlerCtx handler.HandlerContext, ddlObject *sqlparser.DDL) Builder {
 	return &ddl{
 		graph:      graph,
 		handlerCtx: handlerCtx,
