@@ -59,7 +59,7 @@ func (pgb *planGraphBuilder) createInstructionFor(pbi planbuilderinput.PlanBuild
 	case *sqlparser.DBDDL:
 		return iqlerror.GetStatementNotSupportedError(fmt.Sprintf("unsupported: Database DDL %v", sqlparser.String(stmt)))
 	case *sqlparser.DDL:
-		return iqlerror.GetStatementNotSupportedError("DDL")
+		return pgb.handleDDL(pbi)
 	case *sqlparser.Delete:
 		return pgb.handleDelete(pbi)
 	case *sqlparser.DescribeTable:
@@ -229,6 +229,24 @@ func (pgb *planGraphBuilder) handleDescribe(pbi planbuilderinput.PlanBuilderInpu
 			return primitivebuilder.NewDescribeInstructionExecutor(handlerCtx, md, extended, full)
 		})
 	pgb.planGraph.CreatePrimitiveNode(pr)
+	return nil
+}
+
+func (pgb *planGraphBuilder) handleDDL(pbi planbuilderinput.PlanBuilderInput) error {
+	handlerCtx := pbi.GetHandlerCtx()
+	node, ok := pbi.GetDDL()
+	if !ok {
+		return fmt.Errorf("could not cast node of type '%T' to required DDL", pbi.GetStatement())
+	}
+	bldr := primitivebuilder.NewDDL(
+		pgb.planGraph,
+		handlerCtx,
+		node,
+	)
+	err := bldr.Build()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

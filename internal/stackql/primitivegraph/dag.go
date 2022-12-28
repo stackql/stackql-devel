@@ -22,6 +22,7 @@ type PrimitiveGraph struct {
 	txnControlCounterSlice []internaldto.TxnControlCounters
 	errGroup               *errgroup.Group
 	errGroupCtx            context.Context
+	containsView           bool
 }
 
 func (pg *PrimitiveGraph) AddTxnControlCounters(t internaldto.TxnControlCounters) {
@@ -34,6 +35,14 @@ func (pg *PrimitiveGraph) GetTxnControlCounterSlice() []internaldto.TxnControlCo
 
 func (pg *PrimitiveGraph) SetExecutor(func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput) error {
 	return fmt.Errorf("pass through primitive does not support SetExecutor()")
+}
+
+func (pg *PrimitiveGraph) ContainsView() bool {
+	return pg.containsView
+}
+
+func (pg *PrimitiveGraph) SetContainsView(containsView bool) {
+	pg.containsView = containsView
 }
 
 func (pr *PrimitiveGraph) GetInputFromAlias(string) (internaldto.ExecutorOutput, bool) {
