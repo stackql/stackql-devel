@@ -652,7 +652,6 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 			if err != nil {
 				return nil
 			}
-			// Views must be recursively expanded
 			childAnalyzer, err := NewEarlyScreenerAnalyzer(v.primitiveGenerator, v.annotatedAST, v.whereParams.Clone())
 			if err != nil {
 				return err
@@ -662,7 +661,6 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 				return nil
 			}
 			v.annotatedAST.SetIndirect(node, indirect)
-			// TODO: analyze select
 			indirectPrimitiveGenerator := v.primitiveGenerator.CreateIndirectPrimitiveGenerator(indirect.GetSelectAST(), v.handlerCtx)
 			err = indirectPrimitiveGenerator.AnalyzeSelectStatement(childAnalyzer.GetPlanBuilderInput())
 			if err != nil {
@@ -671,8 +669,6 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 			indirect.SetSelectContext(indirectPrimitiveGenerator.GetPrimitiveComposer().GetIndirectSelectPreparedStatementCtx())
 			assignedParams, ok := indirectPrimitiveGenerator.GetPrimitiveComposer().GetAssignedParameters()
 			if ok {
-				// TODO: this needs to happen prior to
-				//       analysis of parent query.
 				indirect.SetAssignedParameters(assignedParams)
 			}
 		}
