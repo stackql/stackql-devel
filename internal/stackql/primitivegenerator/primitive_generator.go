@@ -78,6 +78,7 @@ func (pb *standardPrimitiveGenerator) SetIsIndirect(isIndirect bool) {
 func (pb *standardPrimitiveGenerator) CreateIndirectPrimitiveGenerator(ast sqlparser.SQLNode, handlerCtx handler.HandlerContext) PrimitiveGenerator {
 	rv := NewRootPrimitiveGenerator(ast, handlerCtx, pb.PrimitiveComposer.GetGraph()).WithDataFlowDependentPrimitiveGenerator(pb)
 	pb.indirects = append(pb.indirects, rv)
+	pb.PrimitiveComposer.GetGraph().SetContainsIndirect(true)
 	pb.PrimitiveComposer.AddIndirect(rv.GetPrimitiveComposer())
 	rv.SetIsIndirect(true)
 	return rv

@@ -17,16 +17,15 @@ import (
 
 type PrimitiveGraph interface {
 	AddTxnControlCounters(t internaldto.TxnControlCounters)
-	ContainsView() bool
+	ContainsIndirect() bool
 	CreatePrimitiveNode(pr primitive.IPrimitive) PrimitiveNode
 	Execute(ctx primitive.IPrimitiveCtx) internaldto.ExecutorOutput
 	GetInputFromAlias(string) (internaldto.ExecutorOutput, bool)
 	IncidentData(fromId int64, input internaldto.ExecutorOutput) error
-	// GetPreparedStatementContext() drm.PreparedStatementCtx
 	GetTxnControlCounterSlice() []internaldto.TxnControlCounters
 	NewDependency(from PrimitiveNode, to PrimitiveNode, weight float64)
 	Optimise() error
-	SetContainsView(containsView bool)
+	SetContainsIndirect(containsView bool)
 	SetExecutor(func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput) error
 	SetInputAlias(alias string, id int64) error
 	SetTxnId(id int)
@@ -54,11 +53,11 @@ func (pg *standardPrimitiveGraph) SetExecutor(func(pc primitive.IPrimitiveCtx) i
 	return fmt.Errorf("pass through primitive does not support SetExecutor()")
 }
 
-func (pg *standardPrimitiveGraph) ContainsView() bool {
+func (pg *standardPrimitiveGraph) ContainsIndirect() bool {
 	return pg.containsView
 }
 
-func (pg *standardPrimitiveGraph) SetContainsView(containsView bool) {
+func (pg *standardPrimitiveGraph) SetContainsIndirect(containsView bool) {
 	pg.containsView = containsView
 }
 
@@ -102,10 +101,6 @@ func (pg *standardPrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) internald
 	}
 	return output
 }
-
-// func (pg *standardPrimitiveGraph) GetPreparedStatementContext() drm.PreparedStatementCtx {
-// 	return nil
-// }
 
 func (pg *standardPrimitiveGraph) SetTxnId(id int) {
 	nodes := pg.g.Nodes()
