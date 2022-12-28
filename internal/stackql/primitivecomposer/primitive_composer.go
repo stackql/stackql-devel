@@ -57,6 +57,7 @@ type PrimitiveComposer interface {
 	GetValOnlyColKeys() []int
 	GetWhere() *sqlparser.Where
 	IsAwait() bool
+	IsIndirect() bool
 	IsTccSetAheadOfTime() bool
 	NewChildPrimitiveComposer(ast sqlparser.SQLNode) PrimitiveComposer
 	SetAwait(await bool)
@@ -67,6 +68,7 @@ type PrimitiveComposer interface {
 	SetDataflowDependent(val PrimitiveComposer)
 	SetInsertPreparedStatementCtx(ctx drm.PreparedStatementCtx)
 	SetInsertValOnlyRows(m map[int]map[int]interface{})
+	SetIsIndirect(isIndirect bool)
 	SetIsTccSetAheadOfTime(bool)
 	SetLikeAbleColumns(cols []string)
 	SetProvider(prov provider.IProvider)
@@ -141,6 +143,16 @@ type standardPrimitiveComposer struct {
 	tccSetAheadOfTime bool
 
 	paramCollection internaldto.TableParameterCollection
+
+	isIndirect bool
+}
+
+func (pb *standardPrimitiveComposer) IsIndirect() bool {
+	return pb.isIndirect
+}
+
+func (pb *standardPrimitiveComposer) SetIsIndirect(isIndirect bool) {
+	pb.isIndirect = isIndirect
 }
 
 func (pb *standardPrimitiveComposer) GetAssignedParameters() (internaldto.TableParameterCollection, bool) {

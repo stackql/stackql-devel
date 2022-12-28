@@ -43,10 +43,11 @@ var (
 	_ InitialPassesScreenerAnalyzer = &standardInitialPasses{}
 )
 
-func NewEarlyScreenerAnalyzer(primitiveGenerator primitivegenerator.PrimitiveGenerator, parentAnnotatedAST annotatedast.AnnotatedAst) (InitialPassesScreenerAnalyzer, error) {
+func NewEarlyScreenerAnalyzer(primitiveGenerator primitivegenerator.PrimitiveGenerator, parentAnnotatedAST annotatedast.AnnotatedAst, parentWhereParams parserutil.ParameterMap) (InitialPassesScreenerAnalyzer, error) {
 	return &standardInitialPasses{
 		primitiveGenerator: primitiveGenerator,
 		parentAnnotatedAST: parentAnnotatedAST,
+		parentWhereParams:  parentWhereParams,
 	}, nil
 }
 
@@ -57,6 +58,7 @@ type standardInitialPasses struct {
 	result                        *sqlparser.RewriteASTResult
 	primitiveGenerator            primitivegenerator.PrimitiveGenerator
 	parentAnnotatedAST            annotatedast.AnnotatedAst
+	parentWhereParams             parserutil.ParameterMap
 }
 
 func (sp *standardInitialPasses) GetInstructionType() InstructionType {
@@ -123,6 +125,11 @@ func (sp *standardInitialPasses) initialPasses(statement sqlparser.Statement, ha
 		whereParams = astvisit.ExtractParamsFromWhereClause(annotatedAST, node.Where)
 	case *sqlparser.Delete:
 		whereParams = astvisit.ExtractParamsFromWhereClause(annotatedAST, node.Where)
+	}
+	if whereParams == nil {
+		whereParams = sp.parentWhereParams
+	} else {
+		whereParams.Merge(sp.parentWhereParams)
 	}
 
 	// First pass AST analysis; annotate and expand AST for indirects (views).

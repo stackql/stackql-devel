@@ -118,6 +118,7 @@ func (sp *standardSelectRoutePass) RoutePass() error {
 	if !ok {
 		whereParamMap = astvisit.ExtractParamsFromWhereClause(annotatedAST, node.Where)
 	}
+	whereParamMap.Merge(sp.parentWhereParams)
 	onParamMap := astvisit.ExtractParamsFromFromClause(annotatedAST, node.From)
 
 	// TODO: There is god awful object <-> namespacing inside here: abstract it.
