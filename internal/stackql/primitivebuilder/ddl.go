@@ -53,11 +53,13 @@ func (un *ddl) Build() error {
 		return util.PrepareResultSet(
 			internaldto.NewPrepareResultSetPlusRawDTO(
 				nil,
+				map[string]map[string]interface{}{"0": {"message": "DDL execution completed"}},
+				[]string{"message"},
 				nil,
 				nil,
 				nil,
 				nil,
-				&internaldto.BackendMessages{WorkingMessages: []string{"exec completed"}}, nil),
+			),
 		)
 	}
 	graph := un.graph
