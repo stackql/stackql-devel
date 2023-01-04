@@ -200,7 +200,9 @@ _AUTH_CFG={
     "valuePrefix": "Bearer " 
   },
   "azure": { 
-    "type": "azure_default"
+    "type": "api_key",
+    "valuePrefix": "Bearer ",
+    "credentialsenvvar": "AZ_ACCESS_TOKEN"
   },
   "sumologic": {
     "type": "basic",
@@ -234,6 +236,68 @@ _AUTH_CFG_DOCKER={
     "type": "api_key",
     "valuePrefix": "Bearer ",
     "credentialsenvvar": "AZ_ACCESS_TOKEN"
+  },
+  "sumologic": {
+    "type": "basic",
+    "credentialsenvvar": "SUMO_CREDS"
+  }
+}
+_AUTH_CFG_INTEGRATION={ 
+  "google": { 
+    "credentialsfilepath": get_unix_path(os.path.join(REPOSITORY_ROOT, 'test', 'assets', 'credentials', 'dummy', 'google', 'functional-test-dummy-sa-key.json')),
+    "type": "service_account"
+  }, 
+  "okta": { 
+    "credentialsenvvar": "OKTA_SECRET_KEY",
+    "type": "api_key" 
+  }, 
+  "aws": { 
+    "type": "aws_signing_v4",
+    "credentialsfilepath": get_unix_path(os.path.join(REPOSITORY_ROOT, 'test', 'assets', 'credentials', 'dummy', 'aws', 'functional-test-dummy-aws-key.txt')),
+     "keyID": "NON_SECRET" 
+  },
+  "github": { 
+    "type": "basic", 
+    "credentialsenvvar": "GITHUB_SECRET_KEY" 
+  },
+  "k8s": { 
+    "credentialsenvvar": "K8S_SECRET_KEY",
+    "type": "api_key",
+    "valuePrefix": "Bearer " 
+  },
+  "azure": { 
+    "type": "azure_default"
+  },
+  "sumologic": {
+    "type": "basic",
+    "credentialsenvvar": "SUMO_CREDS"
+  }
+}
+_AUTH_CFG_INTEGRATION_DOCKER={ 
+  "google": { 
+    "credentialsfilepath": get_unix_path(os.path.join('/opt', 'stackql', 'credentials', 'dummy', 'google', 'docker-functional-test-dummy-sa-key.json')),
+    "type": "service_account"
+  }, 
+  "okta": { 
+    "credentialsenvvar": "OKTA_SECRET_KEY",
+    "type": "api_key" 
+  }, 
+  "aws": { 
+    "type": "aws_signing_v4",
+    "credentialsfilepath": get_unix_path(os.path.join('/opt', 'stackql', 'credentials', 'dummy', 'aws', 'functional-test-dummy-aws-key.txt')),
+     "keyID": "NON_SECRET" 
+  },
+  "github": { 
+    "type": "basic", 
+    "credentialsenvvar": "GITHUB_SECRET_KEY" 
+  },
+  "k8s": { 
+    "credentialsenvvar": "K8S_SECRET_KEY",
+    "type": "api_key",
+    "valuePrefix": "Bearer " 
+  },
+  "azure": { 
+    "type": "azure_default"
   },
   "sumologic": {
     "type": "basic",
@@ -356,6 +420,8 @@ REGISTRY_DEV_CFG_STR = json.dumps(get_registry_cfg(_DEV_REGISTRY_URL, ROBOT_DEV_
 
 AUTH_CFG_STR = json.dumps(_AUTH_CFG)
 AUTH_CFG_STR_DOCKER = json.dumps(_AUTH_CFG_DOCKER)
+AUTH_CFG_INTEGRATION_STR = json.dumps(_AUTH_CFG_INTEGRATION)
+AUTH_CFG_INTEGRATION_STR_DOCKER = json.dumps(_AUTH_CFG_INTEGRATION_DOCKER)
 SHOW_PROVIDERS_STR = "show providers;"
 SHOW_OKTA_SERVICES_FILTERED_STR  = "show services from okta like 'app%';"
 SHOW_OKTA_APPLICATION_RESOURCES_FILTERED_STR  = "show resources from okta.application like 'gr%';"
@@ -823,6 +889,7 @@ def get_variables(execution_env :str, sql_backend_str :str):
   }
   if execution_env == 'docker':
     rv['AUTH_CFG_STR']                                  = AUTH_CFG_STR_DOCKER
+    rv['AUTH_CFG_STR_INTEGRATION']                      = AUTH_CFG_INTEGRATION_STR_DOCKER
     rv['GET_IAM_POLICY_AGG_ASC_INPUT_FILE']             = GET_IAM_POLICY_AGG_ASC_INPUT_FILE_DOCKER
     rv['JSON_INIT_FILE_PATH_AWS']                       = JSON_INIT_FILE_PATH_AWS
     rv['JSON_INIT_FILE_PATH_AZURE']                     = JSON_INIT_FILE_PATH_AZURE
@@ -843,6 +910,7 @@ def get_variables(execution_env :str, sql_backend_str :str):
     rv['REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_CFG_STR'] = _REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_DOCKER
   else:
     rv['AUTH_CFG_STR']                                  = AUTH_CFG_STR
+    rv['AUTH_CFG_STR_INTEGRATION']                      = AUTH_CFG_INTEGRATION_STR
     rv['GET_IAM_POLICY_AGG_ASC_INPUT_FILE']             = GET_IAM_POLICY_AGG_ASC_INPUT_FILE
     rv['JSON_INIT_FILE_PATH_AWS']                       = JSON_INIT_FILE_PATH_AWS
     rv['JSON_INIT_FILE_PATH_AZURE']                     = JSON_INIT_FILE_PATH_AZURE
