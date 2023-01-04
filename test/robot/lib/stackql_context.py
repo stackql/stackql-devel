@@ -29,6 +29,10 @@ Welcome to the interactive shell for running stackql commands.
 ---
 """
 
+_AZURE_INTEGRATION_TESTING_SUB_ID :str = os.environ.get('AZURE_INTEGRATION_TESTING_SUB_ID', '10001000-1000-1000-1000-100010001000')
+
+_AZURE_VM_SIZES_ENUMERATION :str = f"SELECT * FROM azure.compute.virtual_machine_sizes WHERE location = 'Australia East' AND subscriptionId = '{_AZURE_INTEGRATION_TESTING_SUB_ID}';"
+
 _TEST_APP_CACHE_ROOT = os.path.join("test", ".stackql")
 
 class RegistryCfg:
@@ -138,6 +142,10 @@ _REGISTRY_NULL = RegistryCfg(
   '',
   is_null_registry=True
 )
+_REGISTRY_CANONICAL_NO_VERIFY = RegistryCfg(
+  get_unix_path(os.path.join('test', 'registry')),
+  nop_verify=True
+)
 _REGISTRY_NO_VERIFY = RegistryCfg(
   get_unix_path(os.path.join('test', 'registry-mocked')),
   nop_verify=True
@@ -192,9 +200,7 @@ _AUTH_CFG={
     "valuePrefix": "Bearer " 
   },
   "azure": { 
-    "type": "api_key",
-    "valuePrefix": "Bearer ",
-    "credentialsenvvar": "AZ_ACCESS_TOKEN"
+    "type": "azure_default"
   },
   "sumologic": {
     "type": "basic",
@@ -667,6 +673,7 @@ def get_variables(execution_env :str, sql_backend_str :str):
     'REGISTRY_ROOT_CANONICAL':                        _REGISTRY_CANONICAL,
     'REGISTRY_ROOT_DEPRECATED':                       _REGISTRY_DEPRECATED,
     'REGISTRY_CANONICAL_CFG_STR':                     _REGISTRY_CANONICAL,
+    'REGISTRY_CANONICAL_NO_VERIFY_CFG_STR':           _REGISTRY_CANONICAL_NO_VERIFY,
     'REGISTRY_DEPRECATED_CFG_STR':                    _REGISTRY_DEPRECATED,
     'REGISTRY_MOCKED_CFG_STR':                        get_registry_mocked(execution_env),
     'REGISTRY_NO_VERIFY_CFG_STR':                     _REGISTRY_NO_VERIFY,
@@ -679,6 +686,7 @@ def get_variables(execution_env :str, sql_backend_str :str):
     ## queries and expectations
     'AWS_CLOUD_CONTROL_METHOD_SIGNATURE_CMD_ARR':                           [ SELECT_AWS_CLOUD_CONTROL_VPCS_DESC, GET_AWS_CLOUD_CONTROL_VPCS_DESC ],
     'AWS_CLOUD_CONTROL_METHOD_SIGNATURE_CMD_ARR_EXPECTED':                  SELECT_AWS_CLOUD_CONTROL_VPCS_DESC_JSON_EXPECTED + GET_AWS_CLOUD_CONTROL_VPCS_DESC_JSON_EXPECTED,
+    'AZURE_VM_SIZES_ENUMERATION':                                           _AZURE_VM_SIZES_ENUMERATION,
     'CREATE_AWS_VOLUME':                                                    CREATE_AWS_VOLUME,
     'CREATE_AWS_CLOUD_CONTROL_LOG_GROUP':                                   CREATE_AWS_CLOUD_CONTROL_LOG_GROUP,
     'DELETE_AWS_CLOUD_CONTROL_LOG_GROUP':                                   DELETE_AWS_CLOUD_CONTROL_LOG_GROUP,
