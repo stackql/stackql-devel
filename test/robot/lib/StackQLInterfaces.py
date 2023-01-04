@@ -204,8 +204,21 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     return res
 
 
+  def _get_allowed_docker_env_keys(self):
+    return [ 
+        'AZURE_CLIENT_ID',
+        'AZURE_CLIENT_SECRET',
+        'AZURE_INTEGRATION_TESTING_SUB_ID',
+        'AZURE_TENANT_ID'
+    ]
+
+
   def _get_default_env(self) -> dict:
-    rv = dict(os.environ)
+    existing = dict(os.environ)
+    rv = {}
+    for k, v in existing.items():
+      if k in self._get_allowed_docker_env_keys():
+        rv[k] = v
     rv["AZ_ACCESS_TOKEN"] = os.environ.get('AZ_ACCESS_TOKEN', "az_access_dummy_secret")
     rv["SUMO_CREDS"] = os.environ.get('SUMO_CREDS', "sumologicdummysecret")
     return rv
