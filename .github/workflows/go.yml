@@ -330,7 +330,12 @@ jobs:
     - name: Run robot integration tests
       if: success() && startsWith(${{ steps.git_ref_parse.outputs.SOURCE_TAG }}, 'build-release')
       run: |
-        robot test/robot/integration
+        robot -d test/robot/integration test/robot/integration
+    
+    - name: Output from integration tests
+      if: always()
+      run: |
+        cat test/robot/integration/output.xml
     
     - name: Prepare Test DB
       if: success()
