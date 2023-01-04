@@ -143,7 +143,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       "-e",
       f"K8S_SECRET_KEY={k8s_secret_str}",
     ]
-    for k, v in self._get_default_env():
+    for k, v in self._get_default_env().items():
       rv.append("-e")
       rv.append(f"{k}={v}")
     return rv
