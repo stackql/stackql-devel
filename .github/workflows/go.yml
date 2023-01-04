@@ -183,6 +183,10 @@ jobs:
       if: success() && startsWith(${{ steps.git_ref_parse.outputs.SOURCE_TAG }}, 'build-release')
       env:
         PSQL_EXE: C:\Program Files\PostgreSQL\13\bin\psql
+        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        AZURE_INTEGRATION_TESTING_SUB_ID: ${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}
+        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: |
         robot test/robot/integration
     
@@ -329,6 +333,11 @@ jobs:
     
     - name: Run robot integration tests
       if: success() && startsWith(${{ steps.git_ref_parse.outputs.SOURCE_TAG }}, 'build-release')
+      env:
+        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        AZURE_INTEGRATION_TESTING_SUB_ID: ${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}
+        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: |
         robot -d test/robot/integration test/robot/integration
     
@@ -443,6 +452,10 @@ jobs:
       name: Run robot integration tests
       run: |
           . version.txt
+          export AZURE_CLIENT_ID='${{ secrets.AZURE_CLIENT_ID }}'
+          export AZURE_CLIENT_SECRET='${{ secrets.AZURE_CLIENT_SECRET }}'
+          export AZURE_INTEGRATION_TESTING_SUB_ID='${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}'
+          export AZURE_TENANT_ID='${{ secrets.AZURE_TENANT_ID }}'
           export BUILDBRANCH="${{github.ref}}"
           export BUILDPATCHVERSION="${{github.run_number}}"
           export BUILDMAJORVERSION=$MajorVersion
@@ -573,6 +586,11 @@ jobs:
     
     - name: Run robot integration tests
       if: success() && startsWith(${{ steps.git_ref_parse.outputs.SOURCE_TAG }}, 'build-release')
+      env:
+        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        AZURE_INTEGRATION_TESTING_SUB_ID: ${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}
+        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: |
         robot test/robot/integration
     
@@ -817,6 +835,11 @@ jobs:
 
     - name: Run robot integration tests
       if: success() && startsWith(${{ steps.git_ref_parse.outputs.SOURCE_TAG }}, 'build-release')
+      env:
+        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        AZURE_INTEGRATION_TESTING_SUB_ID: ${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}
+        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: |
         robot  --variable EXECUTION_PLATFORM:docker -d test/robot/functional test/robot/integration
 
