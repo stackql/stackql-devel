@@ -5,7 +5,7 @@ import (
 
 	"github.com/stackql/stackql/internal/stackql/docparser"
 	"github.com/stackql/stackql/internal/stackql/dto"
-	"github.com/stackql/stackql/internal/stackql/sqlengine"
+	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"gopkg.in/yaml.v2"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
@@ -19,7 +19,7 @@ type IDiscoveryStore interface {
 }
 
 type TTLDiscoveryStore struct {
-	sqlengine  sqlengine.SQLEngine
+	sqlDialect sqldialect.SQLDialect
 	runtimeCtx dto.RuntimeCtx
 	registry   openapistackql.RegistryAPI
 }
@@ -114,9 +114,9 @@ func (adp *BasicDiscoveryAdapter) GetResourcesMap(prov *openapistackql.Provider,
 
 }
 
-func NewTTLDiscoveryStore(sqlengine sqlengine.SQLEngine, registry openapistackql.RegistryAPI, runtimeCtx dto.RuntimeCtx) IDiscoveryStore {
+func NewTTLDiscoveryStore(sqlDialect sqldialect.SQLDialect, registry openapistackql.RegistryAPI, runtimeCtx dto.RuntimeCtx) IDiscoveryStore {
 	return &TTLDiscoveryStore{
-		sqlengine:  sqlengine,
+		sqlDialect: sqlDialect,
 		runtimeCtx: runtimeCtx,
 		registry:   registry,
 	}
@@ -149,7 +149,7 @@ func (store *TTLDiscoveryStore) PersistServiceShard(pr *openapistackql.Provider,
 	if ok && svc != nil {
 		return svc, nil
 	}
-	b, err := store.sqlengine.CacheStoreGet(k)
+	b, err := store.sqlDialect.GetSQLEngine().CacheStoreGet(k)
 	if b != nil && err == nil {
 		return openapistackql.LoadServiceDocFromBytes(serviceHandle, b)
 	}
@@ -169,7 +169,7 @@ func (store *TTLDiscoveryStore) processResourcesDiscoveryDoc(prov *openapistackq
 	switch providerKey {
 	case "googleapis.com", "google":
 		k := fmt.Sprintf("resources.%s.%s", "google", serviceHandle.Name)
-		b, err := store.sqlengine.CacheStoreGet(k)
+		b, err := store.sqlDialect.GetSQLEngine().CacheStoreGet(k)
 		if b != nil && err == nil {
 			return openapistackql.LoadResourcesShallow(serviceHandle, b)
 		}
@@ -181,14 +181,14 @@ func (store *TTLDiscoveryStore) processResourcesDiscoveryDoc(prov *openapistackq
 		if err != nil {
 			return nil, err
 		}
-		err = store.sqlengine.CacheStorePut(k, bt, "", 0)
+		err = store.sqlDialect.GetSQLEngine().CacheStorePut(k, bt, "", 0)
 		if err != nil {
 			return nil, err
 		}
 		return rr, err
 	default:
 		k := fmt.Sprintf("%s.%s", providerKey, serviceHandle.Name)
-		b, err := store.sqlengine.CacheStoreGet(k)
+		b, err := store.sqlDialect.GetSQLEngine().CacheStoreGet(k)
 		if b != nil && err == nil {
 			return openapistackql.LoadResourcesShallow(serviceHandle, b)
 		}
@@ -200,7 +200,7 @@ func (store *TTLDiscoveryStore) processResourcesDiscoveryDoc(prov *openapistackq
 		if err != nil {
 			return nil, err
 		}
-		err = store.sqlengine.CacheStorePut(k, bt, "", 0)
+		err = store.sqlDialect.GetSQLEngine().CacheStorePut(k, bt, "", 0)
 		if err != nil {
 			return nil, err
 		}
