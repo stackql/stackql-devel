@@ -30,6 +30,7 @@ type IDiscoveryAdapter interface {
 	GetServiceHandlesMap(prov *openapistackql.Provider) (map[string]*openapistackql.ProviderService, error)
 	GetServiceHandle(prov *openapistackql.Provider, serviceKey string) (*openapistackql.ProviderService, error)
 	GetProvider(providerKey string) (*openapistackql.Provider, error)
+	getDicoveryStore() IDiscoveryStore
 }
 
 type BasicDiscoveryAdapter struct {
@@ -38,6 +39,7 @@ type BasicDiscoveryAdapter struct {
 	discoveryStore     IDiscoveryStore
 	runtimeCtx         *dto.RuntimeCtx
 	registry           openapistackql.RegistryAPI
+	sqlDialect         sqldialect.SQLDialect
 }
 
 func NewBasicDiscoveryAdapter(
@@ -46,6 +48,7 @@ func NewBasicDiscoveryAdapter(
 	discoveryStore IDiscoveryStore,
 	runtimeCtx *dto.RuntimeCtx,
 	registry openapistackql.RegistryAPI,
+	sqlDialect sqldialect.SQLDialect,
 ) IDiscoveryAdapter {
 	return &BasicDiscoveryAdapter{
 		alias:              alias,
@@ -53,7 +56,12 @@ func NewBasicDiscoveryAdapter(
 		discoveryStore:     discoveryStore,
 		runtimeCtx:         runtimeCtx,
 		registry:           registry,
+		sqlDialect:         sqlDialect,
 	}
+}
+
+func (adp *BasicDiscoveryAdapter) getDicoveryStore() IDiscoveryStore {
+	return adp.discoveryStore
 }
 
 func (adp *BasicDiscoveryAdapter) GetProvider(providerKey string) (*openapistackql.Provider, error) {
@@ -82,6 +90,21 @@ func (adp *BasicDiscoveryAdapter) GetServiceShard(prov *openapistackql.Provider,
 	shard, err := adp.discoveryStore.PersistServiceShard(prov, sh, resourceKey)
 	if err != nil {
 		return nil, err
+	}
+	rsc, err := shard.GetResource(resourceKey)
+	if err != nil && resourceKey != "" {
+		return nil, err
+	}
+	viewBodyDDL, viewBodyDDLPresent := rsc.GetViewBodyDDLForSQLDialect(adp.sqlDialect.GetName())
+	if viewBodyDDLPresent {
+		viewName := rsc.ID
+		_, viewExists := adp.sqlDialect.GetViewByName(viewName)
+		if !viewExists {
+			err := adp.sqlDialect.CreateView(viewName, viewBodyDDL)
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 	return shard, nil
 }

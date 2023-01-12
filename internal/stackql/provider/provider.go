@@ -117,6 +117,7 @@ func newGenericProvider(rtCtx dto.RuntimeCtx, providerStr, versionStr string, re
 		),
 		&rtCtx,
 		reg,
+		sqlDialect,
 	)
 
 	p, err := da.GetProvider(rtCtx.ProviderStr)
