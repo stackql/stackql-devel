@@ -683,6 +683,7 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 			if err != nil {
 				return err
 			}
+			indirect.SetUnderlyingSymTab(indirectPrimitiveGenerator.GetPrimitiveComposer().GetSymTab())
 			indirect.SetSelectContext(indirectPrimitiveGenerator.GetPrimitiveComposer().GetIndirectSelectPreparedStatementCtx())
 			assignedParams, ok := indirectPrimitiveGenerator.GetPrimitiveComposer().GetAssignedParameters()
 			if ok {
