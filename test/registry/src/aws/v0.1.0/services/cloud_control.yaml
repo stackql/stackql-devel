@@ -527,7 +527,7 @@ components:
       id: aws.cloud_control.s3_bucket_listing
       config:
         views:
-          '':
+          'select':
               predicate: sqlDialect == "sqlite3"
               ddl: '
                 SELECT 
