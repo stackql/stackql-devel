@@ -3,6 +3,7 @@ package primitivebuilder
 import (
 	"fmt"
 
+	"github.com/stackql/stackql/internal/stackql/data_staging"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internaldto"
@@ -61,7 +62,20 @@ func (ss *SingleSelect) Build() error {
 		// select phase
 		logging.GetLogger().Infoln(fmt.Sprintf("running select with control parameters: %v", ss.selectPreparedStatementCtx.GetGCCtrlCtrs()))
 
-		return prepareGolangResult(ss.handlerCtx.GetSQLEngine(), ss.handlerCtx.GetOutErrFile(), drm.NewPreparedStatementParameterized(ss.selectPreparedStatementCtx, nil, true), ss.insertionContainers, ss.selectPreparedStatementCtx.GetNonControlColumns(), ss.drmCfg, ss.stream)
+		outputter := data_staging.NewNaiveOutputter(
+			data_staging.NewNaivePacketPreparator(
+				data_staging.NewNaiveSource(
+					ss.handlerCtx.GetSQLEngine(),
+					drm.NewPreparedStatementParameterized(ss.selectPreparedStatementCtx, nil, true),
+					ss.drmCfg,
+				),
+				ss.selectPreparedStatementCtx.GetNonControlColumns(),
+				ss.stream,
+				ss.drmCfg,
+			),
+			ss.selectPreparedStatementCtx.GetNonControlColumns(),
+		)
+		return outputter.OutputExecutorResult()
 	}
 	graph := ss.graph
 	selectNode := graph.CreatePrimitiveNode(primitive.NewLocalPrimitive(selectEx))

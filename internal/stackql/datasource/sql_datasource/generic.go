@@ -1,0 +1,49 @@
+package sql_datasource
+
+import (
+	"database/sql"
+	"fmt"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "github.com/snowflakedb/gosnowflake"
+
+	"github.com/stackql/stackql/internal/stackql/db_util"
+	"github.com/stackql/stackql/internal/stackql/dto"
+)
+
+var (
+	_ SQLDataSource = &genericSQLDataSource{}
+)
+
+func newGenericSQLDataSource(authCtx dto.AuthCtx, driverName string, dbName string) (SQLDataSource, error) {
+	if authCtx.SQLCfg == nil {
+		return nil, fmt.Errorf("cannot init %s data source with empty SQL config", dbName)
+	}
+	db, err := db_util.GetDB(driverName, dbName, *authCtx.SQLCfg)
+	if err != nil {
+		return nil, err
+	}
+	return &genericSQLDataSource{
+		db: db,
+	}, nil
+}
+
+type genericSQLDataSource struct {
+	db *sql.DB
+}
+
+func (ds *genericSQLDataSource) Exec(query string, args ...interface{}) (sql.Result, error) {
+	return ds.db.Exec(query, args...)
+}
+
+func (ds *genericSQLDataSource) Query(query string, args ...interface{}) (*sql.Rows, error) {
+	return ds.db.Query(query, args...)
+}
+
+func (ds *genericSQLDataSource) QueryRow(query string, args ...interface{}) *sql.Row {
+	return ds.db.QueryRow(query, args...)
+}
+
+func (ds *genericSQLDataSource) Begin() (*sql.Tx, error) {
+	return ds.db.Begin()
+}

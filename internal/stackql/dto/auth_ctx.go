@@ -8,15 +8,16 @@ import (
 )
 
 type AuthCtx struct {
-	Scopes      []string `json:"scopes,omitempty" yaml:"scopes,omitempty"`
-	Type        string   `json:"type" yaml:"type"`
-	ValuePrefix string   `json:"valuePrefix" yaml:"valuePrefix"`
-	ID          string   `json:"-" yaml:"-"`
-	KeyID       string   `json:"keyID" yaml:"keyID"`
-	KeyIDEnvVar string   `json:"keyIDenvvar" yaml:"keyIDenvvar"`
-	KeyFilePath string   `json:"credentialsfilepath" yaml:"credentialsfilepath"`
-	KeyEnvVar   string   `json:"credentialsenvvar" yaml:"credentialsenvvar"`
-	Active      bool     `json:"-" yaml:"-"`
+	Scopes      []string       `json:"scopes,omitempty" yaml:"scopes,omitempty"`
+	SQLCfg      *SQLBackendCfg `json:"sqlDataSource" yaml:"sqlDataSource"`
+	Type        string         `json:"type" yaml:"type"`
+	ValuePrefix string         `json:"valuePrefix" yaml:"valuePrefix"`
+	ID          string         `json:"-" yaml:"-"`
+	KeyID       string         `json:"keyID" yaml:"keyID"`
+	KeyIDEnvVar string         `json:"keyIDenvvar" yaml:"keyIDenvvar"`
+	KeyFilePath string         `json:"credentialsfilepath" yaml:"credentialsfilepath"`
+	KeyEnvVar   string         `json:"credentialsenvvar" yaml:"credentialsenvvar"`
+	Active      bool           `json:"-" yaml:"-"`
 }
 
 func (ac *AuthCtx) Clone() *AuthCtx {

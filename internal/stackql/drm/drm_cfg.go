@@ -15,6 +15,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
+	"github.com/stackql/stackql/internal/stackql/sqlmachinery"
 	"github.com/stackql/stackql/internal/stackql/streaming"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/internal/stackql/util"
@@ -48,7 +49,7 @@ type DRMConfig interface {
 	ExecuteInsertDML(sqlengine.SQLEngine, PreparedStatementCtx, map[string]interface{}, string) (sql.Result, error)
 	OpenapiColumnsToRelationalColumns(cols []openapistackql.ColumnDescriptor) []relationaldto.RelationalColumn
 	OpenapiColumnsToRelationalColumn(col openapistackql.ColumnDescriptor) relationaldto.RelationalColumn
-	QueryDML(sqlengine.SQLEngine, PreparedStatementParameterized) (*sql.Rows, error)
+	QueryDML(sqlmachinery.Querier, PreparedStatementParameterized) (*sql.Rows, error)
 }
 
 type staticDRMConfig struct {
@@ -517,7 +518,7 @@ func (dc *staticDRMConfig) ExecuteInsertDML(dbEngine sqlengine.SQLEngine, ctx Pr
 	return dbEngine.Exec(stmtArgs.GetQuery(), stmtArgs.GetArgs()...)
 }
 
-func (dc *staticDRMConfig) QueryDML(dbEngine sqlengine.SQLEngine, ctxParameterized PreparedStatementParameterized) (*sql.Rows, error) {
+func (dc *staticDRMConfig) QueryDML(querier sqlmachinery.Querier, ctxParameterized PreparedStatementParameterized) (*sql.Rows, error) {
 	if ctxParameterized.GetCtx() == nil {
 		return nil, fmt.Errorf("cannot execute based upon nil PreparedStatementContext")
 	}
@@ -532,7 +533,7 @@ func (dc *staticDRMConfig) QueryDML(dbEngine sqlengine.SQLEngine, ctxParameteriz
 	query := rootArgs.GetExpandedQuery()
 	varArgs := rootArgs.GetExpandedArgs()
 	logging.GetLogger().Infoln(fmt.Sprintf("query = %s", query))
-	return dbEngine.Query(query, varArgs...)
+	return querier.Query(query, varArgs...)
 }
 
 func GetDRMConfig(sqlDialect sqldialect.SQLDialect, namespaceCollection tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes) (DRMConfig, error) {

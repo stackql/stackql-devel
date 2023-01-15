@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/stackql/stackql/internal/stackql/astindirect"
+	"github.com/stackql/stackql/internal/stackql/datasource/sql_datasource"
 	"github.com/stackql/stackql/internal/stackql/httpbuild"
 	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/provider"
@@ -39,6 +40,7 @@ type ExtendedTableMetadata interface {
 	GetSelectSchemaAndObjectPath() (*openapistackql.Schema, string, error)
 	GetService() (*openapistackql.Service, error)
 	GetServiceStr() (string, error)
+	GetSQLDataSource() (sql_datasource.SQLDataSource, bool)
 	GetStackQLTableName() (string, error)
 	GetTableFilter() func(openapistackql.ITable) (openapistackql.ITable, error)
 	GetTableName() (string, error)
@@ -49,6 +51,7 @@ type ExtendedTableMetadata interface {
 	GetView() (internaldto.ViewDTO, bool)
 	LookupSelectItemsKey() string
 	SetSelectItemsKey(string)
+	SetSQLDataSource(sql_datasource.SQLDataSource)
 	SetTableFilter(f func(openapistackql.ITable) (openapistackql.ITable, error))
 	WithGetHttpArmoury(f func() (httpbuild.HTTPArmoury, error)) ExtendedTableMetadata
 	WithIndirect(astindirect.Indirect) ExtendedTableMetadata
@@ -65,6 +68,7 @@ type standardExtendedTableMetadata struct {
 	alias               string
 	inputTableName      string
 	indirect            astindirect.Indirect
+	sqlDataSource       sql_datasource.SQLDataSource
 }
 
 func (ex *standardExtendedTableMetadata) IsLocallyExecutable() bool {
@@ -74,6 +78,14 @@ func (ex *standardExtendedTableMetadata) IsLocallyExecutable() bool {
 func (ex *standardExtendedTableMetadata) WithIndirect(indirect astindirect.Indirect) ExtendedTableMetadata {
 	ex.indirect = indirect
 	return ex
+}
+
+func (ex *standardExtendedTableMetadata) GetSQLDataSource() (sql_datasource.SQLDataSource, bool) {
+	return ex.sqlDataSource, ex.sqlDataSource != nil
+}
+
+func (ex *standardExtendedTableMetadata) SetSQLDataSource(sqlDataSource sql_datasource.SQLDataSource) {
+	ex.sqlDataSource = sqlDataSource
 }
 
 func (ex *standardExtendedTableMetadata) GetIndirect() (astindirect.Indirect, bool) {

@@ -2,6 +2,8 @@ package constants
 
 const (
 	AnalyticsPrefix                    string = "stackql_analytics"
+	AuthTypeDelimiter                  string = "::"
+	AuthTypeSQLDataSourcePrefix        string = "sql_data_source"
 	GoogleV1DiscoveryDoc               string = "https://www.googleapis.com/discovery/v1/apis"
 	GoogleV1OperationURLPropertyString string = "selfLink"
 	GoogleV1ProviderCacheName          string = "google_provider_v_0_3_7"
@@ -19,9 +21,11 @@ const (
 	PrettyTextStr                      string = "pptext"
 	DbEngineSQLite3Embedded            string = "sqlite3_embedded"
 	DbEnginePostgresTCP                string = "postgres_tcp"
+	DbEngineSnowflakeTCP               string = "snowflake_tcp"
 	DbEngineDefault                    string = DbEngineSQLite3Embedded
 	SQLDialectSQLite3                  string = "sqlite3"
 	SQLDialectPostgres                 string = "postgres"
+	SQLDialectSnowflake                string = "snowflake"
 	SQLDialectDefault                  string = SQLDialectSQLite3
 	SQLFuncJSONExtractSQLite           string = "json_extract"
 	SQLFuncJSONExtractPostgres         string = "json_extract_path_text"
