@@ -10,9 +10,9 @@ import (
 )
 
 func GetDB(driverName string, dbName string, cfg dto.SQLBackendCfg) (*sql.DB, error) {
-	dsn := cfg.DSN
+	dsn := cfg.GetDSN()
 	if dsn == "" {
-		return nil, fmt.Errorf("cannot init snowflake TCP connection with empty connection string")
+		return nil, fmt.Errorf("cannot init %s TCP connection with empty dsn", dbName)
 	}
 	db, err := sql.Open(driverName, dsn)
 	retryCount := 0

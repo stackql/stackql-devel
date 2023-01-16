@@ -651,10 +651,15 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 				return err
 			}
 		}
-		// OPTIMISTIC DOC PERSISTENCE AND VIEW DEFINITION
 		providerName := node.QualifierSecond.GetRawVal()
 		serviceName := node.Qualifier.GetRawVal()
 		resourceName := node.Name.GetRawVal()
+		sqlDataSource, hasSQLDataSource := v.handlerCtx.GetSQLDataSource(providerName)
+		if hasSQLDataSource {
+			// Persist data source for later retrieval
+			v.annotatedAST.SetSQLDataSource(node, sqlDataSource)
+		}
+		// OPTIMISTIC DOC PERSISTENCE AND VIEW DEFINITION
 		prov, err := v.handlerCtx.GetProvider(providerName)
 		if err != nil {
 			logging.GetLogger().Debugf("optimistic doc error: %s", err.Error())
@@ -684,6 +689,7 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 			if err != nil {
 				return nil
 			}
+			// Persist indirect for later retrieval
 			v.annotatedAST.SetIndirect(node, indirect)
 			indirectPrimitiveGenerator := v.primitiveGenerator.CreateIndirectPrimitiveGenerator(indirect.GetSelectAST(), v.handlerCtx)
 			err = indirectPrimitiveGenerator.AnalyzeSelectStatement(childAnalyzer.GetPlanBuilderInput())

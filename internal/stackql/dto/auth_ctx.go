@@ -20,6 +20,14 @@ type AuthCtx struct {
 	Active      bool           `json:"-" yaml:"-"`
 }
 
+func (ac *AuthCtx) GetSQLCfg() (SQLBackendCfg, bool) {
+	var retVal SQLBackendCfg
+	if ac.SQLCfg != nil {
+		return *ac.SQLCfg, true
+	}
+	return retVal, false
+}
+
 func (ac *AuthCtx) Clone() *AuthCtx {
 	var scopesCopy []string
 	scopesCopy = append(scopesCopy, ac.Scopes...)

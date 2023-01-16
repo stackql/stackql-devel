@@ -38,6 +38,10 @@ func (se *snowflakeTcpEngine) GetDB() (*sql.DB, error) {
 }
 
 func newSnowflakeTcpEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAttributes) (*snowflakeTcpEngine, error) {
+	dsn := cfg.GetDSN()
+	if dsn == "" {
+		return nil, fmt.Errorf("cannot init snowflake from empty dsn")
+	}
 	db, err := db_util.GetDB("snowflake", "snowflake", cfg)
 	if err != nil {
 		return nil, err
@@ -45,7 +49,7 @@ func newSnowflakeTcpEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.C
 	db.SetConnMaxLifetime(-1)
 	eng := &snowflakeTcpEngine{
 		db:                db,
-		dsn:               cfg.DSN,
+		dsn:               dsn,
 		controlAttributes: controlAttributes,
 		ctrlMutex:         &sync.Mutex{},
 		sessionMutex:      &sync.Mutex{},

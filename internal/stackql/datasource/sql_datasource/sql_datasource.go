@@ -15,7 +15,10 @@ type SQLDataSource interface {
 	QueryRow(string, ...any) *sql.Row
 }
 
-func NewDataSource(authCtx dto.AuthCtx) (SQLDataSource, error) {
+func NewDataSource(authCtx *dto.AuthCtx) (SQLDataSource, error) {
+	if authCtx == nil {
+		return nil, fmt.Errorf("cannot create sql data source from nil auth context")
+	}
 	if authCtx.Type == fmt.Sprintf("%s%s%s", constants.AuthTypeSQLDataSourcePrefix, constants.AuthTypeDelimiter, "snowflake") {
 		return newGenericSQLDataSource(authCtx, "snowflake", "snowflake")
 	}

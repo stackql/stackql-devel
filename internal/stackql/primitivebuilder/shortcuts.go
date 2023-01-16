@@ -169,7 +169,10 @@ func NewShowInstructionExecutor(node *sqlparser.Show, prov provider.IProvider, t
 		}
 		keys = methodKeys
 	case "PROVIDERS":
-		keys = handlerCtx.GetSupportedProviders(extended)
+		keys, err = handlerCtx.GetSupportedProviders(extended)
+		if err != nil {
+			return internaldto.NewErroneousExecutorOutput(err)
+		}
 		rv := util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, keys, columnOrder, nil, err, nil))
 		if len(keys) == 0 {
 			rv = util.EmptyProtectResultSet(

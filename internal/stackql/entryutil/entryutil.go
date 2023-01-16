@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/stackql/stackql/internal/stackql/bundle"
+	"github.com/stackql/stackql/internal/stackql/datasource/sql_datasource"
 	"github.com/stackql/stackql/internal/stackql/dbmsinternal"
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/garbagecollector"
@@ -20,6 +21,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
+	"gopkg.in/yaml.v2"
 
 	"github.com/stackql/stackql/pkg/preprocessor"
 	"github.com/stackql/stackql/pkg/txncounter"
@@ -75,7 +77,31 @@ func BuildInputBundle(runtimeCtx dto.RuntimeCtx) (bundle.Bundle, error) {
 	if err != nil {
 		return nil, err
 	}
-	return bundle.NewBundle(gc, namespaces, se, dialect, pgInternal, controlAttributes, txnStore, txnCtrMgr), nil
+	ac := make(map[string]*dto.AuthCtx)
+	err = yaml.Unmarshal([]byte(runtimeCtx.AuthRaw), ac)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling auth: %s", err.Error())
+	}
+	sqlDataSources, err := initSQLDataSources(ac)
+	if err != nil {
+		return nil, fmt.Errorf("error initializing SQL data sources: %s", err.Error())
+	}
+	return bundle.NewBundle(gc, namespaces, se, dialect, pgInternal, controlAttributes, txnStore, txnCtrMgr, ac, sqlDataSources), nil
+}
+
+func initSQLDataSources(authContextMap map[string]*dto.AuthCtx) (map[string]sql_datasource.SQLDataSource, error) {
+	rv := make(map[string]sql_datasource.SQLDataSource)
+	for k, ac := range authContextMap {
+		_, isSQLCfg := ac.GetSQLCfg()
+		if isSQLCfg {
+			sqlDataSource, err := sql_datasource.NewDataSource(ac)
+			if err != nil {
+				return nil, err
+			}
+			rv[k] = sqlDataSource
+		}
+	}
+	return rv, nil
 }
 
 func initNamespaces(namespaceCfgRaw string, sqlEngine sqlengine.SQLEngine) (tablenamespace.TableNamespaceCollection, error) {

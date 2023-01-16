@@ -1,7 +1,9 @@
 package bundle
 
 import (
+	"github.com/stackql/stackql/internal/stackql/datasource/sql_datasource"
 	"github.com/stackql/stackql/internal/stackql/dbmsinternal"
+	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/garbagecollector"
 	"github.com/stackql/stackql/internal/stackql/kstore"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
@@ -13,10 +15,12 @@ import (
 )
 
 type Bundle interface {
+	GetAuthContexts() map[string]*dto.AuthCtx
 	GetControlAttributes() sqlcontrol.ControlAttributes
 	GetGC() garbagecollector.GarbageCollector
 	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
 	GetDBMSInternalRouter() dbmsinternal.DBMSInternalRouter
+	GetSQLDataSources() map[string]sql_datasource.SQLDataSource
 	GetSQLDialect() sqldialect.SQLDialect
 	GetSQLEngine() sqlengine.SQLEngine
 	GetTxnCounterManager() txncounter.TxnCounterManager
@@ -32,6 +36,8 @@ func NewBundle(
 	controlAttributes sqlcontrol.ControlAttributes,
 	txnStore kstore.KStore,
 	txnCtrMgr txncounter.TxnCounterManager,
+	authContexts map[string]*dto.AuthCtx,
+	sqlDataSources map[string]sql_datasource.SQLDataSource,
 ) Bundle {
 	return &simpleBundle{
 		garbageCollector:  garbageCollector,
@@ -43,6 +49,8 @@ func NewBundle(
 		txnCtrMgr:         txnCtrMgr,
 		formatter:         sqlDialect.GetASTFormatter(),
 		pgInternalRouter:  pgInternalRouter,
+		authContexts:      authContexts,
+		sqlDataSources:    sqlDataSources,
 	}
 }
 
@@ -56,6 +64,16 @@ type simpleBundle struct {
 	txnCtrMgr         txncounter.TxnCounterManager
 	formatter         sqlparser.NodeFormatter
 	pgInternalRouter  dbmsinternal.DBMSInternalRouter
+	sqlDataSources    map[string]sql_datasource.SQLDataSource
+	authContexts      map[string]*dto.AuthCtx
+}
+
+func (sb *simpleBundle) GetSQLDataSources() map[string]sql_datasource.SQLDataSource {
+	return sb.sqlDataSources
+}
+
+func (sb *simpleBundle) GetAuthContexts() map[string]*dto.AuthCtx {
+	return sb.authContexts
 }
 
 func (sb *simpleBundle) GetControlAttributes() sqlcontrol.ControlAttributes {

@@ -38,6 +38,10 @@ func (se *postgresTcpEngine) GetDB() (*sql.DB, error) {
 }
 
 func newPostgresTcpEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAttributes) (*postgresTcpEngine, error) {
+	dsn := cfg.GetDSN()
+	if dsn == "" {
+		return nil, fmt.Errorf("cannot init postgres from empty dsn")
+	}
 	db, err := db_util.GetDB("pgx", "postgres", cfg)
 	if err != nil {
 		return nil, err
@@ -45,7 +49,7 @@ func newPostgresTcpEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.Co
 	db.SetConnMaxLifetime(-1)
 	eng := &postgresTcpEngine{
 		db:                db,
-		dsn:               cfg.DSN,
+		dsn:               dsn,
 		controlAttributes: controlAttributes,
 		ctrlMutex:         &sync.Mutex{},
 		sessionMutex:      &sync.Mutex{},

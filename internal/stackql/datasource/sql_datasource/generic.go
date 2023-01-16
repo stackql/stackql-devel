@@ -15,11 +15,12 @@ var (
 	_ SQLDataSource = &genericSQLDataSource{}
 )
 
-func newGenericSQLDataSource(authCtx dto.AuthCtx, driverName string, dbName string) (SQLDataSource, error) {
-	if authCtx.SQLCfg == nil {
+func newGenericSQLDataSource(authCtx *dto.AuthCtx, driverName string, dbName string) (SQLDataSource, error) {
+	sqlCfg, hasSQLCfg := authCtx.GetSQLCfg()
+	if !hasSQLCfg {
 		return nil, fmt.Errorf("cannot init %s data source with empty SQL config", dbName)
 	}
-	db, err := db_util.GetDB(driverName, dbName, *authCtx.SQLCfg)
+	db, err := db_util.GetDB(driverName, dbName, sqlCfg)
 	if err != nil {
 		return nil, err
 	}

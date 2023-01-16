@@ -38,7 +38,8 @@ func (se *sqLiteEmbeddedEngine) GetDB() (*sql.DB, error) {
 }
 
 func newSQLiteEmbeddedEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAttributes) (*sqLiteEmbeddedEngine, error) {
-	dsn := cfg.DSN
+	// SQLite permeits empty DSN and can safely ignore the err
+	dsn := cfg.GetDSN()
 	if dsn == "" {
 		dsn = "file::memory:?cache=shared"
 	}
