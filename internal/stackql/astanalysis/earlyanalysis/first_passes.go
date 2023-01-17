@@ -156,6 +156,10 @@ func (sp *standardInitialPasses) initialPasses(statement sqlparser.Statement, ha
 	provStrSlice, isCacheExemptMaterialDetected := astvisit.ExtractProviderStringsAndDetectCacheExemptMaterial(annotatedAST, annotatedAST.GetAST(), handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection())
 	sp.isCacheExemptMaterialDetected = isCacheExemptMaterialDetected
 	for _, p := range provStrSlice {
+		_, isSQLDataSource := handlerCtx.GetSQLDataSource(p)
+		if isSQLDataSource {
+			continue
+		}
 		_, err := handlerCtx.GetProvider(p)
 		if err != nil {
 			return err

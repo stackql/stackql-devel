@@ -3,6 +3,7 @@ package dependencyplanner
 import (
 	"fmt"
 
+	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/go-openapistackql/pkg/media"
 	"github.com/stackql/stackql/internal/stackql/astanalysis/annotatedast"
 	"github.com/stackql/stackql/internal/stackql/astvisit"
@@ -119,11 +120,8 @@ func (dp *standardDependencyPlanner) Plan() error {
 			tableExpr := unit.GetTableExpr()
 			annotation := unit.GetAnnotation()
 			if _, isView := annotation.GetView(); isView {
-
 				dp.annMap[tableExpr] = annotation
-
 				continue
-				// return fmt.Errorf("error in dependency planning: views in progress")
 			}
 			dp.annMap[tableExpr] = annotation
 			insPsc, _, err := dp.processOrphan(tableExpr, annotation, dp.defaultStream)
@@ -253,11 +251,16 @@ func (dp *standardDependencyPlanner) processOrphan(sqlNode sqlparser.SQLNode, an
 	if err != nil {
 		return nil, nil, err
 	}
-	os, err := annotationCtx.GetTableMeta().GetMethod()
-	if err != nil {
-		return nil, nil, err
+	_, isSQLDataSource := annotationCtx.GetTableMeta().GetSQLDataSource()
+	var opStore *openapistackql.OperationStore
+	if !isSQLDataSource {
+		opStore, err = annotationCtx.GetTableMeta().GetMethod()
+		if err != nil {
+			return nil, nil, err
+		}
 	}
-	insPsc, err := dp.primitiveComposer.GetDRMConfig().GenerateInsertDML(anTab, os, tcc)
+	// TODO: generate insert DML for SQL data source
+	insPsc, err := dp.primitiveComposer.GetDRMConfig().GenerateInsertDML(anTab, opStore, tcc)
 	return insPsc, tcc, err
 }
 
@@ -291,6 +294,16 @@ func (dp *standardDependencyPlanner) processAcquire(
 	stream streaming.MapStream,
 ) (util.AnnotatedTabulation, internaldto.TxnControlCounters, error) {
 	inputTableName, err := annotationCtx.GetInputTableName()
+	inputProviderString := annotationCtx.GetHIDs().GetProviderStr()
+	sqlDataSource, isSQLDataSource := dp.handlerCtx.GetSQLDataSource(inputProviderString)
+	if isSQLDataSource {
+		if dp.tcc == nil {
+			return util.NewAnnotatedTabulation(nil, nil, "", ""), nil, fmt.Errorf("nil counters disallowed in dependency planner")
+		}
+		anTab := util.NewAnnotatedTabulation(nil, annotationCtx.GetHIDs(), inputTableName, annotationCtx.GetTableMeta().GetAlias())
+		anTab.SetSQLDataSource(sqlDataSource)
+		return anTab, dp.tcc, nil
+	}
 	if err != nil {
 		return util.NewAnnotatedTabulation(nil, nil, "", ""), nil, err
 	}

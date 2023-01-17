@@ -752,6 +752,10 @@ func (p *standardPrimitiveGenerator) expandTable(tbl tablemetadata.ExtendedTable
 		logging.GetLogger().Debugf("viewAST = %v\n", viewAST)
 		return nil
 	}
+	if sqlDataSource, isSQLDataSource := tbl.GetSQLDataSource(); isSQLDataSource {
+		logging.GetLogger().Debugf("sqlDataSource = %v\n", sqlDataSource)
+		return nil
+	}
 	// TODO: encapsulate the mapping of openapi schemas to symbol table entries.
 	//   - This operates atop DRM.
 	svc, err := tbl.GetService()

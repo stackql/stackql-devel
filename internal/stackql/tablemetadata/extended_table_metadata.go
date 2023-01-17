@@ -81,7 +81,7 @@ func (ex *standardExtendedTableMetadata) WithIndirect(indirect astindirect.Indir
 }
 
 func (ex *standardExtendedTableMetadata) GetSQLDataSource() (sql_datasource.SQLDataSource, bool) {
-	return ex.sqlDataSource, ex.sqlDataSource != nil
+	return ex.heirarchyObjects.GetSQLDataSource()
 }
 
 func (ex *standardExtendedTableMetadata) SetSQLDataSource(sqlDataSource sql_datasource.SQLDataSource) {
@@ -194,7 +194,7 @@ func (ex *standardExtendedTableMetadata) GetProvider() (provider.IProvider, erro
 
 func (ex *standardExtendedTableMetadata) GetProviderObject() (*openapistackql.Provider, error) {
 	if ex.heirarchyObjects == nil || ex.heirarchyObjects.GetProvider() == nil {
-		return nil, fmt.Errorf("cannot resolve Provider")
+		return nil, fmt.Errorf("cannot resolve Provider object")
 	}
 	return ex.heirarchyObjects.GetProvider().GetProvider()
 }

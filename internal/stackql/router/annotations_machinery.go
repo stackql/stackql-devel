@@ -16,7 +16,9 @@ func obtainAnnotationCtx(
 	parameters map[string]interface{},
 	namespaceCollection tablenamespace.TableNamespaceCollection,
 ) (taxonomy.AnnotationCtx, error) {
-	if _, isView := tbl.GetView(); isView {
+	_, isView := tbl.GetView()
+	_, isSQLDataSource := tbl.GetSQLDataSource()
+	if isView || isSQLDataSource {
 		// TODO: upgrade this flow; nil == YUCK!!!
 		return taxonomy.NewStaticStandardAnnotationCtx(nil, tbl.GetHeirarchyObjects().GetHeirarchyIds(), tbl, parameters), nil
 	}

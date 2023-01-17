@@ -146,6 +146,11 @@ func GetHeirarchyFromStatement(handlerCtx handler.HandlerContext, node sqlparser
 		return nil, fmt.Errorf("cannot resolve taxonomy")
 	}
 	retVal := tablemetadata.NewHeirarchyObjects(hIds)
+	sqlDataSource, isSQLDataSource := handlerCtx.GetSQLDataSource(hIds.GetProviderStr())
+	if isSQLDataSource {
+		retVal.SetSQLDataSource(sqlDataSource)
+		return retVal, nil
+	}
 	prov, err := handlerCtx.GetProvider(hIds.GetProviderStr())
 	retVal.SetProvider(prov)
 	viewDTO, isView := retVal.GetView()
