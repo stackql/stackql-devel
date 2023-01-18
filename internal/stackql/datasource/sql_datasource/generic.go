@@ -7,6 +7,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	_ "github.com/snowflakedb/gosnowflake"
 
+	"github.com/stackql/stackql/internal/stackql/datasource/sql_table"
 	"github.com/stackql/stackql/internal/stackql/db_util"
 	"github.com/stackql/stackql/internal/stackql/dto"
 )
@@ -47,4 +48,8 @@ func (ds *genericSQLDataSource) QueryRow(query string, args ...interface{}) *sql
 
 func (ds *genericSQLDataSource) Begin() (*sql.Tx, error) {
 	return ds.db.Begin()
+}
+
+func (ds *genericSQLDataSource) GetTableMetadata(tableName string) (sql_table.SQLTable, error) {
+	return nil, fmt.Errorf("could not obtain sql data source table metadata for table = '%s'", tableName)
 }

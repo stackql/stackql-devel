@@ -18,8 +18,8 @@ import (
 	"github.com/stackql/stackql/internal/stackql/kstore"
 	"github.com/stackql/stackql/internal/stackql/netutils"
 	"github.com/stackql/stackql/internal/stackql/provider"
+	"github.com/stackql/stackql/internal/stackql/sql_system"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
-	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/pkg/txncounter"
@@ -57,7 +57,7 @@ type HandlerContext interface {
 	GetLRUCache() *lrucache.LRUCache
 	GetSQLDataSource(name string) (sql_datasource.SQLDataSource, bool)
 	GetSQLEngine() sqlengine.SQLEngine
-	GetSQLDialect() sqldialect.SQLDialect
+	GetSQLSystem() sql_system.SQLSystem
 	GetGarbageCollector() garbagecollector.GarbageCollector
 	GetDrmConfig() drm.DRMConfig
 	GetTxnCounterMgr() txncounter.TxnCounterManager
@@ -88,7 +88,7 @@ type standardHandlerContext struct {
 	outErrFile          io.Writer
 	lRUCache            *lrucache.LRUCache
 	sqlEngine           sqlengine.SQLEngine
-	sqlDialect          sqldialect.SQLDialect
+	sqlSystem           sql_system.SQLSystem
 	garbageCollector    garbagecollector.GarbageCollector
 	drmConfig           drm.DRMConfig
 	txnCounterMgr       txncounter.TxnCounterManager
@@ -128,7 +128,7 @@ func (hc *standardHandlerContext) GetOutfile() io.Writer                    { re
 func (hc *standardHandlerContext) GetOutErrFile() io.Writer                 { return hc.outErrFile }
 func (hc *standardHandlerContext) GetLRUCache() *lrucache.LRUCache          { return hc.lRUCache }
 func (hc *standardHandlerContext) GetSQLEngine() sqlengine.SQLEngine        { return hc.sqlEngine }
-func (hc *standardHandlerContext) GetSQLDialect() sqldialect.SQLDialect     { return hc.sqlDialect }
+func (hc *standardHandlerContext) GetSQLSystem() sql_system.SQLSystem       { return hc.sqlSystem }
 func (hc *standardHandlerContext) GetGarbageCollector() garbagecollector.GarbageCollector {
 	return hc.garbageCollector
 }
@@ -211,7 +211,7 @@ func (hc *standardHandlerContext) GetProvider(providerName string) (provider.IPr
 	}
 	prov, ok := hc.providers[providerName]
 	if !ok {
-		prov, err = provider.GetProvider(hc.runtimeContext, ds.Name, ds.Tag, hc.registry, hc.sqlDialect)
+		prov, err = provider.GetProvider(hc.runtimeContext, ds.Name, ds.Tag, hc.registry, hc.sqlSystem)
 		if err == nil {
 			hc.providers[providerName] = prov
 			return prov, err
@@ -302,7 +302,7 @@ func (hc *standardHandlerContext) Clone() HandlerContext {
 		lRUCache:            hc.lRUCache,
 		sqlEngine:           hc.sqlEngine,
 		sqlDataSources:      hc.sqlDataSources,
-		sqlDialect:          hc.sqlDialect,
+		sqlSystem:           hc.sqlSystem,
 		garbageCollector:    hc.garbageCollector,
 		outErrFile:          hc.outErrFile,
 		outfile:             hc.outfile,
@@ -337,15 +337,15 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 		lRUCache:            lruCache,
 		sqlEngine:           sqlEngine,
 		sqlDataSources:      inputBundle.GetSQLDataSources(),
-		sqlDialect:          inputBundle.GetSQLDialect(),
+		sqlSystem:           inputBundle.GetSQLSystem(),
 		garbageCollector:    inputBundle.GetGC(),
 		txnCounterMgr:       inputBundle.GetTxnCounterManager(),
 		txnStore:            inputBundle.GetTxnStore(),
 		namespaceCollection: inputBundle.GetNamespaceCollection(),
-		formatter:           inputBundle.GetSQLDialect().GetASTFormatter(),
+		formatter:           inputBundle.GetSQLSystem().GetASTFormatter(),
 		pgInternalRouter:    inputBundle.GetDBMSInternalRouter(),
 	}
-	drmCfg, err := drm.GetDRMConfig(inputBundle.GetSQLDialect(), rv.namespaceCollection, controlAttributes)
+	drmCfg, err := drm.GetDRMConfig(inputBundle.GetSQLSystem(), rv.namespaceCollection, controlAttributes)
 	if err != nil {
 		return nil, err
 	}

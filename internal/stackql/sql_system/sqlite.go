@@ -1,4 +1,4 @@
-package sqldialect
+package sql_system
 
 import (
 	"database/sql"
@@ -18,8 +18,8 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-func newSQLiteDialect(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString string, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter, sqlCfg dto.SQLBackendCfg) (SQLDialect, error) {
-	rv := &sqLiteDialect{
+func newSQLiteSystem(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString string, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter, sqlCfg dto.SQLBackendCfg) (SQLSystem, error) {
+	rv := &sqLiteSystem{
 		defaultGolangKind:     reflect.String,
 		defaultRelationalType: "text",
 		typeMappings: map[string]internaldto.DRMCoupling{
@@ -39,7 +39,7 @@ func newSQLiteDialect(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeStrin
 	return rv, err
 }
 
-type sqLiteDialect struct {
+type sqLiteSystem struct {
 	controlAttributes            sqlcontrol.ControlAttributes
 	analyticsNamespaceLikeString string
 	sqlEngine                    sqlengine.SQLEngine
@@ -49,16 +49,16 @@ type sqLiteDialect struct {
 	defaultGolangKind            reflect.Kind
 }
 
-func (eng *sqLiteDialect) initSQLiteEngine() error {
+func (eng *sqLiteSystem) initSQLiteEngine() error {
 	_, err := eng.sqlEngine.Exec(sqLiteEngineSetupDDL)
 	return err
 }
 
-func (se *sqLiteDialect) GetTable(tableHeirarchyIDs internaldto.HeirarchyIdentifiers, discoveryId int) (internaldto.DBTable, error) {
+func (se *sqLiteSystem) GetTable(tableHeirarchyIDs internaldto.HeirarchyIdentifiers, discoveryId int) (internaldto.DBTable, error) {
 	return se.getTable(tableHeirarchyIDs, discoveryId)
 }
 
-func (se *sqLiteDialect) getTable(tableHeirarchyIDs internaldto.HeirarchyIdentifiers, discoveryId int) (internaldto.DBTable, error) {
+func (se *sqLiteSystem) getTable(tableHeirarchyIDs internaldto.HeirarchyIdentifiers, discoveryId int) (internaldto.DBTable, error) {
 	tableNameStump, err := se.getTableNameStump(tableHeirarchyIDs)
 	if err != nil {
 		return internaldto.NewDBTable("", "", "", 0, tableHeirarchyIDs), err
@@ -67,15 +67,15 @@ func (se *sqLiteDialect) getTable(tableHeirarchyIDs internaldto.HeirarchyIdentif
 	return internaldto.NewDBTable(tableName, tableNameStump, tableHeirarchyIDs.GetTableName(), discoveryId, tableHeirarchyIDs), err
 }
 
-func (se *sqLiteDialect) GetCurrentTable(tableHeirarchyIDs internaldto.HeirarchyIdentifiers) (internaldto.DBTable, error) {
+func (se *sqLiteSystem) GetCurrentTable(tableHeirarchyIDs internaldto.HeirarchyIdentifiers) (internaldto.DBTable, error) {
 	return se.getCurrentTable(tableHeirarchyIDs)
 }
 
-func (se *sqLiteDialect) getTableNameStump(tableHeirarchyIDs internaldto.HeirarchyIdentifiers) (string, error) {
+func (se *sqLiteSystem) getTableNameStump(tableHeirarchyIDs internaldto.HeirarchyIdentifiers) (string, error) {
 	return tableHeirarchyIDs.GetTableName(), nil
 }
 
-func (se *sqLiteDialect) getCurrentTable(tableHeirarchyIDs internaldto.HeirarchyIdentifiers) (internaldto.DBTable, error) {
+func (se *sqLiteSystem) getCurrentTable(tableHeirarchyIDs internaldto.HeirarchyIdentifiers) (internaldto.DBTable, error) {
 	var tableName string
 	var discoID int
 	tableNameStump, err := se.getTableNameStump(tableHeirarchyIDs)
@@ -95,19 +95,19 @@ func (se *sqLiteDialect) getCurrentTable(tableHeirarchyIDs internaldto.Heirarchy
 	return internaldto.NewDBTable(tableName, tableNameStump, tableHeirarchyIDs.GetTableName(), discoID, tableHeirarchyIDs), nil
 }
 
-func (sl *sqLiteDialect) GetName() string {
+func (sl *sqLiteSystem) GetName() string {
 	return constants.SQLDialectSQLite3
 }
 
-func (sl *sqLiteDialect) GetASTFormatter() sqlparser.NodeFormatter {
+func (sl *sqLiteSystem) GetASTFormatter() sqlparser.NodeFormatter {
 	return sl.formatter
 }
 
-func (sl *sqLiteDialect) GetASTFuncRewriter() astfuncrewrite.ASTFuncRewriter {
+func (sl *sqLiteSystem) GetASTFuncRewriter() astfuncrewrite.ASTFuncRewriter {
 	return astfuncrewrite.GetNopFuncRewriter()
 }
 
-func (sl *sqLiteDialect) GCAdd(tableName string, parentTcc, lockableTcc internaldto.TxnControlCounters) error {
+func (sl *sqLiteSystem) GCAdd(tableName string, parentTcc, lockableTcc internaldto.TxnControlCounters) error {
 	maxTxnColName := sl.controlAttributes.GetControlMaxTxnColumnName()
 	q := fmt.Sprintf(
 		`
@@ -144,11 +144,11 @@ func (sl *sqLiteDialect) GCAdd(tableName string, parentTcc, lockableTcc internal
 	return err
 }
 
-func (sl *sqLiteDialect) GCCollectObsoleted(minTransactionID int) error {
+func (sl *sqLiteSystem) GCCollectObsoleted(minTransactionID int) error {
 	return sl.gCCollectObsoleted(minTransactionID)
 }
 
-func (sl *sqLiteDialect) gCCollectObsoleted(minTransactionID int) error {
+func (sl *sqLiteSystem) gCCollectObsoleted(minTransactionID int) error {
 	maxTxnColName := sl.controlAttributes.GetControlMaxTxnColumnName()
 	obtainQuery := fmt.Sprintf(
 		`
@@ -173,15 +173,15 @@ func (sl *sqLiteDialect) gCCollectObsoleted(minTransactionID int) error {
 	return sl.readExecGeneratedQueries(deleteQueryResultSet)
 }
 
-func (sl *sqLiteDialect) GCCollectAll() error {
+func (sl *sqLiteSystem) GCCollectAll() error {
 	return sl.gCCollectAll()
 }
 
-func (sl *sqLiteDialect) GetSQLEngine() sqlengine.SQLEngine {
+func (sl *sqLiteSystem) GetSQLEngine() sqlengine.SQLEngine {
 	return sl.sqlEngine
 }
 
-func (sl *sqLiteDialect) gCCollectAll() error {
+func (sl *sqLiteSystem) gCCollectAll() error {
 	obtainQuery := `
 		SELECT
 			'DELETE FROM "' || name || '"  ; '
@@ -201,20 +201,20 @@ func (sl *sqLiteDialect) gCCollectAll() error {
 	return sl.readExecGeneratedQueries(deleteQueryResultSet)
 }
 
-func (eng *sqLiteDialect) generateDropTableStatement(relationalTable relationaldto.RelationalTable) (string, error) {
+func (eng *sqLiteSystem) generateDropTableStatement(relationalTable relationaldto.RelationalTable) (string, error) {
 	s, err := relationalTable.GetName()
 	return fmt.Sprintf(`drop table if exists "%s"`, s), err
 }
 
-func (sl *sqLiteDialect) GCControlTablesPurge() error {
+func (sl *sqLiteSystem) GCControlTablesPurge() error {
 	return sl.gcControlTablesPurge()
 }
 
-func (eng *sqLiteDialect) GenerateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error) {
+func (eng *sqLiteSystem) GenerateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error) {
 	return eng.generateDDL(relationalTable, dropTable)
 }
 
-func (eng *sqLiteDialect) generateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error) {
+func (eng *sqLiteSystem) generateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error) {
 	var colDefs, retVal []string
 	var rv strings.Builder
 	if dropTable {
@@ -269,11 +269,11 @@ func (eng *sqLiteDialect) generateDDL(relationalTable relationaldto.RelationalTa
 	return retVal, nil
 }
 
-func (eng *sqLiteDialect) GetViewByName(viewName string) (internaldto.ViewDTO, bool) {
+func (eng *sqLiteSystem) GetViewByName(viewName string) (internaldto.ViewDTO, bool) {
 	return eng.getViewByName(viewName)
 }
 
-func (eng *sqLiteDialect) getViewByName(viewName string) (internaldto.ViewDTO, bool) {
+func (eng *sqLiteSystem) getViewByName(viewName string) (internaldto.ViewDTO, bool) {
 	q := `SELECT view_ddl FROM "__iql__.views" WHERE view_name = ? and deleted_dttm IS NULL`
 	row := eng.sqlEngine.QueryRow(q, viewName)
 	if row != nil {
@@ -287,16 +287,16 @@ func (eng *sqLiteDialect) getViewByName(viewName string) (internaldto.ViewDTO, b
 	return nil, false
 }
 
-func (eng *sqLiteDialect) DropView(viewName string) error {
+func (eng *sqLiteSystem) DropView(viewName string) error {
 	_, err := eng.sqlEngine.Exec(`delete from "__iql__.views" where view_name = ?`, viewName)
 	return err
 }
 
-func (eng *sqLiteDialect) CreateView(viewName string, rawDDL string) error {
+func (eng *sqLiteSystem) CreateView(viewName string, rawDDL string) error {
 	return eng.createView(viewName, rawDDL)
 }
 
-func (eng *sqLiteDialect) createView(viewName string, rawDDL string) error {
+func (eng *sqLiteSystem) createView(viewName string, rawDDL string) error {
 	q := `
 	INSERT INTO "__iql__.views" (
 		view_name,
@@ -311,7 +311,7 @@ func (eng *sqLiteDialect) createView(viewName string, rawDDL string) error {
 	return err
 }
 
-func (eng *sqLiteDialect) generateViewDDL(relationalTable relationaldto.RelationalTable) ([]string, error) {
+func (eng *sqLiteSystem) generateViewDDL(relationalTable relationaldto.RelationalTable) ([]string, error) {
 	var colNames, retVal []string
 	var createViewBuilder strings.Builder
 	retVal = append(retVal, fmt.Sprintf(`drop view if exists "%s" ; `, relationalTable.GetBaseName()))
@@ -331,7 +331,7 @@ func (eng *sqLiteDialect) generateViewDDL(relationalTable relationaldto.Relation
 	return retVal, nil
 }
 
-func (eng *sqLiteDialect) IsTablePresent(tableName string, requestEncoding string, colName string) bool {
+func (eng *sqLiteSystem) IsTablePresent(tableName string, requestEncoding string, colName string) bool {
 	rows, err := eng.sqlEngine.Query(fmt.Sprintf(`SELECT count(*) as ct FROM "%s" WHERE iql_insert_encoded=?;`, tableName), requestEncoding)
 	if err == nil && rows != nil {
 		defer rows.Close()
@@ -357,7 +357,7 @@ func (eng *sqLiteDialect) IsTablePresent(tableName string, requestEncoding strin
 //
 // Therefore, this method will behave correctly provided that the column `colName`
 // is populated with `DateTime('now')`.
-func (eng *sqLiteDialect) TableOldestUpdateUTC(tableName string, requestEncoding string, updateColName string, requestEncodingColName string) (time.Time, internaldto.TxnControlCounters) {
+func (eng *sqLiteSystem) TableOldestUpdateUTC(tableName string, requestEncoding string, updateColName string, requestEncodingColName string) (time.Time, internaldto.TxnControlCounters) {
 	genIdColName := eng.controlAttributes.GetControlGenIdColumnName()
 	ssnIdColName := eng.controlAttributes.GetControlSsnIdColumnName()
 	txnIdColName := eng.controlAttributes.GetControlTxnIdColumnName()
@@ -383,11 +383,11 @@ func (eng *sqLiteDialect) TableOldestUpdateUTC(tableName string, requestEncoding
 	return time.Time{}, nil
 }
 
-func (eng *sqLiteDialect) GetGCHousekeepingQuery(tableName string, tcc internaldto.TxnControlCounters) string {
+func (eng *sqLiteSystem) GetGCHousekeepingQuery(tableName string, tcc internaldto.TxnControlCounters) string {
 	return eng.getGCHousekeepingQuery(tableName, tcc)
 }
 
-func (eng *sqLiteDialect) getGCHousekeepingQuery(tableName string, tcc internaldto.TxnControlCounters) string {
+func (eng *sqLiteSystem) getGCHousekeepingQuery(tableName string, tcc internaldto.TxnControlCounters) string {
 	templateQuery := `INSERT OR IGNORE INTO 
 	  "__iql__.control.gc.txn_table_x_ref" (
 			iql_generation_id, 
@@ -398,11 +398,11 @@ func (eng *sqLiteDialect) getGCHousekeepingQuery(tableName string, tcc internald
 	return fmt.Sprintf(templateQuery, tcc.GetGenID(), tcc.GetSessionID(), tcc.GetTxnID(), tableName)
 }
 
-func (eng *sqLiteDialect) ComposeSelectQuery(columns []relationaldto.RelationalColumn, tableAliases []string, fromString string, rewrittenWhere string, selectSuffix string) (string, error) {
+func (eng *sqLiteSystem) ComposeSelectQuery(columns []relationaldto.RelationalColumn, tableAliases []string, fromString string, rewrittenWhere string, selectSuffix string) (string, error) {
 	return eng.composeSelectQuery(columns, tableAliases, fromString, rewrittenWhere, selectSuffix)
 }
 
-func (eng *sqLiteDialect) composeSelectQuery(columns []relationaldto.RelationalColumn, tableAliases []string, fromString string, rewrittenWhere string, selectSuffix string) (string, error) {
+func (eng *sqLiteSystem) composeSelectQuery(columns []relationaldto.RelationalColumn, tableAliases []string, fromString string, rewrittenWhere string, selectSuffix string) (string, error) {
 	var q strings.Builder
 	var quotedColNames []string
 	for _, col := range columns {
@@ -458,35 +458,35 @@ func (eng *sqLiteDialect) composeSelectQuery(columns []relationaldto.RelationalC
 	return eng.sanitizeQueryString(query)
 }
 
-func (eng *sqLiteDialect) GetFullyQualifiedTableName(unqualifiedTableName string) (string, error) {
+func (eng *sqLiteSystem) GetFullyQualifiedTableName(unqualifiedTableName string) (string, error) {
 	return eng.getFullyQualifiedTableName(unqualifiedTableName)
 }
 
-func (eng *sqLiteDialect) getFullyQualifiedTableName(unqualifiedTableName string) (string, error) {
+func (eng *sqLiteSystem) getFullyQualifiedTableName(unqualifiedTableName string) (string, error) {
 	return fmt.Sprintf(`"%s"`, unqualifiedTableName), nil
 }
 
-func (eng *sqLiteDialect) SanitizeQueryString(queryString string) (string, error) {
+func (eng *sqLiteSystem) SanitizeQueryString(queryString string) (string, error) {
 	return eng.sanitizeQueryString(queryString)
 }
 
-func (eng *sqLiteDialect) sanitizeQueryString(queryString string) (string, error) {
+func (eng *sqLiteSystem) sanitizeQueryString(queryString string) (string, error) {
 	return queryString, nil
 }
 
-func (eng *sqLiteDialect) SanitizeWhereQueryString(queryString string) (string, error) {
+func (eng *sqLiteSystem) SanitizeWhereQueryString(queryString string) (string, error) {
 	return eng.sanitizeWhereQueryString(queryString)
 }
 
-func (eng *sqLiteDialect) sanitizeWhereQueryString(queryString string) (string, error) {
+func (eng *sqLiteSystem) sanitizeWhereQueryString(queryString string) (string, error) {
 	return queryString, nil
 }
 
-func (eng *sqLiteDialect) GenerateInsertDML(relationalTable relationaldto.RelationalTable, tcc internaldto.TxnControlCounters) (string, error) {
+func (eng *sqLiteSystem) GenerateInsertDML(relationalTable relationaldto.RelationalTable, tcc internaldto.TxnControlCounters) (string, error) {
 	return eng.generateInsertDML(relationalTable, tcc)
 }
 
-func (eng *sqLiteDialect) generateInsertDML(relationalTable relationaldto.RelationalTable, tcc internaldto.TxnControlCounters) (string, error) {
+func (eng *sqLiteSystem) generateInsertDML(relationalTable relationaldto.RelationalTable, tcc internaldto.TxnControlCounters) (string, error) {
 	var q strings.Builder
 	var quotedColNames, vals []string
 	tableName, err := relationalTable.GetName()
@@ -518,11 +518,11 @@ func (eng *sqLiteDialect) generateInsertDML(relationalTable relationaldto.Relati
 	return q.String(), nil
 }
 
-func (eng *sqLiteDialect) GenerateSelectDML(relationalTable relationaldto.RelationalTable, txnCtrlCtrs internaldto.TxnControlCounters, selectSuffix, rewrittenWhere string) (string, error) {
+func (eng *sqLiteSystem) GenerateSelectDML(relationalTable relationaldto.RelationalTable, txnCtrlCtrs internaldto.TxnControlCounters, selectSuffix, rewrittenWhere string) (string, error) {
 	return eng.generateSelectDML(relationalTable, txnCtrlCtrs, selectSuffix, rewrittenWhere)
 }
 
-func (eng *sqLiteDialect) generateSelectDML(relationalTable relationaldto.RelationalTable, txnCtrlCtrs internaldto.TxnControlCounters, selectSuffix, rewrittenWhere string) (string, error) {
+func (eng *sqLiteSystem) generateSelectDML(relationalTable relationaldto.RelationalTable, txnCtrlCtrs internaldto.TxnControlCounters, selectSuffix, rewrittenWhere string) (string, error) {
 	var q strings.Builder
 	var quotedColNames []string
 	for _, col := range relationalTable.GetColumns() {
@@ -560,7 +560,7 @@ func (eng *sqLiteDialect) generateSelectDML(relationalTable relationaldto.Relati
 	return q.String(), nil
 }
 
-func (sl *sqLiteDialect) gcControlTablesPurge() error {
+func (sl *sqLiteSystem) gcControlTablesPurge() error {
 	obtainQuery := `
 		SELECT
 		  'DELETE FROM "' || name || '" ; '
@@ -578,15 +578,15 @@ func (sl *sqLiteDialect) gcControlTablesPurge() error {
 	return sl.readExecGeneratedQueries(deleteQueryResultSet)
 }
 
-func (sl *sqLiteDialect) GCPurgeEphemeral() error {
+func (sl *sqLiteSystem) GCPurgeEphemeral() error {
 	return sl.gcPurgeEphemeral()
 }
 
-func (sl *sqLiteDialect) GCPurgeCache() error {
+func (sl *sqLiteSystem) GCPurgeCache() error {
 	return sl.gcPurgeCache()
 }
 
-func (sl *sqLiteDialect) gcPurgeCache() error {
+func (sl *sqLiteSystem) gcPurgeCache() error {
 	query := `
 	select distinct 
 		'DROP TABLE IF EXISTS "' || name || '" ; ' 
@@ -600,7 +600,7 @@ func (sl *sqLiteDialect) gcPurgeCache() error {
 	return sl.readExecGeneratedQueries(rows)
 }
 
-func (sl *sqLiteDialect) gcPurgeEphemeral() error {
+func (sl *sqLiteSystem) gcPurgeEphemeral() error {
 	query := `
 	select distinct 
 		'DROP TABLE IF EXISTS "' || name || '" ; ' 
@@ -622,19 +622,19 @@ func (sl *sqLiteDialect) gcPurgeEphemeral() error {
 	return sl.readExecGeneratedQueries(rows)
 }
 
-func (sl *sqLiteDialect) PurgeAll() error {
+func (sl *sqLiteSystem) PurgeAll() error {
 	return sl.purgeAll()
 }
 
-func (sl *sqLiteDialect) GetOperatorOr() string {
+func (sl *sqLiteSystem) GetOperatorOr() string {
 	return "||"
 }
 
-func (sl *sqLiteDialect) GetOperatorStringConcat() string {
+func (sl *sqLiteSystem) GetOperatorStringConcat() string {
 	return "|"
 }
 
-func (sl *sqLiteDialect) purgeAll() error {
+func (sl *sqLiteSystem) purgeAll() error {
 	obtainQuery := `
 		SELECT
 			'DROP TABLE IF EXISTS "' || name || '" ; '
@@ -654,15 +654,15 @@ func (sl *sqLiteDialect) purgeAll() error {
 	return sl.readExecGeneratedQueries(deleteQueryResultSet)
 }
 
-func (eng *sqLiteDialect) DelimitGroupByColumn(term string) string {
+func (eng *sqLiteSystem) DelimitGroupByColumn(term string) string {
 	return term
 }
 
-func (eng *sqLiteDialect) DelimitOrderByColumn(term string) string {
+func (eng *sqLiteSystem) DelimitOrderByColumn(term string) string {
 	return term
 }
 
-func (sl *sqLiteDialect) readExecGeneratedQueries(queryResultSet *sql.Rows) error {
+func (sl *sqLiteSystem) readExecGeneratedQueries(queryResultSet *sql.Rows) error {
 	defer queryResultSet.Close()
 	var queries []string
 	for {
@@ -681,11 +681,11 @@ func (sl *sqLiteDialect) readExecGeneratedQueries(queryResultSet *sql.Rows) erro
 	return err
 }
 
-func (eng *sqLiteDialect) GetRelationalType(discoType string) string {
+func (eng *sqLiteSystem) GetRelationalType(discoType string) string {
 	return eng.getRelationalType(discoType)
 }
 
-func (eng *sqLiteDialect) getRelationalType(discoType string) string {
+func (eng *sqLiteSystem) getRelationalType(discoType string) string {
 	rv, ok := eng.typeMappings[discoType]
 	if ok {
 		return rv.GetRelationalType()
@@ -693,11 +693,11 @@ func (eng *sqLiteDialect) getRelationalType(discoType string) string {
 	return eng.defaultRelationalType
 }
 
-func (eng *sqLiteDialect) GetGolangValue(discoType string) interface{} {
+func (eng *sqLiteSystem) GetGolangValue(discoType string) interface{} {
 	return eng.getGolangValue(discoType)
 }
 
-func (eng *sqLiteDialect) getGolangValue(discoType string) interface{} {
+func (eng *sqLiteSystem) getGolangValue(discoType string) interface{} {
 	rv, ok := eng.typeMappings[discoType]
 	if !ok {
 		return eng.getDefaultGolangValue()
@@ -719,11 +719,11 @@ func (eng *sqLiteDialect) getGolangValue(discoType string) interface{} {
 	return eng.getDefaultGolangValue()
 }
 
-func (eng *sqLiteDialect) getDefaultGolangValue() interface{} {
+func (eng *sqLiteSystem) getDefaultGolangValue() interface{} {
 	return &sql.NullString{}
 }
 
-func (eng *sqLiteDialect) GetGolangKind(discoType string) reflect.Kind {
+func (eng *sqLiteSystem) GetGolangKind(discoType string) reflect.Kind {
 	rv, ok := eng.typeMappings[discoType]
 	if !ok {
 		return eng.getDefaultGolangKind()
@@ -731,10 +731,10 @@ func (eng *sqLiteDialect) GetGolangKind(discoType string) reflect.Kind {
 	return rv.GetGolangKind()
 }
 
-func (eng *sqLiteDialect) getDefaultGolangKind() reflect.Kind {
+func (eng *sqLiteSystem) getDefaultGolangKind() reflect.Kind {
 	return eng.defaultGolangKind
 }
 
-func (eng *sqLiteDialect) QueryNamespaced(colzString, actualTableName, requestEncodingColName, requestEncoding string) (*sql.Rows, error) {
+func (eng *sqLiteSystem) QueryNamespaced(colzString, actualTableName, requestEncodingColName, requestEncoding string) (*sql.Rows, error) {
 	return eng.sqlEngine.Query(fmt.Sprintf(`SELECT %s FROM "%s" WHERE "%s" = ?`, colzString, actualTableName, requestEncodingColName), requestEncoding)
 }

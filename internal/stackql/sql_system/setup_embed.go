@@ -1,4 +1,4 @@
-package sqldialect
+package sql_system
 
 import _ "embed"
 

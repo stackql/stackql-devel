@@ -7,7 +7,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/astanalysis/annotatedast"
 	"github.com/stackql/stackql/internal/stackql/astformat"
 	"github.com/stackql/stackql/internal/stackql/drm"
-	"github.com/stackql/stackql/internal/stackql/sqldialect"
+	"github.com/stackql/stackql/internal/stackql/sql_system"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 
@@ -31,7 +31,7 @@ type standardFromRewriteAstVisitor struct {
 	rewrittenQuery      string
 	shouldCollectTables bool
 	namespaceCollection tablenamespace.TableNamespaceCollection
-	sqlDialect          sqldialect.SQLDialect
+	sqlSystem           sql_system.SQLSystem
 	formatter           sqlparser.NodeFormatter
 	annotations         taxonomy.AnnotationCtxMap
 	dc                  drm.DRMConfig
@@ -43,7 +43,7 @@ func NewFromRewriteAstVisitor(
 	annotatedAST annotatedast.AnnotatedAst,
 	iDColumnName string,
 	shouldCollectTables bool,
-	sqlDialect sqldialect.SQLDialect,
+	sqlSystem sql_system.SQLSystem,
 	formatter sqlparser.NodeFormatter,
 	namespaceCollection tablenamespace.TableNamespaceCollection,
 	annotations taxonomy.AnnotationCtxMap,
@@ -54,7 +54,7 @@ func NewFromRewriteAstVisitor(
 		iDColumnName:        iDColumnName,
 		shouldCollectTables: shouldCollectTables,
 		namespaceCollection: namespaceCollection,
-		sqlDialect:          sqlDialect,
+		sqlSystem:           sqlSystem,
 		formatter:           formatter,
 		annotations:         annotations,
 		dc:                  dc,
@@ -643,7 +643,7 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 						return err
 					}
 					tblStr := dbTbl.GetName()
-					fqtn, err := v.sqlDialect.GetFullyQualifiedTableName(tblStr)
+					fqtn, err := v.sqlSystem.GetFullyQualifiedTableName(tblStr)
 					v.rewrittenQuery = fqtn
 					if err != nil {
 						return err
@@ -705,11 +705,11 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		v.rewrittenQuery = buf.String()
 
 	case *sqlparser.JoinTableExpr:
-		lVis := NewFromRewriteAstVisitor(v.annotatedAST, "", true, v.sqlDialect, v.formatter, v.namespaceCollection, v.annotations, v.dc)
+		lVis := NewFromRewriteAstVisitor(v.annotatedAST, "", true, v.sqlSystem, v.formatter, v.namespaceCollection, v.annotations, v.dc)
 		node.LeftExpr.Accept(lVis)
-		rVis := NewFromRewriteAstVisitor(v.annotatedAST, "", true, v.sqlDialect, v.formatter, v.namespaceCollection, v.annotations, v.dc)
+		rVis := NewFromRewriteAstVisitor(v.annotatedAST, "", true, v.sqlSystem, v.formatter, v.namespaceCollection, v.annotations, v.dc)
 		node.RightExpr.Accept(rVis)
-		conditionVis := NewFromRewriteAstVisitor(v.annotatedAST, "", true, v.sqlDialect, v.formatter, v.namespaceCollection, v.annotations, v.dc)
+		conditionVis := NewFromRewriteAstVisitor(v.annotatedAST, "", true, v.sqlSystem, v.formatter, v.namespaceCollection, v.annotations, v.dc)
 		node.Condition.Accept(conditionVis)
 		buf.AstPrintf(node, "%s %s %s %s", lVis.GetRewrittenQuery(), node.Join, rVis.GetRewrittenQuery(), conditionVis.GetRewrittenQuery())
 		bs := buf.String()
@@ -761,9 +761,9 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		v.rewrittenQuery = buf.String()
 
 	case *sqlparser.ComparisonExpr:
-		lVis := NewFromRewriteAstVisitor(v.annotatedAST, "", true, v.sqlDialect, v.formatter, v.namespaceCollection, v.annotations, v.dc)
+		lVis := NewFromRewriteAstVisitor(v.annotatedAST, "", true, v.sqlSystem, v.formatter, v.namespaceCollection, v.annotations, v.dc)
 		node.Left.Accept(lVis)
-		rVis := NewFromRewriteAstVisitor(v.annotatedAST, "", true, v.sqlDialect, v.formatter, v.namespaceCollection, v.annotations, v.dc)
+		rVis := NewFromRewriteAstVisitor(v.annotatedAST, "", true, v.sqlSystem, v.formatter, v.namespaceCollection, v.annotations, v.dc)
 		node.Right.Accept(rVis)
 		buf.AstPrintf(node, "%s %s %s", lVis.GetRewrittenQuery(), node.Operator, rVis.GetRewrittenQuery())
 		if node.Escape != nil {
@@ -870,11 +870,11 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		// 		v.tablesCited[node] = te
 		// 	}
 		// }
-		s := astformat.String(node.Exec.MethodName, v.sqlDialect.GetASTFormatter())
+		s := astformat.String(node.Exec.MethodName, v.sqlSystem.GetASTFormatter())
 		v.rewrittenQuery = s
 
 	case *sqlparser.FuncExpr:
-		newNode, err := v.sqlDialect.GetASTFuncRewriter().RewriteFunc(node)
+		newNode, err := v.sqlSystem.GetASTFuncRewriter().RewriteFunc(node)
 		if err != nil {
 			return err
 		}
@@ -982,9 +982,9 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			switch n := n.(type) {
 			case *sqlparser.ColName:
 				if n.Qualifier.GetRawVal() == "" {
-					colz = append(colz, v.sqlDialect.DelimitGroupByColumn(n.Name.GetRawVal()))
+					colz = append(colz, v.sqlSystem.DelimitGroupByColumn(n.Name.GetRawVal()))
 				} else {
-					colz = append(colz, fmt.Sprintf(`%s.%s`, v.sqlDialect.DelimitGroupByColumn(n.Qualifier.GetRawVal()), v.sqlDialect.DelimitGroupByColumn(n.Name.GetRawVal())))
+					colz = append(colz, fmt.Sprintf(`%s.%s`, v.sqlSystem.DelimitGroupByColumn(n.Qualifier.GetRawVal()), v.sqlSystem.DelimitGroupByColumn(n.Name.GetRawVal())))
 				}
 			default:
 				colz = append(colz, sqlparser.String(n))
@@ -1002,9 +1002,9 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			switch n := orderNode.Expr.(type) {
 			case *sqlparser.ColName:
 				if n.Qualifier.GetRawVal() == "" {
-					colz = append(colz, fmt.Sprintf(`%s %s`, v.sqlDialect.DelimitOrderByColumn(n.Name.GetRawVal()), orderNode.Direction))
+					colz = append(colz, fmt.Sprintf(`%s %s`, v.sqlSystem.DelimitOrderByColumn(n.Name.GetRawVal()), orderNode.Direction))
 				} else {
-					colz = append(colz, fmt.Sprintf(`%s.%s %s`, v.sqlDialect.DelimitOrderByColumn(n.Qualifier.GetRawVal()), v.sqlDialect.DelimitOrderByColumn(n.Name.GetRawVal()), orderNode.Direction))
+					colz = append(colz, fmt.Sprintf(`%s.%s %s`, v.sqlSystem.DelimitOrderByColumn(n.Qualifier.GetRawVal()), v.sqlSystem.DelimitOrderByColumn(n.Name.GetRawVal()), orderNode.Direction))
 				}
 			default:
 				colz = append(colz, fmt.Sprintf("%s %s", sqlparser.String(n), orderNode.Direction))

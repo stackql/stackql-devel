@@ -1,4 +1,4 @@
-package sqldialect
+package sql_system
 
 import (
 	"database/sql"
@@ -18,7 +18,7 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-func newPostgresDialect(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString string, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter, sqlCfg dto.SQLBackendCfg) (SQLDialect, error) {
+func newPostgresSystem(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString string, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter, sqlCfg dto.SQLBackendCfg) (SQLSystem, error) {
 	catalogName, err := sqlCfg.GetDatabaseName()
 	if err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func newPostgresDialect(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeStr
 	if tableSchemaName == "" {
 		tableSchemaName = "public"
 	}
-	rv := &postgresDialect{
+	rv := &postgresSystem{
 		defaultGolangKind:     reflect.String,
 		defaultRelationalType: "text",
 		typeMappings: map[string]internaldto.DRMCoupling{
@@ -64,14 +64,14 @@ func newPostgresDialect(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeStr
 	return rv, nil
 }
 
-func (eng *postgresDialect) inferViewSchemataEnabled(schemataCfg dto.SQLBackendSchemata) (bool, error) {
+func (eng *postgresSystem) inferViewSchemataEnabled(schemataCfg dto.SQLBackendSchemata) (bool, error) {
 	if schemataCfg.TableSchema == "" || schemataCfg.OpsViewSchema == "" || schemataCfg.IntelViewSchema == "" {
 		return false, nil
 	}
 	return true, nil
 }
 
-type postgresDialect struct {
+type postgresSystem struct {
 	controlAttributes            sqlcontrol.ControlAttributes
 	analyticsNamespaceLikeString string
 	sqlEngine                    sqlengine.SQLEngine
@@ -86,12 +86,12 @@ type postgresDialect struct {
 	tableCatalog                 string
 }
 
-func (eng *postgresDialect) initPostgresEngine() error {
+func (eng *postgresSystem) initPostgresEngine() error {
 	_, err := eng.sqlEngine.Exec(postgresEngineSetupDDL)
 	return err
 }
 
-func (eng *postgresDialect) generateDropTableStatement(relationalTable relationaldto.RelationalTable) (string, error) {
+func (eng *postgresSystem) generateDropTableStatement(relationalTable relationaldto.RelationalTable) (string, error) {
 	tableName, err := relationalTable.GetName()
 	if err != nil {
 		return "", err
@@ -99,39 +99,39 @@ func (eng *postgresDialect) generateDropTableStatement(relationalTable relationa
 	return fmt.Sprintf(`drop table if exists "%s"`, tableName), nil
 }
 
-func (eng *postgresDialect) GetFullyQualifiedTableName(unqualifiedTableName string) (string, error) {
+func (eng *postgresSystem) GetFullyQualifiedTableName(unqualifiedTableName string) (string, error) {
 	return eng.getFullyQualifiedTableName(unqualifiedTableName)
 }
 
-func (eng *postgresDialect) getFullyQualifiedTableName(unqualifiedTableName string) (string, error) {
+func (eng *postgresSystem) getFullyQualifiedTableName(unqualifiedTableName string) (string, error) {
 	return fmt.Sprintf(`"%s"."%s"`, eng.tableSchema, unqualifiedTableName), nil
 }
 
-func (sl *postgresDialect) GetASTFormatter() sqlparser.NodeFormatter {
+func (sl *postgresSystem) GetASTFormatter() sqlparser.NodeFormatter {
 	return sl.formatter
 }
 
-func (sl *postgresDialect) GetASTFuncRewriter() astfuncrewrite.ASTFuncRewriter {
+func (sl *postgresSystem) GetASTFuncRewriter() astfuncrewrite.ASTFuncRewriter {
 	return astfuncrewrite.GetPostgresASTFuncRewriter()
 }
 
-func (eng *postgresDialect) GenerateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error) {
+func (eng *postgresSystem) GenerateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error) {
 	return eng.generateDDL(relationalTable, dropTable)
 }
 
-func (eng *postgresDialect) SanitizeQueryString(queryString string) (string, error) {
+func (eng *postgresSystem) SanitizeQueryString(queryString string) (string, error) {
 	return eng.sanitizeQueryString(queryString)
 }
 
-func (eng *postgresDialect) sanitizeQueryString(queryString string) (string, error) {
+func (eng *postgresSystem) sanitizeQueryString(queryString string) (string, error) {
 	return strings.ReplaceAll(queryString, "`", `"`), nil
 }
 
-func (eng *postgresDialect) SanitizeWhereQueryString(queryString string) (string, error) {
+func (eng *postgresSystem) SanitizeWhereQueryString(queryString string) (string, error) {
 	return eng.sanitizeWhereQueryString(queryString)
 }
 
-func (eng *postgresDialect) sanitizeWhereQueryString(queryString string) (string, error) {
+func (eng *postgresSystem) sanitizeWhereQueryString(queryString string) (string, error) {
 	return strings.ReplaceAll(
 		strings.ReplaceAll(
 			strings.ReplaceAll(queryString, "`", `"`),
@@ -141,7 +141,7 @@ func (eng *postgresDialect) sanitizeWhereQueryString(queryString string) (string
 	), nil
 }
 
-func (eng *postgresDialect) generateViewDDL(srcSchemaName string, destSchemaName string, relationalTable relationaldto.RelationalTable) ([]string, error) {
+func (eng *postgresSystem) generateViewDDL(srcSchemaName string, destSchemaName string, relationalTable relationaldto.RelationalTable) ([]string, error) {
 	var colNames, retVal []string
 	var createViewBuilder strings.Builder
 	retVal = append(retVal, fmt.Sprintf(`drop view if exists "%s"."%s" ; `, destSchemaName, relationalTable.GetBaseName()))
@@ -161,7 +161,7 @@ func (eng *postgresDialect) generateViewDDL(srcSchemaName string, destSchemaName
 	return retVal, nil
 }
 
-func (eng *postgresDialect) generateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error) {
+func (eng *postgresSystem) generateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error) {
 	var colDefs, retVal []string
 	if dropTable {
 		dt, err := eng.generateDropTableStatement(relationalTable)
@@ -223,16 +223,16 @@ func (eng *postgresDialect) generateDDL(relationalTable relationaldto.Relational
 	return retVal, nil
 }
 
-func (eng *postgresDialect) DropView(viewName string) error {
+func (eng *postgresSystem) DropView(viewName string) error {
 	_, err := eng.sqlEngine.Exec(`delete from "__iql__.views" where view_name = ?`, viewName)
 	return err
 }
 
-func (eng *postgresDialect) CreateView(viewName string, rawDDL string) error {
+func (eng *postgresSystem) CreateView(viewName string, rawDDL string) error {
 	return eng.createView(viewName, rawDDL)
 }
 
-func (eng *postgresDialect) createView(viewName string, rawDDL string) error {
+func (eng *postgresSystem) createView(viewName string, rawDDL string) error {
 	q := `
 	INSERT INTO "__iql__.views" (
 		view_name,
@@ -247,11 +247,11 @@ func (eng *postgresDialect) createView(viewName string, rawDDL string) error {
 	return err
 }
 
-func (eng *postgresDialect) GetViewByName(viewName string) (internaldto.ViewDTO, bool) {
+func (eng *postgresSystem) GetViewByName(viewName string) (internaldto.ViewDTO, bool) {
 	return eng.getViewByName(viewName)
 }
 
-func (eng *postgresDialect) getViewByName(viewName string) (internaldto.ViewDTO, bool) {
+func (eng *postgresSystem) getViewByName(viewName string) (internaldto.ViewDTO, bool) {
 	q := `SELECT view_ddl FROM "__iql__.views" WHERE view_name = $1 and deleted_dttm IS NULL`
 	row := eng.sqlEngine.QueryRow(q, viewName)
 	if row != nil {
@@ -265,11 +265,11 @@ func (eng *postgresDialect) getViewByName(viewName string) (internaldto.ViewDTO,
 	return nil, false
 }
 
-func (eng *postgresDialect) GetGCHousekeepingQuery(tableName string, tcc internaldto.TxnControlCounters) string {
+func (eng *postgresSystem) GetGCHousekeepingQuery(tableName string, tcc internaldto.TxnControlCounters) string {
 	return eng.getGCHousekeepingQuery(tableName, tcc)
 }
 
-func (eng *postgresDialect) getGCHousekeepingQuery(tableName string, tcc internaldto.TxnControlCounters) string {
+func (eng *postgresSystem) getGCHousekeepingQuery(tableName string, tcc internaldto.TxnControlCounters) string {
 	templateQuery := `INSERT INTO 
 	  "__iql__.control.gc.txn_table_x_ref" (
 			iql_generation_id, 
@@ -282,23 +282,23 @@ func (eng *postgresDialect) getGCHousekeepingQuery(tableName string, tcc interna
 	return fmt.Sprintf(templateQuery, tcc.GetGenID(), tcc.GetSessionID(), tcc.GetTxnID(), tableName)
 }
 
-func (eng *postgresDialect) DelimitGroupByColumn(term string) string {
+func (eng *postgresSystem) DelimitGroupByColumn(term string) string {
 	return eng.quoteWrapTerm(term)
 }
 
-func (eng *postgresDialect) DelimitOrderByColumn(term string) string {
+func (eng *postgresSystem) DelimitOrderByColumn(term string) string {
 	return eng.quoteWrapTerm(term)
 }
 
-func (eng *postgresDialect) quoteWrapTerm(term string) string {
+func (eng *postgresSystem) quoteWrapTerm(term string) string {
 	return fmt.Sprintf(`"%s"`, term)
 }
 
-func (eng *postgresDialect) ComposeSelectQuery(columns []relationaldto.RelationalColumn, tableAliases []string, fromString string, rewrittenWhere string, selectSuffix string) (string, error) {
+func (eng *postgresSystem) ComposeSelectQuery(columns []relationaldto.RelationalColumn, tableAliases []string, fromString string, rewrittenWhere string, selectSuffix string) (string, error) {
 	return eng.composeSelectQuery(columns, tableAliases, fromString, rewrittenWhere, selectSuffix)
 }
 
-func (eng *postgresDialect) composeSelectQuery(columns []relationaldto.RelationalColumn, tableAliases []string, fromString string, rewrittenWhere string, selectSuffix string) (string, error) {
+func (eng *postgresSystem) composeSelectQuery(columns []relationaldto.RelationalColumn, tableAliases []string, fromString string, rewrittenWhere string, selectSuffix string) (string, error) {
 	var q strings.Builder
 	var quotedColNames []string
 	for _, col := range columns {
@@ -355,11 +355,11 @@ func (eng *postgresDialect) composeSelectQuery(columns []relationaldto.Relationa
 	return eng.sanitizeQueryString(query)
 }
 
-func (eng *postgresDialect) GenerateInsertDML(relationalTable relationaldto.RelationalTable, tcc internaldto.TxnControlCounters) (string, error) {
+func (eng *postgresSystem) GenerateInsertDML(relationalTable relationaldto.RelationalTable, tcc internaldto.TxnControlCounters) (string, error) {
 	return eng.generateInsertDML(relationalTable, tcc)
 }
 
-func (eng *postgresDialect) generateInsertDML(relationalTable relationaldto.RelationalTable, tcc internaldto.TxnControlCounters) (string, error) {
+func (eng *postgresSystem) generateInsertDML(relationalTable relationaldto.RelationalTable, tcc internaldto.TxnControlCounters) (string, error) {
 	var q strings.Builder
 	var quotedColNames, vals []string
 	tableName, err := relationalTable.GetName()
@@ -397,11 +397,11 @@ func (eng *postgresDialect) generateInsertDML(relationalTable relationaldto.Rela
 	return q.String(), nil
 }
 
-func (eng *postgresDialect) GenerateSelectDML(relationalTable relationaldto.RelationalTable, txnCtrlCtrs internaldto.TxnControlCounters, selectSuffix, rewrittenWhere string) (string, error) {
+func (eng *postgresSystem) GenerateSelectDML(relationalTable relationaldto.RelationalTable, txnCtrlCtrs internaldto.TxnControlCounters, selectSuffix, rewrittenWhere string) (string, error) {
 	return eng.generateSelectDML(relationalTable, txnCtrlCtrs, selectSuffix, rewrittenWhere)
 }
 
-func (eng *postgresDialect) generateSelectDML(relationalTable relationaldto.RelationalTable, txnCtrlCtrs internaldto.TxnControlCounters, selectSuffix, rewrittenWhere string) (string, error) {
+func (eng *postgresSystem) generateSelectDML(relationalTable relationaldto.RelationalTable, txnCtrlCtrs internaldto.TxnControlCounters, selectSuffix, rewrittenWhere string) (string, error) {
 	var q strings.Builder
 	var quotedColNames []string
 	for _, col := range relationalTable.GetColumns() {
@@ -439,7 +439,7 @@ func (eng *postgresDialect) generateSelectDML(relationalTable relationaldto.Rela
 	return q.String(), nil
 }
 
-func (sl *postgresDialect) GCAdd(tableName string, parentTcc, lockableTcc internaldto.TxnControlCounters) error {
+func (sl *postgresSystem) GCAdd(tableName string, parentTcc, lockableTcc internaldto.TxnControlCounters) error {
 	maxTxnColName := sl.controlAttributes.GetControlMaxTxnColumnName()
 	q := fmt.Sprintf(
 		`
@@ -476,11 +476,11 @@ func (sl *postgresDialect) GCAdd(tableName string, parentTcc, lockableTcc intern
 	return err
 }
 
-func (sl *postgresDialect) GCCollectObsoleted(minTransactionID int) error {
+func (sl *postgresSystem) GCCollectObsoleted(minTransactionID int) error {
 	return sl.gCCollectObsoleted(minTransactionID)
 }
 
-func (sl *postgresDialect) gCCollectObsoleted(minTransactionID int) error {
+func (sl *postgresSystem) gCCollectObsoleted(minTransactionID int) error {
 	maxTxnColName := sl.controlAttributes.GetControlMaxTxnColumnName()
 	obtainQuery := fmt.Sprintf(
 		`
@@ -508,19 +508,19 @@ func (sl *postgresDialect) gCCollectObsoleted(minTransactionID int) error {
 	return sl.readExecGeneratedQueries(deleteQueryResultSet)
 }
 
-func (sl *postgresDialect) GCCollectAll() error {
+func (sl *postgresSystem) GCCollectAll() error {
 	return sl.gCCollectAll()
 }
 
-func (sl *postgresDialect) GetOperatorOr() string {
+func (sl *postgresSystem) GetOperatorOr() string {
 	return "OR"
 }
 
-func (sl *postgresDialect) GetOperatorStringConcat() string {
+func (sl *postgresSystem) GetOperatorStringConcat() string {
 	return "||"
 }
 
-func (sl *postgresDialect) gCCollectAll() error {
+func (sl *postgresSystem) gCCollectAll() error {
 	obtainQuery := fmt.Sprintf(`
 		SELECT
 			'DELETE FROM "%s"."' || table_name || '"  ; '
@@ -544,11 +544,11 @@ func (sl *postgresDialect) gCCollectAll() error {
 	return sl.readExecGeneratedQueries(deleteQueryResultSet)
 }
 
-func (sl *postgresDialect) GCControlTablesPurge() error {
+func (sl *postgresSystem) GCControlTablesPurge() error {
 	return sl.gcControlTablesPurge()
 }
 
-func (eng *postgresDialect) IsTablePresent(tableName string, requestEncoding string, colName string) bool {
+func (eng *postgresSystem) IsTablePresent(tableName string, requestEncoding string, colName string) bool {
 	rows, err := eng.sqlEngine.Query(fmt.Sprintf(`SELECT count(*) as ct FROM "%s"."%s" WHERE iql_insert_encoded = $1 `, eng.tableSchema, tableName), requestEncoding)
 	if err == nil && rows != nil {
 		defer rows.Close()
@@ -565,7 +565,7 @@ func (eng *postgresDialect) IsTablePresent(tableName string, requestEncoding str
 }
 
 // In Postgres, `Timestamp with time zone` objects are timezone-aware.
-func (eng *postgresDialect) TableOldestUpdateUTC(tableName string, requestEncoding string, updateColName string, requestEncodingColName string) (time.Time, internaldto.TxnControlCounters) {
+func (eng *postgresSystem) TableOldestUpdateUTC(tableName string, requestEncoding string, updateColName string, requestEncodingColName string) (time.Time, internaldto.TxnControlCounters) {
 	genIdColName := eng.controlAttributes.GetControlGenIdColumnName()
 	ssnIdColName := eng.controlAttributes.GetControlSsnIdColumnName()
 	txnIdColName := eng.controlAttributes.GetControlTxnIdColumnName()
@@ -588,7 +588,7 @@ func (eng *postgresDialect) TableOldestUpdateUTC(tableName string, requestEncodi
 	return time.Time{}, nil
 }
 
-func (sl *postgresDialect) gcControlTablesPurge() error {
+func (sl *postgresSystem) gcControlTablesPurge() error {
 	obtainQuery := fmt.Sprintf(`
 		SELECT
 		  'DELETE FROM "%s"."' || table_name || '" ; '
@@ -612,19 +612,19 @@ func (sl *postgresDialect) gcControlTablesPurge() error {
 	return sl.readExecGeneratedQueries(deleteQueryResultSet)
 }
 
-func (sl *postgresDialect) GCPurgeEphemeral() error {
+func (sl *postgresSystem) GCPurgeEphemeral() error {
 	return sl.gcPurgeEphemeral()
 }
 
-func (sl *postgresDialect) GCPurgeCache() error {
+func (sl *postgresSystem) GCPurgeCache() error {
 	return sl.gcPurgeCache()
 }
 
-func (sl *postgresDialect) GetName() string {
+func (sl *postgresSystem) GetName() string {
 	return constants.SQLDialectPostgres
 }
 
-func (sl *postgresDialect) gcPurgeCache() error {
+func (sl *postgresSystem) gcPurgeCache() error {
 	query := `
 	select distinct 
 		'DROP TABLE IF EXISTS "' || table_name || '" ; ' 
@@ -646,7 +646,7 @@ func (sl *postgresDialect) gcPurgeCache() error {
 	return sl.readExecGeneratedQueries(rows)
 }
 
-func (sl *postgresDialect) gcPurgeEphemeral() error {
+func (sl *postgresSystem) gcPurgeEphemeral() error {
 	query := `
 	select distinct 
 		'DROP TABLE IF EXISTS "' || table_name || '" ; ' 
@@ -670,15 +670,15 @@ func (sl *postgresDialect) gcPurgeEphemeral() error {
 	return sl.readExecGeneratedQueries(rows)
 }
 
-func (sl *postgresDialect) PurgeAll() error {
+func (sl *postgresSystem) PurgeAll() error {
 	return sl.purgeAll()
 }
 
-func (sl *postgresDialect) GetSQLEngine() sqlengine.SQLEngine {
+func (sl *postgresSystem) GetSQLEngine() sqlengine.SQLEngine {
 	return sl.sqlEngine
 }
 
-func (sl *postgresDialect) purgeAll() error {
+func (sl *postgresSystem) purgeAll() error {
 	obtainQuery := `
 		SELECT
 			'DROP TABLE IF EXISTS "' || table_name || '" ; '
@@ -700,7 +700,7 @@ func (sl *postgresDialect) purgeAll() error {
 	return sl.readExecGeneratedQueries(deleteQueryResultSet)
 }
 
-func (sl *postgresDialect) readExecGeneratedQueries(queryResultSet *sql.Rows) error {
+func (sl *postgresSystem) readExecGeneratedQueries(queryResultSet *sql.Rows) error {
 	defer queryResultSet.Close()
 	var queries []string
 	for {
@@ -719,11 +719,11 @@ func (sl *postgresDialect) readExecGeneratedQueries(queryResultSet *sql.Rows) er
 	return err
 }
 
-func (eng *postgresDialect) GetRelationalType(discoType string) string {
+func (eng *postgresSystem) GetRelationalType(discoType string) string {
 	return eng.getRelationalType(discoType)
 }
 
-func (eng *postgresDialect) getRelationalType(discoType string) string {
+func (eng *postgresSystem) getRelationalType(discoType string) string {
 	rv, ok := eng.typeMappings[discoType]
 	if ok {
 		return rv.GetRelationalType()
@@ -731,11 +731,11 @@ func (eng *postgresDialect) getRelationalType(discoType string) string {
 	return eng.defaultRelationalType
 }
 
-func (eng *postgresDialect) GetGolangValue(discoType string) interface{} {
+func (eng *postgresSystem) GetGolangValue(discoType string) interface{} {
 	return eng.getGolangValue(discoType)
 }
 
-func (eng *postgresDialect) getGolangValue(discoType string) interface{} {
+func (eng *postgresSystem) getGolangValue(discoType string) interface{} {
 	rv, ok := eng.typeMappings[discoType]
 	if !ok {
 		return eng.getDefaultGolangValue()
@@ -757,11 +757,11 @@ func (eng *postgresDialect) getGolangValue(discoType string) interface{} {
 	return eng.getDefaultGolangValue()
 }
 
-func (eng *postgresDialect) getDefaultGolangValue() interface{} {
+func (eng *postgresSystem) getDefaultGolangValue() interface{} {
 	return &sql.NullString{}
 }
 
-func (eng *postgresDialect) GetGolangKind(discoType string) reflect.Kind {
+func (eng *postgresSystem) GetGolangKind(discoType string) reflect.Kind {
 	rv, ok := eng.typeMappings[discoType]
 	if !ok {
 		return eng.getDefaultGolangKind()
@@ -769,19 +769,19 @@ func (eng *postgresDialect) GetGolangKind(discoType string) reflect.Kind {
 	return rv.GetGolangKind()
 }
 
-func (eng *postgresDialect) getDefaultGolangKind() reflect.Kind {
+func (eng *postgresSystem) getDefaultGolangKind() reflect.Kind {
 	return eng.defaultGolangKind
 }
 
-func (eng *postgresDialect) QueryNamespaced(colzString string, actualTableName string, requestEncodingColName string, requestEncoding string) (*sql.Rows, error) {
+func (eng *postgresSystem) QueryNamespaced(colzString string, actualTableName string, requestEncodingColName string, requestEncoding string) (*sql.Rows, error) {
 	return eng.sqlEngine.Query(fmt.Sprintf(`SELECT %s FROM "%s"."%s" WHERE "%s" = $1`, colzString, eng.tableSchema, actualTableName, requestEncodingColName), requestEncoding)
 }
 
-func (se *postgresDialect) GetTable(tableHeirarchyIDs internaldto.HeirarchyIdentifiers, discoveryId int) (internaldto.DBTable, error) {
+func (se *postgresSystem) GetTable(tableHeirarchyIDs internaldto.HeirarchyIdentifiers, discoveryId int) (internaldto.DBTable, error) {
 	return se.getTable(tableHeirarchyIDs, discoveryId)
 }
 
-func (se *postgresDialect) getTable(tableHeirarchyIDs internaldto.HeirarchyIdentifiers, discoveryId int) (internaldto.DBTable, error) {
+func (se *postgresSystem) getTable(tableHeirarchyIDs internaldto.HeirarchyIdentifiers, discoveryId int) (internaldto.DBTable, error) {
 	tableNameStump, err := se.getTableNameStump(tableHeirarchyIDs)
 	if err != nil {
 		return internaldto.NewDBTable("", "", "", 0, tableHeirarchyIDs), err
@@ -790,13 +790,13 @@ func (se *postgresDialect) getTable(tableHeirarchyIDs internaldto.HeirarchyIdent
 	return internaldto.NewDBTable(tableName, tableNameStump, tableHeirarchyIDs.GetTableName(), discoveryId, tableHeirarchyIDs), err
 }
 
-func (se *postgresDialect) GetCurrentTable(tableHeirarchyIDs internaldto.HeirarchyIdentifiers) (internaldto.DBTable, error) {
+func (se *postgresSystem) GetCurrentTable(tableHeirarchyIDs internaldto.HeirarchyIdentifiers) (internaldto.DBTable, error) {
 	return se.getCurrentTable(tableHeirarchyIDs)
 }
 
 // In postgres, 63 chars is default length for IDs such as table names
 // https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
-func (se *postgresDialect) getTableNameStump(tableHeirarchyIDs internaldto.HeirarchyIdentifiers) (string, error) {
+func (se *postgresSystem) getTableNameStump(tableHeirarchyIDs internaldto.HeirarchyIdentifiers) (string, error) {
 	rawTableName := tableHeirarchyIDs.GetTableName()
 	maxRawTableNameWidth := constants.PostgresIDMaxWidth - (len(".generation_") + constants.MaxDigits32BitUnsigned)
 	if len(rawTableName) > maxRawTableNameWidth {
@@ -805,7 +805,7 @@ func (se *postgresDialect) getTableNameStump(tableHeirarchyIDs internaldto.Heira
 	return rawTableName, nil
 }
 
-func (se *postgresDialect) getCurrentTable(tableHeirarchyIDs internaldto.HeirarchyIdentifiers) (internaldto.DBTable, error) {
+func (se *postgresSystem) getCurrentTable(tableHeirarchyIDs internaldto.HeirarchyIdentifiers) (internaldto.DBTable, error) {
 	var tableName string
 	var discoID int
 	tableNameStump, err := se.getTableNameStump(tableHeirarchyIDs)

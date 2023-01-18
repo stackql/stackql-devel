@@ -6,8 +6,8 @@ import (
 	"github.com/stackql/stackql/internal/stackql/dto"
 	"github.com/stackql/stackql/internal/stackql/garbagecollector"
 	"github.com/stackql/stackql/internal/stackql/kstore"
+	"github.com/stackql/stackql/internal/stackql/sql_system"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
-	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/pkg/txncounter"
@@ -21,7 +21,7 @@ type Bundle interface {
 	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
 	GetDBMSInternalRouter() dbmsinternal.DBMSInternalRouter
 	GetSQLDataSources() map[string]sql_datasource.SQLDataSource
-	GetSQLDialect() sqldialect.SQLDialect
+	GetSQLSystem() sql_system.SQLSystem
 	GetSQLEngine() sqlengine.SQLEngine
 	GetTxnCounterManager() txncounter.TxnCounterManager
 	GetTxnStore() kstore.KStore
@@ -31,7 +31,7 @@ func NewBundle(
 	garbageCollector garbagecollector.GarbageCollector,
 	namespaces tablenamespace.TableNamespaceCollection,
 	sqlEngine sqlengine.SQLEngine,
-	sqlDialect sqldialect.SQLDialect,
+	sqlSystem sql_system.SQLSystem,
 	pgInternalRouter dbmsinternal.DBMSInternalRouter,
 	controlAttributes sqlcontrol.ControlAttributes,
 	txnStore kstore.KStore,
@@ -43,11 +43,11 @@ func NewBundle(
 		garbageCollector:  garbageCollector,
 		namespaces:        namespaces,
 		sqlEngine:         sqlEngine,
-		sqlDialect:        sqlDialect,
+		sqlSystem:         sqlSystem,
 		controlAttributes: controlAttributes,
 		txnStore:          txnStore,
 		txnCtrMgr:         txnCtrMgr,
-		formatter:         sqlDialect.GetASTFormatter(),
+		formatter:         sqlSystem.GetASTFormatter(),
 		pgInternalRouter:  pgInternalRouter,
 		authContexts:      authContexts,
 		sqlDataSources:    sqlDataSources,
@@ -59,7 +59,7 @@ type simpleBundle struct {
 	garbageCollector  garbagecollector.GarbageCollector
 	namespaces        tablenamespace.TableNamespaceCollection
 	sqlEngine         sqlengine.SQLEngine
-	sqlDialect        sqldialect.SQLDialect
+	sqlSystem         sql_system.SQLSystem
 	txnStore          kstore.KStore
 	txnCtrMgr         txncounter.TxnCounterManager
 	formatter         sqlparser.NodeFormatter
@@ -104,8 +104,8 @@ func (sb *simpleBundle) GetSQLEngine() sqlengine.SQLEngine {
 	return sb.sqlEngine
 }
 
-func (sb *simpleBundle) GetSQLDialect() sqldialect.SQLDialect {
-	return sb.sqlDialect
+func (sb *simpleBundle) GetSQLSystem() sql_system.SQLSystem {
+	return sb.sqlSystem
 }
 
 func (sb *simpleBundle) GetNamespaceCollection() tablenamespace.TableNamespaceCollection {

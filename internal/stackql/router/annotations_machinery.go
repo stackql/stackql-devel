@@ -4,14 +4,14 @@ import (
 	"fmt"
 
 	"github.com/stackql/stackql/internal/stackql/internaldto"
-	"github.com/stackql/stackql/internal/stackql/sqldialect"
+	"github.com/stackql/stackql/internal/stackql/sql_system"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 )
 
 func obtainAnnotationCtx(
-	sqlDialect sqldialect.SQLDialect,
+	sqlSystem sql_system.SQLSystem,
 	tbl tablemetadata.ExtendedTableMetadata,
 	parameters map[string]interface{},
 	namespaceCollection tablenamespace.TableNamespaceCollection,
@@ -49,7 +49,7 @@ func obtainAnnotationCtx(
 		name, _ = tbl.GetResponseSchemaStr()
 	}
 	hIds := internaldto.NewHeirarchyIdentifiers(provStr, svcStr, rscStr, methodStr).WithResponseSchemaStr(name)
-	viewDTO, isView := sqlDialect.GetViewByName(hIds.GetTableName())
+	viewDTO, isView := sqlSystem.GetViewByName(hIds.GetTableName())
 	if isView {
 		hIds = hIds.WithView(viewDTO)
 	}

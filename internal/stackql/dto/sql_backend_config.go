@@ -22,7 +22,7 @@ type SQLBackendCfg struct {
 	DSNEnvVar             string             `json:"dsnEnvVar" yaml:"dsnEnvVar"`
 	Schemata              SQLBackendSchemata `json:"schemata" yaml:"schemata"`
 	DbInitFilePath        string             `json:"dbInitFilepath" yaml:"dbInitFilepath"`
-	SQLDialect            string             `json:"sqlDialect" yaml:"sqlDialect"`
+	SQLSystem             string             `json:"sqlDialect" yaml:"sqlDialect"`
 	InitMaxRetries        int                `json:"initMaxRetries" yaml:"initMaxRetries"`
 	InitRetryInitialDelay int                `json:"initRetryInitialDelay" yaml:"initRetryInitialDelay"`
 }
@@ -68,8 +68,8 @@ func GetSQLBackendCfg(s string) (SQLBackendCfg, error) {
 	if rv.DbEngine == "" {
 		rv.DbEngine = constants.DbEngineDefault
 	}
-	if rv.SQLDialect == "" {
-		rv.SQLDialect = constants.SQLDialectDefault
+	if rv.SQLSystem == "" {
+		rv.SQLSystem = constants.SQLDialectDefault
 	}
 	if rv.InitMaxRetries < 1 {
 		rv.InitMaxRetries = 10

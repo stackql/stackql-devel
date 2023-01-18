@@ -200,13 +200,13 @@ func (dp *standardDependencyPlanner) Plan() error {
 	if weaklyConnectedComponentCount > 1 {
 		return fmt.Errorf("data flow: there are too many weakly connected components; found = %d, max = 1", weaklyConnectedComponentCount)
 	}
-	rewrittenWhereStr := astvisit.GenerateModifiedWhereClause(dp.annotatedAST, dp.rewrittenWhere, dp.handlerCtx.GetSQLDialect(), dp.handlerCtx.GetASTFormatter(), dp.handlerCtx.GetNamespaceCollection())
-	rewrittenWhereStr, err = dp.handlerCtx.GetSQLDialect().SanitizeWhereQueryString(rewrittenWhereStr)
+	rewrittenWhereStr := astvisit.GenerateModifiedWhereClause(dp.annotatedAST, dp.rewrittenWhere, dp.handlerCtx.GetSQLSystem(), dp.handlerCtx.GetASTFormatter(), dp.handlerCtx.GetNamespaceCollection())
+	rewrittenWhereStr, err = dp.handlerCtx.GetSQLSystem().SanitizeWhereQueryString(rewrittenWhereStr)
 	if err != nil {
 		return err
 	}
 	logging.GetLogger().Debugf("rewrittenWhereStr = '%s'", rewrittenWhereStr)
-	drmCfg, err := drm.GetDRMConfig(dp.handlerCtx.GetSQLDialect(), dp.handlerCtx.GetNamespaceCollection(), dp.handlerCtx.GetControlAttributes())
+	drmCfg, err := drm.GetDRMConfig(dp.handlerCtx.GetSQLSystem(), dp.handlerCtx.GetNamespaceCollection(), dp.handlerCtx.GetControlAttributes())
 	if err != nil {
 		return err
 	}
@@ -223,7 +223,7 @@ func (dp *standardDependencyPlanner) Plan() error {
 		dp.secondaryTccs,
 		rewrittenWhereStr,
 		drmCfg.GetNamespaceCollection(),
-	).WithFormatter(drmCfg.GetSQLDialect().GetASTFormatter())
+	).WithFormatter(drmCfg.GetSQLSystem().GetASTFormatter())
 	err = v.Visit(dp.sqlStatement)
 	if err != nil {
 		return err
@@ -326,7 +326,7 @@ func (dp *standardDependencyPlanner) processAcquire(
 	}
 	anTab := util.NewAnnotatedTabulation(tab, annotationCtx.GetHIDs(), inputTableName, annotationCtx.GetTableMeta().GetAlias())
 
-	discoGenId, err := docparser.OpenapiStackQLTabulationsPersistor(m, []util.AnnotatedTabulation{anTab}, dp.primitiveComposer.GetSQLEngine(), prov.Name, dp.handlerCtx.GetNamespaceCollection(), dp.handlerCtx.GetControlAttributes(), dp.handlerCtx.GetSQLDialect())
+	discoGenId, err := docparser.OpenapiStackQLTabulationsPersistor(m, []util.AnnotatedTabulation{anTab}, dp.primitiveComposer.GetSQLEngine(), prov.Name, dp.handlerCtx.GetNamespaceCollection(), dp.handlerCtx.GetControlAttributes(), dp.handlerCtx.GetSQLSystem())
 	if err != nil {
 		return util.NewAnnotatedTabulation(nil, nil, "", ""), nil, err
 	}

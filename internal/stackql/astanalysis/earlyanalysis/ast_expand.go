@@ -11,7 +11,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/primitivegenerator"
-	"github.com/stackql/stackql/internal/stackql/sqldialect"
+	"github.com/stackql/stackql/internal/stackql/sql_system"
 	"github.com/stackql/stackql/internal/stackql/symtab"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 
@@ -33,7 +33,7 @@ type indirectExpandAstVisitor struct {
 	namespaceCollection            tablenamespace.TableNamespaceCollection
 	containsAnalyticsCacheMaterial bool
 	containsNativeBackendMaterial  bool
-	sqlDialect                     sqldialect.SQLDialect
+	sqlSystem                      sql_system.SQLSystem
 	annotatedAST                   annotatedast.AnnotatedAst
 	formatter                      sqlparser.NodeFormatter
 	handlerCtx                     handler.HandlerContext
@@ -46,7 +46,7 @@ func newIndirectExpandAstVisitor(
 	handlerCtx handler.HandlerContext,
 	annotatedAST annotatedast.AnnotatedAst,
 	primitiveGenerator primitivegenerator.PrimitiveGenerator,
-	sqlDialect sqldialect.SQLDialect,
+	sqlSystem sql_system.SQLSystem,
 	formatter sqlparser.NodeFormatter,
 	namespaceCollection tablenamespace.TableNamespaceCollection,
 	whereParams parserutil.ParameterMap,
@@ -58,7 +58,7 @@ func newIndirectExpandAstVisitor(
 	rv := &indirectExpandAstVisitor{
 		namespaceCollection: namespaceCollection,
 		primitiveGenerator:  primitiveGenerator,
-		sqlDialect:          sqlDialect,
+		sqlSystem:           sqlSystem,
 		annotatedAST:        annotatedAST,
 		formatter:           formatter,
 		handlerCtx:          handlerCtx,
@@ -671,7 +671,7 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 			}
 		}
 		// END OPTIMISTIC DOC PERSISTENCE AND VIEW DEFINITION
-		viewDTO, isView := v.sqlDialect.GetViewByName(node.GetRawVal())
+		viewDTO, isView := v.sqlSystem.GetViewByName(node.GetRawVal())
 		if isView {
 			indirect, err := astindirect.NewViewIndirect(viewDTO)
 			if err != nil {
@@ -877,7 +877,7 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 		}
 
 	case *sqlparser.FuncExpr:
-		newNode, err := v.sqlDialect.GetASTFuncRewriter().RewriteFunc(node)
+		newNode, err := v.sqlSystem.GetASTFuncRewriter().RewriteFunc(node)
 		if err != nil {
 			return err
 		}

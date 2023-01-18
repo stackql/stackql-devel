@@ -1,4 +1,4 @@
-package sqldialect
+package sql_system
 
 import (
 	"database/sql"
@@ -18,7 +18,7 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-type SQLDialect interface {
+type SQLSystem interface {
 	ComposeSelectQuery([]relationaldto.RelationalColumn, []string, string, string, string) (string, error)
 	DelimitGroupByColumn(term string) string
 	DelimitOrderByColumn(term string) string
@@ -77,15 +77,15 @@ func getNodeFormatter(name string) sqlparser.NodeFormatter {
 	return nil
 }
 
-func NewSQLDialect(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString string, controlAttributes sqlcontrol.ControlAttributes, sqlCfg dto.SQLBackendCfg) (SQLDialect, error) {
-	name := sqlCfg.SQLDialect
+func NewSQLSystem(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString string, controlAttributes sqlcontrol.ControlAttributes, sqlCfg dto.SQLBackendCfg) (SQLSystem, error) {
+	name := sqlCfg.SQLSystem
 	nameLowered := strings.ToLower(name)
 	formatter := getNodeFormatter(nameLowered)
 	switch nameLowered {
 	case constants.SQLDialectSQLite3:
-		return newSQLiteDialect(sqlEngine, analyticsNamespaceLikeString, controlAttributes, formatter, sqlCfg)
+		return newSQLiteSystem(sqlEngine, analyticsNamespaceLikeString, controlAttributes, formatter, sqlCfg)
 	case constants.SQLDialectPostgres:
-		return newPostgresDialect(sqlEngine, analyticsNamespaceLikeString, controlAttributes, formatter, sqlCfg)
+		return newPostgresSystem(sqlEngine, analyticsNamespaceLikeString, controlAttributes, formatter, sqlCfg)
 	default:
 		return nil, fmt.Errorf("cannot accomodate sql dialect '%s'", name)
 	}

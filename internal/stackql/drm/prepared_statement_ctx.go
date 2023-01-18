@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/stackql/stackql/internal/stackql/internaldto"
-	"github.com/stackql/stackql/internal/stackql/sqldialect"
+	"github.com/stackql/stackql/internal/stackql/sql_system"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 )
 
@@ -34,7 +34,7 @@ type standardPreparedStatementCtx struct {
 	txnCtrlCtrs             internaldto.TxnControlCounters
 	selectTxnCtrlCtrs       []internaldto.TxnControlCounters
 	namespaceCollection     tablenamespace.TableNamespaceCollection
-	sqlDialect              sqldialect.SQLDialect
+	sqlSystem               sql_system.SQLSystem
 	indirectContexts        []PreparedStatementCtx
 }
 
@@ -87,7 +87,7 @@ func NewPreparedStatementCtx(
 	txnCtrlCtrs internaldto.TxnControlCounters,
 	secondaryCtrs []internaldto.TxnControlCounters,
 	namespaceCollection tablenamespace.TableNamespaceCollection,
-	sqlDialect sqldialect.SQLDialect,
+	sqlSystem sql_system.SQLSystem,
 ) PreparedStatementCtx {
 	return &standardPreparedStatementCtx{
 		query:                   query,
@@ -103,7 +103,7 @@ func NewPreparedStatementCtx(
 		txnCtrlCtrs:             txnCtrlCtrs,
 		selectTxnCtrlCtrs:       secondaryCtrs,
 		namespaceCollection:     namespaceCollection,
-		sqlDialect:              sqlDialect,
+		sqlSystem:               sqlSystem,
 	}
 }
 
@@ -114,7 +114,7 @@ func NewQueryOnlyPreparedStatementCtx(query string, nonControlCols []ColumnMetad
 func (ps *standardPreparedStatementCtx) GetGCHousekeepingQueries() string {
 	var housekeepingQueries []string
 	for _, table := range ps.TableNames {
-		housekeepingQueries = append(housekeepingQueries, ps.sqlDialect.GetGCHousekeepingQuery(table, ps.txnCtrlCtrs))
+		housekeepingQueries = append(housekeepingQueries, ps.sqlSystem.GetGCHousekeepingQuery(table, ps.txnCtrlCtrs))
 	}
 	return strings.Join(housekeepingQueries, "; ")
 }

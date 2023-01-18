@@ -113,7 +113,7 @@ func (p *standardPrimitiveGenerator) analyzeUnion(pbi planbuilderinput.PlanBuild
 	if !ok {
 		return fmt.Errorf("could not cast statement of type '%T' to required Union", pbi.GetStatement())
 	}
-	unionQuery := astvisit.GenerateUnionTemplateQuery(pbi.GetAnnotatedAST(), node, handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection())
+	unionQuery := astvisit.GenerateUnionTemplateQuery(pbi.GetAnnotatedAST(), node, handlerCtx.GetSQLSystem(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection())
 	i := 0
 	leaf, err := p.PrimitiveComposer.GetSymTab().NewLeaf(i)
 	if err != nil {
@@ -344,7 +344,8 @@ func (pb *standardPrimitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sq
 	_, requiredParamPresent := requiredParameters.Get(colName)
 	_, optionalParamPresent := optionalParameters.Get(colName)
 	logging.GetLogger().Infoln(fmt.Sprintf("symTabEntry = %v", symTabEntry))
-	if symTabErr != nil && !(requiredParamPresent || optionalParamPresent) {
+	containsSQLDataSource := pb.GetPrimitiveComposer().ContainsSQLDataSource()
+	if !containsSQLDataSource && symTabErr != nil && !(requiredParamPresent || optionalParamPresent) {
 		return nil, colName, symTabErr
 	}
 	if requiredParamPresent {
@@ -352,6 +353,9 @@ func (pb *standardPrimitiveGenerator) whereComparisonExprCopyAndReWrite(expr *sq
 	}
 	if optionalParamPresent {
 		optionalParameters.Delete(colName)
+	}
+	if containsSQLDataSource {
+		return expr, colName, nil
 	}
 	if symTabErr == nil && symTabEntry.In != "server" {
 		if !(requiredParamPresent || optionalParamPresent) {

@@ -12,8 +12,8 @@ import (
 	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/relationaldto"
+	"github.com/stackql/stackql/internal/stackql/sql_system"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
-	"github.com/stackql/stackql/internal/stackql/sqldialect"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/sqlmachinery"
 	"github.com/stackql/stackql/internal/stackql/streaming"
@@ -42,7 +42,7 @@ type DRMConfig interface {
 	GetGolangSlices([]ColumnMetadata) ([]interface{}, []string)
 	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
 	GetParserTableName(internaldto.HeirarchyIdentifiers, int) sqlparser.TableName
-	GetSQLDialect() sqldialect.SQLDialect
+	GetSQLSystem() sql_system.SQLSystem
 	GetTable(internaldto.HeirarchyIdentifiers, int) (internaldto.DBTable, error)
 	GenerateInsertDML(util.AnnotatedTabulation, *openapistackql.OperationStore, internaldto.TxnControlCounters) (PreparedStatementCtx, error)
 	GenerateSelectDML(util.AnnotatedTabulation, internaldto.TxnControlCounters, string, string) (PreparedStatementCtx, error)
@@ -56,15 +56,15 @@ type staticDRMConfig struct {
 	namespaceCollection tablenamespace.TableNamespaceCollection
 	controlAttributes   sqlcontrol.ControlAttributes
 	sqlEngine           sqlengine.SQLEngine
-	sqlDialect          sqldialect.SQLDialect
+	sqlSystem           sql_system.SQLSystem
 }
 
-func (dc *staticDRMConfig) GetSQLDialect() sqldialect.SQLDialect {
-	return dc.sqlDialect
+func (dc *staticDRMConfig) GetSQLSystem() sql_system.SQLSystem {
+	return dc.sqlSystem
 }
 
 func (dc *staticDRMConfig) GetTable(hids internaldto.HeirarchyIdentifiers, discoveryID int) (internaldto.DBTable, error) {
-	return dc.sqlDialect.GetTable(hids, discoveryID)
+	return dc.sqlSystem.GetTable(hids, discoveryID)
 }
 
 func (dc *staticDRMConfig) OpenapiColumnsToRelationalColumns(cols []openapistackql.ColumnDescriptor) []relationaldto.RelationalColumn {
@@ -197,7 +197,7 @@ func (dc *staticDRMConfig) getGolangSlices(nonControlColumns []ColumnMetadata) (
 	var ifArr []interface{}
 	for i < len(nonControlColumns) {
 		x := nonControlColumns[i]
-		y := dc.sqlDialect.GetGolangValue(x.GetType())
+		y := dc.sqlSystem.GetGolangValue(x.GetType())
 		ifArr = append(ifArr, y)
 		keyArr = append(keyArr, x.GetIdentifier())
 		i++
@@ -206,7 +206,7 @@ func (dc *staticDRMConfig) getGolangSlices(nonControlColumns []ColumnMetadata) (
 }
 
 func (dc *staticDRMConfig) GetRelationalType(discoType string) string {
-	return dc.sqlDialect.GetRelationalType(discoType)
+	return dc.sqlSystem.GetRelationalType(discoType)
 }
 
 func (dc *staticDRMConfig) GetNamespaceCollection() tablenamespace.TableNamespaceCollection {
@@ -214,7 +214,7 @@ func (dc *staticDRMConfig) GetNamespaceCollection() tablenamespace.TableNamespac
 }
 
 func (dc *staticDRMConfig) GetGolangValue(discoType string) interface{} {
-	return dc.sqlDialect.GetGolangValue(discoType)
+	return dc.sqlSystem.GetGolangValue(discoType)
 }
 
 func (dc *staticDRMConfig) ExtractFromGolangValue(val interface{}) interface{} {
@@ -240,7 +240,7 @@ func (dc *staticDRMConfig) extractFromGolangValue(val interface{}) interface{} {
 }
 
 func (dc *staticDRMConfig) GetGolangKind(discoType string) reflect.Kind {
-	return dc.sqlDialect.GetGolangKind(discoType)
+	return dc.sqlSystem.GetGolangKind(discoType)
 }
 
 func (dc *staticDRMConfig) GetCurrentTable(tableHeirarchyIDs internaldto.HeirarchyIdentifiers) (internaldto.DBTable, error) {
@@ -252,7 +252,7 @@ func (dc *staticDRMConfig) GetCurrentTable(tableHeirarchyIDs internaldto.Heirarc
 		}
 		return internaldto.NewDBTableAnalytics(templatedName, -1, tableHeirarchyIDs), nil
 	}
-	return dc.sqlDialect.GetCurrentTable(tableHeirarchyIDs)
+	return dc.sqlSystem.GetCurrentTable(tableHeirarchyIDs)
 }
 
 func (dc *staticDRMConfig) GetTableName(hIds internaldto.HeirarchyIdentifiers, discoveryGenerationID int) (string, error) {
@@ -260,7 +260,7 @@ func (dc *staticDRMConfig) GetTableName(hIds internaldto.HeirarchyIdentifiers, d
 }
 
 func (dc *staticDRMConfig) getTableName(hIds internaldto.HeirarchyIdentifiers, discoveryGenerationID int) (string, error) {
-	tbl, err := dc.sqlDialect.GetTable(hIds, discoveryGenerationID)
+	tbl, err := dc.sqlSystem.GetTable(hIds, discoveryGenerationID)
 	if err != nil {
 		return "", err
 	}
@@ -328,7 +328,7 @@ func (dc *staticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, m *opena
 	if err != nil {
 		return nil, err
 	}
-	return dc.sqlDialect.GenerateDDL(relationalTable, dropTable)
+	return dc.sqlSystem.GenerateDDL(relationalTable, dropTable)
 }
 
 func (dc *staticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulation, method *openapistackql.OperationStore, tcc internaldto.TxnControlCounters) (PreparedStatementCtx, error) {
@@ -359,7 +359,7 @@ func (dc *staticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 		relationalColumn := relationaldto.NewRelationalColumn(col.Name, relationalType).WithParserNode(col.Node)
 		relationalTable.PushBackColumn(relationalColumn)
 	}
-	queryString, err := dc.sqlDialect.GenerateInsertDML(relationalTable, tcc)
+	queryString, err := dc.sqlSystem.GenerateInsertDML(relationalTable, tcc)
 	if err != nil {
 		return nil, err
 	}
@@ -377,7 +377,7 @@ func (dc *staticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 			tcc,
 			nil,
 			dc.namespaceCollection,
-			dc.sqlDialect,
+			dc.sqlSystem,
 		),
 		nil
 }
@@ -419,7 +419,7 @@ func (dc *staticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 		relationalTable.PushBackColumn(relationalColumn)
 		quotedColNames = append(quotedColNames, fmt.Sprintf("%s ", relationalColumn.CanonicalSelectionString()))
 	}
-	queryString, err := dc.sqlDialect.GenerateSelectDML(relationalTable, txnCtrlCtrs, selectSuffix, rewrittenWhere)
+	queryString, err := dc.sqlSystem.GenerateSelectDML(relationalTable, txnCtrlCtrs, selectSuffix, rewrittenWhere)
 
 	if err != nil {
 		return nil, err
@@ -443,7 +443,7 @@ func (dc *staticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 		txnCtrlCtrs,
 		nil,
 		dc.namespaceCollection,
-		dc.sqlDialect,
+		dc.sqlSystem,
 	), nil
 }
 
@@ -495,7 +495,7 @@ func (dc *staticDRMConfig) generateVarArgs(cp PreparedStatementParameterized, is
 			case string:
 				varArgs = append(varArgs, va)
 			default:
-				if strings.ToLower(col.GetRelationalType()) == "text" && strings.ToLower(dc.sqlDialect.GetName()) == constants.SQLDialectPostgres {
+				if strings.ToLower(col.GetRelationalType()) == "text" && strings.ToLower(dc.sqlSystem.GetName()) == constants.SQLDialectPostgres {
 					varArgs = append(varArgs, fmt.Sprintf("%v", va))
 					continue
 				}
@@ -536,12 +536,12 @@ func (dc *staticDRMConfig) QueryDML(querier sqlmachinery.Querier, ctxParameteriz
 	return querier.Query(query, varArgs...)
 }
 
-func GetDRMConfig(sqlDialect sqldialect.SQLDialect, namespaceCollection tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes) (DRMConfig, error) {
+func GetDRMConfig(sqlSystem sql_system.SQLSystem, namespaceCollection tablenamespace.TableNamespaceCollection, controlAttributes sqlcontrol.ControlAttributes) (DRMConfig, error) {
 	rv := &staticDRMConfig{
 		namespaceCollection: namespaceCollection,
 		controlAttributes:   controlAttributes,
-		sqlEngine:           sqlDialect.GetSQLEngine(),
-		sqlDialect:          sqlDialect,
+		sqlEngine:           sqlSystem.GetSQLEngine(),
+		sqlSystem:           sqlSystem,
 	}
 	return rv, nil
 }

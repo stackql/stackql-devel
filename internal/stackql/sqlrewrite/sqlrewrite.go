@@ -153,7 +153,7 @@ func GenerateSelectDML(input SQLRewriteInput) (drm.PreparedStatementCtx, error) 
 		i++
 	}
 
-	query, err := dc.GetSQLDialect().ComposeSelectQuery(relationalColumns, tableAliases, input.GetFromString(), rewrittenWhere, selectSuffix)
+	query, err := dc.GetSQLSystem().ComposeSelectQuery(relationalColumns, tableAliases, input.GetFromString(), rewrittenWhere, selectSuffix)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +171,7 @@ func GenerateSelectDML(input SQLRewriteInput) (drm.PreparedStatementCtx, error) 
 		txnCtrlCtrs,
 		secondaryCtrlCounters,
 		input.GetDRMConfig().GetNamespaceCollection(),
-		dc.GetSQLDialect(),
+		dc.GetSQLSystem(),
 	)
 	rv.SetIndirectContexts(input.GetIndirectContexts())
 	return rv, nil

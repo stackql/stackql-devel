@@ -137,7 +137,7 @@ func (sp *standardInitialPasses) initialPasses(statement sqlparser.Statement, ha
 		handlerCtx,
 		annotatedAST,
 		sp.primitiveGenerator,
-		handlerCtx.GetSQLDialect(),
+		handlerCtx.GetSQLSystem(),
 		handlerCtx.GetASTFormatter(),
 		handlerCtx.GetNamespaceCollection(),
 		whereParams,
@@ -153,7 +153,7 @@ func (sp *standardInitialPasses) initialPasses(statement sqlparser.Statement, ha
 	annotatedAST = astExpandVisitor.GetAnnotatedAST()
 
 	// Second pass AST analysis; extract provider strings for auth.
-	provStrSlice, isCacheExemptMaterialDetected := astvisit.ExtractProviderStringsAndDetectCacheExemptMaterial(annotatedAST, annotatedAST.GetAST(), handlerCtx.GetSQLDialect(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection())
+	provStrSlice, isCacheExemptMaterialDetected := astvisit.ExtractProviderStringsAndDetectCacheExemptMaterial(annotatedAST, annotatedAST.GetAST(), handlerCtx.GetSQLSystem(), handlerCtx.GetASTFormatter(), handlerCtx.GetNamespaceCollection())
 	sp.isCacheExemptMaterialDetected = isCacheExemptMaterialDetected
 	for _, p := range provStrSlice {
 		_, isSQLDataSource := handlerCtx.GetSQLDataSource(p)

@@ -21,21 +21,21 @@ type ddl struct {
 }
 
 func (un *ddl) Build() error {
-	sqlDialect := un.handlerCtx.GetSQLDialect()
-	if sqlDialect == nil {
+	sqlSystem := un.handlerCtx.GetSQLSystem()
+	if sqlSystem == nil {
 		return fmt.Errorf("cannot proceed DDL execution with nil sql dialect object")
 	}
 	unionObj := un.ddlObject
-	if sqlDialect == nil {
+	if sqlSystem == nil {
 		return fmt.Errorf("cannot proceed DDL execution with nil ddl object")
 	}
 	unionEx := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 		actionLowered := strings.ToLower(unionObj.Action)
 		switch actionLowered {
 		case "create":
-			tableName := strings.Trim(astformat.String(unionObj.Table, sqlDialect.GetASTFormatter()), `"`)
-			viewDDL := strings.ReplaceAll(astformat.String(unionObj.SelectStatement, sqlDialect.GetASTFormatter()), `"`, "")
-			err := sqlDialect.CreateView(tableName, viewDDL)
+			tableName := strings.Trim(astformat.String(unionObj.Table, sqlSystem.GetASTFormatter()), `"`)
+			viewDDL := strings.ReplaceAll(astformat.String(unionObj.SelectStatement, sqlSystem.GetASTFormatter()), `"`, "")
+			err := sqlSystem.CreateView(tableName, viewDDL)
 			if err != nil {
 				return internaldto.NewErroneousExecutorOutput(err)
 			}
@@ -43,8 +43,8 @@ func (un *ddl) Build() error {
 			if tl := len(unionObj.FromTables); tl != 1 {
 				return internaldto.NewErroneousExecutorOutput(fmt.Errorf("cannot drop table with supplied table count = %d", tl))
 			}
-			tableName := strings.Trim(astformat.String(unionObj.FromTables[0], sqlDialect.GetASTFormatter()), `"`)
-			err := sqlDialect.DropView(tableName)
+			tableName := strings.Trim(astformat.String(unionObj.FromTables[0], sqlSystem.GetASTFormatter()), `"`)
+			err := sqlSystem.DropView(tableName)
 			if err != nil {
 				return internaldto.NewErroneousExecutorOutput(err)
 			}
