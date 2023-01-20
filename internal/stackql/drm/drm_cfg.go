@@ -95,7 +95,7 @@ func (dc *staticDRMConfig) OpenapiColumnsToRelationalColumns(cols []openapistack
 
 func (dc *staticDRMConfig) ToExternalSQLRelationalColumn(tabAnn util.AnnotatedTabulation, colName string) (relationaldto.RelationalColumn, error) {
 
-	return nil, fmt.Errorf("cannot find column '%s' for external SQL table '%s'", colName)
+	return nil, fmt.Errorf("cannot find column '%s' for external SQL table '%s'", colName, tabAnn.GetInputTableName())
 }
 
 func (dc *staticDRMConfig) OpenapiColumnsToRelationalColumn(col openapistackql.ColumnDescriptor) relationaldto.RelationalColumn {
