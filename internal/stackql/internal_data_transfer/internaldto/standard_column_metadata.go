@@ -1,11 +1,10 @@
-package drm
+package internaldto
 
 import (
 	"reflect"
 
 	"github.com/lib/pq/oid"
 	"github.com/stackql/go-openapistackql/openapistackql"
-	"github.com/stackql/stackql/internal/stackql/internaldto"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 )
 
@@ -14,7 +13,7 @@ var (
 )
 
 type standardColumnMetadata struct {
-	coupling internaldto.DRMCoupling
+	coupling DRMCoupling
 	column   openapistackql.ColumnDescriptor
 }
 
@@ -45,6 +44,10 @@ func (cd *standardColumnMetadata) getOidForSchema(colSchema *openapistackql.Sche
 	return getOidForSchema(colSchema)
 }
 
+func GetOidForSchema(colSchema *openapistackql.Schema) oid.Oid {
+	return getOidForSchema(colSchema)
+}
+
 func getOidForSchema(colSchema *openapistackql.Schema) oid.Oid {
 	if colSchema == nil {
 		return oid.T_text
@@ -69,7 +72,7 @@ func (cd *standardColumnMetadata) GetRelationalType() string {
 
 func NewColDescriptor(col openapistackql.ColumnDescriptor, relTypeStr string) ColumnMetadata {
 	return &standardColumnMetadata{
-		coupling: internaldto.NewDRMCoupling(relTypeStr, reflect.String),
+		coupling: NewDRMCoupling(relTypeStr, reflect.String),
 		column:   col,
 	}
 }

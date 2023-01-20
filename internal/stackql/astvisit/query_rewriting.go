@@ -10,10 +10,10 @@ import (
 	"github.com/stackql/stackql/internal/stackql/astanalysis/annotatedast"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
-	"github.com/stackql/stackql/internal/stackql/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
-	"github.com/stackql/stackql/internal/stackql/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/sqlrewrite"
 	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
@@ -575,6 +575,25 @@ func (v *standardQueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			v.relationalColumns = append(v.relationalColumns, rv)
 			return nil
 		}
+		// TODO: accomodate SQL data source
+		sqlDataSource, isSQLDataSource := tbl.GetSQLDataSource()
+		if isSQLDataSource {
+			//
+			col, err := parserutil.InferColNameFromExpr(node, v.formatter)
+			if err != nil {
+				return err
+			}
+			relationalColumn, err := v.dc.GetSQLSystem().ObtainRelationalColumnFromExternalSQLtable(
+				tbl.GetHeirarchyObjects().GetHeirarchyIds(),
+				col.Name,
+			)
+			if err != nil {
+				return err
+			}
+			v.relationalColumns = append(v.relationalColumns, relationalColumn)
+			logging.GetLogger().Debugf("sqlDataSource = '%v'\n", sqlDataSource)
+			return nil
+		}
 		schema, err := tbl.GetSelectableObjectSchema()
 		if err != nil {
 			return err
@@ -622,7 +641,9 @@ func (v *standardQueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 				if !ok {
 					return fmt.Errorf("could not infer annotated table")
 				}
-				if _, isIndirect := t.GetTableMeta().GetIndirect(); isIndirect {
+				_, isIndirect := t.GetTableMeta().GetIndirect()
+				_, isSQLDataSource := t.GetTableMeta().GetSQLDataSource()
+				if isIndirect || isSQLDataSource {
 					// do nothing
 				} else {
 					dID, ok := v.discoGenIDs[node]

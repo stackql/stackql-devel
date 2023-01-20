@@ -293,3 +293,95 @@ VALUES (
   FROM aws.cloud_control.resources WHERE region = ''ap-southeast-2'' and data__TypeName = ''AWS::S3::Bucket''
   ;'
 );
+
+CREATE TABLE IF NOT EXISTS "__iql__.external.columns" (
+   iql_view_id BIGSERIAL PRIMARY KEY
+  ,connection_name TEXT
+  ,catalog_name TEXT
+  ,schema_name TEXT
+  ,table_name TEXT
+  ,column_name TEXT
+  ,column_type TEXT
+  ,ordinal_position INT
+  ,"oid" INT
+  ,column_width INT
+  ,column_precision TEXT
+)
+;
+
+INSERT INTO "__iql__.external.columns" (
+   connection_name 
+  ,catalog_name 
+  ,schema_name 
+  ,table_name 
+  ,column_name 
+  ,column_type
+  ,ordinal_position 
+  ,"oid" 
+  ,column_width 
+  ,column_precision 
+) VALUES (
+   '__postgres_info_only__' 
+  ,'' 
+  ,'information_schema' 
+  ,'applicable_roles'
+  ,'grantee' 
+  ,'text' 
+  ,1 
+  ,25 
+  ,512 
+  ,0
+)
+;
+
+INSERT INTO "__iql__.external.columns" (
+   connection_name 
+  ,catalog_name 
+  ,schema_name 
+  ,table_name 
+  ,column_name 
+  ,column_type
+  ,ordinal_position 
+  ,"oid" 
+  ,column_width 
+  ,column_precision 
+) VALUES (
+   '__postgres_info_only__' 
+  ,'' 
+  ,'information_schema' 
+  ,'applicable_roles'
+  ,'role_name' 
+  ,'text' 
+  ,2 
+  ,25 
+  ,512 
+  ,0
+)
+;
+
+INSERT INTO "__iql__.external.columns" (
+   connection_name 
+  ,catalog_name 
+  ,schema_name 
+  ,table_name 
+  ,column_name 
+  ,column_type
+  ,ordinal_position 
+  ,"oid" 
+  ,column_width 
+  ,column_precision 
+) VALUES (
+   '__postgres_info_only__' 
+  ,'' 
+  ,'information_schema' 
+  ,'applicable_roles'
+  ,'is_grantable' 
+  ,'text' 
+  ,3 
+  ,25 
+  ,512 
+  ,0
+)
+;
+
+

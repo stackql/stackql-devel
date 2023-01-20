@@ -1,4 +1,4 @@
-package drm
+package internaldto
 
 import (
 	"github.com/lib/pq/oid"

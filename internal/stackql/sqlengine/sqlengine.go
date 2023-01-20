@@ -6,12 +6,13 @@ import (
 
 	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/dto"
-	"github.com/stackql/stackql/internal/stackql/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 )
 
 type SQLEngine interface {
 	GetDB() (*sql.DB, error)
+	GetTx() (*sql.Tx, error)
 	Exec(string, ...interface{}) (sql.Result, error)
 	Query(string, ...interface{}) (*sql.Rows, error)
 	QueryRow(query string, args ...any) *sql.Row

@@ -1,4 +1,4 @@
-package data_staging
+package output_data_staging
 
 import (
 	"database/sql"
@@ -10,7 +10,7 @@ import (
 	"github.com/lib/pq/oid"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/dto"
-	"github.com/stackql/stackql/internal/stackql/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/sqlmachinery"
 	"github.com/stackql/stackql/internal/stackql/streaming"
@@ -51,7 +51,7 @@ type PacketPreparator interface {
 	PrepareOutputPacket() (dto.OutputPacket, error)
 }
 
-func NewNaivePacketPreparator(source Source, nonControlColumns []drm.ColumnMetadata, stream streaming.MapStream, drmCfg drm.DRMConfig) PacketPreparator {
+func NewNaivePacketPreparator(source Source, nonControlColumns []internaldto.ColumnMetadata, stream streaming.MapStream, drmCfg drm.DRMConfig) PacketPreparator {
 	return &naivePacketPreparator{
 		source:            source,
 		nonControlColumns: nonControlColumns,
@@ -62,7 +62,7 @@ func NewNaivePacketPreparator(source Source, nonControlColumns []drm.ColumnMetad
 
 type naivePacketPreparator struct {
 	source            Source
-	nonControlColumns []drm.ColumnMetadata
+	nonControlColumns []internaldto.ColumnMetadata
 	stream            streaming.MapStream
 	drmCfg            drm.DRMConfig
 }
@@ -93,7 +93,7 @@ type Outputter interface {
 	OutputExecutorResult() internaldto.ExecutorOutput
 }
 
-func NewNaiveOutputter(packetPreparator PacketPreparator, nonControlColumns []drm.ColumnMetadata) Outputter {
+func NewNaiveOutputter(packetPreparator PacketPreparator, nonControlColumns []internaldto.ColumnMetadata) Outputter {
 	return &naiveOutputter{
 		packetPreparator:  packetPreparator,
 		nonControlColumns: nonControlColumns,
@@ -102,7 +102,7 @@ func NewNaiveOutputter(packetPreparator PacketPreparator, nonControlColumns []dr
 
 type naiveOutputter struct {
 	packetPreparator  PacketPreparator
-	nonControlColumns []drm.ColumnMetadata
+	nonControlColumns []internaldto.ColumnMetadata
 }
 
 func (st *naiveOutputter) OutputExecutorResult() internaldto.ExecutorOutput {

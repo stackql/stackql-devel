@@ -6,7 +6,7 @@ import (
 
 	"github.com/stackql/stackql/internal/stackql/astformat"
 	"github.com/stackql/stackql/internal/stackql/handler"
-	"github.com/stackql/stackql/internal/stackql/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/util"
@@ -23,7 +23,7 @@ type ddl struct {
 func (un *ddl) Build() error {
 	sqlSystem := un.handlerCtx.GetSQLSystem()
 	if sqlSystem == nil {
-		return fmt.Errorf("cannot proceed DDL execution with nil sql dialect object")
+		return fmt.Errorf("cannot proceed DDL execution with nil sql system object")
 	}
 	unionObj := un.ddlObject
 	if sqlSystem == nil {

@@ -3,10 +3,10 @@ package primitivebuilder
 import (
 	"fmt"
 
-	"github.com/stackql/stackql/internal/stackql/data_staging"
+	"github.com/stackql/stackql/internal/stackql/data_staging/output_data_staging"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
-	"github.com/stackql/stackql/internal/stackql/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
@@ -62,9 +62,9 @@ func (ss *SingleSelect) Build() error {
 		// select phase
 		logging.GetLogger().Infoln(fmt.Sprintf("running select with control parameters: %v", ss.selectPreparedStatementCtx.GetGCCtrlCtrs()))
 
-		outputter := data_staging.NewNaiveOutputter(
-			data_staging.NewNaivePacketPreparator(
-				data_staging.NewNaiveSource(
+		outputter := output_data_staging.NewNaiveOutputter(
+			output_data_staging.NewNaivePacketPreparator(
+				output_data_staging.NewNaiveSource(
 					ss.handlerCtx.GetSQLEngine(),
 					drm.NewPreparedStatementParameterized(ss.selectPreparedStatementCtx, nil, true),
 					ss.drmCfg,

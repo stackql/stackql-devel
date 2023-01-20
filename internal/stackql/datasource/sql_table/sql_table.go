@@ -1,7 +1,7 @@
 package sql_table
 
 import (
-	"github.com/stackql/stackql/internal/stackql/relationaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/symtab"
 )
 

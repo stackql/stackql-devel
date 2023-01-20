@@ -1,6 +1,6 @@
 package relationaldto
 
-import "github.com/stackql/stackql/internal/stackql/internaldto"
+import "github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 
 type standardRelationalTable struct {
 	alias       string

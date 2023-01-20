@@ -9,9 +9,9 @@ import (
 	"strings"
 
 	"github.com/stackql/stackql/internal/stackql/constants"
-	"github.com/stackql/stackql/internal/stackql/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
-	"github.com/stackql/stackql/internal/stackql/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/sql_system"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
@@ -30,16 +30,16 @@ var (
 )
 
 type DRMConfig interface {
-	ColumnsToRelationalColumns(cols []ColumnMetadata) []relationaldto.RelationalColumn
-	ColumnToRelationalColumn(cols ColumnMetadata) relationaldto.RelationalColumn
+	ColumnsToRelationalColumns(cols []internaldto.ColumnMetadata) []relationaldto.RelationalColumn
+	ColumnToRelationalColumn(cols internaldto.ColumnMetadata) relationaldto.RelationalColumn
 	ExtractFromGolangValue(interface{}) interface{}
-	ExtractObjectFromSQLRows(r *sql.Rows, nonControlColumns []ColumnMetadata, stream streaming.MapStream) (map[string]map[string]interface{}, map[int]map[int]interface{})
+	ExtractObjectFromSQLRows(r *sql.Rows, nonControlColumns []internaldto.ColumnMetadata, stream streaming.MapStream) (map[string]map[string]interface{}, map[int]map[int]interface{})
 	GetCurrentTable(internaldto.HeirarchyIdentifiers) (internaldto.DBTable, error)
 	GetRelationalType(string) string
 	GenerateDDL(util.AnnotatedTabulation, *openapistackql.OperationStore, int, bool) ([]string, error)
 	GetControlAttributes() sqlcontrol.ControlAttributes
 	GetGolangValue(string) interface{}
-	GetGolangSlices([]ColumnMetadata) ([]interface{}, []string)
+	GetGolangSlices([]internaldto.ColumnMetadata) ([]interface{}, []string)
 	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
 	GetParserTableName(internaldto.HeirarchyIdentifiers, int) sqlparser.TableName
 	GetSQLSystem() sql_system.SQLSystem
@@ -84,13 +84,18 @@ func (dc *staticDRMConfig) OpenapiColumnsToRelationalColumns(cols []openapistack
 		}
 		relationalColumn := relationaldto.NewRelationalColumn(col.Name, typeStr).WithQualifier(col.Qualifier).WithAlias(col.Alias).WithDecorated(col.DecoratedCol).WithParserNode(col.Node)
 		if schemaExists {
-			inferredOID := getOidForSchema(col.Schema)
+			inferredOID := internaldto.GetOidForSchema(col.Schema)
 			relationalColumn = relationalColumn.WithOID(inferredOID)
 		}
 		// TODO: Need a way to handle postgres differences. This is a fragile point
 		relationalColumns = append(relationalColumns, relationalColumn)
 	}
 	return relationalColumns
+}
+
+func (dc *staticDRMConfig) ToExternalSQLRelationalColumn(tabAnn util.AnnotatedTabulation, colName string) (relationaldto.RelationalColumn, error) {
+
+	return nil, fmt.Errorf("cannot find column '%s' for external SQL table '%s'", colName)
 }
 
 func (dc *staticDRMConfig) OpenapiColumnsToRelationalColumn(col openapistackql.ColumnDescriptor) relationaldto.RelationalColumn {
@@ -112,7 +117,7 @@ func (dc *staticDRMConfig) OpenapiColumnsToRelationalColumn(col openapistackql.C
 	// }
 	relationalColumn := relationaldto.NewRelationalColumn(col.Name, typeStr).WithQualifier(col.Qualifier).WithAlias(col.Alias).WithDecorated(decoratedCol).WithParserNode(col.Node)
 	if schemaExists {
-		inferredOID := getOidForSchema(col.Schema)
+		inferredOID := internaldto.GetOidForSchema(col.Schema)
 		relationalColumn = relationalColumn.WithOID(inferredOID)
 	}
 	// TODO: Need a way to handle postgres differences
@@ -120,7 +125,7 @@ func (dc *staticDRMConfig) OpenapiColumnsToRelationalColumn(col openapistackql.C
 	return relationalColumn
 }
 
-func (dc *staticDRMConfig) ColumnsToRelationalColumns(cols []ColumnMetadata) []relationaldto.RelationalColumn {
+func (dc *staticDRMConfig) ColumnsToRelationalColumns(cols []internaldto.ColumnMetadata) []relationaldto.RelationalColumn {
 	var relationalColumns []relationaldto.RelationalColumn
 	for _, col := range cols {
 		relationalColumn := relationaldto.NewRelationalColumn(col.GetIdentifier(), col.GetRelationalType()).WithAlias(col.GetIdentifier()).WithDecorated(col.GetIdentifier())
@@ -129,7 +134,7 @@ func (dc *staticDRMConfig) ColumnsToRelationalColumns(cols []ColumnMetadata) []r
 	return relationalColumns
 }
 
-func (dc *staticDRMConfig) ColumnToRelationalColumn(col ColumnMetadata) relationaldto.RelationalColumn {
+func (dc *staticDRMConfig) ColumnToRelationalColumn(col internaldto.ColumnMetadata) relationaldto.RelationalColumn {
 	relationalColumn := relationaldto.NewRelationalColumn(col.GetName(), col.GetRelationalType()).WithAlias(col.GetIdentifier())
 	return relationalColumn
 }
@@ -142,15 +147,15 @@ func (dc *staticDRMConfig) getControlAttributes() sqlcontrol.ControlAttributes {
 	return dc.controlAttributes
 }
 
-func (dc *staticDRMConfig) GetGolangSlices(nonControlColumns []ColumnMetadata) ([]interface{}, []string) {
+func (dc *staticDRMConfig) GetGolangSlices(nonControlColumns []internaldto.ColumnMetadata) ([]interface{}, []string) {
 	return dc.getGolangSlices(nonControlColumns)
 }
 
-func (dc *staticDRMConfig) ExtractObjectFromSQLRows(r *sql.Rows, nonControlColumns []ColumnMetadata, stream streaming.MapStream) (map[string]map[string]interface{}, map[int]map[int]interface{}) {
+func (dc *staticDRMConfig) ExtractObjectFromSQLRows(r *sql.Rows, nonControlColumns []internaldto.ColumnMetadata, stream streaming.MapStream) (map[string]map[string]interface{}, map[int]map[int]interface{}) {
 	return dc.extractObjectFromSQLRows(r, nonControlColumns, stream)
 }
 
-func (dc *staticDRMConfig) extractObjectFromSQLRows(r *sql.Rows, nonControlColumns []ColumnMetadata, stream streaming.MapStream) (map[string]map[string]interface{}, map[int]map[int]interface{}) {
+func (dc *staticDRMConfig) extractObjectFromSQLRows(r *sql.Rows, nonControlColumns []internaldto.ColumnMetadata, stream streaming.MapStream) (map[string]map[string]interface{}, map[int]map[int]interface{}) {
 	if r != nil {
 		defer r.Close()
 	}
@@ -191,7 +196,7 @@ func (dc *staticDRMConfig) extractObjectFromSQLRows(r *sql.Rows, nonControlColum
 	return altKeys, rawRows
 }
 
-func (dc *staticDRMConfig) getGolangSlices(nonControlColumns []ColumnMetadata) ([]interface{}, []string) {
+func (dc *staticDRMConfig) getGolangSlices(nonControlColumns []internaldto.ColumnMetadata) ([]interface{}, []string) {
 	i := 0
 	var keyArr []string
 	var ifArr []interface{}
@@ -300,10 +305,46 @@ func (dc *staticDRMConfig) inferColType(col util.Column) string {
 	return relationalType
 }
 
+func (dc *staticDRMConfig) genRelationalTableFromExternalSQLTable(tabAnn util.AnnotatedTabulation, discoveryGenerationID int) (relationaldto.RelationalTable, error) {
+	tableName, err := dc.getTableName(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID)
+	if err != nil {
+		return nil, err
+	}
+	relationalTable := relationaldto.NewRelationalTable(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID, tableName, tabAnn.GetInputTableName())
+	tableColumns, err := dc.sqlSystem.ObtainRelationalColumnsFromExternalSQLtable(tabAnn.GetHeirarchyIdentifiers())
+	if err != nil {
+		return nil, err
+	}
+	for _, col := range tableColumns {
+		relationalTable.PushBackColumn(col)
+	}
+	return relationalTable, nil
+}
+
+func (dc *staticDRMConfig) genRelationalColumnsFromExternalSQLTable(tabAnn util.AnnotatedTabulation, discoveryGenerationID int) (relationaldto.RelationalTable, error) {
+	tableName, err := dc.getTableName(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID)
+	if err != nil {
+		return nil, err
+	}
+	relationalTable := relationaldto.NewRelationalTable(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID, tableName, tabAnn.GetInputTableName())
+	tableColumns, err := dc.sqlSystem.ObtainRelationalColumnsFromExternalSQLtable(tabAnn.GetHeirarchyIdentifiers())
+	if err != nil {
+		return nil, err
+	}
+	for _, col := range tableColumns {
+		relationalTable.PushBackColumn(col)
+	}
+	return relationalTable, nil
+}
+
 func (dc *staticDRMConfig) genRelationalTable(tabAnn util.AnnotatedTabulation, m *openapistackql.OperationStore, discoveryGenerationID int) (relationaldto.RelationalTable, error) {
 	tableName, err := dc.getTableName(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID)
 	if err != nil {
 		return nil, err
+	}
+	_, isSQLDataSource := tabAnn.GetSQLDataSource()
+	if isSQLDataSource {
+		return dc.genRelationalTableFromExternalSQLTable(tabAnn, discoveryGenerationID)
 	}
 	relationalTable := relationaldto.NewRelationalTable(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID, tableName, tabAnn.GetInputTableName())
 	schemaAnalyzer := util.NewTableSchemaAnalyzer(tabAnn.GetTabulation().GetSchema(), m)
@@ -332,10 +373,20 @@ func (dc *staticDRMConfig) GenerateDDL(tabAnn util.AnnotatedTabulation, m *opena
 }
 
 func (dc *staticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulation, method *openapistackql.OperationStore, tcc internaldto.TxnControlCounters) (PreparedStatementCtx, error) {
-	var columns []ColumnMetadata
-	tableName, err := dc.GetCurrentTable(tabAnnotated.GetHeirarchyIdentifiers())
-	if err != nil {
-		return nil, err
+	var columns []internaldto.ColumnMetadata
+	_, isSQLDataSource := tabAnnotated.GetSQLDataSource()
+	var tableName string
+	var discoverID int
+	var err error
+	if isSQLDataSource {
+		tableName = tabAnnotated.GetHeirarchyIdentifiers().GetStackQLTableName()
+	} else {
+		tableObj, err := dc.GetCurrentTable(tabAnnotated.GetHeirarchyIdentifiers())
+		tableName = tableObj.GetName()
+		discoverID = tableObj.GetDiscoveryID()
+		if err != nil {
+			return nil, err
+		}
 	}
 	genIdColName := dc.controlAttributes.GetControlGenIdColumnName()
 	sessionIdColName := dc.controlAttributes.GetControlSsnIdColumnName()
@@ -343,21 +394,31 @@ func (dc *staticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 	insIdColName := dc.controlAttributes.GetControlInsIdColumnName()
 	insEncodedColName := dc.controlAttributes.GetControlInsertEncodedIdColumnName()
 
-	relationalTable := relationaldto.NewRelationalTable(tabAnnotated.GetHeirarchyIdentifiers(), tableName.GetDiscoveryID(), tableName.GetName(), tabAnnotated.GetInputTableName())
-	schemaAnalyzer := util.NewTableSchemaAnalyzer(tabAnnotated.GetTabulation().GetSchema(), method)
-	tableColumns, err := schemaAnalyzer.GetColumnDescriptors(tabAnnotated)
-	if err != nil {
-		return nil, err
-	}
-	for _, col := range tableColumns {
-		relationalType := "text"
-		schema := col.Schema
-		if schema != nil && schema.Type != "" {
-			relationalType = dc.GetRelationalType(schema.Type)
+	relationalTable := relationaldto.NewRelationalTable(tabAnnotated.GetHeirarchyIdentifiers(), discoverID, tableName, tabAnnotated.GetInputTableName())
+	if isSQLDataSource {
+		tableColumns, err := dc.sqlSystem.ObtainRelationalColumnsFromExternalSQLtable(tabAnnotated.GetHeirarchyIdentifiers())
+		if err != nil {
+			return nil, err
 		}
-		columns = append(columns, NewColDescriptor(col, relationalType))
-		relationalColumn := relationaldto.NewRelationalColumn(col.Name, relationalType).WithParserNode(col.Node)
-		relationalTable.PushBackColumn(relationalColumn)
+		for _, col := range tableColumns {
+			relationalTable.PushBackColumn(col)
+		}
+	} else {
+		schemaAnalyzer := util.NewTableSchemaAnalyzer(tabAnnotated.GetTabulation().GetSchema(), method)
+		tableColumns, err := schemaAnalyzer.GetColumnDescriptors(tabAnnotated)
+		if err != nil {
+			return nil, err
+		}
+		for _, col := range tableColumns {
+			relationalType := "text"
+			schema := col.Schema
+			if schema != nil && schema.Type != "" {
+				relationalType = dc.GetRelationalType(schema.Type)
+			}
+			columns = append(columns, internaldto.NewColDescriptor(col, relationalType))
+			relationalColumn := relationaldto.NewRelationalColumn(col.Name, relationalType).WithParserNode(col.Node)
+			relationalTable.PushBackColumn(relationalColumn)
+		}
 	}
 	queryString, err := dc.sqlSystem.GenerateInsertDML(relationalTable, tcc)
 	if err != nil {
@@ -368,7 +429,7 @@ func (dc *staticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 			"",
 			genIdColName,
 			sessionIdColName,
-			[]string{tableName.GetName()},
+			[]string{tableName},
 			txnIdColName,
 			insIdColName,
 			insEncodedColName,
@@ -384,7 +445,7 @@ func (dc *staticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 
 func (dc *staticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulation, txnCtrlCtrs internaldto.TxnControlCounters, selectSuffix, rewrittenWhere string) (PreparedStatementCtx, error) {
 	var quotedColNames []string
-	var columns []ColumnMetadata
+	var columns []internaldto.ColumnMetadata
 
 	aliasStr := ""
 	if tabAnnotated.GetAlias() != "" {
@@ -406,7 +467,7 @@ func (dc *staticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 				}
 			}
 		}
-		columns = append(columns, NewColDescriptor(col, typeStr))
+		columns = append(columns, internaldto.NewColDescriptor(col, typeStr))
 		// TODO: logic to infer column width
 		relationalColumn := relationaldto.NewRelationalColumn(col.Name, typeStr).WithQualifier(col.Qualifier).WithParserNode(col.Node)
 		if col.DecoratedCol == "" {

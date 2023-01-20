@@ -1,16 +1,16 @@
-package drm
+package internal_relational_dto
 
 import (
 	"reflect"
 	"strings"
 
 	"github.com/lib/pq/oid"
-	"github.com/stackql/stackql/internal/stackql/internaldto"
-	"github.com/stackql/stackql/internal/stackql/relationaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/relationaldto"
 )
 
 var (
-	_ ColumnMetadata = &relayedColumnMetadata{}
+	_ internaldto.ColumnMetadata = &relayedColumnMetadata{}
 )
 
 type relayedColumnMetadata struct {
@@ -65,7 +65,7 @@ func (cd *relayedColumnMetadata) getOidForRelationalType(relType string) oid.Oid
 	}
 }
 
-func NewRelayedColDescriptor(col relationaldto.RelationalColumn, relTypeStr string) ColumnMetadata {
+func NewRelayedColDescriptor(col relationaldto.RelationalColumn, relTypeStr string) internaldto.ColumnMetadata {
 	return &relayedColumnMetadata{
 		coupling: internaldto.NewDRMCoupling(relTypeStr, reflect.String),
 		column:   col,

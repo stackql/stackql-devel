@@ -8,7 +8,7 @@ import (
 
 	"github.com/stackql/stackql/internal/stackql/db_util"
 	"github.com/stackql/stackql/internal/stackql/dto"
-	"github.com/stackql/stackql/internal/stackql/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/util"
@@ -35,6 +35,10 @@ func (se *postgresTcpEngine) IsMemory() bool {
 
 func (se *postgresTcpEngine) GetDB() (*sql.DB, error) {
 	return se.db, nil
+}
+
+func (se *postgresTcpEngine) GetTx() (*sql.Tx, error) {
+	return se.db.Begin()
 }
 
 func newPostgresTcpEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAttributes) (*postgresTcpEngine, error) {

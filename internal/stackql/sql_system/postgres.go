@@ -7,12 +7,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/lib/pq/oid"
+	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/stackql/internal/stackql/astfuncrewrite"
 	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/dto"
-	"github.com/stackql/stackql/internal/stackql/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
-	"github.com/stackql/stackql/internal/stackql/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"vitess.io/vitess/go/vt/sqlparser"
@@ -117,6 +119,174 @@ func (sl *postgresSystem) GetASTFuncRewriter() astfuncrewrite.ASTFuncRewriter {
 
 func (eng *postgresSystem) GenerateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error) {
 	return eng.generateDDL(relationalTable, dropTable)
+}
+
+func (sl *postgresSystem) RegisterExternalTable(connectionName string, tableID string, tableDetails openapistackql.SQLExternalTable) error {
+	return sl.registerExternalTable(connectionName, tableID, tableDetails)
+}
+
+func (sl *postgresSystem) registerExternalTable(connectionName string, tableID string, tableDetails openapistackql.SQLExternalTable) error {
+	q := `
+	INSERT INTO "__iql__.external.columns" (
+		connection_name 
+	   ,catalog_name 
+	   ,schema_name 
+	   ,table_name 
+	   ,column_name 
+	   ,column_type
+	   ,ordinal_position 
+	   ,"oid" 
+	   ,column_width 
+	   ,column_precision 
+	 ) VALUES (
+	    ? 
+	   ,? 
+	   ,? 
+	   ,?
+	   ,? 
+	   ,? 
+	   ,? 
+	   ,? 
+	   ,? 
+	   ,?
+	 )
+	`
+	tx, err := sl.sqlEngine.GetTx()
+	if err != nil {
+		return err
+	}
+	for ord, col := range tableDetails.Columns {
+		_, err := tx.Exec(
+			q,
+			connectionName,
+			tableDetails.CatalogName,
+			tableDetails.SchemaName,
+			tableDetails.Name,
+			col.Name,
+			col.Type,
+			ord,
+			col.Width,
+			col.Precision,
+		)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+	return nil
+}
+
+func (sl *postgresSystem) ObtainRelationalColumnsFromExternalSQLtable(hierarchyIDs internaldto.HeirarchyIdentifiers) ([]relationaldto.RelationalColumn, error) {
+	return sl.obtainRelationalColumnsFromExternalSQLtable(hierarchyIDs)
+}
+
+func (sl *postgresSystem) ObtainRelationalColumnFromExternalSQLtable(hierarchyIDs internaldto.HeirarchyIdentifiers, colName string) (relationaldto.RelationalColumn, error) {
+	return sl.obtainRelationalColumnFromExternalSQLtable(hierarchyIDs, colName)
+}
+
+func (sl *postgresSystem) obtainRelationalColumnsFromExternalSQLtable(hierarchyIDs internaldto.HeirarchyIdentifiers) ([]relationaldto.RelationalColumn, error) {
+	q := `
+	SELECT
+		column_name 
+	   ,column_type
+	   ,ordinal_position 
+	   ,"oid" 
+	   ,column_width 
+	   ,column_precision 
+	FROM
+	  "__iql__.external.columns"
+	WHERE
+	  connection_name = ?
+	  AND
+	  catalog_name = ?
+	  AND
+	  schema_name = ?
+	  AND 
+	  table_name = ?
+	ORDER BY ordinal_position ASC
+	`
+	// TODO: abstract this translation
+	connectionName := hierarchyIDs.GetProviderStr()
+	catalogName := ""
+	schemaName := hierarchyIDs.GetServiceStr()
+	tableName := hierarchyIDs.GetResourceStr()
+	rows, err := sl.sqlEngine.Query(
+		q,
+		connectionName,
+		catalogName,
+		schemaName,
+		tableName,
+	)
+	if err != nil {
+		return nil, err
+	}
+	hasRow := false
+	var rv []relationaldto.RelationalColumn
+	for {
+		if !rows.Next() {
+			break
+		}
+		hasRow = true
+		var columnName, columnType string
+		var oID, colWidth, colPrecision int
+		err := rows.Scan(&columnName, &columnType, &oID, &colWidth, &colPrecision)
+		if err != nil {
+			return nil, err
+		}
+		relationalColumn := relationaldto.NewRelationalColumn(columnName, columnType).WithWidth(colWidth).WithOID(oid.Oid(oID))
+		rv = append(rv, relationalColumn)
+
+	}
+	if !hasRow {
+		return nil, fmt.Errorf("cannot generate relational table from external table = '%s': not present in external metadata", tableName)
+	}
+	return rv, nil
+}
+
+func (sl *postgresSystem) obtainRelationalColumnFromExternalSQLtable(hierarchyIDs internaldto.HeirarchyIdentifiers, colName string) (relationaldto.RelationalColumn, error) {
+	q := `
+	SELECT
+		column_name 
+	   ,column_type
+	   ,ordinal_position 
+	   ,"oid" 
+	   ,column_width 
+	   ,column_precision 
+	FROM
+	  "__iql__.external.columns"
+	WHERE
+	  connection_name = ?
+	  AND
+	  catalog_name = ?
+	  AND
+	  schema_name = ?
+	  AND 
+	  table_name = ?
+	  AND
+	  column_name = ?
+	ORDER BY ordinal_position ASC
+	`
+	// TODO: abstract this translation
+	connectionName := hierarchyIDs.GetProviderStr()
+	catalogName := ""
+	schemaName := hierarchyIDs.GetServiceStr()
+	tableName := hierarchyIDs.GetResourceStr()
+	row := sl.sqlEngine.QueryRow(
+		q,
+		connectionName,
+		catalogName,
+		schemaName,
+		tableName,
+		colName,
+	)
+	var columnName, columnType string
+	var oID, colWidth, colPrecision int
+	err := row.Scan(&columnName, &columnType, &oID, &colWidth, &colPrecision)
+	if err != nil {
+		return nil, err
+	}
+	relationalColumn := relationaldto.NewRelationalColumn(columnName, columnType).WithWidth(colWidth).WithOID(oid.Oid(oID))
+	return relationalColumn, nil
 }
 
 func (eng *postgresSystem) SanitizeQueryString(queryString string) (string, error) {

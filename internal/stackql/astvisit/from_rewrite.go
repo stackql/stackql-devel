@@ -638,11 +638,17 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 					if ex.IsEmpty() {
 						return nil
 					}
-					dbTbl, err := v.dc.GetCurrentTable(anCtx.GetHIDs())
-					if err != nil {
-						return err
+					_, isSQLDataSource := anCtx.GetTableMeta().GetSQLDataSource()
+					var tblStr string
+					if isSQLDataSource {
+						tblStr = anCtx.GetHIDs().GetStackQLTableName()
+					} else {
+						dbTbl, err := v.dc.GetCurrentTable(anCtx.GetHIDs())
+						if err != nil {
+							return err
+						}
+						tblStr = dbTbl.GetName()
 					}
-					tblStr := dbTbl.GetName()
 					fqtn, err := v.sqlSystem.GetFullyQualifiedTableName(tblStr)
 					v.rewrittenQuery = fqtn
 					if err != nil {

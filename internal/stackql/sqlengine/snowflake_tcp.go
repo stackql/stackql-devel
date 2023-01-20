@@ -8,7 +8,7 @@ import (
 
 	"github.com/stackql/stackql/internal/stackql/db_util"
 	"github.com/stackql/stackql/internal/stackql/dto"
-	"github.com/stackql/stackql/internal/stackql/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/util"
@@ -35,6 +35,10 @@ func (se *snowflakeTcpEngine) IsMemory() bool {
 
 func (se *snowflakeTcpEngine) GetDB() (*sql.DB, error) {
 	return se.db, nil
+}
+
+func (se *snowflakeTcpEngine) GetTx() (*sql.Tx, error) {
+	return se.db.Begin()
 }
 
 func newSnowflakeTcpEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAttributes) (*snowflakeTcpEngine, error) {

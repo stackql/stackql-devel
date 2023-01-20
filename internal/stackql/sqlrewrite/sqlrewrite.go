@@ -2,8 +2,9 @@ package sqlrewrite
 
 import (
 	"github.com/stackql/stackql/internal/stackql/drm"
-	"github.com/stackql/stackql/internal/stackql/internaldto"
-	"github.com/stackql/stackql/internal/stackql/relationaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internal_relational_dto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
@@ -120,12 +121,12 @@ func GenerateSelectDML(input SQLRewriteInput) (drm.PreparedStatementCtx, error) 
 	var secondaryCtrlCounters []internaldto.TxnControlCounters
 	selectSuffix := input.GetSelectSuffix()
 	rewrittenWhere := input.GetRewrittenWhere()
-	var columns []drm.ColumnMetadata
+	var columns []internaldto.ColumnMetadata
 	var relationalColumns []relationaldto.RelationalColumn
 	var tableAliases []string
 	for _, col := range cols {
 		relationalColumn := col
-		columns = append(columns, drm.NewRelayedColDescriptor(relationalColumn, relationalColumn.GetType()))
+		columns = append(columns, internal_relational_dto.NewRelayedColDescriptor(relationalColumn, relationalColumn.GetType()))
 		// TODO: Need a way to handle postgres differences. This is a fragile point
 		relationalColumns = append(relationalColumns, relationalColumn)
 	}

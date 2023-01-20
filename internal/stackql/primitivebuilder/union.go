@@ -1,10 +1,10 @@
 package primitivebuilder
 
 import (
-	"github.com/stackql/stackql/internal/stackql/data_staging"
+	"github.com/stackql/stackql/internal/stackql/data_staging/output_data_staging"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
-	"github.com/stackql/stackql/internal/stackql/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/streaming"
@@ -23,9 +23,9 @@ type Union struct {
 func (un *Union) Build() error {
 	unionEx := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 		us := drm.NewPreparedStatementParameterized(un.unionCtx, nil, false)
-		outputter := data_staging.NewNaiveOutputter(
-			data_staging.NewNaivePacketPreparator(
-				data_staging.NewNaiveSource(
+		outputter := output_data_staging.NewNaiveOutputter(
+			output_data_staging.NewNaivePacketPreparator(
+				output_data_staging.NewNaiveSource(
 					un.handlerCtx.GetSQLEngine(),
 					us,
 					un.drmCfg,

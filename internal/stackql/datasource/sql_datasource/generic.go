@@ -26,12 +26,14 @@ func newGenericSQLDataSource(authCtx *dto.AuthCtx, driverName string, dbName str
 		return nil, err
 	}
 	return &genericSQLDataSource{
-		db: db,
+		db:     db,
+		dbName: dbName,
 	}, nil
 }
 
 type genericSQLDataSource struct {
-	db *sql.DB
+	db     *sql.DB
+	dbName string
 }
 
 func (ds *genericSQLDataSource) Exec(query string, args ...interface{}) (sql.Result, error) {
@@ -50,6 +52,22 @@ func (ds *genericSQLDataSource) Begin() (*sql.Tx, error) {
 	return ds.db.Begin()
 }
 
-func (ds *genericSQLDataSource) GetTableMetadata(tableName string) (sql_table.SQLTable, error) {
-	return nil, fmt.Errorf("could not obtain sql data source table metadata for table = '%s'", tableName)
+func (ds *genericSQLDataSource) GetTableMetadata(args ...string) (sql_table.SQLTable, error) {
+
+	return nil, fmt.Errorf("could not obtain sql data source table metadata for args = '%v'", args)
 }
+
+// func (ds *genericSQLDataSource) getPostgresTableMetadata(schemaName, tableName string) (sql_table.SQLTable, error) {
+// 	queryTemplate := `
+// 	SELECT
+// 		column_name,
+// 		data_type
+// 	FROM
+// 		information_schema.columns
+// 	WHERE
+// 		table_name = ?
+// 		AND
+// 		table_schema = ?;
+// 	`
+// 	return nil, fmt.Errorf("could not obtain sql data source table metadata for table = '%s'", tableName)
+// }

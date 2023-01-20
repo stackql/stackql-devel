@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/stackql/stackql/internal/stackql/drm"
-	"github.com/stackql/stackql/internal/stackql/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/primitivebuilder"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
@@ -141,7 +141,7 @@ type standardPrimitiveComposer struct {
 
 	formatter sqlparser.NodeFormatter
 
-	unionNonControlColumns []drm.ColumnMetadata
+	unionNonControlColumns []internaldto.ColumnMetadata
 
 	tccSetAheadOfTime bool
 
@@ -176,7 +176,7 @@ func (pb *standardPrimitiveComposer) SetSymTab(symTab symtab.SymTab) {
 	pb.symTab = symTab
 }
 
-func (pb *standardPrimitiveComposer) GetNonControlColumns() []drm.ColumnMetadata {
+func (pb *standardPrimitiveComposer) GetNonControlColumns() []internaldto.ColumnMetadata {
 	if pb.GetSelectPreparedStatementCtx() != nil {
 		return pb.GetSelectPreparedStatementCtx().GetNonControlColumns()
 	}

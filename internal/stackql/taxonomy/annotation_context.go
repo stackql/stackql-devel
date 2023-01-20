@@ -4,7 +4,7 @@ import (
 	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/httpbuild"
-	"github.com/stackql/stackql/internal/stackql/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/streaming"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
@@ -64,6 +64,11 @@ func (ac *standardAnnotationCtx) Prepare(
 	handlerCtx handler.HandlerContext,
 	stream streaming.MapStream,
 ) error {
+	// TODO: accomodate SQL data source
+	_, isSQLDataSource := ac.GetTableMeta().GetSQLDataSource()
+	if isSQLDataSource {
+		return nil
+	}
 	pr, err := ac.GetTableMeta().GetProvider()
 	if err != nil {
 		return err

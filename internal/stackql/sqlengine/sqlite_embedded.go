@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	"github.com/stackql/stackql/internal/stackql/dto"
-	"github.com/stackql/stackql/internal/stackql/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/util"
@@ -35,6 +35,10 @@ func (se *sqLiteEmbeddedEngine) IsMemory() bool {
 
 func (se *sqLiteEmbeddedEngine) GetDB() (*sql.DB, error) {
 	return se.db, nil
+}
+
+func (se *sqLiteEmbeddedEngine) GetTx() (*sql.Tx, error) {
+	return se.db.Begin()
 }
 
 func newSQLiteEmbeddedEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAttributes) (*sqLiteEmbeddedEngine, error) {

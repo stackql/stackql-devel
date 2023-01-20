@@ -7,12 +7,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/stackql/internal/stackql/astformat"
 	"github.com/stackql/stackql/internal/stackql/astfuncrewrite"
 	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/dto"
-	"github.com/stackql/stackql/internal/stackql/internaldto"
-	"github.com/stackql/stackql/internal/stackql/relationaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"vitess.io/vitess/go/vt/sqlparser"
@@ -68,6 +69,11 @@ type SQLSystem interface {
 	CreateView(viewName string, rawDDL string) error
 	DropView(viewName string) error
 	GetViewByName(viewName string) (internaldto.ViewDTO, bool)
+
+	// External SQL data sources
+	RegisterExternalTable(connectionName string, tableID string, tableDetails openapistackql.SQLExternalTable) error
+	ObtainRelationalColumnFromExternalSQLtable(hierarchyIDs internaldto.HeirarchyIdentifiers, colName string) (relationaldto.RelationalColumn, error)
+	ObtainRelationalColumnsFromExternalSQLtable(hierarchyIDs internaldto.HeirarchyIdentifiers) ([]relationaldto.RelationalColumn, error)
 }
 
 func getNodeFormatter(name string) sqlparser.NodeFormatter {
@@ -87,6 +93,6 @@ func NewSQLSystem(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString st
 	case constants.SQLDialectPostgres:
 		return newPostgresSystem(sqlEngine, analyticsNamespaceLikeString, controlAttributes, formatter, sqlCfg)
 	default:
-		return nil, fmt.Errorf("cannot accomodate sql dialect '%s'", name)
+		return nil, fmt.Errorf("cannot initialise sql system: cannot accomodate sql dialect '%s'", name)
 	}
 }
