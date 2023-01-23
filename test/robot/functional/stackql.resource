@@ -51,6 +51,7 @@ Prepare StackQL Environment
     Start StackQL PG Server mTLS    ${PG_SRV_PORT_MTLS_WITH_NAMESPACES}    ${PG_SRV_MTLS_CFG_STR}    ${NAMESPACES_TTL_SPECIALCASE_TRANSPARENT}    {}    ${SQL_BACKEND_CFG_STR_CANONICAL}    ${PG_SRV_PORT_DOCKER_MTLS_WITH_NAMESPACES}
     Start StackQL PG Server mTLS    ${PG_SRV_PORT_MTLS_WITH_EAGER_GC}    ${PG_SRV_MTLS_CFG_STR}    {}    ${GC_CFG_EAGER}    ${SQL_BACKEND_CFG_STR_CANONICAL}    ${PG_SRV_PORT_DOCKER_MTLS_WITH_EAGER_GC}
     Start StackQL PG Server unencrypted    ${PG_SRV_PORT_UNENCRYPTED}    {}    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    Start Postgres External Source If Viable
     Sleep    50s
 
 Generate Container Credentials for StackQL PG Server mTLS
@@ -118,6 +119,15 @@ Start StackQL PG Server unencrypted
                         ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-unencrypted-${_SRV_PORT_UNENCRYPTED}.txt
     END
     [Return]    ${process}
+
+Start Postgres External Source If Viable
+    IF    "${EXECUTION_PLATFORM}" != "docker" and "${SQL_BACKEND}" != "postgres_tcp" and "${IS_WSL}" == "false"
+        ${process} =    Start Process    docker    compose
+                        ...  \-p     pg\-data\-external
+                        ...  \-f     docker\-compose\-externals.yml
+                        ...  up
+                        ...  postgres_external_data_source
+    END
 
 Stackql Per Test Teardown
     IF    "${EXECUTION_PLATFORM}" == "docker" and "${SQL_BACKEND}" == "postgres_tcp"
