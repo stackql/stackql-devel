@@ -2,10 +2,12 @@ package input_data_staging
 
 import (
 	"database/sql"
+	"fmt"
 	"strings"
 
 	"github.com/jeroenrinzema/psql-wire/pkg/sqldata"
 	"github.com/lib/pq/oid"
+	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 )
 
@@ -14,13 +16,29 @@ type NativeResultSetPreparator interface {
 }
 
 type naiveNativeResultSetPreparator struct {
-	rows *sql.Rows
+	rows                       *sql.Rows
+	insertPreparedStatementCtx drm.PreparedStatementCtx
+	drmCfg                     drm.DRMConfig
 }
 
-func NewNaiveNativeResultSetPreparator(rows *sql.Rows) NativeResultSetPreparator {
+func NewNaiveNativeResultSetPreparator(rows *sql.Rows, drmCfg drm.DRMConfig, insertPreparedStatementCtx drm.PreparedStatementCtx) NativeResultSetPreparator {
 	return &naiveNativeResultSetPreparator{
-		rows: rows,
+		rows:                       rows,
+		insertPreparedStatementCtx: insertPreparedStatementCtx,
+		drmCfg:                     drmCfg,
 	}
+}
+
+func getRowDict(colz []string, rowData []any) (map[string]interface{}, error) {
+	rv := make(map[string]interface{})
+	if len(colz) != len(rowData) {
+		return rv, fmt.Errorf("cannot assemble row dict, len(colz) ((%d)) != len(rowData) ((%d))", len(colz), len(rowData))
+	}
+	for i, k := range colz {
+		datum := rowData[i]
+		rv[k] = datum
+	}
+	return rv, nil
 }
 
 func (np *naiveNativeResultSetPreparator) PrepareNativeResultSet() internaldto.ExecutorOutput {
@@ -60,7 +78,18 @@ func (np *naiveNativeResultSetPreparator) PrepareNativeResultSet() internaldto.E
 		if err != nil {
 			return nativeProtect(internaldto.NewErroneousExecutorOutput(err), []string{"error"})
 		}
-		outRows = append(outRows, sqldata.NewSQLRow(rowPtr))
+		dataArr := sqldata.NewSQLRow(rowPtr)
+		outRows = append(outRows, dataArr)
+		if np.insertPreparedStatementCtx != nil {
+			insertInputMap, err := getRowDict(colz, dataArr.GetRowDataForPgWire())
+			if err != nil {
+				return nativeProtect(internaldto.NewErroneousExecutorOutput(err), []string{"error"})
+			}
+			_, err = np.drmCfg.ExecuteInsertDML(np.drmCfg.GetSQLSystem().GetSQLEngine(), np.insertPreparedStatementCtx, insertInputMap, "")
+			if err != nil {
+				return nativeProtect(internaldto.NewErroneousExecutorOutput(err), []string{"error"})
+			}
+		}
 	}
 	resultStream := sqldata.NewChannelSQLResultStream()
 	rv := internaldto.NewExecutorOutput(

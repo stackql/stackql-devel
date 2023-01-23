@@ -380,7 +380,12 @@ func (dc *staticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 	var discoverID int
 	var err error
 	if isSQLDataSource {
-		tableName = tabAnnotated.GetHeirarchyIdentifiers().GetStackQLTableName()
+		tableObj, err := dc.GetCurrentTable(tabAnnotated.GetHeirarchyIdentifiers())
+		tableName = tableObj.GetName()
+		discoverID = tableObj.GetDiscoveryID()
+		if err != nil {
+			return nil, err
+		}
 	} else {
 		tableObj, err := dc.GetCurrentTable(tabAnnotated.GetHeirarchyIdentifiers())
 		tableName = tableObj.GetName()

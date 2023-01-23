@@ -55,7 +55,7 @@ func (ss *RawNativeSelect) Build() error {
 		}
 		defer rows.Close()
 
-		preparator := input_data_staging.NewNaiveNativeResultSetPreparator(rows)
+		preparator := input_data_staging.NewNaiveNativeResultSetPreparator(rows, ss.handlerCtx.GetDrmConfig(), nil)
 
 		rv := preparator.PrepareNativeResultSet()
 		return rv

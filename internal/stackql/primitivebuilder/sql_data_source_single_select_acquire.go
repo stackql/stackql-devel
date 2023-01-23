@@ -105,10 +105,12 @@ func (ss *sqlDataSourceSingleSelectAcquire) Build() error {
 	if !ok {
 		return fmt.Errorf("sql data source unavailable for sql data source query")
 	}
-	_, err := ss.tableMeta.GetTableName()
+	tableName, err := ss.tableMeta.GetTableName()
 	if err != nil {
 		return err
 	}
+	// targetTableName := annotationCtx.GetHIDs().GetStackQLTableName()
+	// inputQuery := fmt.Sprintf(`INSERT INTO %s ( %s ) VALUES ( ?,  )`, targetTableName, projectionStr, tableName)
 	ex := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 		// ss.tableMeta.GetP
 		rows, err := sqlDB.Query(ss.query, ss.queryArgs...)
@@ -117,7 +119,9 @@ func (ss *sqlDataSourceSingleSelectAcquire) Build() error {
 		}
 		currentTcc := ss.insertPreparedStatementCtx.GetGCCtrlCtrs().Clone()
 		ss.graph.AddTxnControlCounters(currentTcc)
-		preparator := input_data_staging.NewNaiveNativeResultSetPreparator(rows)
+		currentTcc.SetTableName(tableName)
+		ss.insertionContainer.SetTableTxnCounters(tableName, currentTcc)
+		preparator := input_data_staging.NewNaiveNativeResultSetPreparator(rows, ss.handlerCtx.GetDrmConfig(), ss.insertPreparedStatementCtx)
 		return preparator.PrepareNativeResultSet()
 	}
 

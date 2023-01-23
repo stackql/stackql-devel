@@ -23,20 +23,22 @@ type FromRewriteAstVisitor interface {
 	sqlparser.SQLAstVisitor
 	GetIndirectContexts() []drm.PreparedStatementCtx
 	GetRewrittenQuery() string
+	SetAvoidSQLSourceNaming(bool)
 }
 
 // Need not be view-aware.
 type standardFromRewriteAstVisitor struct {
-	iDColumnName        string
-	rewrittenQuery      string
-	shouldCollectTables bool
-	namespaceCollection tablenamespace.TableNamespaceCollection
-	sqlSystem           sql_system.SQLSystem
-	formatter           sqlparser.NodeFormatter
-	annotations         taxonomy.AnnotationCtxMap
-	dc                  drm.DRMConfig
-	annotatedAST        annotatedast.AnnotatedAst
-	indirectContexts    []drm.PreparedStatementCtx
+	iDColumnName           string
+	rewrittenQuery         string
+	shouldCollectTables    bool
+	namespaceCollection    tablenamespace.TableNamespaceCollection
+	sqlSystem              sql_system.SQLSystem
+	formatter              sqlparser.NodeFormatter
+	annotations            taxonomy.AnnotationCtxMap
+	dc                     drm.DRMConfig
+	annotatedAST           annotatedast.AnnotatedAst
+	indirectContexts       []drm.PreparedStatementCtx
+	isAvoidSQLSourceNaming bool
 }
 
 func NewFromRewriteAstVisitor(
@@ -59,6 +61,10 @@ func NewFromRewriteAstVisitor(
 		annotations:         annotations,
 		dc:                  dc,
 	}
+}
+
+func (v *standardFromRewriteAstVisitor) SetAvoidSQLSourceNaming(isAvoidSQLSourceNaming bool) {
+	v.isAvoidSQLSourceNaming = isAvoidSQLSourceNaming
 }
 
 func (v *standardFromRewriteAstVisitor) GetRewrittenQuery() string {
@@ -640,7 +646,8 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 					}
 					_, isSQLDataSource := anCtx.GetTableMeta().GetSQLDataSource()
 					var tblStr string
-					if isSQLDataSource {
+					// TODO: clean this garbage up
+					if isSQLDataSource && !v.isAvoidSQLSourceNaming {
 						tblStr = anCtx.GetHIDs().GetStackQLTableName()
 					} else {
 						dbTbl, err := v.dc.GetCurrentTable(anCtx.GetHIDs())

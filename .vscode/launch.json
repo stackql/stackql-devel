@@ -119,14 +119,15 @@
     {
       "type": "pickString",
       "id": "sqlBackendString",
-      "description": "GC Input arg String",
+      "description": "SQL backend Input arg String",
       "default": "{}",
       "options": [
         "{}",
         "{ \"dbEngine\": \"postgres_tcp\", \"sqlDialect\": \"postgres\", \"dsn\": \"postgres://stackql:stackql@127.0.0.1:5432/stackql\" }",
         "{ \"dbEngine\": \"postgres_tcp\", \"sqlDialect\": \"postgres\", \"dsn\": \"postgres://stackql:stackql@127.0.0.1:7432/stackql\" }",
         "{ \"dbEngine\": \"postgres_tcp\", \"sqlDialect\": \"postgres\", \"dsn\": \"postgres://stackql:stackql@127.0.0.1:7432/stackql\", \"schemata\": { \"tableSchema\": \"stackql_raw\", \"intelViewSchema\": \"stackql_intel\", \"opsViewSchema\": \"stackql_ops\" } }",
-        "{ \"dbInitFilepath\": \"${workspaceFolder}/test/db/postgres/cache_setup.sql\", \"dbEngine\": \"postgres_tcp\", \"sqlDialect\": \"postgres\", \"dsn\": \"postgres://stackql:stackql@127.0.0.1:7432/stackql\", \"schemata\": { \"tableSchema\": \"stackql_raw\", \"intelViewSchema\": \"stackql_intel\", \"opsViewSchema\": \"stackql_ops\" } }"
+        "{ \"dbInitFilepath\": \"${workspaceFolder}/test/db/postgres/cache_setup.sql\", \"dbEngine\": \"postgres_tcp\", \"sqlDialect\": \"postgres\", \"dsn\": \"postgres://stackql:stackql@127.0.0.1:7432/stackql\", \"schemata\": { \"tableSchema\": \"stackql_raw\", \"intelViewSchema\": \"stackql_intel\", \"opsViewSchema\": \"stackql_ops\" } }",
+        "{ \"dsn\": \"file:${workspaceFolder}/build/db.sqlite\"}"
       ]
     },
     {

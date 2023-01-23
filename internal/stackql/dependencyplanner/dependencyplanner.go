@@ -297,9 +297,18 @@ func (dp *standardDependencyPlanner) orchestrate(
 			colNames = append(colNames, fmt.Sprintf(`"%s"`, col.GetIdentifier()))
 		}
 		projectionStr := strings.Join(colNames, ", ")
-		tableName := annotationCtx.GetHIDs().GetSQLDataSourceTableName()
+		tableObj, err := dp.handlerCtx.GetDrmConfig().GetCurrentTable(annotationCtx.GetHIDs())
+		if err != nil {
+			return err
+		}
+		tableName := tableObj.GetName()
+		// discoverID = tableObj.GetDiscoveryID()
+		if err != nil {
+			return err
+		}
+		tableName = annotationCtx.GetHIDs().GetSQLDataSourceTableName()
+		// targetTableName := annotationCtx.GetHIDs().GetStackQLTableName()
 		query := fmt.Sprintf(`SELECT %s FROM %s`, projectionStr, tableName)
-		// inputQuery := fmt.Sprintf(`SELECT %s FROM %s`, projectionStr, tableName)
 		builder = primitivebuilder.NewSQLDataSourceSingleSelectAcquire(
 			dp.primitiveComposer.GetGraph(),
 			dp.handlerCtx,

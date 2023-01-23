@@ -207,6 +207,7 @@ func (v *standardQueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 				return err
 			}
 			fromVis := NewFromRewriteAstVisitor(v.annotatedAST, "", true, v.handlerCtx.GetSQLSystem(), v.formatter, v.namespaceCollection, v.annotations, v.dc)
+			fromVis.SetAvoidSQLSourceNaming(true)
 			if node.From != nil {
 				node.From.Accept(fromVis)
 				v.fromStr = fromVis.GetRewrittenQuery()
