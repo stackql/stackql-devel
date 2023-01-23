@@ -17,6 +17,7 @@ type HeirarchyIdentifiers interface {
 	GetServiceStr() string
 	GetResourceStr() string
 	GetResponseSchemaStr() string
+	GetSQLDataSourceTableName() string
 	GetStackQLTableName() string
 	GetTableName() string
 	GetView() (ViewDTO, bool)
@@ -121,6 +122,14 @@ func (hi *standardHeirarchyIdentifiers) GetStackQLTableName() string {
 	}
 	if hi.methodStr != "" {
 		return fmt.Sprintf("%s.%s", baseStr, hi.methodStr)
+	}
+	return baseStr
+}
+
+func (hi *standardHeirarchyIdentifiers) GetSQLDataSourceTableName() string {
+	baseStr := hi.serviceStr
+	if hi.resourceStr != "" {
+		return fmt.Sprintf("%s.%s", baseStr, hi.resourceStr)
 	}
 	return baseStr
 }

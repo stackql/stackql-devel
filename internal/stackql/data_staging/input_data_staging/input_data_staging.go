@@ -9,9 +9,22 @@ import (
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 )
 
-// type NativeResultSetPreparator
+type NativeResultSetPreparator interface {
+	PrepareNativeResultSet() internaldto.ExecutorOutput
+}
 
-func PrepareNativeResultSet(rows *sql.Rows) internaldto.ExecutorOutput {
+type naiveNativeResultSetPreparator struct {
+	rows *sql.Rows
+}
+
+func NewNaiveNativeResultSetPreparator(rows *sql.Rows) NativeResultSetPreparator {
+	return &naiveNativeResultSetPreparator{
+		rows: rows,
+	}
+}
+
+func (np *naiveNativeResultSetPreparator) PrepareNativeResultSet() internaldto.ExecutorOutput {
+	rows := np.rows
 	if rows == nil {
 		emptyResult := internaldto.NewExecutorOutput(
 			nil,

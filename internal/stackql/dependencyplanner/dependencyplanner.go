@@ -2,6 +2,7 @@ package dependencyplanner
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/go-openapistackql/pkg/media"
@@ -258,8 +259,18 @@ func (dp *standardDependencyPlanner) processOrphan(sqlNode sqlparser.SQLNode, an
 		if err != nil {
 			return nil, nil, err
 		}
+	} else {
+		// Persist SQL mirror table here prior to generating insert DML
+		drmCfg := dp.handlerCtx.GetDrmConfig()
+		ddl, err := drmCfg.GenerateDDL(anTab, opStore, 0, false)
+		if err != nil {
+			return nil, nil, err
+		}
+		err = dp.handlerCtx.GetSQLEngine().ExecInTxn(ddl)
+		if err != nil {
+			return nil, nil, err
+		}
 	}
-	// TODO: generate insert DML for SQL data source
 	insPsc, err := dp.primitiveComposer.GetDRMConfig().GenerateInsertDML(anTab, opStore, tcc)
 	return insPsc, tcc, err
 }
@@ -274,14 +285,41 @@ func (dp *standardDependencyPlanner) orchestrate(
 	if err != nil {
 		return err
 	}
-	builder := primitivebuilder.NewSingleSelectAcquire(
-		dp.primitiveComposer.GetGraph(),
-		dp.handlerCtx,
-		rc,
-		insPsc,
-		nil,
-		outStream,
-	)
+	_, isSQLDataSource := annotationCtx.GetTableMeta().GetSQLDataSource()
+	var builder primitivebuilder.Builder
+	if isSQLDataSource {
+		// TODO: generate query properly with ordered columns
+		// starColNames := range insPsc.GetNonControlColumns()
+		var colNames []string
+		colz := insPsc.GetNonControlColumns()
+		for _, col := range colz {
+			//
+			colNames = append(colNames, fmt.Sprintf(`"%s"`, col.GetIdentifier()))
+		}
+		projectionStr := strings.Join(colNames, ", ")
+		tableName := annotationCtx.GetHIDs().GetSQLDataSourceTableName()
+		query := fmt.Sprintf(`SELECT %s FROM %s`, projectionStr, tableName)
+		// inputQuery := fmt.Sprintf(`SELECT %s FROM %s`, projectionStr, tableName)
+		builder = primitivebuilder.NewSQLDataSourceSingleSelectAcquire(
+			dp.primitiveComposer.GetGraph(),
+			dp.handlerCtx,
+			rc,
+			query,
+			nil,
+			insPsc,
+			nil,
+			outStream,
+		)
+	} else {
+		builder = primitivebuilder.NewSingleSelectAcquire(
+			dp.primitiveComposer.GetGraph(),
+			dp.handlerCtx,
+			rc,
+			insPsc,
+			nil,
+			outStream,
+		)
+	}
 	dp.execSlice = append(dp.execSlice, builder)
 	dp.tableSlice = append(dp.tableSlice, rc)
 	err = annotationCtx.Prepare(dp.handlerCtx, inStream)

@@ -3,6 +3,7 @@ package primitivebuilder
 import (
 	"fmt"
 
+	"github.com/stackql/stackql/internal/stackql/data_staging/input_data_staging"
 	"github.com/stackql/stackql/internal/stackql/datasource/sql_datasource"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
@@ -12,7 +13,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/streaming"
 	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
-	"github.com/stackql/stackql/internal/stackql/util"
 )
 
 // sqlDataSourceSingleSelectAcquire implements the Builder interface
@@ -110,28 +110,15 @@ func (ss *sqlDataSourceSingleSelectAcquire) Build() error {
 		return err
 	}
 	ex := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
+		// ss.tableMeta.GetP
 		rows, err := sqlDB.Query(ss.query, ss.queryArgs...)
 		if err != nil {
 			return internaldto.NewErroneousExecutorOutput(err)
 		}
 		currentTcc := ss.insertPreparedStatementCtx.GetGCCtrlCtrs().Clone()
 		ss.graph.AddTxnControlCounters(currentTcc)
-
-		for {
-			// TODO: fix cloning ops
-			ok := rows.Next()
-			if !ok {
-				break
-			}
-			reqEncoding := "dummy_encoding"
-			var item map[string]interface{}
-			_, err := ss.drmCfg.ExecuteInsertDML(ss.handlerCtx.GetSQLEngine(), ss.insertPreparedStatementCtx, item, reqEncoding)
-			if err != nil {
-				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, nil, nil, ss.rowSort, err, nil))
-			}
-
-		}
-		return internaldto.ExecutorOutput{}
+		preparator := input_data_staging.NewNaiveNativeResultSetPreparator(rows)
+		return preparator.PrepareNativeResultSet()
 	}
 
 	prep := func() drm.PreparedStatementCtx {

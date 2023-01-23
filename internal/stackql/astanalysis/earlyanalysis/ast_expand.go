@@ -670,6 +670,10 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 				logging.GetLogger().Debugf("optimistic doc error: %s", err.Error())
 			}
 		}
+		_, isSQLDataSource := v.handlerCtx.GetSQLDataSource(providerName)
+		if isSQLDataSource {
+			// TODO: persist mirrored table
+		}
 		// END OPTIMISTIC DOC PERSISTENCE AND VIEW DEFINITION
 		viewDTO, isView := v.sqlSystem.GetViewByName(node.GetRawVal())
 		if isView {

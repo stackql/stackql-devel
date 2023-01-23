@@ -65,8 +65,12 @@ func (ac *standardAnnotationCtx) Prepare(
 	stream streaming.MapStream,
 ) error {
 	// TODO: accomodate SQL data source
-	_, isSQLDataSource := ac.GetTableMeta().GetSQLDataSource()
+	sqlDataSource, isSQLDataSource := ac.GetTableMeta().GetSQLDataSource()
 	if isSQLDataSource {
+		ac.tableMeta.SetSQLDataSource(sqlDataSource)
+		// TODO: persist mirror table here a la GenerateInsertDML()
+		// anTab := util.NewAnnotatedTabulation(tab, ac.GetHIDs(), inputTableName, annotationCtx.GetTableMeta().GetAlias())
+		// ddl, err := handlerCtx.GetDrmConfig().GenerateDDL(ac.tableMeta, nil, 0, false)
 		return nil
 	}
 	pr, err := ac.GetTableMeta().GetProvider()

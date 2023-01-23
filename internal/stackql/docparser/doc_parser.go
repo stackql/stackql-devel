@@ -67,7 +67,7 @@ func OpenapiStackQLTabulationsPersistor(
 			return discoveryGenerationId, displayErr
 		}
 		for _, q := range ddl {
-			_, err = db.Exec(q)
+			_, err = txn.Exec(q)
 			if err != nil {
 				displayErr := fmt.Errorf("aborting DDL run for query '''%s''' with error: %s", q, err.Error())
 				logging.GetLogger().Infof("aborting DDL run for query '''%s''' with error: %s\n", q, err.Error())

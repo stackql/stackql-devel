@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/stackql/stackql/internal/stackql/constants"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internal_relational_dto"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/relationaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
@@ -401,6 +402,7 @@ func (dc *staticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 			return nil, err
 		}
 		for _, col := range tableColumns {
+			columns = append(columns, internal_relational_dto.NewRelayedColDescriptor(col, col.GetType()))
 			relationalTable.PushBackColumn(col)
 		}
 	} else {
