@@ -960,7 +960,7 @@ HTTP Log enabled regression test
     ...    ${CURDIR}/tmp/HTTP-Log-enabled-regression-test.tmp
 
 External Postgres Data Source Simple Ordered Query
-    Pass Execution If    "${EXECUTION_PLATFORM}" == "docker" or "${SQL_BACKEND}" == "postgres_tcp" or "${IS_WSL}" != "false"    Skipping docker test on windows
+    Pass Execution If    "${SHOULD_RUN_DOCKER_EXTERNAL_TESTS}" != "true"    Skipping docker tests in uncertain environment
     Should Horrid Query StackQL Inline Equal
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
@@ -974,7 +974,7 @@ External Postgres Data Source Simple Ordered Query
     ...    ${CURDIR}/tmp/External-Postgres-Data-Source-Simple-Ordered-Query.tmp
 
 External Postgres Data Source Simple Filtered Query
-    Pass Execution If    "${EXECUTION_PLATFORM}" == "docker" or "${SQL_BACKEND}" == "postgres_tcp" or "${IS_WSL}" != "false"    Skipping docker test on windows
+    Pass Execution If    "${SHOULD_RUN_DOCKER_EXTERNAL_TESTS}" != "true"    Skipping docker tests in uncertain environment
     Should Horrid Query StackQL Inline Equal
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
