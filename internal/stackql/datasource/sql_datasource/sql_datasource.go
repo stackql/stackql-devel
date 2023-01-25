@@ -15,6 +15,7 @@ type SQLDataSource interface {
 	Query(string, ...interface{}) (*sql.Rows, error)
 	QueryRow(string, ...any) *sql.Row
 	GetTableMetadata(...string) (sql_table.SQLTable, error)
+	GetSchemaType() string
 }
 
 func NewDataSource(authCtx *dto.AuthCtx) (SQLDataSource, error) {

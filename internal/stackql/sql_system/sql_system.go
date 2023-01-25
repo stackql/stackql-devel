@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/stackql/internal/stackql/astformat"
 	"github.com/stackql/stackql/internal/stackql/astfuncrewrite"
 	"github.com/stackql/stackql/internal/stackql/constants"
@@ -71,7 +70,7 @@ type SQLSystem interface {
 	GetViewByName(viewName string) (internaldto.ViewDTO, bool)
 
 	// External SQL data sources
-	RegisterExternalTable(connectionName string, tableID string, tableDetails openapistackql.SQLExternalTable) error
+	// RegisterExternalTable(connectionName string, tableID string, tableDetails openapistackql.SQLExternalTable) error
 	ObtainRelationalColumnFromExternalSQLtable(hierarchyIDs internaldto.HeirarchyIdentifiers, colName string) (relationaldto.RelationalColumn, error)
 	ObtainRelationalColumnsFromExternalSQLtable(hierarchyIDs internaldto.HeirarchyIdentifiers) ([]relationaldto.RelationalColumn, error)
 }
@@ -83,15 +82,15 @@ func getNodeFormatter(name string) sqlparser.NodeFormatter {
 	return nil
 }
 
-func NewSQLSystem(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString string, controlAttributes sqlcontrol.ControlAttributes, sqlCfg dto.SQLBackendCfg) (SQLSystem, error) {
+func NewSQLSystem(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString string, controlAttributes sqlcontrol.ControlAttributes, sqlCfg dto.SQLBackendCfg, authCfg map[string]*dto.AuthCtx) (SQLSystem, error) {
 	name := sqlCfg.SQLSystem
 	nameLowered := strings.ToLower(name)
 	formatter := getNodeFormatter(nameLowered)
 	switch nameLowered {
 	case constants.SQLDialectSQLite3:
-		return newSQLiteSystem(sqlEngine, analyticsNamespaceLikeString, controlAttributes, formatter, sqlCfg)
+		return newSQLiteSystem(sqlEngine, analyticsNamespaceLikeString, controlAttributes, formatter, sqlCfg, authCfg)
 	case constants.SQLDialectPostgres:
-		return newPostgresSystem(sqlEngine, analyticsNamespaceLikeString, controlAttributes, formatter, sqlCfg)
+		return newPostgresSystem(sqlEngine, analyticsNamespaceLikeString, controlAttributes, formatter, sqlCfg, authCfg)
 	default:
 		return nil, fmt.Errorf("cannot initialise sql system: cannot accomodate sql dialect '%s'", name)
 	}

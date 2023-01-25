@@ -7,6 +7,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	_ "github.com/snowflakedb/gosnowflake"
 
+	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/datasource/sql_table"
 	"github.com/stackql/stackql/internal/stackql/db_util"
 	"github.com/stackql/stackql/internal/stackql/dto"
@@ -25,15 +26,25 @@ func newGenericSQLDataSource(authCtx *dto.AuthCtx, driverName string, dbName str
 	if err != nil {
 		return nil, err
 	}
+	schemaType := sqlCfg.GetSchemaType()
+	if schemaType == "" {
+		schemaType = constants.SQLDataSourceSchemaDefault
+	}
 	return &genericSQLDataSource{
-		db:     db,
-		dbName: dbName,
+		db:         db,
+		dbName:     dbName,
+		schemaType: schemaType,
 	}, nil
 }
 
 type genericSQLDataSource struct {
-	db     *sql.DB
-	dbName string
+	db         *sql.DB
+	dbName     string
+	schemaType string
+}
+
+func (ds *genericSQLDataSource) GetSchemaType() string {
+	return ds.schemaType
 }
 
 func (ds *genericSQLDataSource) Exec(query string, args ...interface{}) (sql.Result, error) {

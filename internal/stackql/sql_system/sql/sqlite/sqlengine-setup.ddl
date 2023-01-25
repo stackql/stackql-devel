@@ -321,7 +321,7 @@ INSERT INTO "__iql__.external.columns" (
   ,column_width 
   ,column_precision 
 ) VALUES (
-   '__postgres_info_only__' 
+   'postgres_information_schema' 
   ,'' 
   ,'information_schema' 
   ,'applicable_roles'
@@ -346,7 +346,7 @@ INSERT INTO "__iql__.external.columns" (
   ,column_width 
   ,column_precision 
 ) VALUES (
-   '__postgres_info_only__' 
+   'postgres_information_schema' 
   ,'' 
   ,'information_schema' 
   ,'applicable_roles'
@@ -371,7 +371,7 @@ INSERT INTO "__iql__.external.columns" (
   ,column_width 
   ,column_precision 
 ) VALUES (
-   '__postgres_info_only__' 
+   'postgres_information_schema' 
   ,'' 
   ,'information_schema' 
   ,'applicable_roles'

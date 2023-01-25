@@ -23,6 +23,7 @@ type SQLBackendCfg struct {
 	Schemata              SQLBackendSchemata `json:"schemata" yaml:"schemata"`
 	DbInitFilePath        string             `json:"dbInitFilepath" yaml:"dbInitFilepath"`
 	SQLSystem             string             `json:"sqlDialect" yaml:"sqlDialect"`
+	SchemaType            string             `json:"schemaType" yaml:"schemaType"`
 	InitMaxRetries        int                `json:"initMaxRetries" yaml:"initMaxRetries"`
 	InitRetryInitialDelay int                `json:"initRetryInitialDelay" yaml:"initRetryInitialDelay"`
 }
@@ -33,6 +34,10 @@ func (sqlCfg SQLBackendCfg) GetDSN() string {
 		dsn = os.Getenv(sqlCfg.DSNEnvVar)
 	}
 	return dsn
+}
+
+func (sqlCfg SQLBackendCfg) GetSchemaType() string {
+	return sqlCfg.SchemaType
 }
 
 func (sqlCfg SQLBackendCfg) GetDatabaseName() (string, error) {

@@ -35,6 +35,11 @@ func BuildInputBundle(runtimeCtx dto.RuntimeCtx) (bundle.Bundle, error) {
 	if err != nil {
 		return nil, err
 	}
+	ac := make(map[string]*dto.AuthCtx)
+	err = yaml.Unmarshal([]byte(runtimeCtx.AuthRaw), ac)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling auth: %s", err.Error())
+	}
 	se, err := buildSQLEngine(sqlCfg, controlAttributes)
 	if err != nil {
 		return nil, err
@@ -51,7 +56,7 @@ func BuildInputBundle(runtimeCtx dto.RuntimeCtx) (bundle.Bundle, error) {
 	if err != nil {
 		return nil, err
 	}
-	system, err := sql_system.NewSQLSystem(se, namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetLikeString(), controlAttributes, sqlCfg)
+	system, err := sql_system.NewSQLSystem(se, namespaces.GetAnalyticsCacheTableNamespaceConfigurator().GetLikeString(), controlAttributes, sqlCfg, ac)
 	if err != nil {
 		return nil, err
 	}
@@ -76,11 +81,6 @@ func BuildInputBundle(runtimeCtx dto.RuntimeCtx) (bundle.Bundle, error) {
 	txnCtrMgr, err := getTxnCounterManager(se)
 	if err != nil {
 		return nil, err
-	}
-	ac := make(map[string]*dto.AuthCtx)
-	err = yaml.Unmarshal([]byte(runtimeCtx.AuthRaw), ac)
-	if err != nil {
-		return nil, fmt.Errorf("error unmarshalling auth: %s", err.Error())
 	}
 	sqlDataSources, err := initSQLDataSources(ac)
 	if err != nil {

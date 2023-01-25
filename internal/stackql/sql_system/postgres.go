@@ -20,7 +20,7 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-func newPostgresSystem(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString string, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter, sqlCfg dto.SQLBackendCfg) (SQLSystem, error) {
+func newPostgresSystem(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString string, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter, sqlCfg dto.SQLBackendCfg, authCfg map[string]*dto.AuthCtx) (SQLSystem, error) {
 	catalogName, err := sqlCfg.GetDatabaseName()
 	if err != nil {
 		return nil, err
@@ -48,6 +48,7 @@ func newPostgresSystem(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeStri
 		formatter:                    formatter,
 		tableSchema:                  tableSchemaName,
 		tableCatalog:                 catalogName,
+		authCfg:                      authCfg,
 	}
 	viewSchemataEnabled, err := rv.inferViewSchemataEnabled(sqlCfg.Schemata)
 	if err != nil {
@@ -86,6 +87,7 @@ type postgresSystem struct {
 	opsViewSchema                string
 	intelViewSchema              string
 	tableCatalog                 string
+	authCfg                      map[string]*dto.AuthCtx
 }
 
 func (eng *postgresSystem) initPostgresEngine() error {

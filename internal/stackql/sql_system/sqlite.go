@@ -20,7 +20,7 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
-func newSQLiteSystem(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString string, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter, sqlCfg dto.SQLBackendCfg) (SQLSystem, error) {
+func newSQLiteSystem(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString string, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter, sqlCfg dto.SQLBackendCfg, authCfg map[string]*dto.AuthCtx) (SQLSystem, error) {
 	rv := &sqLiteSystem{
 		defaultGolangKind:     reflect.String,
 		defaultRelationalType: "text",
@@ -36,6 +36,7 @@ func newSQLiteSystem(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString
 		analyticsNamespaceLikeString: analyticsNamespaceLikeString,
 		sqlEngine:                    sqlEngine,
 		formatter:                    formatter,
+		authCfg:                      authCfg,
 	}
 	err := rv.initSQLiteEngine()
 	return rv, err
@@ -49,6 +50,7 @@ type sqLiteSystem struct {
 	typeMappings                 map[string]internaldto.DRMCoupling
 	defaultRelationalType        string
 	defaultGolangKind            reflect.Kind
+	authCfg                      map[string]*dto.AuthCtx
 }
 
 func (eng *sqLiteSystem) initSQLiteEngine() error {
@@ -213,6 +215,23 @@ func (sl *sqLiteSystem) ObtainRelationalColumnFromExternalSQLtable(hierarchyIDs 
 	return sl.obtainRelationalColumnFromExternalSQLtable(hierarchyIDs, colName)
 }
 
+func (sl *sqLiteSystem) getSQLExternalSchema(providerName string) string {
+	rv := ""
+	if sl.authCfg != nil {
+		ac, ok := sl.authCfg[providerName]
+		if ok && ac != nil {
+			sqlCfg, ok := ac.GetSQLCfg()
+			if ok {
+				rv = sqlCfg.GetTableSchemaName()
+			}
+		}
+	}
+	if rv == "" {
+		rv = constants.SQLDataSourceSchemaDefault
+	}
+	return rv
+}
+
 func (sl *sqLiteSystem) obtainRelationalColumnsFromExternalSQLtable(hierarchyIDs internaldto.HeirarchyIdentifiers) ([]relationaldto.RelationalColumn, error) {
 	q := `
 	SELECT
@@ -233,11 +252,8 @@ func (sl *sqLiteSystem) obtainRelationalColumnsFromExternalSQLtable(hierarchyIDs
 	  table_name = ?
 	ORDER BY ordinal_position ASC
 	`
-	// TODO: abstract this translation
-	connectionName := hierarchyIDs.GetProviderStr()
-	if connectionName == "localpostgres" {
-		connectionName = "__postgres_info_only__"
-	}
+	providerName := hierarchyIDs.GetProviderStr()
+	connectionName := sl.getSQLExternalSchema(providerName)
 	catalogName := ""
 	schemaName := hierarchyIDs.GetServiceStr()
 	tableName := hierarchyIDs.GetResourceStr()
@@ -296,11 +312,8 @@ func (sl *sqLiteSystem) obtainRelationalColumnFromExternalSQLtable(hierarchyIDs 
 	  column_name = ?
 	ORDER BY ordinal_position ASC
 	`
-	// TODO: abstract this translation
-	connectionName := hierarchyIDs.GetProviderStr()
-	if connectionName == "localpostgres" {
-		connectionName = "__postgres_info_only__"
-	}
+	providerName := hierarchyIDs.GetProviderStr()
+	connectionName := sl.getSQLExternalSchema(providerName)
 	catalogName := ""
 	schemaName := hierarchyIDs.GetServiceStr()
 	tableName := hierarchyIDs.GetResourceStr()

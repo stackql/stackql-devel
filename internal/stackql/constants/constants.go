@@ -47,6 +47,11 @@ const (
 	DefaultViewsRegexpString           string = `^stackql_views\.(?P<objectName>.*)$`
 )
 
+const (
+	SQLDataSourceSchemaPostgresInfo string = "postgres_information_schema"
+	SQLDataSourceSchemaDefault      string = SQLDataSourceSchemaPostgresInfo
+)
+
 type GCStatus int
 
 const (
