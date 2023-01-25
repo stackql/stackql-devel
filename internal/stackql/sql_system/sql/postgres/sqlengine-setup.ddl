@@ -254,4 +254,18 @@ VALUES (
 ON CONFLICT (view_name) DO NOTHING
 ;
 
-
+CREATE TABLE IF NOT EXISTS "__iql__.external.columns" (
+   iql_column_id BIGSERIAL PRIMARY KEY
+  ,connection_name TEXT
+  ,catalog_name TEXT
+  ,schema_name TEXT
+  ,table_name TEXT
+  ,column_name TEXT
+  ,column_type TEXT
+  ,ordinal_position INT
+  ,"oid" INT
+  ,column_width INT
+  ,column_precision TEXT
+  ,UNIQUE(connection_name, catalog_name, schema_name, table_name, column_name)
+)
+;

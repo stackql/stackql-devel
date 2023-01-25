@@ -141,17 +141,18 @@ func (sl *postgresSystem) registerExternalTable(connectionName string, tableDeta
 	   ,column_width 
 	   ,column_precision 
 	 ) VALUES (
-	    ? 
-	   ,? 
-	   ,? 
-	   ,?
-	   ,? 
-	   ,? 
-	   ,? 
-	   ,? 
-	   ,? 
-	   ,?
+	    $1 
+	   ,$2 
+	   ,$3 
+	   ,$4
+	   ,$5 
+	   ,$6 
+	   ,$7 
+	   ,$8 
+	   ,$9 
+	   ,$10
 	 )
+	ON CONFLICT (connection_name, catalog_name, schema_name, table_name, column_name) DO NOTHING
 	`
 	tx, err := sl.sqlEngine.GetTx()
 	if err != nil {
@@ -167,6 +168,7 @@ func (sl *postgresSystem) registerExternalTable(connectionName string, tableDeta
 			col.Name,
 			col.Type,
 			ord,
+			col.Oid,
 			col.Width,
 			col.Precision,
 		)
@@ -198,13 +200,13 @@ func (sl *postgresSystem) obtainRelationalColumnsFromExternalSQLtable(hierarchyI
 	FROM
 	  "__iql__.external.columns"
 	WHERE
-	  connection_name = ?
+	  connection_name = $1
 	  AND
-	  catalog_name = ?
+	  catalog_name = $2
 	  AND
-	  schema_name = ?
+	  schema_name = $3
 	  AND 
-	  table_name = ?
+	  table_name = $4
 	ORDER BY ordinal_position ASC
 	`
 	// TODO: abstract this translation
@@ -257,15 +259,15 @@ func (sl *postgresSystem) obtainRelationalColumnFromExternalSQLtable(hierarchyID
 	FROM
 	  "__iql__.external.columns"
 	WHERE
-	  connection_name = ?
+	  connection_name = $1
 	  AND
-	  catalog_name = ?
+	  catalog_name = $2
 	  AND
-	  schema_name = ?
+	  schema_name = $3
 	  AND 
-	  table_name = ?
+	  table_name = $4
 	  AND
-	  column_name = ?
+	  column_name = $5
 	ORDER BY ordinal_position ASC
 	`
 	// TODO: abstract this translation
@@ -396,7 +398,7 @@ func (eng *postgresSystem) generateDDL(relationalTable relationaldto.RelationalT
 }
 
 func (eng *postgresSystem) DropView(viewName string) error {
-	_, err := eng.sqlEngine.Exec(`delete from "__iql__.views" where view_name = ?`, viewName)
+	_, err := eng.sqlEngine.Exec(`delete from "__iql__.views" where view_name = $1`, viewName)
 	return err
 }
 

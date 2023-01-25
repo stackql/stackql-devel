@@ -259,7 +259,7 @@ _AUTH_PLUS_EXTERNAL_POSTGRES_DOCKER = copy.deepcopy(_AUTH_CFG_DOCKER)
 _AUTH_PLUS_EXTERNAL_POSTGRES_DOCKER["external_postgres_information_schema"] = { 
   "type": "sql_data_source::postgres",
   "sqlDataSource": {
-    "dsn": "postgres://stackql:stackql@postgres_external_data_source:5432" 
+    "dsn": "postgres://stackql:stackql@host.docker.internal:8432" 
   } 
 }
 
