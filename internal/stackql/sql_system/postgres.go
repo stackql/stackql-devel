@@ -209,8 +209,8 @@ func (sl *postgresSystem) obtainRelationalColumnsFromExternalSQLtable(hierarchyI
 	  table_name = $4
 	ORDER BY ordinal_position ASC
 	`
-	// TODO: abstract this translation
-	connectionName := hierarchyIDs.GetProviderStr()
+	providerName := hierarchyIDs.GetProviderStr()
+	connectionName := sl.getSQLExternalSchema(providerName)
 	catalogName := ""
 	schemaName := hierarchyIDs.GetServiceStr()
 	tableName := hierarchyIDs.GetResourceStr()
@@ -247,6 +247,23 @@ func (sl *postgresSystem) obtainRelationalColumnsFromExternalSQLtable(hierarchyI
 	return rv, nil
 }
 
+func (sl *postgresSystem) getSQLExternalSchema(providerName string) string {
+	rv := ""
+	if sl.authCfg != nil {
+		ac, ok := sl.authCfg[providerName]
+		if ok && ac != nil {
+			sqlCfg, ok := ac.GetSQLCfg()
+			if ok {
+				rv = sqlCfg.GetTableSchemaName()
+			}
+		}
+	}
+	if rv == "" {
+		rv = constants.SQLDataSourceSchemaDefault
+	}
+	return rv
+}
+
 func (sl *postgresSystem) obtainRelationalColumnFromExternalSQLtable(hierarchyIDs internaldto.HeirarchyIdentifiers, colName string) (relationaldto.RelationalColumn, error) {
 	q := `
 	SELECT
@@ -270,8 +287,8 @@ func (sl *postgresSystem) obtainRelationalColumnFromExternalSQLtable(hierarchyID
 	  column_name = $5
 	ORDER BY ordinal_position ASC
 	`
-	// TODO: abstract this translation
-	connectionName := hierarchyIDs.GetProviderStr()
+	providerName := hierarchyIDs.GetProviderStr()
+	connectionName := sl.getSQLExternalSchema(providerName)
 	catalogName := ""
 	schemaName := hierarchyIDs.GetServiceStr()
 	tableName := hierarchyIDs.GetResourceStr()
