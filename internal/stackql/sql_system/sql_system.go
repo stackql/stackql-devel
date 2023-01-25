@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/stackql/internal/stackql/astformat"
 	"github.com/stackql/stackql/internal/stackql/astfuncrewrite"
 	"github.com/stackql/stackql/internal/stackql/constants"
@@ -70,7 +71,7 @@ type SQLSystem interface {
 	GetViewByName(viewName string) (internaldto.ViewDTO, bool)
 
 	// External SQL data sources
-	// RegisterExternalTable(connectionName string, tableID string, tableDetails openapistackql.SQLExternalTable) error
+	RegisterExternalTable(connectionName string, tableDetails openapistackql.SQLExternalTable) error
 	ObtainRelationalColumnFromExternalSQLtable(hierarchyIDs internaldto.HeirarchyIdentifiers, colName string) (relationaldto.RelationalColumn, error)
 	ObtainRelationalColumnsFromExternalSQLtable(hierarchyIDs internaldto.HeirarchyIdentifiers) ([]relationaldto.RelationalColumn, error)
 }

@@ -213,7 +213,7 @@ _AUTH_CFG={
 
 _AUTH_PLUS_EXTERNAL_POSTGRES = copy.deepcopy(_AUTH_CFG)
 
-_AUTH_PLUS_EXTERNAL_POSTGRES["localpostgres"] = { 
+_AUTH_PLUS_EXTERNAL_POSTGRES["external_postgres_information_schema"] = { 
   "type": "sql_data_source::postgres",
   "sqlDataSource": {
     "dsn": "postgres://stackql:stackql@127.0.0.1:8432" 
@@ -256,7 +256,7 @@ _AUTH_CFG_DOCKER={
 
 _AUTH_PLUS_EXTERNAL_POSTGRES_DOCKER = copy.deepcopy(_AUTH_CFG_DOCKER)
 
-_AUTH_PLUS_EXTERNAL_POSTGRES_DOCKER["localpostgres"] = { 
+_AUTH_PLUS_EXTERNAL_POSTGRES_DOCKER["external_postgres_information_schema"] = { 
   "type": "sql_data_source::postgres",
   "sqlDataSource": {
     "dsn": "postgres://stackql:stackql@postgres_external_data_source:5432" 

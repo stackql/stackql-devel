@@ -295,7 +295,7 @@ VALUES (
 );
 
 CREATE TABLE IF NOT EXISTS "__iql__.external.columns" (
-   iql_view_id BIGSERIAL PRIMARY KEY
+   iql_column_id BIGSERIAL PRIMARY KEY
   ,connection_name TEXT
   ,catalog_name TEXT
   ,schema_name TEXT
@@ -306,82 +306,83 @@ CREATE TABLE IF NOT EXISTS "__iql__.external.columns" (
   ,"oid" INT
   ,column_width INT
   ,column_precision TEXT
+  ,UNIQUE(connection_name, catalog_name, schema_name, table_name, column_name)
 )
 ;
 
-INSERT INTO "__iql__.external.columns" (
-   connection_name 
-  ,catalog_name 
-  ,schema_name 
-  ,table_name 
-  ,column_name 
-  ,column_type
-  ,ordinal_position 
-  ,"oid" 
-  ,column_width 
-  ,column_precision 
-) VALUES (
-   'postgres_information_schema' 
-  ,'' 
-  ,'information_schema' 
-  ,'applicable_roles'
-  ,'grantee' 
-  ,'text' 
-  ,1 
-  ,25 
-  ,512 
-  ,0
-)
-;
+-- INSERT OR IGNORE INTO "__iql__.external.columns" (
+--    connection_name 
+--   ,catalog_name 
+--   ,schema_name 
+--   ,table_name 
+--   ,column_name 
+--   ,column_type
+--   ,ordinal_position 
+--   ,"oid" 
+--   ,column_width 
+--   ,column_precision 
+-- ) VALUES (
+--    'postgres_information_schema' 
+--   ,'' 
+--   ,'information_schema' 
+--   ,'applicable_roles'
+--   ,'grantee' 
+--   ,'text' 
+--   ,1 
+--   ,25 
+--   ,512 
+--   ,0
+-- )
+-- ;
 
-INSERT INTO "__iql__.external.columns" (
-   connection_name 
-  ,catalog_name 
-  ,schema_name 
-  ,table_name 
-  ,column_name 
-  ,column_type
-  ,ordinal_position 
-  ,"oid" 
-  ,column_width 
-  ,column_precision 
-) VALUES (
-   'postgres_information_schema' 
-  ,'' 
-  ,'information_schema' 
-  ,'applicable_roles'
-  ,'role_name' 
-  ,'text' 
-  ,2 
-  ,25 
-  ,512 
-  ,0
-)
-;
+-- INSERT OR IGNORE INTO "__iql__.external.columns" (
+--    connection_name 
+--   ,catalog_name 
+--   ,schema_name 
+--   ,table_name 
+--   ,column_name 
+--   ,column_type
+--   ,ordinal_position 
+--   ,"oid" 
+--   ,column_width 
+--   ,column_precision 
+-- ) VALUES (
+--    'postgres_information_schema' 
+--   ,'' 
+--   ,'information_schema' 
+--   ,'applicable_roles'
+--   ,'role_name' 
+--   ,'text' 
+--   ,2 
+--   ,25 
+--   ,512 
+--   ,0
+-- )
+-- ;
 
-INSERT INTO "__iql__.external.columns" (
-   connection_name 
-  ,catalog_name 
-  ,schema_name 
-  ,table_name 
-  ,column_name 
-  ,column_type
-  ,ordinal_position 
-  ,"oid" 
-  ,column_width 
-  ,column_precision 
-) VALUES (
-   'postgres_information_schema' 
-  ,'' 
-  ,'information_schema' 
-  ,'applicable_roles'
-  ,'is_grantable' 
-  ,'text' 
-  ,3 
-  ,25 
-  ,512 
-  ,0
-)
-;
+-- INSERT OR IGNORE INTO "__iql__.external.columns" (
+--    connection_name 
+--   ,catalog_name 
+--   ,schema_name 
+--   ,table_name 
+--   ,column_name 
+--   ,column_type
+--   ,ordinal_position 
+--   ,"oid" 
+--   ,column_width 
+--   ,column_precision 
+-- ) VALUES (
+--    'postgres_information_schema' 
+--   ,'' 
+--   ,'information_schema' 
+--   ,'applicable_roles'
+--   ,'is_grantable' 
+--   ,'text' 
+--   ,3 
+--   ,25 
+--   ,512 
+--   ,0
+-- )
+-- ;
 
 

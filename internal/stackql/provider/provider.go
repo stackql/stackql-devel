@@ -75,6 +75,8 @@ type IProvider interface {
 
 	InferNextPageResponseElement(internaldto.Heirarchy) internaldto.HTTPElement
 
+	PersistStaticExternalSQLDataSource(dto.RuntimeCtx) error
+
 	SetCurrentService(serviceKey string)
 
 	ShowAuth(authCtx *dto.AuthCtx) (*openapistackql.AuthMetadata, error)

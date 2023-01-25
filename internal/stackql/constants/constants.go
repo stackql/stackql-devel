@@ -48,7 +48,7 @@ const (
 )
 
 const (
-	SQLDataSourceSchemaPostgresInfo string = "postgres_information_schema"
+	SQLDataSourceSchemaPostgresInfo string = "external_postgres_information_schema"
 	SQLDataSourceSchemaDefault      string = SQLDataSourceSchemaPostgresInfo
 )
 

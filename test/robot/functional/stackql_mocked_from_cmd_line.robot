@@ -969,7 +969,7 @@ External Postgres Data Source Simple Ordered Query
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_PLUS_EXTERNAL_POSTGRES}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
-    ...    select role_name from localpostgres.information_schema.applicable_roles order by role_name desc;
+    ...    select role_name from external_postgres_information_schema.information_schema.applicable_roles order by role_name desc;
     ...    ${SELECT_EXTERNAL_INFORMATION_SCHEMA_ORDERED_EXPECTED}
     ...    ${CURDIR}/tmp/External-Postgres-Data-Source-Simple-Ordered-Query.tmp
 
@@ -983,6 +983,6 @@ External Postgres Data Source Simple Filtered Query
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_PLUS_EXTERNAL_POSTGRES}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
-    ...    select role_name from localpostgres.information_schema.applicable_roles where role_name \= 'pg_database_owner';
+    ...    select role_name from external_postgres_information_schema.information_schema.applicable_roles where role_name \= 'pg_database_owner';
     ...    ${SELECT_EXTERNAL_INFORMATION_SCHEMA_FILTERED_EXPECTED}
     ...    ${CURDIR}/tmp/External-Postgres-Data-Source-Simple-Filtered-Query.tmp

@@ -661,18 +661,21 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 		}
 		// OPTIMISTIC DOC PERSISTENCE AND VIEW DEFINITION
 		prov, err := v.handlerCtx.GetProvider(providerName)
+
 		if err != nil {
 			logging.GetLogger().Debugf("optimistic doc error: %s", err.Error())
 		} else {
-			_, err = prov.GetServiceShard(serviceName, resourceName, v.handlerCtx.GetRuntimeContext())
-			if err != nil {
-
-				logging.GetLogger().Debugf("optimistic doc error: %s", err.Error())
+			if hasSQLDataSource {
+				err = prov.PersistStaticExternalSQLDataSource(v.handlerCtx.GetRuntimeContext())
+				if err != nil {
+					return err
+				}
+			} else {
+				_, err = prov.GetServiceShard(serviceName, resourceName, v.handlerCtx.GetRuntimeContext())
+				if err != nil {
+					logging.GetLogger().Debugf("optimistic doc error: %s", err.Error())
+				}
 			}
-		}
-		_, isSQLDataSource := v.handlerCtx.GetSQLDataSource(providerName)
-		if isSQLDataSource {
-			// TODO: persist mirrored table
 		}
 		// END OPTIMISTIC DOC PERSISTENCE AND VIEW DEFINITION
 		viewDTO, isView := v.sqlSystem.GetViewByName(node.GetRawVal())

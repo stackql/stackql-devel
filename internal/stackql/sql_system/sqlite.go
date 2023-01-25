@@ -152,13 +152,13 @@ func (sl *sqLiteSystem) GCCollectObsoleted(minTransactionID int) error {
 	return sl.gCCollectObsoleted(minTransactionID)
 }
 
-func (sl *sqLiteSystem) RegisterExternalTable(connectionName string, tableID string, tableDetails openapistackql.SQLExternalTable) error {
-	return sl.registerExternalTable(connectionName, tableID, tableDetails)
+func (sl *sqLiteSystem) RegisterExternalTable(connectionName string, tableDetails openapistackql.SQLExternalTable) error {
+	return sl.registerExternalTable(connectionName, tableDetails)
 }
 
-func (sl *sqLiteSystem) registerExternalTable(connectionName string, tableID string, tableDetails openapistackql.SQLExternalTable) error {
+func (sl *sqLiteSystem) registerExternalTable(connectionName string, tableDetails openapistackql.SQLExternalTable) error {
 	q := `
-	INSERT INTO "__iql__.external.columns" (
+	INSERT OR IGNORE INTO "__iql__.external.columns" (
 		connection_name 
 	   ,catalog_name 
 	   ,schema_name 
@@ -196,6 +196,7 @@ func (sl *sqLiteSystem) registerExternalTable(connectionName string, tableID str
 			col.Name,
 			col.Type,
 			ord,
+			col.Oid,
 			col.Width,
 			col.Precision,
 		)
@@ -204,7 +205,8 @@ func (sl *sqLiteSystem) registerExternalTable(connectionName string, tableID str
 			return err
 		}
 	}
-	return nil
+	err = tx.Commit()
+	return err
 }
 
 func (sl *sqLiteSystem) ObtainRelationalColumnsFromExternalSQLtable(hierarchyIDs internaldto.HeirarchyIdentifiers) ([]relationaldto.RelationalColumn, error) {

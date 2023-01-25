@@ -58,6 +58,10 @@ func (gp *GenericProvider) GetServiceShard(serviceKey string, resourceKey string
 	return gp.discoveryAdapter.GetServiceShard(gp.provider, serviceKey, resourceKey)
 }
 
+func (gp *GenericProvider) PersistStaticExternalSQLDataSource(runtimeCtx dto.RuntimeCtx) error {
+	return gp.discoveryAdapter.PersistStaticExternalSQLDataSource(gp.provider)
+}
+
 func (gp *GenericProvider) inferAuthType(authCtx dto.AuthCtx, authTypeRequested string) string {
 	ft := strings.ToLower(authTypeRequested)
 	switch ft {

@@ -123,11 +123,11 @@ func (eng *postgresSystem) GenerateDDL(relationalTable relationaldto.RelationalT
 	return eng.generateDDL(relationalTable, dropTable)
 }
 
-func (sl *postgresSystem) RegisterExternalTable(connectionName string, tableID string, tableDetails openapistackql.SQLExternalTable) error {
-	return sl.registerExternalTable(connectionName, tableID, tableDetails)
+func (sl *postgresSystem) RegisterExternalTable(connectionName string, tableDetails openapistackql.SQLExternalTable) error {
+	return sl.registerExternalTable(connectionName, tableDetails)
 }
 
-func (sl *postgresSystem) registerExternalTable(connectionName string, tableID string, tableDetails openapistackql.SQLExternalTable) error {
+func (sl *postgresSystem) registerExternalTable(connectionName string, tableDetails openapistackql.SQLExternalTable) error {
 	q := `
 	INSERT INTO "__iql__.external.columns" (
 		connection_name 

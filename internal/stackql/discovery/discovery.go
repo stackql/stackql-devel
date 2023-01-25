@@ -30,6 +30,7 @@ type IDiscoveryAdapter interface {
 	GetServiceHandlesMap(prov *openapistackql.Provider) (map[string]*openapistackql.ProviderService, error)
 	GetServiceHandle(prov *openapistackql.Provider, serviceKey string) (*openapistackql.ProviderService, error)
 	GetProvider(providerKey string) (*openapistackql.Provider, error)
+	PersistStaticExternalSQLDataSource(prov *openapistackql.Provider) error
 	getDicoveryStore() IDiscoveryStore
 }
 
@@ -107,6 +108,24 @@ func (adp *BasicDiscoveryAdapter) GetServiceShard(prov *openapistackql.Provider,
 		}
 	}
 	return shard, nil
+}
+
+func (adp *BasicDiscoveryAdapter) PersistStaticExternalSQLDataSource(prov *openapistackql.Provider) error {
+	if prov.StackQLConfig == nil || len(prov.StackQLConfig.ExternalTables) < 1 {
+		return fmt.Errorf("no external tables supplied")
+	}
+	providerName := prov.Name
+	externalTables := prov.StackQLConfig.ExternalTables
+	for _, tbl := range externalTables {
+		err := adp.sqlSystem.RegisterExternalTable(
+			providerName,
+			tbl,
+		)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (adp *BasicDiscoveryAdapter) GetResourcesMap(prov *openapistackql.Provider, serviceKey string) (map[string]*openapistackql.Resource, error) {
