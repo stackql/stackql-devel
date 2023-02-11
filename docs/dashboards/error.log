@@ -1,0 +1,79 @@
+superset_app                | Got an error (psycopg2.InternalError) error:  You have an error in your stackql syntax; parser error: syntax error at position 1165 near '::regclass'
+superset_app                | 
+superset_app                | [SQL: 
+superset_app                |             SELECT a.attname,
+superset_app                |               pg_catalog.format_type(a.atttypid, a.atttypmod),
+superset_app                |               (
+superset_app                |                 SELECT pg_catalog.pg_get_expr(d.adbin, d.adrelid)
+superset_app                |                 FROM pg_catalog.pg_attrdef d
+superset_app                |                 WHERE d.adrelid = a.attrelid AND d.adnum = a.attnum
+superset_app                |                 AND a.atthasdef
+superset_app                |               ) AS DEFAULT,
+superset_app                |               a.attnotnull,
+superset_app                |               a.attrelid as table_oid,
+superset_app                |               pgd.description as comment,
+superset_app                |               a.attgenerated as generated,
+superset_app                |                               (SELECT json_build_object(
+superset_app                |                     'always', a.attidentity = 'a',
+superset_app                |                     'start', s.seqstart,
+superset_app                |                     'increment', s.seqincrement,
+superset_app                |                     'minvalue', s.seqmin,
+superset_app                |                     'maxvalue', s.seqmax,
+superset_app                |                     'cache', s.seqcache,
+superset_app                |                     'cycle', s.seqcycle)
+superset_app                |                 FROM pg_catalog.pg_sequence s
+superset_app                |                 JOIN pg_catalog.pg_class c on s.seqrelid = c."oid"
+superset_app                |                 WHERE c.relkind = 'S'
+superset_app                |                 AND a.attidentity != ''
+superset_app                |                 AND s.seqrelid = pg_catalog.pg_get_serial_sequence(
+superset_app                |                     a.attrelid::regclass::text, a.attname
+superset_app                |                 )::regclass::oid
+superset_app                |                 ) as identity_options                
+superset_app                |             FROM pg_catalog.pg_attribute a
+superset_app                |             LEFT JOIN pg_catalog.pg_description pgd ON (
+superset_app                |                 pgd.objoid = a.attrelid AND pgd.objsubid = a.attnum)
+superset_app                |             WHERE a.attrelid = %(table_oid)s
+superset_app                |             AND a.attnum > 0 AND NOT a.attisdropped
+superset_app                |             ORDER BY a.attnum
+superset_app                |         ]
+superset_app                | [parameters: {'table_oid': '16614'}]
+superset_app                | (Background on this error at: https://sqlalche.me/e/14/2j85) validating table: google.compute.acceleratorTypes
+superset_app                | 2023-02-08 23:04:52,591:WARNING:superset.datasets.dao:Got an error (psycopg2.InternalError) error:  You have an error in your stackql syntax; parser error: syntax error at position 1165 near '::regclass'
+superset_app                | 
+superset_app                | [SQL: 
+superset_app                |             SELECT a.attname,
+superset_app                |               pg_catalog.format_type(a.atttypid, a.atttypmod),
+superset_app                |               (
+superset_app                |                 SELECT pg_catalog.pg_get_expr(d.adbin, d.adrelid)
+superset_app                |                 FROM pg_catalog.pg_attrdef d
+superset_app                |                 WHERE d.adrelid = a.attrelid AND d.adnum = a.attnum
+superset_app                |                 AND a.atthasdef
+superset_app                |               ) AS DEFAULT,
+superset_app                |               a.attnotnull,
+superset_app                |               a.attrelid as table_oid,
+superset_app                |               pgd.description as comment,
+superset_app                |               a.attgenerated as generated,
+superset_app                |                               (SELECT json_build_object(
+superset_app                |                     'always', a.attidentity = 'a',
+superset_app                |                     'start', s.seqstart,
+superset_app                |                     'increment', s.seqincrement,
+superset_app                |                     'minvalue', s.seqmin,
+superset_app                |                     'maxvalue', s.seqmax,
+superset_app                |                     'cache', s.seqcache,
+superset_app                |                     'cycle', s.seqcycle)
+superset_app                |                 FROM pg_catalog.pg_sequence s
+superset_app                |                 JOIN pg_catalog.pg_class c on s.seqrelid = c."oid"
+superset_app                |                 WHERE c.relkind = 'S'
+superset_app                |                 AND a.attidentity != ''
+superset_app                |                 AND s.seqrelid = pg_catalog.pg_get_serial_sequence(
+superset_app                |                     a.attrelid::regclass::text, a.attname
+superset_app                |                 )::regclass::oid
+superset_app                |                 ) as identity_options                
+superset_app                |             FROM pg_catalog.pg_attribute a
+superset_app                |             LEFT JOIN pg_catalog.pg_description pgd ON (
+superset_app                |                 pgd.objoid = a.attrelid AND pgd.objsubid = a.attnum)
+superset_app                |             WHERE a.attrelid = %(table_oid)s
+superset_app                |             AND a.attnum > 0 AND NOT a.attisdropped
+superset_app                |             ORDER BY a.attnum
+superset_app                |         ]
+superset_app                | [parameters: {'table_oid': '16614'}]
