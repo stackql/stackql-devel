@@ -17,6 +17,21 @@ Shell Session Simple
     ...    stdout=${CURDIR}/tmp/Shell-Session-Simple.tmp
     [Teardown]    Stackql Per Test Teardown
 
+Shell Session Postgres Casting query returns some non error result
+    Pass Execution If    "${IS_WINDOWS}" == "1" or "${SQL_BACKEND}" != "postgres_tcp"     Skipping session test in windows or non postgres
+    Should StackQL Shell Inline Contain
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${QUERY_PARSER_TEST_POSTGRES_CASTING_ARR}
+    ...    format_type
+    ...    stdout=${CURDIR}/tmp/Shell-Session-Postgres-Casting-query-returns-some-non-error-result.tmp
+    [Teardown]    Stackql Per Test Teardown
+
 Shell Session Azure Compute Table Nomenclature Mutation Guard
     Pass Execution If    "${IS_WINDOWS}" == "1"    Skipping session test in windows
     Should StackQL Shell Inline Equal

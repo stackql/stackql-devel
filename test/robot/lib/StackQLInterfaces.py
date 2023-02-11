@@ -549,6 +549,36 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     )
     return self.should_be_equal(result.stdout, expected_output)
 
+  
+  @keyword
+  def should_stackql_shell_inline_contain(
+    self, 
+    stackql_exe :str, 
+    okta_secret_str :str,
+    github_secret_str :str,
+    k8s_secret_str :str,
+    registry_cfg :RegistryCfg, 
+    auth_cfg_str :str, 
+    sql_backend_cfg_str :str,
+    queries :typing.Iterable[str],
+    expected_output :str,
+    *args,
+    **cfg
+  ):
+    result = self._run_stackql_shell_command(
+      stackql_exe, 
+      okta_secret_str,
+      github_secret_str,
+      k8s_secret_str,
+      registry_cfg, 
+      auth_cfg_str, 
+      sql_backend_cfg_str,
+      queries,
+      *args,
+      **cfg
+    )
+    return self.should_contain(result.stdout, expected_output)
+
 
   @keyword
   def should_stackql_exec_inline_contain(
