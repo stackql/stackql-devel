@@ -66,12 +66,29 @@ func (pr *standardPrimitiveGraph) GetInputFromAlias(string) (internaldto.Executo
 	return rv, false
 }
 
+// After each query execution, the graph needs to be reset.
+// This is so that cached queries can be re-executed.
+func (pg *standardPrimitiveGraph) reset() {
+	for _, node := range pg.sorted {
+		switch node := node.(type) {
+		case PrimitiveNode:
+			select {
+			case <-node.IsDone():
+			default:
+			}
+		}
+	}
+}
+
 // Execute() is the entry point for the execution of the graph.
 // It is responsible for executing the graph in a topological order.
 // This particular implementation:
 //   - Uses the errgroup package to execute the graph in parallel.
 //   - Blocks on any node that has a dependency that has not been executed.
 func (pg *standardPrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
+	// Reset the graph.
+	// Absolutely necessary for re-execution
+	defer pg.reset()
 	var output internaldto.ExecutorOutput = internaldto.NewExecutorOutput(nil, nil, nil, nil, fmt.Errorf("empty execution graph"))
 	for _, node := range pg.sorted {
 		outChan := make(chan internaldto.ExecutorOutput, 1)
