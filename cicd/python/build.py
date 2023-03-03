@@ -3,6 +3,7 @@
 
 import argparse
 import os
+import subprocess
 
 
 def build_stackql(verbose :bool) -> int:
@@ -10,28 +11,30 @@ def build_stackql(verbose :bool) -> int:
     os.environ['BuildMinorVersion'] = os.environ.get('BuildMinorVersion', '1')
     os.environ['BuildPatchVersion'] = os.environ.get('BuildPatchVersion', '1')
     os.environ['CGO_ENABLED'] = os.environ.get('CGO_ENABLED', '1')
-    return os.system(
-        f'go build {"-x -v" if verbose else ""} --tags "json1 sqleanall" -ldflags "-X github.com/stackql/stackql/internal/stackql/cmd.BuildMajorVersion=$BuildMajorVersion '
-        '-X github.com/stackql/stackql/internal/stackql/cmd.BuildMinorVersion=$BuildMinorVersion '
-        '-X github.com/stackql/stackql/internal/stackql/cmd.BuildPatchVersion=$BuildPatchVersion '
-        '-X github.com/stackql/stackql/internal/stackql/cmd.BuildCommitSHA=$BuildCommitSHA '
-        '-X github.com/stackql/stackql/internal/stackql/cmd.BuildShortCommitSHA=$BuildShortCommitSHA '
-        "-X 'github.com/stackql/stackql/internal/stackql/cmd.BuildDate=$BuildDate' "
-        "-X 'stackql/internal/stackql/planbuilder.PlanCacheEnabled=$PlanCacheEnabled' "
-        '-X github.com/stackql/stackql/internal/stackql/cmd.BuildPlatform=$BuildPlatform" '
-        '-o build/ ./stackql'
+    return subprocess.call(
+        f'go build {"-x -v" if verbose else ""} --tags "json1 sqleanall" -ldflags "-X github.com/stackql/stackql/internal/stackql/cmd.BuildMajorVersion={os.environ.get("BuildMajorVersion")} '
+        f'-X github.com/stackql/stackql/internal/stackql/cmd.BuildMinorVersion={os.environ.get("BuildMinorVersion")} '
+        f'-X github.com/stackql/stackql/internal/stackql/cmd.BuildPatchVersion={os.environ.get("BuildPatchVersion")} '
+        f'-X github.com/stackql/stackql/internal/stackql/cmd.BuildCommitSHA={os.environ.get("BuildCommitSHA")} '
+        f'-X github.com/stackql/stackql/internal/stackql/cmd.BuildShortCommitSHA={os.environ.get("BuildShortCommitSHA")} '
+        f"-X 'github.com/stackql/stackql/internal/stackql/cmd.BuildDate={os.environ.get('BuildDate')}' "
+        f"-X 'stackql/internal/stackql/planbuilder.PlanCacheEnabled={os.environ.get('PlanCacheEnabled')}' "
+        f'-X github.com/stackql/stackql/internal/stackql/cmd.BuildPlatform={os.environ.get("BuildPlatform")}" '
+        '-o build/ ./stackql',
+        shell=True
     )
 
 
 def unit_test_stackql(verbose :bool) -> int:
-    return os.system(f'go test -timeout 1200s {"-v" if verbose else ""} --tags "json1 sqleanall"  ./...')
+    return subprocess.call(f'go test -timeout 1200s {"-v" if verbose else ""} --tags "json1 sqleanall"  ./...')
 
 
-def run_robot_mocked_functional_tests_stackql(verbose :bool) -> int:
-    return os.system(
+def run_robot_mocked_functional_tests_stackql(should_run_docker_external_tests :bool, concurrency_limit :int) -> int:
+    should_run_docker_external_tests_str = 'true' if should_run_docker_external_tests else 'false'
+    return subprocess.call(
         'robot '
-        f'--variable SHOULD_RUN_DOCKER_EXTERNAL_TESTS:true '
-        f'--variable CONCURRENCY_LIMIT:-1 ' 
+        f'--variable SHOULD_RUN_DOCKER_EXTERNAL_TESTS:{should_run_docker_external_tests_str} '
+        f'--variable CONCURRENCY_LIMIT:{concurrency_limit} ' 
         '-d test/robot/functional '
         'test/robot/functional'
     )
@@ -42,6 +45,9 @@ def main():
     parser.add_argument('--verbose', action='store_true')
     parser.add_argument('--build', action='store_true')
     parser.add_argument('--test', action='store_true')
+    parser.add_argument('--robot-test', action='store_true')
+    parser.add_argument('--robot-test-aggressively-concurrent', action='store_true')
+    parser.add_argument('--robot-test-docker-external', action='store_true')
     args = parser.parse_args()
     ret_code = 0
     if args.build:
@@ -50,6 +56,10 @@ def main():
             exit(ret_code)
     if args.test:
         ret_code = unit_test_stackql(args.verbose)
+        if ret_code != 0:
+            exit(ret_code)
+    if args.robot_test:
+        ret_code = run_robot_mocked_functional_tests_stackql(args.robot_test_docker_external, -1 if args.robot_test_aggressively_concurrent else 1)
         if ret_code != 0:
             exit(ret_code)
     exit(ret_code)

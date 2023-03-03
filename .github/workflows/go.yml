@@ -131,33 +131,33 @@ jobs:
         $BuildShortCommitSHA = "$BuildCommitSHA".Substring(0,6)
         $BuildDate = (Get-Date -UFormat "%a %b %e %H:%M:%S UTC %Y").ToString()
         $BuildPlatform = $env:BUILDPLATFORM
-        $PlanCacheEnabled = $env:PLANCACHEENABLED	
-            
-        Write-Output $BuildMajorVersion
-        Write-Output $BuildMinorVersion
-        Write-Output $BuildPatchVersion
-        Write-Output $BuildCommitSHA
-        Write-Output $BuildShortCommitSHA
-        Write-Output $BuildDate
-        Write-Output $BuildPlatform
-        
-        echo "BUILDMAJORVERSION=$BuildMajorVersion" >> $GITHUB_ENV
-        echo "BUILDMINORVERSION=$BuildMinorVersion" >> $GITHUB_ENV
-        echo "BUILDPATCHVERSION=$BuildPatchVersion" >> $GITHUB_ENV
+        $PlanCacheEnabled = $env:PLANCACHEENABLED
 
-        go build -x -v --tags "json1 sqleanall" -ldflags "-X github.com/stackql/stackql/internal/stackql/cmd.BuildMajorVersion=$BuildMajorVersion `
-          -X github.com/stackql/stackql/internal/stackql/cmd.BuildMinorVersion=$BuildMinorVersion `
-          -X github.com/stackql/stackql/internal/stackql/cmd.BuildPatchVersion=$BuildPatchVersion `
-          -X github.com/stackql/stackql/internal/stackql/cmd.BuildCommitSHA=$BuildCommitSHA `
-          -X github.com/stackql/stackql/internal/stackql/cmd.BuildShortCommitSHA=$BuildShortCommitSHA `
-          -X 'github.com/stackql/stackql/internal/stackql/cmd.BuildDate=$BuildDate' `
-          -X 'stackql/internal/stackql/planbuilder.PlanCacheEnabled=$PlanCacheEnabled' `
-          -X github.com/stackql/stackql/internal/stackql/cmd.BuildPlatform=$BuildPlatform" `
-          -o build/ ./stackql
+        $env:BuildMajorVersion = $BuildMajorVersion
+        $env:BuildMinorVersion = $BuildMinorVersion
+        $env:BuildPatchVersion = $BuildPatchVersion
+        $env:BuildCommitSHA = $BuildCommitSHA
+        $env:BuildShortCommitSHA = $BuildShortCommitSHA
+        $env:BuildDate = $BuildDate
+        $env:BuildPlatform = $BuildPlatform	
+            
+        Write-Output $env:BuildMajorVersion
+        Write-Output $env:BuildMinorVersion
+        Write-Output $env:BuildPatchVersion
+        Write-Output $env:BuildCommitSHA
+        Write-Output $env:BuildShortCommitSHA
+        Write-Output $env:BuildDate
+        Write-Output $env:BuildPlatform
+        
+        echo "BUILDMAJORVERSION=$env:BuildMajorVersion" >> $GITHUB_ENV
+        echo "BUILDMINORVERSION=$env:BuildMinorVersion" >> $GITHUB_ENV
+        echo "BUILDPATCHVERSION=$env:BuildPatchVersion" >> $GITHUB_ENV
+
+        python cicd/python/build.py --build 
 
     - name: Test
       if: success()
-      run: go test -timeout 1200s --tags "json1 sqleanall" -v ./...
+      run: python cicd/python/build.py --test
 
     - name: Mock Server Download
       run: |
@@ -298,19 +298,11 @@ jobs:
         echo "BUILDMINORVERSION=$BUILDMINORVERSION" >> $GITHUB_ENV
         echo "BUILDPATCHVERSION=$BUILDPATCHVERSION" >> $GITHUB_ENV
 
-        go build -x -v --tags "json1 sqleanall" -ldflags "-X github.com/stackql/stackql/internal/stackql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
-        -X github.com/stackql/stackql/internal/stackql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
-        -X github.com/stackql/stackql/internal/stackql/cmd.BuildPatchVersion=$BUILDPATCHVERSION \
-        -X github.com/stackql/stackql/internal/stackql/cmd.BuildCommitSHA=$BUILDCOMMITSHA \
-        -X github.com/stackql/stackql/internal/stackql/cmd.BuildShortCommitSHA=$BUILDSHORTCOMMITSHA \
-        -X \"github.com/stackql/stackql/internal/stackql/cmd.BuildDate=$BUILDDATE\" \
-        -X \"stackql/internal/stackql/planbuilder.PlanCacheEnabled=$PLANCACHEENABLED\" \
-        -X github.com/stackql/stackql/internal/stackql/cmd.BuildPlatform=$BUILDPLATFORM" \
-        -o build/ ./stackql
+        python cicd/python/build.py --build
       
     - name: Test
       if: success()
-      run: go test -timeout 1200s --tags "json1 sqleanall" -v ./...
+      run: python cicd/python/build.py --test
 
     - name: Mock Server Download
       run: |
@@ -561,19 +553,11 @@ jobs:
         echo "BUILDMINORVERSION=$BUILDMINORVERSION" >> $GITHUB_ENV
         echo "BUILDPATCHVERSION=$BUILDPATCHVERSION" >> $GITHUB_ENV
 
-        go build -x -v --tags "json1 sqleanall" -ldflags "-X github.com/stackql/stackql/internal/stackql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
-        -X github.com/stackql/stackql/internal/stackql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
-        -X github.com/stackql/stackql/internal/stackql/cmd.BuildPatchVersion=$BUILDPATCHVERSION \
-        -X github.com/stackql/stackql/internal/stackql/cmd.BuildCommitSHA=$BUILDCOMMITSHA \
-        -X github.com/stackql/stackql/internal/stackql/cmd.BuildShortCommitSHA=$BUILDSHORTCOMMITSHA \
-        -X \"github.com/stackql/stackql/internal/stackql/cmd.BuildDate=$BUILDDATE\" \
-        -X \"stackql/internal/stackql/planbuilder.PlanCacheEnabled=$PLANCACHEENABLED\" \
-        -X github.com/stackql/stackql/internal/stackql/cmd.BuildPlatform=$BUILDPLATFORM" \
-        -o build/ ./stackql
+        python cicd/python/build.py --build 
 
     - name: Test
       if: success()
-      run: go test -timeout 1200s --tags "json1 sqleanall" -v ./...
+      run: python cicd/python/build.py --test
 
     - name: Mock Server Download
       run: |
@@ -682,16 +666,9 @@ jobs:
         echo "BUILDMINORVERSION=$BUILDMINORVERSION" >> $GITHUB_ENV
         echo "BUILDPATCHVERSION=$BUILDPATCHVERSION" >> $GITHUB_ENV
 
-        GOOS=darwin GOARCH=arm64 \
-        go build -x -v --tags "json1 sqleanall" -ldflags "-X github.com/stackql/stackql/internal/stackql/cmd.BuildMajorVersion=$BUILDMAJORVERSION \
-        -X github.com/stackql/stackql/internal/stackql/cmd.BuildMinorVersion=$BUILDMINORVERSION \
-        -X github.com/stackql/stackql/internal/stackql/cmd.BuildPatchVersion=$BUILDPATCHVERSION \
-        -X github.com/stackql/stackql/internal/stackql/cmd.BuildCommitSHA=$BUILDCOMMITSHA \
-        -X github.com/stackql/stackql/internal/stackql/cmd.BuildShortCommitSHA=$BUILDSHORTCOMMITSHA \
-        -X \"github.com/stackql/stackql/internal/stackql/cmd.BuildDate=$BUILDDATE\" \
-        -X \"stackql/internal/stackql/planbuilder.PlanCacheEnabled=$PLANCACHEENABLED\" \
-        -X github.com/stackql/stackql/internal/stackql/cmd.BuildPlatform=$BUILDPLATFORM" \
-        -o build/ ./stackql
+        export GOOS=darwin
+        export GOARCH=arm64
+        python cicd/python/build.py --build 
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
