@@ -26,7 +26,10 @@ def build_stackql(verbose :bool) -> int:
 
 
 def unit_test_stackql(verbose :bool) -> int:
-    return subprocess.call(f'go test -timeout 1200s {"-v" if verbose else ""} --tags "json1 sqleanall"  ./...')
+    return subprocess.call(
+        f'go test -timeout 1200s {"-v" if verbose else ""} --tags "json1 sqleanall"  ./...',
+        shell=True
+    )
 
 
 def run_robot_mocked_functional_tests_stackql(should_run_docker_external_tests :bool, concurrency_limit :int) -> int:
@@ -36,7 +39,8 @@ def run_robot_mocked_functional_tests_stackql(should_run_docker_external_tests :
         f'--variable SHOULD_RUN_DOCKER_EXTERNAL_TESTS:{should_run_docker_external_tests_str} '
         f'--variable CONCURRENCY_LIMIT:{concurrency_limit} ' 
         '-d test/robot/functional '
-        'test/robot/functional'
+        'test/robot/functional',
+        shell=True
     )
 
 
