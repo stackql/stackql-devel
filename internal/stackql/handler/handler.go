@@ -6,6 +6,7 @@ import (
 	"io"
 	"path"
 	"strings"
+	"sync"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/go-openapistackql/pkg/nomenclature"
@@ -71,9 +72,14 @@ type HandlerContext interface {
 	SetOutErrFile(io.Writer)
 	SetQuery(string)
 	SetRawQuery(string)
+	//
+	UpdateAuthContextIfNotExists(string, *dto.AuthCtx)
 }
 
 type standardHandlerContext struct {
+	// mutex to protect auth context map
+	// must be a pointer dure to clonability
+	authMapMutex        *sync.Mutex
 	rawQuery            string
 	query               string
 	runtimeContext      dto.RuntimeCtx
@@ -120,15 +126,21 @@ func (hc *standardHandlerContext) GetProviders() map[string]provider.IProvider {
 func (hc *standardHandlerContext) GetControlAttributes() sqlcontrol.ControlAttributes {
 	return hc.controlAttributes
 }
-func (hc *standardHandlerContext) GetCurrentProvider() string               { return hc.currentProvider }
-func (hc *standardHandlerContext) GetAuthContexts() map[string]*dto.AuthCtx { return hc.authContexts }
-func (hc *standardHandlerContext) GetRegistry() openapistackql.RegistryAPI  { return hc.registry }
-func (hc *standardHandlerContext) GetErrorPresentation() string             { return hc.errorPresentation }
-func (hc *standardHandlerContext) GetOutfile() io.Writer                    { return hc.outfile }
-func (hc *standardHandlerContext) GetOutErrFile() io.Writer                 { return hc.outErrFile }
-func (hc *standardHandlerContext) GetLRUCache() *lrucache.LRUCache          { return hc.lRUCache }
-func (hc *standardHandlerContext) GetSQLEngine() sqlengine.SQLEngine        { return hc.sqlEngine }
-func (hc *standardHandlerContext) GetSQLSystem() sql_system.SQLSystem       { return hc.sqlSystem }
+func (hc *standardHandlerContext) GetCurrentProvider() string { return hc.currentProvider }
+
+func (hc *standardHandlerContext) GetAuthContexts() map[string]*dto.AuthCtx {
+	hc.authMapMutex.Lock()
+	defer hc.authMapMutex.Unlock()
+	return hc.authContexts
+}
+
+func (hc *standardHandlerContext) GetRegistry() openapistackql.RegistryAPI { return hc.registry }
+func (hc *standardHandlerContext) GetErrorPresentation() string            { return hc.errorPresentation }
+func (hc *standardHandlerContext) GetOutfile() io.Writer                   { return hc.outfile }
+func (hc *standardHandlerContext) GetOutErrFile() io.Writer                { return hc.outErrFile }
+func (hc *standardHandlerContext) GetLRUCache() *lrucache.LRUCache         { return hc.lRUCache }
+func (hc *standardHandlerContext) GetSQLEngine() sqlengine.SQLEngine       { return hc.sqlEngine }
+func (hc *standardHandlerContext) GetSQLSystem() sql_system.SQLSystem      { return hc.sqlSystem }
 func (hc *standardHandlerContext) GetGarbageCollector() garbagecollector.GarbageCollector {
 	return hc.garbageCollector
 }
@@ -214,6 +226,7 @@ func (hc *standardHandlerContext) GetProvider(providerName string) (provider.IPr
 		prov, err = provider.GetProvider(hc.runtimeContext, ds.Name, ds.Tag, hc.registry, hc.sqlSystem)
 		if err == nil {
 			hc.providers[providerName] = prov
+			// TODO: update auth info with provider default if not present
 			return prov, err
 		}
 		err = fmt.Errorf("cannot find provider = '%s': %s", providerName, err.Error())
@@ -254,11 +267,19 @@ func (hc *standardHandlerContext) GetAuthContext(providerName string) (*dto.Auth
 	if providerName == "" {
 		providerName = hc.runtimeContext.ProviderStr
 	}
+	hc.authMapMutex.Lock()
+	defer hc.authMapMutex.Unlock()
 	authCtx, ok := hc.authContexts[providerName]
 	if !ok {
 		err = fmt.Errorf("cannot find AUTH context for provider = '%s'", providerName)
 	}
 	return authCtx, err
+}
+
+func (hc *standardHandlerContext) UpdateAuthContextIfNotExists(providerName string, authCtx *dto.AuthCtx) {
+	hc.authMapMutex.Lock()
+	defer hc.authMapMutex.Unlock()
+	hc.authContexts[providerName] = authCtx
 }
 
 func (hc *standardHandlerContext) GetNamespaceCollection() tablenamespace.TableNamespaceCollection {
@@ -292,6 +313,7 @@ func getRegistry(runtimeCtx dto.RuntimeCtx) (openapistackql.RegistryAPI, error) 
 
 func (hc *standardHandlerContext) Clone() HandlerContext {
 	rv := standardHandlerContext{
+		authMapMutex:        hc.authMapMutex,
 		rawQuery:            hc.rawQuery,
 		runtimeContext:      hc.runtimeContext,
 		providers:           hc.providers,
@@ -327,6 +349,7 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 	controlAttributes := inputBundle.GetControlAttributes()
 	sqlEngine := inputBundle.GetSQLEngine()
 	rv := standardHandlerContext{
+		authMapMutex:        &sync.Mutex{},
 		rawQuery:            cmdString,
 		runtimeContext:      runtimeCtx,
 		providers:           providers,
