@@ -73,7 +73,6 @@ type HandlerContext interface {
 	SetQuery(string)
 	SetRawQuery(string)
 	//
-	UpdateAuthContextIfNotExists(string, *dto.AuthCtx)
 }
 
 type standardHandlerContext struct {
@@ -276,9 +275,13 @@ func (hc *standardHandlerContext) GetAuthContext(providerName string) (*dto.Auth
 	return authCtx, err
 }
 
-func (hc *standardHandlerContext) UpdateAuthContextIfNotExists(providerName string, authCtx *dto.AuthCtx) {
+func (hc *standardHandlerContext) updateAuthContextIfNotExists(providerName string, authCtx *dto.AuthCtx) {
 	hc.authMapMutex.Lock()
 	defer hc.authMapMutex.Unlock()
+	_, alreadyExists := hc.authContexts[providerName]
+	if alreadyExists {
+		return
+	}
 	hc.authContexts[providerName] = authCtx
 }
 
