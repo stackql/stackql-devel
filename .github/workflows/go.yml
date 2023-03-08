@@ -425,7 +425,7 @@ jobs:
             then
             export BUILDPATCHVERSION="${BUILDPATCHVERSION}"
           fi
-          python cicd/python/build.py --robot-test --config='{ "variables":  { "IS_WSL": true } }'
+          python3 cicd/python/build.py --robot-test --config='{ "variables":  { "IS_WSL": true } }'
 
     - shell: wsl-bash {0}
       name: Output from mocked functional tests
@@ -457,7 +457,7 @@ jobs:
             then
             export BUILDPATCHVERSION="${BUILDPATCHVERSION}"
           fi
-          python cicd/python/build.py --robot-test-integration --config='{ "variables":  { "IS_WSL": true } }'
+          python3 cicd/python/build.py --robot-test-integration --config='{ "variables":  { "IS_WSL": true } }'
 
 
   macosbuild:
