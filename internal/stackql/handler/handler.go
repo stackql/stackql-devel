@@ -225,8 +225,17 @@ func (hc *standardHandlerContext) GetProvider(providerName string) (provider.IPr
 		prov, err = provider.GetProvider(hc.runtimeContext, ds.Name, ds.Tag, hc.registry, hc.sqlSystem)
 		if err == nil {
 			hc.providers[providerName] = prov
-			// TODO: update auth info with provider default if not present
-			return prov, err
+			// update auth info with provider default if auth not already present
+			pr, err := prov.GetProvider()
+			if err != nil {
+				return prov, err
+			}
+			authDTO, exists := pr.GetAuth()
+			if exists {
+				auth := transformOpenapiStackqlAuthToLocal(authDTO)
+				hc.updateAuthContextIfNotExists(providerName, auth)
+			}
+			return prov, nil
 		}
 		err = fmt.Errorf("cannot find provider = '%s': %s", providerName, err.Error())
 	}
@@ -377,4 +386,16 @@ func GetHandlerCtx(cmdString string, runtimeCtx dto.RuntimeCtx, lruCache *lrucac
 	}
 	rv.drmConfig = drmCfg
 	return &rv, nil
+}
+
+func transformOpenapiStackqlAuthToLocal(authDTO *openapistackql.AuthDTO) *dto.AuthCtx {
+	return &dto.AuthCtx{
+		Scopes:      authDTO.Scopes,
+		Type:        authDTO.Type,
+		ValuePrefix: authDTO.ValuePrefix,
+		KeyID:       authDTO.KeyID,
+		KeyIDEnvVar: authDTO.KeyIDEnvVar,
+		KeyFilePath: authDTO.KeyFilePath,
+		KeyEnvVar:   authDTO.KeyEnvVar,
+	}
 }

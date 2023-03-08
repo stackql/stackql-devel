@@ -16,7 +16,7 @@ Azure Authenticated VM Sizes
     ...    ${GITHUB_SECRET_STR}
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_CANONICAL_NO_VERIFY_CFG_STR}
-    ...    ${AUTH_CFG_STR_INTEGRATION}
+    ...    {}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${AZURE_VM_SIZES_ENUMERATION}
     ...    Standard_
