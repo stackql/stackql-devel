@@ -15,12 +15,12 @@ var (
 
 type HeirarchyObjects interface {
 	GetHeirarchyIds() internaldto.HeirarchyIdentifiers
-	GetObjectSchema() (*openapistackql.Schema, error)
+	GetObjectSchema() (openapistackql.Schema, error)
 	GetProvider() provider.IProvider
-	GetRequestSchema() (*openapistackql.Schema, error)
-	GetResponseSchemaAndMediaType() (*openapistackql.Schema, string, error)
-	GetSelectableObjectSchema() (*openapistackql.Schema, error)
-	GetSelectSchemaAndObjectPath() (*openapistackql.Schema, string, error)
+	GetRequestSchema() (openapistackql.Schema, error)
+	GetResponseSchemaAndMediaType() (openapistackql.Schema, string, error)
+	GetSelectableObjectSchema() (openapistackql.Schema, error)
+	GetSelectSchemaAndObjectPath() (openapistackql.Schema, string, error)
 	GetSQLDataSource() (sql_datasource.SQLDataSource, bool)
 	GetTableName() string
 	GetSubquery() (internaldto.SubqueryDTO, bool)
@@ -130,14 +130,14 @@ func (ho *standardHeirarchyObjects) LookupSelectItemsKey() string {
 	if responseSchema == nil || err != nil {
 		return ""
 	}
-	switch responseSchema.Type {
+	switch responseSchema.GetType() {
 	case "string", "integer":
 		return openapistackql.AnonymousColumnName
 	}
 	return defaultSelectItemsKey
 }
 
-func (ho *standardHeirarchyObjects) GetResponseSchemaAndMediaType() (*openapistackql.Schema, string, error) {
+func (ho *standardHeirarchyObjects) GetResponseSchemaAndMediaType() (openapistackql.Schema, string, error) {
 	m := ho.GetMethod()
 	if m == nil {
 		return nil, "", fmt.Errorf("method is nil")
@@ -145,7 +145,7 @@ func (ho *standardHeirarchyObjects) GetResponseSchemaAndMediaType() (*openapista
 	return m.GetResponseBodySchemaAndMediaType()
 }
 
-func (ho *standardHeirarchyObjects) GetSelectSchemaAndObjectPath() (*openapistackql.Schema, string, error) {
+func (ho *standardHeirarchyObjects) GetSelectSchemaAndObjectPath() (openapistackql.Schema, string, error) {
 	m := ho.GetMethod()
 	if m == nil {
 		return nil, "", fmt.Errorf("method is nil")
@@ -153,7 +153,7 @@ func (ho *standardHeirarchyObjects) GetSelectSchemaAndObjectPath() (*openapistac
 	return m.GetSelectSchemaAndObjectPath()
 }
 
-func (ho *standardHeirarchyObjects) GetRequestSchema() (*openapistackql.Schema, error) {
+func (ho *standardHeirarchyObjects) GetRequestSchema() (openapistackql.Schema, error) {
 	m := ho.GetMethod()
 	if m == nil {
 		return nil, fmt.Errorf("method is nil")
@@ -165,16 +165,16 @@ func (ho *standardHeirarchyObjects) GetTableName() string {
 	return ho.heirarchyIds.GetTableName()
 }
 
-func (ho *standardHeirarchyObjects) GetObjectSchema() (*openapistackql.Schema, error) {
+func (ho *standardHeirarchyObjects) GetObjectSchema() (openapistackql.Schema, error) {
 	return ho.getObjectSchema()
 }
 
-func (ho *standardHeirarchyObjects) getObjectSchema() (*openapistackql.Schema, error) {
+func (ho *standardHeirarchyObjects) getObjectSchema() (openapistackql.Schema, error) {
 	rv, _, err := ho.GetMethod().GetResponseBodySchemaAndMediaType()
 	return rv, err
 }
 
-func (ho *standardHeirarchyObjects) GetSelectableObjectSchema() (*openapistackql.Schema, error) {
+func (ho *standardHeirarchyObjects) GetSelectableObjectSchema() (openapistackql.Schema, error) {
 	unsuitableSchemaMsg := "GetSelectableObjectSchema(): schema unsuitable for select query"
 	itemObjS, _, err := ho.GetMethod().GetSelectSchemaAndObjectPath()
 	// rscStr, _ := tbl.GetResourceStr()

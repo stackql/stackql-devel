@@ -23,7 +23,7 @@ func (p *standardPrimitiveGenerator) assembleUnarySelectionBuilder(
 	node sqlparser.SQLNode,
 	rewrittenWhere *sqlparser.Where,
 	hIds internaldto.HeirarchyIdentifiers,
-	schema *openapistackql.Schema,
+	schema openapistackql.Schema,
 	tbl tablemetadata.ExtendedTableMetadata,
 	selectTabulation *openapistackql.Tabulation,
 	insertTabulation *openapistackql.Tabulation,

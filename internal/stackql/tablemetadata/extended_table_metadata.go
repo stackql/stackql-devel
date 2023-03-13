@@ -28,16 +28,16 @@ type ExtendedTableMetadata interface {
 	GetProviderStr() (string, error)
 	GetProviderObject() (*openapistackql.Provider, error)
 	GetQueryUniqueId() string
-	GetRequestSchema() (*openapistackql.Schema, error)
+	GetRequestSchema() (openapistackql.Schema, error)
 	GetOptionalParameters() map[string]openapistackql.Addressable
 	GetRequiredParameters() map[string]openapistackql.Addressable
 	GetResource() (*openapistackql.Resource, error)
 	GetResourceStr() (string, error)
 	GetResponseSchemaStr() (string, error)
-	GetResponseSchemaAndMediaType() (*openapistackql.Schema, string, error)
-	GetSelectableObjectSchema() (*openapistackql.Schema, error)
+	GetResponseSchemaAndMediaType() (openapistackql.Schema, string, error)
+	GetSelectableObjectSchema() (openapistackql.Schema, error)
 	GetSelectItemsKey() string
-	GetSelectSchemaAndObjectPath() (*openapistackql.Schema, string, error)
+	GetSelectSchemaAndObjectPath() (openapistackql.Schema, string, error)
 	GetService() (*openapistackql.Service, error)
 	GetServiceStr() (string, error)
 	GetSQLDataSource() (sql_datasource.SQLDataSource, bool)
@@ -226,18 +226,18 @@ func (ex *standardExtendedTableMetadata) getMethod() (*openapistackql.OperationS
 	return ex.heirarchyObjects.GetMethod(), nil
 }
 
-func (ex *standardExtendedTableMetadata) GetSelectSchemaAndObjectPath() (*openapistackql.Schema, string, error) {
+func (ex *standardExtendedTableMetadata) GetSelectSchemaAndObjectPath() (openapistackql.Schema, string, error) {
 	return ex.heirarchyObjects.GetSelectSchemaAndObjectPath()
 }
 
-func (ex *standardExtendedTableMetadata) GetResponseSchemaAndMediaType() (*openapistackql.Schema, string, error) {
+func (ex *standardExtendedTableMetadata) GetResponseSchemaAndMediaType() (openapistackql.Schema, string, error) {
 	if ex.isSimple() {
 		return ex.heirarchyObjects.GetResponseSchemaAndMediaType()
 	}
 	return nil, "", fmt.Errorf("error extracting response schema and media type: views not yet supported")
 }
 
-func (ex *standardExtendedTableMetadata) GetRequestSchema() (*openapistackql.Schema, error) {
+func (ex *standardExtendedTableMetadata) GetRequestSchema() (openapistackql.Schema, error) {
 	return ex.heirarchyObjects.GetRequestSchema()
 }
 
@@ -302,7 +302,7 @@ func (ex *standardExtendedTableMetadata) GetInputTableName() (string, error) {
 	return ex.inputTableName, nil
 }
 
-func (ex *standardExtendedTableMetadata) GetSelectableObjectSchema() (*openapistackql.Schema, error) {
+func (ex *standardExtendedTableMetadata) GetSelectableObjectSchema() (openapistackql.Schema, error) {
 	return ex.heirarchyObjects.GetSelectableObjectSchema()
 }
 

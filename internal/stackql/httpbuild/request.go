@@ -21,7 +21,7 @@ import (
 func BuildHTTPRequestCtx(node sqlparser.SQLNode, prov provider.IProvider, m *openapistackql.OperationStore, svc *openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext ExecContext) (HTTPArmoury, error) {
 	var err error
 	httpArmoury := NewHTTPArmoury()
-	var requestSchema, responseSchema *openapistackql.Schema
+	var requestSchema, responseSchema openapistackql.Schema
 	if m.Request != nil && m.Request.Schema != nil {
 		requestSchema = m.Request.Schema
 	}
@@ -134,7 +134,7 @@ func getRequest(prov *openapistackql.Provider, svc *openapistackql.Service, meth
 func BuildHTTPRequestCtxFromAnnotation(parameters streaming.MapStream, prov provider.IProvider, m *openapistackql.OperationStore, svc *openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext ExecContext) (HTTPArmoury, error) {
 	var err error
 	httpArmoury := NewHTTPArmoury()
-	var requestSchema, responseSchema *openapistackql.Schema
+	var requestSchema, responseSchema openapistackql.Schema
 	if m.Request != nil && m.Request.Schema != nil {
 		requestSchema = m.Request.Schema
 	}

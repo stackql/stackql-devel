@@ -640,7 +640,7 @@ func (p *standardPrimitiveGenerator) parseExecPayload(node *sqlparser.ExecVarDef
 	), nil
 }
 
-func (p *standardPrimitiveGenerator) analyzeSchemaVsMap(handlerCtx handler.HandlerContext, schema *openapistackql.Schema, payload map[string]interface{}, method *openapistackql.OperationStore) error {
+func (p *standardPrimitiveGenerator) analyzeSchemaVsMap(handlerCtx handler.HandlerContext, schema openapistackql.Schema, payload map[string]interface{}, method *openapistackql.OperationStore) error {
 	requiredElements := make(map[string]bool)
 	schemas, err := schema.GetProperties()
 	if err != nil {
@@ -652,8 +652,8 @@ func (p *standardPrimitiveGenerator) analyzeSchemaVsMap(handlerCtx handler.Handl
 		}
 	}
 	for k, v := range payload {
-		ss, err := schema.GetProperty(k)
-		if err != nil {
+		ss, propertyExists := schema.GetProperty(k)
+		if !propertyExists {
 			return fmt.Errorf("schema does not possess payload key '%s'", k)
 		}
 		switch val := v.(type) {
@@ -682,7 +682,7 @@ func (p *standardPrimitiveGenerator) analyzeSchemaVsMap(handlerCtx handler.Handl
 						return err
 					}
 				case string:
-					if arraySchema.Type != "string" {
+					if arraySchema.GetType() != "string" {
 						return fmt.Errorf("array at key '%s' expected to contain elemenst of type 'string' but instead they are type '%T'", k, item)
 					}
 				default:
@@ -690,7 +690,7 @@ func (p *standardPrimitiveGenerator) analyzeSchemaVsMap(handlerCtx handler.Handl
 				}
 			}
 		case string:
-			if ss.Type != "string" {
+			if ss.GetType() != "string" {
 				return fmt.Errorf("key '%s' expected to contain element of type 'string' but instead it is type '%T'", k, val)
 			}
 			delete(requiredElements, k)
@@ -799,7 +799,7 @@ func (p *standardPrimitiveGenerator) expandTable(tbl tablemetadata.ExtendedTable
 			return fmt.Errorf("could not infer column information")
 		}
 		colEntry := symtab.NewSymTabEntry(
-			p.PrimitiveComposer.GetDRMConfig().GetRelationalType(colSchema.Type),
+			p.PrimitiveComposer.GetDRMConfig().GetRelationalType(colSchema.GetType()),
 			colSchema,
 			"",
 		)

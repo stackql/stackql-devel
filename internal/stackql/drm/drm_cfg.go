@@ -74,7 +74,7 @@ func (dc *staticDRMConfig) OpenapiColumnsToRelationalColumns(cols []openapistack
 		var typeStr string
 		schemaExists := false
 		if col.Schema != nil {
-			typeStr = dc.GetRelationalType(col.Schema.Type)
+			typeStr = dc.GetRelationalType(col.Schema.GetType())
 			schemaExists = true
 		} else {
 			if col.Val != nil {
@@ -103,7 +103,7 @@ func (dc *staticDRMConfig) OpenapiColumnsToRelationalColumn(col openapistackql.C
 	var typeStr string
 	schemaExists := false
 	if col.Schema != nil {
-		typeStr = dc.GetRelationalType(col.Schema.Type)
+		typeStr = dc.GetRelationalType(col.Schema.GetType())
 		schemaExists = true
 	} else {
 		if col.Val != nil {
@@ -300,8 +300,8 @@ func (dc *staticDRMConfig) getParserTableName(hIds internaldto.HeirarchyIdentifi
 func (dc *staticDRMConfig) inferColType(col util.Column) string {
 	relationalType := "text"
 	schema := col.GetSchema()
-	if schema != nil && schema.Type != "" {
-		relationalType = dc.GetRelationalType(schema.Type)
+	if schema != nil && schema.GetType() != "" {
+		relationalType = dc.GetRelationalType(schema.GetType())
 	}
 	return relationalType
 }
@@ -419,8 +419,8 @@ func (dc *staticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 		for _, col := range tableColumns {
 			relationalType := "text"
 			schema := col.Schema
-			if schema != nil && schema.Type != "" {
-				relationalType = dc.GetRelationalType(schema.Type)
+			if schema != nil && schema.GetType() != "" {
+				relationalType = dc.GetRelationalType(schema.GetType())
 			}
 			columns = append(columns, internaldto.NewColDescriptor(col, relationalType))
 			relationalColumn := relationaldto.NewRelationalColumn(col.Name, relationalType).WithParserNode(col.Node)
@@ -466,7 +466,7 @@ func (dc *staticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 	for _, col := range tabAnnotated.GetTabulation().GetColumns() {
 		var typeStr string
 		if col.Schema != nil {
-			typeStr = dc.GetRelationalType(col.Schema.Type)
+			typeStr = dc.GetRelationalType(col.Schema.GetType())
 		} else {
 			if col.Val != nil {
 				switch col.Val.Type {

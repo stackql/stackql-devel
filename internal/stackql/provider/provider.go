@@ -63,7 +63,7 @@ type IProvider interface {
 
 	GetServiceShard(serviceKey string, resourceKey string, runtimeCtx dto.RuntimeCtx) (*openapistackql.Service, error)
 
-	GetObjectSchema(serviceName string, resourceName string, schemaName string) (*openapistackql.Schema, error)
+	GetObjectSchema(serviceName string, resourceName string, schemaName string) (openapistackql.Schema, error)
 
 	GetVersion() string
 

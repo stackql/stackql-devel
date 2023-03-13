@@ -157,7 +157,7 @@ func (gp *GenericProvider) InferDescribeMethod(rsc *openapistackql.Resource) (*o
 	return nil, "", fmt.Errorf("SELECT not supported for this resource, use SHOW METHODS to view available operations for the resource and then invoke a supported method using the EXEC command")
 }
 
-func (gp *GenericProvider) GetObjectSchema(serviceName string, resourceName string, schemaName string) (*openapistackql.Schema, error) {
+func (gp *GenericProvider) GetObjectSchema(serviceName string, resourceName string, schemaName string) (openapistackql.Schema, error) {
 	svc, err := gp.GetServiceShard(serviceName, resourceName, gp.runtimeCtx)
 	if err != nil {
 		return nil, err
