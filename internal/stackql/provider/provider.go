@@ -49,7 +49,7 @@ type IProvider interface {
 
 	GetMethodSelector() methodselect.IMethodSelector
 
-	GetProvider() (*openapistackql.Provider, error)
+	GetProvider() (openapistackql.Provider, error)
 
 	GetProviderString() string
 

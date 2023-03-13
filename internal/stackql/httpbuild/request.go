@@ -116,7 +116,7 @@ func awsContextHousekeeping(ctx context.Context, svc *openapistackql.Service, pa
 	return ctx
 }
 
-func getRequest(prov *openapistackql.Provider, svc *openapistackql.Service, method *openapistackql.OperationStore, httpParams *openapistackql.HttpParameters) (*http.Request, error) {
+func getRequest(prov openapistackql.Provider, svc *openapistackql.Service, method *openapistackql.OperationStore, httpParams *openapistackql.HttpParameters) (*http.Request, error) {
 	params, err := httpParams.ToFlatMap()
 	if err != nil {
 		return nil, err

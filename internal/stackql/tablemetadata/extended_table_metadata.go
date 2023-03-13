@@ -26,7 +26,7 @@ type ExtendedTableMetadata interface {
 	GetMethodStr() (string, error)
 	GetProvider() (provider.IProvider, error)
 	GetProviderStr() (string, error)
-	GetProviderObject() (*openapistackql.Provider, error)
+	GetProviderObject() (openapistackql.Provider, error)
 	GetQueryUniqueId() string
 	GetRequestSchema() (openapistackql.Schema, error)
 	GetOptionalParameters() map[string]openapistackql.Addressable
@@ -194,7 +194,7 @@ func (ex *standardExtendedTableMetadata) GetProvider() (provider.IProvider, erro
 	return ex.heirarchyObjects.GetProvider(), nil
 }
 
-func (ex *standardExtendedTableMetadata) GetProviderObject() (*openapistackql.Provider, error) {
+func (ex *standardExtendedTableMetadata) GetProviderObject() (openapistackql.Provider, error) {
 	if ex.heirarchyObjects == nil || ex.heirarchyObjects.GetProvider() == nil {
 		return nil, fmt.Errorf("cannot resolve Provider object")
 	}

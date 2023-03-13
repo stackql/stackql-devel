@@ -31,7 +31,7 @@ var (
 )
 
 type GenericProvider struct {
-	provider         *openapistackql.Provider
+	provider         openapistackql.Provider
 	runtimeCtx       dto.RuntimeCtx
 	currentService   string
 	discoveryAdapter discovery.IDiscoveryAdapter
@@ -40,8 +40,8 @@ type GenericProvider struct {
 }
 
 func (gp *GenericProvider) GetDefaultKeyForDeleteItems() string {
-	if gp.provider.DeleteItemsKey != "" {
-		return gp.provider.DeleteItemsKey
+	if gp.provider.GetDeleteItemsKey() != "" {
+		return gp.provider.GetDeleteItemsKey()
 	}
 	return "items"
 }
@@ -402,10 +402,10 @@ func (gp *GenericProvider) GetResource(serviceKey string, resourceKey string, ru
 }
 
 func (gp *GenericProvider) GetProviderString() string {
-	return gp.provider.Name
+	return gp.provider.GetName()
 }
 
-func (gp *GenericProvider) GetProvider() (*openapistackql.Provider, error) {
+func (gp *GenericProvider) GetProvider() (openapistackql.Provider, error) {
 	if gp.provider == nil {
 		return nil, fmt.Errorf("nil provider object")
 	}
