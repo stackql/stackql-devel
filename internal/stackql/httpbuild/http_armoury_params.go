@@ -20,7 +20,7 @@ type HTTPArmouryParameters interface {
 	GetRequest() *http.Request
 	SetBodyBytes(b []byte)
 	SetHeaderKV(k string, v []string)
-	SetNextPage(ops *openapistackql.OperationStore, token string, tokenKey internaldto.HTTPElement) (*http.Request, error)
+	SetNextPage(ops openapistackql.OperationStore, token string, tokenKey internaldto.HTTPElement) (*http.Request, error)
 	SetParameters(*openapistackql.HttpParameters)
 	SetRawQuery(string)
 	SetRequest(*http.Request)
@@ -103,7 +103,7 @@ func (hap *standardHTTPArmouryParameters) Encode() string {
 	return ""
 }
 
-func (hap *standardHTTPArmouryParameters) SetNextPage(ops *openapistackql.OperationStore, token string, tokenKey internaldto.HTTPElement) (*http.Request, error) {
+func (hap *standardHTTPArmouryParameters) SetNextPage(ops openapistackql.OperationStore, token string, tokenKey internaldto.HTTPElement) (*http.Request, error) {
 	rv := hap.request.Clone(hap.request.Context())
 	switch tokenKey.GetType() {
 	case internaldto.QueryParam:
@@ -125,7 +125,8 @@ func (hap *standardHTTPArmouryParameters) SetNextPage(ops *openapistackql.Operat
 		}
 		tokenName := tokenKey.GetName()
 		bm[tokenName] = token
-		b, err := ops.MarshalBody(bm, ops.Request)
+		er, _ := ops.GetRequest()
+		b, err := ops.MarshalBody(bm, er)
 		if err != nil {
 			return nil, err
 		}

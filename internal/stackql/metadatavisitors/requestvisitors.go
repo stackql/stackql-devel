@@ -115,7 +115,7 @@ func isBodyParam(paramName string) bool {
 	return strings.HasPrefix(paramName, constants.RequestBodyBaseKey)
 }
 
-func ToInsertStatement(columns sqlparser.Columns, m *openapistackql.OperationStore, svc *openapistackql.Service, extended bool, prettyPrinter, placeHolderPrettyPrinter *prettyprint.PrettyPrinter, requiredOnly bool) (string, error) {
+func ToInsertStatement(columns sqlparser.Columns, m openapistackql.OperationStore, svc openapistackql.Service, extended bool, prettyPrinter, placeHolderPrettyPrinter *prettyprint.PrettyPrinter, requiredOnly bool) (string, error) {
 	paramsToInclude := m.GetNonBodyParameters()
 	successfullyIncludedCols := make(map[string]bool)
 	if !extended {
@@ -213,7 +213,7 @@ func ToInsertStatement(columns sqlparser.Columns, m *openapistackql.OperationSto
 	return retVal, err
 }
 
-func (sv *SchemaRequestTemplateVisitor) processSubSchemasMap(sc openapistackql.Schema, method *openapistackql.OperationStore, properties map[string]openapistackql.Schema) (map[string]TemplatedProduct, error) {
+func (sv *SchemaRequestTemplateVisitor) processSubSchemasMap(sc openapistackql.Schema, method openapistackql.OperationStore, properties map[string]openapistackql.Schema) (map[string]TemplatedProduct, error) {
 	retVal := make(map[string]TemplatedProduct)
 	for k, ss := range properties {
 		logging.GetLogger().Infoln(fmt.Sprintf("RetrieveTemplate() k = '%s', ss is nil ? '%t'", k, ss == nil))
@@ -224,11 +224,11 @@ func (sv *SchemaRequestTemplateVisitor) processSubSchemasMap(sc openapistackql.S
 				logging.GetLogger().Infoln(fmt.Sprintf("property = '%s' will be skipped", k))
 				continue
 			}
-			rv, err := sv.retrieveTemplateVal(ss, method.Service, ".values."+constants.RequestBodyBaseKey+k, localSchemaVisitedMap)
+			rv, err := sv.retrieveTemplateVal(ss, method.GetService(), ".values."+constants.RequestBodyBaseKey+k, localSchemaVisitedMap)
 			if err != nil {
 				return nil, err
 			}
-			pl, err := sv.retrieveJsonnetPlaceholderVal(ss, method.Service, constants.RequestBodyBaseKey+k, localSchemaVisitedMap)
+			pl, err := sv.retrieveJsonnetPlaceholderVal(ss, method.GetService(), constants.RequestBodyBaseKey+k, localSchemaVisitedMap)
 			if err != nil {
 				return nil, err
 			}
@@ -263,7 +263,7 @@ func (sv *SchemaRequestTemplateVisitor) processSubSchemasMap(sc openapistackql.S
 	return retVal, nil
 }
 
-func (sv *SchemaRequestTemplateVisitor) RetrieveTemplate(sc openapistackql.Schema, method *openapistackql.OperationStore, extended bool) (map[string]TemplatedProduct, error) {
+func (sv *SchemaRequestTemplateVisitor) RetrieveTemplate(sc openapistackql.Schema, method openapistackql.OperationStore, extended bool) (map[string]TemplatedProduct, error) {
 	retVal := make(map[string]TemplatedProduct)
 	sv.recordSchemaVisited(sc.GetName())
 	switch sc.GetType() {
@@ -289,7 +289,7 @@ func (sv *SchemaRequestTemplateVisitor) RetrieveTemplate(sc openapistackql.Schem
 	return nil, fmt.Errorf("templating of request body only supported for object type payload")
 }
 
-func (sv *SchemaRequestTemplateVisitor) retrieveTemplateVal(sc openapistackql.Schema, svc *openapistackql.Service, objectKey string, localSchemaVisitedMap map[string]bool) (interface{}, error) {
+func (sv *SchemaRequestTemplateVisitor) retrieveTemplateVal(sc openapistackql.Schema, svc openapistackql.Service, objectKey string, localSchemaVisitedMap map[string]bool) (interface{}, error) {
 	sSplit := strings.Split(objectKey, ".")
 	oKey := sSplit[len(sSplit)-1]
 	oPrefix := objectKey
@@ -384,7 +384,7 @@ func (sv *SchemaRequestTemplateVisitor) retrieveTemplateVal(sc openapistackql.Sc
 	}
 }
 
-func (sv *SchemaRequestTemplateVisitor) retrieveJsonnetPlaceholderVal(sc openapistackql.Schema, svc *openapistackql.Service, objectKey string, localSchemaVisitedMap map[string]bool) (interface{}, error) {
+func (sv *SchemaRequestTemplateVisitor) retrieveJsonnetPlaceholderVal(sc openapistackql.Schema, svc openapistackql.Service, objectKey string, localSchemaVisitedMap map[string]bool) (interface{}, error) {
 	sSplit := strings.Split(objectKey, ".")
 	oKey := sSplit[len(sSplit)-1]
 	oPrefix := objectKey

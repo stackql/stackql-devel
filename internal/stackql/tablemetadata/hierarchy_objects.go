@@ -29,15 +29,15 @@ type HeirarchyObjects interface {
 	SetProvider(provider.IProvider)
 	SetSQLDataSource(sql_datasource.SQLDataSource)
 	// De facto inheritance
-	GetServiceHdl() *openapistackql.Service
-	GetResource() *openapistackql.Resource
+	GetServiceHdl() openapistackql.Service
+	GetResource() openapistackql.Resource
 	GetMethodSet() openapistackql.MethodSet
-	GetMethod() *openapistackql.OperationStore
-	SetMethod(*openapistackql.OperationStore)
+	GetMethod() openapistackql.OperationStore
+	SetMethod(openapistackql.OperationStore)
 	SetMethodSet(openapistackql.MethodSet)
 	SetMethodStr(string)
-	SetResource(*openapistackql.Resource)
-	SetServiceHdl(*openapistackql.Service)
+	SetResource(openapistackql.Resource)
+	SetServiceHdl(openapistackql.Service)
 }
 
 func NewHeirarchyObjects(hIDs internaldto.HeirarchyIdentifiers) HeirarchyObjects {
@@ -54,7 +54,7 @@ type standardHeirarchyObjects struct {
 	sqlDataSource sql_datasource.SQLDataSource
 }
 
-func (ho *standardHeirarchyObjects) GetServiceHdl() *openapistackql.Service {
+func (ho *standardHeirarchyObjects) GetServiceHdl() openapistackql.Service {
 	return ho.hr.GetServiceHdl()
 }
 
@@ -74,7 +74,7 @@ func (ho *standardHeirarchyObjects) GetSubquery() (internaldto.SubqueryDTO, bool
 	return ho.heirarchyIds.GetSubquery()
 }
 
-func (ho *standardHeirarchyObjects) GetResource() *openapistackql.Resource {
+func (ho *standardHeirarchyObjects) GetResource() openapistackql.Resource {
 	return ho.hr.GetResource()
 }
 
@@ -82,15 +82,15 @@ func (ho *standardHeirarchyObjects) GetMethodSet() openapistackql.MethodSet {
 	return ho.hr.GetMethodSet()
 }
 
-func (ho *standardHeirarchyObjects) GetMethod() *openapistackql.OperationStore {
+func (ho *standardHeirarchyObjects) GetMethod() openapistackql.OperationStore {
 	return ho.hr.GetMethod()
 }
 
-func (ho *standardHeirarchyObjects) SetServiceHdl(sh *openapistackql.Service) {
+func (ho *standardHeirarchyObjects) SetServiceHdl(sh openapistackql.Service) {
 	ho.hr.SetServiceHdl(sh)
 }
 
-func (ho *standardHeirarchyObjects) SetResource(r *openapistackql.Resource) {
+func (ho *standardHeirarchyObjects) SetResource(r openapistackql.Resource) {
 	ho.hr.SetResource(r)
 }
 
@@ -98,7 +98,7 @@ func (ho *standardHeirarchyObjects) SetMethodSet(mSet openapistackql.MethodSet) 
 	ho.hr.SetMethodSet(mSet)
 }
 
-func (ho *standardHeirarchyObjects) SetMethod(m *openapistackql.OperationStore) {
+func (ho *standardHeirarchyObjects) SetMethod(m openapistackql.OperationStore) {
 	ho.hr.SetMethod(m)
 }
 
@@ -182,7 +182,12 @@ func (ho *standardHeirarchyObjects) GetSelectableObjectSchema() (openapistackql.
 		return nil, fmt.Errorf("%s: %s", err.Error(), unsuitableSchemaMsg)
 	}
 	if itemObjS == nil || err != nil {
-		return nil, fmt.Errorf("could not locate dml object for response type '%v'", ho.GetMethod().Response.ObjectKey)
+		m, ok := ho.GetMethod().GetResponse()
+		ts := "<unknown>"
+		if ok {
+			ts = fmt.Sprintf("'%T'", m.GetObjectKey())
+		}
+		return nil, fmt.Errorf("could not locate dml object for response type %s", ts)
 	}
 	return itemObjS, nil
 }

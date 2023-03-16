@@ -41,11 +41,11 @@ type IProvider interface {
 
 	GetDefaultKeyForDeleteItems() string
 
-	GetFirstMethodForAction(serviceName string, resourceName string, iqlAction string, runtimeCtx dto.RuntimeCtx) (*openapistackql.OperationStore, string, error)
+	GetFirstMethodForAction(serviceName string, resourceName string, iqlAction string, runtimeCtx dto.RuntimeCtx) (openapistackql.OperationStore, string, error)
 
 	GetLikeableColumns(string) []string
 
-	GetMethodForAction(serviceName string, resourceName string, iqlAction string, parameters parserutil.ColumnKeyedDatastore, runtimeCtx dto.RuntimeCtx) (*openapistackql.OperationStore, string, error)
+	GetMethodForAction(serviceName string, resourceName string, iqlAction string, parameters parserutil.ColumnKeyedDatastore, runtimeCtx dto.RuntimeCtx) (openapistackql.OperationStore, string, error)
 
 	GetMethodSelector() methodselect.IMethodSelector
 
@@ -53,23 +53,23 @@ type IProvider interface {
 
 	GetProviderString() string
 
-	GetProviderServicesRedacted(runtimeCtx dto.RuntimeCtx, extended bool) (map[string]*openapistackql.ProviderService, error)
+	GetProviderServicesRedacted(runtimeCtx dto.RuntimeCtx, extended bool) (map[string]openapistackql.ProviderService, error)
 
-	GetResource(serviceKey string, resourceKey string, runtimeCtx dto.RuntimeCtx) (*openapistackql.Resource, error)
+	GetResource(serviceKey string, resourceKey string, runtimeCtx dto.RuntimeCtx) (openapistackql.Resource, error)
 
-	GetResourcesMap(serviceKey string, runtimeCtx dto.RuntimeCtx) (map[string]*openapistackql.Resource, error)
+	GetResourcesMap(serviceKey string, runtimeCtx dto.RuntimeCtx) (map[string]openapistackql.Resource, error)
 
-	GetResourcesRedacted(currentService string, runtimeCtx dto.RuntimeCtx, extended bool) (map[string]*openapistackql.Resource, error)
+	GetResourcesRedacted(currentService string, runtimeCtx dto.RuntimeCtx, extended bool) (map[string]openapistackql.Resource, error)
 
-	GetServiceShard(serviceKey string, resourceKey string, runtimeCtx dto.RuntimeCtx) (*openapistackql.Service, error)
+	GetServiceShard(serviceKey string, resourceKey string, runtimeCtx dto.RuntimeCtx) (openapistackql.Service, error)
 
 	GetObjectSchema(serviceName string, resourceName string, schemaName string) (openapistackql.Schema, error)
 
 	GetVersion() string
 
-	InferDescribeMethod(*openapistackql.Resource) (*openapistackql.OperationStore, string, error)
+	InferDescribeMethod(openapistackql.Resource) (openapistackql.OperationStore, string, error)
 
-	InferMaxResultsElement(*openapistackql.OperationStore) internaldto.HTTPElement
+	InferMaxResultsElement(openapistackql.OperationStore) internaldto.HTTPElement
 
 	InferNextPageRequestElement(internaldto.Heirarchy) internaldto.HTTPElement
 

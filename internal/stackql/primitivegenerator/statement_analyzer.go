@@ -221,11 +221,11 @@ func (p *standardPrimitiveGenerator) analyzeAuthRevoke(pbi planbuilderinput.Plan
 	return fmt.Errorf(`Auth revoke for Google Failed; improper auth method: "%s" specified`, authCtx.Type)
 }
 
-func checkResource(handlerCtx handler.HandlerContext, prov provider.IProvider, service string, resource string) (*openapistackql.Resource, error) {
+func checkResource(handlerCtx handler.HandlerContext, prov provider.IProvider, service string, resource string) (openapistackql.Resource, error) {
 	return prov.GetResource(service, resource, handlerCtx.GetRuntimeContext())
 }
 
-func (pb *standardPrimitiveGenerator) assembleResources(handlerCtx handler.HandlerContext, prov provider.IProvider, service string) (map[string]*openapistackql.Resource, error) {
+func (pb *standardPrimitiveGenerator) assembleResources(handlerCtx handler.HandlerContext, prov provider.IProvider, service string) (map[string]openapistackql.Resource, error) {
 	rm, err := prov.GetResourcesMap(service, handlerCtx.GetRuntimeContext())
 	if err != nil {
 		return nil, err
@@ -534,14 +534,15 @@ func (p *standardPrimitiveGenerator) AnalyzeUnaryExec(pbi planbuilderinput.PlanB
 	logging.GetLogger().Infoln(fmt.Sprintf("provider = '%s', service = '%s', resource = '%s'", prov.GetProviderString(), svcStr, rStr))
 	requestSchema, err := method.GetRequestBodySchema()
 	// requestSchema, err := prov.GetObjectSchema(svcStr, rStr, method.Request.BodyMediaType)
-	if err != nil && method.Request != nil {
+	req, reqExists := method.GetRequest()
+	if err != nil && reqExists {
 		return nil, err
 	}
 	var execPayload internaldto.ExecPayload
 	if node.OptExecPayload != nil {
 		mediaType := "application/json"
-		if method.Request != nil && method.Request.BodyMediaType != "" {
-			mediaType = method.Request.BodyMediaType
+		if reqExists && req.GetBodyMediaType() != "" {
+			mediaType = req.GetBodyMediaType()
 		}
 		execPayload, err = p.parseExecPayload(node.OptExecPayload, mediaType)
 		if err != nil {
@@ -640,7 +641,7 @@ func (p *standardPrimitiveGenerator) parseExecPayload(node *sqlparser.ExecVarDef
 	), nil
 }
 
-func (p *standardPrimitiveGenerator) analyzeSchemaVsMap(handlerCtx handler.HandlerContext, schema openapistackql.Schema, payload map[string]interface{}, method *openapistackql.OperationStore) error {
+func (p *standardPrimitiveGenerator) analyzeSchemaVsMap(handlerCtx handler.HandlerContext, schema openapistackql.Schema, payload map[string]interface{}, method openapistackql.OperationStore) error {
 	requiredElements := make(map[string]bool)
 	schemas, err := schema.GetProperties()
 	if err != nil {
@@ -766,7 +767,7 @@ func (p *standardPrimitiveGenerator) expandTable(tbl tablemetadata.ExtendedTable
 	if err != nil {
 		return err
 	}
-	for _, sv := range svc.Servers {
+	for _, sv := range svc.GetServers() {
 		for k := range sv.Variables {
 			colEntry := symtab.NewSymTabEntry(
 				p.PrimitiveComposer.GetDRMConfig().GetRelationalType("string"),
@@ -1016,7 +1017,7 @@ func (p *standardPrimitiveGenerator) analyzeDelete(pbi planbuilderinput.PlanBuil
 	if err != nil {
 		return err
 	}
-	for _, sv := range svc.Servers {
+	for _, sv := range svc.GetServers() {
 		for k := range sv.Variables {
 			colEntry := symtab.NewSymTabEntry(
 				p.PrimitiveComposer.GetDRMConfig().GetRelationalType("string"),
@@ -1206,7 +1207,7 @@ func (p *standardPrimitiveGenerator) analyzeShow(pbi planbuilderinput.PlanBuilde
 			return err
 		}
 		if node.ShowTablesOpt != nil {
-			meth := &openapistackql.OperationStore{}
+			meth := openapistackql.NewEmptyOperationStore()
 			err = p.analyzeShowFilter(node, meth)
 			if err != nil {
 				return err
@@ -1240,7 +1241,7 @@ func (p *standardPrimitiveGenerator) analyzeShow(pbi planbuilderinput.PlanBuilde
 			}
 		}
 		if node.ShowTablesOpt != nil {
-			rsc := &openapistackql.Resource{}
+			rsc := openapistackql.NewEmptyResource()
 			err = p.analyzeShowFilter(node, rsc)
 			if err != nil {
 				return err
@@ -1267,7 +1268,7 @@ func (p *standardPrimitiveGenerator) analyzeShow(pbi planbuilderinput.PlanBuilde
 			}
 		}
 		if node.ShowTablesOpt != nil {
-			svc := &openapistackql.ProviderService{}
+			svc := openapistackql.NewEmptyProviderService()
 			err = p.analyzeShowFilter(node, svc)
 			if err != nil {
 				return err

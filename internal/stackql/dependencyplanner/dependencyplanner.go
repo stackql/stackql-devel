@@ -257,7 +257,7 @@ func (dp *standardDependencyPlanner) processOrphan(sqlNode sqlparser.SQLNode, an
 		return nil, nil, err
 	}
 	_, isSQLDataSource := annotationCtx.GetTableMeta().GetSQLDataSource()
-	var opStore *openapistackql.OperationStore
+	var opStore openapistackql.OperationStore
 	if !isSQLDataSource {
 		opStore, err = annotationCtx.GetTableMeta().GetMethod()
 		if err != nil {

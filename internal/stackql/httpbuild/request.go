@@ -18,15 +18,17 @@ import (
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 )
 
-func BuildHTTPRequestCtx(node sqlparser.SQLNode, prov provider.IProvider, m *openapistackql.OperationStore, svc *openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext ExecContext) (HTTPArmoury, error) {
+func BuildHTTPRequestCtx(node sqlparser.SQLNode, prov provider.IProvider, m openapistackql.OperationStore, svc openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext ExecContext) (HTTPArmoury, error) {
 	var err error
 	httpArmoury := NewHTTPArmoury()
 	var requestSchema, responseSchema openapistackql.Schema
-	if m.Request != nil && m.Request.Schema != nil {
-		requestSchema = m.Request.Schema
+	req, reqExists := m.GetRequest()
+	if reqExists && req.GetSchema() != nil {
+		requestSchema = req.GetSchema()
 	}
-	if m.Response != nil && m.Response.Schema != nil {
-		responseSchema = m.Response.Schema
+	res, resExists := m.GetResponse()
+	if resExists && res.GetSchema() != nil {
+		responseSchema = res.GetSchema()
 	}
 	httpArmoury.SetRequestSchema(requestSchema)
 	httpArmoury.SetResponseSchema(responseSchema)
@@ -56,11 +58,15 @@ func BuildHTTPRequestCtx(node sqlparser.SQLNode, prov provider.IProvider, m *ope
 				return nil, err
 			}
 			pm.SetBodyBytes(b)
-			pm.SetHeaderKV("Content-Type", []string{m.Request.BodyMediaType})
+			req, reqExists := m.GetRequest()
+			if reqExists {
+				pm.SetHeaderKV("Content-Type", []string{req.GetBodyMediaType()})
+			}
 		}
-		if m.Response != nil {
-			if m.Response.BodyMediaType != "" && prov.GetProviderString() != "aws" {
-				pm.SetHeaderKV("Accept", []string{m.Response.BodyMediaType})
+		resp, respExists := m.GetResponse()
+		if respExists {
+			if resp.GetBodyMediaType() != "" && prov.GetProviderString() != "aws" {
+				pm.SetHeaderKV("Accept", []string{resp.GetBodyMediaType()})
 			}
 		}
 		pm.SetParameters(params)
@@ -106,7 +112,7 @@ func BuildHTTPRequestCtx(node sqlparser.SQLNode, prov provider.IProvider, m *ope
 	return httpArmoury, nil
 }
 
-func awsContextHousekeeping(ctx context.Context, svc *openapistackql.Service, parameters map[string]interface{}) context.Context {
+func awsContextHousekeeping(ctx context.Context, svc openapistackql.Service, parameters map[string]interface{}) context.Context {
 	ctx = context.WithValue(ctx, "service", svc.GetName())
 	if region, ok := parameters["region"]; ok {
 		if regionStr, ok := region.(string); ok {
@@ -116,7 +122,7 @@ func awsContextHousekeeping(ctx context.Context, svc *openapistackql.Service, pa
 	return ctx
 }
 
-func getRequest(prov openapistackql.Provider, svc *openapistackql.Service, method *openapistackql.OperationStore, httpParams *openapistackql.HttpParameters) (*http.Request, error) {
+func getRequest(prov openapistackql.Provider, svc openapistackql.Service, method openapistackql.OperationStore, httpParams *openapistackql.HttpParameters) (*http.Request, error) {
 	params, err := httpParams.ToFlatMap()
 	if err != nil {
 		return nil, err
@@ -131,15 +137,17 @@ func getRequest(prov openapistackql.Provider, svc *openapistackql.Service, metho
 	return request, nil
 }
 
-func BuildHTTPRequestCtxFromAnnotation(parameters streaming.MapStream, prov provider.IProvider, m *openapistackql.OperationStore, svc *openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext ExecContext) (HTTPArmoury, error) {
+func BuildHTTPRequestCtxFromAnnotation(parameters streaming.MapStream, prov provider.IProvider, m openapistackql.OperationStore, svc openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext ExecContext) (HTTPArmoury, error) {
 	var err error
 	httpArmoury := NewHTTPArmoury()
 	var requestSchema, responseSchema openapistackql.Schema
-	if m.Request != nil && m.Request.Schema != nil {
-		requestSchema = m.Request.Schema
+	req, reqExists := m.GetRequest()
+	if reqExists && req.GetSchema() != nil {
+		requestSchema = req.GetSchema()
 	}
-	if m.Response != nil && m.Response.Schema != nil {
-		responseSchema = m.Response.Schema
+	resp, respExists := m.GetResponse()
+	if respExists && resp.GetSchema() != nil {
+		responseSchema = resp.GetSchema()
 	}
 	httpArmoury.SetRequestSchema(requestSchema)
 	httpArmoury.SetResponseSchema(responseSchema)
@@ -181,11 +189,15 @@ func BuildHTTPRequestCtxFromAnnotation(parameters streaming.MapStream, prov prov
 				return nil, err
 			}
 			pm.SetBodyBytes(b)
-			pm.SetHeaderKV("Content-Type", []string{m.Request.BodyMediaType})
+			req, reqExists := m.GetRequest()
+			if reqExists {
+				pm.SetHeaderKV("Content-Type", []string{req.GetBodyMediaType()})
+			}
 		}
-		if m.Response != nil {
-			if m.Response.BodyMediaType != "" && prov.GetProviderString() != "aws" {
-				pm.SetHeaderKV("Accept", []string{m.Response.BodyMediaType})
+		resp, respExists := m.GetResponse()
+		if respExists {
+			if resp.GetBodyMediaType() != "" && prov.GetProviderString() != "aws" {
+				pm.SetHeaderKV("Accept", []string{resp.GetBodyMediaType()})
 			}
 		}
 		pm.SetParameters(params)

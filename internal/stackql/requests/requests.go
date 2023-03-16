@@ -57,7 +57,7 @@ func parseRequestBodyParam(k string, v interface{}) *requestBodyParam {
 	return nil
 }
 
-func SplitHttpParameters(prov provider.IProvider, sqlParamMap map[int]map[string]interface{}, method *openapistackql.OperationStore) ([]*openapistackql.HttpParameters, error) {
+func SplitHttpParameters(prov provider.IProvider, sqlParamMap map[int]map[string]interface{}, method openapistackql.OperationStore) ([]*openapistackql.HttpParameters, error) {
 	var retVal []*openapistackql.HttpParameters
 	var rowKeys []int
 	requestSchema, _ := method.GetRequestBodySchema()
@@ -80,7 +80,7 @@ func SplitHttpParameters(prov provider.IProvider, sqlParamMap map[int]map[string
 						continue
 					}
 				}
-				reqMap.ServerParams[k] = openapistackql.NewParameterBinding(openapistackql.NewParameter(&openapi3.Parameter{In: "server"}, method.Service), v)
+				reqMap.ServerParams[k] = openapistackql.NewParameterBinding(openapistackql.NewParameter(&openapi3.Parameter{In: "server"}, method.GetService()), v)
 			}
 			if responseSchema != nil && responseSchema.FindByPath(k, nil) != nil {
 				reqMap.ResponseBody[k] = v
