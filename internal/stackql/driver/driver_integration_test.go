@@ -76,7 +76,6 @@ func TestSimpleSelectGoogleComputeInstanceDriverOutput(t *testing.T) {
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, strings.NewReader(""), lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 		handlerCtx.SetOutfile(os.Stdout)
 		handlerCtx.SetOutErrFile(os.Stderr)
@@ -100,7 +99,6 @@ func TestSimpleSelectGoogleComputeInstanceDriverOutput(t *testing.T) {
 
 	stackqltestutil.SetupSimpleSelectGoogleComputeInstance(t)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSimpleSelectGoogleComputeInstanceTextFile01, testobjects.ExpectedSimpleSelectGoogleComputeInstanceTextFile02})
-
 }
 
 func TestSimpleSelectGoogleComputeInstanceDriverOutputRepeated(t *testing.T) {
@@ -114,7 +112,6 @@ func TestSimpleSelectGoogleComputeInstanceDriverOutputRepeated(t *testing.T) {
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, strings.NewReader(""), lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 		handlerCtx.SetOutfile(os.Stdout)
 		handlerCtx.SetOutErrFile(os.Stderr)
@@ -138,7 +135,6 @@ func TestSimpleSelectGoogleComputeInstanceDriverOutputRepeated(t *testing.T) {
 
 	stackqltestutil.SetupSimpleSelectGoogleComputeInstance(t)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSimpleSelectGoogleComputeInstanceTextFile01, testobjects.ExpectedSimpleSelectGoogleComputeInstanceTextFile02})
-
 }
 
 func TestSimpleSelectGoogleContainerSubnetworksAllowedDriverOutput(t *testing.T) {
@@ -152,7 +148,6 @@ func TestSimpleSelectGoogleContainerSubnetworksAllowedDriverOutput(t *testing.T)
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, strings.NewReader(""), lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 		handlerCtx.SetOutfile(os.Stdout)
 		handlerCtx.SetOutErrFile(os.Stderr)
@@ -176,7 +171,6 @@ func TestSimpleSelectGoogleContainerSubnetworksAllowedDriverOutput(t *testing.T)
 
 	stackqltestutil.SetupSimpleSelectGoogleContainerAggAllowedSubnetworks(t)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSimpleSelectGoogleCotainerSubnetworkTextFile01, testobjects.ExpectedSimpleSelectGoogleCotainerSubnetworkTextFile02})
-
 }
 
 func TestSimpleInsertGoogleComputeNetworkAsync(t *testing.T) {
@@ -190,7 +184,6 @@ func TestSimpleInsertGoogleComputeNetworkAsync(t *testing.T) {
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, strings.NewReader(""), lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 		handlerCtx.SetOutfile(os.Stdout)
 		handlerCtx.SetOutErrFile(os.Stderr)
@@ -214,11 +207,9 @@ func TestSimpleInsertGoogleComputeNetworkAsync(t *testing.T) {
 
 	stackqltestutil.SetupSimpleInsertGoogleComputeNetworks(t)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedComputeNetworkInsertAsyncFile})
-
 }
 
 func TestK8sTheHardWayAsync(t *testing.T) {
-
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestK8sTheHardWayAsync")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
@@ -262,13 +253,10 @@ func TestK8sTheHardWayAsync(t *testing.T) {
 
 	stackqltestutil.SetupK8sTheHardWayE2eSuccess(t)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedK8STheHardWayAsyncFile})
-
 }
 
 func TestSimpleDryRunK8sTheHardWayDriver(t *testing.T) {
-
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSimpleDryRunK8sTheHardWayDriver")
 		if err != nil {
 			t.Fatalf("TestSimpleDryRunDriver failed: %v", err)
@@ -310,5 +298,4 @@ func TestSimpleDryRunK8sTheHardWayDriver(t *testing.T) {
 	}
 
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedK8STheHardWayRenderedFile})
-
 }

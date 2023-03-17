@@ -46,7 +46,6 @@ func (sp *standardSelectRoutePass) GetPlanBuilderInput() planbuilderinput.PlanBu
 }
 
 func (sp *standardSelectRoutePass) RoutePass() error {
-
 	var node *sqlparser.Select
 
 	pbi := sp.inputPbi.Clone()

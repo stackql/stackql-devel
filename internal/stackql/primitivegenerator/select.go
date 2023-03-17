@@ -13,7 +13,6 @@ import (
 )
 
 func (p *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBuilderInput) error {
-
 	annotatedAST := pbi.GetAnnotatedAST()
 
 	handlerCtx := pbi.GetHandlerCtx()
@@ -167,7 +166,6 @@ func (p *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBuil
 			pChild.GetPrimitiveComposer().SetBuilder(primitivebuilder.NewSingleAcquireAndSelect(pChild.GetPrimitiveComposer().GetGraph(), pChild.GetPrimitiveComposer().GetTxnCtrlCtrs(), handlerCtx, insertionContainer, pChild.GetPrimitiveComposer().GetInsertPreparedStatementCtx(), pChild.GetPrimitiveComposer().GetSelectPreparedStatementCtx(), nil))
 			return nil
 		}
-
 	}
 	return fmt.Errorf("cannot process cartesian join select just yet")
 }

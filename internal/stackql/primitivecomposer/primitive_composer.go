@@ -48,12 +48,12 @@ type PrimitiveComposer interface {
 	GetIndirectSelectPreparedStatementCtx() drm.PreparedStatementCtx
 	GetSQLEngine() sqlengine.SQLEngine
 	GetSQLSystem() sql_system.SQLSystem
-	GetSymbol(k interface{}) (symtab.SymTabEntry, error)
+	GetSymbol(k interface{}) (symtab.Entry, error)
 	GetSymTab() symtab.SymTab
 	GetTable(node sqlparser.SQLNode) (tablemetadata.ExtendedTableMetadata, error)
 	GetTableFilter() func(openapistackql.ITable) (openapistackql.ITable, error)
 	GetTables() taxonomy.TblMap
-	GetTxnCounterManager() txncounter.TxnCounterManager
+	GetTxnCounterManager() txncounter.Manager
 	GetTxnCtrlCtrs() internaldto.TxnControlCounters
 	GetValOnlyCol(key int) map[string]interface{}
 	GetValOnlyColKeys() []int
@@ -76,7 +76,7 @@ type PrimitiveComposer interface {
 	SetProvider(prov provider.IProvider)
 	SetRoot(root primitivegraph.PrimitiveNode)
 	SetSelectPreparedStatementCtx(ctx drm.PreparedStatementCtx)
-	SetSymbol(k interface{}, v symtab.SymTabEntry) error
+	SetSymbol(k interface{}, v symtab.Entry) error
 	SetSymTab(symtab.SymTab)
 	SetTable(node sqlparser.SQLNode, table tablemetadata.ExtendedTableMetadata)
 	SetTableFilter(tableFilter func(openapistackql.ITable) (openapistackql.ITable, error))
@@ -118,7 +118,7 @@ type standardPrimitiveComposer struct {
 	// per query
 	columnOrder       []string
 	commentDirectives sqlparser.CommentDirectives
-	txnCounterManager txncounter.TxnCounterManager
+	txnCounterManager txncounter.Manager
 	txnCtrlCtrs       internaldto.TxnControlCounters
 
 	// per query -- SELECT only
@@ -288,7 +288,7 @@ func (pb *standardPrimitiveComposer) SetDataflowDependent(val PrimitiveComposer)
 	pb.dataflowDependent = val
 }
 
-func (pb *standardPrimitiveComposer) GetSymbol(k interface{}) (symtab.SymTabEntry, error) {
+func (pb *standardPrimitiveComposer) GetSymbol(k interface{}) (symtab.Entry, error) {
 	return pb.symTab.GetSymbol(k)
 }
 
@@ -296,7 +296,7 @@ func (pb *standardPrimitiveComposer) GetSymTab() symtab.SymTab {
 	return pb.symTab
 }
 
-func (pb *standardPrimitiveComposer) SetSymbol(k interface{}, v symtab.SymTabEntry) error {
+func (pb *standardPrimitiveComposer) SetSymbol(k interface{}, v symtab.Entry) error {
 	return pb.symTab.SetSymbol(k, v)
 }
 
@@ -312,7 +312,7 @@ func (pb *standardPrimitiveComposer) GetAst() sqlparser.SQLNode {
 	return pb.ast
 }
 
-func (pb *standardPrimitiveComposer) GetTxnCounterManager() txncounter.TxnCounterManager {
+func (pb *standardPrimitiveComposer) GetTxnCounterManager() txncounter.Manager {
 	return pb.txnCounterManager
 }
 
@@ -451,7 +451,6 @@ func (pb *standardPrimitiveComposer) GetBuilder() primitivebuilder.Builder {
 		return primitivebuilder.NewDependencySubDAGBuilder(pb.graph, []primitivebuilder.Builder{indirectDiamond}, simpleDiamond)
 	}
 	return simpleDiamond
-
 }
 
 func (pb *standardPrimitiveComposer) SetBuilder(builder primitivebuilder.Builder) {
@@ -490,7 +489,7 @@ func (pb *standardPrimitiveComposer) GetSQLSystem() sql_system.SQLSystem {
 	return pb.sqlSystem
 }
 
-func NewPrimitiveComposer(parent PrimitiveComposer, ast sqlparser.SQLNode, drmConfig drm.DRMConfig, txnCtrMgr txncounter.TxnCounterManager, graph primitivegraph.PrimitiveGraph, tblMap taxonomy.TblMap, symTab symtab.SymTab, sqlEngine sqlengine.SQLEngine, sqlSystem sql_system.SQLSystem, formatter sqlparser.NodeFormatter) PrimitiveComposer {
+func NewPrimitiveComposer(parent PrimitiveComposer, ast sqlparser.SQLNode, drmConfig drm.DRMConfig, txnCtrMgr txncounter.Manager, graph primitivegraph.PrimitiveGraph, tblMap taxonomy.TblMap, symTab symtab.SymTab, sqlEngine sqlengine.SQLEngine, sqlSystem sql_system.SQLSystem, formatter sqlparser.NodeFormatter) PrimitiveComposer {
 	return &standardPrimitiveComposer{
 		parent:            parent,
 		ast:               ast,

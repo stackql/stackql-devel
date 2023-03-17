@@ -53,7 +53,6 @@ func (ss *Exec) GetTail() primitivegraph.PrimitiveNode {
 }
 
 func (ss *Exec) Build() error {
-
 	handlerCtx := ss.handlerCtx
 	tbl := ss.tbl
 	prov, err := tbl.GetProvider()

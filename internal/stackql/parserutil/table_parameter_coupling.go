@@ -172,7 +172,6 @@ func (tpc *standardTableParameterCoupling) ReconstituteConsumedParams(
 				return nil, fmt.Errorf("cannot process consumed params: attempt to delete non existing key")
 			}
 		}
-
 	}
 	return retVal, nil
 }

@@ -130,11 +130,11 @@ func GenerateSelectDML(input SQLRewriteInput) (drm.PreparedStatementCtx, error) 
 		// TODO: Need a way to handle postgres differences. This is a fragile point
 		relationalColumns = append(relationalColumns, relationalColumn)
 	}
-	genIdColName := dc.GetControlAttributes().GetControlGenIdColumnName()
-	sessionIDColName := dc.GetControlAttributes().GetControlSsnIdColumnName()
-	txnIdColName := dc.GetControlAttributes().GetControlTxnIdColumnName()
-	insIdColName := dc.GetControlAttributes().GetControlInsIdColumnName()
-	insEncodedColName := dc.GetControlAttributes().GetControlInsertEncodedIdColumnName()
+	genIDColName := dc.GetControlAttributes().GetControlGenIDColumnName()
+	sessionIDColName := dc.GetControlAttributes().GetControlSsnIDColumnName()
+	txnIDColName := dc.GetControlAttributes().GetControlTxnIDColumnName()
+	insIDColName := dc.GetControlAttributes().GetControlInsIDColumnName()
+	insEncodedColName := dc.GetControlAttributes().GetControlInsertEncodedIDColumnName()
 	inputContainers := input.GetTableInsertionContainers()
 	if len(inputContainers) > 0 {
 		_, txnCtrlCtrs = inputContainers[0].GetTableTxnCounters()
@@ -161,11 +161,11 @@ func GenerateSelectDML(input SQLRewriteInput) (drm.PreparedStatementCtx, error) 
 	rv := drm.NewPreparedStatementCtx(
 		query,
 		"",
-		genIdColName,
+		genIDColName,
 		sessionIDColName,
 		nil,
-		txnIdColName,
-		insIdColName,
+		txnIDColName,
+		insIDColName,
 		insEncodedColName,
 		columns,
 		len(input.GetTables()),

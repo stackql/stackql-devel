@@ -30,7 +30,7 @@ var (
 type regexTableNamespaceConfigurator struct {
 	sqlSystem                     sql_system.SQLSystem
 	sqlEngine                     sqlengine.SQLEngine
-	templateNamespaceConfigurator templatenamespace.TemplateNamespaceConfigurator
+	templateNamespaceConfigurator templatenamespace.Configurator
 	likeString                    string
 	ttl                           int
 }

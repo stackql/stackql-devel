@@ -625,7 +625,7 @@ func (p *standardPrimitiveGenerator) parseExecPayload(node *sqlparser.ExecVarDef
 		return nil, fmt.Errorf("payload map of SQL type = '%T' not allowed", val)
 	}
 	switch payloadType {
-	case constants.JsonStr, "application/json":
+	case constants.JSONStr, "application/json":
 		m["Content-Type"] = []string{"application/json"}
 		err := json.Unmarshal(b, &pm)
 		if err != nil {
@@ -748,7 +748,6 @@ func (p *standardPrimitiveGenerator) AnalyzePGInternal(pbi planbuilderinput.Plan
 }
 
 func (p *standardPrimitiveGenerator) expandTable(tbl tablemetadata.ExtendedTableMetadata) error {
-
 	if viewIndirect, isView := tbl.GetIndirect(); isView {
 		viewAST := viewIndirect.GetSelectAST()
 

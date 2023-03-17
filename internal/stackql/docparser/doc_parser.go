@@ -43,9 +43,9 @@ func OpenapiStackQLTabulationsPersistor(
 	if err != nil {
 		return 0, err
 	}
-	discoveryGenerationId, err := dbEngine.GetCurrentDiscoveryGenerationId(prefix)
+	discoveryGenerationId, err := dbEngine.GetCurrentDiscoveryGenerationID(prefix)
 	if err != nil {
-		discoveryGenerationId, err = dbEngine.GetNextDiscoveryGenerationId(prefix)
+		discoveryGenerationId, err = dbEngine.GetNextDiscoveryGenerationID(prefix)
 		if err != nil {
 			return discoveryGenerationId, err
 		}

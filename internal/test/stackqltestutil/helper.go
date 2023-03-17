@@ -31,7 +31,6 @@ func RunStdOutTestAgainstFiles(t *testing.T, testSubject func(*testing.T), possi
 	t.Logf("outC = %s", out)
 
 	checkPossibleMatchFiles(t, out, possibleExpectedOutputFiles)
-
 }
 
 func checkPossibleMatchFiles(t *testing.T, subject string, possibleExpectedOutputFiles []string) {
@@ -58,7 +57,6 @@ func checkPossibleMatchFiles(t *testing.T, subject string, possibleExpectedOutpu
 }
 
 func RunCaptureTestAgainstFiles(t *testing.T, testSubject func(*testing.T, *bufio.Writer), possibleExpectedOutputFiles []string) {
-
 	var b bytes.Buffer
 	outFile := bufio.NewWriter(&b)
 

@@ -371,7 +371,7 @@ func SetupHTTPCallHeavyweight(t *testing.T, expectationStore ExpectationStore, h
 // RewriteTransport is an http.RoundTripper that rewrites requests
 // using the provided URL's Scheme and Host, and its Path as a prefix.
 // The Opaque field is untouched.
-// If Transport is nil, http.DefaultTransport is used
+// If Transport is nil, http.DefaultTransport is used.
 type RewriteTransport struct {
 	Transport http.RoundTripper
 	URL       *url.URL

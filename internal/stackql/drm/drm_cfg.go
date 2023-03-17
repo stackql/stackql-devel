@@ -95,7 +95,6 @@ func (dc *staticDRMConfig) OpenapiColumnsToRelationalColumns(cols []openapistack
 }
 
 func (dc *staticDRMConfig) ToExternalSQLRelationalColumn(tabAnn util.AnnotatedTabulation, colName string) (relationaldto.RelationalColumn, error) {
-
 	return nil, fmt.Errorf("cannot find column '%s' for external SQL table '%s'", colName, tabAnn.GetInputTableName())
 }
 
@@ -394,11 +393,11 @@ func (dc *staticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 			return nil, err
 		}
 	}
-	genIdColName := dc.controlAttributes.GetControlGenIdColumnName()
-	sessionIdColName := dc.controlAttributes.GetControlSsnIdColumnName()
-	txnIdColName := dc.controlAttributes.GetControlTxnIdColumnName()
-	insIdColName := dc.controlAttributes.GetControlInsIdColumnName()
-	insEncodedColName := dc.controlAttributes.GetControlInsertEncodedIdColumnName()
+	genIDColName := dc.controlAttributes.GetControlGenIDColumnName()
+	sessionIDColName := dc.controlAttributes.GetControlSsnIDColumnName()
+	txnIDColName := dc.controlAttributes.GetControlTxnIDColumnName()
+	insIDColName := dc.controlAttributes.GetControlInsIDColumnName()
+	insEncodedColName := dc.controlAttributes.GetControlInsertEncodedIDColumnName()
 
 	relationalTable := relationaldto.NewRelationalTable(tabAnnotated.GetHeirarchyIdentifiers(), discoverID, tableName, tabAnnotated.GetInputTableName())
 	if isSQLDataSource {
@@ -434,11 +433,11 @@ func (dc *staticDRMConfig) GenerateInsertDML(tabAnnotated util.AnnotatedTabulati
 	return NewPreparedStatementCtx(
 			queryString,
 			"",
-			genIdColName,
-			sessionIdColName,
+			genIDColName,
+			sessionIDColName,
 			[]string{tableName},
-			txnIdColName,
-			insIdColName,
+			txnIDColName,
+			insIDColName,
 			insEncodedColName,
 			columns,
 			1,
@@ -493,19 +492,19 @@ func (dc *staticDRMConfig) GenerateSelectDML(tabAnnotated util.AnnotatedTabulati
 		return nil, err
 	}
 
-	genIdColName := dc.controlAttributes.GetControlGenIdColumnName()
-	sessionIDColName := dc.controlAttributes.GetControlSsnIdColumnName()
-	txnIdColName := dc.controlAttributes.GetControlTxnIdColumnName()
-	insIdColName := dc.controlAttributes.GetControlInsIdColumnName()
+	genIDColName := dc.controlAttributes.GetControlGenIDColumnName()
+	sessionIDColName := dc.controlAttributes.GetControlSsnIDColumnName()
+	txnIDColName := dc.controlAttributes.GetControlTxnIDColumnName()
+	insIDColName := dc.controlAttributes.GetControlInsIDColumnName()
 	return NewPreparedStatementCtx(
 		queryString,
 		"",
-		genIdColName,
+		genIDColName,
 		sessionIDColName,
 		nil,
-		txnIdColName,
-		insIdColName,
-		dc.controlAttributes.GetControlInsertEncodedIdColumnName(),
+		txnIDColName,
+		insIDColName,
+		dc.controlAttributes.GetControlInsertEncodedIDColumnName(),
 		columns,
 		1,
 		txnCtrlCtrs,

@@ -33,7 +33,6 @@ func TestSimpleInsertDependentGoogleComputeDiskAsync(t *testing.T) {
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		rdr, err := os.Open(runtimeCtx.InfilePath)
 		if err != nil {
 			t.Fatalf("Test failed: %v", err)
@@ -58,7 +57,6 @@ func TestSimpleInsertDependentGoogleComputeDiskAsync(t *testing.T) {
 
 	stackqltestutil.SetupDependentInsertGoogleComputeDisks(t)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedComputeDisksDependentInsertAsyncFile})
-
 }
 
 func TestSimpleInsertDependentGoogleComputeDiskAsyncReversed(t *testing.T) {
@@ -77,7 +75,6 @@ func TestSimpleInsertDependentGoogleComputeDiskAsyncReversed(t *testing.T) {
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		rdr, err := os.Open(runtimeCtx.InfilePath)
 		if err != nil {
 			t.Fatalf("Test failed: %v", err)
@@ -102,7 +99,6 @@ func TestSimpleInsertDependentGoogleComputeDiskAsyncReversed(t *testing.T) {
 
 	stackqltestutil.SetupDependentInsertGoogleComputeDisks(t)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedComputeDisksDependentInsertAsyncFile})
-
 }
 
 func TestSimpleInsertDependentGoogleBQDatasetAsync(t *testing.T) {
@@ -121,7 +117,6 @@ func TestSimpleInsertDependentGoogleBQDatasetAsync(t *testing.T) {
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		rdr, err := os.Open(runtimeCtx.InfilePath)
 		if err != nil {
 			t.Fatalf("Test failed: %v", err)
@@ -146,7 +141,6 @@ func TestSimpleInsertDependentGoogleBQDatasetAsync(t *testing.T) {
 
 	stackqltestutil.SetupDependentInsertGoogleBQDatasets(t)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedBQDatasetsDependentInsertFile})
-
 }
 
 func TestSimpleSelectExecDependentGoogleOrganizationsGetIamPolicy(t *testing.T) {
@@ -165,7 +159,6 @@ func TestSimpleSelectExecDependentGoogleOrganizationsGetIamPolicy(t *testing.T) 
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		rdr, err := os.Open(runtimeCtx.InfilePath)
 		if err != nil {
 			t.Fatalf("Test failed: %v", err)
@@ -190,5 +183,4 @@ func TestSimpleSelectExecDependentGoogleOrganizationsGetIamPolicy(t *testing.T) 
 
 	stackqltestutil.SetupExecGoogleOrganizationsGetIamPolicy(t)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectExecOrgGetIamPolicyAgg})
-
 }

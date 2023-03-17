@@ -323,7 +323,6 @@ func (v *standardProviderStringAstVisitor) Visit(node sqlparser.SQLNode) error {
 
 		if ct.Length != nil && ct.Scale != nil {
 			buf.AstPrintf(ct, "(%v,%v)", ct.Length, ct.Scale)
-
 		} else if ct.Length != nil {
 			buf.AstPrintf(ct, "(%v)", ct.Length)
 		}

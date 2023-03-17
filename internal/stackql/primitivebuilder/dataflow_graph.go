@@ -34,7 +34,6 @@ func NewDataflowGraphBuilder(
 }
 
 func (nb *DataflowGraphBuilder) Build() error {
-
 	pr := primitive.NewLocalPrimitive(
 		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 			return util.PrepareResultSet(

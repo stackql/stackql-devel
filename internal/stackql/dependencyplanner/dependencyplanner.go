@@ -165,7 +165,6 @@ func (dp *standardDependencyPlanner) Plan() error {
 				dp.annMap[tableExpr] = annotation
 				for _, e := range edges {
 					if e.From().ID() == n.ID() {
-
 						//
 						insPsc, tcc, err := dp.processOrphan(tableExpr, annotation, dp.defaultStream)
 						if err != nil {
@@ -200,7 +199,6 @@ func (dp *standardDependencyPlanner) Plan() error {
 		default:
 			return fmt.Errorf("cannot support dependency unit of type = '%T'", unit)
 		}
-
 	}
 	if weaklyConnectedComponentCount > 1 {
 		return fmt.Errorf("data flow: there are too many weakly connected components; found = %d, max = 1", weaklyConnectedComponentCount)

@@ -68,7 +68,6 @@ func (ds *genericSQLDataSource) Begin() (*sql.Tx, error) {
 }
 
 func (ds *genericSQLDataSource) GetTableMetadata(args ...string) (sql_table.SQLTable, error) {
-
 	return nil, fmt.Errorf("could not obtain sql data source table metadata for args = '%v'", args)
 }
 

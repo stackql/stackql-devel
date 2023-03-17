@@ -28,7 +28,7 @@ type standardAwsSignTransport struct {
 
 func NewAwsSignTransport(underlyingTransport http.RoundTripper, id, secret, token string, options ...func(*v4.Signer)) AwsSignTransport {
 	creds := credentials.NewStaticCredentials(id, secret, token)
-	//creds := credentials.NewEnvCredentials()
+	// creds := credentials.NewEnvCredentials()
 	signer := v4.NewSigner(creds, options...)
 	return &standardAwsSignTransport{
 		underlyingTransport: underlyingTransport,

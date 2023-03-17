@@ -55,7 +55,6 @@ func (ss *Delete) GetTail() primitivegraph.PrimitiveNode {
 }
 
 func (ss *Delete) Build() error {
-
 	tbl := ss.tbl
 	handlerCtx := ss.handlerCtx
 	prov, err := tbl.GetProvider()

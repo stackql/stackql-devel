@@ -86,7 +86,6 @@ func (st *naivePacketPreparator) PrepareOutputPacket() (dto.OutputPacket, error)
 		cNames,
 		colOIDs,
 	), nil
-
 }
 
 type Outputter interface {

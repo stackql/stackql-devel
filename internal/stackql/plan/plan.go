@@ -39,7 +39,7 @@ func (p *Plan) Size() int {
 	return 1
 }
 
-// Signals whether the plan is worthy to place in `cache.LRUCache`
+// Signals whether the plan is worthy to place in `cache.LRUCache`.
 func (p *Plan) IsCacheable() bool {
 	return p.isCacheable
 }

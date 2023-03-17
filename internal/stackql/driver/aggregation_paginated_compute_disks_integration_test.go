@@ -17,7 +17,6 @@ import (
 )
 
 func TestSelectComputeDisksOrderByCrtTmstpAscPaginated(t *testing.T) {
-
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSelectComputeDisksOrderByCrtTmstpAscPaginated")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
@@ -29,7 +28,6 @@ func TestSelectComputeDisksOrderByCrtTmstpAscPaginated(t *testing.T) {
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, strings.NewReader(""), lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 		handlerCtx.SetOutfile(os.Stdout)
 		handlerCtx.SetOutErrFile(os.Stderr)
@@ -53,11 +51,9 @@ func TestSelectComputeDisksOrderByCrtTmstpAscPaginated(t *testing.T) {
 
 	stackqltestutil.SetupSimpleSelectGoogleComputeDisksPaginated(t)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksOrderCrtTmstpAscPaginated})
-
 }
 
 func TestSelectComputeDisksAggOrderBySizeAscPaginated(t *testing.T) {
-
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggOrderBySizeAscPaginated")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
@@ -69,7 +65,6 @@ func TestSelectComputeDisksAggOrderBySizeAscPaginated(t *testing.T) {
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, strings.NewReader(""), lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 		handlerCtx.SetOutfile(os.Stdout)
 		handlerCtx.SetOutErrFile(os.Stderr)
@@ -93,11 +88,9 @@ func TestSelectComputeDisksAggOrderBySizeAscPaginated(t *testing.T) {
 
 	stackqltestutil.SetupSimpleSelectGoogleComputeDisksPaginated(t)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggPaginatedSizeOrderSizeAsc})
-
 }
 
 func TestSelectComputeDisksAggOrderBySizeDescPaginated(t *testing.T) {
-
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggOrderBySizeDescPaginated")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
@@ -109,7 +102,6 @@ func TestSelectComputeDisksAggOrderBySizeDescPaginated(t *testing.T) {
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, strings.NewReader(""), lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 		handlerCtx.SetOutfile(os.Stdout)
 		handlerCtx.SetOutErrFile(os.Stderr)
@@ -133,11 +125,9 @@ func TestSelectComputeDisksAggOrderBySizeDescPaginated(t *testing.T) {
 
 	stackqltestutil.SetupSimpleSelectGoogleComputeDisksPaginated(t)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggPaginatedSizeOrderSizeDesc})
-
 }
 
 func TestSelectComputeDisksAggTotalSizePaginated(t *testing.T) {
-
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggTotalSizePaginated")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
@@ -149,7 +139,6 @@ func TestSelectComputeDisksAggTotalSizePaginated(t *testing.T) {
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, strings.NewReader(""), lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 		handlerCtx.SetOutfile(os.Stdout)
 		handlerCtx.SetOutErrFile(os.Stderr)
@@ -173,11 +162,9 @@ func TestSelectComputeDisksAggTotalSizePaginated(t *testing.T) {
 
 	stackqltestutil.SetupSimpleSelectGoogleComputeDisksPaginated(t)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggPaginatedSizeTotal})
-
 }
 
 func TestSelectComputeDisksAggTotalStringPaginated(t *testing.T) {
-
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggTotalStringPaginated")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
@@ -189,7 +176,6 @@ func TestSelectComputeDisksAggTotalStringPaginated(t *testing.T) {
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, strings.NewReader(""), lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 		handlerCtx.SetOutfile(os.Stdout)
 		handlerCtx.SetOutErrFile(os.Stderr)
@@ -213,5 +199,4 @@ func TestSelectComputeDisksAggTotalStringPaginated(t *testing.T) {
 
 	stackqltestutil.SetupSimpleSelectGoogleComputeDisksPaginated(t)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggPaginatedStringTotal})
-
 }

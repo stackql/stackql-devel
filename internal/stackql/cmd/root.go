@@ -56,7 +56,7 @@ var (
 	replicateCtrMgr bool = false
 )
 
-// rootCmd represents the base command when called without any subcommands
+// rootCmd represents the base command when called without any subcommands.
 var rootCmd = &cobra.Command{
 	Use:     "stackql",
 	Version: SemVersion,
@@ -134,7 +134,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&runtimeCtx.Delimiter, dto.DelimiterKey, "d", ",", "Delimiter for csv output;  single character only, ignored for all non-csv output")
 	rootCmd.PersistentFlags().IntVar(&runtimeCtx.CacheKeyCount, dto.CacheKeyCountKey, 100, "Cache initial key count")
 	rootCmd.PersistentFlags().IntVar(&runtimeCtx.CacheTTL, dto.CacheTTLKey, 3600, "TTL for cached metadata documents, in seconds")
-	rootCmd.PersistentFlags().BoolVar(&runtimeCtx.TestWithoutApiCalls, dto.TestWithoutApiCallsKey, false, "Flag to omit api calls for testing")
+	rootCmd.PersistentFlags().BoolVar(&runtimeCtx.TestWithoutAPICalls, dto.TestWithoutAPICallsKey, false, "Flag to omit api calls for testing")
 	rootCmd.PersistentFlags().BoolVar(&runtimeCtx.UseNonPreferredAPIs, dto.UseNonPreferredAPIsKEy, false, "Flag to enable non-preferred APIs")
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.LogLevelStr, dto.LogLevelStrKey, config.GetDefaultLogLevelString(), fmt.Sprintf(`Log level`))
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.ErrorPresentation, dto.ErrorPresentationKey, config.GetDefaultErrorPresentationString(), fmt.Sprintf(`Error presentation, options are: {"stderr", "record"}`))
@@ -144,7 +144,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.PGSrvRawTLSCfg, dto.PgSrvRawTLSCfgKey, "", "tls config for server, for server mode only")
 	rootCmd.PersistentFlags().IntVar(&runtimeCtx.PGSrvPort, dto.PgSrvPortKey, 5466, "TCP server port, for server mode only")
 
-	rootCmd.PersistentFlags().MarkHidden(dto.TestWithoutApiCallsKey)
+	rootCmd.PersistentFlags().MarkHidden(dto.TestWithoutAPICallsKey)
 	rootCmd.PersistentFlags().MarkHidden(dto.ViperCfgFileNameKey)
 	rootCmd.PersistentFlags().MarkHidden(dto.ErrorPresentationKey)
 
@@ -159,7 +159,6 @@ func init() {
 	rootCmd.AddCommand(shellCmd)
 	rootCmd.AddCommand(registryCmd)
 	rootCmd.AddCommand(srvCmd)
-
 }
 
 func mergeConfigFromFile(runtimeCtx *dto.RuntimeCtx, flagSet pflag.FlagSet) {
@@ -176,7 +175,6 @@ func mergeConfigFromFile(runtimeCtx *dto.RuntimeCtx, flagSet pflag.FlagSet) {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-
 	mergeConfigFromFile(&runtimeCtx, *rootCmd.PersistentFlags())
 
 	logging.SetLogger(runtimeCtx.LogLevelStr)

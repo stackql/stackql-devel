@@ -61,7 +61,7 @@ type HandlerContext interface {
 	GetSQLSystem() sql_system.SQLSystem
 	GetGarbageCollector() garbagecollector.GarbageCollector
 	GetDrmConfig() drm.DRMConfig
-	GetTxnCounterMgr() txncounter.TxnCounterManager
+	GetTxnCounterMgr() txncounter.Manager
 	GetTxnStore() kstore.KStore
 	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
 	GetFormatter() sqlparser.NodeFormatter
@@ -96,7 +96,7 @@ type standardHandlerContext struct {
 	sqlSystem           sql_system.SQLSystem
 	garbageCollector    garbagecollector.GarbageCollector
 	drmConfig           drm.DRMConfig
-	txnCounterMgr       txncounter.TxnCounterManager
+	txnCounterMgr       txncounter.Manager
 	txnStore            kstore.KStore
 	namespaceCollection tablenamespace.TableNamespaceCollection
 	formatter           sqlparser.NodeFormatter
@@ -144,7 +144,7 @@ func (hc *standardHandlerContext) GetGarbageCollector() garbagecollector.Garbage
 	return hc.garbageCollector
 }
 func (hc *standardHandlerContext) GetDrmConfig() drm.DRMConfig { return hc.drmConfig }
-func (hc *standardHandlerContext) GetTxnCounterMgr() txncounter.TxnCounterManager {
+func (hc *standardHandlerContext) GetTxnCounterMgr() txncounter.Manager {
 	return hc.txnCounterMgr
 }
 func (hc *standardHandlerContext) GetTxnStore() kstore.KStore { return hc.txnStore }
@@ -188,7 +188,6 @@ func (hc *standardHandlerContext) GetSupportedProviders(extended bool) (map[stri
 		retVal[pn] = map[string]interface{}{
 			"name": pn,
 		}
-
 	}
 	for k, pd := range provs {
 		pn := k

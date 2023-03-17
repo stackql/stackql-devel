@@ -43,7 +43,7 @@ Copyright (c) 2021, stackql studios. All rights reserved.
 Welcome to the interactive shell for running stackql commands.
 ---`
 
-	// Auth messages
+	// Auth messages.
 	interactiveSuccessMsgTmpl string = `Authenticated interactively to google as %s, to change the authenticated user, use AUTH REVOKE followed by AUTH LOGIN, see https://docs.stackql.io/language-spec/auth`
 
 	notAuthenticatedMsg string = `Not authenticated, to authenticate to a provider use the AUTH LOGIN command, see https://docs.stackql.io/language-spec/auth`
@@ -63,7 +63,7 @@ func usage(w io.Writer) {
 	io.WriteString(w, getShellIntroLong()+"\r\n")
 }
 
-func getShellPRompt(authCtx *dto.AuthCtx, cd *color.ColorDriver) string {
+func getShellPRompt(authCtx *dto.AuthCtx, cd *color.Driver) string {
 	if runtime.GOOS == "windows" {
 		return "stackql  >>"
 	}
@@ -84,7 +84,7 @@ func getIntroAuthMsg(authCtx *dto.AuthCtx, prov provider.IProvider) string {
 			switch authCtx.Type {
 			case dto.AuthInteractiveStr:
 				return fmt.Sprintf(interactiveSuccessMsgTmpl, authCtx.ID)
-			case dto.AuthServiceAccountStr, dto.AuthApiKeyStr:
+			case dto.AuthServiceAccountStr, dto.AuthAPIKeyStr:
 				return fmt.Sprintf(saSuccessMsgTmpl, authCtx.GetCredentialsSourceDescriptorString(), authCtx.Type)
 			}
 		} else if prov != nil {
@@ -93,7 +93,7 @@ func getIntroAuthMsg(authCtx *dto.AuthCtx, prov provider.IProvider) string {
 			}
 		}
 		switch authCtx.Type {
-		case dto.AuthServiceAccountStr, dto.AuthApiKeyStr:
+		case dto.AuthServiceAccountStr, dto.AuthAPIKeyStr:
 			return fmt.Sprintf(credentialProvidedMsgTmpl, authCtx.GetCredentialsSourceDescriptorString(), authCtx.Type)
 		}
 	}
@@ -104,7 +104,7 @@ func colorIsNull(runtimeCtx dto.RuntimeCtx) bool {
 	return runtimeCtx.ColorScheme == dto.NullColorScheme || runtime.GOOS == "windows"
 }
 
-// shellCmd represents the shell command
+// shellCmd represents the shell command.
 var shellCmd = &cobra.Command{
 	Use:   "shell",
 	Short: "Interactive shell for running stackql commands",

@@ -94,7 +94,6 @@ func (sp *standardInitialPasses) Analyze(statement sqlparser.Statement, handlerC
 }
 
 func (sp *standardInitialPasses) initialPasses(statement sqlparser.Statement, handlerCtx handler.HandlerContext, tcc internaldto.TxnControlCounters) error {
-
 	result, err := sqlparser.RewriteAST(statement)
 	sp.result = result
 	if err != nil {

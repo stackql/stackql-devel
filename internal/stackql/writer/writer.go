@@ -25,7 +25,7 @@ func GetOutputWriter(filename string) (io.Writer, error) {
 	}
 }
 
-func GetDecoratedOutputWriter(filename string, cd *color.ColorDriver, overrideColor ...color.Attribute) (io.Writer, error) {
+func GetDecoratedOutputWriter(filename string, cd *color.Driver, overrideColor ...color.Attribute) (io.Writer, error) {
 	if cd.Peek() == nil || runtime.GOOS == "windows" {
 		return GetOutputWriter(filename)
 	}
@@ -49,7 +49,7 @@ func (ssw *BaseWriter) Write(p []byte) (n int, err error) {
 
 type StdStreamWriter struct {
 	writer        io.Writer
-	colorDriver   *color.ColorDriver
+	colorDriver   *color.Driver
 	overrideColor []color.Attribute
 }
 

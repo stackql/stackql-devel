@@ -43,7 +43,6 @@ func (bco *BasicColumnOrderer) GetColumnOrder() []string {
 }
 
 func writeStderrError(writer io.Writer, err error) error {
-
 	_, e := fmt.Fprintln(writer, err.Error())
 	return e
 }
@@ -54,7 +53,7 @@ func GetOutputWriter(writer io.Writer, errWriter io.Writer, outputCtx internaldt
 	}
 	ci := pgtype.NewConnInfo()
 	switch outputCtx.RuntimeContext.OutputFormat {
-	case constants.JsonStr:
+	case constants.JSONStr:
 		jsonWriter := JsonWriter{
 			ci:        ci,
 			writer:    writer,
@@ -424,7 +423,6 @@ func (rw *RawWriter) Write(res sqldata.ISQLResultStream) error {
 }
 
 func (rw *PrettyWriter) Write(res sqldata.ISQLResultStream) error {
-
 	var isHeaderRead bool
 	var w io.Writer
 	for {
@@ -449,7 +447,7 @@ func (rw *PrettyWriter) Write(res sqldata.ISQLResultStream) error {
 					rowSlice := make([]string, len(rs))
 					for i, c := range rs {
 						s := c
-						b, err := iqlutil.PrettyPrintSomeJson([]byte(s))
+						b, err := iqlutil.PrettyPrintSomeJSON([]byte(s))
 						if err != nil {
 							rowSlice[i] = s
 							continue
@@ -478,7 +476,7 @@ func (rw *PrettyWriter) Write(res sqldata.ISQLResultStream) error {
 			rowSlice := make([]string, len(rs))
 			for i, c := range rs {
 				s := c
-				b, err := iqlutil.PrettyPrintSomeJson([]byte(s))
+				b, err := iqlutil.PrettyPrintSomeJSON([]byte(s))
 				if err != nil {
 					rowSlice[i] = s
 					continue

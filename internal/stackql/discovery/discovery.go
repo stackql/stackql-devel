@@ -149,7 +149,6 @@ func (adp *BasicDiscoveryAdapter) GetResourcesMap(prov openapistackql.Provider, 
 		}
 		return rr.GetResources(), nil
 	}
-
 }
 
 func NewTTLDiscoveryStore(sqlSystem sql_system.SQLSystem, registry openapistackql.RegistryAPI, runtimeCtx dto.RuntimeCtx) IDiscoveryStore {

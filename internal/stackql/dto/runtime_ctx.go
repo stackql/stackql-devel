@@ -46,7 +46,7 @@ type RuntimeCtx struct {
 	GCCfgRaw                     string
 	QueryCacheSize               int
 	TemplateCtxFilePath          string
-	TestWithoutApiCalls          bool
+	TestWithoutAPICalls          bool
 	UseNonPreferredAPIs          bool
 	VerboseFlag                  bool
 	ViperCfgFileName             string
@@ -162,8 +162,8 @@ func (rc *RuntimeCtx) Set(key string, val string) error {
 		rc.RegistryRaw = val
 	case TemplateCtxFilePathKey:
 		rc.TemplateCtxFilePath = val
-	case TestWithoutApiCallsKey:
-		retVal = setBool(&rc.TestWithoutApiCalls, val)
+	case TestWithoutAPICallsKey:
+		retVal = setBool(&rc.TestWithoutAPICalls, val)
 	case UseNonPreferredAPIsKEy:
 		retVal = setBool(&rc.UseNonPreferredAPIs, val)
 	case VerboseFlagKey:

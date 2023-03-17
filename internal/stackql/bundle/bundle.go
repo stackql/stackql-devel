@@ -23,7 +23,7 @@ type Bundle interface {
 	GetSQLDataSources() map[string]sql_datasource.SQLDataSource
 	GetSQLSystem() sql_system.SQLSystem
 	GetSQLEngine() sqlengine.SQLEngine
-	GetTxnCounterManager() txncounter.TxnCounterManager
+	GetTxnCounterManager() txncounter.Manager
 	GetTxnStore() kstore.KStore
 }
 
@@ -35,7 +35,7 @@ func NewBundle(
 	pgInternalRouter dbmsinternal.DBMSInternalRouter,
 	controlAttributes sqlcontrol.ControlAttributes,
 	txnStore kstore.KStore,
-	txnCtrMgr txncounter.TxnCounterManager,
+	txnCtrMgr txncounter.Manager,
 	authContexts map[string]*dto.AuthCtx,
 	sqlDataSources map[string]sql_datasource.SQLDataSource,
 ) Bundle {
@@ -61,7 +61,7 @@ type simpleBundle struct {
 	sqlEngine         sqlengine.SQLEngine
 	sqlSystem         sql_system.SQLSystem
 	txnStore          kstore.KStore
-	txnCtrMgr         txncounter.TxnCounterManager
+	txnCtrMgr         txncounter.Manager
 	formatter         sqlparser.NodeFormatter
 	pgInternalRouter  dbmsinternal.DBMSInternalRouter
 	sqlDataSources    map[string]sql_datasource.SQLDataSource
@@ -92,7 +92,7 @@ func (sb *simpleBundle) GetTxnStore() kstore.KStore {
 	return sb.txnStore
 }
 
-func (sb *simpleBundle) GetTxnCounterManager() txncounter.TxnCounterManager {
+func (sb *simpleBundle) GetTxnCounterManager() txncounter.Manager {
 	return sb.txnCtrMgr
 }
 

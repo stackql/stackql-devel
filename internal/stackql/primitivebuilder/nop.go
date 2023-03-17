@@ -25,7 +25,6 @@ func NewNopBuilder(graph primitivegraph.PrimitiveGraph, txnControlCounters inter
 }
 
 func (nb *NopBuilder) Build() error {
-
 	pr := primitive.NewLocalPrimitive(
 		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 			return util.PrepareResultSet(

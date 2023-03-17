@@ -148,7 +148,7 @@ func (ss *SingleSelectAcquire) Build() error {
 				return internaldto.NewErroneousExecutorOutput(err)
 			}
 			reqEncoding := reqCtx.Encode()
-			olderTcc, isMatch := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(tableName, reqEncoding, ss.drmCfg.GetControlAttributes().GetControlLatestUpdateColumnName(), ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIdColumnName())
+			olderTcc, isMatch := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(tableName, reqEncoding, ss.drmCfg.GetControlAttributes().GetControlLatestUpdateColumnName(), ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIDColumnName())
 			if isMatch {
 				nonControlColumns := ss.insertPreparedStatementCtx.GetNonControlColumns()
 				var nonControlColumnNames []string
@@ -158,7 +158,7 @@ func (ss *SingleSelectAcquire) Build() error {
 				ss.handlerCtx.GetGarbageCollector().Update(tableName, olderTcc.Clone(), currentTcc)
 				ss.insertionContainer.SetTableTxnCounters(tableName, olderTcc)
 				ss.insertPreparedStatementCtx.SetGCCtrlCtrs(olderTcc)
-				r, sqlErr := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Read(tableName, reqEncoding, ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIdColumnName(), nonControlColumnNames)
+				r, sqlErr := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Read(tableName, reqEncoding, ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIDColumnName(), nonControlColumnNames)
 				if sqlErr != nil {
 					internaldto.NewErroneousExecutorOutput(sqlErr)
 				}
@@ -238,7 +238,6 @@ func (ss *SingleSelectAcquire) Build() error {
 
 						for i, item := range iArr {
 							if item != nil {
-
 								if err == nil {
 									for k, v := range paramsUsed {
 										if _, ok := item[k]; !ok {

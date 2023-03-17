@@ -26,7 +26,6 @@ func TestSimpleAggGoogleContainerSubnetworksGroupedAllowedDriverOutputAsc(t *tes
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, strings.NewReader(""), lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 		handlerCtx.SetOutfile(os.Stdout)
 		handlerCtx.SetOutErrFile(os.Stderr)
@@ -50,7 +49,6 @@ func TestSimpleAggGoogleContainerSubnetworksGroupedAllowedDriverOutputAsc(t *tes
 
 	stackqltestutil.SetupSimpleSelectGoogleContainerAggAllowedSubnetworks(t)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSimpleAggCountGroupedGoogleCotainerSubnetworkTableFileAsc})
-
 }
 
 func TestSimpleAggGoogleContainerSubnetworksGroupedAllowedDriverOutputDesc(t *testing.T) {
@@ -64,7 +62,6 @@ func TestSimpleAggGoogleContainerSubnetworksGroupedAllowedDriverOutputDesc(t *te
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, strings.NewReader(""), lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 		handlerCtx.SetOutfile(os.Stdout)
 		handlerCtx.SetOutErrFile(os.Stderr)
@@ -88,5 +85,4 @@ func TestSimpleAggGoogleContainerSubnetworksGroupedAllowedDriverOutputDesc(t *te
 
 	stackqltestutil.SetupSimpleSelectGoogleContainerAggAllowedSubnetworks(t)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSimpleAggCountGroupedGoogleCotainerSubnetworkTableFileDesc})
-
 }

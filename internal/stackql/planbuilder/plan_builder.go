@@ -26,7 +26,7 @@ import (
 )
 
 var (
-	// only string "false" will disable
+	// only string "false" will disable.
 	PlanCacheEnabled string           = "true"
 	_                planGraphBuilder = &standardPlanGraphBuilder{}
 )
@@ -291,7 +291,7 @@ func (pgb *standardPlanGraphBuilder) handleSelect(pbi planbuilderinput.PlanBuild
 	if !ok {
 		return nil, nil, fmt.Errorf("could not cast statement of type '%T' to required Select", pbi.GetStatement())
 	}
-	if !handlerCtx.GetRuntimeContext().TestWithoutApiCalls {
+	if !handlerCtx.GetRuntimeContext().TestWithoutAPICalls {
 		primitiveGenerator := pgb.rootPrimitiveGenerator
 		err := primitiveGenerator.AnalyzeStatement(pbi)
 		if err != nil {
@@ -373,7 +373,7 @@ func (pgb *standardPlanGraphBuilder) handleDelete(pbi planbuilderinput.PlanBuild
 	if !ok {
 		return fmt.Errorf("could not cast node of type '%T' to required Delete", pbi.GetStatement())
 	}
-	if !handlerCtx.GetRuntimeContext().TestWithoutApiCalls {
+	if !handlerCtx.GetRuntimeContext().TestWithoutAPICalls {
 		primitiveGenerator := pgb.rootPrimitiveGenerator
 		err := primitiveGenerator.AnalyzeStatement(pbi)
 		if err != nil {
@@ -582,7 +582,7 @@ func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuild
 	if !ok {
 		return fmt.Errorf("could not cast statement of type '%T' to required Insert", pbi.GetStatement())
 	}
-	if !handlerCtx.GetRuntimeContext().TestWithoutApiCalls {
+	if !handlerCtx.GetRuntimeContext().TestWithoutAPICalls {
 		primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
 		err := primitiveGenerator.AnalyzeInsert(pbi)
 		if err != nil {
@@ -657,7 +657,7 @@ func (pgb *standardPlanGraphBuilder) handleUpdate(pbi planbuilderinput.PlanBuild
 	if !ok {
 		return fmt.Errorf("could not cast statement of type '%T' to required Insert", pbi.GetStatement())
 	}
-	if !handlerCtx.GetRuntimeContext().TestWithoutApiCalls {
+	if !handlerCtx.GetRuntimeContext().TestWithoutAPICalls {
 		primitiveGenerator := pgb.rootPrimitiveGenerator
 		err := primitiveGenerator.AnalyzeUpdate(pbi)
 		if err != nil {
@@ -715,7 +715,7 @@ func (pgb *standardPlanGraphBuilder) handleExec(pbi planbuilderinput.PlanBuilder
 	if !ok {
 		return fmt.Errorf("could not cast node of type '%T' to required Exec", pbi.GetStatement())
 	}
-	if !handlerCtx.GetRuntimeContext().TestWithoutApiCalls {
+	if !handlerCtx.GetRuntimeContext().TestWithoutAPICalls {
 		primitiveGenerator := pgb.rootPrimitiveGenerator
 		err := primitiveGenerator.AnalyzeStatement(pbi)
 		if err != nil {

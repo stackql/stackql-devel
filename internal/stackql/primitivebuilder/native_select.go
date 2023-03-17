@@ -41,9 +41,7 @@ func (ss *NativeSelect) GetTail() primitivegraph.PrimitiveNode {
 }
 
 func (ss *NativeSelect) Build() error {
-
 	selectEx := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
-
 		// select phase
 		logging.GetLogger().Infoln(fmt.Sprintf("running empty select with columns: %v", ss.selectQuery))
 

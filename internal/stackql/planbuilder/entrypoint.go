@@ -38,7 +38,7 @@ func (pb *standardPlanBuilder) BuildPlanFromContext(handlerCtx handler.HandlerCo
 		logging.GetLogger().Infoln("retrieving query plan from cache")
 		pl, ok := qp.(*plan.Plan)
 		if ok {
-			txnId, err := handlerCtx.GetTxnCounterMgr().GetNextTxnId()
+			txnId, err := handlerCtx.GetTxnCounterMgr().GetNextTxnID()
 			if err != nil {
 				return nil, err
 			}

@@ -49,7 +49,6 @@ func TestSimpleSelectGoogleComputeInstance(t *testing.T) {
 }
 
 func TestK8STemplatedE2eSuccess(t *testing.T) {
-
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestK8STemplatedE2eSuccess")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
@@ -78,7 +77,6 @@ func TestK8STemplatedE2eSuccess(t *testing.T) {
 }
 
 func TestInsertAwaitExecSuccess(t *testing.T) {
-
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestInsertAwaitExecSuccess")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
@@ -103,7 +101,6 @@ func TestInsertAwaitExecSuccess(t *testing.T) {
 }
 
 func TestDeleteAwaitSuccess(t *testing.T) {
-
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestDeleteAwaitSuccess")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
@@ -128,7 +125,6 @@ func TestDeleteAwaitSuccess(t *testing.T) {
 }
 
 func TestDeleteAwaitExecSuccess(t *testing.T) {
-
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestDeleteAwaitExecSuccess")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)

@@ -124,19 +124,19 @@ func buildGC(gcExec gcexec.GarbageCollectorExecutor, gcCfg dto.GCCfg, sqlEngine 
 	return garbagecollector.NewGarbageCollector(gcExec, gcCfg, sqlEngine)
 }
 
-func getTxnCounterManager(sqlEngine sqlengine.SQLEngine) (txncounter.TxnCounterManager, error) {
-	genId, err := sqlEngine.GetCurrentGenerationId()
+func getTxnCounterManager(sqlEngine sqlengine.SQLEngine) (txncounter.Manager, error) {
+	genId, err := sqlEngine.GetCurrentGenerationID()
 	if err != nil {
-		genId, err = sqlEngine.GetNextGenerationId()
+		genId, err = sqlEngine.GetNextGenerationID()
 		if err != nil {
 			return nil, err
 		}
 	}
-	sessionId, err := sqlEngine.GetNextSessionId(genId)
+	sessionID, err := sqlEngine.GetNextSessionID(genId)
 	if err != nil {
 		return nil, err
 	}
-	return txncounter.NewTxnCounterManager(genId, sessionId), nil
+	return txncounter.NewTxnCounterManager(genId, sessionID), nil
 }
 
 func PreprocessInline(runtimeCtx dto.RuntimeCtx, s string) (string, error) {

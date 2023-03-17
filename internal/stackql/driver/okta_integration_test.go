@@ -85,7 +85,6 @@ func TestSimpleSelectOktaApplicationAppsDriverOutput(t *testing.T) {
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, strings.NewReader(""), lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 		handlerCtx.SetOutfile(os.Stdout)
 		handlerCtx.SetOutErrFile(os.Stderr)
@@ -108,6 +107,5 @@ func TestSimpleSelectOktaApplicationAppsDriverOutput(t *testing.T) {
 	}
 
 	stackqltestutil.SetupSelectOktaApplicationApps(t)
-	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectOktaApplicationAppsJson})
-
+	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectOktaApplicationAppsJSON})
 }

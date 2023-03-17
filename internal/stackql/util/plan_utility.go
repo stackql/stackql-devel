@@ -501,5 +501,4 @@ func GetHeaderOnlyResultStream(colz []string) sqldata.ISQLResultStream {
 		columns[i] = getPlaceholderColumn(table, colz[i], getDefaultOID())
 	}
 	return sqldata.NewSimpleSQLResultStream(sqldata.NewSQLResult(columns, 0, 0, nil))
-
 }

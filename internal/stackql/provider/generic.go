@@ -67,8 +67,8 @@ func (gp *GenericProvider) inferAuthType(authCtx dto.AuthCtx, authTypeRequested 
 	switch ft {
 	case dto.AuthAzureDefaultStr:
 		return dto.AuthAzureDefaultStr
-	case dto.AuthApiKeyStr:
-		return dto.AuthApiKeyStr
+	case dto.AuthAPIKeyStr:
+		return dto.AuthAPIKeyStr
 	case dto.AuthBasicStr:
 		return dto.AuthBasicStr
 	case dto.AuthBearerStr:
@@ -92,7 +92,7 @@ func (gp *GenericProvider) Auth(authCtx *dto.AuthCtx, authTypeRequested string, 
 	authCtx = authCtx.Clone()
 	at := gp.inferAuthType(*authCtx, authTypeRequested)
 	switch at {
-	case dto.AuthApiKeyStr:
+	case dto.AuthAPIKeyStr:
 		return gp.apiTokenFileAuth(authCtx, false)
 	case dto.AuthBearerStr:
 		return gp.apiTokenFileAuth(authCtx, true)
@@ -366,7 +366,7 @@ func (gp *GenericProvider) CheckCredentialFile(authCtx *dto.AuthCtx) error {
 	case dto.AuthServiceAccountStr:
 		_, err := parseServiceAccountFile(authCtx)
 		return err
-	case dto.AuthApiKeyStr:
+	case dto.AuthAPIKeyStr:
 		_, err := authCtx.GetCredentialsBytes()
 		return err
 	}
@@ -382,7 +382,6 @@ func (gp *GenericProvider) escapeUrlParameter(k string, v string, method openapi
 
 func (gp *GenericProvider) SetCurrentService(serviceKey string) {
 	gp.currentService = serviceKey
-
 }
 
 func (gp *GenericProvider) GetCurrentService() string {

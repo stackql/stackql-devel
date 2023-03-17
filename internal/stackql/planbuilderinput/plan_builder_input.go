@@ -183,7 +183,7 @@ func (pbi *StandardPlanBuilderInput) GetRawQuery() string {
 	return pbi.handlerCtx.GetRawQuery()
 }
 
-// router.ParameterRouter
+// router.ParameterRouter.
 func (pbi *StandardPlanBuilderInput) GetParameterRouter() (router.ParameterRouter, bool) {
 	return pbi.paramRouter, true
 }

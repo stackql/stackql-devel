@@ -56,9 +56,7 @@ func (ss *SingleSelect) GetTail() primitivegraph.PrimitiveNode {
 }
 
 func (ss *SingleSelect) Build() error {
-
 	selectEx := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
-
 		// select phase
 		logging.GetLogger().Infoln(fmt.Sprintf("running select with control parameters: %v", ss.selectPreparedStatementCtx.GetGCCtrlCtrs()))
 

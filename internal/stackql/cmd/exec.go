@@ -30,7 +30,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/writer"
 )
 
-// execCmd represents the exec command
+// execCmd represents the exec command.
 var execCmd = &cobra.Command{
 	Use:   "exec",
 	Short: "Run one or more stackql commands or queries",

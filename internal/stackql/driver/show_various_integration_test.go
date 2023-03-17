@@ -18,9 +18,7 @@ import (
 )
 
 func TestSimpleShowResourcesFiltered(t *testing.T) {
-
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSimpleShowResourcesFiltered")
 		if err != nil {
 			t.Fatalf("TestSimpleShowResourcesFiltered failed: %v", err)
@@ -57,13 +55,10 @@ func TestSimpleShowResourcesFiltered(t *testing.T) {
 	}
 
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedShowResourcesFilteredFile})
-
 }
 
 func TestSimpleShowBQDatasets(t *testing.T) {
-
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSimpleShowBQDatasets")
 		if err != nil {
 			t.Fatalf("TestSimpleShowResourcesFiltered failed: %v", err)
@@ -100,13 +95,10 @@ func TestSimpleShowBQDatasets(t *testing.T) {
 	}
 
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedShowMethodsGoogleBQDatasetsFile})
-
 }
 
 func TestSimpleShowGoogleStorageBuckets(t *testing.T) {
-
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSimpleShowGoogleStorageBuckets")
 		if err != nil {
 			t.Fatalf("TestSimpleShowResourcesFiltered failed: %v", err)
@@ -143,5 +135,4 @@ func TestSimpleShowGoogleStorageBuckets(t *testing.T) {
 	}
 
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedShowMethodsGoogleStorageBucketsFile})
-
 }

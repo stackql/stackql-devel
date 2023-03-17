@@ -1,0 +1,2868 @@
+level=warning msg="[linters_context] rowserrcheck is disabled because of generics. You can track the evolution of the generics support by following the https://github.com/golangci/golangci-lint/issues/2649."
+level=warning msg="[linters_context] wastedassign is disabled because of generics. You can track the evolution of the generics support by following the https://github.com/golangci/golangci-lint/issues/2649."
+internal/stackql/sql_system/postgres.go:192: 192-247 lines are duplicate of `internal/stackql/sql_system/sqlite.go:237-292` (dupl)
+func (sl *postgresSystem) obtainRelationalColumnsFromExternalSQLtable(hierarchyIDs internaldto.HeirarchyIdentifiers) ([]relationaldto.RelationalColumn, error) {
+	q := `
+	SELECT
+		column_name 
+	   ,column_type
+	   ,"oid" 
+	   ,column_width 
+	   ,column_precision 
+	FROM
+	  "__iql__.external.columns"
+	WHERE
+	  connection_name = $1
+	  AND
+	  catalog_name = $2
+	  AND
+	  schema_name = $3
+	  AND 
+	  table_name = $4
+	ORDER BY ordinal_position ASC
+	`
+	providerName := hierarchyIDs.GetProviderStr()
+	connectionName := sl.getSQLExternalSchema(providerName)
+	catalogName := ""
+	schemaName := hierarchyIDs.GetServiceStr()
+	tableName := hierarchyIDs.GetResourceStr()
+	rows, err := sl.sqlEngine.Query(
+		q,
+		connectionName,
+		catalogName,
+		schemaName,
+		tableName,
+	)
+	if err != nil {
+		return nil, err
+	}
+	hasRow := false
+	var rv []relationaldto.RelationalColumn
+	for {
+		if !rows.Next() {
+			break
+		}
+		hasRow = true
+		var columnName, columnType string
+		var oID, colWidth, colPrecision int
+		err := rows.Scan(&columnName, &columnType, &oID, &colWidth, &colPrecision)
+		if err != nil {
+			return nil, err
+		}
+		relationalColumn := relationaldto.NewRelationalColumn(columnName, columnType).WithWidth(colWidth).WithOID(oid.Oid(oID))
+		rv = append(rv, relationalColumn)
+	}
+	if !hasRow {
+		return nil, fmt.Errorf("cannot generate relational table from external table = '%s': not present in external metadata", tableName)
+	}
+	return rv, nil
+}
+internal/stackql/sql_system/sqlite.go:237: 237-292 lines are duplicate of `internal/stackql/sql_system/postgres.go:192-247` (dupl)
+func (sl *sqLiteSystem) obtainRelationalColumnsFromExternalSQLtable(hierarchyIDs internaldto.HeirarchyIdentifiers) ([]relationaldto.RelationalColumn, error) {
+	q := `
+	SELECT
+		column_name 
+	   ,column_type
+	   ,"oid" 
+	   ,column_width 
+	   ,column_precision 
+	FROM
+	  "__iql__.external.columns"
+	WHERE
+	  connection_name = ?
+	  AND
+	  catalog_name = ?
+	  AND
+	  schema_name = ?
+	  AND 
+	  table_name = ?
+	ORDER BY ordinal_position ASC
+	`
+	providerName := hierarchyIDs.GetProviderStr()
+	connectionName := sl.getSQLExternalSchema(providerName)
+	catalogName := ""
+	schemaName := hierarchyIDs.GetServiceStr()
+	tableName := hierarchyIDs.GetResourceStr()
+	rows, err := sl.sqlEngine.Query(
+		q,
+		connectionName,
+		catalogName,
+		schemaName,
+		tableName,
+	)
+	if err != nil {
+		return nil, err
+	}
+	hasRow := false
+	var rv []relationaldto.RelationalColumn
+	for {
+		if !rows.Next() {
+			break
+		}
+		hasRow = true
+		var columnName, columnType string
+		var oID, colWidth, colPrecision int
+		err := rows.Scan(&columnName, &columnType, &oID, &colWidth, &colPrecision)
+		if err != nil {
+			return nil, err
+		}
+		relationalColumn := relationaldto.NewRelationalColumn(columnName, columnType).WithWidth(colWidth).WithOID(oid.Oid(oID))
+		rv = append(rv, relationalColumn)
+	}
+	if !hasRow {
+		return nil, fmt.Errorf("cannot generate relational table from external table = '%s': not present in external metadata", tableName)
+	}
+	return rv, nil
+}
+internal/stackql/sql_system/postgres.go:996: 996-1026 lines are duplicate of `internal/stackql/sql_system/sqlite.go:82-100` (dupl)
+func (se *postgresSystem) getCurrentTable(tableHeirarchyIDs internaldto.HeirarchyIdentifiers) (internaldto.DBTable, error) {
+	var tableName string
+	var discoID int
+	tableNameStump, err := se.getTableNameStump(tableHeirarchyIDs)
+	if err != nil {
+		return internaldto.NewDBTable("", "", "", 0, tableHeirarchyIDs), err
+	}
+	if _, isView := tableHeirarchyIDs.GetView(); isView {
+		return internaldto.NewDBTable(tableNameStump, tableNameStump, tableHeirarchyIDs.GetTableName(), discoID, tableHeirarchyIDs), nil
+	}
+	tableNamePattern := fmt.Sprintf("%s.generation_%%", tableNameStump)
+	tableNameLHSRemove := fmt.Sprintf("%s.generation_", tableNameStump)
+	res := se.sqlEngine.QueryRow(`
+	select 
+		table_name, 
+		CAST(REPLACE(table_name, $1, '') AS INTEGER) 
+	from 
+		information_schema.tables 
+	where 
+		table_type = 'BASE TABLE'
+	  and 
+		table_name like $2 
+	ORDER BY table_name DESC 
+	limit 1
+	`, tableNameLHSRemove, tableNamePattern)
+	err = res.Scan(&tableName, &discoID)
+	if err != nil {
+		logging.GetLogger().Errorln(fmt.Sprintf("err = %v for tableNamePattern = '%s' and tableNameLHSRemove = '%s'", err, tableNamePattern, tableNameLHSRemove))
+	}
+	return internaldto.NewDBTable(tableName, tableNameStump, tableHeirarchyIDs.GetTableName(), discoID, tableHeirarchyIDs), err
+}
+internal/stackql/sql_system/sqlite.go:82: 82-100 lines are duplicate of `internal/stackql/sql_system/postgres.go:996-1026` (dupl)
+func (se *sqLiteSystem) getCurrentTable(tableHeirarchyIDs internaldto.HeirarchyIdentifiers) (internaldto.DBTable, error) {
+	var tableName string
+	var discoID int
+	tableNameStump, err := se.getTableNameStump(tableHeirarchyIDs)
+	if err != nil {
+		return internaldto.NewDBTable("", "", "", 0, tableHeirarchyIDs), err
+	}
+	if _, isView := tableHeirarchyIDs.GetView(); isView {
+		return internaldto.NewDBTable(tableNameStump, tableNameStump, tableHeirarchyIDs.GetTableName(), discoID, tableHeirarchyIDs), nil
+	}
+	tableNamePattern := fmt.Sprintf("%s.generation_%%", tableNameStump)
+	tableNameLHSRemove := fmt.Sprintf("%s.generation_", tableNameStump)
+	res := se.sqlEngine.QueryRow(`select name, CAST(REPLACE(name, ?, '') AS INTEGER) from sqlite_schema where type = 'table' and name like ? ORDER BY name DESC limit 1`, tableNameLHSRemove, tableNamePattern)
+	err = res.Scan(&tableName, &discoID)
+	if err != nil {
+		logging.GetLogger().Errorln(fmt.Sprintf("err = %v for tableNamePattern = '%s' and tableNameLHSRemove = '%s'", err, tableNamePattern, tableNameLHSRemove))
+	}
+	return internaldto.NewDBTable(tableName, tableNameStump, tableHeirarchyIDs.GetTableName(), discoID, tableHeirarchyIDs), nil
+}
+internal/stackql/httpbuild/request.go:43: 43-74 lines are duplicate of `internal/stackql/httpbuild/request.go:174-205` (dupl)
+	for _, prms := range paramList {
+		params := prms
+		pm := NewHTTPArmouryParameters()
+		if err != nil {
+			return nil, err
+		}
+		if execContext != nil && execContext.GetExecPayload() != nil {
+			pm.SetBodyBytes(execContext.GetExecPayload().GetPayload())
+			for j, v := range execContext.GetExecPayload().GetHeader() {
+				pm.SetHeaderKV(j, v)
+			}
+			params.SetRequestBody(execContext.GetExecPayload().GetPayloadMap())
+		} else if params.GetRequestBody() != nil && len(params.GetRequestBody()) != 0 {
+			b, err := json.Marshal(params.GetRequestBody())
+			if err != nil {
+				return nil, err
+			}
+			pm.SetBodyBytes(b)
+			req, reqExists := m.GetRequest()
+			if reqExists {
+				pm.SetHeaderKV("Content-Type", []string{req.GetBodyMediaType()})
+			}
+		}
+		resp, respExists := m.GetResponse()
+		if respExists {
+			if resp.GetBodyMediaType() != "" && prov.GetProviderString() != "aws" {
+				pm.SetHeaderKV("Accept", []string{resp.GetBodyMediaType()})
+			}
+		}
+		pm.SetParameters(params)
+		httpArmoury.AddRequestParams(pm)
+	}
+internal/stackql/httpbuild/request.go:174: 174-205 lines are duplicate of `internal/stackql/httpbuild/request.go:43-74` (dupl)
+	for _, prms := range paramList {
+		params := prms
+		pm := NewHTTPArmouryParameters()
+		if err != nil {
+			return nil, err
+		}
+		if execContext != nil && execContext.GetExecPayload() != nil {
+			pm.SetBodyBytes(execContext.GetExecPayload().GetPayload())
+			for j, v := range execContext.GetExecPayload().GetHeader() {
+				pm.SetHeaderKV(j, v)
+			}
+			params.SetRequestBody(execContext.GetExecPayload().GetPayloadMap())
+		} else if params.GetRequestBody() != nil && len(params.GetRequestBody()) != 0 {
+			b, err := json.Marshal(params.GetRequestBody())
+			if err != nil {
+				return nil, err
+			}
+			pm.SetBodyBytes(b)
+			req, reqExists := m.GetRequest()
+			if reqExists {
+				pm.SetHeaderKV("Content-Type", []string{req.GetBodyMediaType()})
+			}
+		}
+		resp, respExists := m.GetResponse()
+		if respExists {
+			if resp.GetBodyMediaType() != "" && prov.GetProviderString() != "aws" {
+				pm.SetHeaderKV("Accept", []string{resp.GetBodyMediaType()})
+			}
+		}
+		pm.SetParameters(params)
+		httpArmoury.AddRequestParams(pm)
+	}
+internal/test/stackqltestutil/setup.go:571: 571-604 lines are duplicate of `internal/test/stackqltestutil/setup.go:606-639` (dupl)
+func SetupK8sTheHardWayE2eSuccess(t *testing.T) {
+	computeControllerInstanceCount := 3
+	computeWorkerInstanceCount := 3
+
+	expectations := testhttpapi.NewExpectationStore(30)
+	for k, v := range getNetworkInsertSuccessExpectations() {
+		expectations.Put(k, v)
+	}
+	for k, v := range getSubnetworkInsertSuccessExpectations() {
+		expectations.Put(k, v)
+	}
+	for k, v := range getIPInsertSuccessExpectations() {
+		expectations.Put(k, v)
+	}
+	for k, v := range getInternalFirewallInsertSuccessExpectations() {
+		expectations.Put(k, v)
+	}
+	for k, v := range getExternalFirewallInsertSuccessExpectations() {
+		expectations.Put(k, v)
+	}
+	for i := 0; i < computeControllerInstanceCount; i++ {
+		for k, v := range getComputeInstanceInsertSuccessExpectations(fmt.Sprintf("controller-%d", i), "controller", fmt.Sprintf("10.240.0.%d", 10+i)) {
+			expectations.Put(k, v)
+		}
+	}
+	for i := 0; i < computeWorkerInstanceCount; i++ {
+		for k, v := range getComputeInstanceInsertSuccessExpectations(fmt.Sprintf("worker-%d", i), "worker", fmt.Sprintf("10.240.0.%d", 20+i)) {
+			expectations.Put(k, v)
+		}
+	}
+	testhttpapi.StartServer(t, expectations)
+	provider.DummyAuth = true
+	asyncmonitor.MonitorPollIntervalSeconds = 2
+}
+internal/test/stackqltestutil/setup.go:606: 606-639 lines are duplicate of `internal/test/stackqltestutil/setup.go:571-604` (dupl)
+func SetupInsertDependentComputeDiskSuccess(t *testing.T) {
+	computeControllerInstanceCount := 3
+	computeWorkerInstanceCount := 3
+
+	expectations := testhttpapi.NewExpectationStore(30)
+	for k, v := range getNetworkInsertSuccessExpectations() {
+		expectations.Put(k, v)
+	}
+	for k, v := range getSubnetworkInsertSuccessExpectations() {
+		expectations.Put(k, v)
+	}
+	for k, v := range getIPInsertSuccessExpectations() {
+		expectations.Put(k, v)
+	}
+	for k, v := range getInternalFirewallInsertSuccessExpectations() {
+		expectations.Put(k, v)
+	}
+	for k, v := range getExternalFirewallInsertSuccessExpectations() {
+		expectations.Put(k, v)
+	}
+	for i := 0; i < computeControllerInstanceCount; i++ {
+		for k, v := range getComputeInstanceInsertSuccessExpectations(fmt.Sprintf("controller-%d", i), "controller", fmt.Sprintf("10.240.0.%d", 10+i)) {
+			expectations.Put(k, v)
+		}
+	}
+	for i := 0; i < computeWorkerInstanceCount; i++ {
+		for k, v := range getComputeInstanceInsertSuccessExpectations(fmt.Sprintf("worker-%d", i), "worker", fmt.Sprintf("10.240.0.%d", 20+i)) {
+			expectations.Put(k, v)
+		}
+	}
+	testhttpapi.StartServer(t, expectations)
+	provider.DummyAuth = true
+	asyncmonitor.MonitorPollIntervalSeconds = 2
+}
+internal/stackql/primitivebuilder/dependent_multiple_acquire_and_select.go:1: 1-52 lines are duplicate of `internal/stackql/primitivebuilder/dependent_recursive.go:1-51` (dupl)
+package primitivebuilder
+
+import (
+	"github.com/stackql/stackql/internal/stackql/primitivegraph"
+)
+
+type DependentMultipleAcquireAndSelect struct {
+	graph           primitivegraph.PrimitiveGraph
+	acquireBuilders []Builder
+	selectBuilder   Builder
+}
+
+func NewDependentMultipleAcquireAndSelect(graph primitivegraph.PrimitiveGraph, acquireBuilders []Builder, selectBuilder Builder) Builder {
+	return &DependentMultipleAcquireAndSelect{
+		graph:           graph,
+		acquireBuilders: acquireBuilders,
+		selectBuilder:   selectBuilder,
+	}
+}
+
+// Cache queries may not have acquire builders.
+func (ss *DependentMultipleAcquireAndSelect) GetRoot() primitivegraph.PrimitiveNode {
+	if len(ss.acquireBuilders) > 0 {
+		return ss.acquireBuilders[0].GetRoot()
+	}
+	return ss.selectBuilder.GetRoot()
+}
+
+func (ss *DependentMultipleAcquireAndSelect) GetTail() primitivegraph.PrimitiveNode {
+	return ss.selectBuilder.GetTail()
+}
+
+func (ss *DependentMultipleAcquireAndSelect) Build() error {
+	err := ss.selectBuilder.Build()
+	if err != nil {
+		return err
+	}
+	for i, acbBld := range ss.acquireBuilders {
+		err = acbBld.Build()
+		if err != nil {
+			return err
+		}
+		graph := ss.graph
+		if i > 0 {
+			graph.NewDependency(ss.acquireBuilders[i-1].GetTail(), acbBld.GetRoot(), 1.0)
+		}
+		if i == len(ss.acquireBuilders)-1 {
+			graph.NewDependency(acbBld.GetTail(), ss.selectBuilder.GetRoot(), 1.0)
+		}
+	}
+	return nil
+}
+internal/stackql/primitivebuilder/dependent_recursive.go:1: 1-51 lines are duplicate of `internal/stackql/primitivebuilder/dependent_multiple_acquire_and_select.go:1-52` (dupl)
+package primitivebuilder
+
+import (
+	"github.com/stackql/stackql/internal/stackql/primitivegraph"
+)
+
+type DependencySubDAGBuilder struct {
+	graph              primitivegraph.PrimitiveGraph
+	dependencyBuilders []Builder
+	dependentBuilder   Builder
+}
+
+func NewDependencySubDAGBuilder(graph primitivegraph.PrimitiveGraph, dependencyBuilders []Builder, dependentBuilder Builder) Builder {
+	return &DependencySubDAGBuilder{
+		graph:              graph,
+		dependencyBuilders: dependencyBuilders,
+		dependentBuilder:   dependentBuilder,
+	}
+}
+
+func (ss *DependencySubDAGBuilder) GetRoot() primitivegraph.PrimitiveNode {
+	if len(ss.dependencyBuilders) > 0 {
+		return ss.dependencyBuilders[0].GetRoot()
+	}
+	return ss.dependentBuilder.GetRoot()
+}
+
+func (ss *DependencySubDAGBuilder) GetTail() primitivegraph.PrimitiveNode {
+	return ss.dependentBuilder.GetTail()
+}
+
+func (ss *DependencySubDAGBuilder) Build() error {
+	err := ss.dependentBuilder.Build()
+	if err != nil {
+		return err
+	}
+	for i, acbBld := range ss.dependencyBuilders {
+		err = acbBld.Build()
+		if err != nil {
+			return err
+		}
+		graph := ss.graph
+		if i > 0 {
+			graph.NewDependency(ss.dependencyBuilders[i-1].GetTail(), acbBld.GetRoot(), 1.0)
+		}
+		if i == len(ss.dependencyBuilders)-1 {
+			graph.NewDependency(acbBld.GetTail(), ss.dependentBuilder.GetRoot(), 1.0)
+		}
+	}
+	return nil
+}
+internal/stackql/astvisit/assign_leftover_references.go:83: 83-125 lines are duplicate of `internal/stackql/astvisit/param_extract.go:53-95` (dupl)
+	case *sqlparser.Select:
+		var options string
+		addIf := func(b bool, s string) {
+			if b {
+				options += s
+			}
+		}
+		addIf(node.Distinct, sqlparser.DistinctStr)
+		if node.Cache != nil {
+			if *node.Cache {
+				options += sqlparser.SQLCacheStr
+			} else {
+				options += sqlparser.SQLNoCacheStr
+			}
+		}
+		addIf(node.StraightJoinHint, sqlparser.StraightJoinHint)
+		addIf(node.SQLCalcFoundRows, sqlparser.SQLCalcFoundRowsStr)
+
+		if node.Comments != nil {
+			node.Comments.Accept(v)
+		}
+		if node.SelectExprs != nil {
+			node.SelectExprs.Accept(v)
+		}
+		if node.From != nil {
+			node.From.Accept(v)
+		}
+		if node.Where != nil {
+			node.Where.Accept(v)
+		}
+		if node.GroupBy != nil {
+			node.GroupBy.Accept(v)
+		}
+		if node.Having != nil {
+			node.Having.Accept(v)
+		}
+		if node.OrderBy != nil {
+			node.OrderBy.Accept(v)
+		}
+		if node.Limit != nil {
+			node.Limit.Accept(v)
+		}
+		return nil
+internal/stackql/astvisit/param_extract.go:53: 53-95 lines are duplicate of `internal/stackql/astvisit/placeholder_param_extract.go:55-97` (dupl)
+	case *sqlparser.Select:
+		var options string
+		addIf := func(b bool, s string) {
+			if b {
+				options += s
+			}
+		}
+		addIf(node.Distinct, sqlparser.DistinctStr)
+		if node.Cache != nil {
+			if *node.Cache {
+				options += sqlparser.SQLCacheStr
+			} else {
+				options += sqlparser.SQLNoCacheStr
+			}
+		}
+		addIf(node.StraightJoinHint, sqlparser.StraightJoinHint)
+		addIf(node.SQLCalcFoundRows, sqlparser.SQLCalcFoundRowsStr)
+
+		if node.Comments != nil {
+			node.Comments.Accept(v)
+		}
+		if node.SelectExprs != nil {
+			node.SelectExprs.Accept(v)
+		}
+		if node.From != nil {
+			node.From.Accept(v)
+		}
+		if node.Where != nil {
+			node.Where.Accept(v)
+		}
+		if node.GroupBy != nil {
+			node.GroupBy.Accept(v)
+		}
+		if node.Having != nil {
+			node.Having.Accept(v)
+		}
+		if node.OrderBy != nil {
+			node.OrderBy.Accept(v)
+		}
+		if node.Limit != nil {
+			node.Limit.Accept(v)
+		}
+		return nil
+internal/stackql/astvisit/placeholder_param_extract.go:55: 55-97 lines are duplicate of `internal/stackql/astvisit/table_alias_pairing.go:88-130` (dupl)
+	case *sqlparser.Select:
+		var options string
+		addIf := func(b bool, s string) {
+			if b {
+				options += s
+			}
+		}
+		addIf(node.Distinct, sqlparser.DistinctStr)
+		if node.Cache != nil {
+			if *node.Cache {
+				options += sqlparser.SQLCacheStr
+			} else {
+				options += sqlparser.SQLNoCacheStr
+			}
+		}
+		addIf(node.StraightJoinHint, sqlparser.StraightJoinHint)
+		addIf(node.SQLCalcFoundRows, sqlparser.SQLCalcFoundRowsStr)
+
+		if node.Comments != nil {
+			node.Comments.Accept(v)
+		}
+		if node.SelectExprs != nil {
+			node.SelectExprs.Accept(v)
+		}
+		if node.From != nil {
+			node.From.Accept(v)
+		}
+		if node.Where != nil {
+			node.Where.Accept(v)
+		}
+		if node.GroupBy != nil {
+			node.GroupBy.Accept(v)
+		}
+		if node.Having != nil {
+			node.Having.Accept(v)
+		}
+		if node.OrderBy != nil {
+			node.OrderBy.Accept(v)
+		}
+		if node.Limit != nil {
+			node.Limit.Accept(v)
+		}
+		return nil
+internal/stackql/astvisit/table_alias_pairing.go:88: 88-130 lines are duplicate of `internal/stackql/astvisit/table_extract.go:54-96` (dupl)
+	case *sqlparser.Select:
+		var options string
+		addIf := func(b bool, s string) {
+			if b {
+				options += s
+			}
+		}
+		addIf(node.Distinct, sqlparser.DistinctStr)
+		if node.Cache != nil {
+			if *node.Cache {
+				options += sqlparser.SQLCacheStr
+			} else {
+				options += sqlparser.SQLNoCacheStr
+			}
+		}
+		addIf(node.StraightJoinHint, sqlparser.StraightJoinHint)
+		addIf(node.SQLCalcFoundRows, sqlparser.SQLCalcFoundRowsStr)
+
+		if node.Comments != nil {
+			node.Comments.Accept(v)
+		}
+		if node.SelectExprs != nil {
+			node.SelectExprs.Accept(v)
+		}
+		if node.From != nil {
+			node.From.Accept(v)
+		}
+		if node.Where != nil {
+			node.Where.Accept(v)
+		}
+		if node.GroupBy != nil {
+			node.GroupBy.Accept(v)
+		}
+		if node.Having != nil {
+			node.Having.Accept(v)
+		}
+		if node.OrderBy != nil {
+			node.OrderBy.Accept(v)
+		}
+		if node.Limit != nil {
+			node.Limit.Accept(v)
+		}
+		return nil
+internal/stackql/astvisit/table_extract.go:54: 54-96 lines are duplicate of `internal/stackql/astvisit/assign_leftover_references.go:83-125` (dupl)
+	case *sqlparser.Select:
+		var options string
+		addIf := func(b bool, s string) {
+			if b {
+				options += s
+			}
+		}
+		addIf(node.Distinct, sqlparser.DistinctStr)
+		if node.Cache != nil {
+			if *node.Cache {
+				options += sqlparser.SQLCacheStr
+			} else {
+				options += sqlparser.SQLNoCacheStr
+			}
+		}
+		addIf(node.StraightJoinHint, sqlparser.StraightJoinHint)
+		addIf(node.SQLCalcFoundRows, sqlparser.SQLCalcFoundRowsStr)
+
+		if node.Comments != nil {
+			node.Comments.Accept(v)
+		}
+		if node.SelectExprs != nil {
+			node.SelectExprs.Accept(v)
+		}
+		if node.From != nil {
+			node.From.Accept(v)
+		}
+		if node.Where != nil {
+			node.Where.Accept(v)
+		}
+		if node.GroupBy != nil {
+			node.GroupBy.Accept(v)
+		}
+		if node.Having != nil {
+			node.Having.Accept(v)
+		}
+		if node.OrderBy != nil {
+			node.OrderBy.Accept(v)
+		}
+		if node.Limit != nil {
+			node.Limit.Accept(v)
+		}
+		return nil
+internal/stackql/astvisit/fragment_rewriting.go:546: 546-584 lines are duplicate of `internal/stackql/astvisit/from_rewrite.go:455-493` (dupl)
+	case *sqlparser.Show:
+		nodeType := strings.ToLower(node.Type)
+		if (nodeType == "tables" || nodeType == "columns" || nodeType == "fields" || nodeType == "index" || nodeType == "keys" || nodeType == "indexes") && node.ShowTablesOpt != nil {
+			opt := node.ShowTablesOpt
+			if node.Extended != "" {
+				buf.AstPrintf(node, "show %s%s", node.Extended, nodeType)
+			} else {
+				buf.AstPrintf(node, "show %s%s", opt.Full, nodeType)
+			}
+			if (nodeType == "columns" || nodeType == "fields") && node.HasOnTable() {
+				buf.AstPrintf(node, " from %v", node.OnTable)
+			}
+			if (nodeType == "index" || nodeType == "keys" || nodeType == "indexes") && node.HasOnTable() {
+				buf.AstPrintf(node, " from %v", node.OnTable)
+			}
+			if opt.DbName != "" {
+				buf.AstPrintf(node, " from %s", opt.DbName)
+			}
+			buf.AstPrintf(node, "%v", opt.Filter)
+			return nil
+		}
+		if node.Scope == "" {
+			buf.AstPrintf(node, "show %s", nodeType)
+		} else {
+			buf.AstPrintf(node, "show %s %s", node.Scope, nodeType)
+		}
+		if node.HasOnTable() {
+			buf.AstPrintf(node, " on %v", node.OnTable)
+		}
+		if nodeType == "collation" && node.ShowCollationFilterOpt != nil {
+			buf.AstPrintf(node, " where %v", node.ShowCollationFilterOpt)
+		}
+		if nodeType == "charset" && node.ShowTablesOpt != nil {
+			buf.AstPrintf(node, "%v", node.ShowTablesOpt.Filter)
+		}
+		if node.HasTable() {
+			buf.AstPrintf(node, " %v", node.Table)
+		}
+		v.rewrittenQuery = buf.String()
+internal/stackql/astvisit/from_rewrite.go:455: 455-493 lines are duplicate of `internal/stackql/astvisit/fragment_rewriting.go:546-584` (dupl)
+	case *sqlparser.Show:
+		nodeType := strings.ToLower(node.Type)
+		if (nodeType == "tables" || nodeType == "columns" || nodeType == "fields" || nodeType == "index" || nodeType == "keys" || nodeType == "indexes") && node.ShowTablesOpt != nil {
+			opt := node.ShowTablesOpt
+			if node.Extended != "" {
+				buf.AstPrintf(node, "show %s%s", node.Extended, nodeType)
+			} else {
+				buf.AstPrintf(node, "show %s%s", opt.Full, nodeType)
+			}
+			if (nodeType == "columns" || nodeType == "fields") && node.HasOnTable() {
+				buf.AstPrintf(node, " from %v", node.OnTable)
+			}
+			if (nodeType == "index" || nodeType == "keys" || nodeType == "indexes") && node.HasOnTable() {
+				buf.AstPrintf(node, " from %v", node.OnTable)
+			}
+			if opt.DbName != "" {
+				buf.AstPrintf(node, " from %s", opt.DbName)
+			}
+			buf.AstPrintf(node, "%v", opt.Filter)
+			return nil
+		}
+		if node.Scope == "" {
+			buf.AstPrintf(node, "show %s", nodeType)
+		} else {
+			buf.AstPrintf(node, "show %s %s", node.Scope, nodeType)
+		}
+		if node.HasOnTable() {
+			buf.AstPrintf(node, " on %v", node.OnTable)
+		}
+		if nodeType == "collation" && node.ShowCollationFilterOpt != nil {
+			buf.AstPrintf(node, " where %v", node.ShowCollationFilterOpt)
+		}
+		if nodeType == "charset" && node.ShowTablesOpt != nil {
+			buf.AstPrintf(node, "%v", node.ShowTablesOpt.Filter)
+		}
+		if node.HasTable() {
+			buf.AstPrintf(node, " %v", node.Table)
+		}
+		v.rewrittenQuery = buf.String()
+internal/stackql/astvisit/assign_leftover_references.go:210: 210-266 lines are duplicate of `internal/stackql/astvisit/query_rewriting.go:317-373` (dupl)
+	case *sqlparser.ColumnType:
+		ct := node
+
+		if ct.Length != nil && ct.Scale != nil {
+
+		} else if ct.Length != nil {
+		}
+
+		if ct.EnumValues != nil {
+		}
+
+		opts := make([]string, 0, 16)
+		if ct.Unsigned {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.UNSIGNED])
+		}
+		if ct.Zerofill {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.ZEROFILL])
+		}
+		if ct.Charset != "" {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.CHARACTER], sqlparser.KeywordStrings[sqlparser.SET], ct.Charset)
+		}
+		if ct.Collate != "" {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.COLLATE], ct.Collate)
+		}
+		if ct.NotNull {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.NOT], sqlparser.KeywordStrings[sqlparser.NULL])
+		}
+		if ct.Default != nil {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.DEFAULT], sqlparser.String(ct.Default))
+		}
+		if ct.OnUpdate != nil {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.ON], sqlparser.KeywordStrings[sqlparser.UPDATE], sqlparser.String(ct.OnUpdate))
+		}
+		if ct.Autoincrement {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.AUTO_INCREMENT])
+		}
+		if ct.Comment != nil {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.COMMENT_KEYWORD], sqlparser.String(ct.Comment))
+		}
+		if ct.KeyOpt == sqlparser.ColKeyPrimary {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.PRIMARY], sqlparser.KeywordStrings[sqlparser.KEY])
+		}
+		if ct.KeyOpt == sqlparser.ColKeyUnique {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.UNIQUE])
+		}
+		if ct.KeyOpt == sqlparser.ColKeyUniqueKey {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.UNIQUE], sqlparser.KeywordStrings[sqlparser.KEY])
+		}
+		if ct.KeyOpt == sqlparser.ColKeySpatialKey {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.SPATIAL], sqlparser.KeywordStrings[sqlparser.KEY])
+		}
+		if ct.KeyOpt == sqlparser.ColKey {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.KEY])
+		}
+
+		if len(opts) != 0 {
+		}
+internal/stackql/astvisit/query_rewriting.go:317: 317-373 lines are duplicate of `internal/stackql/astvisit/table_alias_pairing.go:215-271` (dupl)
+	case *sqlparser.ColumnType:
+		ct := node
+
+		if ct.Length != nil && ct.Scale != nil {
+
+		} else if ct.Length != nil {
+		}
+
+		if ct.EnumValues != nil {
+		}
+
+		opts := make([]string, 0, 16)
+		if ct.Unsigned {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.UNSIGNED])
+		}
+		if ct.Zerofill {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.ZEROFILL])
+		}
+		if ct.Charset != "" {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.CHARACTER], sqlparser.KeywordStrings[sqlparser.SET], ct.Charset)
+		}
+		if ct.Collate != "" {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.COLLATE], ct.Collate)
+		}
+		if ct.NotNull {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.NOT], sqlparser.KeywordStrings[sqlparser.NULL])
+		}
+		if ct.Default != nil {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.DEFAULT], sqlparser.String(ct.Default))
+		}
+		if ct.OnUpdate != nil {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.ON], sqlparser.KeywordStrings[sqlparser.UPDATE], sqlparser.String(ct.OnUpdate))
+		}
+		if ct.Autoincrement {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.AUTO_INCREMENT])
+		}
+		if ct.Comment != nil {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.COMMENT_KEYWORD], sqlparser.String(ct.Comment))
+		}
+		if ct.KeyOpt == sqlparser.ColKeyPrimary {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.PRIMARY], sqlparser.KeywordStrings[sqlparser.KEY])
+		}
+		if ct.KeyOpt == sqlparser.ColKeyUnique {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.UNIQUE])
+		}
+		if ct.KeyOpt == sqlparser.ColKeyUniqueKey {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.UNIQUE], sqlparser.KeywordStrings[sqlparser.KEY])
+		}
+		if ct.KeyOpt == sqlparser.ColKeySpatialKey {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.SPATIAL], sqlparser.KeywordStrings[sqlparser.KEY])
+		}
+		if ct.KeyOpt == sqlparser.ColKey {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.KEY])
+		}
+
+		if len(opts) != 0 {
+		}
+internal/stackql/astvisit/table_alias_pairing.go:215: 215-271 lines are duplicate of `internal/stackql/astvisit/table_extract.go:181-237` (dupl)
+	case *sqlparser.ColumnType:
+		ct := node
+
+		if ct.Length != nil && ct.Scale != nil {
+
+		} else if ct.Length != nil {
+		}
+
+		if ct.EnumValues != nil {
+		}
+
+		opts := make([]string, 0, 16)
+		if ct.Unsigned {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.UNSIGNED])
+		}
+		if ct.Zerofill {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.ZEROFILL])
+		}
+		if ct.Charset != "" {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.CHARACTER], sqlparser.KeywordStrings[sqlparser.SET], ct.Charset)
+		}
+		if ct.Collate != "" {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.COLLATE], ct.Collate)
+		}
+		if ct.NotNull {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.NOT], sqlparser.KeywordStrings[sqlparser.NULL])
+		}
+		if ct.Default != nil {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.DEFAULT], sqlparser.String(ct.Default))
+		}
+		if ct.OnUpdate != nil {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.ON], sqlparser.KeywordStrings[sqlparser.UPDATE], sqlparser.String(ct.OnUpdate))
+		}
+		if ct.Autoincrement {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.AUTO_INCREMENT])
+		}
+		if ct.Comment != nil {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.COMMENT_KEYWORD], sqlparser.String(ct.Comment))
+		}
+		if ct.KeyOpt == sqlparser.ColKeyPrimary {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.PRIMARY], sqlparser.KeywordStrings[sqlparser.KEY])
+		}
+		if ct.KeyOpt == sqlparser.ColKeyUnique {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.UNIQUE])
+		}
+		if ct.KeyOpt == sqlparser.ColKeyUniqueKey {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.UNIQUE], sqlparser.KeywordStrings[sqlparser.KEY])
+		}
+		if ct.KeyOpt == sqlparser.ColKeySpatialKey {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.SPATIAL], sqlparser.KeywordStrings[sqlparser.KEY])
+		}
+		if ct.KeyOpt == sqlparser.ColKey {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.KEY])
+		}
+
+		if len(opts) != 0 {
+		}
+internal/stackql/astvisit/table_extract.go:181: 181-237 lines are duplicate of `internal/stackql/astvisit/assign_leftover_references.go:210-266` (dupl)
+	case *sqlparser.ColumnType:
+		ct := node
+
+		if ct.Length != nil && ct.Scale != nil {
+
+		} else if ct.Length != nil {
+		}
+
+		if ct.EnumValues != nil {
+		}
+
+		opts := make([]string, 0, 16)
+		if ct.Unsigned {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.UNSIGNED])
+		}
+		if ct.Zerofill {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.ZEROFILL])
+		}
+		if ct.Charset != "" {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.CHARACTER], sqlparser.KeywordStrings[sqlparser.SET], ct.Charset)
+		}
+		if ct.Collate != "" {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.COLLATE], ct.Collate)
+		}
+		if ct.NotNull {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.NOT], sqlparser.KeywordStrings[sqlparser.NULL])
+		}
+		if ct.Default != nil {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.DEFAULT], sqlparser.String(ct.Default))
+		}
+		if ct.OnUpdate != nil {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.ON], sqlparser.KeywordStrings[sqlparser.UPDATE], sqlparser.String(ct.OnUpdate))
+		}
+		if ct.Autoincrement {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.AUTO_INCREMENT])
+		}
+		if ct.Comment != nil {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.COMMENT_KEYWORD], sqlparser.String(ct.Comment))
+		}
+		if ct.KeyOpt == sqlparser.ColKeyPrimary {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.PRIMARY], sqlparser.KeywordStrings[sqlparser.KEY])
+		}
+		if ct.KeyOpt == sqlparser.ColKeyUnique {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.UNIQUE])
+		}
+		if ct.KeyOpt == sqlparser.ColKeyUniqueKey {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.UNIQUE], sqlparser.KeywordStrings[sqlparser.KEY])
+		}
+		if ct.KeyOpt == sqlparser.ColKeySpatialKey {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.SPATIAL], sqlparser.KeywordStrings[sqlparser.KEY])
+		}
+		if ct.KeyOpt == sqlparser.ColKey {
+			opts = append(opts, sqlparser.KeywordStrings[sqlparser.KEY])
+		}
+
+		if len(opts) != 0 {
+		}
+internal/stackql/astvisit/param_extract.go:440: 440-477 lines are duplicate of `internal/stackql/astvisit/placeholder_param_extract.go:460-497` (dupl)
+	case *sqlparser.Show:
+		nodeType := strings.ToLower(node.Type)
+		if (nodeType == "tables" || nodeType == "columns" || nodeType == "fields" || nodeType == "index" || nodeType == "keys" || nodeType == "indexes") && node.ShowTablesOpt != nil {
+			opt := node.ShowTablesOpt
+			if node.Extended != "" {
+				buf.AstPrintf(node, "show %s%s", node.Extended, nodeType)
+			} else {
+				buf.AstPrintf(node, "show %s%s", opt.Full, nodeType)
+			}
+			if (nodeType == "columns" || nodeType == "fields") && node.HasOnTable() {
+				buf.AstPrintf(node, " from %v", node.OnTable)
+			}
+			if (nodeType == "index" || nodeType == "keys" || nodeType == "indexes") && node.HasOnTable() {
+				buf.AstPrintf(node, " from %v", node.OnTable)
+			}
+			if opt.DbName != "" {
+				buf.AstPrintf(node, " from %s", opt.DbName)
+			}
+			buf.AstPrintf(node, "%v", opt.Filter)
+			return nil
+		}
+		if node.Scope == "" {
+			buf.AstPrintf(node, "show %s", nodeType)
+		} else {
+			buf.AstPrintf(node, "show %s %s", node.Scope, nodeType)
+		}
+		if node.HasOnTable() {
+			buf.AstPrintf(node, " on %v", node.OnTable)
+		}
+		if nodeType == "collation" && node.ShowCollationFilterOpt != nil {
+			buf.AstPrintf(node, " where %v", node.ShowCollationFilterOpt)
+		}
+		if nodeType == "charset" && node.ShowTablesOpt != nil {
+			buf.AstPrintf(node, "%v", node.ShowTablesOpt.Filter)
+		}
+		if node.HasTable() {
+			buf.AstPrintf(node, " %v", node.Table)
+		}
+internal/stackql/astvisit/placeholder_param_extract.go:460: 460-497 lines are duplicate of `internal/stackql/astvisit/provider_string_extract.go:479-516` (dupl)
+	case *sqlparser.Show:
+		nodeType := strings.ToLower(node.Type)
+		if (nodeType == "tables" || nodeType == "columns" || nodeType == "fields" || nodeType == "index" || nodeType == "keys" || nodeType == "indexes") && node.ShowTablesOpt != nil {
+			opt := node.ShowTablesOpt
+			if node.Extended != "" {
+				buf.AstPrintf(node, "show %s%s", node.Extended, nodeType)
+			} else {
+				buf.AstPrintf(node, "show %s%s", opt.Full, nodeType)
+			}
+			if (nodeType == "columns" || nodeType == "fields") && node.HasOnTable() {
+				buf.AstPrintf(node, " from %v", node.OnTable)
+			}
+			if (nodeType == "index" || nodeType == "keys" || nodeType == "indexes") && node.HasOnTable() {
+				buf.AstPrintf(node, " from %v", node.OnTable)
+			}
+			if opt.DbName != "" {
+				buf.AstPrintf(node, " from %s", opt.DbName)
+			}
+			buf.AstPrintf(node, "%v", opt.Filter)
+			return nil
+		}
+		if node.Scope == "" {
+			buf.AstPrintf(node, "show %s", nodeType)
+		} else {
+			buf.AstPrintf(node, "show %s %s", node.Scope, nodeType)
+		}
+		if node.HasOnTable() {
+			buf.AstPrintf(node, " on %v", node.OnTable)
+		}
+		if nodeType == "collation" && node.ShowCollationFilterOpt != nil {
+			buf.AstPrintf(node, " where %v", node.ShowCollationFilterOpt)
+		}
+		if nodeType == "charset" && node.ShowTablesOpt != nil {
+			buf.AstPrintf(node, "%v", node.ShowTablesOpt.Filter)
+		}
+		if node.HasTable() {
+			buf.AstPrintf(node, " %v", node.Table)
+		}
+internal/stackql/astvisit/provider_string_extract.go:479: 479-516 lines are duplicate of `internal/stackql/astvisit/param_extract.go:440-477` (dupl)
+	case *sqlparser.Show:
+		nodeType := strings.ToLower(node.Type)
+		if (nodeType == "tables" || nodeType == "columns" || nodeType == "fields" || nodeType == "index" || nodeType == "keys" || nodeType == "indexes") && node.ShowTablesOpt != nil {
+			opt := node.ShowTablesOpt
+			if node.Extended != "" {
+				buf.AstPrintf(node, "show %s%s", node.Extended, nodeType)
+			} else {
+				buf.AstPrintf(node, "show %s%s", opt.Full, nodeType)
+			}
+			if (nodeType == "columns" || nodeType == "fields") && node.HasOnTable() {
+				buf.AstPrintf(node, " from %v", node.OnTable)
+			}
+			if (nodeType == "index" || nodeType == "keys" || nodeType == "indexes") && node.HasOnTable() {
+				buf.AstPrintf(node, " from %v", node.OnTable)
+			}
+			if opt.DbName != "" {
+				buf.AstPrintf(node, " from %s", opt.DbName)
+			}
+			buf.AstPrintf(node, "%v", opt.Filter)
+			return nil
+		}
+		if node.Scope == "" {
+			buf.AstPrintf(node, "show %s", nodeType)
+		} else {
+			buf.AstPrintf(node, "show %s %s", node.Scope, nodeType)
+		}
+		if node.HasOnTable() {
+			buf.AstPrintf(node, " on %v", node.OnTable)
+		}
+		if nodeType == "collation" && node.ShowCollationFilterOpt != nil {
+			buf.AstPrintf(node, " where %v", node.ShowCollationFilterOpt)
+		}
+		if nodeType == "charset" && node.ShowTablesOpt != nil {
+			buf.AstPrintf(node, "%v", node.ShowTablesOpt.Filter)
+		}
+		if node.HasTable() {
+			buf.AstPrintf(node, " %v", node.Table)
+		}
+internal/stackql/writer/writer.go:64:22: Error return value of `ssw.colorDriver.Pop` is not checked (errcheck)
+		ssw.colorDriver.Pop()
+		                   ^
+internal/stackql/parserutil/parser_util.go:305:16: Error return value of `sqlparser.Walk` is not checked (errcheck)
+	sqlparser.Walk(func(node sqlparser.SQLNode) (bool, error) {
+	              ^
+internal/stackql/parserutil/parser_util.go:321:16: Error return value of `sqlparser.Walk` is not checked (errcheck)
+	sqlparser.Walk(func(node sqlparser.SQLNode) (bool, error) {
+	              ^
+internal/stackql/parserutil/parser_util.go:369:16: Error return value of `sqlparser.Walk` is not checked (errcheck)
+	sqlparser.Walk(func(node sqlparser.SQLNode) (bool, error) {
+	              ^
+internal/stackql/parserutil/table_parameter_coupling.go:126:14: Error return value of `retVal.Add` is not checked (errcheck)
+			retVal.Add(k, v, k.SourceType())
+			          ^
+internal/stackql/parserutil/table_parameter_coupling.go:137:14: Error return value of `retVal.Add` is not checked (errcheck)
+			retVal.Add(k, v, k.SourceType())
+			          ^
+internal/stackql/parserutil/table_parameter_coupling.go:147:13: Error return value of `retVal.Add` is not checked (errcheck)
+		retVal.Add(k, v, k.SourceType())
+		          ^
+internal/stackql/output/output.go:176:17: Error return value of `jw.writeRows` is not checked (errcheck)
+				jw.writeRows(rowsArr)
+				            ^
+internal/stackql/output/output.go:182:15: Error return value of `jw.writeRows` is not checked (errcheck)
+		jw.writeRows(rowsArr)
+		            ^
+internal/stackql/output/output.go:342:14: Error return value of `w.Write` is not checked (errcheck)
+						w.Write(header)
+						       ^
+internal/stackql/output/output.go:351:13: Error return value of `w.Write` is not checked (errcheck)
+					w.Write(rs)
+					       ^
+internal/stackql/output/output.go:363:12: Error return value of `w.Write` is not checked (errcheck)
+				w.Write(header)
+				       ^
+internal/stackql/output/output.go:372:11: Error return value of `w.Write` is not checked (errcheck)
+			w.Write(rs)
+			       ^
+internal/stackql/output/output.go:391:14: Error return value of `w.Write` is not checked (errcheck)
+						w.Write([]byte(fmt.Sprintf("%s%s", strings.Join(header, ","), fmt.Sprintln(""))))
+						       ^
+internal/stackql/output/output.go:400:13: Error return value of `w.Write` is not checked (errcheck)
+					w.Write([]byte(fmt.Sprintf("%s%s", strings.Join(rs, ","), fmt.Sprintln(""))))
+					       ^
+internal/stackql/output/output.go:410:12: Error return value of `w.Write` is not checked (errcheck)
+				w.Write([]byte(fmt.Sprintf("%s%s", strings.Join(header, ","), fmt.Sprintln(""))))
+				       ^
+internal/stackql/output/output.go:419:11: Error return value of `w.Write` is not checked (errcheck)
+			w.Write([]byte(fmt.Sprintf("%s%s", strings.Join(rs, ","), fmt.Sprintln(""))))
+			       ^
+internal/stackql/output/output.go:438:14: Error return value of `w.Write` is not checked (errcheck)
+						w.Write([]byte(fmt.Sprintf("%s%s", strings.Join(header, ","), fmt.Sprintln(""))))
+						       ^
+internal/stackql/output/output.go:457:13: Error return value of `w.Write` is not checked (errcheck)
+					w.Write([]byte(fmt.Sprintf("%s%s", strings.Join(rowSlice, ","), fmt.Sprintln(""))))
+					       ^
+internal/stackql/output/output.go:467:12: Error return value of `w.Write` is not checked (errcheck)
+				w.Write([]byte(fmt.Sprintf("%s%s", strings.Join(header, ","), fmt.Sprintln(""))))
+				       ^
+internal/stackql/output/output.go:486:11: Error return value of `w.Write` is not checked (errcheck)
+			w.Write([]byte(fmt.Sprintf("%s%s", strings.Join(rowSlice, ","), fmt.Sprintln(""))))
+			       ^
+internal/stackql/output/output.go:497:9: Error return value of `w.Write` is not checked (errcheck)
+	w.Write(
+	       ^
+internal/stackql/output/output.go:502:9: Error return value of `w.Write` is not checked (errcheck)
+	w.Write(
+	       ^
+internal/stackql/output/output.go:516:9: Error return value of `w.Write` is not checked (errcheck)
+	w.Write([]byte(fmt.Sprintf("%s%s", errorKey, fmt.Sprintln(""))))
+	       ^
+internal/stackql/output/output.go:517:9: Error return value of `w.Write` is not checked (errcheck)
+	w.Write([]byte(fmt.Sprintf("%s%s", err.Error(), fmt.Sprintln(""))))
+	       ^
+internal/stackql/output/output.go:526:9: Error return value of `w.Write` is not checked (errcheck)
+	w.Write([]byte(fmt.Sprintf("%s%s", errorKey, fmt.Sprintln(""))))
+	       ^
+internal/stackql/output/output.go:527:9: Error return value of `w.Write` is not checked (errcheck)
+	w.Write([]byte(fmt.Sprintf("%s%s", err.Error(), fmt.Sprintln(""))))
+	       ^
+internal/stackql/util/plan_utility.go:80:16: Error return value of `sqlparser.Walk` is not checked (errcheck)
+	sqlparser.Walk(func(node sqlparser.SQLNode) (bool, error) {
+	              ^
+internal/stackql/util/plan_utility.go:132:16: Error return value of `sqlparser.Walk` is not checked (errcheck)
+	sqlparser.Walk(func(node sqlparser.SQLNode) (bool, error) {
+	              ^
+internal/stackql/util/plan_utility.go:357:20: Error return value of `resultStream.Write` is not checked (errcheck)
+	resultStream.Write(sqldata.NewSQLResult(columns, 0, 0, rows))
+	                  ^
+internal/stackql/sql_system/postgres.go:176:15: Error return value of `tx.Rollback` is not checked (errcheck)
+			tx.Rollback()
+			           ^
+internal/stackql/sql_system/postgres.go:746:13: Error return value of `rows.Scan` is not checked (errcheck)
+			rows.Scan(&ct)
+			         ^
+internal/stackql/sql_system/sqlite.go:204:15: Error return value of `tx.Rollback` is not checked (errcheck)
+			tx.Rollback()
+			           ^
+internal/stackql/sql_system/sqlite.go:529:13: Error return value of `rows.Scan` is not checked (errcheck)
+			rows.Scan(&ct)
+			         ^
+internal/stackql/drm/drm_cfg.go:185:16: Error return value of `stream.Write` is not checked (errcheck)
+			stream.Write([]map[string]interface{}{im})
+			            ^
+internal/stackql/docparser/doc_parser.go:66:16: Error return value of `txn.Rollback` is not checked (errcheck)
+			txn.Rollback()
+			            ^
+internal/stackql/docparser/doc_parser.go:74:17: Error return value of `txn.Rollback` is not checked (errcheck)
+				txn.Rollback()
+				            ^
+internal/stackql/data_staging/input_data_staging/input_data_staging.go:105:20: Error return value of `resultStream.Write` is not checked (errcheck)
+	resultStream.Write(sqldata.NewSQLResult(columns, 0, 0, outRows))
+	                  ^
+internal/stackql/handler/handler.go:246:22: Error return value of `hc.outErrFile.Write` is not checked (errcheck)
+		hc.outErrFile.Write([]byte("processed http response body not present\n"))
+		                   ^
+internal/stackql/handler/handler.go:254:24: Error return value of `hc.outErrFile.Write` is not checked (errcheck)
+				hc.outErrFile.Write([]byte(fmt.Sprintf("processed http response body map '%v' colud not be marshalled; error: %s\n", target, err.Error())))
+				                   ^
+internal/stackql/handler/handler.go:258:24: Error return value of `hc.outErrFile.Write` is not checked (errcheck)
+				hc.outErrFile.Write([]byte(fmt.Sprintf("processed http response body object: %s\n", string(b))))
+				                   ^
+internal/stackql/handler/handler.go:260:24: Error return value of `hc.outErrFile.Write` is not checked (errcheck)
+				hc.outErrFile.Write([]byte("processed http response body not present\n"))
+				                   ^
+internal/stackql/handler/handler.go:264:24: Error return value of `hc.outErrFile.Write` is not checked (errcheck)
+				hc.outErrFile.Write([]byte(fmt.Sprintf("processed http response body object: %v\n", target)))
+				                   ^
+internal/stackql/handler/handler.go:266:24: Error return value of `hc.outErrFile.Write` is not checked (errcheck)
+				hc.outErrFile.Write([]byte("processed http response body not present\n"))
+				                   ^
+internal/stackql/httpmiddleware/httpmiddleware.go:52:35: Error return value of `(io.Writer).Write` is not checked (errcheck)
+		handlerCtx.GetOutErrFile().Write([]byte(fmt.Sprintf("http request url: '%s', method: '%s'\n", urlStr, methodStr)))
+		                                ^
+internal/stackql/httpmiddleware/httpmiddleware.go:57:37: Error return value of `(io.Writer).Write` is not checked (errcheck)
+				handlerCtx.GetOutErrFile().Write([]byte(fmt.Sprintf("error inpecting http request body: %s\n", err.Error())))
+				                                ^
+internal/stackql/httpmiddleware/httpmiddleware.go:61:36: Error return value of `(io.Writer).Write` is not checked (errcheck)
+			handlerCtx.GetOutErrFile().Write([]byte(fmt.Sprintf("http request body = '%s'\n", bodyStr)))
+			                                ^
+internal/stackql/httpmiddleware/httpmiddleware.go:67:36: Error return value of `(io.Writer).Write` is not checked (errcheck)
+			handlerCtx.GetOutErrFile().Write([]byte(fmt.Sprintf("http response status: %s\n", r.Status)))
+			                                ^
+internal/stackql/httpmiddleware/httpmiddleware.go:74:38: Error return value of `(io.Writer).Write` is not checked (errcheck)
+					handlerCtx.GetOutErrFile().Write([]byte(fmt.Sprintf("http error response body: %s\n", string(bodyBytes))))
+					                                ^
+internal/stackql/httpmiddleware/httpmiddleware.go:79:36: Error return value of `(io.Writer).Write` is not checked (errcheck)
+			handlerCtx.GetOutErrFile().Write([]byte("http response came buck null\n"))
+			                                ^
+internal/stackql/cmd/root.go:78:3: use of `fmt.Println` forbidden by pattern `^(fmt\.Print(|f|ln)|print|println)$` (forbidigo)
+		fmt.Println(usagemsg)
+		^
+internal/stackql/cmd/root.go:191:3: use of `fmt.Println` forbidden by pattern `^(fmt\.Print(|f|ln)|print|println)$` (forbidigo)
+		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		^
+stackql/main.go:27:3: use of `fmt.Println` forbidden by pattern `^(fmt\.Print(|f|ln)|print|println)$` (forbidigo)
+		fmt.Println(err)
+		^
+internal/stackql/dto/runtime_ctx.go:80: Function 'Set' has too many statements (95 > 50) (funlen)
+func (rc *RuntimeCtx) Set(key string, val string) error {
+internal/stackql/metadatavisitors/requestvisitors.go:117: Function 'ToInsertStatement' has too many statements (57 > 50) (funlen)
+func ToInsertStatement(columns sqlparser.Columns, m openapistackql.OperationStore, svc openapistackql.Service, extended bool, prettyPrinter, placeHolderPrettyPrinter *prettyprint.PrettyPrinter, requiredOnly bool) (string, error) {
+internal/stackql/metadatavisitors/requestvisitors.go:291: Function 'retrieveTemplateVal' has too many statements (68 > 50) (funlen)
+func (sv *SchemaRequestTemplateVisitor) retrieveTemplateVal(sc openapistackql.Schema, svc openapistackql.Service, objectKey string, localSchemaVisitedMap map[string]bool) (interface{}, error) {
+internal/stackql/metadatavisitors/requestvisitors.go:386: Function 'retrieveJsonnetPlaceholderVal' has too many statements (67 > 50) (funlen)
+func (sv *SchemaRequestTemplateVisitor) retrieveJsonnetPlaceholderVal(sc openapistackql.Schema, svc openapistackql.Service, objectKey string, localSchemaVisitedMap map[string]bool) (interface{}, error) {
+internal/stackql/parserutil/parser_util.go:423: Function 'inferColNameFromExpr' has too many statements (68 > 50) (funlen)
+func inferColNameFromExpr(node *sqlparser.AliasedExpr, formatter sqlparser.NodeFormatter) (ColumnHandle, error) {
+internal/stackql/util/plan_utility.go:234: Function 'PrepareResultSet' is too long (125 > 100) (funlen)
+func PrepareResultSet(payload internaldto.PrepareResultSetDTO) internaldto.ExecutorOutput {
+internal/stackql/sql_system/postgres.go:353: Function 'generateDDL' has too many statements (52 > 50) (funlen)
+func (eng *postgresSystem) generateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error) {
+internal/stackql/httpbuild/request.go:21: Function 'BuildHTTPRequestCtx' has too many statements (62 > 50) (funlen)
+func BuildHTTPRequestCtx(node sqlparser.SQLNode, prov provider.IProvider, m openapistackql.OperationStore, svc openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext ExecContext) (HTTPArmoury, error) {
+internal/stackql/httpbuild/request.go:140: Function 'BuildHTTPRequestCtxFromAnnotation' has too many statements (64 > 50) (funlen)
+func BuildHTTPRequestCtxFromAnnotation(parameters streaming.MapStream, prov provider.IProvider, m openapistackql.OperationStore, svc openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext ExecContext) (HTTPArmoury, error) {
+internal/stackql/taxonomy/hierarchy.go:24: Function 'getHids' has too many statements (55 > 50) (funlen)
+func getHids(handlerCtx handler.HandlerContext, node sqlparser.SQLNode) (internaldto.HeirarchyIdentifiers, error) {
+internal/stackql/taxonomy/hierarchy.go:125: Function 'GetHeirarchyFromStatement' has too many statements (101 > 50) (funlen)
+func GetHeirarchyFromStatement(handlerCtx handler.HandlerContext, node sqlparser.SQLNode, parameters parserutil.ColumnKeyedDatastore) (tablemetadata.HeirarchyObjects, error) {
+internal/stackql/primitivebuilder/graphql_single_select_acquire.go:74: Function 'Build' has too many statements (77 > 50) (funlen)
+func (ss *GraphQLSingleSelectAcquire) Build() error {
+internal/stackql/primitivebuilder/insert.go:60: Function 'Build' has too many statements (104 > 50) (funlen)
+func (ss *Insert) Build() error {
+internal/stackql/primitivebuilder/shortcuts.go:84: Function 'NewShowInstructionExecutor' has too many statements (98 > 50) (funlen)
+func NewShowInstructionExecutor(node *sqlparser.Show, prov provider.IProvider, tbl tablemetadata.ExtendedTableMetadata, handlerCtx handler.HandlerContext, commentDirectives sqlparser.CommentDirectives, tableFilter func(openapistackql.ITable) (openapistackql.ITable, error)) internaldto.ExecutorOutput {
+internal/stackql/primitivebuilder/single_select_acquire.go:108: Function 'Build' has too many statements (129 > 50) (funlen)
+func (ss *SingleSelectAcquire) Build() error {
+internal/stackql/astvisit/assign_leftover_references.go:79: Function 'Visit' has too many statements (400 > 50) (funlen)
+func (v *standardLeftoverReferencesAstVisitor) Visit(node sqlparser.SQLNode) error {
+internal/stackql/astvisit/fragment_rewriting.go:98: Function 'Visit' has too many statements (746 > 50) (funlen)
+func (v *standardFramentRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
+internal/stackql/astvisit/from_rewrite.go:79: Function 'Visit' has too many statements (704 > 50) (funlen)
+func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
+internal/stackql/astvisit/param_extract.go:48: Function 'Visit' has too many statements (619 > 50) (funlen)
+func (v *standardParserParamAstVisitor) Visit(node sqlparser.SQLNode) error {
+internal/stackql/astvisit/placeholder_param_extract.go:50: Function 'Visit' has too many statements (629 > 50) (funlen)
+func (v *standardParserPlaceholderParamAstVisitor) Visit(node sqlparser.SQLNode) error {
+internal/stackql/astvisit/provider_string_extract.go:77: Function 'Visit' has too many statements (614 > 50) (funlen)
+func (v *standardProviderStringAstVisitor) Visit(node sqlparser.SQLNode) error {
+internal/stackql/astvisit/query_rewriting.go:172: Function 'Visit' has too many statements (461 > 50) (funlen)
+func (v *standardQueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
+internal/stackql/astvisit/table_alias_pairing.go:84: Function 'Visit' has too many statements (391 > 50) (funlen)
+func (v *standardParserTableAliasPairingAstVisitor) Visit(node sqlparser.SQLNode) error {
+internal/stackql/astvisit/table_extract.go:50: Function 'Visit' has too many statements (378 > 50) (funlen)
+func (v *standardParserTableExtractAstVisitor) Visit(node sqlparser.SQLNode) error {
+internal/stackql/router/parameter_router.go:159: Function 'GetOnConditionDataFlows' has too many statements (52 > 50) (funlen)
+func (pr *standardParameterRouter) GetOnConditionDataFlows() (dataflow.DataFlowCollection, error) {
+internal/stackql/router/parameter_router.go:325: Function 'route' has too many statements (64 > 50) (funlen)
+func (pr *standardParameterRouter) route(tb sqlparser.TableExpr, handlerCtx handler.HandlerContext) (taxonomy.AnnotationCtx, error) {
+internal/stackql/router/table_routing.go:89: Function 'Visit' has too many statements (389 > 50) (funlen)
+func (v *standardTableRouteAstVisitor) Visit(node sqlparser.SQLNode) error {
+internal/stackql/dependencyplanner/dependencyplanner.go:99: Function 'Plan' has too many statements (98 > 50) (funlen)
+func (dp *standardDependencyPlanner) Plan() error {
+internal/stackql/astanalysis/routeanalysis/select_route_analysis.go:48: Function 'RoutePass' has too many statements (56 > 50) (funlen)
+func (sp *standardSelectRoutePass) RoutePass() error {
+internal/stackql/primitivegenerator/select.go:15: Function 'analyzeSelect' has too many statements (92 > 50) (funlen)
+func (p *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBuilderInput) error {
+internal/stackql/primitivegenerator/statement_analyzer.go:38: Function 'AnalyzeStatement' has too many statements (54 > 50) (funlen)
+func (p *standardPrimitiveGenerator) AnalyzeStatement(pbi planbuilderinput.PlanBuilderInput) error {
+internal/stackql/primitivegenerator/statement_analyzer.go:484: Function 'AnalyzeUnaryExec' has too many statements (61 > 50) (funlen)
+func (p *standardPrimitiveGenerator) AnalyzeUnaryExec(pbi planbuilderinput.PlanBuilderInput, handlerCtx handler.HandlerContext, node *sqlparser.Exec, selectNode *sqlparser.Select, cols []parserutil.ColumnHandle) (tablemetadata.ExtendedTableMetadata, error) {
+internal/stackql/primitivegenerator/statement_analyzer.go:644: Function 'analyzeSchemaVsMap' has too many statements (64 > 50) (funlen)
+func (p *standardPrimitiveGenerator) analyzeSchemaVsMap(handlerCtx handler.HandlerContext, schema openapistackql.Schema, payload map[string]interface{}, method openapistackql.OperationStore) error {
+internal/stackql/primitivegenerator/statement_analyzer.go:960: Function 'analyzeDelete' has too many statements (75 > 50) (funlen)
+func (p *standardPrimitiveGenerator) analyzeDelete(pbi planbuilderinput.PlanBuilderInput) error {
+internal/stackql/primitivegenerator/statement_analyzer.go:1147: Function 'analyzeShow' has too many statements (97 > 50) (funlen)
+func (p *standardPrimitiveGenerator) analyzeShow(pbi planbuilderinput.PlanBuilderInput) error {
+internal/stackql/astanalysis/earlyanalysis/ast_expand.go:139: Function 'Visit' has too many statements (630 > 50) (funlen)
+func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
+internal/stackql/astanalysis/earlyanalysis/first_passes.go:96: Function 'initialPasses' has too many statements (80 > 50) (funlen)
+func (sp *standardInitialPasses) initialPasses(statement sqlparser.Statement, handlerCtx handler.HandlerContext, tcc internaldto.TxnControlCounters) error {
+internal/stackql/planbuilder/entrypoint.go:27: Function 'BuildPlanFromContext' has too many statements (66 > 50) (funlen)
+func (pb *standardPlanBuilder) BuildPlanFromContext(handlerCtx handler.HandlerContext) (*plan.Plan, error) {
+internal/stackql/planbuilder/plan_builder.go:65: Function 'createInstructionFor' has too many statements (59 > 50) (funlen)
+func (pgb *standardPlanGraphBuilder) createInstructionFor(pbi planbuilderinput.PlanBuilderInput) error {
+internal/stackql/cmd/root.go:88: Function 'init' has too many statements (60 > 50) (funlen)
+func init() {
+internal/stackql/parserutil/parser_util.go:241:1: cognitive complexity 27 of func `extractUpdateValColumns` is high (> 20) (gocognit)
+func extractUpdateValColumns(updateStmt *sqlparser.Update, includePlaceholders bool) (map[*sqlparser.ColName]interface{}, []*sqlparser.ColName, error) {
+^
+internal/stackql/metadatavisitors/requestvisitors.go:215:1: cognitive complexity 33 of func `(*SchemaRequestTemplateVisitor).processSubSchemasMap` is high (> 20) (gocognit)
+func (sv *SchemaRequestTemplateVisitor) processSubSchemasMap(sc openapistackql.Schema, method openapistackql.OperationStore, properties map[string]openapistackql.Schema) (map[string]TemplatedProduct, error) {
+^
+internal/stackql/output/output.go:425:1: cognitive complexity 50 of func `(*PrettyWriter).Write` is high (> 20) (gocognit)
+func (rw *PrettyWriter) Write(res sqldata.ISQLResultStream) error {
+^
+internal/stackql/output/output.go:328:1: cognitive complexity 32 of func `(*CSVWriter).Write` is high (> 20) (gocognit)
+func (csvw *CSVWriter) Write(res sqldata.ISQLResultStream) error {
+^
+internal/stackql/output/output.go:378:1: cognitive complexity 32 of func `(*RawWriter).Write` is high (> 20) (gocognit)
+func (rw *RawWriter) Write(res sqldata.ISQLResultStream) error {
+^
+internal/stackql/output/output.go:245:1: cognitive complexity 24 of func `(*TableWriter).Write` is high (> 20) (gocognit)
+func (tw *TableWriter) Write(res sqldata.ISQLResultStream) error {
+^
+internal/stackql/drm/drm_cfg.go:537:1: cognitive complexity 26 of func `(*staticDRMConfig).generateVarArgs` is high (> 20) (gocognit)
+func (dc *staticDRMConfig) generateVarArgs(cp PreparedStatementParameterized, isInsert bool) (PreparedStatementArgs, error) {
+^
+internal/stackql/discovery/discovery.go:204:1: cognitive complexity 23 of func `(*TTLDiscoveryStore).processResourcesDiscoveryDoc` is high (> 20) (gocognit)
+func (store *TTLDiscoveryStore) processResourcesDiscoveryDoc(prov openapistackql.Provider, serviceHandle openapistackql.ProviderService, alias string) (openapistackql.ResourceRegister, error) {
+^
+internal/stackql/requests/requests.go:59:1: cognitive complexity 21 of func `SplitHttpParameters` is high (> 20) (gocognit)
+func SplitHttpParameters(prov provider.IProvider, sqlParamMap map[int]map[string]interface{}, method openapistackql.OperationStore) ([]openapistackql.HttpParameters, error) {
+^
+internal/stackql/httpmiddleware/httpmiddleware.go:31:1: cognitive complexity 35 of func `HttpApiCallFromRequest` is high (> 20) (gocognit)
+func HttpApiCallFromRequest(handlerCtx handler.HandlerContext, prov provider.IProvider, method openapistackql.OperationStore, request *http.Request) (*http.Response, error) {
+^
+internal/stackql/primitivegraph/dag.go:88:1: cognitive complexity 26 of func `(*standardPrimitiveGraph).Execute` is high (> 20) (gocognit)
+func (pg *standardPrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
+^
+internal/stackql/asyncmonitor/asyncmonitor.go:144:1: cognitive complexity 37 of func `(*DefaultGoogleAsyncMonitor).getV1Monitor` is high (> 20) (gocognit)
+func (gm *DefaultGoogleAsyncMonitor) getV1Monitor(heirarchy tablemetadata.HeirarchyObjects, precursor primitive.IPrimitive, initialCtx primitive.IPrimitiveCtx, comments sqlparser.CommentDirectives) (primitive.IPrimitive, error) {
+^
+internal/stackql/primitivebuilder/delete.go:57:1: cognitive complexity 42 of func `(*Delete).Build` is high (> 20) (gocognit)
+func (ss *Delete) Build() error {
+^
+internal/stackql/primitivebuilder/exec.go:55:1: cognitive complexity 37 of func `(*Exec).Build` is high (> 20) (gocognit)
+func (ss *Exec) Build() error {
+^
+internal/stackql/primitivebuilder/native_select.go:43:1: cognitive complexity 24 of func `(*NativeSelect).Build` is high (> 20) (gocognit)
+func (ss *NativeSelect) Build() error {
+^
+internal/stackql/router/parameter_router.go:244:1: cognitive complexity 29 of func `(*standardParameterRouter).getAvailableParameters` is high (> 20) (gocognit)
+func (pr *standardParameterRouter) getAvailableParameters(tb sqlparser.TableExpr) parserutil.TableParameterCoupling {
+^
+internal/stackql/primitivegenerator/primitive_generator.go:114:1: cognitive complexity 23 of func `(*standardPrimitiveGenerator).comparisonExprToFilterFunc` is high (> 20) (gocognit)
+func (pb *standardPrimitiveGenerator) comparisonExprToFilterFunc(table openapistackql.ITable, parentNode *sqlparser.Show, expr *sqlparser.ComparisonExpr) (func(openapistackql.ITable) (openapistackql.ITable, error), error) {
+^
+internal/stackql/primitivegenerator/statement_analyzer.go:833:1: cognitive complexity 22 of func `(*standardPrimitiveGenerator).AnalyzeInsert` is high (> 20) (gocognit)
+func (p *standardPrimitiveGenerator) AnalyzeInsert(pbi planbuilderinput.PlanBuilderInput) error {
+^
+internal/stackql/planbuilder/plan_builder.go:406:1: cognitive complexity 41 of func `(*standardPlanGraphBuilder).handleRegistry` is high (> 20) (gocognit)
+func (pgb *standardPlanGraphBuilder) handleRegistry(pbi planbuilderinput.PlanBuilderInput) error {
+^
+internal/stackql/planbuilder/plan_builder.go:579:1: cognitive complexity 33 of func `(*standardPlanGraphBuilder).handleInsert` is high (> 20) (gocognit)
+func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuilderInput) error {
+^
+internal/stackql/planbuilder/plan_builder.go:288:1: cognitive complexity 23 of func `(*standardPlanGraphBuilder).handleSelect` is high (> 20) (gocognit)
+func (pgb *standardPlanGraphBuilder) handleSelect(pbi planbuilderinput.PlanBuilderInput) (primitivegraph.PrimitiveNode, primitivegraph.PrimitiveNode, error) {
+^
+internal/stackql/metadatavisitors/requestvisitors.go:269:7: string `object` has 3 occurrences, make it a constant (goconst)
+	case "object":
+	     ^
+internal/stackql/metadatavisitors/requestvisitors.go:321:38: string `array` has 4 occurrences, make it a constant (goconst)
+			if ss != nil && ((ss.GetType() != "array") || !sv.isVisited(ss.GetTitle(), propertyLocalSchemaVisitedMap)) {
+			                                  ^
+internal/stackql/metadatavisitors/requestvisitors.go:155:8: string `string` has 5 occurrences, make it a constant (goconst)
+		case "string":
+		     ^
+internal/stackql/drm/drm_cfg.go:300:20: string `text` has 3 occurrences, make it a constant (goconst)
+	relationalType := "text"
+	                  ^
+internal/stackql/astvisit/fragment_rewriting.go:267:14: string ` if exists` has 10 occurrences, make it a constant (goconst)
+				exists = " if exists"
+				         ^
+internal/stackql/astvisit/fragment_rewriting.go:1115:13: string `values ` has 5 occurrences, make it a constant (goconst)
+		prefix := "values "
+		          ^
+internal/stackql/astvisit/assign_leftover_references.go:331:19: string `tables` has 9 occurrences, make it a constant (goconst)
+		if (nodeType == "tables" || nodeType == "columns" || nodeType == "fields" || nodeType == "index" || nodeType == "keys" || nodeType == "indexes") && node.ShowTablesOpt != nil {
+		                ^
+internal/stackql/astvisit/assign_leftover_references.go:349:18: string `collation` has 9 occurrences, make it a constant (goconst)
+		if nodeType == "collation" && node.ShowCollationFilterOpt != nil {
+		               ^
+internal/stackql/astvisit/assign_leftover_references.go:351:18: string `charset` has 9 occurrences, make it a constant (goconst)
+		if nodeType == "charset" && node.ShowTablesOpt != nil {
+		               ^
+internal/stackql/astvisit/fragment_rewriting.go:701:13: string ` partition (` has 5 occurrences, make it a constant (goconst)
+		prefix := " partition ("
+		          ^
+internal/stackql/astvisit/assign_leftover_references.go:712:30: string `rand` has 9 occurrences, make it a constant (goconst)
+			if node.Name.Lowered() == "rand" {
+			                          ^
+internal/stackql/astvisit/fragment_rewriting.go:186:18: string `stackql ` has 4 occurrences, make it a constant (goconst)
+			stackql_opt = "stackql "
+			              ^
+internal/stackql/astvisit/fragment_rewriting.go:955:15: string `distinct ` has 5 occurrences, make it a constant (goconst)
+			distinct = "distinct "
+			           ^
+internal/test/testhttpapi/httptestutils.go:202:3: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+		switch contentType {
+		^
+internal/stackql/parserutil/parser_util.go:223:11: elseif: can replace 'else {if cond {}}' with 'else if cond {}' (gocritic)
+			} else {
+			       ^
+internal/stackql/parserutil/parser_util.go:252:4: ifElseChain: rewrite if-else to switch statement (gocritic)
+			if strings.ToLower(node.Name.GetRawVal()) == "string" {
+			^
+internal/stackql/parserutil/parser_util.go:25:2: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+	switch node := node.(type) {
+	^
+internal/stackql/parserutil/parser_util.go:27:3: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+		switch expr := node.Expr.(type) {
+		^
+internal/stackql/parserutil/parser_util.go:38:2: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+	switch tt := node.(type) {
+	^
+internal/stackql/parserutil/parser_util.go:80:2: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+	switch expr := aliasedExpr.Expr.(type) {
+	^
+internal/stackql/parserutil/parser_util.go:117:4: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+			switch expr := expr.(type) {
+			^
+internal/stackql/parserutil/parser_util.go:269:3: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+		switch node := node.(type) {
+		^
+internal/stackql/parserutil/parser_util.go:306:3: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+		switch node := node.(type) {
+		^
+internal/stackql/parserutil/parser_util.go:322:3: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+		switch node := node.(type) {
+		^
+internal/stackql/parserutil/parser_util.go:345:2: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+	switch statement.Duration.Type {
+	^
+internal/stackql/parserutil/parser_util.go:370:3: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+		switch node := node.(type) {
+		^
+internal/stackql/parserutil/parser_util.go:373:4: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+			switch lhs := node.Left.(type) {
+			^
+internal/stackql/parserutil/parser_util.go:377:4: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+			switch rhs := node.Right.(type) {
+			^
+internal/stackql/parserutil/parser_util.go:412:3: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+		switch et := fe.Exprs[0].(type) {
+		^
+internal/stackql/parserutil/parser_util.go:414:4: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+			switch et2 := et.Expr.(type) {
+			^
+internal/stackql/parserutil/parser_util.go:443:3: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+		switch ex := expr.Exprs[0].(type) {
+		^
+internal/stackql/parserutil/parser_util.go:464:4: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+			switch ex := expr.Exprs[0].(type) {
+			^
+internal/stackql/parserutil/parser_util.go:478:5: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+				switch ex := exp.(type) {
+				^
+internal/stackql/parserutil/parser_util.go:493:4: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+			switch ex := expr.Exprs[0].(type) {
+			^
+internal/stackql/parserutil/parser_util.go:506:3: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+		switch ex := expr.Expr.(type) {
+		^
+internal/stackql/parserutil/table_parameter_coupling.go:161:3: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+		switch kv := key.Value().(type) {
+		^
+internal/stackql/metadatavisitors/requestvisitors.go:268:2: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+	switch sc.GetType() {
+	^
+internal/stackql/methodselect/methodselect.go:18:2: singleCaseSwitch: found switch with default case only (gocritic)
+	switch provider {
+	^
+internal/stackql/methodselect/methodselect.go:25:2: singleCaseSwitch: found switch with default case only (gocritic)
+	switch version {
+	^
+internal/stackql/internal_data_transfer/relationaldto/relational_column.go:71:2: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+	switch node := rc.sqlParserNode.(type) {
+	^
+internal/stackql/internal_data_transfer/relationaldto/relational_column.go:73:3: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+		switch node.Expr.(type) {
+		^
+internal/stackql/output/output.go:190:2: ifElseChain: rewrite if-else to switch statement (gocritic)
+	if jsonErr != nil {
+	^
+internal/stackql/output/output.go:228:3: typeSwitchVar: 1 case can benefit from type switch with assignment (gocritic)
+		switch rowDict[header[idx]].(type) {
+		^
+internal/stackql/util/plan_utility.go:81:3: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+		switch node := node.(type) {
+		^
+internal/stackql/util/plan_utility.go:133:3: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+		switch node := node.(type) {
+		^
+internal/stackql/util/plan_utility.go:170:4: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+			switch t := v.GetVal().(type) {
+			^
+internal/stackql/dbmsinternal/dbmsinternal.go:107:3: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+		switch n := n.(type) {
+		^
+internal/stackql/dbmsinternal/dbmsinternal.go:109:4: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+			switch et := n.Expr.(type) {
+			^
+internal/stackql/drm/drm_cfg.go:381:2: dupBranchBody: both branches in if statement have same body (gocritic)
+	if isSQLDataSource {
+	^
+internal/stackql/drm/drm_cfg.go:79:10: elseif: can replace 'else {if cond {}}' with 'else if cond {}' (gocritic)
+		} else {
+		       ^
+internal/stackql/drm/drm_cfg.go:107:9: elseif: can replace 'else {if cond {}}' with 'else if cond {}' (gocritic)
+	} else {
+	       ^
+internal/stackql/drm/drm_cfg.go:469:10: elseif: can replace 'else {if cond {}}' with 'else if cond {}' (gocritic)
+		} else {
+		       ^
+internal/stackql/drm/drm_cfg.go:81:5: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+				switch col.Val.Type {
+				^
+internal/stackql/drm/drm_cfg.go:109:4: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+			switch col.Val.Type {
+			^
+internal/stackql/drm/drm_cfg.go:471:5: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+				switch col.Val.Type {
+				^
+internal/stackql/drm/drm_cfg.go:236:15: underef: could simplify (*v).Value to v.Value (gocritic)
+		retVal, _ = (*v).Value()
+		            ^
+internal/stackql/drm/drm_cfg.go:238:15: underef: could simplify (*v).Value to v.Value (gocritic)
+		retVal, _ = (*v).Value()
+		            ^
+internal/stackql/drm/drm_cfg.go:240:15: underef: could simplify (*v).Value to v.Value (gocritic)
+		retVal, _ = (*v).Value()
+		            ^
+internal/stackql/drm/drm_cfg.go:242:15: underef: could simplify (*v).Value to v.Value (gocritic)
+		retVal, _ = (*v).Value()
+		            ^
+internal/stackql/docparser/doc_parser.go:26:9: wrapperFunc: use strings.ReplaceAll method in `strings.Replace(serviceKey, googleServiceKeyDelimiter, stackqlServiceKeyDelimiter, -1)` (gocritic)
+	return strings.Replace(serviceKey, googleServiceKeyDelimiter, stackqlServiceKeyDelimiter, -1)
+	       ^
+internal/stackql/docparser/doc_parser.go:30:9: wrapperFunc: use strings.ReplaceAll method in `strings.Replace(serviceKey, stackqlServiceKeyDelimiter, googleServiceKeyDelimiter, -1)` (gocritic)
+	return strings.Replace(serviceKey, stackqlServiceKeyDelimiter, googleServiceKeyDelimiter, -1)
+	       ^
+internal/stackql/provider/generic.go:315:2: singleCaseSwitch: should rewrite switch statement to if statement (gocritic)
+	switch metadataType {
+	^
+internal/stackql/provider/provider.go:86:2: singleCaseSwitch: found switch with default case only (gocritic)
+	switch providerStr {
+	^
+internal/stackql/dto/dto.go:35: File is not `goimports`-ed (goimports)
+	HTTPProxyPasswordKey            string = "http.proxy.password" 
+internal/stackql/netutils/http_proxy.go:36:25: G402: TLS InsecureSkipVerify may be true. (gosec)
+				InsecureSkipVerify: runtimeCtx.AllowInsecure,
+				                    ^
+internal/stackql/netutils/http_proxy.go:43:24: G402: TLS InsecureSkipVerify may be true. (gosec)
+			InsecureSkipVerify: runtimeCtx.AllowInsecure,
+			                    ^
+internal/stackql/primitivebuilder/shortcuts.go:290:45: G601: Implicit memory aliasing in for loop. (gosec)
+			filteredMethod, filterErr := tableFilter(&m)
+			                                         ^
+internal/stackql/dto/output_packet.go:15: line is 139 characters (lll)
+	rowMaps map[string]map[string]interface{}, rawRows map[int]map[int]interface{}, columnNames []string, columnOIDs []oid.Oid) OutputPacket {
+internal/test/testhttpapi/httptestutils.go:55: line is 122 characters (lll)
+		ex := NewHTTPRequestExpectations(nil, nil, "POST", &url.URL{Path: path}, host, testobjects.GoogleAuthTokenResponse, nil)
+internal/test/testhttpapi/httptestutils.go:158: line is 147 characters (lll)
+		srt.T.Fatalf("FAIL: no expectations found for key '%s' in strict mode, existing keys  = %s", reqKey, strings.Join(srt.Expectations.Keys(), ", "))
+internal/test/testhttpapi/httptestutils.go:171: line is 169 characters (lll)
+func NewSimulatedRoundTripper(t *testing.T, expectations ExpectationStore, roundTripper func(*http.Request) (*http.Response, error), strict bool) SimulatedRoundTripper {
+internal/test/testhttpapi/httptestutils.go:180: line is 187 characters (lll)
+func NewHTTPRequestExpectations(body io.ReadCloser, header http.Header, method string, url *url.URL, host string, responseBody string, reponseHeader http.Header) HTTPRequestExpectations {
+internal/test/testhttpapi/httptestutils.go:208: line is 131 characters (lll)
+	return nil, fmt.Errorf("could not find acceptable content type in content type header: %s", strings.Join(contentTypeHeader, ", "))
+internal/test/testhttpapi/httptestutils.go:234: line is 132 characters (lll)
+			return nil, fmt.Errorf("http request body: actual != expected: '%s' != '%s'", string(actualBodyBytes), string(expectedBodyBytes))
+internal/test/testhttpapi/httptestutils.go:293: line is 123 characters (lll)
+		// fmt.Fprintln(os.Stderr, "skipping comparing %s strings; expected : actual: '%s' : '%s'", descriptor, expected, actual)
+internal/test/testhttpapi/httptestutils.go:303: line is 123 characters (lll)
+	// fmt.Fprintln(os.Stderr, "success comparing %s strings; expected == actual: '%s' == '%s'", descriptor, expected, actual)
+internal/test/testhttpapi/httptestutils.go:361: line is 142 characters (lll)
+func SetupHTTPCallHeavyweight(t *testing.T, expectationStore ExpectationStore, handlerFunc http.HandlerFunc, roundTripper http.RoundTripper) {
+internal/test/testhttpapi/httptestutils.go:405: line is 131 characters (lll)
+func NewHandlerTransport(handler http.Handler, responseTransformer func(response *http.Response) *http.Response) HandlerTransport {
+pkg/awssign/aws_sign.go:29: line is 137 characters (lll)
+func NewAwsSignTransport(underlyingTransport http.RoundTripper, id, secret, token string, options ...func(*v4.Signer)) AwsSignTransport {
+internal/stackql/db_util/db_util.go:30: line is 125 characters (lll)
+	logging.GetLogger().Debugln(fmt.Sprintf("opened %s TCP db with connection string = '%s' and err  = '%v'", dbName, dsn, err))
+internal/stackql/db_util/db_util.go:44: line is 136 characters (lll)
+	logging.GetLogger().Debugln(fmt.Sprintf("opened and pinged %s TCP db with connection string = '%s' and err  = '%v'", dbName, dsn, err))
+internal/stackql/parserutil/parser_util.go:202: line is 122 characters (lll)
+func ExtractUpdateValColumns(upStmt *sqlparser.Update) (map[*sqlparser.ColName]interface{}, []*sqlparser.ColName, error) {
+internal/stackql/parserutil/parser_util.go:210: line is 125 characters (lll)
+func extractInsertValColumns(insStmt *sqlparser.Insert, includePlaceholders bool) (map[int]map[int]interface{}, int, error) {
+internal/stackql/parserutil/parser_util.go:512: line is 124 characters (lll)
+			decoratedColumn := fmt.Sprintf("CAST(%s AS %s)", astformat.String(ex, formatter), astformat.String(expr.Type, formatter))
+internal/stackql/parserutil/table_parameter_coupling.go:80: line is 127 characters (lll)
+func (tpc *standardTableParameterCoupling) Add(col ColumnarReference, val ParameterMetadata, paramType ParamSourceType) error {
+internal/stackql/metadatavisitors/requestvisitors.go:57: line is 186 characters (lll)
+func NewSchemaRequestTemplateVisitor(maxDepth int, strategy string, prettyPrinter, placeHolderPrettyPrinter *prettyprint.PrettyPrinter, requiredOnly bool) *SchemaRequestTemplateVisitor {
+internal/stackql/metadatavisitors/requestvisitors.go:171: line is 143 characters (lll)
+		return "<<<jsonnet\n{\n" + strings.Join(jsonnetPlaholderList, ",\n") + "\n}\n>>>\nINSERT INTO %s" + "(\n" + strings.Join(columnList, ",\n") +
+internal/stackql/metadatavisitors/requestvisitors.go:210: line is 145 characters (lll)
+	retVal := "<<<jsonnet\n{\n" + strings.Join(jsonnetPlaholderList, ",\n") + "\n}\n>>>\nINSERT INTO %s" + "(\n" + strings.Join(columnList, ",\n") +
+internal/stackql/metadatavisitors/requestvisitors.go:226: line is 127 characters (lll)
+			rv, err := sv.retrieveTemplateVal(ss, method.GetService(), ".values."+constants.RequestBodyBaseKey+k, localSchemaVisitedMap)
+internal/stackql/metadatavisitors/requestvisitors.go:230: line is 126 characters (lll)
+			pl, err := sv.retrieveJsonnetPlaceholderVal(ss, method.GetService(), constants.RequestBodyBaseKey+k, localSchemaVisitedMap)
+internal/stackql/metadatavisitors/requestvisitors.go:265: line is 174 characters (lll)
+func (sv *SchemaRequestTemplateVisitor) RetrieveTemplate(sc openapistackql.Schema, method openapistackql.OperationStore, extended bool) (map[string]TemplatedProduct, error) {
+internal/stackql/methodselect/methodselect.go:14: line is 162 characters (lll)
+	GetMethodForAction(resource openapistackql.Resource, iqlAction string, parameters parserutil.ColumnKeyedDatastore) (openapistackql.OperationStore, string, error)
+internal/stackql/methodselect/methodselect.go:34: line is 197 characters (lll)
+func (sel *DefaultMethodSelector) GetMethodForAction(resource openapistackql.Resource, iqlAction string, parameters parserutil.ColumnKeyedDatastore) (openapistackql.OperationStore, string, error) {
+internal/stackql/methodselect/methodselect.go:46: line is 137 characters (lll)
+		return nil, "", fmt.Errorf("iql action = '%s' curently not supported, there is no method mapping possible for any resource", iqlAction)
+internal/stackql/methodselect/methodselect.go:52: line is 137 characters (lll)
+func (sel *DefaultMethodSelector) GetMethod(resource openapistackql.Resource, methodName string) (openapistackql.OperationStore, error) {
+internal/stackql/methodselect/methodselect.go:56: line is 143 characters (lll)
+func (sel *DefaultMethodSelector) getMethodByName(resource openapistackql.Resource, methodName string) (openapistackql.OperationStore, error) {
+internal/stackql/methodselect/methodselect.go:64: line is 200 characters (lll)
+func (sel *DefaultMethodSelector) getMethodByNameAndParameters(resource openapistackql.Resource, methodName string, parameters parserutil.ColumnKeyedDatastore) (openapistackql.OperationStore, error) {
+internal/stackql/internal_data_transfer/internaldto/db_table.go:37: line is 135 characters (lll)
+func newDBTable(name string, nameStump string, baseName string, discoveryID int, hIDs HeirarchyIdentifiers, namespace string) DBTable {
+internal/stackql/internal_data_transfer/internaldto/executor_output.go:33: line is 173 characters (lll)
+func NewExecutorOutput(result sqldata.ISQLResultStream, body map[string]interface{}, rawResult map[int]map[int]interface{}, msg *BackendMessages, err error) ExecutorOutput {
+internal/stackql/internal_data_transfer/internaldto/executor_output.go:37: line is 173 characters (lll)
+func newExecutorOutput(result sqldata.ISQLResultStream, body map[string]interface{}, rawResult map[int]map[int]interface{}, msg *BackendMessages, err error) ExecutorOutput {
+internal/stackql/internal_data_transfer/internaldto/primitive_ctx.go:26: line is 136 characters (lll)
+func NewBasicPrimitiveContext(authCtx func(string) (*dto.AuthCtx, error), writer io.Writer, errWriter io.Writer) BasicPrimitiveContext {
+internal/stackql/internal_data_transfer/internaldto/table_parameter_collection.go:15: line is 146 characters (lll)
+func NewTableParameterCollection(requiredParams, optionalParams, remainingRequiredParameters suffix.ParameterSuffixMap) TableParameterCollection {
+internal/stackql/output/output.go:50: line is 121 characters (lll)
+func GetOutputWriter(writer io.Writer, errWriter io.Writer, outputCtx internaldto.OutputContext) (IOutputWriter, error) {
+internal/stackql/output/output.go:105: line is 121 characters (lll)
+	return nil, fmt.Errorf("unable to create output writer for output format = '%s'", outputCtx.RuntimeContext.OutputFormat)
+internal/stackql/datasource/sql_datasource/sql_datasource.go:26: line is 124 characters (lll)
+	if authCtx.Type == fmt.Sprintf("%s%s%s", constants.AuthTypeSQLDataSourcePrefix, constants.AuthTypeDelimiter, "snowflake") {
+internal/stackql/datasource/sql_datasource/sql_datasource.go:29: line is 123 characters (lll)
+	if authCtx.Type == fmt.Sprintf("%s%s%s", constants.AuthTypeSQLDataSourcePrefix, constants.AuthTypeDelimiter, "postgres") {
+internal/stackql/util/annotated_tabulation.go:26: line is 157 characters (lll)
+func NewAnnotatedTabulation(tab *openapistackql.Tabulation, hIds internaldto.HeirarchyIdentifiers, inputTableName string, alias string) AnnotatedTabulation {
+internal/stackql/util/plan_utility.go:46: line is 139 characters (lll)
+func extractInsertParams(insert *sqlparser.Insert, insertValOnlyRows map[int]map[int]interface{}) (map[int]map[string]interface{}, error) {
+internal/stackql/util/plan_utility.go:68: line is 139 characters (lll)
+func extractUpdateParams(update *sqlparser.Update, insertValOnlyRows map[int]map[int]interface{}) (map[int]map[string]interface{}, error) {
+internal/stackql/util/plan_utility.go:120: line is 143 characters (lll)
+func ExtractSQLNodeParams(statement sqlparser.SQLNode, insertValOnlyRows map[int]map[int]interface{}) (map[int]map[string]interface{}, error) {
+internal/stackql/util/plan_utility.go:201: line is 139 characters (lll)
+func arrangeOrderedColumnRow(row map[string]interface{}, columns []sqldata.ISQLColumn, columnOrder []string, colNumber int) []interface{} {
+internal/stackql/util/plan_utility.go:468: line is 129 characters (lll)
+func getPlaceholderColumnForNativeResult(table sqldata.ISQLTable, colName string, colSchema *sql.ColumnType) sqldata.ISQLColumn {
+internal/stackql/util/table_schema.go:44: line is 136 characters (lll)
+func (ta *simpleTableSchemaAnalyzer) GetColumnDescriptors(tabAnnotated AnnotatedTabulation) ([]openapistackql.ColumnDescriptor, error) {
+internal/stackql/sql_system/postgres.go:23: line is 253 characters (lll)
+func newPostgresSystem(sqlEngine sqlengine.SQLEngine, analyticsNamespaceLikeString string, controlAttributes sqlcontrol.ControlAttributes, formatter sqlparser.NodeFormatter, sqlCfg dto.SQLBackendCfg, authCfg map[string]*dto.AuthCtx) (SQLSystem, error) {
+internal/stackql/sql_system/postgres.go:122: line is 121 characters (lll)
+func (eng *postgresSystem) GenerateDDL(relationalTable relationaldto.RelationalTable, dropTable bool) ([]string, error) {
+internal/stackql/sql_system/postgres.go:126: line is 124 characters (lll)
+func (sl *postgresSystem) RegisterExternalTable(connectionName string, tableDetails openapistackql.SQLExternalTable) error {
+internal/stackql/sql_system/postgres.go:130: line is 124 characters (lll)
+func (sl *postgresSystem) registerExternalTable(connectionName string, tableDetails openapistackql.SQLExternalTable) error {
+internal/test/testhttpapi/httptestutils.go:309:2: `if expectations != nil` has complex nested blocks (complexity: 7) (nestif)
+	if expectations != nil {
+	^
+internal/test/testhttpapi/httptestutils.go:215:2: `if expectations.Body != nil` has complex nested blocks (complexity: 5) (nestif)
+	if expectations.Body != nil {
+	^
+internal/stackql/metadatavisitors/requestvisitors.go:335:3: `if len(rv) == 0` has complex nested blocks (complexity: 12) (nestif)
+		if len(rv) == 0 {
+		^
+internal/stackql/metadatavisitors/requestvisitors.go:430:3: `if len(rv) == 0` has complex nested blocks (complexity: 7) (nestif)
+		if len(rv) == 0 {
+		^
+internal/stackql/metadatavisitors/requestvisitors.go:219:3: `if ss != nil && (k == "" || !sv.isVisited(k, nil))` has complex nested blocks (complexity: 5) (nestif)
+		if ss != nil && (k == "" || !sv.isVisited(k, nil)) {
+		^
+internal/stackql/output/output.go:432:3: `if err != nil` has complex nested blocks (complexity: 10) (nestif)
+		if err != nil {
+		^
+internal/stackql/output/output.go:335:3: `if err != nil` has complex nested blocks (complexity: 8) (nestif)
+		if err != nil {
+		^
+internal/stackql/output/output.go:385:3: `if err != nil` has complex nested blocks (complexity: 8) (nestif)
+		if err != nil {
+		^
+internal/stackql/output/output.go:252:3: `if err != nil` has complex nested blocks (complexity: 5) (nestif)
+		if err != nil {
+		^
+internal/stackql/util/plan_utility.go:275:2: `if payload.ColumnOrder != nil && len(payload.ColumnOrder) > 0` has complex nested blocks (complexity: 12) (nestif)
+	if payload.ColumnOrder != nil && len(payload.ColumnOrder) > 0 {
+	^
+internal/stackql/sql_system/sqlite.go:554:2: `if err == nil && rows != nil` has complex nested blocks (complexity: 6) (nestif)
+	if err == nil && rows != nil {
+	^
+internal/stackql/handler/handler.go:223:2: `if !ok` has complex nested blocks (complexity: 5) (nestif)
+	if !ok {
+	^
+internal/stackql/handler/handler.go:249:2: `if hc.runtimeContext.HTTPLogEnabled` has complex nested blocks (complexity: 5) (nestif)
+	if hc.runtimeContext.HTTPLogEnabled {
+	^
+internal/stackql/requests/requests.go:25:2: `if trimmedKey != k` has complex nested blocks (complexity: 8) (nestif)
+	if trimmedKey != k {
+	^
+internal/stackql/httpmiddleware/httpmiddleware.go:65:2: `if handlerCtx.GetRuntimeContext().HTTPLogEnabled` has complex nested blocks (complexity: 11) (nestif)
+	if handlerCtx.GetRuntimeContext().HTTPLogEnabled {
+	^
+internal/stackql/asyncmonitor/asyncmonitor.go:158:2: `if m.IsAwaitable()` has complex nested blocks (complexity: 11) (nestif)
+	if m.IsAwaitable() {
+	^
+internal/stackql/asyncmonitor/asyncmonitor.go:131:2: `if ok` has complex nested blocks (complexity: 6) (nestif)
+	if descriptor, ok := body["kind"]; ok {
+	^
+internal/stackql/taxonomy/hierarchy.go:220:2: `if methodRequired` has complex nested blocks (complexity: 6) (nestif)
+	if methodRequired {
+	^
+internal/stackql/taxonomy/hierarchy.go:192:2: `if ok` has complex nested blocks (complexity: 5) (nestif)
+	if viewBodyDDL, ok := rsc.GetViewBodyDDLForSQLDialect(handlerCtx.GetSQLSystem().GetName()); ok {
+	^
+internal/stackql/primitivebuilder/single_select_acquire.go:218:5: `if ok` has complex nested blocks (complexity: 19) (nestif)
+				if ok {
+				^
+internal/stackql/primitivebuilder/shortcuts.go:267:2: `if tableFilter != nil` has complex nested blocks (complexity: 5) (nestif)
+	if tableFilter != nil {
+	^
+internal/stackql/astvisit/from_rewrite.go:629:3: `if node.Expr != nil` has complex nested blocks (complexity: 17) (nestif)
+		if node.Expr != nil {
+		^
+internal/stackql/astvisit/query_rewriting.go:640:3: `if node.Expr != nil && !parserutil.IsNullTable(node)` has complex nested blocks (complexity: 5) (nestif)
+		if node.Expr != nil && !parserutil.IsNullTable(node) {
+		^
+internal/stackql/dependencyplanner/dependencyplanner.go:167:6: `if e.From().ID() == n.ID()` has complex nested blocks (complexity: 5) (nestif)
+					if e.From().ID() == n.ID() {
+					^
+internal/stackql/primitivegenerator/select.go:124:2: `if len(node.From) == 1` has complex nested blocks (complexity: 5) (nestif)
+	if len(node.From) == 1 {
+	^
+internal/stackql/astanalysis/earlyanalysis/ast_expand.go:745:3: `if err != nil` has complex nested blocks (complexity: 7) (nestif)
+		if err != nil {
+		^
+internal/stackql/astanalysis/earlyanalysis/first_passes.go:221:2: `if ok` has complex nested blocks (complexity: 6) (nestif)
+	if sel, ok := planbuilderinput.IsPGSetupQuery(pbi); ok {
+	^
+internal/stackql/planbuilder/plan_builder.go:585:2: `if !handlerCtx.GetRuntimeContext().TestWithoutAPICalls` has complex nested blocks (complexity: 16) (nestif)
+	if !handlerCtx.GetRuntimeContext().TestWithoutAPICalls {
+	^
+internal/stackql/planbuilder/plan_builder.go:660:2: `if !handlerCtx.GetRuntimeContext().TestWithoutAPICalls` has complex nested blocks (complexity: 10) (nestif)
+	if !handlerCtx.GetRuntimeContext().TestWithoutAPICalls {
+	^
+internal/stackql/planbuilder/plan_builder.go:294:2: `if !handlerCtx.GetRuntimeContext().TestWithoutAPICalls` has complex nested blocks (complexity: 7) (nestif)
+	if !handlerCtx.GetRuntimeContext().TestWithoutAPICalls {
+	^
+internal/stackql/planbuilder/plan_builder.go:718:2: `if !handlerCtx.GetRuntimeContext().TestWithoutAPICalls` has complex nested blocks (complexity: 6) (nestif)
+	if !handlerCtx.GetRuntimeContext().TestWithoutAPICalls {
+	^
+pkg/awssign/aws_sign.go:20:6: exported: type name will be used as awssign.AwsSignTransport by other packages, and that stutters; consider calling this Transport (revive)
+type AwsSignTransport interface {
+     ^
+internal/stackql/db_util/db_util.go:1:9: var-naming: don't use an underscore in package name (revive)
+package db_util
+        ^
+internal/stackql/netutils/http_proxy.go:56:3: var-naming: var proxyUrl should be proxyURL (revive)
+		proxyUrl := &url.URL{
+		^
+internal/stackql/netutils/http_proxy.go:71:6: var-naming: func GetHttpClient should be GetHTTPClient (revive)
+func GetHttpClient(runtimeCtx dto.RuntimeCtx, existingClient *http.Client) *http.Client {
+     ^
+internal/stackql/netutils/http_proxy.go:75:6: var-naming: func getHttpClient should be getHTTPClient (revive)
+func getHttpClient(runtimeCtx dto.RuntimeCtx, existingClient *http.Client) *http.Client {
+     ^
+internal/stackql/metadatavisitors/requestvisitors.go:143:9: range: should omit 2nd value from range; this loop is equivalent to `for k := range ...` (revive)
+	for k, _ := range paramsToInclude {
+	       ^
+internal/stackql/metadatavisitors/requestvisitors.go:505:9: range: should omit 2nd value from range; this loop is equivalent to `for k := range ...` (revive)
+	for k, _ := range m {
+	       ^
+internal/stackql/parserutil/rewrite.go:15:9: range: should omit 2nd value from range; this loop is equivalent to `for k := range ...` (revive)
+	for k, _ := range m {
+	       ^
+internal/stackql/parserutil/parameter_map.go:68:9: range: should omit 2nd value from range; this loop is equivalent to `for k := range ...` (revive)
+	for k, _ := range pm.m {
+	       ^
+internal/stackql/parserutil/parameter_map.go:77:9: range: should omit 2nd value from range; this loop is equivalent to `for k := range ...` (revive)
+	for k, _ := range pm.m {
+	       ^
+internal/stackql/parserutil/table_expression_map.go:16:1: receiver-naming: receiver name tm should be consistent with previous receiver name tem for TableExprMap (revive)
+func (tm TableExprMap) SingleTableMap(filterTable sqlparser.TableName) TableExprMap {
+	rv := make(TableExprMap)
+	for k, v := range tm {
+		if k == filterTable {
+			rv[k] = v
+		}
+	}
+	return rv
+}
+internal/stackql/parserutil/parameter_map.go:91:9: range: should omit 2nd value from range; this loop is equivalent to `for k := range ...` (revive)
+	for k, _ := range abbreviatedMap {
+	       ^
+internal/stackql/parserutil/table_expression_map.go:26:1: receiver-naming: receiver name tm should be consistent with previous receiver name tem for TableExprMap (revive)
+func (tm TableExprMap) ToStringMap() map[string]interface{} {
+	rv := make(map[string]interface{})
+	for k, v := range tm {
+		rv[k.GetRawVal()] = v
+	}
+	return rv
+}
+internal/stackql/parserutil/parameter_map.go:101:9: range: should omit 2nd value from range; this loop is equivalent to `for k := range ...` (revive)
+	for k, _ := range abbreviatedMap {
+	       ^
+internal/stackql/parserutil/parameter_map.go:110:9: range: should omit 2nd value from range; this loop is equivalent to `for k := range ...` (revive)
+	for k, _ := range pm.m {
+	       ^
+internal/stackql/parserutil/parameter_map.go:193:1: receiver-naming: receiver name tm should be consistent with previous receiver name pm for standardParameterMap (revive)
+func (tm standardParameterMap) ToStringMap() map[string]interface{} {
+	rv := make(map[string]interface{})
+	for k, v := range tm.m {
+		rv[k.GetStringKey()] = v
+	}
+	return rv
+}
+internal/stackql/parserutil/columnar_reference.go:83:1: receiver-naming: receiver name pk should be consistent with previous receiver name cr for StandardColumnarReference (revive)
+func (pk StandardColumnarReference) iColumnarReference() {}
+^
+internal/stackql/parserutil/parser_util.go:540:6: var-naming: func CheckSqlParserTypeVsServiceColumn should be CheckSQLParserTypeVsServiceColumn (revive)
+func CheckSqlParserTypeVsServiceColumn(colUsage ColumnUsageMetadata) error {
+     ^
+internal/stackql/parserutil/parser_util.go:544:6: var-naming: func CheckSqlParserTypeVsResourceColumn should be CheckSQLParserTypeVsResourceColumn (revive)
+func CheckSqlParserTypeVsResourceColumn(colUsage ColumnUsageMetadata) error {
+     ^
+internal/stackql/parserutil/parser_util.go:548:6: var-naming: func CheckSqlParserTypeVsColumn should be CheckSQLParserTypeVsColumn (revive)
+func CheckSqlParserTypeVsColumn(colUsage ColumnUsageMetadata, verifyCallback func(string, interface{}) bool) error {
+     ^
+internal/stackql/internal_data_transfer/internaldto/http.go:24:6: var-naming: func ExtractHttpElement should be ExtractHTTPElement (revive)
+func ExtractHttpElement(s string) (HTTPElementType, error) {
+     ^
+internal/stackql/internal_data_transfer/internaldto/control.go:24:2: var-naming: struct field genId should be genID (revive)
+	genId, sessionID, txnId, insertId int
+	^
+internal/stackql/internal_data_transfer/internaldto/control.go:33:2: var-naming: var genId should be genID (revive)
+	genId, err := txnCtrMgr.GetCurrentGenerationID()
+	^
+internal/stackql/internal_data_transfer/internaldto/control.go:37:2: var-naming: var ssnId should be ssnID (revive)
+	ssnId, err := txnCtrMgr.GetCurrentSessionID()
+	^
+internal/stackql/internal_data_transfer/internaldto/control.go:41:2: var-naming: var txnId should be txnID (revive)
+	txnId, err := txnCtrMgr.GetNextTxnID()
+	^
+internal/stackql/internal_data_transfer/internaldto/control.go:45:2: var-naming: var insertId should be insertID (revive)
+	insertId, err := txnCtrMgr.GetNextInsertID()
+	^
+internal/stackql/internal_data_transfer/internaldto/control.go:57:36: var-naming: func parameter genId should be genID (revive)
+func NewTxnControlCountersFromVals(genId, ssnId, txnId, insertId int) TxnControlCounters {
+                                   ^
+internal/stackql/internal_data_transfer/internaldto/control.go:118:39: var-naming: method SetTxnId should be SetTxnID (revive)
+func (tc *standardTxnControlCounters) SetTxnId(ti int) {
+                                      ^
+internal/stackql/datasource/sql_table/sql_table.go:1:9: var-naming: don't use an underscore in package name (revive)
+package sql_table
+        ^
+internal/stackql/internal_data_transfer/internal_relational_dto/relayed_column_metadata.go:1:9: var-naming: don't use an underscore in package name (revive)
+package internal_relational_dto
+        ^
+internal/stackql/datasource/sql_datasource/sql_datasource.go:1:9: var-naming: don't use an underscore in package name (revive)
+package sql_datasource
+        ^
+internal/stackql/datasource/sql_datasource/generic.go:1:9: var-naming: don't use an underscore in package name (revive)
+package sql_datasource
+        ^
+internal/stackql/datasource/sql_datasource/generic.go:7:2: blank-imports: a blank import should be only in a main or test package, or have a comment justifying it (revive)
+	_ "github.com/jackc/pgx/v5/stdlib"
+	^
+internal/stackql/output/output.go:108:6: var-naming: type JsonWriter should be JSONWriter (revive)
+type JsonWriter struct {
+     ^
+internal/stackql/util/plan_utility.go:19:23: var-declaration: should omit type []string from declaration of var defaultColSortArr; it will be inferred from the right-hand side (revive)
+var defaultColSortArr []string = []string{
+                      ^
+internal/stackql/util/plan_utility.go:25:24: var-declaration: should omit type []string from declaration of var describeRowSortArr; it will be inferred from the right-hand side (revive)
+var describeRowSortArr []string = []string{
+                       ^
+internal/stackql/sql_system/postgres.go:114:1: receiver-naming: receiver name sl should be consistent with previous receiver name eng for postgresSystem (revive)
+func (sl *postgresSystem) GetASTFormatter() sqlparser.NodeFormatter {
+	return sl.formatter
+}
+internal/stackql/sql_system/setup_embed.go:1:9: var-naming: don't use an underscore in package name (revive)
+package sql_system
+        ^
+internal/stackql/sql_system/sql_system.go:1:9: var-naming: don't use an underscore in package name (revive)
+package sql_system
+        ^
+internal/stackql/sql_system/sql_system_util.go:1:9: var-naming: don't use an underscore in package name (revive)
+package sql_system
+        ^
+internal/stackql/sql_system/postgres.go:118:1: receiver-naming: receiver name sl should be consistent with previous receiver name eng for postgresSystem (revive)
+func (sl *postgresSystem) GetASTFuncRewriter() astfuncrewrite.ASTFuncRewriter {
+	return astfuncrewrite.GetPostgresASTFuncRewriter()
+}
+internal/stackql/sql_system/sqlite.go:78:1: receiver-naming: receiver name se should be consistent with previous receiver name eng for sqLiteSystem (revive)
+func (se *sqLiteSystem) getTableNameStump(tableHeirarchyIDs internaldto.HeirarchyIdentifiers) (string, error) {
+	return tableHeirarchyIDs.GetTableName(), nil
+}
+internal/stackql/sql_system/sqlite.go:102:1: receiver-naming: receiver name sl should be consistent with previous receiver name eng for sqLiteSystem (revive)
+func (sl *sqLiteSystem) GetName() string {
+	return constants.SQLDialectSQLite3
+}
+internal/stackql/sql_system/sqlite.go:106:1: receiver-naming: receiver name sl should be consistent with previous receiver name eng for sqLiteSystem (revive)
+func (sl *sqLiteSystem) GetASTFormatter() sqlparser.NodeFormatter {
+	return sl.formatter
+}
+internal/stackql/sql_system/postgres.go:249:1: receiver-naming: receiver name sl should be consistent with previous receiver name eng for postgresSystem (revive)
+func (sl *postgresSystem) getSQLExternalSchema(providerName string) string {
+	rv := ""
+	if sl.authCfg != nil {
+		ac, ok := sl.authCfg[providerName]
+		if ok && ac != nil {
+			sqlCfg, ok := ac.GetSQLCfg()
+			if ok {
+				rv = sqlCfg.GetSchemaType()
+			}
+		}
+	}
+	if rv == "" {
+		rv = constants.SQLDataSourceSchemaDefault
+	}
+	return rv
+}
+internal/stackql/sql_system/sqlite.go:110:1: receiver-naming: receiver name sl should be consistent with previous receiver name eng for sqLiteSystem (revive)
+func (sl *sqLiteSystem) GetASTFuncRewriter() astfuncrewrite.ASTFuncRewriter {
+	return astfuncrewrite.GetNopFuncRewriter()
+}
+internal/stackql/sql_system/sqlite.go:114:1: receiver-naming: receiver name sl should be consistent with previous receiver name eng for sqLiteSystem (revive)
+func (sl *sqLiteSystem) GCAdd(tableName string, parentTcc, lockableTcc internaldto.TxnControlCounters) error {
+	maxTxnColName := sl.controlAttributes.GetControlMaxTxnColumnName()
+	q := fmt.Sprintf(
+		`
+		UPDATE "%s" 
+		SET "%s" = r.current_value
+		FROM (
+			SELECT *
+			FROM
+				"__iql__.control.gc.rings"
+		) AS r
+		WHERE 
+			"%s" = ? 
+			AND 
+			"%s" = ? 
+			AND
+			r.ring_name = 'transaction_id'
+			AND
+			"%s" < CASE 
+			   WHEN ("%s" - r.current_offset) < 0
+				 THEN CAST(pow(2, r.width_bits) + ("%s" - r.current_offset)  AS int)
+				 ELSE "%s" - r.current_offset
+				 END
+		`,
+		tableName,
+		maxTxnColName,
+		sl.controlAttributes.GetControlTxnIDColumnName(),
+		sl.controlAttributes.GetControlInsIDColumnName(),
+		maxTxnColName,
+		maxTxnColName,
+		maxTxnColName,
+		maxTxnColName,
+	)
+	_, err := sl.sqlEngine.Exec(q, lockableTcc.GetTxnID(), lockableTcc.GetInsertID())
+	return err
+}
+internal/stackql/sql_system/postgres.go:630:1: receiver-naming: receiver name sl should be consistent with previous receiver name eng for postgresSystem (revive)
+func (sl *postgresSystem) GCAdd(tableName string, parentTcc, lockableTcc internaldto.TxnControlCounters) error {
+	maxTxnColName := sl.controlAttributes.GetControlMaxTxnColumnName()
+	q := fmt.Sprintf(
+		`
+		UPDATE "%s" 
+		SET "%s" = r.current_value
+		FROM (
+			SELECT *
+			FROM
+				"__iql__.control.gc.rings"
+		) AS r
+		WHERE 
+			"%s" = $1 
+			AND 
+			"%s" = $2 
+			AND
+			r.ring_name = 'transaction_id'
+			AND
+			"%s" < CASE 
+			   WHEN ("%s" - r.current_offset) < 0
+				 THEN CAST(pow(2, r.width_bits) + ("%s" - r.current_offset)  AS int)
+				 ELSE "%s" - r.current_offset
+				 END
+		`,
+		tableName,
+		maxTxnColName,
+		sl.controlAttributes.GetControlTxnIDColumnName(),
+		sl.controlAttributes.GetControlInsIDColumnName(),
+		maxTxnColName,
+		maxTxnColName,
+		maxTxnColName,
+		maxTxnColName,
+	)
+	_, err := sl.sqlEngine.Exec(q, lockableTcc.GetTxnID(), lockableTcc.GetInsertID())
+	return err
+}
+internal/stackql/sql_system/sqlite.go:151:1: receiver-naming: receiver name sl should be consistent with previous receiver name eng for sqLiteSystem (revive)
+func (sl *sqLiteSystem) GCCollectObsoleted(minTransactionID int) error {
+	return sl.gCCollectObsoleted(minTransactionID)
+}
+internal/stackql/sql_system/postgres.go:667:1: receiver-naming: receiver name sl should be consistent with previous receiver name eng for postgresSystem (revive)
+func (sl *postgresSystem) GCCollectObsoleted(minTransactionID int) error {
+	return sl.gCCollectObsoleted(minTransactionID)
+}
+internal/stackql/dto/namespace_config.go:21:64: unnecessary conversion (unconvert)
+	tmpl, err := template.New("stackqlNamespaceTmpl").Parse(string(nc.NamespaceTemplate))
+	                                                              ^
+internal/test/testhttpapi/httptestutils.go:363:42: unnecessary conversion (unconvert)
+	s := httptest.NewServer(http.HandlerFunc(handler))
+	                                        ^
+internal/stackql/metadatavisitors/requestvisitors.go:259:42: unnecessary conversion (unconvert)
+			retVal[k] = NewTemplatedProduct(string(bodyBytes), string(placeholderBytes))
+			                                      ^
+internal/stackql/parserutil/parameter_map.go:76:68: (standardParameterMap).deleteByAbbreviatedString - result 0 (bool) is never used (unparam)
+func (pm standardParameterMap) deleteByAbbreviatedString(s string) bool {
+                                                                   ^
+internal/stackql/sql_system/postgres.go:70:96: (*postgresSystem).inferViewSchemataEnabled - result 1 (error) is always nil (unparam)
+func (eng *postgresSystem) inferViewSchemataEnabled(schemataCfg dto.SQLBackendSchemata) (bool, error) {
+                                                                                               ^
+internal/stackql/astindirect/subquery_indirect.go:77:51: (*subquery).getAST - result 1 (error) is always nil (unparam)
+func (v *subquery) getAST() (sqlparser.Statement, error) {
+                                                  ^
+internal/stackql/dependencyplanner/dependencyplanner.go:346:2: `(*standardDependencyPlanner).processAcquire` - `stream` is unused (unparam)
+	stream streaming.MapStream,
+	^
+internal/stackql/astanalysis/earlyanalysis/ast_expand.go:58:22: newIndirectExpandAstVisitor - result 1 (error) is always nil (unparam)
+) (AstExpandVisitor, error) {
+                     ^
+internal/stackql/writer/writer.go:43:2: field `writer` is unused (unused)
+	writer io.Writer
+	^
+internal/stackql/internal_data_transfer/internaldto/primitive_ctx.go:20:2: field `body` is unused (unused)
+	body      map[string]interface{}
+	^
+internal/stackql/output/output.go:225:34: func `(*AbstractTabularWriter).processRow` is unused (unused)
+func (tw *AbstractTabularWriter) processRow(rowDict map[string]interface{}, header []string) []string {
+                                 ^
+internal/stackql/util/plan_utility.go:362:6: func `getColumnArr` is unused (unused)
+func getColumnArr(colTypes []*sql.ColumnType) []sqldata.ISQLColumn {
+     ^
+internal/stackql/util/plan_utility.go:373:6: func `getRowPointers` is unused (unused)
+func getRowPointers(colTypes []*sql.ColumnType) []any {
+     ^
+internal/stackql/util/plan_utility.go:480:6: func `getScannableObjectForNativeResult` is unused (unused)
+func getScannableObjectForNativeResult(colSchema *sql.ColumnType) any {
+     ^
+internal/stackql/util/plan_utility.go:382:6: func `nativeProtect` is unused (unused)
+func nativeProtect(rv internaldto.ExecutorOutput, columns []string) internaldto.ExecutorOutput {
+     ^
+internal/stackql/util/plan_utility.go:427:6: func `getOidForSQLType` is unused (unused)
+func getOidForSQLType(colType *sql.ColumnType) oid.Oid {
+     ^
+internal/stackql/sql_system/sql_system_util.go:9:6: func `singleColRowsToString` is unused (unused)
+func singleColRowsToString(rows *sql.Rows) (string, error) {
+     ^
+internal/stackql/provider/generic.go:265:28: func `(*GenericProvider).getServiceType` is unused (unused)
+func (gp *GenericProvider) getServiceType(service openapistackql.Service) string {
+                           ^
+internal/stackql/primitive/pass_through_primitive.go:12:2: field `id` is unused (unused)
+	id                     int64
+	^
+internal/stackql/plan/plan.go:18:2: field `mu` is unused (unused)
+	mu           sync.Mutex    // Mutex to protect the fields below
+	^
+internal/stackql/asyncmonitor/asyncmonitor.go:32:2: field `transferPayload` is unused (unused)
+	transferPayload     map[string]interface{}
+	^
+internal/stackql/asyncmonitor/asyncmonitor.go:116:2: field `precursor` is unused (unused)
+	precursor  primitive.IPrimitive
+	^
+internal/stackql/primitivebuilder/diamond_builder.go:17:2: field `txnControlCounterSlice` is unused (unused)
+	txnControlCounterSlice   []internaldto.TxnControlCounters
+	^
+internal/stackql/primitivebuilder/single_select.go:22:2: field `indirectPreparedStatementCtxs` is unused (unused)
+	indirectPreparedStatementCtxs []drm.PreparedStatementCtx
+	^
+internal/stackql/primitivebuilder/sql_data_source_single_select_acquire.go:35:2: field `sqlDataSource` is unused (unused)
+	sqlDataSource              sql_datasource.SQLDataSource
+	^
+internal/stackql/primitivebuilder/sub_tree_builder.go:6:2: field `indirects` is unused (unused)
+	indirects []Builder
+	^
+internal/stackql/primitivebuilder/union.go:18:2: field `lhs` is unused (unused)
+	lhs        drm.PreparedStatementCtx
+	^
+internal/stackql/primitivebuilder/union.go:19:2: field `rhs` is unused (unused)
+	rhs        []drm.PreparedStatementCtx
+	^
+internal/stackql/router/parameter_router.go:292:36: func `(*standardParameterRouter).invalidateParams` is unused (unused)
+func (pr *standardParameterRouter) invalidateParams(params map[string]interface{}) error {
+                                   ^
+internal/stackql/router/parameter_router.go:307:36: func `(*standardParameterRouter).invalidate` is unused (unused)
+func (pr *standardParameterRouter) invalidate(key string, val interface{}) error {
+                                   ^
+internal/stackql/driver/driver.go:40:6: func `throwErr` is unused (unused)
+func throwErr(err error, handlerCtx handler.HandlerContext) {
+     ^
+internal/stackql/asyncmonitor/asyncmonitor.go:198:61: response body must be closed (bodyclose)
+			response, apiErr := httpmiddleware.HttpApiCallFromRequest(gm.handlerCtx.Clone(), gm.provider, m, req)
+			                                                         ^
+internal/test/testhttpapi/httptestutils.go:481:40: response body must be closed (bodyclose)
+	transport := newSimpleTransportHandler(expectations)
+	                                      ^
+internal/stackql/astvisit/table_extract.go:1:1: the avarage complexity for the package astvisit is 47.413793, max is 10.000000 (cyclop)
+package astvisit
+^
+internal/stackql/router/table_routing.go:1:1: the avarage complexity for the package router is 17.181818, max is 10.000000 (cyclop)
+package router
+^
+internal/stackql/astanalysis/earlyanalysis/first_passes.go:1:1: the avarage complexity for the package earlyanalysis is 25.571429, max is 10.000000 (cyclop)
+package earlyanalysis
+^
+internal/stackql/dto/sql_backend_config.go:50:59: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		return "", fmt.Errorf("error parsing postgres dsn: %s", err.Error())
+		                                                        ^
+internal/stackql/parserutil/parser_util.go:125:82: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+						return nil, nonValCount, fmt.Errorf("error extracting Values integer: %s", err.Error())
+						                                                                           ^
+internal/stackql/parserutil/parser_util.go:131:80: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+						return nil, nonValCount, fmt.Errorf("error extracting Values float: %s", err.Error())
+						                                                                         ^
+internal/stackql/db_util/db_util.go:28:73: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		return nil, fmt.Errorf("%s db object setup error = '%s'", driverName, err.Error())
+		                                                                      ^
+internal/stackql/db_util/db_util.go:42:75: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		return nil, fmt.Errorf("%s connection setup ping error = '%s'", dbName, pingErr.Error())
+		                                                                        ^
+internal/stackql/sql_system/sql_system_util.go:14:62: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+			return "", fmt.Errorf("could not stringify sql rows: %v", err)
+			                                                          ^
+internal/stackql/docparser/doc_parser.go:64:57: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+			displayErr := fmt.Errorf("error generating DDL: %s", err.Error())
+			                                                     ^
+internal/stackql/docparser/doc_parser.go:72:87: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+				displayErr := fmt.Errorf("aborting DDL run for query '''%s''' with error: %s", q, err.Error())
+				                                                                                  ^
+internal/stackql/provider/auth_util.go:140:67: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		return nil, fmt.Errorf("service account credentials error: %v", err)
+		                                                                ^
+internal/stackql/provider/auth_util.go:157:51: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		return nil, fmt.Errorf("credentials error: %v", err)
+		                                                ^
+internal/stackql/provider/auth_util.go:176:51: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		return nil, fmt.Errorf("credentials error: %v", err)
+		                                                ^
+internal/stackql/provider/auth_util.go:196:51: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		return nil, fmt.Errorf("credentials error: %v", err)
+		                                                ^
+internal/stackql/provider/auth_util.go:211:65: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		return nil, fmt.Errorf("azure default credentials error: %v", err)
+		                                                              ^
+internal/stackql/provider/auth_util.go:215:71: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		return nil, fmt.Errorf("azure default credentials token error: %v", err)
+		                                                                    ^
+internal/stackql/handler/handler.go:239:69: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		err = fmt.Errorf("cannot find provider = '%s': %s", providerName, err.Error())
+		                                                                  ^
+internal/stackql/httpbuild/request.go:163:6: comparing with == will fail on wrapped errors. Use errors.Is to check for a specific error (errorlint)
+		if err == io.EOF {
+		   ^
+internal/stackql/tablemetadata/hierarchy_objects.go:182:36: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		return nil, fmt.Errorf("%s: %s", err.Error(), unsuitableSchemaMsg)
+		                                 ^
+internal/stackql/router/annotations_machinery.go:46:57: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		return nil, fmt.Errorf("%s: %s", unsuitableSchemaMsg, err.Error())
+		                                                      ^
+internal/stackql/data_staging/output_data_staging/output_data_staging.go:110:96: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		return internaldto.NewErroneousExecutorOutput(fmt.Errorf("sql packet preparation error: %s", err.Error()))
+		                                                                                             ^
+internal/stackql/primitivebuilder/graphql_single_select_acquire.go:169:8: comparing with == will fail on wrapped errors. Use errors.Is to check for a specific error (errorlint)
+				if err == io.EOF {
+				   ^
+internal/stackql/primitivebuilder/native_select.go:58:22: comparing with != will fail on wrapped errors. Use errors.Is to check for a specific error (errorlint)
+				if err != nil && err != io.EOF {
+				                 ^
+internal/stackql/primitivebuilder/native_select.go:65:8: comparing with == will fail on wrapped errors. Use errors.Is to check for a specific error (errorlint)
+				if err == io.EOF {
+				   ^
+internal/stackql/primitivegenerator/statement_analyzer.go:244:78: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+			return fmt.Errorf("cannot compile like string '%s': %s", showFilter.Like, err.Error())
+			                                                                          ^
+internal/stackql/primitivegenerator/statement_analyzer.go:519:71: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+			return nil, fmt.Errorf("required param not supplied for exec: %s", err.Error())
+			                                                                   ^
+internal/stackql/entryutil/entryutil.go:41:58: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		return nil, fmt.Errorf("error unmarshalling auth: %s", err.Error())
+		                                                       ^
+internal/stackql/entryutil/entryutil.go:87:69: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		return nil, fmt.Errorf("error initializing SQL data sources: %s", err.Error())
+		                                                                  ^
+internal/stackql/cmd/shell.go:185:7: comparing with == will fail on wrapped errors. Use errors.Is to check for a specific error (errorlint)
+			if err == readline.ErrInterrupt {
+			   ^
+internal/stackql/cmd/shell.go:191:14: comparing with == will fail on wrapped errors. Use errors.Is to check for a specific error (errorlint)
+			} else if err == io.EOF {
+			          ^
+internal/test/stackqltestutil/locator.go:16:62: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		return nil, fmt.Errorf("test failed on %s: %v", saKeyPath, err)
+		                                                           ^
+internal/test/stackqltestutil/locator.go:20:62: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		return nil, fmt.Errorf("test failed on %s: %v", saKeyPath, err)
+		                                                           ^
+internal/test/stackqltestutil/locator.go:24:45: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		return nil, fmt.Errorf("test failed: %v", err)
+		                                          ^
+internal/test/stackqltestutil/locator.go:28:67: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		return nil, fmt.Errorf("test failed on %s: %v", dbInitFilePath, err)
+		                                                                ^
+internal/test/stackqltestutil/locator.go:32:67: non-wrapping format verb for fmt.Errorf. Use `%w` to format errors (errorlint)
+		return nil, fmt.Errorf("test failed on %s: %v", dbInitFilePath, err)
+		                                                                ^
+internal/stackql/parserutil/parser_util.go:82:3: missing cases in switch of type sqlparser.ValType: sqlparser.HexNum, sqlparser.HexVal, sqlparser.ValArg, sqlparser.BitVal (exhaustive)
+		switch expr.Type {
+		^
+internal/stackql/parserutil/parser_util.go:100:2: missing cases in switch of type sqlparser.ValType: sqlparser.HexNum, sqlparser.HexVal, sqlparser.ValArg, sqlparser.BitVal (exhaustive)
+	switch expr.Type {
+	^
+internal/stackql/parserutil/parser_util.go:119:5: missing cases in switch of type sqlparser.ValType: sqlparser.HexNum, sqlparser.HexVal, sqlparser.ValArg, sqlparser.BitVal (exhaustive)
+				switch expr.Type {
+				^
+internal/stackql/sql_system/postgres.go:931:2: missing cases in switch of type reflect.Kind: reflect.Invalid, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr, reflect.Float32, reflect.Complex64, reflect.Complex128, reflect.Chan, reflect.Func, reflect.Interface, reflect.Pointer|reflect.Ptr, reflect.Slice, reflect.Struct, reflect.UnsafePointer (exhaustive)
+	switch rv.GetGolangKind() {
+	^
+internal/stackql/sql_system/sqlite.go:892:2: missing cases in switch of type reflect.Kind: reflect.Invalid, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr, reflect.Float32, reflect.Complex64, reflect.Complex128, reflect.Chan, reflect.Func, reflect.Interface, reflect.Pointer|reflect.Ptr, reflect.Slice, reflect.Struct, reflect.UnsafePointer (exhaustive)
+	switch rv.GetGolangKind() {
+	^
+internal/stackql/httpbuild/http_armoury_params.go:108:2: missing cases in switch of type internaldto.HTTPElementType: internaldto.PathParam, internaldto.Header, internaldto.Error (exhaustive)
+	switch tokenKey.GetType() {
+	^
+internal/stackql/astvisit/assign_leftover_references.go:314:3: missing cases in switch of type sqlparser.ReferenceAction: sqlparser.DefaultAction (exhaustive)
+		switch a {
+		^
+internal/stackql/astvisit/fragment_rewriting.go:521:3: missing cases in switch of type sqlparser.ReferenceAction: sqlparser.DefaultAction (exhaustive)
+		switch a {
+		^
+internal/stackql/astvisit/from_rewrite.go:430:3: missing cases in switch of type sqlparser.ReferenceAction: sqlparser.DefaultAction (exhaustive)
+		switch a {
+		^
+internal/stackql/astvisit/param_extract.go:417:3: missing cases in switch of type sqlparser.ReferenceAction: sqlparser.DefaultAction (exhaustive)
+		switch a {
+		^
+internal/stackql/astvisit/placeholder_param_extract.go:437:3: missing cases in switch of type sqlparser.ReferenceAction: sqlparser.DefaultAction (exhaustive)
+		switch a {
+		^
+internal/stackql/astvisit/provider_string_extract.go:454:3: missing cases in switch of type sqlparser.ReferenceAction: sqlparser.DefaultAction (exhaustive)
+		switch a {
+		^
+internal/stackql/astvisit/query_rewriting.go:433:3: missing cases in switch of type sqlparser.ReferenceAction: sqlparser.DefaultAction (exhaustive)
+		switch a {
+		^
+internal/stackql/astvisit/table_alias_pairing.go:319:3: missing cases in switch of type sqlparser.ReferenceAction: sqlparser.DefaultAction (exhaustive)
+		switch a {
+		^
+internal/stackql/astvisit/table_extract.go:285:3: missing cases in switch of type sqlparser.ReferenceAction: sqlparser.DefaultAction (exhaustive)
+		switch a {
+		^
+internal/stackql/router/table_routing.go:342:3: missing cases in switch of type sqlparser.ReferenceAction: sqlparser.DefaultAction (exhaustive)
+		switch a {
+		^
+internal/stackql/primitivebuilder/single_select_acquire.go:300:2: missing cases in switch of type internaldto.HTTPElementType: internaldto.QueryParam, internaldto.PathParam, internaldto.RequestString, internaldto.Error (exhaustive)
+	switch tokenKey.GetType() {
+	^
+internal/stackql/astanalysis/earlyanalysis/ast_expand.go:492:3: missing cases in switch of type sqlparser.ReferenceAction: sqlparser.DefaultAction (exhaustive)
+		switch a {
+		^
+internal/stackql/planbuilder/entrypoint.go:82:2: missing cases in switch of type earlyanalysis.InstructionType: earlyanalysis.CachedInstruction (exhaustive)
+	switch earlyPassScreenerAnalyzer.GetInstructionType() {
+	^
+internal/stackql/kstore/kstore.go:11:2: once is a global variable (gochecknoglobals)
+	once             sync.Once
+	^
+internal/stackql/kstore/kstore.go:12:2: kvStoreSingleton is a global variable (gochecknoglobals)
+	kvStoreSingleton KStore
+	^
+internal/stackql/tablenamespace/director.go:16:2: defaultAnalyticsTemplate is a global variable (gochecknoglobals)
+	defaultAnalyticsTemplate    = templateParseOrPanic("defaultAnalyticsTmpl", constants.DefaultAnalyticsTemplateString)
+	^
+internal/stackql/tablenamespace/director.go:17:2: defaultViewsTemplate is a global variable (gochecknoglobals)
+	defaultViewsTemplate        = templateParseOrPanic("defaultViewsTmpl", constants.DefaultViewsTemplateString)
+	^
+internal/stackql/gcexec/gcexec.go:14:2: once is a global variable (gochecknoglobals)
+	once                     sync.Once
+	^
+internal/stackql/gcexec/gcexec.go:15:2: garbageCollectorExecutor is a global variable (gochecknoglobals)
+	garbageCollectorExecutor GarbageCollectorExecutor
+	^
+internal/stackql/cmd/exec.go:34:5: execCmd is a global variable (gochecknoglobals)
+var execCmd = &cobra.Command{
+    ^
+internal/stackql/cmd/registry.go:34:5: registryCmd is a global variable (gochecknoglobals)
+var registryCmd = &cobra.Command{
+    ^
+internal/stackql/cmd/root.go:54:2: runtimeCtx is a global variable (gochecknoglobals)
+	runtimeCtx      dto.RuntimeCtx
+	^
+internal/stackql/cmd/root.go:55:2: queryCache is a global variable (gochecknoglobals)
+	queryCache      *lrucache.LRUCache
+	^
+internal/stackql/cmd/root.go:60:5: rootCmd is a global variable (gochecknoglobals)
+var rootCmd = &cobra.Command{
+    ^
+internal/stackql/cmd/shell.go:108:5: shellCmd is a global variable (gochecknoglobals)
+var shellCmd = &cobra.Command{
+    ^
+internal/stackql/cmd/srv.go:32:5: srvCmd is a global variable (gochecknoglobals)
+var srvCmd = &cobra.Command{
+    ^
+internal/stackql/parserutil/parser_util.go:555:54: mnd: Magic number: 11, in <argument> detected (gomnd)
+		if !verifyCallback(colUsage.ColName.Name.String(), 11) {
+		                                                   ^
+internal/stackql/parserutil/parser_util.go:559:54: mnd: Magic number: 3.33, in <argument> detected (gomnd)
+		if !verifyCallback(colUsage.ColName.Name.String(), 3.33) {
+		                                                   ^
+internal/stackql/parserutil/parser_util.go:563:54: mnd: Magic number: 0x11, in <argument> detected (gomnd)
+		if !verifyCallback(colUsage.ColName.Name.String(), 0x11) {
+		                                                   ^
+internal/stackql/util/plan_utility.go:462:3: mnd: Magic number: 1024, in <argument> detected (gomnd)
+		1024,
+		^
+internal/stackql/util/plan_utility.go:474:3: mnd: Magic number: 1024, in <argument> detected (gomnd)
+		1024,
+		^
+internal/stackql/sql_system/postgres.go:578:43: mnd: Magic number: 5, in <argument> detected (gomnd)
+			vals = append(vals, fmt.Sprintf("$%d", 5+i))
+			                                       ^
+internal/stackql/sql_system/postgres.go:580:57: mnd: Magic number: 5, in <argument> detected (gomnd)
+			vals = append(vals, fmt.Sprintf("CAST($%d AS TEXT)", 5+i))
+			                                                     ^
+internal/stackql/sql_system/postgres.go:504:12: mnd: Magic number: 4, in <operation> detected (gomnd)
+		j := i * 4
+		         ^
+internal/stackql/astvisit/assign_leftover_references.go:221:29: mnd: Magic number: 16, in <argument> detected (gomnd)
+		opts := make([]string, 0, 16)
+		                          ^
+internal/stackql/astvisit/fragment_rewriting.go:401:29: mnd: Magic number: 16, in <argument> detected (gomnd)
+		opts := make([]string, 0, 16)
+		                          ^
+internal/stackql/astvisit/from_rewrite.go:310:29: mnd: Magic number: 16, in <argument> detected (gomnd)
+		opts := make([]string, 0, 16)
+		                          ^
+internal/stackql/astvisit/param_extract.go:304:29: mnd: Magic number: 16, in <argument> detected (gomnd)
+		opts := make([]string, 0, 16)
+		                          ^
+internal/stackql/astvisit/placeholder_param_extract.go:324:29: mnd: Magic number: 16, in <argument> detected (gomnd)
+		opts := make([]string, 0, 16)
+		                          ^
+internal/stackql/astvisit/provider_string_extract.go:334:29: mnd: Magic number: 16, in <argument> detected (gomnd)
+		opts := make([]string, 0, 16)
+		                          ^
+internal/stackql/astvisit/query_rewriting.go:328:29: mnd: Magic number: 16, in <argument> detected (gomnd)
+		opts := make([]string, 0, 16)
+		                          ^
+internal/stackql/astvisit/table_alias_pairing.go:226:29: mnd: Magic number: 16, in <argument> detected (gomnd)
+		opts := make([]string, 0, 16)
+		                          ^
+internal/stackql/astvisit/table_extract.go:192:29: mnd: Magic number: 16, in <argument> detected (gomnd)
+		opts := make([]string, 0, 16)
+		                          ^
+internal/stackql/router/table_routing.go:249:29: mnd: Magic number: 16, in <argument> detected (gomnd)
+		opts := make([]string, 0, 16)
+		                          ^
+internal/stackql/data_staging/input_data_staging/input_data_staging.go:174:3: mnd: Magic number: 1024, in <argument> detected (gomnd)
+		1024,
+		^
+internal/stackql/data_staging/input_data_staging/input_data_staging.go:209:3: mnd: Magic number: 1024, in <argument> detected (gomnd)
+		1024,
+		^
+internal/stackql/metadatavisitors/requestvisitors.go:175:51: mnd: Magic number: 2, in <argument> detected (gomnd)
+	schemaVisitor := NewSchemaRequestTemplateVisitor(2, "", prettyPrinter, placeHolderPrettyPrinter, requiredOnly)
+	                                                 ^
+internal/stackql/astanalysis/earlyanalysis/ast_expand.go:379:29: mnd: Magic number: 16, in <argument> detected (gomnd)
+		opts := make([]string, 0, 16)
+		                          ^
+internal/stackql/cmd/root.go:135:84: mnd: Magic number: 100, in <argument> detected (gomnd)
+	rootCmd.PersistentFlags().IntVar(&runtimeCtx.CacheKeyCount, dto.CacheKeyCountKey, 100, "Cache initial key count")
+	                                                                                  ^
+internal/stackql/cmd/registry.go:71:9: mnd: Magic number: 2, in <case> detected (gomnd)
+			case 2:
+			     ^
+internal/stackql/cmd/registry.go:57:20: mnd: Magic number: 3, in <condition> detected (gomnd)
+			if len(args) != 3 {
+			                ^
+internal/test/testhttpapi/httptestutils.go:144:16: mnd: Magic number: 200, in <assign> detected (gomnd)
+			StatusCode: 200,
+			            ^
+internal/test/stackqltestutil/setup.go:173:50: mnd: Magic number: 3, in <argument> detected (gomnd)
+	expectations := testhttpapi.NewExpectationStore(3)
+	                                                ^
+internal/test/stackqltestutil/setup.go:479:50: mnd: Magic number: 3, in <argument> detected (gomnd)
+	expectations := testhttpapi.NewExpectationStore(3)
+	                                                ^
+internal/test/stackqltestutil/setup.go:489:50: mnd: Magic number: 5, in <argument> detected (gomnd)
+	expectations := testhttpapi.NewExpectationStore(5)
+	                                                ^
+internal/test/stackqltestutil/setup.go:514:50: mnd: Magic number: 5, in <argument> detected (gomnd)
+	expectations := testhttpapi.NewExpectationStore(5)
+	                                                ^
+internal/test/stackqltestutil/setup.go:530:50: mnd: Magic number: 3, in <argument> detected (gomnd)
+	expectations := testhttpapi.NewExpectationStore(3)
+	                                                ^
+internal/test/stackqltestutil/setup.go:562:50: mnd: Magic number: 3, in <argument> detected (gomnd)
+	expectations := testhttpapi.NewExpectationStore(3)
+	                                                ^
+internal/test/stackqltestutil/setup.go:575:50: mnd: Magic number: 30, in <argument> detected (gomnd)
+	expectations := testhttpapi.NewExpectationStore(30)
+	                                                ^
+internal/test/stackqltestutil/setup.go:610:50: mnd: Magic number: 30, in <argument> detected (gomnd)
+	expectations := testhttpapi.NewExpectationStore(30)
+	                                                ^
+internal/stackql/metadatavisitors/requestvisitors.go:495:10: S1025: the argument is already a string, there's no need to use fmt.Sprintf (gosimple)
+		return fmt.Sprintf(`%s`, valBase)
+		       ^
+internal/stackql/primitivebuilder/shortcuts.go:151:31: S1039: unnecessary use of fmt.Sprintf (gosimple)
+			logging.GetLogger().Infoln(fmt.Sprintf("table and therefore filter not found for AST, shall procede nil filter"))
+			                           ^
+internal/stackql/primitivebuilder/shortcuts.go:197:31: S1039: unnecessary use of fmt.Sprintf (gosimple)
+			logging.GetLogger().Infoln(fmt.Sprintf("table and therefore filter not found for AST, shall procede nil filter"))
+			                           ^
+internal/stackql/planbuilder/plan_builder.go:509:34: S1039: unnecessary use of fmt.Sprintf (gosimple)
+							WorkingMessages: []string{fmt.Sprintf("Global PURGE successfully completed")}},
+							                          ^
+internal/stackql/drm/drm_cfg.go:548:5: S1009: should omit nil check; len() for map[string]interface{} is defined as zero (gosimple)
+	if psArgs != nil && len(psArgs) > 0 {
+	   ^
+internal/stackql/primitivegenerator/primitive_generator.go:149:53: S1002: should omit comparison to bool constant, can be simplified to `right` (gosimple)
+		resolved, resErr = sqltypeutil.InterfaceToSQLType(right == true)
+		                                                  ^
+internal/test/testhttpapi/httptestutils.go:240:3: S1038: should use fmt.Fprintf instead of fmt.Fprintln(fmt.Sprintf(...)) (but don't forget the newline) (gosimple)
+		fmt.Fprintln(os.Stderr, fmt.Sprintf("body = '%s'", string(actualBodyBytes)))
+		^
+internal/test/testhttpapi/httptestutils.go:263:4: S1038: should use fmt.Fprintf instead of fmt.Fprintln(fmt.Sprintf(...)) (but don't forget the newline) (gosimple)
+			fmt.Fprintln(os.Stderr, fmt.Sprintf("header key '%s' and val '%s' OK", k, v[i]))
+			^
+internal/stackql/primitivebuilder/insert.go:168:6: S1011: should replace loop with `msgs.WorkingMessages = append(msgs.WorkingMessages, resultSet.Msg.WorkingMessages...)` (gosimple)
+					for _, m := range resultSet.Msg.WorkingMessages {
+					^
+internal/stackql/discovery/discovery.go:197:9: nilness: impossible condition: nil != nil (govet)
+	if err != nil {
+	       ^
+internal/stackql/handler/handler.go:257:14: nilness: tautological condition: non-nil != nil (govet)
+			if target != nil {
+			          ^
+internal/stackql/handler/handler.go:263:14: nilness: tautological condition: non-nil != nil (govet)
+			if target != nil {
+			          ^
+internal/stackql/handler/handler.go:357:9: nilness: impossible condition: nil != nil (govet)
+	if err != nil {
+	       ^
+internal/stackql/httpbuild/request.go:46:10: nilness: impossible condition: nil != nil (govet)
+		if err != nil {
+		       ^
+internal/stackql/httpbuild/request.go:101:10: nilness: impossible condition: nil != nil (govet)
+		if err != nil {
+		       ^
+internal/stackql/httpbuild/request.go:177:10: nilness: impossible condition: nil != nil (govet)
+		if err != nil {
+		       ^
+internal/stackql/tablemetadata/hierarchy_objects.go:184:28: nilness: impossible condition: nil != nil (govet)
+	if itemObjS == nil || err != nil {
+	                          ^
+internal/stackql/primitivebuilder/shortcuts.go:95:10: nilness: tautological condition: nil == nil (govet)
+		if err == nil {
+		       ^
+internal/stackql/primitivebuilder/shortcuts.go:116:10: nilness: impossible condition: nil != nil (govet)
+		if err != nil {
+		       ^
+internal/stackql/primitivebuilder/shortcuts.go:196:10: nilness: impossible condition: nil != nil (govet)
+		if err != nil {
+		       ^
+internal/stackql/primitivebuilder/single_select_acquire.go:183:12: nilness: impossible condition: nil != nil (govet)
+				if err != nil {
+				       ^
+internal/stackql/primitivebuilder/single_select_acquire.go:241:16: nilness: tautological condition: nil == nil (govet)
+								if err == nil {
+								       ^
+internal/stackql/dependencyplanner/dependencyplanner.go:308:10: nilness: impossible condition: nil != nil (govet)
+		if err != nil {
+		       ^
+internal/stackql/primitivegenerator/select.go:43:9: nilness: impossible condition: nil != nil (govet)
+	if err != nil {
+	       ^
+internal/stackql/primitivegenerator/select.go:72:9: nilness: impossible condition: nil != nil (govet)
+	if err != nil {
+	       ^
+internal/stackql/primitivegenerator/statement_analyzer.go:600:9: nilness: impossible condition: nil != nil (govet)
+	if err != nil {
+	       ^
+internal/stackql/primitivegenerator/statement_analyzer.go:782:9: nilness: impossible condition: nil != nil (govet)
+	if err != nil {
+	       ^
+internal/stackql/primitivegenerator/statement_analyzer.go:1058:9: nilness: impossible condition: nil != nil (govet)
+	if err != nil {
+	       ^
+internal/test/stackqltestutil/locator.go:82:9: nilness: impossible condition: nil != nil (govet)
+	if err != nil {
+	       ^
+internal/test/stackqltestutil/locator.go:86:9: nilness: impossible condition: nil != nil (govet)
+	if err != nil {
+	       ^
+internal/test/stackqltestutil/locator.go:90:9: nilness: impossible condition: nil != nil (govet)
+	if err != nil {
+	       ^
+internal/test/stackqltestutil/locator.go:94:9: nilness: impossible condition: nil != nil (govet)
+	if err != nil {
+	       ^
+internal/test/stackqltestutil/locator.go:98:9: nilness: impossible condition: nil != nil (govet)
+	if err != nil {
+	       ^
+internal/stackql/parserutil/parser_util.go:58:8: shadow: declaration of "err" shadows declaration at line 54 (govet)
+			cn, err := inferColNameFromExpr(node, formatter)
+			    ^
+internal/stackql/parserutil/parser_util.go:123:10: shadow: declaration of "err" shadows declaration at line 113 (govet)
+					rv, err := strconv.Atoi(string(expr.Val))
+					    ^
+internal/stackql/parserutil/parser_util.go:129:10: shadow: declaration of "err" shadows declaration at line 113 (govet)
+					rv, err := strconv.ParseFloat(string(expr.Val), FloatBitSize)
+					    ^
+internal/stackql/sql_system/postgres.go:162:6: shadow: declaration of "err" shadows declaration at line 157 (govet)
+		_, err := tx.Exec(
+		   ^
+internal/stackql/sql_system/postgres.go:236:3: shadow: declaration of "err" shadows declaration at line 217 (govet)
+		err := rows.Scan(&columnName, &columnType, &oID, &colWidth, &colPrecision)
+		^
+internal/stackql/sql_system/postgres.go:254:12: shadow: declaration of "ok" shadows declaration at line 252 (govet)
+			sqlCfg, ok := ac.GetSQLCfg()
+			        ^
+internal/stackql/sql_system/postgres.go:406:17: shadow: declaration of "err" shadows declaration at line 363 (govet)
+		intelViewDDL, err := eng.generateViewDDL(eng.tableSchema, eng.intelViewSchema, relationalTable)
+		              ^
+internal/stackql/sql_system/sqlite.go:190:6: shadow: declaration of "err" shadows declaration at line 185 (govet)
+		_, err := tx.Exec(
+		   ^
+internal/stackql/sql_system/sqlite.go:225:12: shadow: declaration of "ok" shadows declaration at line 223 (govet)
+			sqlCfg, ok := ac.GetSQLCfg()
+			        ^
+internal/stackql/sql_system/sqlite.go:281:3: shadow: declaration of "err" shadows declaration at line 262 (govet)
+		err := rows.Scan(&columnName, &columnType, &oID, &colWidth, &colPrecision)
+		^
+internal/stackql/sql_system/sqlite.go:562:17: shadow: declaration of "err" shadows declaration at line 553 (govet)
+				oldestTime, err := time.Parse("2006-01-02T15:04:05", oldest)
+				            ^
+internal/stackql/drm/drm_cfg.go:382:13: shadow: declaration of "err" shadows declaration at line 380 (govet)
+		tableObj, err := dc.GetCurrentTable(tabAnnotated.GetHeirarchyIdentifiers())
+		          ^
+internal/stackql/drm/drm_cfg.go:389:13: shadow: declaration of "err" shadows declaration at line 380 (govet)
+		tableObj, err := dc.GetCurrentTable(tabAnnotated.GetHeirarchyIdentifiers())
+		          ^
+internal/stackql/drm/drm_cfg.go:404:17: shadow: declaration of "err" shadows declaration at line 380 (govet)
+		tableColumns, err := dc.sqlSystem.ObtainRelationalColumnsFromExternalSQLtable(tabAnnotated.GetHeirarchyIdentifiers())
+		              ^
+internal/stackql/drm/drm_cfg.go:414:17: shadow: declaration of "err" shadows declaration at line 380 (govet)
+		tableColumns, err := schemaAnalyzer.GetColumnDescriptors(tabAnnotated)
+		              ^
+internal/stackql/docparser/doc_parser.go:62:8: shadow: declaration of "err" shadows declaration at line 42 (govet)
+		ddl, err := drmCfg.GenerateDDL(tblt, m, discoveryGenerationId, false)
+		     ^
+internal/stackql/discovery/discovery.go:99:4: shadow: declaration of "err" shadows declaration at line 82 (govet)
+			err := adp.sqlSystem.CreateView(viewName, viewBodyDDL)
+			^
+internal/stackql/discovery/discovery.go:141:8: shadow: declaration of "err" shadows declaration at line 128 (govet)
+		svc, err := adp.registry.GetServiceFromProviderService(component)
+		     ^
+internal/stackql/provider/generic.go:429:17: shadow: declaration of "err" shadows declaration at line 424 (govet)
+			transformer, err := st.GetTransformer()
+			             ^
+internal/stackql/provider/generic.go:472:17: shadow: declaration of "err" shadows declaration at line 467 (govet)
+			transformer, err := st.GetTransformer()
+			             ^
+internal/stackql/handler/handler.go:228:8: shadow: declaration of "err" shadows declaration at line 211 (govet)
+			pr, err := prov.GetProvider()
+			    ^
+internal/stackql/httpbuild/request.go:56:7: shadow: declaration of "err" shadows declaration at line 22 (govet)
+			b, err := json.Marshal(params.GetRequestBody())
+			   ^
+internal/stackql/httpbuild/request.go:61:4: shadow: declaration of "req" shadows declaration at line 25 (govet)
+			req, reqExists := m.GetRequest()
+			^
+internal/stackql/httpbuild/request.go:118:17: shadow: declaration of "ok" shadows declaration at line 117 (govet)
+		if regionStr, ok := region.(string); ok {
+		              ^
+internal/stackql/httpbuild/request.go:158:8: shadow: declaration of "err" shadows declaration at line 141 (govet)
+		out, err := parameters.Read()
+		     ^
+internal/stackql/httpbuild/request.go:187:7: shadow: declaration of "err" shadows declaration at line 141 (govet)
+			b, err := json.Marshal(params.GetRequestBody())
+			   ^
+internal/stackql/astvisit/assign_leftover_references.go:64:15: ineffectual assignment to err (ineffassign)
+		properties, err := selectable.GetProperties()
+		            ^
+internal/stackql/astvisit/provider_string_extract.go:691:4: ineffectual assignment to str (ineffassign)
+			str, err = v.namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().RenderTemplate(str)
+			^
+internal/stackql/astvisit/table_extract.go:418:5: ineffectual assignment to err (ineffassign)
+				err = n.Accept(v)
+				^
+internal/stackql/metadatavisitors/requestvisitors.go:266:2: ineffectual assignment to retVal (ineffassign)
+	retVal := make(map[string]TemplatedProduct)
+	^
+internal/stackql/metadatavisitors/requestvisitors.go:294:2: ineffectual assignment to oPrefix (ineffassign)
+	oPrefix := objectKey
+	^
+internal/stackql/metadatavisitors/requestvisitors.go:389:2: ineffectual assignment to oPrefix (ineffassign)
+	oPrefix := objectKey
+	^
+internal/stackql/dependencyplanner/dependencyplanner.go:306:3: ineffectual assignment to tableName (ineffassign)
+		tableName := tableObj.GetName()
+		^
+internal/stackql/primitivegenerator/statement_analyzer.go:595:7: ineffectual assignment to err (ineffassign)
+	tbl, err := p.AnalyzeUnaryExec(pbi, handlerCtx, node, nil, nil)
+	     ^
+internal/stackql/output/output.go:258:6: ineffectual assignment to isHeaderRead (ineffassign)
+					isHeaderRead = true
+					^
+internal/stackql/output/output.go:344:6: ineffectual assignment to isHeaderRead (ineffassign)
+					isHeaderRead = true
+					^
+internal/stackql/output/output.go:393:6: ineffectual assignment to isHeaderRead (ineffassign)
+					isHeaderRead = true
+					^
+internal/stackql/output/output.go:440:6: ineffectual assignment to isHeaderRead (ineffassign)
+					isHeaderRead = true
+					^
+internal/stackql/astanalysis/earlyanalysis/ast_expand.go:79:3: error is not nil (line 77) but it returns nil (nilerr)
+		return nil
+		^
+internal/stackql/astanalysis/earlyanalysis/ast_expand.go:676:6: error is not nil (line 674) but it returns nil (nilerr)
+					return nil
+					^
+internal/stackql/astanalysis/earlyanalysis/ast_expand.go:680:6: error is not nil (line 678) but it returns nil (nilerr)
+					return nil
+					^
+internal/stackql/metadatavisitors/requestvisitors.go:284:4: return both the `nil` error and invalid value: use a sentinel error instead (nilnil)
+			return nil, nil
+			^
+internal/stackql/metadatavisitors/requestvisitors.go:360:4: return both the `nil` error and invalid value: use a sentinel error instead (nilnil)
+			return nil, nil
+			^
+internal/stackql/metadatavisitors/requestvisitors.go:453:4: return both the `nil` error and invalid value: use a sentinel error instead (nilnil)
+			return nil, nil
+			^
+internal/stackql/asyncmonitor/asyncmonitor.go:235:24: should rewrite http.NewRequestWithContext or add (*Request).WithContext (noctx)
+	return http.NewRequest(
+	                      ^
+internal/stackql/primitivegraph/dag.go:176:1: named return "sorted" with type "[]graph.Node" found (nonamedreturns)
+func SortPlan(g PrimitiveGraph) (sorted []graph.Node, err error) {
+^
+internal/stackql/writer/writer.go:46:1: named return "n" with type "int" found (nonamedreturns)
+func (ssw *BaseWriter) Write(p []byte) (n int, err error) {
+^
+internal/stackql/writer/writer.go:70:1: named return "n" with type "int" found (nonamedreturns)
+func (ssw *StdStreamWriter) Write(p []byte) (n int, err error) {
+^
+internal/stackql/sql_system/postgres.go:217:33: Rows/Stmt was not closed (sqlclosecheck)
+	rows, err := sl.sqlEngine.Query(
+	                               ^
+internal/stackql/sql_system/sqlite.go:262:33: Rows/Stmt was not closed (sqlclosecheck)
+	rows, err := sl.sqlEngine.Query(
+	                               ^
+internal/stackql/sqlstream/sql_map_stream.go:42:33: Rows/Stmt was not closed (sqlclosecheck)
+	r, sqlErr := ss.drmCfg.QueryDML(
+	                               ^
+internal/stackql/responsehandler/responsehandler.go:33:5: SA4000: identical expressions on the left and right side of the '&&' operator (staticcheck)
+	if response.GetSQLResult() != nil && response.GetSQLResult() != nil && response.Err == nil {
+	   ^
+internal/stackql/drm/drm_cfg.go:487:20: SA4010: this result of append is never used, except maybe in other appends (staticcheck)
+		quotedColNames = append(quotedColNames, fmt.Sprintf("%s ", relationalColumn.CanonicalSelectionString()))
+		                 ^
+internal/stackql/parserutil/columnar_reference.go:31:2: SA9003: empty branch (staticcheck)
+	if cr.SourceType() == JoinOnParam {
+	^
+internal/stackql/parserutil/parameter_map.go:155:3: SA9003: empty branch (staticcheck)
+		if k.SourceType() == JoinOnParam {
+		^
+internal/stackql/provider/auth_util.go:148:2: SA9003: empty branch (staticcheck)
+	if DummyAuth {
+	^
+internal/stackql/astvisit/assign_leftover_references.go:215:10: SA9003: empty branch (staticcheck)
+		} else if ct.Length != nil {
+		       ^
+internal/stackql/astvisit/assign_leftover_references.go:218:3: SA9003: empty branch (staticcheck)
+		if ct.EnumValues != nil {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:265:3: SA9003: empty branch (staticcheck)
+		if len(opts) != 0 {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:272:11: SA9003: empty branch (staticcheck)
+			} else {
+			       ^
+internal/stackql/astvisit/assign_leftover_references.go:274:4: SA9003: empty branch (staticcheck)
+			if col.Length != nil {
+			^
+internal/stackql/astvisit/assign_leftover_references.go:280:11: SA9003: empty branch (staticcheck)
+			} else {
+			       ^
+internal/stackql/astvisit/assign_leftover_references.go:288:4: SA9003: empty branch (staticcheck)
+			if !ii.Name.IsEmpty() {
+			^
+internal/stackql/astvisit/assign_leftover_references.go:300:5: SA9003: empty branch (staticcheck)
+				if i != 0 {
+				^
+internal/stackql/astvisit/assign_leftover_references.go:309:3: SA9003: empty branch (staticcheck)
+		if c.Name != "" {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:324:3: SA9003: empty branch (staticcheck)
+		if f.OnDelete != sqlparser.DefaultAction {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:326:3: SA9003: empty branch (staticcheck)
+		if f.OnUpdate != sqlparser.DefaultAction {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:334:11: SA9003: empty branch (staticcheck)
+			} else {
+			       ^
+internal/stackql/astvisit/assign_leftover_references.go:336:4: SA9003: empty branch (staticcheck)
+			if (nodeType == "columns" || nodeType == "fields") && node.HasOnTable() {
+			^
+internal/stackql/astvisit/assign_leftover_references.go:338:4: SA9003: empty branch (staticcheck)
+			if (nodeType == "index" || nodeType == "keys" || nodeType == "indexes") && node.HasOnTable() {
+			^
+internal/stackql/astvisit/assign_leftover_references.go:340:4: SA9003: empty branch (staticcheck)
+			if opt.DbName != "" {
+			^
+internal/stackql/astvisit/assign_leftover_references.go:345:10: SA9003: empty branch (staticcheck)
+		} else {
+		       ^
+internal/stackql/astvisit/assign_leftover_references.go:347:3: SA9003: empty branch (staticcheck)
+		if node.HasOnTable() {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:353:3: SA9003: empty branch (staticcheck)
+		if node.HasTable() {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:361:10: SA9003: empty branch (staticcheck)
+		} else {
+		       ^
+internal/stackql/astvisit/assign_leftover_references.go:366:10: SA9003: empty branch (staticcheck)
+		} else {
+		       ^
+internal/stackql/astvisit/assign_leftover_references.go:405:3: SA9003: empty branch (staticcheck)
+		if !node.TableName.IsEmpty() {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:413:3: SA9003: empty branch (staticcheck)
+		if !node.As.IsEmpty() {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:438:3: SA9003: empty branch (staticcheck)
+		if aliasStr != "" {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:463:3: SA9003: empty branch (staticcheck)
+		if !node.QualifierThird.IsEmpty() {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:465:3: SA9003: empty branch (staticcheck)
+		if !node.QualifierSecond.IsEmpty() {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:467:3: SA9003: empty branch (staticcheck)
+		if !node.Qualifier.IsEmpty() {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:479:3: SA9003: empty branch (staticcheck)
+		if node.Using != nil {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:587:10: SA9003: empty branch (staticcheck)
+		} else {
+		       ^
+internal/stackql/astvisit/assign_leftover_references.go:642:3: SA9003: empty branch (staticcheck)
+		if node.Distinct {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:644:3: SA9003: empty branch (staticcheck)
+		if !node.Qualifier.IsEmpty() {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:651:10: SA9003: empty branch (staticcheck)
+		} else {
+		       ^
+internal/stackql/astvisit/assign_leftover_references.go:660:10: SA9003: empty branch (staticcheck)
+		} else {
+		       ^
+internal/stackql/astvisit/assign_leftover_references.go:664:10: SA9003: empty branch (staticcheck)
+		} else {
+		       ^
+internal/stackql/astvisit/assign_leftover_references.go:673:4: SA9003: empty branch (staticcheck)
+			if node.Scale != nil {
+			^
+internal/stackql/astvisit/assign_leftover_references.go:676:3: SA9003: empty branch (staticcheck)
+		if node.Charset != "" {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:682:3: SA9003: empty branch (staticcheck)
+		if node.Expr != nil {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:687:3: SA9003: empty branch (staticcheck)
+		if node.Else != nil {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:691:3: SA9003: empty branch (staticcheck)
+		if node.ColName != "" {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:721:3: SA9003: empty branch (staticcheck)
+		if node.Offset != nil {
+		^
+internal/stackql/astvisit/assign_leftover_references.go:742:3: SA9003: empty branch (staticcheck)
+		if node.Scope != "" {
+		^
+internal/stackql/astvisit/provider_string_extract.go:993:10: SA9003: empty branch (staticcheck)
+		} else {
+		       ^
+internal/stackql/astvisit/provider_string_extract.go:1013:10: SA9003: empty branch (staticcheck)
+		} else {
+		       ^
+internal/stackql/astvisit/query_rewriting.go:322:10: SA9003: empty branch (staticcheck)
+		} else if ct.Length != nil {
+		       ^
+internal/stackql/astvisit/query_rewriting.go:325:3: SA9003: empty branch (staticcheck)
+		if ct.EnumValues != nil {
+		^
+internal/stackql/astvisit/query_rewriting.go:372:3: SA9003: empty branch (staticcheck)
+		if len(opts) != 0 {
+		^
+internal/stackql/dto/sql_backend_config.go:20:2: ST1003: struct field DbEngine should be DBEngine (stylecheck)
+	DbEngine              string             `json:"dbEngine" yaml:"dbEngine"`
+	^
+internal/stackql/dto/sql_backend_config.go:24:2: ST1003: struct field DbInitFilePath should be DBInitFilePath (stylecheck)
+	DbInitFilePath        string             `json:"dbInitFilepath" yaml:"dbInitFilepath"`
+	^
+internal/stackql/provider/auth_util.go:123:13: ST1005: error strings should not end with punctuation or newlines (stylecheck)
+		return c, fmt.Errorf(constants.ServiceAccountPathErrStr)
+		          ^
+internal/stackql/provider/generic.go:173:15: ST1005: error strings should not end with punctuation or newlines (stylecheck)
+		return nil, errors.New(constants.NotAuthenticatedShowStr)
+		            ^
+internal/stackql/provider/generic.go:208:9: ST1005: error strings should not end with punctuation or newlines (stylecheck)
+		err = errors.New(constants.NotAuthenticatedShowStr)
+		      ^
+internal/stackql/provider/generic.go:205:10: ST1005: error strings should not end with punctuation or newlines (stylecheck)
+			err = errors.New(constants.NotAuthenticatedShowStr)
+			      ^
+internal/stackql/provider/generic.go:201:11: ST1005: error strings should not end with punctuation or newlines (stylecheck)
+				err = errors.New(constants.NotAuthenticatedShowStr)
+				      ^
+internal/stackql/provider/generic.go:218:15: ST1005: error strings should not end with punctuation or newlines (stylecheck)
+		return nil, fmt.Errorf(constants.OAuthInteractiveAuthErrStr)
+		            ^
+internal/stackql/primitivegenerator/statement_analyzer.go:221:9: ST1005: error strings should not be capitalized (stylecheck)
+	return fmt.Errorf(`Auth revoke for Google Failed; improper auth method: "%s" specified`, authCtx.Type)
+	       ^
+internal/stackql/parserutil/table_expression_map.go:7:25: ST1016: methods on the same type should have the same receiver name (seen 1x "tem", 2x "tm") (stylecheck)
+func (tem TableExprMap) GetByAlias(alias string) (sqlparser.TableExpr, bool) {
+                        ^
+internal/stackql/parserutil/parameter_map.go:89:32: ST1016: methods on the same type should have the same receiver name (seen 17x "pm", 1x "tm") (stylecheck)
+func (pm standardParameterMap) AndStringMap(rhs map[string]interface{}) ColumnKeyedDatastore {
+                               ^
+internal/stackql/parserutil/columnar_reference.go:30:37: ST1016: methods on the same type should have the same receiver name (seen 1x "pk", 7x "cr") (stylecheck)
+func (cr StandardColumnarReference) Abbreviate() (string, bool) {
+                                    ^
+internal/stackql/dataflow/edge.go:45:33: ST1016: methods on the same type should have the same receiver name (seen 3x "dv", 8x "de") (stylecheck)
+func (de *standardDataFlowEdge) AddRelation(rel DataFlowRelation) {
+                                ^
+internal/stackql/primitivegraph/dag.go:44:35: ST1016: methods on the same type should have the same receiver name (seen 12x "pg", 1x "g", 2x "pr") (stylecheck)
+func (pg *standardPrimitiveGraph) AddTxnControlCounters(t internaldto.TxnControlCounters) {
+                                  ^
+internal/stackql/primitivebuilder/ddl.go:23:16: ST1016: methods on the same type should have the same receiver name (seen 1x "un", 2x "ss") (stylecheck)
+func (un *ddl) Build() error {
+               ^
+internal/stackql/primitivebuilder/union.go:23:18: ST1016: methods on the same type should have the same receiver name (seen 1x "un", 2x "ss") (stylecheck)
+func (un *Union) Build() error {
+                 ^
+internal/stackql/asyncmonitor/asyncmonitor.go:236:3: "GET" can be replaced by http.MethodGet (usestdlibvars)
+		"GET",
+		^

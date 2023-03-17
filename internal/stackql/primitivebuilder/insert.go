@@ -58,7 +58,6 @@ func (ss *Insert) GetTail() primitivegraph.PrimitiveNode {
 }
 
 func (ss *Insert) Build() error {
-
 	node := ss.node
 	tbl := ss.tbl
 	handlerCtx := ss.handlerCtx

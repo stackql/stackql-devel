@@ -368,7 +368,6 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 
 		if ct.Length != nil && ct.Scale != nil {
 			buf.AstPrintf(ct, "(%v,%v)", ct.Length, ct.Scale)
-
 		} else if ct.Length != nil {
 			buf.AstPrintf(ct, "(%v)", ct.Length)
 		}
@@ -681,7 +680,6 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 					return nil
 				}
 				return nil
-
 			}
 			err := node.Expr.Accept(v)
 			if err != nil {
@@ -1111,7 +1109,6 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 
 	case *sqlparser.AccessMode:
 		buf.WriteString(node.Mode)
-
 	}
 	return nil
 }

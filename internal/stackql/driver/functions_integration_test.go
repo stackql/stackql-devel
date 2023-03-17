@@ -20,7 +20,6 @@ import (
 )
 
 func TestSelectComputeDisksOrderByCrtTmstpAscPlusJsonExtract(t *testing.T) {
-
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "csv", "TestSelectComputeDisksOrderByCrtTmstpAscPlusJsonExtract")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
@@ -31,7 +30,6 @@ func TestSelectComputeDisksOrderByCrtTmstpAscPlusJsonExtract(t *testing.T) {
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, strings.NewReader(""), lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 		handlerCtx.SetOutfile(os.Stdout)
 		handlerCtx.SetOutErrFile(os.Stderr)
@@ -43,7 +41,7 @@ func TestSelectComputeDisksOrderByCrtTmstpAscPlusJsonExtract(t *testing.T) {
 			t.Fatalf("Test failed: %v", err)
 		}
 
-		handlerCtx.SetQuery(testobjects.SelectGoogleComputeDisksOrderCreationTmstpAscPlusJsonExtract)
+		handlerCtx.SetQuery(testobjects.SelectGoogleComputeDisksOrderCreationTmstpAscPlusJSONExtract)
 		dr, _ := NewStackQLDriver(handlerCtx)
 		querySubmitter := querysubmit.NewQuerySubmitter()
 		response := querySubmitter.SubmitQuery(handlerCtx)
@@ -55,11 +53,9 @@ func TestSelectComputeDisksOrderByCrtTmstpAscPlusJsonExtract(t *testing.T) {
 
 	stackqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 1)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksOrderCrtTmstpAscPlusJsonExtract})
-
 }
 
 func TestSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonExtract(t *testing.T) {
-
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "csv", "TestSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonExtract")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
@@ -70,7 +66,6 @@ func TestSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonExtract(t *testing.
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, strings.NewReader(""), lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 		handlerCtx.SetOutfile(os.Stdout)
 		handlerCtx.SetOutErrFile(os.Stderr)
@@ -82,7 +77,7 @@ func TestSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonExtract(t *testing.
 			t.Fatalf("Test failed: %v", err)
 		}
 
-		handlerCtx.SetQuery(testobjects.SelectGoogleComputeDisksOrderCreationTmstpAscPlusJsonExtractCoalesce)
+		handlerCtx.SetQuery(testobjects.SelectGoogleComputeDisksOrderCreationTmstpAscPlusJSONExtractCoalesce)
 		dr, _ := NewStackQLDriver(handlerCtx)
 		querySubmitter := querysubmit.NewQuerySubmitter()
 		response := querySubmitter.SubmitQuery(handlerCtx)
@@ -94,11 +89,9 @@ func TestSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonExtract(t *testing.
 
 	stackqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 1)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksOrderCrtTmstpAscPlusJsonExtractCoalesce})
-
 }
 
 func TestSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonInstr(t *testing.T) {
-
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "csv", "TestSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonInstr")
 	if err != nil {
 		t.Fatalf("Test failed: %v", err)
@@ -109,7 +102,6 @@ func TestSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonInstr(t *testing.T)
 	}
 
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
-
 		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, strings.NewReader(""), lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 		handlerCtx.SetOutfile(os.Stdout)
 		handlerCtx.SetOutErrFile(os.Stderr)
@@ -133,5 +125,4 @@ func TestSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonInstr(t *testing.T)
 
 	stackqltestutil.SetupSimpleSelectGoogleComputeDisks(t, 1)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksOrderCrtTmstpAscPlusJsonExtractInstr})
-
 }

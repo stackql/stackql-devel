@@ -16,7 +16,7 @@ const (
 	FloatBitSize int = 64
 )
 
-// These null "dual" tables are some vitess artifact
+// These null "dual" tables are some vitess artifact.
 func IsNullTable(node sqlparser.TableExpr) bool {
 	return isNullTable(node)
 }
@@ -61,7 +61,6 @@ func ExtractSelectColumnNames(selStmt *sqlparser.Select, formatter sqlparser.Nod
 			}
 			colNames = append(colNames, cn)
 		case *sqlparser.StarExpr:
-
 		}
 	}
 	return colNames, err

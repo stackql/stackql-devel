@@ -100,7 +100,6 @@ func getColsMap(columns sqlparser.Columns) map[string]bool {
 		retVal[col.GetRawVal()] = true
 	}
 	return retVal
-
 }
 
 func isColIncludable(key string, columns sqlparser.Columns, colMap map[string]bool) bool {
@@ -448,7 +447,6 @@ func (sv *SchemaRequestTemplateVisitor) retrieveJsonnetPlaceholderVal(sc openapi
 					key := fmt.Sprintf("<< %s[0].%s >>", templateValName, "key")
 					rv[key] = getAdditionalStuffPlaceholder(additionalProperties, templateValName)
 				}
-
 			}
 		}
 		if len(rv) == 0 {
