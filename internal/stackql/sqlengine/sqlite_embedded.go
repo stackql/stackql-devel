@@ -173,8 +173,9 @@ func (se sqLiteEmbeddedEngine) QueryRow(query string, varArgs ...interface{}) *s
 
 func (se sqLiteEmbeddedEngine) getNextGenerationID() (int, error) {
 	var retVal int
-	//nolint:lll // long SQL query
-	_, err := se.db.Exec(`INSERT INTO "__iql__.control.generation" (generation_description, created_dttm) VALUES ('', strftime('%s', 'now')) RETURNING iql_generation_id`)
+	//nolint:lll,execinquery // long SQL query and `execinquery` is DEAD SET RUBBISH for INSERT... RETURNING
+	res := se.db.QueryRow(`INSERT INTO "__iql__.control.generation" (generation_description, created_dttm) VALUES ('', strftime('%s', 'now')) RETURNING iql_generation_id`)
+	err := res.Scan(&retVal)
 	return retVal, err
 }
 
@@ -188,8 +189,9 @@ func (se sqLiteEmbeddedEngine) getCurrentProviderGenerationID(providerName strin
 
 func (se sqLiteEmbeddedEngine) getNextProviderGenerationID(providerName string) (int, error) {
 	var retVal int
-	//nolint:lll // long SQL query
-	_, err := se.db.Exec(`INSERT INTO "__iql__.control.discovery_generation" (discovery_name, created_dttm) VALUES (?, strftime('%s', 'now')) RETURNING iql_discovery_generation_id`, providerName)
+	//nolint:lll,execinquery // long SQL query and `execinquery` is DEAD SET RUBBISH for INSERT... RETURNING
+	res := se.db.QueryRow(`INSERT INTO "__iql__.control.discovery_generation" (discovery_name, created_dttm) VALUES (?, strftime('%s', 'now')) RETURNING iql_discovery_generation_id`, providerName)
+	err := res.Scan(&retVal)
 	return retVal, err
 }
 
@@ -203,8 +205,9 @@ func (se sqLiteEmbeddedEngine) getCurrentSessionID(generationID int) (int, error
 
 func (se sqLiteEmbeddedEngine) getNextSessionID(generationID int) (int, error) {
 	var retVal int
-	//nolint:lll // long SQL query
-	_, err := se.db.Exec(`INSERT INTO "__iql__.control.session" (iql_generation_id, created_dttm) VALUES (?, strftime('%s', 'now')) RETURNING iql_session_id`, generationID)
+	//nolint:lll,execinquery // long SQL query and `execinquery` is DEAD SET RUBBISH for INSERT... RETURNING
+	res := se.db.QueryRow(`INSERT INTO "__iql__.control.session" (iql_generation_id, created_dttm) VALUES (?, strftime('%s', 'now')) RETURNING iql_session_id`, generationID)
+	err := res.Scan(&retVal)
 	logging.GetLogger().Infoln(
 		fmt.Sprintf(
 			"getNextSessionID(): generation id = %d, session id = %d",

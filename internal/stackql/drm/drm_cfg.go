@@ -582,7 +582,8 @@ func (dc *staticDRMConfig) ExecuteInsertDML(dbEngine sqlengine.SQLEngine, ctx Pr
 	if err != nil {
 		return nil, err
 	}
-	return dbEngine.Exec(stmtArgs.GetQuery(), stmtArgs.GetArgs()...)
+	query := stmtArgs.GetQuery()
+	return dbEngine.Exec(query, stmtArgs.GetArgs()...)
 }
 
 func (dc *staticDRMConfig) QueryDML(querier sqlmachinery.Querier, ctxParameterized PreparedStatementParameterized) (*sql.Rows, error) {
