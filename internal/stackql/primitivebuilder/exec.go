@@ -19,7 +19,7 @@ import (
 type Exec struct {
 	graph         primitivegraph.PrimitiveGraph
 	handlerCtx    handler.HandlerContext
-	drmCfg        drm.DRMConfig
+	drmCfg        drm.Config
 	root          primitivegraph.PrimitiveNode
 	tbl           tablemetadata.ExtendedTableMetadata
 	isAwait       bool

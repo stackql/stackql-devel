@@ -18,10 +18,10 @@ type NativeResultSetPreparator interface {
 type naiveNativeResultSetPreparator struct {
 	rows                       *sql.Rows
 	insertPreparedStatementCtx drm.PreparedStatementCtx
-	drmCfg                     drm.DRMConfig
+	drmCfg                     drm.Config
 }
 
-func NewNaiveNativeResultSetPreparator(rows *sql.Rows, drmCfg drm.DRMConfig, insertPreparedStatementCtx drm.PreparedStatementCtx) NativeResultSetPreparator {
+func NewNaiveNativeResultSetPreparator(rows *sql.Rows, drmCfg drm.Config, insertPreparedStatementCtx drm.PreparedStatementCtx) NativeResultSetPreparator {
 	return &naiveNativeResultSetPreparator{
 		rows:                       rows,
 		insertPreparedStatementCtx: insertPreparedStatementCtx,

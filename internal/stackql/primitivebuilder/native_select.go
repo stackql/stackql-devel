@@ -18,7 +18,7 @@ import (
 type NativeSelect struct {
 	graph       primitivegraph.PrimitiveGraph
 	handlerCtx  handler.HandlerContext
-	drmCfg      drm.DRMConfig
+	drmCfg      drm.Config
 	selectQuery nativedb.Select
 	root        primitivegraph.PrimitiveNode
 }

@@ -24,7 +24,7 @@ type Source interface {
 func NewNaiveSource(
 	querier sqlmachinery.Querier,
 	stmtCtx drm.PreparedStatementParameterized,
-	drmCfg drm.DRMConfig,
+	drmCfg drm.Config,
 ) Source {
 	return &naiveSource{
 		querier: querier,
@@ -36,7 +36,7 @@ func NewNaiveSource(
 type naiveSource struct {
 	querier sqlmachinery.Querier
 	stmtCtx drm.PreparedStatementParameterized
-	drmCfg  drm.DRMConfig
+	drmCfg  drm.Config
 }
 
 func (st *naiveSource) SourceSQLRows() (*sql.Rows, error) {
@@ -51,7 +51,7 @@ type PacketPreparator interface {
 	PrepareOutputPacket() (dto.OutputPacket, error)
 }
 
-func NewNaivePacketPreparator(source Source, nonControlColumns []internaldto.ColumnMetadata, stream streaming.MapStream, drmCfg drm.DRMConfig) PacketPreparator {
+func NewNaivePacketPreparator(source Source, nonControlColumns []internaldto.ColumnMetadata, stream streaming.MapStream, drmCfg drm.Config) PacketPreparator {
 	return &naivePacketPreparator{
 		source:            source,
 		nonControlColumns: nonControlColumns,
@@ -64,7 +64,7 @@ type naivePacketPreparator struct {
 	source            Source
 	nonControlColumns []internaldto.ColumnMetadata
 	stream            streaming.MapStream
-	drmCfg            drm.DRMConfig
+	drmCfg            drm.Config
 }
 
 func (st *naivePacketPreparator) PrepareOutputPacket() (dto.OutputPacket, error) {

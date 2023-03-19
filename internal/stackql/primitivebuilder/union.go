@@ -14,7 +14,7 @@ type Union struct {
 	graph      primitivegraph.PrimitiveGraph
 	unionCtx   drm.PreparedStatementCtx
 	handlerCtx handler.HandlerContext
-	drmCfg     drm.DRMConfig
+	drmCfg     drm.Config
 	lhs        drm.PreparedStatementCtx
 	rhs        []drm.PreparedStatementCtx
 	root, tail primitivegraph.PrimitiveNode

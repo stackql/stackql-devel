@@ -12,7 +12,7 @@ import (
 
 type SQLRewriteInput interface {
 	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
-	GetDRMConfig() drm.DRMConfig
+	GetDRMConfig() drm.Config
 	GetColumnDescriptors() []relationaldto.RelationalColumn
 	GetBaseControlCounters() internaldto.TxnControlCounters
 	GetFromString() string
@@ -26,7 +26,7 @@ type SQLRewriteInput interface {
 }
 
 type StandardSQLRewriteInput struct {
-	dc                       drm.DRMConfig
+	dc                       drm.Config
 	columnDescriptors        []relationaldto.RelationalColumn
 	baseControlCounters      internaldto.TxnControlCounters
 	selectSuffix             string
@@ -40,7 +40,7 @@ type StandardSQLRewriteInput struct {
 }
 
 func NewStandardSQLRewriteInput(
-	dc drm.DRMConfig,
+	dc drm.Config,
 	columnDescriptors []relationaldto.RelationalColumn,
 	baseControlCounters internaldto.TxnControlCounters,
 	selectSuffix string,
@@ -65,7 +65,7 @@ func NewStandardSQLRewriteInput(
 	}
 }
 
-func (ri *StandardSQLRewriteInput) GetDRMConfig() drm.DRMConfig {
+func (ri *StandardSQLRewriteInput) GetDRMConfig() drm.Config {
 	return ri.dc
 }
 

@@ -25,7 +25,7 @@ type GraphQLSingleSelectAcquire struct {
 	graph                      primitivegraph.PrimitiveGraph
 	handlerCtx                 handler.HandlerContext
 	tableMeta                  tablemetadata.ExtendedTableMetadata
-	drmCfg                     drm.DRMConfig
+	drmCfg                     drm.Config
 	insertPreparedStatementCtx drm.PreparedStatementCtx
 	insertionContainer         tableinsertioncontainer.TableInsertionContainer
 	txnCtrlCtr                 internaldto.TxnControlCounters

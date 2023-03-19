@@ -36,7 +36,7 @@ type standardFromRewriteAstVisitor struct {
 	sqlSystem              sql_system.SQLSystem
 	formatter              sqlparser.NodeFormatter
 	annotations            taxonomy.AnnotationCtxMap
-	dc                     drm.DRMConfig
+	dc                     drm.Config
 	annotatedAST           annotatedast.AnnotatedAst
 	indirectContexts       []drm.PreparedStatementCtx
 	isAvoidSQLSourceNaming bool
@@ -50,7 +50,7 @@ func NewFromRewriteAstVisitor(
 	formatter sqlparser.NodeFormatter,
 	namespaceCollection tablenamespace.TableNamespaceCollection,
 	annotations taxonomy.AnnotationCtxMap,
-	dc drm.DRMConfig,
+	dc drm.Config,
 ) FromRewriteAstVisitor {
 	return &standardFromRewriteAstVisitor{
 		annotatedAST:        annotatedAST,

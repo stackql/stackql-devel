@@ -19,7 +19,7 @@ import (
 type Delete struct {
 	graph             primitivegraph.PrimitiveGraph
 	handlerCtx        handler.HandlerContext
-	drmCfg            drm.DRMConfig
+	drmCfg            drm.Config
 	root              primitivegraph.PrimitiveNode
 	tbl               tablemetadata.ExtendedTableMetadata
 	node              sqlparser.SQLNode

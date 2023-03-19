@@ -60,7 +60,7 @@ type HandlerContext interface {
 	GetSQLEngine() sqlengine.SQLEngine
 	GetSQLSystem() sql_system.SQLSystem
 	GetGarbageCollector() garbagecollector.GarbageCollector
-	GetDrmConfig() drm.DRMConfig
+	GetDrmConfig() drm.Config
 	GetTxnCounterMgr() txncounter.Manager
 	GetTxnStore() kstore.KStore
 	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
@@ -95,7 +95,7 @@ type standardHandlerContext struct {
 	sqlEngine           sqlengine.SQLEngine
 	sqlSystem           sql_system.SQLSystem
 	garbageCollector    garbagecollector.GarbageCollector
-	drmConfig           drm.DRMConfig
+	drmConfig           drm.Config
 	txnCounterMgr       txncounter.Manager
 	txnStore            kstore.KStore
 	namespaceCollection tablenamespace.TableNamespaceCollection
@@ -143,7 +143,7 @@ func (hc *standardHandlerContext) GetSQLSystem() sql_system.SQLSystem      { ret
 func (hc *standardHandlerContext) GetGarbageCollector() garbagecollector.GarbageCollector {
 	return hc.garbageCollector
 }
-func (hc *standardHandlerContext) GetDrmConfig() drm.DRMConfig { return hc.drmConfig }
+func (hc *standardHandlerContext) GetDrmConfig() drm.Config { return hc.drmConfig }
 func (hc *standardHandlerContext) GetTxnCounterMgr() txncounter.Manager {
 	return hc.txnCounterMgr
 }

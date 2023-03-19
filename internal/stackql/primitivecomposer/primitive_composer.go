@@ -35,7 +35,7 @@ type PrimitiveComposer interface {
 	GetChildren() []PrimitiveComposer
 	GetColumnOrder() []string
 	GetCommentDirectives() sqlparser.CommentDirectives
-	GetDRMConfig() drm.DRMConfig
+	GetDRMConfig() drm.Config
 	GetGraph() primitivegraph.PrimitiveGraph
 	GetInsertPreparedStatementCtx() drm.PreparedStatementCtx
 	GetInsertValOnlyRows() map[int]map[int]interface{}
@@ -104,7 +104,7 @@ type standardPrimitiveComposer struct {
 
 	graph primitivegraph.PrimitiveGraph
 
-	drmConfig drm.DRMConfig
+	drmConfig drm.Config
 
 	// needed globally for non-heirarchy queries, such as "SHOW SERVICES FROM google;"
 	prov            provider.IProvider
@@ -477,7 +477,7 @@ func (pb *standardPrimitiveComposer) GetTables() taxonomy.TblMap {
 	return pb.tables
 }
 
-func (pb *standardPrimitiveComposer) GetDRMConfig() drm.DRMConfig {
+func (pb *standardPrimitiveComposer) GetDRMConfig() drm.Config {
 	return pb.drmConfig
 }
 
@@ -489,7 +489,7 @@ func (pb *standardPrimitiveComposer) GetSQLSystem() sql_system.SQLSystem {
 	return pb.sqlSystem
 }
 
-func NewPrimitiveComposer(parent PrimitiveComposer, ast sqlparser.SQLNode, drmConfig drm.DRMConfig, txnCtrMgr txncounter.Manager, graph primitivegraph.PrimitiveGraph, tblMap taxonomy.TblMap, symTab symtab.SymTab, sqlEngine sqlengine.SQLEngine, sqlSystem sql_system.SQLSystem, formatter sqlparser.NodeFormatter) PrimitiveComposer {
+func NewPrimitiveComposer(parent PrimitiveComposer, ast sqlparser.SQLNode, drmConfig drm.Config, txnCtrMgr txncounter.Manager, graph primitivegraph.PrimitiveGraph, tblMap taxonomy.TblMap, symTab symtab.SymTab, sqlEngine sqlengine.SQLEngine, sqlSystem sql_system.SQLSystem, formatter sqlparser.NodeFormatter) PrimitiveComposer {
 	return &standardPrimitiveComposer{
 		parent:            parent,
 		ast:               ast,

@@ -17,7 +17,7 @@ import (
 type SingleSelect struct {
 	graph                         primitivegraph.PrimitiveGraph
 	handlerCtx                    handler.HandlerContext
-	drmCfg                        drm.DRMConfig
+	drmCfg                        drm.Config
 	selectPreparedStatementCtx    drm.PreparedStatementCtx
 	indirectPreparedStatementCtxs []drm.PreparedStatementCtx
 	insertionContainers           []tableinsertioncontainer.TableInsertionContainer

@@ -12,7 +12,7 @@ import (
 type SimpleSQLMapStream struct {
 	selectCtx       drm.PreparedStatementCtx
 	insertContainer tableinsertioncontainer.TableInsertionContainer
-	drmCfg          drm.DRMConfig
+	drmCfg          drm.Config
 	sqlEngine       sqlengine.SQLEngine
 	// No buffering just yet; let us revisit soon
 	// store     []map[string]interface{}
@@ -21,7 +21,7 @@ type SimpleSQLMapStream struct {
 func NewSimpleSQLMapStream(
 	selectCtx drm.PreparedStatementCtx,
 	insertContainer tableinsertioncontainer.TableInsertionContainer,
-	drmCfg drm.DRMConfig,
+	drmCfg drm.Config,
 	sqlEngine sqlengine.SQLEngine,
 ) streaming.MapStream {
 	return &SimpleSQLMapStream{

@@ -23,11 +23,11 @@ type PreparedStatementCtx interface {
 type standardPreparedStatementCtx struct {
 	query                   string
 	kind                    string // string annotation applicable only in some cases eg UNION [ALL]
-	genIdControlColName     string
-	sessionIdControlColName string
+	genIDControlColName     string
+	sessionIDControlColName string
 	TableNames              []string
-	txnIdControlColName     string
-	insIdControlColName     string
+	txnIDControlColName     string
+	insIDControlColName     string
 	insEncodedColName       string
 	nonControlColumns       []internaldto.ColumnMetadata
 	ctrlColumnRepeats       int
@@ -76,11 +76,11 @@ func (ps *standardPreparedStatementCtx) GetAllCtrlCtrs() []internaldto.TxnContro
 func NewPreparedStatementCtx(
 	query string,
 	kind string,
-	genIdControlColName string,
-	sessionIdControlColName string,
+	genIDControlColName string,
+	sessionIDControlColName string,
 	tableNames []string,
-	txnIdControlColName string,
-	insIdControlColName string,
+	txnIDControlColName string,
+	insIDControlColName string,
 	insEncodedColName string,
 	nonControlColumns []internaldto.ColumnMetadata,
 	ctrlColumnRepeats int,
@@ -92,11 +92,11 @@ func NewPreparedStatementCtx(
 	return &standardPreparedStatementCtx{
 		query:                   query,
 		kind:                    kind,
-		genIdControlColName:     genIdControlColName,
-		sessionIdControlColName: sessionIdControlColName,
+		genIDControlColName:     genIDControlColName,
+		sessionIDControlColName: sessionIDControlColName,
 		TableNames:              tableNames,
-		txnIdControlColName:     txnIdControlColName,
-		insIdControlColName:     insIdControlColName,
+		txnIDControlColName:     txnIDControlColName,
+		insIDControlColName:     insIDControlColName,
 		insEncodedColName:       insEncodedColName,
 		nonControlColumns:       nonControlColumns,
 		ctrlColumnRepeats:       ctrlColumnRepeats,

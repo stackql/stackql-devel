@@ -33,7 +33,7 @@ type QueryRewriteAstVisitor interface {
 
 type standardQueryRewriteAstVisitor struct {
 	handlerCtx            handler.HandlerContext
-	dc                    drm.DRMConfig
+	dc                    drm.Config
 	tables                taxonomy.TblMap
 	annotations           taxonomy.AnnotationCtxMap
 	discoGenIDs           map[sqlparser.SQLNode]int
@@ -67,7 +67,7 @@ func NewQueryRewriteAstVisitor(
 	annotations taxonomy.AnnotationCtxMap,
 	discoGenIDs map[sqlparser.SQLNode]int,
 	colRefs parserutil.ColTableMap,
-	dc drm.DRMConfig,
+	dc drm.Config,
 	txnCtrlCtrs internaldto.TxnControlCounters,
 	secondaryTccs []internaldto.TxnControlCounters,
 	rewrittenWhere string,
