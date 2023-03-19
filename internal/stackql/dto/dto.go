@@ -32,7 +32,7 @@ const (
 	HTTPMaxResultsKey               string = "http.response.maxResults"
 	HTTPPAgeLimitKey                string = "http.response.pageLimit"
 	HTTPProxyHostKey                string = "http.proxy.host"
-	HTTPProxyPasswordKey            string = "http.proxy.password" 
+	HTTPProxyPasswordKey            string = "http.proxy.password"
 	HTTPProxyPortKey                string = "http.proxy.port"
 	HTTPProxySchemeKey              string = "http.proxy.scheme"
 	HTTPProxyUserKey                string = "http.proxy.user"

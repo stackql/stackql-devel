@@ -76,6 +76,7 @@ func (v *standardFromRewriteAstVisitor) GetIndirectContexts() []drm.PreparedStat
 	return v.indirectContexts
 }
 
+//nolint:dupl,funlen,gocognit,gocyclo,cyclop,errcheck,gocritic,lll,exhaustive,nestif,gomnd // defer uplifts on analysers
 func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 	buf := sqlparser.NewTrackedBuffer(v.formatter)
 
@@ -90,19 +91,19 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		v.rewrittenQuery = rq
 
 	case *sqlparser.Auth:
-		var stackql_opt string
+		var stackqlOpt string
 		if node.SessionAuth {
-			stackql_opt = "stackql "
+			stackqlOpt = "stackql "
 		}
-		rq := fmt.Sprintf("%sAUTH %v %s %v %v", stackql_opt, node.Provider, node.Type, node.KeyFilePath, node.KeyEnvVar)
+		rq := fmt.Sprintf("%sAUTH %v %s %v %v", stackqlOpt, node.Provider, node.Type, node.KeyFilePath, node.KeyEnvVar)
 		v.rewrittenQuery = rq
 
 	case *sqlparser.AuthRevoke:
-		var stackql_opt string
+		var stackqlOpt string
 		if node.SessionAuth {
-			stackql_opt = "stackql "
+			stackqlOpt = "stackql "
 		}
-		rq := fmt.Sprintf("%sauth revoke %v", stackql_opt, node.Provider)
+		rq := fmt.Sprintf("%sauth revoke %v", stackqlOpt, node.Provider)
 		v.rewrittenQuery = rq
 
 	case *sqlparser.Sleep:

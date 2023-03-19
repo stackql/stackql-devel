@@ -124,7 +124,18 @@ func (v *standardQueryRewriteAstVisitor) getStarColumns(
 	}
 	var columnDescriptors []openapistackql.ColumnDescriptor
 	for _, col := range cols {
-		columnDescriptors = append(columnDescriptors, openapistackql.NewColumnDescriptor(col.Alias, col.Name, col.Qualifier, col.DecoratedColumn, nil, schema, col.Val))
+		columnDescriptors = append(
+			columnDescriptors,
+			openapistackql.NewColumnDescriptor(
+				col.Alias,
+				col.Name,
+				col.Qualifier,
+				col.DecoratedColumn,
+				nil,
+				schema,
+				col.Val,
+			),
+		)
 	}
 	relationalColumns := v.dc.OpenapiColumnsToRelationalColumns(columnDescriptors)
 	return relationalColumns, nil
@@ -169,6 +180,7 @@ func (v *standardQueryRewriteAstVisitor) GetSelectContext() (drm.PreparedStateme
 	return nil, false
 }
 
+//nolint:dupl,funlen,gocognit,gocyclo,cyclop,errcheck,staticcheck,gocritic,lll,govet,nestif,exhaustive,gomnd // defer uplifts on analysers
 func (v *standardQueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 	var err error
 

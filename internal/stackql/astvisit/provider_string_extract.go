@@ -37,7 +37,12 @@ type standardProviderStringAstVisitor struct {
 	containsNativeBackendMaterial  bool
 }
 
-func NewProviderStringAstVisitor(annotatedAST annotatedast.AnnotatedAst, sqlSystem sql_system.SQLSystem, formatter sqlparser.NodeFormatter, namespaceCollection tablenamespace.TableNamespaceCollection) ProviderStringAstVisitor {
+func NewProviderStringAstVisitor(
+	annotatedAST annotatedast.AnnotatedAst,
+	sqlSystem sql_system.SQLSystem,
+	formatter sqlparser.NodeFormatter,
+	namespaceCollection tablenamespace.TableNamespaceCollection,
+) ProviderStringAstVisitor {
 	return &standardProviderStringAstVisitor{
 		tablesCited:         make(map[*sqlparser.AliasedTableExpr]sqlparser.TableName),
 		sqlSystem:           sqlSystem,
@@ -74,6 +79,7 @@ func (v *standardProviderStringAstVisitor) GetProviderStrings() []string {
 	return retVal
 }
 
+//nolint:dupl,funlen,gocognit,gocyclo,cyclop,errcheck,staticcheck,gocritic,lll,ineffassign,exhaustive,nestif,gomnd // defer uplifts on analysers
 func (v *standardProviderStringAstVisitor) Visit(node sqlparser.SQLNode) error {
 	buf := sqlparser.NewTrackedBuffer(v.formatter)
 
