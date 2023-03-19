@@ -1,6 +1,7 @@
 package primitivebuilder
 
 import (
+	"errors"
 	"fmt"
 	"io"
 
@@ -71,6 +72,7 @@ func (ss *GraphQLSingleSelectAcquire) GetTail() primitivegraph.PrimitiveNode {
 	return ss.root
 }
 
+//nolint:govet,funlen,gocognit,revive,errcheck,stylecheck // TODO: fix
 func (ss *GraphQLSingleSelectAcquire) Build() error {
 	prov, err := ss.tableMeta.GetProvider()
 	if err != nil {
@@ -105,13 +107,16 @@ func (ss *GraphQLSingleSelectAcquire) Build() error {
 			}
 			responseJsonPath, ok := gql.GetResponseJSONPath()
 			if !ok {
-				return internaldto.NewErroneousExecutorOutput(fmt.Errorf("cannot perform graphql action without response json path"))
+				return internaldto.NewErroneousExecutorOutput(
+					fmt.Errorf("cannot perform graphql action without response json path"),
+				)
 			}
 			tableName, err := ss.tableMeta.GetTableName()
 			if err != nil {
 				return internaldto.NewErroneousExecutorOutput(err)
 			}
 			reqEncoding := reqCtx.Encode()
+			//nolint:lll // chained
 			olderTcc, isMatch := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(tableName, reqEncoding, ss.drmCfg.GetControlAttributes().GetControlLatestUpdateColumnName(), ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIDColumnName())
 			if isMatch {
 				nonControlColumns := ss.insertPreparedStatementCtx.GetNonControlColumns()
@@ -122,6 +127,7 @@ func (ss *GraphQLSingleSelectAcquire) Build() error {
 				ss.handlerCtx.GetGarbageCollector().Update(tableName, olderTcc, currentTcc)
 				ss.insertionContainer.SetTableTxnCounters(tableName, olderTcc)
 				ss.insertPreparedStatementCtx.SetGCCtrlCtrs(olderTcc)
+				//nolint:lll // chained
 				r, sqlErr := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Read(tableName, reqEncoding, ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIDColumnName(), nonControlColumnNames)
 				if sqlErr != nil {
 					internaldto.NewErroneousExecutorOutput(sqlErr)
@@ -166,7 +172,7 @@ func (ss *GraphQLSingleSelectAcquire) Build() error {
 						}
 					}
 				}
-				if err == io.EOF {
+				if errors.Is(err, io.EOF) {
 					break
 				}
 				if err != nil {
