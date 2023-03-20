@@ -246,7 +246,7 @@ func (gm *DefaultGoogleAsyncMonitor) getV1Monitor(
 			if err != nil {
 				return internaldto.NewExecutorOutput(nil, nil, nil, nil, err)
 			}
-			response, apiErr := httpmiddleware.HttpApiCallFromRequest(gm.handlerCtx.Clone(), gm.provider, m, req)
+			response, apiErr := httpmiddleware.HTTPApiCallFromRequest(gm.handlerCtx.Clone(), gm.provider, m, req)
 			if response != nil && response.Body != nil {
 				defer response.Body.Close()
 			}

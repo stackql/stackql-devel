@@ -152,7 +152,8 @@ func (pbi *StandardPlanBuilderInput) GetOnConditionDataFlows() (dataflow.Collect
 	return pbi.onConditionDataFlows, pbi.onConditionDataFlows != nil
 }
 
-func (pbi *StandardPlanBuilderInput) SetOnConditionsToRewrite(onConditionsToRewrite map[*sqlparser.ComparisonExpr]struct{}) {
+func (pbi *StandardPlanBuilderInput) SetOnConditionsToRewrite(
+	onConditionsToRewrite map[*sqlparser.ComparisonExpr]struct{}) {
 	pbi.onConditionsToRewrite = onConditionsToRewrite
 }
 
@@ -174,7 +175,8 @@ func (pbi *StandardPlanBuilderInput) GetAnnotations() (taxonomy.AnnotationCtxMap
 	return nil, false
 }
 
-func (pbi *StandardPlanBuilderInput) WithTableRouteVisitor(tableRouteVisitor router.TableRouteAstVisitor) PlanBuilderInput {
+func (pbi *StandardPlanBuilderInput) WithTableRouteVisitor(
+	tableRouteVisitor router.TableRouteAstVisitor) PlanBuilderInput {
 	pbi.tableRouteVisitor = tableRouteVisitor
 	return pbi
 }

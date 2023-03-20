@@ -115,7 +115,7 @@ func (gp *GenericProvider) Auth(
 	case dto.AuthAWSSigningv4Str:
 		return gp.awsSigningAuth(authCtx)
 	case dto.AuthNullStr:
-		return netutils.GetHttpClient(gp.runtimeCtx, http.DefaultClient), nil
+		return netutils.GetHTTPClient(gp.runtimeCtx, http.DefaultClient), nil
 	}
 	return nil, fmt.Errorf("could not infer auth type")
 }
@@ -254,7 +254,7 @@ func (gp *GenericProvider) oAuth(authCtx *dto.AuthCtx, enforceRevokeFirst bool) 
 		return nil, err
 	}
 	activateAuth(authCtx, "", dto.AuthInteractiveStr)
-	client := netutils.GetHttpClient(gp.runtimeCtx, nil)
+	client := netutils.GetHTTPClient(gp.runtimeCtx, nil)
 	tr, err := newTransport(tokenBytes, authTypeBearer, authCtx.ValuePrefix, locationHeader, "", client.Transport)
 	if err != nil {
 		return nil, err
@@ -446,7 +446,7 @@ func (gp *GenericProvider) InferMaxResultsElement(openapistackql.OperationStore)
 func (gp *GenericProvider) InferNextPageRequestElement(ho internaldto.Heirarchy) internaldto.HTTPElement {
 	st, ok := gp.getPaginationRequestTokenSemantic(ho)
 	if ok {
-		if tp, err := internaldto.ExtractHttpElement(st.GetLocation()); err == nil {
+		if tp, err := internaldto.ExtractHTTPElement(st.GetLocation()); err == nil {
 			rv := internaldto.NewHTTPElement(
 				tp,
 				st.GetKey(),
@@ -493,7 +493,7 @@ func (gp *GenericProvider) getPaginationResponseTokenSemantic(
 func (gp *GenericProvider) InferNextPageResponseElement(ho internaldto.Heirarchy) internaldto.HTTPElement {
 	st, ok := gp.getPaginationResponseTokenSemantic(ho)
 	if ok {
-		if tp, err := internaldto.ExtractHttpElement(st.GetLocation()); err == nil {
+		if tp, err := internaldto.ExtractHTTPElement(st.GetLocation()); err == nil {
 			rv := internaldto.NewHTTPElement(
 				tp,
 				st.GetKey(),

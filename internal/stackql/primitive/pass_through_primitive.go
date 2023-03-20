@@ -9,13 +9,15 @@ import (
 
 type PassThroughPrimitive struct {
 	Inputs                 map[int64]internaldto.ExecutorOutput
-	id                     int64
 	sqlSystem              sql_system.SQLSystem
 	shouldCollectGarbage   bool
 	txnControlCounterSlice []internaldto.TxnControlCounters
 }
 
-func NewPassThroughPrimitive(sqlSystem sql_system.SQLSystem, txnControlCounterSlice []internaldto.TxnControlCounters, shouldCollectGarbage bool) IPrimitive {
+func NewPassThroughPrimitive(
+	sqlSystem sql_system.SQLSystem,
+	txnControlCounterSlice []internaldto.TxnControlCounters,
+	shouldCollectGarbage bool) IPrimitive {
 	return &PassThroughPrimitive{
 		Inputs:                 make(map[int64]internaldto.ExecutorOutput),
 		sqlSystem:              sqlSystem,
@@ -49,13 +51,13 @@ func (pr *PassThroughPrimitive) IncidentData(fromID int64, input internaldto.Exe
 	return nil
 }
 
-func (pt *PassThroughPrimitive) collectGarbage() {
+func (pr *PassThroughPrimitive) collectGarbage() {
 	// placeholder
 }
 
-func (pt *PassThroughPrimitive) Execute(pc IPrimitiveCtx) internaldto.ExecutorOutput {
-	defer pt.collectGarbage()
-	for _, input := range pt.Inputs {
+func (pr *PassThroughPrimitive) Execute(pc IPrimitiveCtx) internaldto.ExecutorOutput {
+	defer pr.collectGarbage()
+	for _, input := range pr.Inputs {
 		return input
 	}
 	return internaldto.ExecutorOutput{}

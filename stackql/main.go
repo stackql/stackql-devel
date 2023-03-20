@@ -24,7 +24,7 @@ import (
 
 func main() {
 	if err := execute(); err != nil {
-		fmt.Println(err)
+		fmt.Println(err) //nolint:forbidigo // this is the main entry point
 		os.Exit(1)
 	}
 }

@@ -158,7 +158,7 @@ func oauthServiceAccount(
 		return nil, errToken
 	}
 	activateAuth(authCtx, "", dto.AuthServiceAccountStr)
-	httpClient := netutils.GetHttpClient(runtimeCtx, http.DefaultClient)
+	httpClient := netutils.GetHTTPClient(runtimeCtx, http.DefaultClient)
 	//nolint:staticcheck // TODO: fix this
 	return config.Client(context.WithValue(oauth2.NoContext, oauth2.HTTPClient, httpClient)), nil
 }
@@ -169,7 +169,7 @@ func apiTokenAuth(authCtx *dto.AuthCtx, runtimeCtx dto.RuntimeCtx, enforceBearer
 		return nil, fmt.Errorf("credentials error: %w", err)
 	}
 	activateAuth(authCtx, "", "api_key")
-	httpClient := netutils.GetHttpClient(runtimeCtx, http.DefaultClient)
+	httpClient := netutils.GetHTTPClient(runtimeCtx, http.DefaultClient)
 	valPrefix := authCtx.ValuePrefix
 	if enforceBearer {
 		valPrefix = "Bearer "
@@ -196,7 +196,7 @@ func awsSigningAuth(authCtx *dto.AuthCtx, runtimeCtx dto.RuntimeCtx) (*http.Clie
 		return nil, fmt.Errorf("cannot compose AWS signing credentials")
 	}
 	activateAuth(authCtx, "", dto.AuthAWSSigningv4Str)
-	httpClient := netutils.GetHttpClient(runtimeCtx, http.DefaultClient)
+	httpClient := netutils.GetHTTPClient(runtimeCtx, http.DefaultClient)
 	tr := awssign.NewAwsSignTransport(httpClient.Transport, keyID, keyStr, "")
 	httpClient.Transport = tr
 	return httpClient, nil
@@ -208,7 +208,7 @@ func basicAuth(authCtx *dto.AuthCtx, runtimeCtx dto.RuntimeCtx) (*http.Client, e
 		return nil, fmt.Errorf("credentials error: %w", err)
 	}
 	activateAuth(authCtx, "", "basic")
-	httpClient := netutils.GetHttpClient(runtimeCtx, http.DefaultClient)
+	httpClient := netutils.GetHTTPClient(runtimeCtx, http.DefaultClient)
 	tr, err := newTransport(b, authTypeBasic, authCtx.ValuePrefix, locationHeader, "", httpClient.Transport)
 	if err != nil {
 		return nil, err
@@ -228,7 +228,7 @@ func azureDefaultAuth(authCtx *dto.AuthCtx, runtimeCtx dto.RuntimeCtx) (*http.Cl
 	}
 	tokenString := token.Token
 	activateAuth(authCtx, "", "azure_default")
-	httpClient := netutils.GetHttpClient(runtimeCtx, http.DefaultClient)
+	httpClient := netutils.GetHTTPClient(runtimeCtx, http.DefaultClient)
 	tr, err := newTransport([]byte(tokenString), authTypeBearer, "Bearer ", locationHeader, "", httpClient.Transport)
 	if err != nil {
 		return nil, err

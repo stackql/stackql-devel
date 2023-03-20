@@ -14,10 +14,10 @@ import (
 )
 
 var (
-	_ AwsSignTransport = &standardAwsSignTransport{}
+	_ Transport = &standardAwsSignTransport{}
 )
 
-type AwsSignTransport interface {
+type Transport interface {
 	RoundTrip(req *http.Request) (*http.Response, error)
 }
 
@@ -26,7 +26,11 @@ type standardAwsSignTransport struct {
 	signer              *v4.Signer
 }
 
-func NewAwsSignTransport(underlyingTransport http.RoundTripper, id, secret, token string, options ...func(*v4.Signer)) AwsSignTransport {
+func NewAwsSignTransport(
+	underlyingTransport http.RoundTripper,
+	id, secret, token string,
+	options ...func(*v4.Signer),
+) Transport {
 	creds := credentials.NewStaticCredentials(id, secret, token)
 	// creds := credentials.NewEnvCredentials()
 	signer := v4.NewSigner(creds, options...)

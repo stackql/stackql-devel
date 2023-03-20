@@ -1,4 +1,4 @@
-//nolint:all // test boilerplate
+//nolint:lll,gocritic,nestif,gosimple // test boilerplate
 package testhttpapi
 
 import (
@@ -142,7 +142,7 @@ func newSimpleTransportHandler(ex ExpectationStore) func(*http.Request) (*http.R
 			Body:       responseBody,
 			Request:    req,
 			Status:     "200 OK",
-			StatusCode: 200,
+			StatusCode: http.StatusOK,
 		}
 		return response, nil
 	}
@@ -213,6 +213,7 @@ func compareHTTPBodyToExpected(req *http.Request, expectations *HTTPRequestExpec
 	var actualBodyBytes, expectedBodyBytes []byte
 	var err error
 	var retVal io.ReadCloser
+	//nolint:govet // apathy on shadowing
 	if expectations.Body != nil {
 		actualBodyBytes, err = ioutil.ReadAll(req.Body)
 		if err != nil {
@@ -361,7 +362,7 @@ func GetRequestTestHandler(t *testing.T, expectationStore ExpectationStore, hand
 
 func SetupHTTPCallHeavyweight(t *testing.T, expectationStore ExpectationStore, handlerFunc http.HandlerFunc, roundTripper http.RoundTripper) {
 	handler := GetRequestTestHandler(t, expectationStore, handlerFunc)
-	s := httptest.NewServer(http.HandlerFunc(handler))
+	s := httptest.NewServer(handler)
 	u, err := url.Parse(s.URL)
 	if err != nil {
 		t.Fatalf("FAIL: failed to parse httptest.Server URL: %v", err)
@@ -479,7 +480,7 @@ func ValidateHTTPResponseAndErr(t *testing.T, response *http.Response, err error
 }
 
 func StartServer(t *testing.T, expectations ExpectationStore) {
-	transport := newSimpleTransportHandler(expectations)
+	transport := newSimpleTransportHandler(expectations) //nolint:bodyclose // TODO: fix
 	var roundTripper http.RoundTripper = NewSimulatedRoundTripper(t, expectations, transport, true)
 	SetupHTTPCallHeavyweight(t, expectations, DefaultHandler, roundTripper)
 }

@@ -1,4 +1,4 @@
-//nolint:all,nolintlint // test boilerplate
+//nolint:govet,errorlint,errcheck,lll // test boilerplate
 package stackqltestutil
 
 import (

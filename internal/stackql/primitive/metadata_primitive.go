@@ -51,7 +51,10 @@ func (pr *MetaDataPrimitive) Execute(pc IPrimitiveCtx) internaldto.ExecutorOutpu
 	return internaldto.NewExecutorOutput(nil, nil, nil, nil, nil)
 }
 
-func NewMetaDataPrimitive(provider provider.IProvider, executor func(pc IPrimitiveCtx) internaldto.ExecutorOutput) IPrimitive {
+func NewMetaDataPrimitive(
+	provider provider.IProvider,
+	executor func(pc IPrimitiveCtx) internaldto.ExecutorOutput,
+) IPrimitive {
 	return &MetaDataPrimitive{
 		Provider: provider,
 		Executor: executor,

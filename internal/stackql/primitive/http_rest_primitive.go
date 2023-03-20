@@ -16,7 +16,12 @@ type HTTPRestPrimitive struct {
 	id            int64
 }
 
-func NewHTTPRestPrimitive(provider provider.IProvider, executor func(pc IPrimitiveCtx) internaldto.ExecutorOutput, preparator func() drm.PreparedStatementCtx, txnCtrlCtr internaldto.TxnControlCounters) IPrimitive {
+func NewHTTPRestPrimitive(
+	provider provider.IProvider,
+	executor func(pc IPrimitiveCtx) internaldto.ExecutorOutput,
+	preparator func() drm.PreparedStatementCtx,
+	txnCtrlCtr internaldto.TxnControlCounters,
+) IPrimitive {
 	return &HTTPRestPrimitive{
 		Provider:      provider,
 		Executor:      executor,

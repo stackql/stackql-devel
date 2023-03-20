@@ -175,7 +175,7 @@ func (ss *SingleSelectAcquire) Build() error {
 				return internaldto.ExecutorOutput{}
 			}
 			// TODO: fix cloning ops
-			response, apiErr := httpmiddleware.HttpApiCallFromRequest(
+			response, apiErr := httpmiddleware.HTTPApiCallFromRequest(
 				ss.handlerCtx.Clone(),
 				prov,
 				m,
@@ -307,7 +307,7 @@ func (ss *SingleSelectAcquire) Build() error {
 				if reqErr != nil {
 					return internaldto.NewErroneousExecutorOutput(reqErr)
 				}
-				response, apiErr = httpmiddleware.HttpApiCallFromRequest(ss.handlerCtx.Clone(), prov, m, req)
+				response, apiErr = httpmiddleware.HTTPApiCallFromRequest(ss.handlerCtx.Clone(), prov, m, req)
 			}
 			if reqCtx.GetRequest() != nil {
 				q := reqCtx.GetRequest().URL.Query()

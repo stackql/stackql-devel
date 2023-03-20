@@ -74,7 +74,7 @@ func (ss *Delete) Build() error {
 			return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, nil, nil, nil, httpErr, nil))
 		}
 		for _, req := range httpArmoury.GetRequestParams() {
-			response, apiErr := httpmiddleware.HttpApiCallFromRequest(handlerCtx.Clone(), prov, m, req.GetRequest())
+			response, apiErr := httpmiddleware.HTTPApiCallFromRequest(handlerCtx.Clone(), prov, m, req.GetRequest())
 			if apiErr != nil {
 				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil))
 			}

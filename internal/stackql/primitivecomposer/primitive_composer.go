@@ -317,7 +317,9 @@ func (pb *standardPrimitiveComposer) GetTxnCounterManager() txncounter.Manager {
 }
 
 func (pb *standardPrimitiveComposer) NewChildPrimitiveComposer(ast sqlparser.SQLNode) PrimitiveComposer {
-	child := NewPrimitiveComposer(pb, ast, pb.drmConfig, pb.txnCounterManager, pb.graph, pb.tables, pb.symTab, pb.sqlEngine, pb.sqlSystem, pb.formatter)
+	child := NewPrimitiveComposer(
+		pb, ast, pb.drmConfig, pb.txnCounterManager,
+		pb.graph, pb.tables, pb.symTab, pb.sqlEngine, pb.sqlSystem, pb.formatter)
 	pb.children = append(pb.children, child)
 	return child
 }
@@ -390,7 +392,8 @@ func (pb *standardPrimitiveComposer) GetTableFilter() func(openapistackql.ITable
 	return pb.tableFilter
 }
 
-func (pb *standardPrimitiveComposer) SetTableFilter(tableFilter func(openapistackql.ITable) (openapistackql.ITable, error)) {
+func (pb *standardPrimitiveComposer) SetTableFilter(
+	tableFilter func(openapistackql.ITable) (openapistackql.ITable, error)) {
 	pb.tableFilter = tableFilter
 }
 
@@ -439,7 +442,8 @@ func (pb *standardPrimitiveComposer) GetBuilder() primitivebuilder.Builder {
 			builders = append(builders, bldr)
 		}
 	}
-	simpleDiamond := primitivebuilder.NewDiamondBuilder(pb.builder, builders, pb.graph, pb.sqlSystem, pb.ShouldCollectGarbage())
+	simpleDiamond := primitivebuilder.NewDiamondBuilder(
+		pb.builder, builders, pb.graph, pb.sqlSystem, pb.ShouldCollectGarbage())
 	if len(pb.indirects) > 0 {
 		var indirectBuilders []primitivebuilder.Builder
 		for _, ind := range pb.indirects {
@@ -447,8 +451,12 @@ func (pb *standardPrimitiveComposer) GetBuilder() primitivebuilder.Builder {
 				indirectBuilders = append(indirectBuilders, bldr)
 			}
 		}
-		indirectDiamond := primitivebuilder.NewDiamondBuilder(pb.builder, indirectBuilders, pb.graph, pb.sqlSystem, pb.ShouldCollectGarbage())
-		return primitivebuilder.NewDependencySubDAGBuilder(pb.graph, []primitivebuilder.Builder{indirectDiamond}, simpleDiamond)
+		indirectDiamond := primitivebuilder.NewDiamondBuilder(
+			pb.builder, indirectBuilders, pb.graph, pb.sqlSystem,
+			pb.ShouldCollectGarbage())
+		return primitivebuilder.NewDependencySubDAGBuilder(
+			pb.graph,
+			[]primitivebuilder.Builder{indirectDiamond}, simpleDiamond)
 	}
 	return simpleDiamond
 }
@@ -489,7 +497,13 @@ func (pb *standardPrimitiveComposer) GetSQLSystem() sql_system.SQLSystem {
 	return pb.sqlSystem
 }
 
-func NewPrimitiveComposer(parent PrimitiveComposer, ast sqlparser.SQLNode, drmConfig drm.Config, txnCtrMgr txncounter.Manager, graph primitivegraph.PrimitiveGraph, tblMap taxonomy.TblMap, symTab symtab.SymTab, sqlEngine sqlengine.SQLEngine, sqlSystem sql_system.SQLSystem, formatter sqlparser.NodeFormatter) PrimitiveComposer {
+func NewPrimitiveComposer(
+	parent PrimitiveComposer, ast sqlparser.SQLNode,
+	drmConfig drm.Config, txnCtrMgr txncounter.Manager,
+	graph primitivegraph.PrimitiveGraph,
+	tblMap taxonomy.TblMap, symTab symtab.SymTab,
+	sqlEngine sqlengine.SQLEngine, sqlSystem sql_system.SQLSystem,
+	formatter sqlparser.NodeFormatter) PrimitiveComposer {
 	return &standardPrimitiveComposer{
 		parent:            parent,
 		ast:               ast,

@@ -10,7 +10,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/taxonomy"
 )
 
-type SQLRewriteInput interface {
+type SQLRewriteInput interface { //nolint:revive //TODO: review
 	GetNamespaceCollection() tablenamespace.Collection
 	GetDRMConfig() drm.Config
 	GetColumnDescriptors() []relationaldto.RelationalColumn
@@ -126,7 +126,10 @@ func GenerateSelectDML(input SQLRewriteInput) (drm.PreparedStatementCtx, error) 
 	var tableAliases []string
 	for _, col := range cols {
 		relationalColumn := col
-		columns = append(columns, internal_relational_dto.NewRelayedColDescriptor(relationalColumn, relationalColumn.GetType()))
+		columns = append(
+			columns,
+			internal_relational_dto.NewRelayedColDescriptor(
+				relationalColumn, relationalColumn.GetType()))
 		// TODO: Need a way to handle postgres differences. This is a fragile point
 		relationalColumns = append(relationalColumns, relationalColumn)
 	}
@@ -154,7 +157,9 @@ func GenerateSelectDML(input SQLRewriteInput) (drm.PreparedStatementCtx, error) 
 		i++
 	}
 
-	query, err := dc.GetSQLSystem().ComposeSelectQuery(relationalColumns, tableAliases, input.GetFromString(), rewrittenWhere, selectSuffix)
+	query, err := dc.GetSQLSystem().ComposeSelectQuery(
+		relationalColumns, tableAliases, input.GetFromString(),
+		rewrittenWhere, selectSuffix)
 	if err != nil {
 		return nil, err
 	}
