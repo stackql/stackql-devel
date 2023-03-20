@@ -46,7 +46,7 @@ type standardQueryRewriteAstVisitor struct {
 	columnDescriptors     []openapistackql.ColumnDescriptor
 	relationalColumns     []relationaldto.RelationalColumn
 	tableSlice            []tableinsertioncontainer.TableInsertionContainer
-	namespaceCollection   tablenamespace.TableNamespaceCollection
+	namespaceCollection   tablenamespace.Collection
 	formatter             sqlparser.NodeFormatter
 	annotatedAST          annotatedast.AnnotatedAst
 	//
@@ -71,7 +71,7 @@ func NewQueryRewriteAstVisitor(
 	txnCtrlCtrs internaldto.TxnControlCounters,
 	secondaryTccs []internaldto.TxnControlCounters,
 	rewrittenWhere string,
-	namespaceCollection tablenamespace.TableNamespaceCollection,
+	namespaceCollection tablenamespace.Collection,
 ) QueryRewriteAstVisitor {
 	rv := &standardQueryRewriteAstVisitor{
 		annotatedAST:          annotatedAST,

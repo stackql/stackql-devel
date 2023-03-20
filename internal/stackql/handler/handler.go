@@ -63,7 +63,7 @@ type HandlerContext interface { //nolint:revive // don't mind stuttering this on
 	GetDrmConfig() drm.Config
 	GetTxnCounterMgr() txncounter.Manager
 	GetTxnStore() kstore.KStore
-	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
+	GetNamespaceCollection() tablenamespace.Collection
 	GetFormatter() sqlparser.NodeFormatter
 	GetPGInternalRouter() dbmsinternal.Router
 	//
@@ -98,7 +98,7 @@ type standardHandlerContext struct {
 	drmConfig           drm.Config
 	txnCounterMgr       txncounter.Manager
 	txnStore            kstore.KStore
-	namespaceCollection tablenamespace.TableNamespaceCollection
+	namespaceCollection tablenamespace.Collection
 	formatter           sqlparser.NodeFormatter
 	pgInternalRouter    dbmsinternal.Router
 }
@@ -149,7 +149,7 @@ func (hc *standardHandlerContext) GetTxnCounterMgr() txncounter.Manager {
 }
 func (hc *standardHandlerContext) GetTxnStore() kstore.KStore { return hc.txnStore }
 
-//	func (hc *standardHandlerContext) GetNamespaceCollection() tablenamespace.TableNamespaceCollection {
+//	func (hc *standardHandlerContext) GetNamespaceCollection() tablenamespace.Collection {
 //		return hc.namespaceCollection
 //	}
 func (hc *standardHandlerContext) GetFormatter() sqlparser.NodeFormatter { return hc.formatter }
@@ -315,7 +315,7 @@ func (hc *standardHandlerContext) updateAuthContextIfNotExists(providerName stri
 	hc.authContexts[providerName] = authCtx
 }
 
-func (hc *standardHandlerContext) GetNamespaceCollection() tablenamespace.TableNamespaceCollection {
+func (hc *standardHandlerContext) GetNamespaceCollection() tablenamespace.Collection {
 	return hc.namespaceCollection
 }
 

@@ -123,7 +123,7 @@ func initSQLDataSources(authContextMap map[string]*dto.AuthCtx) (map[string]sql_
 func initNamespaces(
 	namespaceCfgRaw string,
 	sqlEngine sqlengine.SQLEngine,
-) (tablenamespace.TableNamespaceCollection, error) {
+) (tablenamespace.Collection, error) {
 	cfgs, err := dto.GetNamespaceCfg(namespaceCfgRaw)
 	if err != nil {
 		return nil, err
@@ -140,7 +140,7 @@ func buildSQLEngine(
 
 func buildGCExec(
 	sqlEngine sqlengine.SQLEngine,
-	namespaces tablenamespace.TableNamespaceCollection,
+	namespaces tablenamespace.Collection,
 	system sql_system.SQLSystem,
 	txnStore kstore.KStore,
 ) (gcexec.GarbageCollectorExecutor, error) {

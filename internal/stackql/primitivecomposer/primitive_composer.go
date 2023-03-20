@@ -229,7 +229,7 @@ func (pb *standardPrimitiveComposer) AssignParameters() (internaldto.TableParame
 			continue
 		}
 		tbVisited[tb] = struct{}{}
-		tbID := tb.GetUniqueId()
+		tbID := tb.GetUniqueID()
 		var reqParams, tblOptParams map[string]openapistackql.Addressable
 		if view, isView := tb.GetIndirect(); isView {
 			// TODO: fill this out

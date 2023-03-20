@@ -11,7 +11,7 @@ import (
 )
 
 type SQLRewriteInput interface {
-	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
+	GetNamespaceCollection() tablenamespace.Collection
 	GetDRMConfig() drm.Config
 	GetColumnDescriptors() []relationaldto.RelationalColumn
 	GetBaseControlCounters() internaldto.TxnControlCounters
@@ -35,7 +35,7 @@ type StandardSQLRewriteInput struct {
 	tables                   taxonomy.TblMap
 	fromString               string
 	tableInsertionContainers []tableinsertioncontainer.TableInsertionContainer
-	namespaceCollection      tablenamespace.TableNamespaceCollection
+	namespaceCollection      tablenamespace.Collection
 	indirectContexts         []drm.PreparedStatementCtx
 }
 
@@ -49,7 +49,7 @@ func NewStandardSQLRewriteInput(
 	tables taxonomy.TblMap,
 	fromString string,
 	tableInsertionContainers []tableinsertioncontainer.TableInsertionContainer,
-	namespaceCollection tablenamespace.TableNamespaceCollection,
+	namespaceCollection tablenamespace.Collection,
 ) SQLRewriteInput {
 	return &StandardSQLRewriteInput{
 		dc:                       dc,
@@ -78,7 +78,7 @@ func (ri *StandardSQLRewriteInput) GetIndirectContexts() []drm.PreparedStatement
 	return ri.indirectContexts
 }
 
-func (ri *StandardSQLRewriteInput) GetNamespaceCollection() tablenamespace.TableNamespaceCollection {
+func (ri *StandardSQLRewriteInput) GetNamespaceCollection() tablenamespace.Collection {
 	return ri.namespaceCollection
 }
 

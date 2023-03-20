@@ -18,7 +18,7 @@ type Bundle interface {
 	GetAuthContexts() map[string]*dto.AuthCtx
 	GetControlAttributes() sqlcontrol.ControlAttributes
 	GetGC() garbagecollector.GarbageCollector
-	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
+	GetNamespaceCollection() tablenamespace.Collection
 	GetDBMSInternalRouter() dbmsinternal.Router
 	GetSQLDataSources() map[string]sql_datasource.SQLDataSource
 	GetSQLSystem() sql_system.SQLSystem
@@ -29,7 +29,7 @@ type Bundle interface {
 
 func NewBundle(
 	garbageCollector garbagecollector.GarbageCollector,
-	namespaces tablenamespace.TableNamespaceCollection,
+	namespaces tablenamespace.Collection,
 	sqlEngine sqlengine.SQLEngine,
 	sqlSystem sql_system.SQLSystem,
 	pgInternalRouter dbmsinternal.Router,
@@ -57,7 +57,7 @@ func NewBundle(
 type simpleBundle struct {
 	controlAttributes sqlcontrol.ControlAttributes
 	garbageCollector  garbagecollector.GarbageCollector
-	namespaces        tablenamespace.TableNamespaceCollection
+	namespaces        tablenamespace.Collection
 	sqlEngine         sqlengine.SQLEngine
 	sqlSystem         sql_system.SQLSystem
 	txnStore          kstore.KStore
@@ -108,6 +108,6 @@ func (sb *simpleBundle) GetSQLSystem() sql_system.SQLSystem {
 	return sb.sqlSystem
 }
 
-func (sb *simpleBundle) GetNamespaceCollection() tablenamespace.TableNamespaceCollection {
+func (sb *simpleBundle) GetNamespaceCollection() tablenamespace.Collection {
 	return sb.namespaces
 }

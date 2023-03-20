@@ -30,7 +30,7 @@ type standardFramentRewriteAstVisitor struct {
 	rewrittenQuery      string
 	tablesCited         map[*sqlparser.AliasedTableExpr]sqlparser.TableName
 	shouldCollectTables bool
-	namespaceCollection tablenamespace.TableNamespaceCollection
+	namespaceCollection tablenamespace.Collection
 	sqlSystem           sql_system.SQLSystem
 	formatter           sqlparser.NodeFormatter
 	annotatedAST        annotatedast.AnnotatedAst
@@ -42,7 +42,7 @@ func NewFramentRewriteAstVisitor(
 	shouldCollectTables bool,
 	sqlSystem sql_system.SQLSystem,
 	formatter sqlparser.NodeFormatter,
-	namespaceCollection tablenamespace.TableNamespaceCollection,
+	namespaceCollection tablenamespace.Collection,
 ) FramentRewriteAstVisitor {
 	return &standardFramentRewriteAstVisitor{
 		iDColumnName:        iDColumnName,

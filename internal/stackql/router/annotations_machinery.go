@@ -14,7 +14,7 @@ func obtainAnnotationCtx(
 	sqlSystem sql_system.SQLSystem,
 	tbl tablemetadata.ExtendedTableMetadata,
 	parameters map[string]interface{},
-	namespaceCollection tablenamespace.TableNamespaceCollection,
+	namespaceCollection tablenamespace.Collection,
 ) (taxonomy.AnnotationCtx, error) {
 	_, isView := tbl.GetView()
 	_, isSQLDataSource := tbl.GetSQLDataSource()

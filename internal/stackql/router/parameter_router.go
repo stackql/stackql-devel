@@ -69,7 +69,7 @@ type standardParameterRouter struct {
 	tableToComparisonDependencies parserutil.ComparisonTableMap
 	tableToAnnotationCtx          map[sqlparser.TableExpr]taxonomy.AnnotationCtx
 	invalidatedParams             map[string]interface{}
-	namespaceCollection           tablenamespace.TableNamespaceCollection
+	namespaceCollection           tablenamespace.Collection
 	astFormatter                  sqlparser.NodeFormatter
 }
 
@@ -80,7 +80,7 @@ func NewParameterRouter(
 	whereParamMap parserutil.ParameterMap,
 	onParamMap parserutil.ParameterMap,
 	colRefs parserutil.ColTableMap,
-	namespaceCollection tablenamespace.TableNamespaceCollection,
+	namespaceCollection tablenamespace.Collection,
 	astFormatter sqlparser.NodeFormatter,
 ) ParameterRouter {
 	return &standardParameterRouter{

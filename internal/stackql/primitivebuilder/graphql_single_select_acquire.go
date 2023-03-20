@@ -78,7 +78,7 @@ func (ss *GraphQLSingleSelectAcquire) Build() error {
 	if err != nil {
 		return err
 	}
-	httpArmoury, err := ss.tableMeta.GetHttpArmoury()
+	httpArmoury, err := ss.tableMeta.GetHTTPArmoury()
 	if err != nil {
 		return err
 	}

@@ -33,7 +33,7 @@ type standardPreparedStatementCtx struct {
 	ctrlColumnRepeats       int
 	txnCtrlCtrs             internaldto.TxnControlCounters
 	selectTxnCtrlCtrs       []internaldto.TxnControlCounters
-	namespaceCollection     tablenamespace.TableNamespaceCollection
+	namespaceCollection     tablenamespace.Collection
 	sqlSystem               sql_system.SQLSystem
 	indirectContexts        []PreparedStatementCtx
 }
@@ -86,7 +86,7 @@ func NewPreparedStatementCtx(
 	ctrlColumnRepeats int,
 	txnCtrlCtrs internaldto.TxnControlCounters,
 	secondaryCtrs []internaldto.TxnControlCounters,
-	namespaceCollection tablenamespace.TableNamespaceCollection,
+	namespaceCollection tablenamespace.Collection,
 	sqlSystem sql_system.SQLSystem,
 ) PreparedStatementCtx {
 	return &standardPreparedStatementCtx{

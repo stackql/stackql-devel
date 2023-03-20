@@ -32,7 +32,7 @@ type standardProviderStringAstVisitor struct {
 	sqlSystem                      sql_system.SQLSystem
 	formatter                      sqlparser.NodeFormatter
 	annotatedAST                   annotatedast.AnnotatedAst
-	namespaceCollection            tablenamespace.TableNamespaceCollection
+	namespaceCollection            tablenamespace.Collection
 	containsAnalyticsCacheMaterial bool
 	containsNativeBackendMaterial  bool
 }
@@ -41,7 +41,7 @@ func NewProviderStringAstVisitor(
 	annotatedAST annotatedast.AnnotatedAst,
 	sqlSystem sql_system.SQLSystem,
 	formatter sqlparser.NodeFormatter,
-	namespaceCollection tablenamespace.TableNamespaceCollection,
+	namespaceCollection tablenamespace.Collection,
 ) ProviderStringAstVisitor {
 	return &standardProviderStringAstVisitor{
 		tablesCited:         make(map[*sqlparser.AliasedTableExpr]sqlparser.TableName),

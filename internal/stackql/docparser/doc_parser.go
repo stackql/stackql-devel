@@ -37,7 +37,7 @@ func OpenapiStackQLTabulationsPersistor(
 	tabluationsAnnotated []util.AnnotatedTabulation,
 	dbEngine sqlengine.SQLEngine,
 	prefix string,
-	namespaceCollection tablenamespace.TableNamespaceCollection,
+	namespaceCollection tablenamespace.Collection,
 	controlAttributes sqlcontrol.ControlAttributes,
 	sqlSystem sql_system.SQLSystem,
 ) (int, error) {

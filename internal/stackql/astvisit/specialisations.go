@@ -17,7 +17,7 @@ func GenerateModifiedSelectSuffix(
 	node sqlparser.SQLNode,
 	sqlSystem sql_system.SQLSystem,
 	formatter sqlparser.NodeFormatter,
-	namespaceCollection tablenamespace.TableNamespaceCollection,
+	namespaceCollection tablenamespace.Collection,
 ) string {
 	v := NewFramentRewriteAstVisitor(annotatedAST, "", false, sqlSystem, formatter, namespaceCollection)
 	switch node := node.(type) { //nolint:gocritic // defer analyser uplifts
@@ -70,7 +70,7 @@ func GenerateUnionTemplateQuery(
 	node *sqlparser.Union,
 	sqlSystem sql_system.SQLSystem,
 	formatter sqlparser.NodeFormatter,
-	namespaceCollection tablenamespace.TableNamespaceCollection,
+	namespaceCollection tablenamespace.Collection,
 ) string {
 	v := NewFramentRewriteAstVisitor(annotatedAST, "", false, sqlSystem, formatter, namespaceCollection)
 
@@ -105,7 +105,7 @@ func GenerateModifiedWhereClause(
 	node *sqlparser.Where,
 	sqlSystem sql_system.SQLSystem,
 	formatter sqlparser.NodeFormatter,
-	namespaceCollection tablenamespace.TableNamespaceCollection,
+	namespaceCollection tablenamespace.Collection,
 ) string {
 	v := NewFramentRewriteAstVisitor(annotatedAST, "", false, sqlSystem, formatter, namespaceCollection)
 	var whereStr string
@@ -163,7 +163,7 @@ func ExtractProviderStringsAndDetectCacheExemptMaterial(
 	node sqlparser.SQLNode,
 	sqlSystem sql_system.SQLSystem,
 	formatter sqlparser.NodeFormatter,
-	namespaceCollection tablenamespace.TableNamespaceCollection,
+	namespaceCollection tablenamespace.Collection,
 ) ([]string, bool) {
 	v := NewProviderStringAstVisitor(annotatedAST, sqlSystem, formatter, namespaceCollection)
 	node.Accept(v) //nolint:errcheck // defer analyser uplifts

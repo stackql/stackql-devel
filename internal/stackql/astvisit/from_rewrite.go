@@ -32,7 +32,7 @@ type standardFromRewriteAstVisitor struct {
 	iDColumnName           string
 	rewrittenQuery         string
 	shouldCollectTables    bool
-	namespaceCollection    tablenamespace.TableNamespaceCollection
+	namespaceCollection    tablenamespace.Collection
 	sqlSystem              sql_system.SQLSystem
 	formatter              sqlparser.NodeFormatter
 	annotations            taxonomy.AnnotationCtxMap
@@ -48,7 +48,7 @@ func NewFromRewriteAstVisitor(
 	shouldCollectTables bool,
 	sqlSystem sql_system.SQLSystem,
 	formatter sqlparser.NodeFormatter,
-	namespaceCollection tablenamespace.TableNamespaceCollection,
+	namespaceCollection tablenamespace.Collection,
 	annotations taxonomy.AnnotationCtxMap,
 	dc drm.Config,
 ) FromRewriteAstVisitor {

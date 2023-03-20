@@ -69,7 +69,7 @@ func (ss *Delete) Build() error {
 	ex := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 		var target map[string]interface{}
 		keys := make(map[string]map[string]interface{})
-		httpArmoury, httpErr := tbl.GetHttpArmoury()
+		httpArmoury, httpErr := tbl.GetHTTPArmoury()
 		if httpErr != nil {
 			return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, nil, nil, nil, httpErr, nil))
 		}

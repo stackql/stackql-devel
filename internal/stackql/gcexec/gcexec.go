@@ -37,7 +37,7 @@ type GarbageCollectorExecutor interface {
 // Credit to http://marcio.io/2015/07/singleton-pattern-in-go/
 func GetGarbageCollectorExecutorInstance(
 	sqlEngine sqlengine.SQLEngine,
-	ns tablenamespace.TableNamespaceCollection,
+	ns tablenamespace.Collection,
 	system sql_system.SQLSystem, txnStore kstore.KStore,
 ) (GarbageCollectorExecutor, error) {
 	var err error
@@ -52,7 +52,7 @@ func GetGarbageCollectorExecutorInstance(
 
 func newBasicGarbageCollectorExecutor(
 	system sql_system.SQLSystem,
-	ns tablenamespace.TableNamespaceCollection,
+	ns tablenamespace.Collection,
 	txnStore kstore.KStore,
 ) (GarbageCollectorExecutor, error) { //nolint:unparam // future proofing
 	return &basicGarbageCollectorExecutor{
@@ -67,7 +67,7 @@ func newBasicGarbageCollectorExecutor(
 //   - `Collect()` will reclaim resources from all txns **not** < supplied min ID.
 type basicGarbageCollectorExecutor struct {
 	gcMutex   *sync.Mutex
-	ns        tablenamespace.TableNamespaceCollection
+	ns        tablenamespace.Collection
 	sqlSystem sql_system.SQLSystem
 	txnStore  kstore.KStore
 }

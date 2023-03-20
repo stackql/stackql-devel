@@ -32,7 +32,7 @@ type AstExpandVisitor interface {
 }
 
 type indirectExpandAstVisitor struct {
-	namespaceCollection            tablenamespace.TableNamespaceCollection
+	namespaceCollection            tablenamespace.Collection
 	containsAnalyticsCacheMaterial bool
 	containsNativeBackendMaterial  bool
 	sqlSystem                      sql_system.SQLSystem
@@ -51,7 +51,7 @@ func newIndirectExpandAstVisitor(
 	primitiveGenerator primitivegenerator.PrimitiveGenerator,
 	sqlSystem sql_system.SQLSystem,
 	formatter sqlparser.NodeFormatter,
-	namespaceCollection tablenamespace.TableNamespaceCollection,
+	namespaceCollection tablenamespace.Collection,
 	whereParams parserutil.ParameterMap,
 	tcc internaldto.TxnControlCounters,
 	indirectionDepth int,

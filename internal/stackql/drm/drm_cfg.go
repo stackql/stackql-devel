@@ -49,7 +49,7 @@ type Config interface {
 	GetControlAttributes() sqlcontrol.ControlAttributes
 	GetGolangValue(string) interface{}
 	GetGolangSlices([]internaldto.ColumnMetadata) ([]interface{}, []string)
-	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
+	GetNamespaceCollection() tablenamespace.Collection
 	GetParserTableName(internaldto.HeirarchyIdentifiers, int) sqlparser.TableName
 	GetSQLSystem() sql_system.SQLSystem
 	GetTable(internaldto.HeirarchyIdentifiers, int) (internaldto.DBTable, error)
@@ -71,7 +71,7 @@ type Config interface {
 }
 
 type staticDRMConfig struct {
-	namespaceCollection tablenamespace.TableNamespaceCollection
+	namespaceCollection tablenamespace.Collection
 	controlAttributes   sqlcontrol.ControlAttributes
 	sqlEngine           sqlengine.SQLEngine
 	sqlSystem           sql_system.SQLSystem
@@ -272,7 +272,7 @@ func (dc *staticDRMConfig) GetRelationalType(discoType string) string {
 	return dc.sqlSystem.GetRelationalType(discoType)
 }
 
-func (dc *staticDRMConfig) GetNamespaceCollection() tablenamespace.TableNamespaceCollection {
+func (dc *staticDRMConfig) GetNamespaceCollection() tablenamespace.Collection {
 	return dc.namespaceCollection
 }
 
@@ -736,7 +736,7 @@ func (dc *staticDRMConfig) QueryDML(
 
 func GetDRMConfig(
 	sqlSystem sql_system.SQLSystem,
-	namespaceCollection tablenamespace.TableNamespaceCollection,
+	namespaceCollection tablenamespace.Collection,
 	controlAttributes sqlcontrol.ControlAttributes,
 ) (Config, error) {
 	rv := &staticDRMConfig{

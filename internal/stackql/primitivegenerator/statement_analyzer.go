@@ -773,7 +773,7 @@ func (p *standardPrimitiveGenerator) expandTable(tbl tablemetadata.ExtendedTable
 				"",
 				"server",
 			)
-			uid := fmt.Sprintf("%s.%s", tbl.GetUniqueId(), k)
+			uid := fmt.Sprintf("%s.%s", tbl.GetUniqueID(), k)
 			p.PrimitiveComposer.SetSymbol(uid, colEntry)
 		}
 		break
@@ -803,7 +803,7 @@ func (p *standardPrimitiveGenerator) expandTable(tbl tablemetadata.ExtendedTable
 			colSchema,
 			"",
 		)
-		uid := fmt.Sprintf("%s.%s", tbl.GetUniqueId(), colName)
+		uid := fmt.Sprintf("%s.%s", tbl.GetUniqueID(), colName)
 		p.PrimitiveComposer.SetSymbol(uid, colEntry)
 	}
 	return nil
@@ -826,7 +826,7 @@ func (p *standardPrimitiveGenerator) buildRequestContext(handlerCtx handler.Hand
 	if err != nil {
 		return nil, err
 	}
-	meta.WithGetHttpArmoury(func() (httpbuild.HTTPArmoury, error) { return httpArmoury, nil })
+	meta.WithGetHTTPArmoury(func() (httpbuild.HTTPArmoury, error) { return httpArmoury, nil })
 	return httpArmoury, err
 }
 
@@ -1023,7 +1023,7 @@ func (p *standardPrimitiveGenerator) analyzeDelete(pbi planbuilderinput.PlanBuil
 				"",
 				"server",
 			)
-			uid := fmt.Sprintf("%s.%s", tbl.GetUniqueId(), k)
+			uid := fmt.Sprintf("%s.%s", tbl.GetUniqueID(), k)
 			p.PrimitiveComposer.SetSymbol(uid, colEntry)
 		}
 		break
