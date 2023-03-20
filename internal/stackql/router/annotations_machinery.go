@@ -43,7 +43,7 @@ func obtainAnnotationCtx(
 	name := itemObjS.GetSelectionName()
 	tbl, err = tbl.WithResponseSchemaStr(name)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %s", unsuitableSchemaMsg, err.Error())
+		return nil, fmt.Errorf("%s: %w", unsuitableSchemaMsg, err)
 	}
 	tn, err := tbl.GetTableName()
 	if err == nil && namespaceCollection.GetAnalyticsCacheTableNamespaceConfigurator().IsAllowed(tn) {

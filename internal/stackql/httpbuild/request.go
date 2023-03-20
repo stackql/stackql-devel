@@ -18,7 +18,15 @@ import (
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 )
 
-func BuildHTTPRequestCtx(node sqlparser.SQLNode, prov provider.IProvider, m openapistackql.OperationStore, svc openapistackql.Service, insertValOnlyRows map[int]map[int]interface{}, execContext ExecContext) (HTTPArmoury, error) {
+//nolint:funlen,gocognit // TODO: review
+func BuildHTTPRequestCtx(
+	node sqlparser.SQLNode,
+	prov provider.IProvider,
+	m openapistackql.OperationStore,
+	svc openapistackql.Service,
+	insertValOnlyRows map[int]map[int]interface{},
+	execContext ExecContext,
+) (HTTPArmoury, error) {
 	var err error
 	httpArmoury := NewHTTPArmoury()
 	var requestSchema, responseSchema openapistackql.Schema
@@ -36,16 +44,13 @@ func BuildHTTPRequestCtx(node sqlparser.SQLNode, prov provider.IProvider, m open
 	if err != nil {
 		return nil, err
 	}
-	paramList, err := requests.SplitHttpParameters(prov, paramMap, m)
+	paramList, err := requests.SplitHTTPParameters(prov, paramMap, m)
 	if err != nil {
 		return nil, err
 	}
 	for _, prms := range paramList {
 		params := prms
 		pm := NewHTTPArmouryParameters()
-		if err != nil {
-			return nil, err
-		}
 		if execContext != nil && execContext.GetExecPayload() != nil {
 			pm.SetBodyBytes(execContext.GetExecPayload().GetPayload())
 			for j, v := range execContext.GetExecPayload().GetHeader() {
@@ -53,12 +58,12 @@ func BuildHTTPRequestCtx(node sqlparser.SQLNode, prov provider.IProvider, m open
 			}
 			params.SetRequestBody(execContext.GetExecPayload().GetPayloadMap())
 		} else if params.GetRequestBody() != nil && len(params.GetRequestBody()) != 0 {
-			b, err := json.Marshal(params.GetRequestBody())
-			if err != nil {
-				return nil, err
+			b, bErr := json.Marshal(params.GetRequestBody())
+			if bErr != nil {
+				return nil, bErr
 			}
 			pm.SetBodyBytes(b)
-			req, reqExists := m.GetRequest()
+			req, reqExists := m.GetRequest() //nolint:govet // intentional shadowing
 			if reqExists {
 				pm.SetHeaderKV("Content-Type", []string{req.GetBodyMediaType()})
 			}
@@ -98,11 +103,12 @@ func BuildHTTPRequestCtx(node sqlparser.SQLNode, prov provider.IProvider, m open
 		default:
 			return nil, fmt.Errorf("cannot create http primitive for sql node of type %T", node)
 		}
-		if err != nil {
-			return nil, err
-		}
-		logging.GetLogger().Infoln(fmt.Sprintf("pre transform: httpArmoury.RequestParams[%d] = %s", i, string(p.GetBodyBytes())))
-		logging.GetLogger().Infoln(fmt.Sprintf("post transform: httpArmoury.RequestParams[%d] = %s", i, string(p.GetBodyBytes())))
+		logging.GetLogger().Infoln(
+			fmt.Sprintf(
+				"pre transform: httpArmoury.RequestParams[%d] = %s", i, string(p.GetBodyBytes())))
+		logging.GetLogger().Infoln(
+			fmt.Sprintf(
+				"post transform: httpArmoury.RequestParams[%d] = %s", i, string(p.GetBodyBytes())))
 		secondPassParams[i] = p
 	}
 	httpArmoury.SetRequestParams(secondPassParams)
@@ -112,11 +118,15 @@ func BuildHTTPRequestCtx(node sqlparser.SQLNode, prov provider.IProvider, m open
 	return httpArmoury, nil
 }
 
-func awsContextHousekeeping(ctx context.Context, svc openapistackql.Service, parameters map[string]interface{}) context.Context {
-	ctx = context.WithValue(ctx, "service", svc.GetName())
+func awsContextHousekeeping(
+	ctx context.Context,
+	svc openapistackql.Service,
+	parameters map[string]interface{},
+) context.Context {
+	ctx = context.WithValue(ctx, "service", svc.GetName()) //nolint:revive,staticcheck // TODO: add custom context type
 	if region, ok := parameters["region"]; ok {
-		if regionStr, ok := region.(string); ok {
-			ctx = context.WithValue(ctx, "region", regionStr)
+		if regionStr, rOk := region.(string); rOk {
+			ctx = context.WithValue(ctx, "region", regionStr) //nolint:revive,staticcheck // TODO: add custom context type
 		}
 	}
 	return ctx
@@ -167,7 +177,7 @@ func BuildHTTPRequestCtxFromAnnotation(parameters streaming.MapStream, prov prov
 			return nil, err
 		}
 	}
-	paramList, err := requests.SplitHttpParameters(prov, paramMap, m)
+	paramList, err := requests.SplitHTTPParameters(prov, paramMap, m)
 	if err != nil {
 		return nil, err
 	}
