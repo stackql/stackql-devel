@@ -268,13 +268,14 @@ jobs:
         source version.txt
         export BUILDMAJORVERSION="$MajorVersion"
         export BUILDMINORVERSION="$MinorVersion"
-        if [[ ! "$BUILDBRANCH" == *develop ]]
+        if [[ ! "$BUILDBRANCH" == "*develop" ]]
           then
           # shellcheck disable=2269
           export BUILDPATCHVERSION="${BUILDPATCHVERSION}"
         fi
         export BUILDSHORTCOMMITSHA="$(echo ${BUILDCOMMITSHA} | cut -c 1-7)"
         BUILDDATE="$(date)"
+        export BUILDDATE
         echo "BUILDMAJORVERSION: ${BUILDMAJORVERSION}"
         echo "BUILDMINORVERSION: ${BUILDMINORVERSION}"
         echo "BUILDPATCHVERSION: ${BUILDPATCHVERSION}"
@@ -429,7 +430,7 @@ jobs:
           echo "BUILDMAJORVERSION=$BUILDMAJORVERSION"
           echo "BUILDMINORVERSION=$BUILDMINORVERSION"
           echo "BUILDPATCHVERSION=$BUILDPATCHVERSION"
-          if [[ ! "$BUILDBRANCH" == *develop ]]
+          if [[ ! "$BUILDBRANCH" == "*develop" ]]
             then
             export BUILDPATCHVERSION="${BUILDPATCHVERSION}"
           fi
@@ -461,7 +462,7 @@ jobs:
           echo "BUILDMAJORVERSION=$BUILDMAJORVERSION"
           echo "BUILDMINORVERSION=$BUILDMINORVERSION"
           echo "BUILDPATCHVERSION=$BUILDPATCHVERSION"
-          if [[ ! "$BUILDBRANCH" == *develop ]]
+          if [[ ! "$BUILDBRANCH" == "*develop" ]]
             then
             export BUILDPATCHVERSION="${BUILDPATCHVERSION}"
           fi
@@ -525,13 +526,14 @@ jobs:
         source version.txt
         export BUILDMAJORVERSION="$MajorVersion"
         export BUILDMINORVERSION="$MinorVersion"
-        if [[ ! "$BUILDBRANCH" == *develop ]]
+        if [[ ! "$BUILDBRANCH" == "*develop" ]]
           then
           # shellcheck disable=2269
           export BUILDPATCHVERSION="${BUILDPATCHVERSION}"
         fi
         export BUILDSHORTCOMMITSHA="$(echo $BUILDCOMMITSHA | cut -c 1-7)"
-        export BUILDDATE="$(date)"
+        BUILDDATE="$(date)"
+        export BUILDDATE
         echo "BUILDMAJORVERSION: ${BUILDMAJORVERSION}"
         echo "BUILDMINORVERSION: ${BUILDMINORVERSION}"
         echo "BUILDPATCHVERSION: ${BUILDPATCHVERSION}"
@@ -645,13 +647,14 @@ jobs:
         source version.txt
         export BUILDMAJORVERSION="$MajorVersion"
         export BUILDMINORVERSION="$MinorVersion"
-        if [[ ! "$BUILDBRANCH" == *develop ]]
+        if [[ ! "$BUILDBRANCH" == "*develop" ]]
           then
           # shellcheck disable=2269
           export BUILDPATCHVERSION="${BUILDPATCHVERSION}"
         fi
         export BUILDSHORTCOMMITSHA="$(echo $BUILDCOMMITSHA | cut -c 1-7)"
-        export BUILDDATE="$(date)"
+        BUILDDATE="$(date)"
+        export BUILDDATE
         echo "BUILDMAJORVERSION: ${BUILDMAJORVERSION}"
         echo "BUILDMINORVERSION: ${BUILDMINORVERSION}"
         echo "BUILDPATCHVERSION: ${BUILDPATCHVERSION}"
@@ -723,12 +726,13 @@ jobs:
         source version.txt
         BUILDMAJORVERSION=${MajorVersion}
         BUILDMINORVERSION=${MinorVersion}
-        if [[ ! "$BUILDBRANCH" == *develop ]]; then
+        if [[ ! "$BUILDBRANCH" == "*develop" ]]; then
           # shellcheck disable=2269
           BUILDPATCHVERSION="${BUILDPATCHVERSION}"
         fi
-        BUILDSHORTCOMMITSHA=$(echo "${BUILDCOMMITSHA}" | cut -c 1-7)
-        BUILDDATE=$(date)
+        BUILDSHORTCOMMITSHA="$(echo "${BUILDCOMMITSHA}" | cut -c 1-7)"
+        BUILDDATE="$(date)"
+        export BUILDDATE
         echo "BUILDMAJORVERSION: ${BUILDMAJORVERSION}"
         echo "BUILDMINORVERSION: ${BUILDMINORVERSION}"
         echo "BUILDPATCHVERSION: ${BUILDPATCHVERSION}"
