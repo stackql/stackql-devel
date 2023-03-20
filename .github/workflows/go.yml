@@ -273,7 +273,8 @@ jobs:
           # shellcheck disable=2269
           export BUILDPATCHVERSION="${BUILDPATCHVERSION}"
         fi
-        export BUILDSHORTCOMMITSHA="$(echo ${BUILDCOMMITSHA} | cut -c 1-7)"
+        BUILDSHORTCOMMITSHA="$(echo "${BUILDCOMMITSHA}" | cut -c 1-7)"
+        export BUILDSHORTCOMMITSHA
         BUILDDATE="$(date)"
         export BUILDDATE
         echo "BUILDMAJORVERSION: ${BUILDMAJORVERSION}"
@@ -531,7 +532,8 @@ jobs:
           # shellcheck disable=2269
           export BUILDPATCHVERSION="${BUILDPATCHVERSION}"
         fi
-        export BUILDSHORTCOMMITSHA="$(echo $BUILDCOMMITSHA | cut -c 1-7)"
+        BUILDSHORTCOMMITSHA="$(echo "$BUILDCOMMITSHA" | cut -c 1-7)"
+        export BUILDSHORTCOMMITSHA
         BUILDDATE="$(date)"
         export BUILDDATE
         echo "BUILDMAJORVERSION: ${BUILDMAJORVERSION}"
@@ -652,7 +654,8 @@ jobs:
           # shellcheck disable=2269
           export BUILDPATCHVERSION="${BUILDPATCHVERSION}"
         fi
-        export BUILDSHORTCOMMITSHA="$(echo $BUILDCOMMITSHA | cut -c 1-7)"
+        BUILDSHORTCOMMITSHA="$(echo "$BUILDCOMMITSHA" | cut -c 1-7)"
+        export BUILDSHORTCOMMITSHA
         BUILDDATE="$(date)"
         export BUILDDATE
         echo "BUILDMAJORVERSION: ${BUILDMAJORVERSION}"
