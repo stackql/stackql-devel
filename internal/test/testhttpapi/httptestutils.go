@@ -1,3 +1,4 @@
+//nolint:all // test boilerplate
 package testhttpapi
 
 import (

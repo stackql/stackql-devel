@@ -1,3 +1,4 @@
+//nolint:all,nolintlint // test boilerplate
 package stackqltestutil
 
 import (

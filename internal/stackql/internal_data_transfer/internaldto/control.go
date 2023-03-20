@@ -21,7 +21,7 @@ type TxnControlCounters interface {
 }
 
 type standardTxnControlCounters struct {
-	genId, sessionID, txnId, insertId int
+	genId, sessionID, txnID, insertId int
 	tableName                         string
 	requestEncoding                   []string
 }
@@ -38,7 +38,7 @@ func NewTxnControlCounters(txnCtrMgr txncounter.Manager) (TxnControlCounters, er
 	if err != nil {
 		return nil, err
 	}
-	txnId, err := txnCtrMgr.GetNextTxnID()
+	txnID, err := txnCtrMgr.GetNextTxnID()
 	if err != nil {
 		return nil, err
 	}
@@ -49,16 +49,16 @@ func NewTxnControlCounters(txnCtrMgr txncounter.Manager) (TxnControlCounters, er
 	return &standardTxnControlCounters{
 		genId:     genId,
 		sessionID: ssnId,
-		txnId:     txnId,
+		txnID:     txnID,
 		insertId:  insertId,
 	}, nil
 }
 
-func NewTxnControlCountersFromVals(genId, ssnId, txnId, insertId int) TxnControlCounters {
+func NewTxnControlCountersFromVals(genId, ssnId, txnID, insertId int) TxnControlCounters {
 	return &standardTxnControlCounters{
 		genId:     genId,
 		sessionID: ssnId,
-		txnId:     txnId,
+		txnID:     txnID,
 		insertId:  insertId,
 	}
 }
@@ -76,7 +76,7 @@ func (tc *standardTxnControlCounters) GetSessionID() int {
 }
 
 func (tc *standardTxnControlCounters) GetTxnID() int {
-	return tc.txnId
+	return tc.txnID
 }
 
 func (tc *standardTxnControlCounters) GetInsertID() int {
@@ -87,7 +87,7 @@ func (tc *standardTxnControlCounters) Copy(input TxnControlCounters) TxnControlC
 	tc.genId = input.GetGenID()
 	tc.insertId = input.GetInsertID()
 	tc.sessionID = input.GetSessionID()
-	tc.txnId = input.GetTxnID()
+	tc.txnID = input.GetTxnID()
 	return tc
 }
 
@@ -95,7 +95,7 @@ func (tc *standardTxnControlCounters) Clone() TxnControlCounters {
 	return &standardTxnControlCounters{
 		genId:           tc.genId,
 		sessionID:       tc.sessionID,
-		txnId:           tc.txnId,
+		txnID:           tc.txnID,
 		insertId:        tc.insertId,
 		requestEncoding: tc.requestEncoding,
 	}
@@ -105,12 +105,12 @@ func (tc *standardTxnControlCounters) CloneAndIncrementInsertID() TxnControlCoun
 	return &standardTxnControlCounters{
 		genId:           tc.genId,
 		sessionID:       tc.sessionID,
-		txnId:           tc.txnId,
+		txnID:           tc.txnID,
 		insertId:        tc.insertId + 1,
 		requestEncoding: tc.requestEncoding,
 	}
 }
 
 func (tc *standardTxnControlCounters) SetTxnID(ti int) {
-	tc.txnId = ti
+	tc.txnID = ti
 }
