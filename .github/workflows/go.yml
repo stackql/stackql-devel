@@ -23,7 +23,6 @@ on:
       - "licenses/**"
 
 env:
-  GOGETCMD: "go get -v -t -d ./..."
   GOTESTCMD: "go test -timeout 1200s --tags \"json1 sqleanall\" -v ./..."
   TESTSCRIPT: "test/python/main.py"
   GOPRIVATE: github.com/stackql/*
@@ -111,7 +110,6 @@ jobs:
         git --no-pager config --list
         go get -v -t -d ./...
       env:
-        GOGETCMD: ${{env.GOGETCMD}}
         CGO_ENABLED: 1
         GHACCESSTOKEN: ${{env.GH_ACCESS_TOKEN}}
         GOPRIVATE: ${{env.GOPRIVATE}}
@@ -253,9 +251,8 @@ jobs:
     - name: Get dependencies
       run: |
         git config --global "url.https://${GH_ACCESS_TOKEN}@github.com/.insteadOf" https://github.com/
-        $GOGETCMD
+        go get -v -t -d ./...
       env:
-        GOGETCMD: ${{env.GOGETCMD}}
         GH_ACCESS_TOKEN: ${{env.GH_ACCESS_TOKEN}}
         GOPRIVATE: ${{env.GOPRIVATE}}
 
@@ -269,16 +266,15 @@ jobs:
         CGO_LDFLAGS: '-static'
       run: |
         source version.txt
-        export BUILDMAJORVERSION=$MajorVersion
-        export BUILDMINORVERSION=$MinorVersion
+        export BUILDMAJORVERSION="$MajorVersion"
+        export BUILDMINORVERSION="$MinorVersion"
         if [[ ! "$BUILDBRANCH" == *develop ]]
           then
           # shellcheck disable=2269
           export BUILDPATCHVERSION="${BUILDPATCHVERSION}"
         fi
-        export BUILDSHORTCOMMITSHA=$(echo $BUILDCOMMITSHA | cut -c 1-7)
-        export BUILDDATE=$(date)HA=$(echo "${BUILDCOMMITSHA}" | cut -c 1-7)
-        BUILDDATE=$(date)
+        export BUILDSHORTCOMMITSHA="$(echo ${BUILDCOMMITSHA} | cut -c 1-7)"
+        BUILDDATE="$(date)"
         echo "BUILDMAJORVERSION: ${BUILDMAJORVERSION}"
         echo "BUILDMINORVERSION: ${BUILDMINORVERSION}"
         echo "BUILDPATCHVERSION: ${BUILDPATCHVERSION}"
@@ -512,9 +508,8 @@ jobs:
     - name: Get dependencies
       run: |
         git config --global "url.https://${GH_ACCESS_TOKEN}@github.com/.insteadOf" https://github.com/
-        "${GOGETCMD}"
+        go get -v -t -d ./...
       env:
-        GOGETCMD: ${{env.GOGETCMD}}
         CGO_ENABLED: 1
         GH_ACCESS_TOKEN: ${{env.GH_ACCESS_TOKEN}}
         GOPRIVATE: ${{env.GOPRIVATE}}
@@ -528,15 +523,15 @@ jobs:
         CGO_ENABLED: 1
       run: |
         source version.txt
-        export BUILDMAJORVERSION=$MajorVersion
-        export BUILDMINORVERSION=$MinorVersion
+        export BUILDMAJORVERSION="$MajorVersion"
+        export BUILDMINORVERSION="$MinorVersion"
         if [[ ! "$BUILDBRANCH" == *develop ]]
           then
           # shellcheck disable=2269
           export BUILDPATCHVERSION="${BUILDPATCHVERSION}"
         fi
-        export BUILDSHORTCOMMITSHA=$(echo $BUILDCOMMITSHA | cut -c 1-7)
-        export BUILDDATE=$(date)
+        export BUILDSHORTCOMMITSHA="$(echo $BUILDCOMMITSHA | cut -c 1-7)"
+        export BUILDDATE="$(date)"
         echo "BUILDMAJORVERSION: ${BUILDMAJORVERSION}"
         echo "BUILDMINORVERSION: ${BUILDMINORVERSION}"
         echo "BUILDPATCHVERSION: ${BUILDPATCHVERSION}"
@@ -633,9 +628,8 @@ jobs:
     - name: Get dependencies
       run: |
         git config --global "url.https://${GH_ACCESS_TOKEN}@github.com/.insteadOf" https://github.com/
-        "${GOGETCMD}"
+        go get -v -t -d ./...
       env:
-        GOGETCMD: ${{env.GOGETCMD}}
         CGO_ENABLED: 1
         GH_ACCESS_TOKEN: ${{env.GH_ACCESS_TOKEN}}
         GOPRIVATE: ${{env.GOPRIVATE}}
@@ -649,15 +643,15 @@ jobs:
         CGO_ENABLED: 1
       run: |
         source version.txt
-        export BUILDMAJORVERSION=$MajorVersion
-        export BUILDMINORVERSION=$MinorVersion
+        export BUILDMAJORVERSION="$MajorVersion"
+        export BUILDMINORVERSION="$MinorVersion"
         if [[ ! "$BUILDBRANCH" == *develop ]]
           then
           # shellcheck disable=2269
           export BUILDPATCHVERSION="${BUILDPATCHVERSION}"
         fi
-        export BUILDSHORTCOMMITSHA=$(echo $BUILDCOMMITSHA | cut -c 1-7)
-        export BUILDDATE=$(date)
+        export BUILDSHORTCOMMITSHA="$(echo $BUILDCOMMITSHA | cut -c 1-7)"
+        export BUILDDATE="$(date)"
         echo "BUILDMAJORVERSION: ${BUILDMAJORVERSION}"
         echo "BUILDMINORVERSION: ${BUILDMINORVERSION}"
         echo "BUILDPATCHVERSION: ${BUILDPATCHVERSION}"
@@ -673,8 +667,8 @@ jobs:
           echo "BUILDPATCHVERSION=$BUILDPATCHVERSION"
         } >> "${GITHUB_ENV}"
 
-        export GOOS=darwin
-        export GOARCH=arm64
+        export GOOS="darwin"
+        export GOARCH="arm64"
         python cicd/python/build.py --verbose --build 
 
     - name: Upload Artifact
