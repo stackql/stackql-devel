@@ -35,7 +35,7 @@ type DependencyPlanner interface {
 
 type standardDependencyPlanner struct {
 	annotatedAST       annotatedast.AnnotatedAst
-	dataflowCollection dataflow.DataFlowCollection
+	dataflowCollection dataflow.Collection
 	colRefs            parserutil.ColTableMap
 	handlerCtx         handler.HandlerContext
 	execSlice          []primitivebuilder.Builder
@@ -59,7 +59,7 @@ type standardDependencyPlanner struct {
 func NewStandardDependencyPlanner(
 	annotatedAST annotatedast.AnnotatedAst,
 	handlerCtx handler.HandlerContext,
-	dataflowCollection dataflow.DataFlowCollection,
+	dataflowCollection dataflow.Collection,
 	colRefs parserutil.ColTableMap,
 	rewrittenWhere *sqlparser.Where,
 	sqlStatement sqlparser.SQLNode,
@@ -109,7 +109,7 @@ func (dp *standardDependencyPlanner) Plan() error {
 	weaklyConnectedComponentCount := 0
 	for _, unit := range units {
 		switch unit := unit.(type) {
-		case dataflow.DataFlowVertex:
+		case dataflow.Vertex:
 			inDegree := dp.dataflowCollection.InDegree(unit)
 			outDegree := dp.dataflowCollection.OutDegree(unit)
 			if inDegree == 0 && outDegree > 0 {
@@ -137,7 +137,7 @@ func (dp *standardDependencyPlanner) Plan() error {
 			if err != nil {
 				return err
 			}
-		case dataflow.DataFlowWeaklyConnectedComponent:
+		case dataflow.WeaklyConnectedComponent:
 			weaklyConnectedComponentCount++
 			orderedNodes, err := unit.GetOrderedNodes()
 			if err != nil {
@@ -398,7 +398,7 @@ func (dp *standardDependencyPlanner) processAcquire(
 	return anTab, dp.tcc, nil
 }
 
-func (dp *standardDependencyPlanner) getStreamFromEdge(e dataflow.DataFlowEdge, ac taxonomy.AnnotationCtx, tcc internaldto.TxnControlCounters) (streaming.MapStream, error) {
+func (dp *standardDependencyPlanner) getStreamFromEdge(e dataflow.Edge, ac taxonomy.AnnotationCtx, tcc internaldto.TxnControlCounters) (streaming.MapStream, error) {
 	if e.IsSQL() {
 		selectCtx, err := dp.generateSelectDML(e, tcc)
 		if err != nil {
@@ -437,7 +437,7 @@ func (dp *standardDependencyPlanner) getStreamFromEdge(e dataflow.DataFlowEdge, 
 	return streaming.NewSimpleProjectionMapStream(projection, staticParams), nil
 }
 
-func (dp *standardDependencyPlanner) generateSelectDML(e dataflow.DataFlowEdge, tcc internaldto.TxnControlCounters) (drm.PreparedStatementCtx, error) {
+func (dp *standardDependencyPlanner) generateSelectDML(e dataflow.Edge, tcc internaldto.TxnControlCounters) (drm.PreparedStatementCtx, error) {
 	ann := e.GetSource().GetAnnotation()
 	columnDescriptors, err := e.GetColumnDescriptors()
 	if err != nil {

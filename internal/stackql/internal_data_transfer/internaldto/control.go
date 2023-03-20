@@ -63,10 +63,6 @@ func NewTxnControlCountersFromVals(genId, ssnId, txnId, insertId int) TxnControl
 	}
 }
 
-func (tc *standardTxnControlCounters) SetTxnID(tID int) {
-	tc.txnId = tID
-}
-
 func (tc *standardTxnControlCounters) SetTableName(tn string) {
 	tc.tableName = tn
 }
@@ -115,6 +111,6 @@ func (tc *standardTxnControlCounters) CloneAndIncrementInsertID() TxnControlCoun
 	}
 }
 
-func (tc *standardTxnControlCounters) SetTxnId(ti int) {
+func (tc *standardTxnControlCounters) SetTxnID(ti int) {
 	tc.txnId = ti
 }

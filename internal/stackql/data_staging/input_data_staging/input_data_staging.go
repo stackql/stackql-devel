@@ -1,4 +1,4 @@
-package input_data_staging
+package input_data_staging //nolint:revive,stylecheck // package name is helpful
 
 import (
 	"database/sql"

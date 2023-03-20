@@ -42,7 +42,7 @@ func (pb *standardPlanBuilder) BuildPlanFromContext(handlerCtx handler.HandlerCo
 			if err != nil {
 				return nil, err
 			}
-			pl.Instructions.SetTxnId(txnId)
+			pl.Instructions.SetTxnID(txnId)
 			return pl, nil
 		}
 		return qp.(*plan.Plan), nil

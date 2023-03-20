@@ -55,7 +55,7 @@ type ParameterRouter interface {
 
 	GetOnConditionsToRewrite() map[*sqlparser.ComparisonExpr]struct{}
 
-	GetOnConditionDataFlows() (dataflow.DataFlowCollection, error)
+	GetOnConditionDataFlows() (dataflow.Collection, error)
 }
 
 type standardParameterRouter struct {
@@ -156,7 +156,7 @@ func (pr *standardParameterRouter) extractFromFunctionExpr(f *sqlparser.FuncExpr
 	return nil, nil, fmt.Errorf("cannot accomodate this")
 }
 
-func (pr *standardParameterRouter) GetOnConditionDataFlows() (dataflow.DataFlowCollection, error) {
+func (pr *standardParameterRouter) GetOnConditionDataFlows() (dataflow.Collection, error) {
 	rv := dataflow.NewStandardDataFlowCollection()
 	for k, destinationTable := range pr.comparisonToTableDependencies {
 		selfTableCited := false

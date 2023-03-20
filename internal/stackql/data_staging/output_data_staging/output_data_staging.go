@@ -1,4 +1,4 @@
-package output_data_staging
+package output_data_staging //nolint:revive,stylecheck // package name is helpful
 
 import (
 	"database/sql"
@@ -51,7 +51,12 @@ type PacketPreparator interface {
 	PrepareOutputPacket() (dto.OutputPacket, error)
 }
 
-func NewNaivePacketPreparator(source Source, nonControlColumns []internaldto.ColumnMetadata, stream streaming.MapStream, drmCfg drm.Config) PacketPreparator {
+func NewNaivePacketPreparator(
+	source Source,
+	nonControlColumns []internaldto.ColumnMetadata,
+	stream streaming.MapStream,
+	drmCfg drm.Config,
+) PacketPreparator {
 	return &naivePacketPreparator{
 		source:            source,
 		nonControlColumns: nonControlColumns,
@@ -107,7 +112,7 @@ type naiveOutputter struct {
 func (st *naiveOutputter) OutputExecutorResult() internaldto.ExecutorOutput {
 	pkt, err := st.packetPreparator.PrepareOutputPacket()
 	if err != nil {
-		return internaldto.NewErroneousExecutorOutput(fmt.Errorf("sql packet preparation error: %s", err.Error()))
+		return internaldto.NewErroneousExecutorOutput(fmt.Errorf("sql packet preparation error: %w", err))
 	}
 	rows := pkt.GetRows()
 	rawRows := pkt.GetRawRows()
@@ -116,7 +121,7 @@ func (st *naiveOutputter) OutputExecutorResult() internaldto.ExecutorOutput {
 
 	rowSort := func(m map[string]map[string]interface{}) []string {
 		var arr []int
-		for k, _ := range m {
+		for k := range m {
 			ord, _ := strconv.Atoi(k)
 			arr = append(arr, ord)
 		}
@@ -127,7 +132,18 @@ func (st *naiveOutputter) OutputExecutorResult() internaldto.ExecutorOutput {
 		}
 		return rv
 	}
-	rv := util.PrepareResultSet(internaldto.NewPrepareResultSetPlusRawAndTypesDTO(nil, rows, cNames, colOIDs, rowSort, nil, nil, rawRows))
+	rv := util.PrepareResultSet(
+		internaldto.NewPrepareResultSetPlusRawAndTypesDTO(
+			nil,
+			rows,
+			cNames,
+			colOIDs,
+			rowSort,
+			nil,
+			nil,
+			rawRows,
+		),
+	)
 
 	if rv.GetSQLResult() == nil {
 		var colz []string

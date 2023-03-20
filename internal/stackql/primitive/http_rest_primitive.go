@@ -27,14 +27,14 @@ func NewHTTPRestPrimitive(provider provider.IProvider, executor func(pc IPrimiti
 	}
 }
 
-func (pr *HTTPRestPrimitive) SetTxnId(id int) {
+func (pr *HTTPRestPrimitive) SetTxnID(id int) {
 	if pr.TxnControlCtr != nil {
 		pr.TxnControlCtr.SetTxnID(id)
 	}
 }
 
-func (pr *HTTPRestPrimitive) IncidentData(fromId int64, input internaldto.ExecutorOutput) error {
-	pr.Inputs[fromId] = input
+func (pr *HTTPRestPrimitive) IncidentData(fromID int64, input internaldto.ExecutorOutput) error {
+	pr.Inputs[fromID] = input
 	return nil
 }
 

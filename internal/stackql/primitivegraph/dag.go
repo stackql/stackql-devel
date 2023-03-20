@@ -21,14 +21,14 @@ type PrimitiveGraph interface {
 	CreatePrimitiveNode(pr primitive.IPrimitive) PrimitiveNode
 	Execute(ctx primitive.IPrimitiveCtx) internaldto.ExecutorOutput
 	GetInputFromAlias(string) (internaldto.ExecutorOutput, bool)
-	IncidentData(fromId int64, input internaldto.ExecutorOutput) error
+	IncidentData(fromID int64, input internaldto.ExecutorOutput) error
 	GetTxnControlCounterSlice() []internaldto.TxnControlCounters
 	NewDependency(from PrimitiveNode, to PrimitiveNode, weight float64)
 	Optimise() error
 	SetContainsIndirect(containsView bool)
 	SetExecutor(func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput) error
 	SetInputAlias(alias string, id int64) error
-	SetTxnId(id int)
+	SetTxnID(id int)
 	Sort() (sorted []graph.Node, err error)
 }
 
@@ -141,7 +141,7 @@ func (pg *standardPrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) internald
 	return output
 }
 
-func (pg *standardPrimitiveGraph) SetTxnId(id int) {
+func (pg *standardPrimitiveGraph) SetTxnID(id int) {
 	nodes := pg.g.Nodes()
 	for {
 		if !nodes.Next() {
@@ -150,7 +150,7 @@ func (pg *standardPrimitiveGraph) SetTxnId(id int) {
 		node := nodes.Node()
 		switch node := node.(type) {
 		case PrimitiveNode:
-			node.GetPrimitive().SetTxnId(id)
+			node.GetPrimitive().SetTxnID(id)
 		}
 	}
 }
@@ -161,7 +161,7 @@ func (pg *standardPrimitiveGraph) Optimise() error {
 	return err
 }
 
-func (pg *standardPrimitiveGraph) IncidentData(fromId int64, input internaldto.ExecutorOutput) error {
+func (pg *standardPrimitiveGraph) IncidentData(fromID int64, input internaldto.ExecutorOutput) error {
 	return nil
 }
 
