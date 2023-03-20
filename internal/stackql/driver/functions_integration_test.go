@@ -19,6 +19,7 @@ import (
 	lrucache "github.com/stackql/stackql-parser/go/cache"
 )
 
+//nolint:govet,lll,errcheck // legacy test
 func TestSelectComputeDisksOrderByCrtTmstpAscPlusJsonExtract(t *testing.T) {
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "csv", "TestSelectComputeDisksOrderByCrtTmstpAscPlusJsonExtract")
 	if err != nil {
@@ -55,6 +56,7 @@ func TestSelectComputeDisksOrderByCrtTmstpAscPlusJsonExtract(t *testing.T) {
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksOrderCrtTmstpAscPlusJsonExtract})
 }
 
+//nolint:govet,lll,errcheck // legacy test
 func TestSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonExtract(t *testing.T) {
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "csv", "TestSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonExtract")
 	if err != nil {
@@ -91,6 +93,7 @@ func TestSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonExtract(t *testing.
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksOrderCrtTmstpAscPlusJsonExtractCoalesce})
 }
 
+//nolint:govet,lll,errcheck // legacy test
 func TestSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonInstr(t *testing.T) {
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "csv", "TestSelectComputeDisksOrderByCrtTmstpAscPlusCoalesceJsonInstr")
 	if err != nil {

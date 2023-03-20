@@ -39,7 +39,7 @@ type HandlerContext interface {
 	//
 	GetASTFormatter() sqlparser.NodeFormatter
 	GetAuthContext(providerName string) (*dto.AuthCtx, error)
-	GetDBMSInternalRouter() dbmsinternal.DBMSInternalRouter
+	GetDBMSInternalRouter() dbmsinternal.Router
 	GetProvider(providerName string) (provider.IProvider, error)
 	GetSupportedProviders(extended bool) (map[string]map[string]interface{}, error)
 	LogHTTPResponseMap(target interface{})
@@ -65,7 +65,7 @@ type HandlerContext interface {
 	GetTxnStore() kstore.KStore
 	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
 	GetFormatter() sqlparser.NodeFormatter
-	GetPGInternalRouter() dbmsinternal.DBMSInternalRouter
+	GetPGInternalRouter() dbmsinternal.Router
 	//
 	SetCurrentProvider(string)
 	SetOutfile(io.Writer)
@@ -100,7 +100,7 @@ type standardHandlerContext struct {
 	txnStore            kstore.KStore
 	namespaceCollection tablenamespace.TableNamespaceCollection
 	formatter           sqlparser.NodeFormatter
-	pgInternalRouter    dbmsinternal.DBMSInternalRouter
+	pgInternalRouter    dbmsinternal.Router
 }
 
 func (hc *standardHandlerContext) SetCurrentProvider(p string) {
@@ -153,7 +153,7 @@ func (hc *standardHandlerContext) GetTxnStore() kstore.KStore { return hc.txnSto
 //		return hc.namespaceCollection
 //	}
 func (hc *standardHandlerContext) GetFormatter() sqlparser.NodeFormatter { return hc.formatter }
-func (hc *standardHandlerContext) GetPGInternalRouter() dbmsinternal.DBMSInternalRouter {
+func (hc *standardHandlerContext) GetPGInternalRouter() dbmsinternal.Router {
 	return hc.pgInternalRouter
 }
 
@@ -297,7 +297,7 @@ func (hc *standardHandlerContext) GetNamespaceCollection() tablenamespace.TableN
 	return hc.namespaceCollection
 }
 
-func (hc *standardHandlerContext) GetDBMSInternalRouter() dbmsinternal.DBMSInternalRouter {
+func (hc *standardHandlerContext) GetDBMSInternalRouter() dbmsinternal.Router {
 	return hc.pgInternalRouter
 }
 

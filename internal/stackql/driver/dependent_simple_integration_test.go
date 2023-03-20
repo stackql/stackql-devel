@@ -17,6 +17,7 @@ import (
 	lrucache "github.com/stackql/stackql-parser/go/cache"
 )
 
+//nolint:govet,lll // legacy test
 func TestSimpleInsertDependentGoogleComputeDiskAsync(t *testing.T) {
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSimpleInsertDependentGoogleComputeDiskAsync")
 	if err != nil {
@@ -59,6 +60,7 @@ func TestSimpleInsertDependentGoogleComputeDiskAsync(t *testing.T) {
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedComputeDisksDependentInsertAsyncFile})
 }
 
+//nolint:govet,lll // legacy test
 func TestSimpleInsertDependentGoogleComputeDiskAsyncReversed(t *testing.T) {
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSimpleInsertDependentGoogleComputeDiskAsyncReversed")
 	if err != nil {
@@ -101,6 +103,7 @@ func TestSimpleInsertDependentGoogleComputeDiskAsyncReversed(t *testing.T) {
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedComputeDisksDependentInsertAsyncFile})
 }
 
+//nolint:govet,lll // legacy test
 func TestSimpleInsertDependentGoogleBQDatasetAsync(t *testing.T) {
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSimpleInsertDependentGoogleBQDatasetAsync")
 	if err != nil {
@@ -143,6 +146,7 @@ func TestSimpleInsertDependentGoogleBQDatasetAsync(t *testing.T) {
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedBQDatasetsDependentInsertFile})
 }
 
+//nolint:govet,lll // legacy test
 func TestSimpleSelectExecDependentGoogleOrganizationsGetIamPolicy(t *testing.T) {
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "csv", "TestSimpleSelectExecDependentGoogleOrganizationsGetIamPolicy")
 	if err != nil {

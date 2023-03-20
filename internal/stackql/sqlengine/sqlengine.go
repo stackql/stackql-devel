@@ -32,7 +32,7 @@ type SQLEngine interface {
 }
 
 func NewSQLEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAttributes) (SQLEngine, error) {
-	switch cfg.DbEngine {
+	switch cfg.DBEngine {
 	case constants.DBEngineSQLite3Embedded:
 		return newSQLiteEmbeddedEngine(cfg, controlAttributes)
 	case constants.DBEnginePostgresTCP:
@@ -40,6 +40,6 @@ func NewSQLEngine(cfg dto.SQLBackendCfg, controlAttributes sqlcontrol.ControlAtt
 	case constants.SQLDialectSnowflake:
 		return newSnowflakeTCPEngine(cfg, controlAttributes)
 	default:
-		return nil, fmt.Errorf(`SQL backend DB Engine of type '%s' is not permitted`, cfg.DbEngine)
+		return nil, fmt.Errorf(`SQL backend DB Engine of type '%s' is not permitted`, cfg.DBEngine)
 	}
 }

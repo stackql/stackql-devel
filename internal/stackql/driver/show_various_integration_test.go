@@ -17,6 +17,7 @@ import (
 	lrucache "github.com/stackql/stackql-parser/go/cache"
 )
 
+//nolint:lll // legacy test
 func TestSimpleShowResourcesFiltered(t *testing.T) {
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
 		runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSimpleShowResourcesFiltered")
@@ -57,6 +58,7 @@ func TestSimpleShowResourcesFiltered(t *testing.T) {
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedShowResourcesFilteredFile})
 }
 
+//nolint:lll // legacy test
 func TestSimpleShowBQDatasets(t *testing.T) {
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
 		runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSimpleShowBQDatasets")
@@ -97,6 +99,7 @@ func TestSimpleShowBQDatasets(t *testing.T) {
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedShowMethodsGoogleBQDatasetsFile})
 }
 
+//nolint:lll // legacy test
 func TestSimpleShowGoogleStorageBuckets(t *testing.T) {
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
 		runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSimpleShowGoogleStorageBuckets")

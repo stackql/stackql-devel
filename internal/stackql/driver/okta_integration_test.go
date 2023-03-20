@@ -24,6 +24,7 @@ import (
 	lrucache "github.com/stackql/stackql-parser/go/cache"
 )
 
+//nolint:lll // legacy test
 func TestSelectOktaApplicationAppsDriver(t *testing.T) {
 	// SimpleOktaApplicationsAppsListResponseFile
 
@@ -74,6 +75,7 @@ func TestSelectOktaApplicationAppsDriver(t *testing.T) {
 	t.Logf("simple select driver integration test passed")
 }
 
+//nolint:govet,lll,errcheck // legacy test
 func TestSimpleSelectOktaApplicationAppsDriverOutput(t *testing.T) {
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSimpleSelectOktaApplicationAppsDriverOutput")
 	if err != nil {

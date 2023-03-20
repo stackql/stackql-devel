@@ -25,6 +25,7 @@ import (
 	lrucache "github.com/stackql/stackql-parser/go/cache"
 )
 
+//nolint:lll // legacy test
 func TestSimpleSelectGoogleComputeInstanceDriver(t *testing.T) {
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleComputeInstanceDriver")
 	if err != nil {
@@ -65,6 +66,7 @@ func TestSimpleSelectGoogleComputeInstanceDriver(t *testing.T) {
 	t.Logf("simple select driver integration test passed")
 }
 
+//nolint:lll,errcheck,govet // legacy test
 func TestSimpleSelectGoogleComputeInstanceDriverOutput(t *testing.T) {
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleComputeInstanceDriverOutput")
 	if err != nil {
@@ -101,6 +103,7 @@ func TestSimpleSelectGoogleComputeInstanceDriverOutput(t *testing.T) {
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSimpleSelectGoogleComputeInstanceTextFile01, testobjects.ExpectedSimpleSelectGoogleComputeInstanceTextFile02})
 }
 
+//nolint:lll,errcheck,govet // legacy test
 func TestSimpleSelectGoogleComputeInstanceDriverOutputRepeated(t *testing.T) {
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleComputeInstanceDriverOutputRepeated")
 	if err != nil {
@@ -137,6 +140,7 @@ func TestSimpleSelectGoogleComputeInstanceDriverOutputRepeated(t *testing.T) {
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSimpleSelectGoogleComputeInstanceTextFile01, testobjects.ExpectedSimpleSelectGoogleComputeInstanceTextFile02})
 }
 
+//nolint:govet,lll,errcheck // legacy test
 func TestSimpleSelectGoogleContainerSubnetworksAllowedDriverOutput(t *testing.T) {
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSimpleSelectGoogleContainerSubnetworksAllowedDriverOutput")
 	if err != nil {
@@ -173,6 +177,7 @@ func TestSimpleSelectGoogleContainerSubnetworksAllowedDriverOutput(t *testing.T)
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSimpleSelectGoogleCotainerSubnetworkTextFile01, testobjects.ExpectedSimpleSelectGoogleCotainerSubnetworkTextFile02})
 }
 
+//nolint:govet,lll,errcheck // legacy test
 func TestSimpleInsertGoogleComputeNetworkAsync(t *testing.T) {
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSimpleInsertGoogleComputeNetworkAsync")
 	if err != nil {
@@ -209,6 +214,7 @@ func TestSimpleInsertGoogleComputeNetworkAsync(t *testing.T) {
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedComputeNetworkInsertAsyncFile})
 }
 
+//nolint:govet,lll // legacy test
 func TestK8sTheHardWayAsync(t *testing.T) {
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestK8sTheHardWayAsync")
 	if err != nil {
@@ -255,6 +261,7 @@ func TestK8sTheHardWayAsync(t *testing.T) {
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedK8STheHardWayAsyncFile})
 }
 
+//nolint:lll // legacy test
 func TestSimpleDryRunK8sTheHardWayDriver(t *testing.T) {
 	testSubject := func(t *testing.T, outFile *bufio.Writer) {
 		runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSimpleDryRunK8sTheHardWayDriver")

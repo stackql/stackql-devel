@@ -77,6 +77,7 @@ func setBool(bPtr *bool, val string) error {
 	return err
 }
 
+//nolint:funlen,gocyclo,cyclop // pretty much boileplate
 func (rc *RuntimeCtx) Set(key string, val string) error {
 	var retVal error
 	switch key {

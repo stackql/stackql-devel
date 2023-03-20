@@ -23,6 +23,7 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+//nolint:govet,lll,errcheck // legacy test
 func TestSelectComputeDisksOrderByCrtTmstpAsc(t *testing.T) {
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSelectComputeDisksOrderByCrtTmstpAsc")
 	if err != nil {
@@ -59,6 +60,7 @@ func TestSelectComputeDisksOrderByCrtTmstpAsc(t *testing.T) {
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksOrderCrtTmstpAsc})
 }
 
+//nolint:govet,lll,errcheck // legacy test
 func TestSelectComputeDisksAggOrderBySizeAsc(t *testing.T) {
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggOrderBySizeAsc")
 	if err != nil {
@@ -95,6 +97,7 @@ func TestSelectComputeDisksAggOrderBySizeAsc(t *testing.T) {
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggSizeOrderSizeAsc})
 }
 
+//nolint:govet,lll,errcheck // legacy test
 func TestSelectComputeDisksAggOrderBySizeDesc(t *testing.T) {
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggOrderBySizeDesc")
 	if err != nil {
@@ -131,6 +134,7 @@ func TestSelectComputeDisksAggOrderBySizeDesc(t *testing.T) {
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggSizeOrderSizeDesc})
 }
 
+//nolint:govet,lll,errcheck // legacy test
 func TestSelectComputeDisksAggTotalSize(t *testing.T) {
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggTotalSize")
 	if err != nil {
@@ -167,6 +171,7 @@ func TestSelectComputeDisksAggTotalSize(t *testing.T) {
 	stackqltestutil.RunCaptureTestAgainstFiles(t, testSubject, []string{testobjects.ExpectedSelectComputeDisksAggSizeTotal})
 }
 
+//nolint:govet,lll,errcheck // legacy test
 func TestSelectComputeDisksAggTotalString(t *testing.T) {
 	runtimeCtx, err := stackqltestutil.GetRuntimeCtx(testobjects.GetGoogleProviderString(), "text", "TestSelectComputeDisksAggTotalString")
 	if err != nil {

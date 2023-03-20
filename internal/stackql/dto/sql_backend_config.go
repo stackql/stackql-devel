@@ -17,11 +17,11 @@ type SQLBackendSchemata struct {
 }
 
 type SQLBackendCfg struct {
-	DbEngine              string             `json:"dbEngine" yaml:"dbEngine"`
+	DBEngine              string             `json:"dbEngine" yaml:"dbEngine"`
 	DSN                   string             `json:"dsn" yaml:"dsn"`
 	DSNEnvVar             string             `json:"dsnEnvVar" yaml:"dsnEnvVar"`
 	Schemata              SQLBackendSchemata `json:"schemata" yaml:"schemata"`
-	DbInitFilePath        string             `json:"dbInitFilepath" yaml:"dbInitFilepath"`
+	DbInitFilePath        string             `json:"dbInitFilepath" yaml:"dbInitFilepath"` //nolint:stylecheck,lll // parity with JSON key
 	SQLSystem             string             `json:"sqlDialect" yaml:"sqlDialect"`
 	SchemaType            string             `json:"schemaType" yaml:"schemaType"`
 	InitMaxRetries        int                `json:"initMaxRetries" yaml:"initMaxRetries"`
@@ -47,7 +47,7 @@ func (sqlCfg SQLBackendCfg) GetDatabaseName() (string, error) {
 	}
 	dbURL, err := dburl.Parse(dsn)
 	if err != nil {
-		return "", fmt.Errorf("error parsing postgres dsn: %s", err.Error())
+		return "", fmt.Errorf("error parsing postgres dsn: %w", err)
 	}
 	if dbURL == nil {
 		return "", fmt.Errorf("error parsing postgres dsn, nil url generated")
@@ -70,8 +70,8 @@ func (sqlCfg SQLBackendCfg) GetIntelViewSchemaName() string {
 func GetSQLBackendCfg(s string) (SQLBackendCfg, error) {
 	rv := SQLBackendCfg{}
 	err := yaml.Unmarshal([]byte(s), &rv)
-	if rv.DbEngine == "" {
-		rv.DbEngine = constants.DBEngineDefault
+	if rv.DBEngine == "" {
+		rv.DBEngine = constants.DBEngineDefault
 	}
 	if rv.SQLSystem == "" {
 		rv.SQLSystem = constants.SQLDialectDefault

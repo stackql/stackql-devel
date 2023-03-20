@@ -19,7 +19,7 @@ type Bundle interface {
 	GetControlAttributes() sqlcontrol.ControlAttributes
 	GetGC() garbagecollector.GarbageCollector
 	GetNamespaceCollection() tablenamespace.TableNamespaceCollection
-	GetDBMSInternalRouter() dbmsinternal.DBMSInternalRouter
+	GetDBMSInternalRouter() dbmsinternal.Router
 	GetSQLDataSources() map[string]sql_datasource.SQLDataSource
 	GetSQLSystem() sql_system.SQLSystem
 	GetSQLEngine() sqlengine.SQLEngine
@@ -32,7 +32,7 @@ func NewBundle(
 	namespaces tablenamespace.TableNamespaceCollection,
 	sqlEngine sqlengine.SQLEngine,
 	sqlSystem sql_system.SQLSystem,
-	pgInternalRouter dbmsinternal.DBMSInternalRouter,
+	pgInternalRouter dbmsinternal.Router,
 	controlAttributes sqlcontrol.ControlAttributes,
 	txnStore kstore.KStore,
 	txnCtrMgr txncounter.Manager,
@@ -63,7 +63,7 @@ type simpleBundle struct {
 	txnStore          kstore.KStore
 	txnCtrMgr         txncounter.Manager
 	formatter         sqlparser.NodeFormatter
-	pgInternalRouter  dbmsinternal.DBMSInternalRouter
+	pgInternalRouter  dbmsinternal.Router
 	sqlDataSources    map[string]sql_datasource.SQLDataSource
 	authContexts      map[string]*dto.AuthCtx
 }
@@ -80,7 +80,7 @@ func (sb *simpleBundle) GetControlAttributes() sqlcontrol.ControlAttributes {
 	return sb.controlAttributes
 }
 
-func (sb *simpleBundle) GetDBMSInternalRouter() dbmsinternal.DBMSInternalRouter {
+func (sb *simpleBundle) GetDBMSInternalRouter() dbmsinternal.Router {
 	return sb.pgInternalRouter
 }
 
