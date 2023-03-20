@@ -1234,7 +1234,7 @@ func (p *standardPrimitiveGenerator) analyzeShow(pbi planbuilderinput.PlanBuilde
 			if !openapistackql.ResourceKeyExists(colUsage.ColName.Name.GetRawVal()) {
 				return fmt.Errorf("SHOW key = '%s' does NOT exist", colUsage.ColName.Name.GetRawVal())
 			}
-			usageErr := parserutil.CheckSqlParserTypeVsResourceColumn(colUsage)
+			usageErr := parserutil.CheckSQLParserTypeVsResourceColumn(colUsage)
 			if usageErr != nil {
 				return usageErr
 			}
@@ -1261,7 +1261,7 @@ func (p *standardPrimitiveGenerator) analyzeShow(pbi planbuilderinput.PlanBuilde
 			if !openapistackql.ServiceKeyExists(colUsage.ColName.Name.GetRawVal()) {
 				return fmt.Errorf("SHOW key = '%s' does NOT exist", colUsage.ColName.Name.GetRawVal())
 			}
-			usageErr := parserutil.CheckSqlParserTypeVsServiceColumn(colUsage)
+			usageErr := parserutil.CheckSQLParserTypeVsServiceColumn(colUsage)
 			if usageErr != nil {
 				return usageErr
 			}
