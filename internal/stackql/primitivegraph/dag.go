@@ -121,7 +121,7 @@ func (pg *standardPrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) internald
 					output := node.GetPrimitive().Execute(ctx) //nolint:govet // intentional
 					outChan <- output
 					close(outChan)
-					return output.Err
+					return output.GetError()
 				},
 			)
 			destinationNodes := pg.g.From(node.ID())
