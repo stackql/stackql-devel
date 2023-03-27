@@ -334,7 +334,7 @@ func (ss *SingleSelectAcquire) Build() error {
 	return nil
 }
 
-func extractNextPageToken(res *response.Response, tokenKey internaldto.HTTPElement) string {
+func extractNextPageToken(res response.Response, tokenKey internaldto.HTTPElement) string {
 	//nolint:exhaustive // TODO: review
 	switch tokenKey.GetType() {
 	case internaldto.BodyAttribute:
@@ -345,7 +345,7 @@ func extractNextPageToken(res *response.Response, tokenKey internaldto.HTTPEleme
 	return ""
 }
 
-func extractNextPageTokenFromHeader(res *response.Response, tokenKey internaldto.HTTPElement) string {
+func extractNextPageTokenFromHeader(res response.Response, tokenKey internaldto.HTTPElement) string {
 	r := res.GetHttpResponse()
 	if r == nil {
 		return ""
@@ -369,7 +369,7 @@ func extractNextPageTokenFromHeader(res *response.Response, tokenKey internaldto
 	return ""
 }
 
-func extractNextPageTokenFromBody(res *response.Response, tokenKey internaldto.HTTPElement) string {
+func extractNextPageTokenFromBody(res response.Response, tokenKey internaldto.HTTPElement) string {
 	elem, err := httpelement.NewHTTPElement(tokenKey.GetName(), "body")
 	if err == nil {
 		rawVal, rawErr := res.ExtractElement(elem)

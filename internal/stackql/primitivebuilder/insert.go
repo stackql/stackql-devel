@@ -82,9 +82,6 @@ func (ss *Insert) Build() error {
 		return err
 	}
 	_, _, responseAnalysisErr := tbl.GetResponseSchemaAndMediaType()
-	// if err != nil {
-	// 	return err
-	// }
 	insertPrimitive := primitive.NewHTTPRestPrimitive(
 		prov,
 		nil,
@@ -114,10 +111,10 @@ func (ss *Insert) Build() error {
 			return internaldto.NewErroneousExecutorOutput(httpErr)
 		}
 
-		var zeroArityExecutors []func() internaldto.ExecutorOutput
+		var nullaryExecutors []func() internaldto.ExecutorOutput
 		for _, r := range httpArmoury.GetRequestParams() {
 			req := r
-			zeroArityEx := func() internaldto.ExecutorOutput {
+			nullaryEx := func() internaldto.ExecutorOutput {
 				// logging.GetLogger().Infoln(fmt.Sprintf("req.BodyBytes = %s", string(req.BodyBytes)))
 				// req.Context.SetBody(bytes.NewReader(req.BodyBytes))
 				// logging.GetLogger().Infoln(fmt.Sprintf("req.Context = %v", req.Context))
@@ -182,11 +179,11 @@ func (ss *Insert) Build() error {
 				)
 			}
 
-			zeroArityExecutors = append(zeroArityExecutors, zeroArityEx)
+			nullaryExecutors = append(nullaryExecutors, nullaryEx)
 		}
 		resultSet := internaldto.NewErroneousExecutorOutput(fmt.Errorf("no executions detected"))
 		if !isAwait {
-			for _, ei := range zeroArityExecutors {
+			for _, ei := range nullaryExecutors {
 				execInstance := ei
 				aPrioriMessages := resultSet.GetMessages()
 				resultSet = execInstance()
@@ -197,7 +194,7 @@ func (ss *Insert) Build() error {
 			}
 			return resultSet
 		}
-		for _, eI := range zeroArityExecutors {
+		for _, eI := range nullaryExecutors {
 			execInstance := eI
 			dependentInsertPrimitive := primitive.NewHTTPRestPrimitive(
 				prov,
