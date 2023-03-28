@@ -217,7 +217,12 @@ func arrangeOrderedColumnRow(
 ) []interface{} {
 	rowVals := make([]interface{}, colNumber)
 	for j := range columnOrder {
-		rowVals[j] = openapistackql_util.InterfaceToBytes(row[columnOrder[j]], strings.ToLower(columnOrder[j]) == "error")
+		v := row[columnOrder[j]]
+		switch u := v.(type) { //nolint:gocritic // shim to excise sqlparser from go-openapistackql
+		case sqlparser.BoolVal:
+			v = bool(u)
+		}
+		rowVals[j] = openapistackql_util.InterfaceToBytes(v, strings.ToLower(columnOrder[j]) == "error")
 	}
 	return rowVals
 }

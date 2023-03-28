@@ -130,7 +130,6 @@ func (ss *Insert) Build() error {
 						return internaldto.NewErroneousExecutorOutput(err)
 					}
 				}
-				composeAsyncMonitor(handlerCtx, insertPrimitive, tbl, commentDirectives)
 				if err != nil {
 					return internaldto.NewErroneousExecutorOutput(err)
 				}
