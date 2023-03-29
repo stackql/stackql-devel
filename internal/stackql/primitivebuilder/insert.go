@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
-	"github.com/stackql/stackql/internal/stackql/httpbuild"
 	"github.com/stackql/stackql/internal/stackql/httpmiddleware"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
@@ -57,7 +57,7 @@ func (ss *Insert) GetTail() primitivegraph.PrimitiveNode {
 	return ss.root
 }
 
-//nolint:funlen,errcheck,gocognit,cyclop // TODO: fix this
+//nolint:funlen,errcheck,gocognit,cyclop,gocyclo // TODO: fix this
 func (ss *Insert) Build() error {
 	node := ss.node
 	tbl := ss.tbl
@@ -106,7 +106,21 @@ func (ss *Insert) Build() error {
 		if inputErr != nil {
 			return internaldto.NewErroneousExecutorOutput(inputErr)
 		}
-		httpArmoury, httpErr := httpbuild.BuildHTTPRequestCtx(node, prov, m, svc, inputMap, nil)
+		pr, prErr := prov.GetProvider()
+		if prErr != nil {
+			return internaldto.NewErroneousExecutorOutput(prErr)
+		}
+		httpPreparator := openapistackql.NewHTTPPreparator(
+			pr,
+			svc,
+			m,
+			inputMap,
+			nil,
+			nil,
+			nil,
+			logging.GetLogger(),
+		)
+		httpArmoury, httpErr := httpPreparator.BuildHTTPRequestCtx()
 		if httpErr != nil {
 			return internaldto.NewErroneousExecutorOutput(httpErr)
 		}
