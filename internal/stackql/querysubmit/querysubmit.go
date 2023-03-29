@@ -12,6 +12,7 @@ var (
 )
 
 type QuerySubmitter interface {
+	// PlanQuery(handlerCtx handler.HandlerContext) internaldto.ExecutorOutput
 	SubmitQuery(handlerCtx handler.HandlerContext) internaldto.ExecutorOutput
 }
 
@@ -33,5 +34,5 @@ func (qs *basicQuerySubmitter) SubmitQuery(handlerCtx handler.HandlerContext) in
 		handlerCtx.GetOutfile(),
 		handlerCtx.GetOutErrFile(),
 	)
-	return plan.Instructions.Execute(pl)
+	return plan.GetInstructions().Execute(pl)
 }
