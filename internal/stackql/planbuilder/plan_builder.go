@@ -800,6 +800,7 @@ func (pgb *standardPlanGraphBuilder) handleShow(pbi planbuilderinput.PlanBuilder
 			return err
 		}
 	case "METHODS":
+		//nolint:wastedassign // TODO: fix this
 		tbl, err = primitiveGenerator.GetPrimitiveComposer().GetTable(node.OnTable) //nolint:ineffassign,staticcheck,lll // TODO: fix this
 	}
 	prov := primitiveGenerator.GetPrimitiveComposer().GetProvider()

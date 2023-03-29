@@ -4,6 +4,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
+	"github.com/stackql/stackql/internal/stackql/plan"
 	"github.com/stackql/stackql/internal/stackql/planbuilder"
 )
 
@@ -12,27 +13,34 @@ var (
 )
 
 type QuerySubmitter interface {
-	// PlanQuery(handlerCtx handler.HandlerContext) internaldto.ExecutorOutput
-	SubmitQuery(handlerCtx handler.HandlerContext) internaldto.ExecutorOutput
+	PrepareQuery(handlerCtx handler.HandlerContext) error
+	SubmitQuery() internaldto.ExecutorOutput
 }
 
 func NewQuerySubmitter() QuerySubmitter {
 	return &basicQuerySubmitter{}
 }
 
-type basicQuerySubmitter struct{}
+type basicQuerySubmitter struct {
+	queryPlan  plan.Plan
+	handlerCtx handler.HandlerContext
+}
 
-func (qs *basicQuerySubmitter) SubmitQuery(handlerCtx handler.HandlerContext) internaldto.ExecutorOutput {
-	logging.GetLogger().Debugln("SubmitQuery() invoked...")
+func (qs *basicQuerySubmitter) PrepareQuery(handlerCtx handler.HandlerContext) error {
+	qs.handlerCtx = handlerCtx
+	logging.GetLogger().Debugln("PrepareQuery() invoked...")
 	pb := planbuilder.NewPlanBuilder()
 	plan, err := pb.BuildPlanFromContext(handlerCtx)
-	if err != nil {
-		return internaldto.NewExecutorOutput(nil, nil, nil, nil, err)
-	}
+	qs.queryPlan = plan
+	return err
+}
+
+func (qs *basicQuerySubmitter) SubmitQuery() internaldto.ExecutorOutput {
+	logging.GetLogger().Debugln("SubmitQuery() invoked...")
 	pl := internaldto.NewBasicPrimitiveContext(
 		nil,
-		handlerCtx.GetOutfile(),
-		handlerCtx.GetOutErrFile(),
+		qs.handlerCtx.GetOutfile(),
+		qs.handlerCtx.GetOutErrFile(),
 	)
-	return plan.GetInstructions().Execute(pl)
+	return qs.queryPlan.GetInstructions().Execute(pl)
 }

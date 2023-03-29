@@ -101,7 +101,12 @@ func processQueryOrQueries(handlerCtx handler.HandlerContext) ([]internaldto.Exe
 			continue
 		}
 		handlerCtx.SetQuery(s)
-		retVal = append(retVal, querySubmitter.SubmitQuery(handlerCtx))
+		err := querySubmitter.PrepareQuery(handlerCtx)
+		if err != nil {
+			retVal = append(retVal, internaldto.NewErroneousExecutorOutput(err))
+			continue
+		}
+		retVal = append(retVal, querySubmitter.SubmitQuery())
 	}
 	return retVal, true
 }
