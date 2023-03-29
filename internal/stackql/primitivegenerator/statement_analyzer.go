@@ -917,12 +917,16 @@ func (pb *standardPrimitiveGenerator) buildRequestContext(
 	if prErr != nil {
 		return nil, prErr
 	}
+	paramMap, paramErr := util.ExtractSQLNodeParams(node, rowsToInsert)
+	if paramErr != nil {
+		return nil, paramErr
+	}
 	httpPreparator := openapistackql.NewHTTPPreparator(
 		pr,
 		svc,
 		m,
 		rowsToInsert,
-		nil,
+		paramMap,
 		nil,
 		execContext,
 		logging.GetLogger(),

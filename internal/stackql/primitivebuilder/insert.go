@@ -14,6 +14,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
+	"github.com/stackql/stackql/internal/stackql/util"
 )
 
 type Insert struct {
@@ -110,12 +111,16 @@ func (ss *Insert) Build() error {
 		if prErr != nil {
 			return internaldto.NewErroneousExecutorOutput(prErr)
 		}
+		paramMap, paramErr := util.ExtractSQLNodeParams(node, inputMap)
+		if err != nil {
+			return internaldto.NewErroneousExecutorOutput(paramErr)
+		}
 		httpPreparator := openapistackql.NewHTTPPreparator(
 			pr,
 			svc,
 			m,
 			inputMap,
-			nil,
+			paramMap,
 			nil,
 			nil,
 			logging.GetLogger(),
