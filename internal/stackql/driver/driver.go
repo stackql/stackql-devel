@@ -22,26 +22,28 @@ var (
 
 type StackQLDriver interface {
 	sqlbackend.ISQLBackend
-	ProcessDryRun(handlerCtx handler.HandlerContext)
-	ProcessQuery(handlerCtx handler.HandlerContext)
+	ProcessDryRun(string)
+	ProcessQuery(string)
 }
 
-func (dr *basicStackQLDriver) ProcessDryRun(handlerCtx handler.HandlerContext) {
+func (dr *basicStackQLDriver) ProcessDryRun(query string) {
 	resultMap := map[string]map[string]interface{}{
 		"1": {
-			"query": handlerCtx.GetRawQuery(),
+			"query": query,
 		},
 	}
 	logging.GetLogger().Debugln("dryrun query underway...")
 	response := util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, resultMap, nil, nil, nil, nil))
-	responsehandler.HandleResponse(handlerCtx, response) //nolint:errcheck // TODO: investigate
+	responsehandler.HandleResponse(dr.handlerCtx, response) //nolint:errcheck // TODO: investigate
 }
 
-func (dr *basicStackQLDriver) ProcessQuery(handlerCtx handler.HandlerContext) {
-	responses, ok := dr.processQueryOrQueries(handlerCtx)
+func (dr *basicStackQLDriver) ProcessQuery(query string) {
+	clonedCtx := dr.handlerCtx.Clone()
+	clonedCtx.SetRawQuery(query)
+	responses, ok := dr.processQueryOrQueries(clonedCtx)
 	if ok {
 		for _, r := range responses {
-			responsehandler.HandleResponse(handlerCtx, r) //nolint:errcheck // TODO: investigate
+			responsehandler.HandleResponse(clonedCtx, r) //nolint:errcheck // TODO: investigate
 		}
 	}
 }
@@ -103,8 +105,9 @@ func (dr *basicStackQLDriver) processQueryOrQueries(
 		if s == "" {
 			continue
 		}
-		handlerCtx.SetQuery(s)
-		err := querySubmitter.PrepareQuery(handlerCtx)
+		clonedCtx := handlerCtx.Clone()
+		clonedCtx.SetQuery(s)
+		err := querySubmitter.PrepareQuery(clonedCtx)
 		if err != nil {
 			retVal = append(retVal, internaldto.NewErroneousExecutorOutput(err))
 			continue

@@ -347,8 +347,10 @@ func getRegistry(runtimeCtx dto.RuntimeCtx) (openapistackql.RegistryAPI, error) 
 func (hc *standardHandlerContext) Clone() HandlerContext {
 	rv := standardHandlerContext{
 		authMapMutex:        hc.authMapMutex,
+		drmConfig:           hc.drmConfig,
 		rawQuery:            hc.rawQuery,
 		runtimeContext:      hc.runtimeContext,
+		currentProvider:     hc.currentProvider,
 		providers:           hc.providers,
 		authContexts:        hc.authContexts,
 		registry:            hc.registry,
@@ -402,6 +404,7 @@ func GetHandlerCtx(
 		namespaceCollection: inputBundle.GetNamespaceCollection(),
 		formatter:           inputBundle.GetSQLSystem().GetASTFormatter(),
 		pgInternalRouter:    inputBundle.GetDBMSInternalRouter(),
+		currentProvider:     runtimeCtx.ProviderStr,
 	}
 	drmCfg, err := drm.GetDRMConfig(inputBundle.GetSQLSystem(), rv.namespaceCollection, controlAttributes)
 	if err != nil {
