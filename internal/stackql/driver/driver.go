@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/stackql/psql-wire/pkg/sqldata"
+	"github.com/stackql/stackql/internal/stackql/acid/transact"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
@@ -20,6 +21,9 @@ var (
 	_ StackQLDriver = &basicStackQLDriver{}
 )
 
+// StackQLDriver lifetimes map to the concept of "session".
+// It is responsible for handling queries
+// and their bounding transactions.
 type StackQLDriver interface {
 	sqlbackend.ISQLBackend
 	ProcessDryRun(string)
@@ -50,6 +54,19 @@ func (dr *basicStackQLDriver) ProcessQuery(query string) {
 
 type basicStackQLDriver struct {
 	handlerCtx handler.HandlerContext
+	// The transaction manager
+	// is responsible for
+	// ensuring that all
+	// operations are performed
+	// in a transactional
+	// context.
+	txnManager transact.Manager //nolint:unused // TODO: review
+}
+
+func (dr *basicStackQLDriver) CloneSQLBackend() sqlbackend.ISQLBackend {
+	return &basicStackQLDriver{
+		handlerCtx: dr.handlerCtx.Clone(),
+	}
 }
 
 //nolint:revive // TODO: review
