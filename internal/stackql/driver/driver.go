@@ -12,14 +12,68 @@ import (
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/querysubmit"
 	"github.com/stackql/stackql/internal/stackql/responsehandler"
+	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/util"
+	"github.com/stackql/stackql/pkg/txncounter"
 
 	sqlbackend "github.com/stackql/psql-wire/pkg/sqlbackend"
 )
 
 var (
-	_ StackQLDriver = &basicStackQLDriver{}
+	_ StackQLDriver                = &basicStackQLDriver{}
+	_ sqlbackend.SQLBackendFactory = &basicStackQLDriverFactory{}
+	_ StackQLDriverFactory         = &basicStackQLDriverFactory{}
 )
+
+type StackQLDriverFactory interface {
+	NewSQLDriver() (StackQLDriver, error)
+}
+
+type basicStackQLDriverFactory struct {
+	handlerCtx handler.HandlerContext
+}
+
+func (sdf *basicStackQLDriverFactory) NewSQLBackend() (sqlbackend.ISQLBackend, error) {
+	return sdf.newSQLDriver()
+}
+
+func (sdf *basicStackQLDriverFactory) NewSQLDriver() (StackQLDriver, error) {
+	return sdf.newSQLDriver()
+}
+
+func (sdf *basicStackQLDriverFactory) newSQLDriver() (StackQLDriver, error) {
+	txCtr, err := getTxnCounterManager(sdf.handlerCtx.GetSQLEngine())
+	if err != nil {
+		return nil, err
+	}
+	clonedCtx := sdf.handlerCtx.Clone()
+	clonedCtx.SetTxnCounterMgr(txCtr)
+	rv := &basicStackQLDriver{
+		handlerCtx: clonedCtx,
+	}
+	return rv, nil
+}
+
+func NewStackQLDriverFactory(handlerCtx handler.HandlerContext) sqlbackend.SQLBackendFactory {
+	return &basicStackQLDriverFactory{
+		handlerCtx: handlerCtx,
+	}
+}
+
+func getTxnCounterManager(sqlEngine sqlengine.SQLEngine) (txncounter.Manager, error) {
+	genID, err := sqlEngine.GetCurrentGenerationID()
+	if err != nil {
+		genID, err = sqlEngine.GetNextGenerationID()
+		if err != nil {
+			return nil, err
+		}
+	}
+	sessionID, err := sqlEngine.GetNextSessionID(genID)
+	if err != nil {
+		return nil, err
+	}
+	return txncounter.NewTxnCounterManager(genID, sessionID), nil
+}
 
 // StackQLDriver lifetimes map to the concept of "session".
 // It is responsible for handling queries

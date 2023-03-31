@@ -61,6 +61,7 @@ type HandlerContext interface { //nolint:revive // don't mind stuttering this on
 	GetSQLSystem() sql_system.SQLSystem
 	GetGarbageCollector() garbagecollector.GarbageCollector
 	GetDrmConfig() drm.Config
+	SetTxnCounterMgr(txncounter.Manager)
 	GetTxnCounterMgr() txncounter.Manager
 	GetTxnStore() kstore.KStore
 	GetNamespaceCollection() tablenamespace.Collection
@@ -113,6 +114,10 @@ func (hc *standardHandlerContext) SetRawQuery(rq string) {
 
 func (hc *standardHandlerContext) SetQuery(q string) {
 	hc.query = q
+}
+
+func (hc *standardHandlerContext) SetTxnCounterMgr(mgr txncounter.Manager) {
+	hc.txnCounterMgr = mgr
 }
 
 func (hc *standardHandlerContext) SetOutfile(outFile io.Writer)       { hc.outfile = outFile }
