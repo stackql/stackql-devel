@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/stackql/stackql/internal/stackql/acid/transact"
+	"github.com/stackql/stackql/internal/stackql/acid/operation"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 
@@ -187,7 +187,7 @@ func SortPlan(pg PrimitiveGraph) ([]graph.Node, error) {
 }
 
 type PrimitiveNode interface {
-	GetOperation() transact.Operation
+	GetOperation() operation.Operation
 	ID() int64
 	IsDone() chan (bool)
 	GetError() (error, bool)
@@ -197,7 +197,7 @@ type PrimitiveNode interface {
 }
 
 type standardPrimitiveNode struct {
-	op     transact.Operation
+	op     operation.Operation
 	id     int64
 	isDone chan bool
 	err    error
@@ -206,7 +206,7 @@ type standardPrimitiveNode struct {
 func (pg *standardPrimitiveGraph) CreatePrimitiveNode(pr primitive.IPrimitive) PrimitiveNode {
 	nn := pg.g.NewNode()
 	node := &standardPrimitiveNode{
-		op:     transact.NewIrreversibleOperation(pr),
+		op:     operation.NewIrreversibleOperation(pr),
 		id:     nn.ID(),
 		isDone: make(chan bool, 1),
 	}
@@ -223,7 +223,7 @@ func (pn *standardPrimitiveNode) GetError() (error, bool) {
 	return pn.err, pn.err != nil
 }
 
-func (pn *standardPrimitiveNode) GetOperation() transact.Operation {
+func (pn *standardPrimitiveNode) GetOperation() operation.Operation {
 	return pn.op
 }
 

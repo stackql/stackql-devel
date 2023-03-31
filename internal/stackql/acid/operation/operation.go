@@ -1,8 +1,9 @@
-package transact
+package operation
 
 import (
 	"fmt"
 
+	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 )
@@ -29,9 +30,9 @@ type Operation interface {
 	// Reverse the operation.
 	Undo() error
 	// Get the redo log entry.
-	GetRedoLog() (LogEntry, bool)
+	GetRedoLog() (binlog.LogEntry, bool)
 	// Get the undo log entry.
-	GetUndoLog() (LogEntry, bool)
+	GetUndoLog() (binlog.LogEntry, bool)
 	//
 	IncidentData(int64, internaldto.ExecutorOutput) error
 	//
@@ -41,8 +42,8 @@ type Operation interface {
 }
 
 type reversibleOperation struct {
-	redoLog LogEntry
-	undoLog LogEntry
+	redoLog binlog.LogEntry
+	undoLog binlog.LogEntry
 	pr      primitive.IPrimitive
 }
 
@@ -71,16 +72,16 @@ func (op *reversibleOperation) Redo() error {
 	return nil
 }
 
-func (op *reversibleOperation) GetRedoLog() (LogEntry, bool) {
+func (op *reversibleOperation) GetRedoLog() (binlog.LogEntry, bool) {
 	return op.redoLog, true
 }
 
-func (op *reversibleOperation) GetUndoLog() (LogEntry, bool) {
+func (op *reversibleOperation) GetUndoLog() (binlog.LogEntry, bool) {
 	return op.undoLog, true
 }
 
 type irreversibleOperation struct {
-	redoLog LogEntry
+	redoLog binlog.LogEntry
 	pr      primitive.IPrimitive
 }
 
@@ -109,11 +110,11 @@ func (op *irreversibleOperation) Redo() error {
 	return nil
 }
 
-func (op *irreversibleOperation) GetRedoLog() (LogEntry, bool) {
+func (op *irreversibleOperation) GetRedoLog() (binlog.LogEntry, bool) {
 	return op.redoLog, true
 }
 
-func (op *irreversibleOperation) GetUndoLog() (LogEntry, bool) {
+func (op *irreversibleOperation) GetUndoLog() (binlog.LogEntry, bool) {
 	return nil, false
 }
 
