@@ -1,6 +1,7 @@
 package primitive
 
 import (
+	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/provider"
@@ -36,6 +37,18 @@ func (pr *HTTPRestPrimitive) SetTxnID(id int) {
 	if pr.TxnControlCtr != nil {
 		pr.TxnControlCtr.SetTxnID(id)
 	}
+}
+
+func (pr *HTTPRestPrimitive) IsNotMutating() bool {
+	return false
+}
+
+func (pr *HTTPRestPrimitive) GetRedoLog() (binlog.LogEntry, bool) {
+	return nil, false
+}
+
+func (pr *HTTPRestPrimitive) GetUndoLog() (binlog.LogEntry, bool) {
+	return nil, false
 }
 
 func (pr *HTTPRestPrimitive) IncidentData(fromID int64, input internaldto.ExecutorOutput) error {

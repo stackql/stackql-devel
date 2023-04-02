@@ -39,6 +39,8 @@ type Operation interface {
 	SetTxnID(id int)
 	//
 	SetInputAlias(alias string, id int64) error
+	//
+	IsNotMutating() bool
 }
 
 type reversibleOperation struct {
@@ -70,6 +72,11 @@ func (op *reversibleOperation) Undo() error {
 
 func (op *reversibleOperation) Redo() error {
 	return nil
+}
+
+// TODO: interrogate the primitive
+func (op *reversibleOperation) IsNotMutating() bool {
+	return false
 }
 
 func (op *reversibleOperation) GetRedoLog() (binlog.LogEntry, bool) {
@@ -108,6 +115,11 @@ func (op *irreversibleOperation) Undo() error {
 
 func (op *irreversibleOperation) Redo() error {
 	return nil
+}
+
+// TODO: interrogate the primitive
+func (op *irreversibleOperation) IsNotMutating() bool {
+	return false
 }
 
 func (op *irreversibleOperation) GetRedoLog() (binlog.LogEntry, bool) {

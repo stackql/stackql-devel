@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/acid/operation"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/primitive"
@@ -16,7 +17,13 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+var (
+	_ PrimitiveGraph       = (*standardPrimitiveGraph)(nil)
+	_ primitive.IPrimitive = (*standardPrimitiveGraph)(nil)
+)
+
 type PrimitiveGraph interface {
+	primitive.IPrimitive
 	AddTxnControlCounters(t internaldto.TxnControlCounters)
 	ContainsIndirect() bool
 	CreatePrimitiveNode(pr primitive.IPrimitive) PrimitiveNode
@@ -40,6 +47,18 @@ type standardPrimitiveGraph struct {
 	errGroup               *errgroup.Group
 	errGroupCtx            context.Context
 	containsView           bool
+}
+
+func (pg *standardPrimitiveGraph) IsNotMutating() bool {
+	return false
+}
+
+func (pg *standardPrimitiveGraph) GetRedoLog() (binlog.LogEntry, bool) {
+	return nil, false
+}
+
+func (pg *standardPrimitiveGraph) GetUndoLog() (binlog.LogEntry, bool) {
+	return nil, false
 }
 
 func (pg *standardPrimitiveGraph) AddTxnControlCounters(t internaldto.TxnControlCounters) {
