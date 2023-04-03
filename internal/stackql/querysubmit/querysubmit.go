@@ -38,7 +38,9 @@ func (qs *basicQuerySubmitter) GetStatement() sqlparser.Statement {
 	return qs.queryPlan.GetStatement()
 }
 
-func (qs *basicQuerySubmitter) WithTransactionContext(transactionContext txn_context.ITransactionContext) QuerySubmitter {
+func (qs *basicQuerySubmitter) WithTransactionContext(
+	transactionContext txn_context.ITransactionContext,
+) QuerySubmitter {
 	qs.transactionContext = transactionContext
 	return qs
 }

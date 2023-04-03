@@ -197,7 +197,7 @@ func TransformSQLRawParameters(input map[string]interface{}) (map[string]interfa
 func extractRaw(raw interface{}) (interface{}, error) {
 	switch r := raw.(type) {
 	case *sqlparser.SQLVal:
-		switch r.Type {
+		switch r.Type { //nolint:exhaustive // TODO: review
 		case sqlparser.StrVal:
 			val := string(r.Val)
 			return val, nil

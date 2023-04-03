@@ -37,7 +37,7 @@ type SingleSelectAcquire struct {
 	rowSort                    func(map[string]map[string]interface{}) []string
 	root                       primitivegraph.PrimitiveNode
 	stream                     streaming.MapStream
-	isNotMutating              bool
+	isNotMutating              bool //nolint:unused // TODO: build out
 }
 
 func NewSingleSelectAcquire(

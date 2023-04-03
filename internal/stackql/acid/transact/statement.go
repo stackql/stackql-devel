@@ -19,7 +19,11 @@ type basicStatement struct {
 	transactionContext txn_context.ITransactionContext
 }
 
-func NewStatement(query string, handlerCtx handler.HandlerContext, transactionContext txn_context.ITransactionContext) Statement {
+func NewStatement(
+	query string,
+	handlerCtx handler.HandlerContext,
+	transactionContext txn_context.ITransactionContext,
+) Statement {
 	return &basicStatement{
 		query:              query,
 		handlerCtx:         handlerCtx,
