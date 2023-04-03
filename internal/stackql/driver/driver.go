@@ -46,10 +46,15 @@ func (sdf *basicStackQLDriverFactory) newSQLDriver() (StackQLDriver, error) {
 	if err != nil {
 		return nil, err
 	}
+	txnCoordinator, txnCoordinatorErr := transact.GetCoordinatorInstance()
+	if txnCoordinatorErr != nil {
+		return nil, txnCoordinatorErr
+	}
 	clonedCtx := sdf.handlerCtx.Clone()
 	clonedCtx.SetTxnCounterMgr(txCtr)
 	rv := &basicStackQLDriver{
-		handlerCtx: clonedCtx,
+		handlerCtx:     clonedCtx,
+		txnCoordinator: txnCoordinator,
 	}
 	return rv, nil
 }
@@ -107,14 +112,8 @@ func (dr *basicStackQLDriver) ProcessQuery(query string) {
 }
 
 type basicStackQLDriver struct {
-	handlerCtx handler.HandlerContext
-	// The transaction manager
-	// is responsible for
-	// ensuring that all
-	// operations are performed
-	// in a transactional
-	// context.
-	txnManager transact.Manager //nolint:unused // TODO: review
+	handlerCtx     handler.HandlerContext
+	txnCoordinator transact.Coordinator
 }
 
 func (dr *basicStackQLDriver) CloneSQLBackend() sqlbackend.ISQLBackend {

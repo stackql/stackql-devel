@@ -31,7 +31,7 @@ func (pr *PassThroughPrimitive) SetTxnID(_ int) {
 }
 
 func (pr *PassThroughPrimitive) IsNotMutating() bool {
-	return false
+	return true
 }
 
 func (pr *PassThroughPrimitive) GetRedoLog() (binlog.LogEntry, bool) {

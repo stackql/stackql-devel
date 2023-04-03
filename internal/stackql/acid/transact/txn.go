@@ -81,14 +81,14 @@ func (m *basicTransactionManager) Begin() (Manager, error) {
 }
 
 func (m *basicTransactionManager) Commit() error {
-	for _, op := range m.statementSequence {
-		coDomain := op.Execute()
+	for _, stmt := range m.statementSequence {
+		coDomain := stmt.Execute()
 		err := coDomain.GetError()
 		if err != nil {
 			return err
 		}
 	}
-	return fmt.Errorf("not implemented")
+	return nil
 }
 
 func (m *basicTransactionManager) Rollback() error {

@@ -50,7 +50,18 @@ type standardPrimitiveGraph struct {
 }
 
 func (pg *standardPrimitiveGraph) IsNotMutating() bool {
-	return false
+	nodes := pg.g.Nodes()
+	for nodes.Next() {
+		node := nodes.Node()
+		primNode, isPrimNode := node.(PrimitiveNode)
+		if !isPrimNode {
+			continue
+		}
+		if !primNode.GetOperation().IsNotMutating() {
+			return false
+		}
+	}
+	return true
 }
 
 func (pg *standardPrimitiveGraph) GetRedoLog() (binlog.LogEntry, bool) {

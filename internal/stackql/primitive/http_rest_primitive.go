@@ -4,6 +4,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/primitive_context"
 	"github.com/stackql/stackql/internal/stackql/provider"
 )
 
@@ -15,6 +16,7 @@ type HTTPRestPrimitive struct {
 	Inputs        map[int64]internaldto.ExecutorOutput
 	InputAliases  map[string]int64
 	id            int64
+	isNotMutating bool
 }
 
 func NewHTTPRestPrimitive(
@@ -22,6 +24,7 @@ func NewHTTPRestPrimitive(
 	executor func(pc IPrimitiveCtx) internaldto.ExecutorOutput,
 	preparator func() drm.PreparedStatementCtx,
 	txnCtrlCtr internaldto.TxnControlCounters,
+	primitiveCtx primitive_context.IPrimitiveCtx,
 ) IPrimitive {
 	return &HTTPRestPrimitive{
 		Provider:      provider,
@@ -30,6 +33,7 @@ func NewHTTPRestPrimitive(
 		TxnControlCtr: txnCtrlCtr,
 		Inputs:        make(map[int64]internaldto.ExecutorOutput),
 		InputAliases:  make(map[string]int64),
+		isNotMutating: primitiveCtx.IsNotMutating(),
 	}
 }
 
@@ -40,7 +44,7 @@ func (pr *HTTPRestPrimitive) SetTxnID(id int) {
 }
 
 func (pr *HTTPRestPrimitive) IsNotMutating() bool {
-	return false
+	return pr.isNotMutating
 }
 
 func (pr *HTTPRestPrimitive) GetRedoLog() (binlog.LogEntry, bool) {

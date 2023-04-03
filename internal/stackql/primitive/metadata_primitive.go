@@ -20,7 +20,7 @@ func (pr *MetaDataPrimitive) SetTxnID(_ int) {
 }
 
 func (pr *MetaDataPrimitive) IsNotMutating() bool {
-	return false
+	return true
 }
 
 func (pr *MetaDataPrimitive) GetRedoLog() (binlog.LogEntry, bool) {

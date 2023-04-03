@@ -76,7 +76,7 @@ func (op *reversibleOperation) Redo() error {
 
 // TODO: interrogate the primitive
 func (op *reversibleOperation) IsNotMutating() bool {
-	return false
+	return op.pr.IsNotMutating()
 }
 
 func (op *reversibleOperation) GetRedoLog() (binlog.LogEntry, bool) {
@@ -119,7 +119,7 @@ func (op *irreversibleOperation) Redo() error {
 
 // TODO: interrogate the primitive
 func (op *irreversibleOperation) IsNotMutating() bool {
-	return false
+	return op.pr.IsNotMutating()
 }
 
 func (op *irreversibleOperation) GetRedoLog() (binlog.LogEntry, bool) {
