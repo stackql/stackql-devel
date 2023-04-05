@@ -63,6 +63,8 @@ type Manager interface {
 	Depth() int
 	// Get the parent transaction manager.
 	GetParent() (Manager, bool)
+	//
+	IsRoot() bool
 }
 
 type basicTransactionManager struct {
@@ -82,6 +84,15 @@ func NewManager() Manager {
 	return newBasicTransactionManager(nil)
 }
 
+func (m *basicTransactionManager) IsNotMutating() bool {
+	for _, statement := range m.statementSequence {
+		if !statement.IsNotMutating() {
+			return false
+		}
+	}
+	return true
+}
+
 func (m *basicTransactionManager) GetAST() (sqlparser.Statement, bool) {
 	return nil, false
 }
@@ -92,6 +103,18 @@ func (m *basicTransactionManager) GetParent() (Manager, bool) {
 
 func (m *basicTransactionManager) SetRedoLog(log binlog.LogEntry) {
 	m.redoLogs = []binlog.LogEntry{log}
+}
+
+func (m *basicTransactionManager) IsBegin() bool {
+	return false
+}
+
+func (m *basicTransactionManager) IsCommit() bool {
+	return false
+}
+
+func (m *basicTransactionManager) IsRollback() bool {
+	return false
 }
 
 func (m *basicTransactionManager) SetUndoLog(log binlog.LogEntry) {
@@ -186,6 +209,14 @@ func (m *basicTransactionManager) Enqueue(stmt Statement) error {
 }
 
 func (m *basicTransactionManager) Depth() int {
+	return m.depth()
+}
+
+func (m *basicTransactionManager) IsRoot() bool {
+	return m.parent == nil
+}
+
+func (m *basicTransactionManager) depth() int {
 	if m.parent != nil {
 		return m.parent.Depth() + 1
 	}

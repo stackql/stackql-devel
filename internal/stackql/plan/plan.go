@@ -16,7 +16,7 @@ type Plan interface {
 
 	// Getters
 	GetType() sqlparser.StatementType
-	GetStatement() sqlparser.Statement
+	GetStatement() (sqlparser.Statement, bool)
 	GetOriginal() string
 	GetInstructions() primitive.IPrimitive
 	GetBindVarNeeds() sqlparser.BindVarNeeds
@@ -32,6 +32,9 @@ type Plan interface {
 	SetBindVarNeeds(bindVarNeeds sqlparser.BindVarNeeds)
 	SetCacheable(isCacheable bool)
 	SetTxnID(txnID int)
+
+	//
+	IsNotMutating() bool
 
 	// Size is defined so that Plan can be given to a cache.LRUCache,
 	// which requires its objects to define a Size function.
@@ -62,6 +65,13 @@ func NewPlan(
 	}
 }
 
+func (p *standardPlan) IsNotMutating() bool {
+	if p.Instructions == nil {
+		return true
+	}
+	return p.Instructions.IsNotMutating()
+}
+
 func (p *standardPlan) SetTxnID(txnID int) {
 	p.Instructions.SetTxnID(txnID)
 }
@@ -70,8 +80,8 @@ func (p *standardPlan) GetType() sqlparser.StatementType {
 	return p.Type
 }
 
-func (p *standardPlan) GetStatement() sqlparser.Statement {
-	return p.RewrittenStatement
+func (p *standardPlan) GetStatement() (sqlparser.Statement, bool) {
+	return p.RewrittenStatement, p.RewrittenStatement != nil
 }
 
 func (p *standardPlan) GetOriginal() string {

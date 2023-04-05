@@ -178,6 +178,7 @@ func NewStackQLDriver(handlerCtx handler.HandlerContext) (StackQLDriver, error) 
 	}, nil
 }
 
+//nolint:gocognit // TODO: review
 func (dr *basicStackQLDriver) processQueryOrQueries(
 	handlerCtx handler.HandlerContext,
 ) ([]internaldto.ExecutorOutput, bool) {
@@ -195,16 +196,42 @@ func (dr *basicStackQLDriver) processQueryOrQueries(
 			retVal = append(retVal, internaldto.NewErroneousExecutorOutput(prepareErr))
 			continue
 		}
-		ast, astExists := transactStatement.GetAST()
+		isNotMutating := transactStatement.IsNotMutating()
 		// TODO: implement eager execution for non-mutating statements
 		//       and lazy execution for mutating statements.
 		// TODO: implement transaction stack.
-		if astExists {
-			switch ast.(type) { //nolint:gocritic // TODO: build out
-			default:
-				stmtOutput := transactStatement.Execute()
-				retVal = append(retVal, stmtOutput)
+		if transactStatement.IsBegin() { //nolint:gocritic,nestif // TODO: review
+			txnManager, beginErr := dr.txnManager.Begin()
+			if beginErr != nil {
+				retVal = append(retVal, internaldto.NewErroneousExecutorOutput(beginErr))
+				continue
 			}
+			dr.txnManager = txnManager
+		} else if transactStatement.IsCommit() {
+			commitErr := dr.txnManager.Commit()
+			if commitErr != nil {
+				retVal = append(retVal, internaldto.NewErroneousExecutorOutput(commitErr))
+				continue
+			}
+			parent, hasParent := dr.txnManager.GetParent()
+			if hasParent {
+				dr.txnManager = parent
+			} else {
+				noParentErr := fmt.Errorf("no parent transaction manager available")
+				retVal = append(retVal, internaldto.NewErroneousExecutorOutput(noParentErr))
+			}
+		} else if transactStatement.IsRollback() {
+			rollbackErr := dr.txnManager.Rollback()
+			if rollbackErr != nil {
+				retVal = append(retVal, internaldto.NewErroneousExecutorOutput(rollbackErr))
+				continue
+			}
+		}
+		if isNotMutating || dr.txnManager.IsRoot() {
+			stmtOutput := transactStatement.Execute()
+			retVal = append(retVal, stmtOutput)
+		} else {
+			dr.txnManager.Enqueue(transactStatement) //nolint:errcheck // TODO: investigate
 		}
 	}
 	return retVal, true

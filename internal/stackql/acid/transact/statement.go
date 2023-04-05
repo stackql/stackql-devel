@@ -15,8 +15,12 @@ type Statement interface {
 	GetAST() (sqlparser.Statement, bool)
 	GetUndoLog() (binlog.LogEntry, bool)
 	GetRedoLog() (binlog.LogEntry, bool)
+	IsNotMutating() bool
 	SetUndoLog(binlog.LogEntry)
 	SetRedoLog(binlog.LogEntry)
+	IsBegin() bool
+	IsCommit() bool
+	IsRollback() bool
 }
 
 type basicStatement struct {
@@ -39,6 +43,40 @@ func NewStatement(
 		querySubmitter:     querysubmit.NewQuerySubmitter(),
 		transactionContext: transactionContext,
 	}
+}
+
+func (st *basicStatement) IsBegin() bool {
+	ast, hasAst := st.GetAST()
+	if hasAst {
+		_, isBegin := ast.(*sqlparser.Begin)
+		return isBegin
+	}
+	return false
+}
+
+func (st *basicStatement) IsCommit() bool {
+	ast, hasAst := st.GetAST()
+	if hasAst {
+		_, isCommit := ast.(*sqlparser.Commit)
+		return isCommit
+	}
+	return false
+}
+
+func (st *basicStatement) IsRollback() bool {
+	ast, hasAst := st.GetAST()
+	if hasAst {
+		_, isRollback := ast.(*sqlparser.Rollback)
+		return isRollback
+	}
+	return false
+}
+
+func (st *basicStatement) IsNotMutating() bool {
+	if st.querySubmitter == nil {
+		return true
+	}
+	return st.querySubmitter.IsNotMutating()
 }
 
 func (st *basicStatement) SetUndoLog(log binlog.LogEntry) {
@@ -72,5 +110,5 @@ func (st *basicStatement) Execute() internaldto.ExecutorOutput {
 }
 
 func (st *basicStatement) GetAST() (sqlparser.Statement, bool) {
-	return st.querySubmitter.GetStatement(), st.querySubmitter.GetStatement() != nil
+	return st.querySubmitter.GetStatement()
 }
