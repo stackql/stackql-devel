@@ -2,6 +2,7 @@ package internaldto
 
 import (
 	"github.com/stackql/psql-wire/pkg/sqldata"
+	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/streaming"
 )
 
@@ -50,6 +51,10 @@ type ExecutorOutput interface {
 	SetOutputBodyFn(f func() map[string]interface{})
 	GetMessages() []string
 	AppendMessages(m []string)
+	GetUndoLog() (binlog.LogEntry, bool)
+	GetRedoLog() (binlog.LogEntry, bool)
+	SetUndoLog(binlog.LogEntry)
+	SetRedoLog(binlog.LogEntry)
 }
 
 type standardExecutorOutput struct {
@@ -58,7 +63,25 @@ type standardExecutorOutput struct {
 	getOutputBody func() map[string]interface{}
 	stream        streaming.MapStream
 	Msg           BackendMessages
+	redoLog       binlog.LogEntry
+	undoLog       binlog.LogEntry
 	Err           error
+}
+
+func (ex *standardExecutorOutput) SetRedoLog(log binlog.LogEntry) {
+	ex.redoLog = log
+}
+
+func (ex *standardExecutorOutput) SetUndoLog(log binlog.LogEntry) {
+	ex.undoLog = log
+}
+
+func (ex *standardExecutorOutput) GetRedoLog() (binlog.LogEntry, bool) {
+	return ex.redoLog, ex.redoLog != nil
+}
+
+func (ex *standardExecutorOutput) GetUndoLog() (binlog.LogEntry, bool) {
+	return ex.undoLog, ex.undoLog != nil
 }
 
 func (ex *standardExecutorOutput) GetSQLResult() sqldata.ISQLResultStream {

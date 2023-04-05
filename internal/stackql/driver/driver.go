@@ -7,10 +7,10 @@ import (
 
 	"github.com/stackql/psql-wire/pkg/sqldata"
 	"github.com/stackql/stackql/internal/stackql/acid/transact"
+	"github.com/stackql/stackql/internal/stackql/acid/txn_context"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
-	"github.com/stackql/stackql/internal/stackql/querysubmit"
 	"github.com/stackql/stackql/internal/stackql/responsehandler"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/util"
@@ -50,11 +50,15 @@ func (sdf *basicStackQLDriverFactory) newSQLDriver() (StackQLDriver, error) {
 	if txnCoordinatorErr != nil {
 		return nil, txnCoordinatorErr
 	}
+	txnManager, txnManagerErr := txnCoordinator.NewTxnManager()
+	if txnManagerErr != nil {
+		return nil, txnManagerErr
+	}
 	clonedCtx := sdf.handlerCtx.Clone()
 	clonedCtx.SetTxnCounterMgr(txCtr)
 	rv := &basicStackQLDriver{
-		handlerCtx:     clonedCtx,
-		txnCoordinator: txnCoordinator,
+		handlerCtx: clonedCtx,
+		txnManager: txnManager,
 	}
 	return rv, nil
 }
@@ -112,8 +116,8 @@ func (dr *basicStackQLDriver) ProcessQuery(query string) {
 }
 
 type basicStackQLDriver struct {
-	handlerCtx     handler.HandlerContext
-	txnCoordinator transact.Coordinator
+	handlerCtx handler.HandlerContext
+	txnManager transact.Manager
 }
 
 func (dr *basicStackQLDriver) CloneSQLBackend() sqlbackend.ISQLBackend {
@@ -160,8 +164,17 @@ func (dr *basicStackQLDriver) SplitCompoundQuery(s string) ([]string, error) {
 }
 
 func NewStackQLDriver(handlerCtx handler.HandlerContext) (StackQLDriver, error) {
+	txnCoordinator, txnCoordinatorErr := transact.GetCoordinatorInstance()
+	if txnCoordinatorErr != nil {
+		return nil, txnCoordinatorErr
+	}
+	txnManager, txnManagerErr := txnCoordinator.NewTxnManager()
+	if txnManagerErr != nil {
+		return nil, txnManagerErr
+	}
 	return &basicStackQLDriver{
 		handlerCtx: handlerCtx,
+		txnManager: txnManager,
 	}, nil
 }
 
@@ -170,19 +183,29 @@ func (dr *basicStackQLDriver) processQueryOrQueries(
 ) ([]internaldto.ExecutorOutput, bool) {
 	var retVal []internaldto.ExecutorOutput
 	cmdString := handlerCtx.GetRawQuery()
-	querySubmitter := querysubmit.NewQuerySubmitter()
 	for _, s := range strings.Split(cmdString, ";") {
 		if s == "" {
 			continue
 		}
 		clonedCtx := handlerCtx.Clone()
 		clonedCtx.SetQuery(s)
-		err := querySubmitter.PrepareQuery(clonedCtx)
-		if err != nil {
-			retVal = append(retVal, internaldto.NewErroneousExecutorOutput(err))
+		transactStatement := transact.NewStatement(s, clonedCtx, txn_context.NewTransactionContext(dr.txnManager.Depth()))
+		prepareErr := transactStatement.Prepare()
+		if prepareErr != nil {
+			retVal = append(retVal, internaldto.NewErroneousExecutorOutput(prepareErr))
 			continue
 		}
-		retVal = append(retVal, querySubmitter.SubmitQuery())
+		ast, astExists := transactStatement.GetAST()
+		// TODO: implement eager execution for non-mutating statements
+		//       and lazy execution for mutating statements.
+		// TODO: implement transaction stack.
+		if astExists {
+			switch ast.(type) { //nolint:gocritic // TODO: build out
+			default:
+				stmtOutput := transactStatement.Execute()
+				retVal = append(retVal, stmtOutput)
+			}
+		}
 	}
 	return retVal, true
 }
