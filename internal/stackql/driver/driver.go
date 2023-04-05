@@ -227,11 +227,13 @@ func (dr *basicStackQLDriver) processQueryOrQueries(
 				continue
 			}
 		}
-		if isNotMutating || dr.txnManager.IsRoot() {
+		if isNotMutating || dr.txnManager.IsRoot() { //nolint:gocritic // TODO: make this postgres compatible
 			stmtOutput := transactStatement.Execute()
 			retVal = append(retVal, stmtOutput)
 		} else {
-			dr.txnManager.Enqueue(transactStatement) //nolint:errcheck // TODO: investigate
+			stmtOutput := transactStatement.Execute()
+			retVal = append(retVal, stmtOutput)
+			// dr.txnManager.Enqueue(transactStatement) //nolint:errcheck // TODO: investigate
 		}
 	}
 	return retVal, true
