@@ -3,7 +3,6 @@ package entryutil
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -211,7 +210,7 @@ func assemblePreprocessor(runtimeCtx dto.RuntimeCtx, rdr io.Reader) ([]byte, err
 		return nil, err
 	}
 	var bb []byte
-	bb, err = ioutil.ReadAll(ppRd)
+	bb, err = io.ReadAll(ppRd)
 	return bb, err
 }
 
