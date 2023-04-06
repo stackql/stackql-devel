@@ -220,6 +220,7 @@ func (dr *basicStackQLDriver) processQueryOrQueries(
 			} else {
 				noParentErr := fmt.Errorf("no parent transaction manager available")
 				retVal = append(retVal, internaldto.NewErroneousExecutorOutput(noParentErr))
+				continue
 			}
 		} else if transactStatement.IsRollback() {
 			rollbackErr := dr.txnManager.Rollback()
