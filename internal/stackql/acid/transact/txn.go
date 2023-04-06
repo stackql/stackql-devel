@@ -6,6 +6,7 @@ import (
 
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
+	"github.com/stackql/stackql/internal/stackql/acid/txn_context"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 )
 
@@ -17,6 +18,10 @@ var (
 	_                    Manager     = &basicTransactionManager{}
 )
 
+const (
+	defaultMaxStackDepth = 1
+)
+
 // The transaction coordinator is singleton
 // that orchestrates transaction managers.
 type Coordinator interface {
@@ -25,19 +30,26 @@ type Coordinator interface {
 }
 
 type standardCoordinator struct {
+	ctx txn_context.ITransactionCoordinatorContext
 }
 
 func (c *standardCoordinator) NewTxnManager() (Manager, error) {
-	return NewManager(), nil
+	maxTxnDepth := defaultMaxStackDepth
+	if c.ctx != nil {
+		maxTxnDepth = c.ctx.GetMaxStackDepth()
+	}
+	return NewManager(maxTxnDepth), nil
 }
 
-func GetCoordinatorInstance() (Coordinator, error) {
+func GetCoordinatorInstance(ctx txn_context.ITransactionCoordinatorContext) (Coordinator, error) {
 	var err error
 	coordinatorOnce.Do(func() {
 		if err != nil {
 			return
 		}
-		coordinatorSingleton = &standardCoordinator{}
+		coordinatorSingleton = &standardCoordinator{
+			ctx: ctx,
+		}
 	})
 	return coordinatorSingleton, err
 }
@@ -72,16 +84,18 @@ type basicTransactionManager struct {
 	statementSequence []Statement
 	undoLogs          []binlog.LogEntry
 	redoLogs          []binlog.LogEntry
+	maxTxnDepth       int
 }
 
-func newBasicTransactionManager(parent Manager) Manager {
+func newBasicTransactionManager(parent Manager, maxTxnDepth int) Manager {
 	return &basicTransactionManager{
-		parent: parent,
+		parent:      parent,
+		maxTxnDepth: maxTxnDepth,
 	}
 }
 
-func NewManager() Manager {
-	return newBasicTransactionManager(nil)
+func NewManager(maxTxnDepth int) Manager {
+	return newBasicTransactionManager(nil, maxTxnDepth)
 }
 
 func (m *basicTransactionManager) IsNotMutating() bool {
@@ -186,10 +200,10 @@ func (m *basicTransactionManager) execute() error {
 }
 
 func (m *basicTransactionManager) Begin() (Manager, error) {
-	if m.Depth() >= 1 {
-		return nil, fmt.Errorf("cannot begin nested transaction")
+	if m.Depth() >= m.maxTxnDepth {
+		return nil, fmt.Errorf("cannot begin nested transaction of depth = %d", m.Depth()+1)
 	}
-	return newBasicTransactionManager(m), nil
+	return newBasicTransactionManager(m, m.maxTxnDepth), nil
 }
 
 func (m *basicTransactionManager) Commit() error {

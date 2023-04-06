@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/stackql/stackql/internal/stackql/acid/txn_context"
 	"github.com/stackql/stackql/internal/stackql/bundle"
 	"github.com/stackql/stackql/internal/stackql/datasource/sql_datasource"
 	"github.com/stackql/stackql/internal/stackql/dbmsinternal"
@@ -91,6 +92,11 @@ func BuildInputBundle(runtimeCtx dto.RuntimeCtx) (bundle.Bundle, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error initializing SQL data sources: %w", err)
 	}
+	txnCoordinatorCfg, err := dto.GetTxnCoordinatorCfgCfg(runtimeCtx.ACIDCfgRaw)
+	if err != nil {
+		return nil, fmt.Errorf("error initializing Transaction Coordinator config: %w", err)
+	}
+	txnCoordinatorCtx := txn_context.NewTransactionCoordinatorContext(txnCoordinatorCfg.GetMaxTxnDepth())
 	return bundle.NewBundle(
 		gc,
 		namespaces,
@@ -101,7 +107,8 @@ func BuildInputBundle(runtimeCtx dto.RuntimeCtx) (bundle.Bundle, error) {
 		txnStore,
 		txnCtrMgr,
 		ac,
-		sqlDataSources), nil
+		sqlDataSources,
+		txnCoordinatorCtx), nil
 }
 
 func initSQLDataSources(authContextMap map[string]*dto.AuthCtx) (map[string]sql_datasource.SQLDataSource, error) {

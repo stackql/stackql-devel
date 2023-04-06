@@ -46,7 +46,7 @@ func (sdf *basicStackQLDriverFactory) newSQLDriver() (StackQLDriver, error) {
 	if err != nil {
 		return nil, err
 	}
-	txnCoordinator, txnCoordinatorErr := transact.GetCoordinatorInstance()
+	txnCoordinator, txnCoordinatorErr := transact.GetCoordinatorInstance(sdf.handlerCtx.GetTxnCoordinatorCtx())
 	if txnCoordinatorErr != nil {
 		return nil, txnCoordinatorErr
 	}
@@ -164,7 +164,8 @@ func (dr *basicStackQLDriver) SplitCompoundQuery(s string) ([]string, error) {
 }
 
 func NewStackQLDriver(handlerCtx handler.HandlerContext) (StackQLDriver, error) {
-	txnCoordinator, txnCoordinatorErr := transact.GetCoordinatorInstance()
+	txnCoordinator, txnCoordinatorErr := transact.GetCoordinatorInstance(
+		handlerCtx.GetTxnCoordinatorCtx())
 	if txnCoordinatorErr != nil {
 		return nil, txnCoordinatorErr
 	}
