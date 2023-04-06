@@ -200,7 +200,7 @@ func (m *basicTransactionManager) execute() error {
 }
 
 func (m *basicTransactionManager) Begin() (Manager, error) {
-	if m.Depth() >= m.maxTxnDepth {
+	if m.maxTxnDepth >= 0 && m.Depth() >= m.maxTxnDepth {
 		return nil, fmt.Errorf("cannot begin nested transaction of depth = %d", m.Depth()+1)
 	}
 	return newBasicTransactionManager(m, m.maxTxnDepth), nil

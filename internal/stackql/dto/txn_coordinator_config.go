@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	defaultMaxTxnDepth = 1
+	defaultMaxTxnDepth = -1
 )
 
 type TxnCoordinatorCfg struct {
