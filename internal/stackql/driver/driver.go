@@ -208,6 +208,8 @@ func (dr *basicStackQLDriver) processQueryOrQueries(
 				continue
 			}
 			dr.txnManager = txnManager
+			retVal = append(retVal, internaldto.NewNopEmptyExecutorOutput([]string{"OK"}))
+			continue
 		} else if transactStatement.IsCommit() {
 			resultSets, commitErr := dr.txnManager.Commit()
 			if commitErr != nil {
@@ -218,25 +220,26 @@ func (dr *basicStackQLDriver) processQueryOrQueries(
 			parent, hasParent := dr.txnManager.GetParent()
 			if hasParent {
 				dr.txnManager = parent
-			} else {
-				noParentErr := fmt.Errorf("no parent transaction manager available")
-				retVal = append(retVal, internaldto.NewErroneousExecutorOutput(noParentErr))
+				retVal = append(retVal, internaldto.NewNopEmptyExecutorOutput([]string{"OK"}))
 				continue
 			}
+			noParentErr := fmt.Errorf("no parent transaction manager available")
+			retVal = append(retVal, internaldto.NewErroneousExecutorOutput(noParentErr))
+			continue
 		} else if transactStatement.IsRollback() {
 			rollbackErr := dr.txnManager.Rollback()
 			if rollbackErr != nil {
 				retVal = append(retVal, internaldto.NewErroneousExecutorOutput(rollbackErr))
-				continue
 			}
+			retVal = append(retVal, internaldto.NewNopEmptyExecutorOutput([]string{"OK"}))
+			continue
 		}
 		if isReadOnly || dr.txnManager.IsRoot() {
 			stmtOutput := transactStatement.Execute()
 			retVal = append(retVal, stmtOutput)
 		} else {
-			// stmtOutput := transactStatement.Execute()
-			// retVal = append(retVal, stmtOutput)
 			dr.txnManager.Enqueue(transactStatement) //nolint:errcheck // TODO: investigate
+			retVal = append(retVal, internaldto.NewNopEmptyExecutorOutput([]string{"mutating statement queued"}))
 		}
 	}
 	return retVal, true

@@ -173,3 +173,7 @@ func NewErroneousExecutorOutput(err error) ExecutorOutput {
 func NewEmptyExecutorOutput() ExecutorOutput {
 	return newExecutorOutput(nil, nil, nil, nil, nil)
 }
+
+func NewNopEmptyExecutorOutput(messages []string) ExecutorOutput {
+	return newExecutorOutput(nil, nil, nil, newBackendMessages(messages), nil)
+}

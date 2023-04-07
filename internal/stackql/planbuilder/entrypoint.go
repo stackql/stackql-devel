@@ -85,13 +85,14 @@ func (pb *standardPlanBuilder) BuildPlanFromContext(handlerCtx handler.HandlerCo
 	statementType := earlyPassScreenerAnalyzer.GetStatementType()
 	qPlan.SetType(statementType)
 
-	isReadOnly := earlyPassScreenerAnalyzer.IsReadOnly()
-	qPlan.SetReadOnly(isReadOnly)
+	isReadOnlyFromEarlyPasses := earlyPassScreenerAnalyzer.IsReadOnly()
+	qPlan.SetReadOnly(isReadOnlyFromEarlyPasses)
 
 	qPlan.SetStatement(earlyPassScreenerAnalyzer.GetStatement())
 
 	switch earlyPassScreenerAnalyzer.GetInstructionType() { //nolint:exhaustive // acceptable
 	case earlyanalysis.InternallyRoutableInstruction:
+		qPlan.SetReadOnly(true)
 		createInstructionError := pGBuilder.pgInternal(earlyPassScreenerAnalyzer.GetPlanBuilderInput())
 		if createInstructionError != nil {
 			return nil, createInstructionError
@@ -105,12 +106,19 @@ func (pb *standardPlanBuilder) BuildPlanFromContext(handlerCtx handler.HandlerCo
 			}
 		}
 		return qPlan, err
-	case earlyanalysis.StandardInstruction, earlyanalysis.DummiedPGInstruction:
+	case earlyanalysis.StandardInstruction:
+		createInstructionError := pGBuilder.createInstructionFor(earlyPassScreenerAnalyzer.GetPlanBuilderInput())
+		if createInstructionError != nil {
+			return nil, createInstructionError
+		}
+	case earlyanalysis.DummiedPGInstruction:
+		qPlan.SetReadOnly(true)
 		createInstructionError := pGBuilder.createInstructionFor(earlyPassScreenerAnalyzer.GetPlanBuilderInput())
 		if createInstructionError != nil {
 			return nil, createInstructionError
 		}
 	case earlyanalysis.NopInstruction:
+		qPlan.SetReadOnly(true)
 		createInstructionError := pGBuilder.nop(earlyPassScreenerAnalyzer.GetPlanBuilderInput())
 		if createInstructionError != nil {
 			return nil, createInstructionError

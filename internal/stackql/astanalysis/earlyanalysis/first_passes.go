@@ -246,7 +246,9 @@ func (sp *standardInitialPasses) initialPasses(
 		return err
 	}
 
-	if sel, selOk := planbuilderinput.IsPGSetupQuery(pbi); selOk {
+	sel, selOk := planbuilderinput.IsPGSetupQuery(pbi)
+	if selOk {
+		sp.isReadOnly = true
 		if sel != nil {
 			sp.instructionType = DummiedPGInstruction
 			pbi, err := planbuilderinput.NewPlanBuilderInput( //nolint:govet // defer analyser uplifts
