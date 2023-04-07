@@ -20,9 +20,10 @@ import (
 )
 
 var (
-	_ StackQLDriver                = &basicStackQLDriver{}
-	_ sqlbackend.SQLBackendFactory = &basicStackQLDriverFactory{}
-	_ StackQLDriverFactory         = &basicStackQLDriverFactory{}
+	_               StackQLDriver                = &basicStackQLDriver{}
+	_               sqlbackend.SQLBackendFactory = &basicStackQLDriverFactory{}
+	_               StackQLDriverFactory         = &basicStackQLDriverFactory{}
+	noParentMessage string                       = "no parent transaction manager available" //nolint:gochecknoglobals,revive,lll // permissable
 )
 
 type StackQLDriverFactory interface {
@@ -223,7 +224,7 @@ func (dr *basicStackQLDriver) processQueryOrQueries(
 				retVal = append(retVal, internaldto.NewNopEmptyExecutorOutput([]string{"OK"}))
 				continue
 			}
-			noParentErr := fmt.Errorf("no parent transaction manager available")
+			noParentErr := fmt.Errorf(noParentMessage)
 			retVal = append(retVal, internaldto.NewErroneousExecutorOutput(noParentErr))
 			continue
 		} else if transactStatement.IsRollback() {
@@ -231,7 +232,17 @@ func (dr *basicStackQLDriver) processQueryOrQueries(
 			if rollbackErr != nil {
 				retVal = append(retVal, internaldto.NewErroneousExecutorOutput(rollbackErr))
 			}
-			retVal = append(retVal, internaldto.NewNopEmptyExecutorOutput([]string{"OK"}))
+			parent, hasParent := dr.txnManager.GetParent()
+			if hasParent {
+				dr.txnManager = parent
+				retVal = append(retVal, internaldto.NewNopEmptyExecutorOutput([]string{"Rollback OK"}))
+				continue
+			}
+			retVal = append(
+				retVal,
+				internaldto.NewErroneousExecutorOutput(
+					fmt.Errorf(noParentMessage)),
+			)
 			continue
 		}
 		if isReadOnly || dr.txnManager.IsRoot() {
@@ -242,5 +253,5 @@ func (dr *basicStackQLDriver) processQueryOrQueries(
 			retVal = append(retVal, internaldto.NewNopEmptyExecutorOutput([]string{"mutating statement queued"}))
 		}
 	}
-	return retVal, true
+	return retVal, len(retVal) > 0
 }
