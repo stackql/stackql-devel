@@ -34,7 +34,8 @@ type Plan interface {
 	SetTxnID(txnID int)
 
 	//
-	IsNotMutating() bool
+	IsReadOnly() bool
+	SetReadOnly(bool)
 
 	// Size is defined so that Plan can be given to a cache.LRUCache,
 	// which requires its objects to define a Size function.
@@ -54,6 +55,7 @@ type standardPlan struct {
 	Rows         uint64        // Total number of rows
 	Errors       uint64        // Total number of errors
 	isCacheable  bool
+	isReadOnly   bool
 }
 
 func NewPlan(
@@ -65,11 +67,18 @@ func NewPlan(
 	}
 }
 
-func (p *standardPlan) IsNotMutating() bool {
+func (p *standardPlan) SetReadOnly(isReadOnly bool) {
+	p.isReadOnly = isReadOnly
+}
+
+func (p *standardPlan) IsReadOnly() bool {
 	if p.Instructions == nil {
 		return true
 	}
-	return p.Instructions.IsNotMutating()
+	if p.isReadOnly {
+		return true
+	}
+	return p.Instructions.IsReadOnly()
 }
 
 func (p *standardPlan) SetTxnID(txnID int) {

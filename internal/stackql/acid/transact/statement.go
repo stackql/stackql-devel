@@ -15,7 +15,7 @@ type Statement interface {
 	GetAST() (sqlparser.Statement, bool)
 	GetUndoLog() (binlog.LogEntry, bool)
 	GetRedoLog() (binlog.LogEntry, bool)
-	IsNotMutating() bool
+	IsReadOnly() bool
 	SetUndoLog(binlog.LogEntry)
 	SetRedoLog(binlog.LogEntry)
 	IsBegin() bool
@@ -72,11 +72,11 @@ func (st *basicStatement) IsRollback() bool {
 	return false
 }
 
-func (st *basicStatement) IsNotMutating() bool {
+func (st *basicStatement) IsReadOnly() bool {
 	if st.querySubmitter == nil {
 		return true
 	}
-	return st.querySubmitter.IsNotMutating()
+	return st.querySubmitter.IsReadOnly()
 }
 
 func (st *basicStatement) SetUndoLog(log binlog.LogEntry) {

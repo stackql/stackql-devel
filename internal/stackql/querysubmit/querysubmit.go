@@ -19,7 +19,7 @@ type QuerySubmitter interface {
 	PrepareQuery(handlerCtx handler.HandlerContext) error
 	SubmitQuery() internaldto.ExecutorOutput
 	WithTransactionContext(transactionContext txn_context.ITransactionContext) QuerySubmitter
-	IsNotMutating() bool
+	IsReadOnly() bool
 }
 
 func NewQuerySubmitter() QuerySubmitter {
@@ -32,11 +32,11 @@ type basicQuerySubmitter struct {
 	transactionContext txn_context.ITransactionContext
 }
 
-func (qs *basicQuerySubmitter) IsNotMutating() bool {
+func (qs *basicQuerySubmitter) IsReadOnly() bool {
 	if qs.queryPlan == nil {
 		return true
 	}
-	return qs.queryPlan.IsNotMutating()
+	return qs.queryPlan.IsReadOnly()
 }
 
 func (qs *basicQuerySubmitter) GetStatement() (sqlparser.Statement, bool) {

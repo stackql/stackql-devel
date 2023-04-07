@@ -62,7 +62,7 @@ type Manager interface {
 	// Begin a new transaction.
 	Begin() (Manager, error)
 	// Commit the current transaction.
-	Commit() error
+	Commit() ([]internaldto.ExecutorOutput, error)
 	// Rollback the current transaction.
 	Rollback() error
 	// Enqueue a transaction operation.
@@ -85,6 +85,7 @@ type basicTransactionManager struct {
 	undoLogs          []binlog.LogEntry
 	redoLogs          []binlog.LogEntry
 	maxTxnDepth       int
+	outputs           []internaldto.ExecutorOutput
 }
 
 func newBasicTransactionManager(parent Manager, maxTxnDepth int) Manager {
@@ -98,9 +99,9 @@ func NewManager(maxTxnDepth int) Manager {
 	return newBasicTransactionManager(nil, maxTxnDepth)
 }
 
-func (m *basicTransactionManager) IsNotMutating() bool {
+func (m *basicTransactionManager) IsReadOnly() bool {
 	for _, statement := range m.statementSequence {
-		if !statement.IsNotMutating() {
+		if !statement.IsReadOnly() {
 			return false
 		}
 	}
@@ -167,7 +168,8 @@ func (m *basicTransactionManager) Prepare() error {
 }
 
 func (m *basicTransactionManager) Execute() internaldto.ExecutorOutput {
-	err := m.execute()
+	outputs, err := m.execute()
+	m.outputs = outputs
 	if err != nil {
 		return internaldto.NewErroneousExecutorOutput(err)
 	}
@@ -180,9 +182,11 @@ func (m *basicTransactionManager) Execute() internaldto.ExecutorOutput {
 	)
 }
 
-func (m *basicTransactionManager) execute() error {
+func (m *basicTransactionManager) execute() ([]internaldto.ExecutorOutput, error) {
+	var rv []internaldto.ExecutorOutput
 	for _, stmt := range m.statementSequence {
 		coDomain := stmt.Execute()
+		rv = append(rv, coDomain)
 		err := coDomain.GetError()
 		undoLog, undoLogExists := stmt.GetUndoLog()
 		redoLog, redoLogExists := stmt.GetRedoLog()
@@ -193,10 +197,10 @@ func (m *basicTransactionManager) execute() error {
 			m.redoLogs = append(m.redoLogs, redoLog)
 		}
 		if err != nil {
-			return err
+			return rv, err
 		}
 	}
-	return nil
+	return rv, nil
 }
 
 func (m *basicTransactionManager) Begin() (Manager, error) {
@@ -206,7 +210,7 @@ func (m *basicTransactionManager) Begin() (Manager, error) {
 	return newBasicTransactionManager(m, m.maxTxnDepth), nil
 }
 
-func (m *basicTransactionManager) Commit() error {
+func (m *basicTransactionManager) Commit() ([]internaldto.ExecutorOutput, error) {
 	return m.execute()
 }
 

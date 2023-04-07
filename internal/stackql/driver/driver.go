@@ -197,7 +197,7 @@ func (dr *basicStackQLDriver) processQueryOrQueries(
 			retVal = append(retVal, internaldto.NewErroneousExecutorOutput(prepareErr))
 			continue
 		}
-		isNotMutating := transactStatement.IsNotMutating()
+		isReadOnly := transactStatement.IsReadOnly()
 		// TODO: implement eager execution for non-mutating statements
 		//       and lazy execution for mutating statements.
 		// TODO: implement transaction stack.
@@ -209,11 +209,12 @@ func (dr *basicStackQLDriver) processQueryOrQueries(
 			}
 			dr.txnManager = txnManager
 		} else if transactStatement.IsCommit() {
-			commitErr := dr.txnManager.Commit()
+			resultSets, commitErr := dr.txnManager.Commit()
 			if commitErr != nil {
 				retVal = append(retVal, internaldto.NewErroneousExecutorOutput(commitErr))
 				continue
 			}
+			retVal = append(retVal, resultSets...)
 			parent, hasParent := dr.txnManager.GetParent()
 			if hasParent {
 				dr.txnManager = parent
@@ -229,13 +230,13 @@ func (dr *basicStackQLDriver) processQueryOrQueries(
 				continue
 			}
 		}
-		if isNotMutating || dr.txnManager.IsRoot() { //nolint:gocritic // TODO: make this postgres compatible
+		if isReadOnly || dr.txnManager.IsRoot() {
 			stmtOutput := transactStatement.Execute()
 			retVal = append(retVal, stmtOutput)
 		} else {
-			stmtOutput := transactStatement.Execute()
-			retVal = append(retVal, stmtOutput)
-			// dr.txnManager.Enqueue(transactStatement) //nolint:errcheck // TODO: investigate
+			// stmtOutput := transactStatement.Execute()
+			// retVal = append(retVal, stmtOutput)
+			dr.txnManager.Enqueue(transactStatement) //nolint:errcheck // TODO: investigate
 		}
 	}
 	return retVal, true

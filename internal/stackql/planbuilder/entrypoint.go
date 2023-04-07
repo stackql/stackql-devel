@@ -85,6 +85,9 @@ func (pb *standardPlanBuilder) BuildPlanFromContext(handlerCtx handler.HandlerCo
 	statementType := earlyPassScreenerAnalyzer.GetStatementType()
 	qPlan.SetType(statementType)
 
+	isReadOnly := earlyPassScreenerAnalyzer.IsReadOnly()
+	qPlan.SetReadOnly(isReadOnly)
+
 	qPlan.SetStatement(earlyPassScreenerAnalyzer.GetStatement())
 
 	switch earlyPassScreenerAnalyzer.GetInstructionType() { //nolint:exhaustive // acceptable

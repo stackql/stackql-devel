@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	defaultNopMessages []string = []string{"OK"}
+	defaultNopMessages []string = []string{"OK"} //nolint:revive,gochecknoglobals // prefer declarative
 )
 
 type NopBuilder struct {
