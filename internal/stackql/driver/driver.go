@@ -213,8 +213,16 @@ func (dr *basicStackQLDriver) processQueryOrQueries(
 			continue
 		} else if transactStatement.IsCommit() {
 			commitCoDomain := dr.txnCoordinator.Commit()
-			if commitCoDomain.IsErroneous() {
-				retVal = append(retVal, internaldto.NewErroneousExecutorOutput(commitCoDomain.GetError()))
+			commitErr, commitErrExists := commitCoDomain.GetError()
+			if commitErrExists {
+				retVal = append(retVal, internaldto.NewErroneousExecutorOutput(commitErr))
+				undoLog, undoLogExists := commitCoDomain.GetUndoLog()
+				if undoLogExists && undoLog != nil {
+					humanReadable := undoLog.GetHumanReadable()
+					if len(humanReadable) > 0 {
+						retVal = append(retVal, internaldto.NewNopEmptyExecutorOutput(humanReadable))
+					}
+				}
 				continue
 			}
 			retVal = append(retVal, commitCoDomain.GetExecutorOutput()...)

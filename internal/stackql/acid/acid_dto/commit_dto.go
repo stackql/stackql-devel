@@ -1,6 +1,7 @@
 package acid_dto //nolint:revive,stylecheck // meaning is clear
 
 import (
+	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 )
 
@@ -10,11 +11,9 @@ var (
 
 type CommitCoDomain interface {
 	GetExecutorOutput() []internaldto.ExecutorOutput
-	// getVotingPhaseError() error
-	// getCompletionPhaseError() error
-	GetError() error
+	GetError() (error, bool)
 	GetMessages() []string
-	IsErroneous() bool
+	GetUndoLog() (binlog.LogEntry, bool)
 }
 
 type standardCommitCoDomain struct {
@@ -46,25 +45,38 @@ func (c *standardCommitCoDomain) GetMessages() []string {
 	return messages
 }
 
-func (c *standardCommitCoDomain) IsErroneous() bool {
-	return c.votingPhaseError != nil || c.completionPhaseError != nil
-}
-
 func (c *standardCommitCoDomain) GetExecutorOutput() []internaldto.ExecutorOutput {
 	return c.executorOutputs
 }
 
-func (c *standardCommitCoDomain) GetError() error {
+func (c *standardCommitCoDomain) GetError() (error, bool) { //nolint:revive // permissable deviation from norm
 	if c.votingPhaseError != nil {
-		return c.votingPhaseError
+		return c.votingPhaseError, true
 	}
-	return c.completionPhaseError
+	return c.completionPhaseError, c.completionPhaseError != nil
 }
 
-// func (c *standardCommitCoDomain) getVotingPhaseError() error {
-// 	return c.votingPhaseError
-// }
-
-// func (c *standardCommitCoDomain) getCompletionPhaseError() error {
-// 	return c.completionPhaseError
-// }
+func (c *standardCommitCoDomain) GetUndoLog() (binlog.LogEntry, bool) {
+	undoLogs := make([]binlog.LogEntry, 0, len(c.executorOutputs))
+	for _, executorOutput := range c.executorOutputs {
+		undoLog, undoLogExists := executorOutput.GetUndoLog()
+		if undoLogExists && undoLog != nil {
+			undoLogs = append(undoLogs, undoLog)
+		}
+	}
+	if len(undoLogs) == 0 {
+		return nil, false
+	}
+	initialUndoLog := undoLogs[len(undoLogs)-1]
+	rv := initialUndoLog.Clone()
+	for i := len(undoLogs) - 2; i >= 0; i-- { //nolint:gomnd // magic number second from last
+		currentLog := undoLogs[i]
+		if currentLog != nil {
+			for _, s := range currentLog.GetHumanReadable() {
+				rv.AppendHumanReadable(s)
+			}
+			rv.AppendRaw(currentLog.GetRaw())
+		}
+	}
+	return rv, true
+}

@@ -137,23 +137,11 @@ func (m *basicTransactionCoordinator) SetUndoLog(log binlog.LogEntry) {
 	m.undoLogs = []binlog.LogEntry{log}
 }
 
-func (m *basicTransactionCoordinator) GetUndoLog() (binlog.LogEntry, bool) {
-	if len(m.undoLogs) == 0 {
-		return nil, false
-	}
-	initialUndoLog := m.undoLogs[len(m.undoLogs)-1]
-	rv := initialUndoLog.Clone()
-	for i := len(m.undoLogs) - 2; i >= 0; i-- { //nolint:gomnd // magic number second from last
-		currentLog := m.undoLogs[i]
-		if currentLog != nil {
-			rv.AppendHumanReadable(currentLog.GetHumanReadable())
-			rv.AppendRaw(currentLog.GetRaw())
-		}
-	}
-	return rv, true
+func (m *basicTransactionCoordinator) GetRedoLog() (binlog.LogEntry, bool) {
+	return nil, false
 }
 
-func (m *basicTransactionCoordinator) GetRedoLog() (binlog.LogEntry, bool) {
+func (m *basicTransactionCoordinator) GetUndoLog() (binlog.LogEntry, bool) {
 	return nil, false
 }
 
