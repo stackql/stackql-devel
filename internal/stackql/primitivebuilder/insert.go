@@ -6,6 +6,7 @@ import (
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
+	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/httpmiddleware"
@@ -136,9 +137,6 @@ func (ss *Insert) Build() error {
 		for _, r := range httpArmoury.GetRequestParams() {
 			req := r
 			nullaryEx := func() internaldto.ExecutorOutput {
-				// logging.GetLogger().Infoln(fmt.Sprintf("req.BodyBytes = %s", string(req.BodyBytes)))
-				// req.Context.SetBody(bytes.NewReader(req.BodyBytes))
-				// logging.GetLogger().Infoln(fmt.Sprintf("req.Context = %v", req.Context))
 				response, apiErr := httpmiddleware.HTTPApiCallFromRequest(handlerCtx.Clone(), prov, m, req.GetRequest())
 				if apiErr != nil {
 					return internaldto.NewErroneousExecutorOutput(apiErr)
@@ -173,13 +171,23 @@ func (ss *Insert) Build() error {
 						msgs := internaldto.NewBackendMessages(
 							generateSuccessMessagesFromHeirarchy(tbl, isAwait),
 						)
-						return internaldto.NewExecutorOutput(
+						rv := internaldto.NewExecutorOutput(
 							nil,
 							target,
 							nil,
 							msgs,
 							nil,
 						)
+						tableName, _ := tbl.GetInputTableName()
+						rv.SetUndoLog(
+							binlog.NewSimpleLogEntry(
+								nil,
+								[]string{
+									"Remove the " + tableName + " instance",
+								},
+							),
+						)
+						return rv
 					}
 					generatedErr := fmt.Errorf("insert over HTTP error: %s", response.Status)
 					return internaldto.NewExecutorOutput(
