@@ -20,7 +20,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/util"
 )
 
-type Insert struct {
+type InsertOrUpdate struct {
 	graph               primitivegraph.PrimitiveGraph
 	handlerCtx          handler.HandlerContext
 	drmCfg              drm.Config
@@ -30,9 +30,10 @@ type Insert struct {
 	commentDirectives   sqlparser.CommentDirectives
 	selectPrimitiveNode primitivegraph.PrimitiveNode
 	isAwait             bool
+	verb                string // may be "insert" or "update"
 }
 
-func NewInsert(
+func NewInsertOrUpdate(
 	graph primitivegraph.PrimitiveGraph,
 	handlerCtx handler.HandlerContext,
 	node sqlparser.SQLNode,
@@ -40,8 +41,9 @@ func NewInsert(
 	selectPrimitiveNode primitivegraph.PrimitiveNode,
 	commentDirectives sqlparser.CommentDirectives,
 	isAwait bool,
+	verb string,
 ) Builder {
-	return &Insert{
+	return &InsertOrUpdate{
 		graph:               graph,
 		handlerCtx:          handlerCtx,
 		drmCfg:              handlerCtx.GetDrmConfig(),
@@ -50,23 +52,24 @@ func NewInsert(
 		commentDirectives:   commentDirectives,
 		selectPrimitiveNode: selectPrimitiveNode,
 		isAwait:             isAwait,
+		verb:                verb,
 	}
 }
 
-func (ss *Insert) GetRoot() primitivegraph.PrimitiveNode {
+func (ss *InsertOrUpdate) GetRoot() primitivegraph.PrimitiveNode {
 	return ss.root
 }
 
-func (ss *Insert) GetTail() primitivegraph.PrimitiveNode {
+func (ss *InsertOrUpdate) GetTail() primitivegraph.PrimitiveNode {
 	return ss.root
 }
 
-func (ss *Insert) decorateOutput(op internaldto.ExecutorOutput, tableName string) internaldto.ExecutorOutput {
+func (ss *InsertOrUpdate) decorateOutput(op internaldto.ExecutorOutput, tableName string) internaldto.ExecutorOutput {
 	op.SetUndoLog(
 		binlog.NewSimpleLogEntry(
 			nil,
 			[]string{
-				"Undo the insert on " + tableName,
+				fmt.Sprintf("Undo the %s on %s", ss.verb, tableName),
 			},
 		),
 	)
@@ -74,7 +77,7 @@ func (ss *Insert) decorateOutput(op internaldto.ExecutorOutput, tableName string
 }
 
 //nolint:funlen,errcheck,gocognit,cyclop,gocyclo // TODO: fix this
-func (ss *Insert) Build() error {
+func (ss *InsertOrUpdate) Build() error {
 	node := ss.node
 	tbl := ss.tbl
 	handlerCtx := ss.handlerCtx
