@@ -7652,13 +7652,13 @@ components:
             mediaType: application/json
             openAPIDocKey: '202'
           undo:
-            type: stackqlAction
-            config:
-              $ref: '#/components/x-stackQL-resources/droplets/methods/destroy'
-              context:
-                droplet_id:
-                  type: responseBodyProperty
-                  jsonPath: '$.droplet.id'
+            type: stackqlAction::droplets::delete
+            stackqlAction:
+              $ref: '#/components/x-stackQL-resources/droplets/sqlVerbs/delete'
+            context:
+              droplet_id:
+                type: responseBodyProperty
+                jsonPath: '$.droplet.id'
         destroy_byTag:
           operation:
             $ref: '#/paths/~1v2~1droplets/delete'

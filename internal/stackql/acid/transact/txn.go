@@ -178,8 +178,8 @@ func (m *basicTransactionCoordinator) votingPhase() ([]internaldto.ExecutorOutpu
 		coDomain := stmt.Execute()
 		rv = append(rv, coDomain)
 		err := coDomain.GetError()
-		undoLog, undoLogExists := stmt.GetUndoLog()
-		redoLog, redoLogExists := stmt.GetRedoLog()
+		undoLog, undoLogExists := coDomain.GetUndoLog()
+		redoLog, redoLogExists := coDomain.GetRedoLog()
 		if undoLogExists {
 			m.undoLogs = append(m.undoLogs, undoLog)
 		}

@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/stackql/go-openapistackql/openapistackql"
+	pkg_response "github.com/stackql/go-openapistackql/pkg/response"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/drm"
@@ -58,6 +59,18 @@ func (ss *Insert) GetRoot() primitivegraph.PrimitiveNode {
 
 func (ss *Insert) GetTail() primitivegraph.PrimitiveNode {
 	return ss.root
+}
+
+func (ss *Insert) decorateOutput(op internaldto.ExecutorOutput, tableName string) internaldto.ExecutorOutput {
+	op.SetUndoLog(
+		binlog.NewSimpleLogEntry(
+			nil,
+			[]string{
+				"Undo the insert on " + tableName,
+			},
+		),
+	)
+	return op
 }
 
 //nolint:funlen,errcheck,gocognit,cyclop,gocyclo // TODO: fix this
@@ -133,6 +146,8 @@ func (ss *Insert) Build() error {
 			return internaldto.NewErroneousExecutorOutput(httpErr)
 		}
 
+		tableName, _ := tbl.GetTableName()
+
 		var nullaryExecutors []func() internaldto.ExecutorOutput
 		for _, r := range httpArmoury.GetRequestParams() {
 			req := r
@@ -143,14 +158,23 @@ func (ss *Insert) Build() error {
 				}
 
 				if responseAnalysisErr == nil {
-					target, err = m.DeprecatedProcessResponse(response)
-					handlerCtx.LogHTTPResponseMap(target)
+					var resp pkg_response.Response
+					resp, err = m.ProcessResponse(response)
 					if err != nil {
-						return internaldto.NewErroneousExecutorOutput(err)
+						return ss.decorateOutput(
+							internaldto.NewErroneousExecutorOutput(err), tableName,
+						)
+					}
+					processedBody := resp.GetProcessedBody()
+					switch processedBody := processedBody.(type) { //nolint:gocritic // TODO: fix this
+					case map[string]interface{}:
+						target = processedBody
 					}
 				}
 				if err != nil {
-					return internaldto.NewErroneousExecutorOutput(err)
+					return ss.decorateOutput(
+						internaldto.NewErroneousExecutorOutput(err), tableName,
+					)
 				}
 				logging.GetLogger().Infoln(fmt.Sprintf("target = %v", target))
 				items, ok := target[tbl.LookupSelectItemsKey()]
@@ -171,31 +195,24 @@ func (ss *Insert) Build() error {
 						msgs := internaldto.NewBackendMessages(
 							generateSuccessMessagesFromHeirarchy(tbl, isAwait),
 						)
-						rv := internaldto.NewExecutorOutput(
+						return internaldto.NewExecutorOutput(
 							nil,
 							target,
 							nil,
 							msgs,
 							nil,
 						)
-						tableName, _ := tbl.GetInputTableName()
-						rv.SetUndoLog(
-							binlog.NewSimpleLogEntry(
-								nil,
-								[]string{
-									"Remove the " + tableName + " instance",
-								},
-							),
-						)
-						return rv
 					}
 					generatedErr := fmt.Errorf("insert over HTTP error: %s", response.Status)
-					return internaldto.NewExecutorOutput(
-						nil,
-						target,
-						nil,
-						nil,
-						generatedErr,
+					return ss.decorateOutput(
+						internaldto.NewExecutorOutput(
+							nil,
+							target,
+							nil,
+							nil,
+							generatedErr,
+						),
+						tableName,
 					)
 				}
 				return internaldto.NewExecutorOutput(
@@ -235,18 +252,30 @@ func (ss *Insert) Build() error {
 				return execInstance()
 			})
 			if err != nil {
-				return internaldto.NewErroneousExecutorOutput(err)
+				return ss.decorateOutput(
+					internaldto.NewErroneousExecutorOutput(err),
+					tableName,
+				)
 			}
 			execPrim, execErr := composeAsyncMonitor(handlerCtx, dependentInsertPrimitive, tbl, commentDirectives)
 			if execErr != nil {
-				return internaldto.NewErroneousExecutorOutput(execErr)
+				return ss.decorateOutput(
+					internaldto.NewErroneousExecutorOutput(execErr),
+					tableName,
+				)
 			}
 			resultSet = execPrim.Execute(pc)
 			if resultSet.GetError() != nil {
-				return resultSet
+				return ss.decorateOutput(
+					resultSet,
+					tableName,
+				)
 			}
 		}
-		return resultSet
+		return ss.decorateOutput(
+			resultSet,
+			tableName,
+		)
 	}
 	err = insertPrimitive.SetExecutor(ex)
 	if err != nil {

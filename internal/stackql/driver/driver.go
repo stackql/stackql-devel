@@ -220,7 +220,11 @@ func (dr *basicStackQLDriver) processQueryOrQueries(
 				if undoLogExists && undoLog != nil {
 					humanReadable := undoLog.GetHumanReadable()
 					if len(humanReadable) > 0 {
-						retVal = append(retVal, internaldto.NewNopEmptyExecutorOutput(humanReadable))
+						displayUndoLogs := make([]string, len(humanReadable))
+						for i, h := range humanReadable {
+							displayUndoLogs[i] = fmt.Sprintf("UNDO required: %s", h)
+						}
+						retVal = append(retVal, internaldto.NewNopEmptyExecutorOutput(displayUndoLogs))
 					}
 				}
 				continue

@@ -195,7 +195,8 @@ func (pg *standardPrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) internald
 		}
 	}
 	if err := pg.errGroup.Wait(); err != nil {
-		return internaldto.NewExecutorOutput(nil, nil, nil, nil, err)
+		undoLog, _ := output.GetUndoLog()
+		return internaldto.NewExecutorOutput(nil, nil, nil, nil, err).WithUndoLog(undoLog)
 	}
 	return output
 }
