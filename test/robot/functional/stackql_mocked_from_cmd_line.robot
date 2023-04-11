@@ -713,6 +713,14 @@ Transaction Abort Attempted Commit Digitalocean Insert Droplet
     ...    data__image, data__backups, data__ipv6,
     ...    data__monitoring, data__tags
     ...    ) 
+    ...    SELECT 'some.example.com', 'nyc3', 's-1vcpu-1gb', 
+    ...    'ubuntu-20-04-x64', true, true, true, 
+    ...    '["env:prod", "web"]' ;
+    ...    INSERT INTO digitalocean.droplets.droplets(
+    ...    data__name, data__region, data__size, 
+    ...    data__image, data__backups, data__ipv6,
+    ...    data__monitoring, data__tags
+    ...    ) 
     ...    SELECT 'error.example.com', 'nyc3', 's-1vcpu-1gb', 
     ...    'ubuntu-20-04-x64', true, true, true, 
     ...    '["env:prod", "web"]' ;
@@ -721,6 +729,8 @@ Transaction Abort Attempted Commit Digitalocean Insert Droplet
     ...    OK
     ...    mutating statement queued
     ...    mutating statement queued
+    ...    mutating statement queued
+    ...    UNDO required: Undo the insert on digitalocean.droplets.droplets
     ...    UNDO required: Undo the insert on digitalocean.droplets.droplets
     Should Stackql Exec Inline Equal
     ...    ${STACKQL_EXE}

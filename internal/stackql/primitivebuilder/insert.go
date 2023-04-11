@@ -161,9 +161,7 @@ func (ss *Insert) Build() error {
 					var resp pkg_response.Response
 					resp, err = m.ProcessResponse(response)
 					if err != nil {
-						return ss.decorateOutput(
-							internaldto.NewErroneousExecutorOutput(err), tableName,
-						)
+						return internaldto.NewErroneousExecutorOutput(err)
 					}
 					processedBody := resp.GetProcessedBody()
 					switch processedBody := processedBody.(type) { //nolint:gocritic // TODO: fix this
@@ -172,9 +170,7 @@ func (ss *Insert) Build() error {
 					}
 				}
 				if err != nil {
-					return ss.decorateOutput(
-						internaldto.NewErroneousExecutorOutput(err), tableName,
-					)
+					return internaldto.NewErroneousExecutorOutput(err)
 				}
 				logging.GetLogger().Infoln(fmt.Sprintf("target = %v", target))
 				items, ok := target[tbl.LookupSelectItemsKey()]
@@ -195,24 +191,24 @@ func (ss *Insert) Build() error {
 						msgs := internaldto.NewBackendMessages(
 							generateSuccessMessagesFromHeirarchy(tbl, isAwait),
 						)
-						return internaldto.NewExecutorOutput(
-							nil,
-							target,
-							nil,
-							msgs,
-							nil,
+						return ss.decorateOutput(
+							internaldto.NewExecutorOutput(
+								nil,
+								target,
+								nil,
+								msgs,
+								nil,
+							),
+							tableName,
 						)
 					}
 					generatedErr := fmt.Errorf("insert over HTTP error: %s", response.Status)
-					return ss.decorateOutput(
-						internaldto.NewExecutorOutput(
-							nil,
-							target,
-							nil,
-							nil,
-							generatedErr,
-						),
-						tableName,
+					return internaldto.NewExecutorOutput(
+						nil,
+						target,
+						nil,
+						nil,
+						generatedErr,
 					)
 				}
 				return internaldto.NewExecutorOutput(
@@ -252,24 +248,15 @@ func (ss *Insert) Build() error {
 				return execInstance()
 			})
 			if err != nil {
-				return ss.decorateOutput(
-					internaldto.NewErroneousExecutorOutput(err),
-					tableName,
-				)
+				return internaldto.NewErroneousExecutorOutput(err)
 			}
 			execPrim, execErr := composeAsyncMonitor(handlerCtx, dependentInsertPrimitive, tbl, commentDirectives)
 			if execErr != nil {
-				return ss.decorateOutput(
-					internaldto.NewErroneousExecutorOutput(execErr),
-					tableName,
-				)
+				return internaldto.NewErroneousExecutorOutput(execErr)
 			}
 			resultSet = execPrim.Execute(pc)
 			if resultSet.GetError() != nil {
-				return ss.decorateOutput(
-					resultSet,
-					tableName,
-				)
+				return resultSet
 			}
 		}
 		return ss.decorateOutput(

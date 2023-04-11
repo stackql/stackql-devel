@@ -57,7 +57,7 @@ func (c *standardCommitCoDomain) GetError() (error, bool) { //nolint:revive // p
 }
 
 func (c *standardCommitCoDomain) GetUndoLog() (binlog.LogEntry, bool) {
-	undoLogs := make([]binlog.LogEntry, 0, len(c.executorOutputs))
+	var undoLogs []binlog.LogEntry
 	for _, executorOutput := range c.executorOutputs {
 		undoLog, undoLogExists := executorOutput.GetUndoLog()
 		if undoLogExists && undoLog != nil {
