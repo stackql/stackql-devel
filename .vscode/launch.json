@@ -66,7 +66,8 @@
         "select price_monthly from digitalocean.sizes.sizes ;",
         "INSERT INTO digitalocean.droplets.droplets ( data__name, data__region, data__size, data__image, data__backups, data__ipv6, data__monitoring, data__tags ) SELECT 'some.example.com', 'nyc3', 's-1vcpu-1gb', 'ubuntu-20-04-x64', true, true, true, '[\"env:prod\", \"web\"]';",
         "select * from aws.cloud_watch.log_events where region = 'ap-southeast-1' and data__logGroupName = 'LogGroupResourceExample' and data__logStreamName = 'test-01' and data__startTime = 1680528971832 ;",
-        "begin; INSERT INTO digitalocean.droplets.droplets ( data__name, data__region, data__size, data__image, data__backups, data__ipv6, data__monitoring, data__tags ) SELECT 'some.example.com', 'nyc3', 's-1vcpu-1gb', 'ubuntu-20-04-x64', true, true, true, '[\"env:prod\", \"web\"]' ; INSERT INTO digitalocean.droplets.droplets ( data__name, data__region, data__size, data__image, data__backups, data__ipv6, data__monitoring, data__tags ) SELECT 'some.example.com', 'nyc3', 's-1vcpu-1gb', 'ubuntu-20-04-x64', true, true, true, '[\"env:prod\", \"web\"]' ; INSERT INTO digitalocean.droplets.droplets ( data__name, data__region, data__size, data__image, data__backups, data__ipv6, data__monitoring, data__tags ) SELECT 'error.example.com', 'nyc3', 's-1vcpu-1gb', 'ubuntu-20-04-x64', true, true, true, '[\"env:prod\", \"web\"]' ; commit;"
+        "begin; INSERT INTO digitalocean.droplets.droplets ( data__name, data__region, data__size, data__image, data__backups, data__ipv6, data__monitoring, data__tags ) SELECT 'some.example.com', 'nyc3', 's-1vcpu-1gb', 'ubuntu-20-04-x64', true, true, true, '[\"env:prod\", \"web\"]' ; INSERT INTO digitalocean.droplets.droplets ( data__name, data__region, data__size, data__image, data__backups, data__ipv6, data__monitoring, data__tags ) SELECT 'some.example.com', 'nyc3', 's-1vcpu-1gb', 'ubuntu-20-04-x64', true, true, true, '[\"env:prod\", \"web\"]' ; INSERT INTO digitalocean.droplets.droplets ( data__name, data__region, data__size, data__image, data__backups, data__ipv6, data__monitoring, data__tags ) SELECT 'error.example.com', 'nyc3', 's-1vcpu-1gb', 'ubuntu-20-04-x64', true, true, true, '[\"env:prod\", \"web\"]' ; commit;",
+        "select 1;"
       ],
       "default": "show providers;"
     },
@@ -606,6 +607,24 @@
         "--registry=${input:registryString}",
         "--namespaces=${input:namespaceString}",
         "--sqlBackend=${input:sqlBackendString}",
+        "--dbInternal=${input:dbInternalString}"
+      ],
+    },
+    {
+      "name": "run server for superset",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/stackql",
+      "args": [
+        "srv",
+        "--pgsrv.port=5999",
+        "--tls.allowInsecure",
+        "--auth=${input:authString}",
+        "--gc=${input:gcString}",
+        "--registry=${input:registryString}",
+        "--namespaces=${input:namespaceString}",
+        "--sqlBackend={ \"dbEngine\": \"postgres_tcp\", \"sqlDialect\": \"postgres\", \"dsn\": \"postgres://stackql:stackql@127.0.0.1:9432/stackql\", \"schemata\": { \"tableSchema\": \"stackql_raw\", \"intelViewSchema\": \"stackql_intel\", \"opsViewSchema\": \"stackql_ops\" } }",
         "--dbInternal=${input:dbInternalString}"
       ],
     },
