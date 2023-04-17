@@ -759,7 +759,7 @@ Scalar Select Verify
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    {"digitalocean": { "username_var": "DUMMY_DIGITALOCEAN_USERNAME", "password_var": "DUMMY_DIGITALOCEAN_PASSWORD", "type": "basic", "valuePrefix": "TOTALLY_CONTRIVED "}}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
-    ...    select 1, 2, 'three' as three;
+    ...    select 1 as "1", 2 as "2", 'three' as three;
     ...    ${outputStr}
     ...    stdout=${CURDIR}/tmp/Scalar-Select-Verify.tmp
 
