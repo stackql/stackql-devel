@@ -17,9 +17,9 @@ Select Class Oid
     ...    ;
     ${outputStr} =    Catenate    SEPARATOR=\n
     ...    |-------|
-    ...    |  oid  |
+    ...    |${SPACE}${SPACE}oid${SPACE}${SPACE}|
     ...    |-------|
-    ...    | 13429 |
+    ...    |${SPACE}13429${SPACE}|
     ...    |-------|
     Should Stackql Exec Inline Equal
     ...    ${STACKQL_EXE}
