@@ -74,6 +74,18 @@ type standardDBMSInternalRouter struct {
 }
 
 func (pgr *standardDBMSInternalRouter) CanRoute(node sqlparser.SQLNode) (constants.BackendQueryType, bool) {
+	if pgr.sqlSystem.GetName() != constants.SQLDialectPostgres {
+		switch node := node.(type) {
+		case *sqlparser.Select:
+			logging.GetLogger().Debugf("node = %v\n", node)
+			if pgr.analyzeTableExprAllRDBMS(node.From[0]) {
+				return pgr.affirmativeQuery()
+			}
+			return pgr.negative()
+		default:
+			return pgr.negative()
+		}
+	}
 	switch node := node.(type) {
 	case *sqlparser.Select:
 		logging.GetLogger().Debugf("node = %v\n", node)
