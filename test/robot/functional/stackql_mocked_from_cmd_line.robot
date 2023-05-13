@@ -156,7 +156,7 @@ Okta Users Select Simple Paginated
     ...    ${CURDIR}/tmp/Okta-Users-Select-Simple-Paginated.tmp
 
 AWS EC2 Volumes Select Simple
-    Pass Execution If    "${SQL_BACKEND}" == "postgres_tcp"    TODO: FIX THIS... Skipping postgres backend test likely due to case sensitivity and incorrect XML property aliasing 
+    # Pass Execution If    "${SQL_BACKEND}" == "postgres_tcp"    TODO: FIX THIS... Skipping postgres backend test likely due to case sensitivity and incorrect XML property aliasing 
     Should StackQL Exec Inline Equal
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
