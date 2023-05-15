@@ -58,10 +58,3 @@ func (nb *DataflowGraphBuilder) GetRoot() primitivegraph.PrimitiveNode {
 func (nb *DataflowGraphBuilder) GetTail() primitivegraph.PrimitiveNode {
 	return nb.root
 }
-
-func (nb *DataflowGraphBuilder) SetWriteOnly(_ bool) {
-}
-
-func (nb *DataflowGraphBuilder) IsWriteOnly() bool {
-	return false
-}

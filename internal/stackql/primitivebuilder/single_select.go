@@ -85,10 +85,3 @@ func (ss *SingleSelect) Build() error {
 
 	return nil
 }
-
-func (ss *SingleSelect) SetWriteOnly(_ bool) {
-}
-
-func (ss *SingleSelect) IsWriteOnly() bool {
-	return false
-}

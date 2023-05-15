@@ -3,8 +3,7 @@ package primitivebuilder
 import "github.com/stackql/stackql/internal/stackql/primitivegraph"
 
 type SubTreeBuilder struct {
-	children    []Builder
-	isWriteOnly bool
+	children []Builder
 }
 
 func NewSubTreeBuilder(children []Builder) Builder {
@@ -29,12 +28,4 @@ func (st *SubTreeBuilder) GetRoot() primitivegraph.PrimitiveNode {
 
 func (st *SubTreeBuilder) GetTail() primitivegraph.PrimitiveNode {
 	return st.children[len(st.children)-1].GetTail()
-}
-
-func (st *SubTreeBuilder) SetWriteOnly(isWriteOnly bool) {
-	st.isWriteOnly = isWriteOnly
-}
-
-func (st *SubTreeBuilder) IsWriteOnly() bool {
-	return st.isWriteOnly
 }

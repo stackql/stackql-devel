@@ -85,8 +85,6 @@ type PrimitiveComposer interface {
 	SetUnionSelectPreparedStatementCtx(ctx drm.PreparedStatementCtx)
 	SetValOnlyCols(m map[int]map[string]interface{})
 	SetWhere(where *sqlparser.Where)
-	SetNop(bool)
-	IsNop() bool
 	ShouldCollectGarbage() bool
 }
 
@@ -151,20 +149,10 @@ type standardPrimitiveComposer struct {
 	paramCollection internaldto.TableParameterCollection
 
 	isIndirect bool
-
-	isNop bool
 }
 
 func (pb *standardPrimitiveComposer) GetCtrlColumnRepeats() int {
 	return pb.selectPreparedStatementCtx.GetCtrlColumnRepeats()
-}
-
-func (pb *standardPrimitiveComposer) SetNop(nop bool) {
-	pb.isNop = nop
-}
-
-func (pb *standardPrimitiveComposer) IsNop() bool {
-	return pb.isNop
 }
 
 func (pb *standardPrimitiveComposer) ContainsSQLDataSource() bool {
@@ -465,7 +453,6 @@ func (pb *standardPrimitiveComposer) GetBuilder() primitivebuilder.Builder {
 		var indirectBuilders []primitivebuilder.Builder
 		for _, ind := range pb.indirects {
 			if bldr := ind.GetBuilder(); bldr != nil {
-				bldr.SetWriteOnly(true)
 				indirectBuilders = append(indirectBuilders, bldr)
 			}
 		}

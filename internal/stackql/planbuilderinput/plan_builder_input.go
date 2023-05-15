@@ -51,8 +51,6 @@ type PlanBuilderInput interface {
 	WithParameterRouter(router.ParameterRouter) PlanBuilderInput
 	WithTableRouteVisitor(tableRouteVisitor router.TableRouteAstVisitor) PlanBuilderInput
 	SetReadOnly(bool)
-	SetNop(bool)
-	IsNop() bool
 	IsReadOnly() bool
 }
 
@@ -146,7 +144,6 @@ func (pbi *StandardPlanBuilderInput) Clone() PlanBuilderInput {
 	)
 	clonedPbi.SetPrepStmtOffset(pbi.prepStmtOffset)
 	clonedPbi.SetReadOnly(pbi.IsReadOnly())
-	clonedPbi.SetNop(pbi.IsNop())
 	return clonedPbi
 }
 
@@ -156,14 +153,6 @@ func (pbi *StandardPlanBuilderInput) SetPrepStmtOffset(offset int) {
 
 func (pbi *StandardPlanBuilderInput) SetReadOnly(readOnly bool) {
 	pbi.readOnly = readOnly
-}
-
-func (pbi *StandardPlanBuilderInput) SetNop(nop bool) {
-	pbi.readOnly = nop
-}
-
-func (pbi *StandardPlanBuilderInput) IsNop() bool {
-	return pbi.isNop
 }
 
 func (pbi *StandardPlanBuilderInput) IsReadOnly() bool {

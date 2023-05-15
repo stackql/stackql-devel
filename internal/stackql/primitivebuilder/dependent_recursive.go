@@ -1,4 +1,4 @@
-package primitivebuilder
+package primitivebuilder //nolint:dupl // TODO: fix
 
 import (
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
@@ -52,11 +52,4 @@ func (ss *DependencySubDAGBuilder) Build() error {
 		}
 	}
 	return nil
-}
-
-func (ss *DependencySubDAGBuilder) SetWriteOnly(_ bool) {
-}
-
-func (ss *DependencySubDAGBuilder) IsWriteOnly() bool {
-	return false
 }

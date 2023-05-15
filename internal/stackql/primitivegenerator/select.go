@@ -151,7 +151,6 @@ func (pb *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBui
 			bld := dp.GetBldr()
 			// if generator is elide read then do so
 			if pb.IsElideRead() {
-				bld.SetWriteOnly(true)
 			}
 			selCtx := dp.GetSelectCtx()
 			pChild.GetPrimitiveComposer().SetBuilder(bld)

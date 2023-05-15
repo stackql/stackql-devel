@@ -88,10 +88,3 @@ func (ss *NativeSelect) Build() error {
 
 	return nil
 }
-
-func (ss *NativeSelect) SetWriteOnly(_ bool) {
-}
-
-func (ss *NativeSelect) IsWriteOnly() bool {
-	return false
-}

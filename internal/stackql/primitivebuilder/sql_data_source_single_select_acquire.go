@@ -147,10 +147,3 @@ func (ss *sqlDataSourceSingleSelectAcquire) Build() error {
 
 	return nil
 }
-
-func (ss *sqlDataSourceSingleSelectAcquire) SetWriteOnly(_ bool) {
-}
-
-func (ss *sqlDataSourceSingleSelectAcquire) IsWriteOnly() bool {
-	return false
-}

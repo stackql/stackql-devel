@@ -412,10 +412,3 @@ func extractNextPageTokenFromBody(res response.Response, tokenKey sdk_internal_d
 	}
 	return ""
 }
-
-func (ss *SingleSelectAcquire) SetWriteOnly(_ bool) {
-}
-
-func (ss *SingleSelectAcquire) IsWriteOnly() bool {
-	return false
-}

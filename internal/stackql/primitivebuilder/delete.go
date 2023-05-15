@@ -157,10 +157,3 @@ func (ss *Delete) Build() error {
 
 	return nil
 }
-
-func (ss *Delete) SetWriteOnly(_ bool) {
-}
-
-func (ss *Delete) IsWriteOnly() bool {
-	return false
-}

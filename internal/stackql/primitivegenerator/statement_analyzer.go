@@ -137,7 +137,6 @@ func (pb *standardPrimitiveGenerator) analyzeUnion(
 		node.FirstStatement,
 		nil, nil, nil, nil, nil, counters)
 	sPbi.SetIsTccSetAheadOfTime(true)
-	sPbi.SetNop(true)
 	if err != nil {
 		return err
 	}
@@ -176,7 +175,6 @@ func (pb *standardPrimitiveGenerator) analyzeUnion(
 		if err != nil {
 			return err
 		}
-		sPbi.SetNop(true)
 		sPbi.SetIsTccSetAheadOfTime(true)
 		sPbi.SetPrepStmtOffset(pb.prepStmtOffset)
 		err = pChild.AnalyzeSelectStatement(sPbi)

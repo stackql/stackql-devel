@@ -281,10 +281,3 @@ func (ss *InsertOrUpdate) Build() error {
 
 	return nil
 }
-
-func (ss *InsertOrUpdate) SetWriteOnly(_ bool) {
-}
-
-func (ss *InsertOrUpdate) IsWriteOnly() bool {
-	return false
-}

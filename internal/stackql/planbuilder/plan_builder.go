@@ -334,9 +334,6 @@ func (pgb *standardPlanGraphBuilder) handleSelect(
 		if primitiveGenerator.GetPrimitiveComposer().GetBuilder() == nil {
 			return nil, nil, fmt.Errorf("builder not created for select, cannot proceed")
 		}
-		if pbi.IsNop() {
-			return nil, nil, nil
-		}
 		err = builder.Build()
 		if err != nil {
 			return nil, nil, err

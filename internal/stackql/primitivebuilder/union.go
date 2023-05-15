@@ -63,10 +63,3 @@ func (un *Union) GetRoot() primitivegraph.PrimitiveNode {
 func (un *Union) GetTail() primitivegraph.PrimitiveNode {
 	return un.tail
 }
-
-func (un *Union) SetWriteOnly(_ bool) {
-}
-
-func (un *Union) IsWriteOnly() bool {
-	return false
-}
