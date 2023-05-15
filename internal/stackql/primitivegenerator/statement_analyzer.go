@@ -110,7 +110,7 @@ func (pb *standardPrimitiveGenerator) analyzeUse(
 	return nil
 }
 
-//nolint:govet // this is a beast
+//nolint:govet,funlen // this is a beast
 func (pb *standardPrimitiveGenerator) analyzeUnion(
 	pbi planbuilderinput.PlanBuilderInput) error {
 	handlerCtx := pbi.GetHandlerCtx()
@@ -157,7 +157,7 @@ func (pb *standardPrimitiveGenerator) analyzeUnion(
 
 	ctrClone := counters.Clone()
 
-	pb.prepStmtOffset = ctx.GetCtrlColumnRepeats() * constants.ControlColumnCount
+	pb.prepStmtOffset = ctx.GetCtrlColumnRepeats()
 
 	for _, rhsStmt := range node.UnionSelects {
 		i++
@@ -187,7 +187,7 @@ func (pb *standardPrimitiveGenerator) analyzeUnion(
 		ctx.SetKind(rhsStmt.Type)
 		ctx.SetGCCtrlCtrs(ctrClone)
 		selectStatementContexts = append(selectStatementContexts, ctx)
-		pb.prepStmtOffset += ctx.GetCtrlColumnRepeats() * constants.ControlColumnCount
+		pb.prepStmtOffset += ctx.GetCtrlColumnRepeats()
 		// unionSelectCtx
 	}
 	unionSelectCtx.SetIndirectContexts(selectStatementContexts)

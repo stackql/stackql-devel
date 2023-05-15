@@ -568,7 +568,7 @@ func (eng *postgresSystem) composeSelectQuery(
 	var controlWhereComparisons []string
 	i := parameterOffset
 	for _, alias := range tableAliases {
-		j := i // * constants.ControlColumnCount
+		j := i * constants.ControlColumnCount
 		if alias != "" {
 			gIDcn := fmt.Sprintf(`"%s"."%s"`, alias, genIDColName)
 			sIDcn := fmt.Sprintf(`"%s"."%s"`, alias, sessionIDColName)
