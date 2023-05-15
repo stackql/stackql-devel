@@ -71,7 +71,6 @@ type StandardPlanBuilderInput struct {
 	tccSetAheadOfTime      bool
 	messages               []string
 	readOnly               bool
-	isNop                  bool // for lazy eval on views and unions etc
 	prepStmtOffset         int
 }
 
