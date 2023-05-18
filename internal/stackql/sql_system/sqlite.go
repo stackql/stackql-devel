@@ -856,9 +856,9 @@ func (eng *sqLiteSystem) generateSelectDML(
 				colEntry.WriteString(fmt.Sprintf(` AS "%s"`, col.GetAlias()))
 			}
 		} else {
-			colEntry.WriteString(fmt.Sprintf("%s ", col.GetDecorated()))
+			colEntry.WriteString(fmt.Sprintf("%s", col.GetDecorated()))
 		}
-		quotedColNames = append(quotedColNames, fmt.Sprintf("%s ", colEntry.String()))
+		quotedColNames = append(quotedColNames, fmt.Sprintf("%s", colEntry.String()))
 	}
 	genIDColName := eng.controlAttributes.GetControlGenIDColumnName()
 	sessionIDColName := eng.controlAttributes.GetControlSsnIDColumnName()

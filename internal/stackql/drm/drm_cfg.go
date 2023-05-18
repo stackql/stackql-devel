@@ -591,7 +591,7 @@ func (dc *staticDRMConfig) GenerateSelectDML(
 		relationalTable.PushBackColumn(relationalColumn)
 		quotedColNames = append( //nolint:staticcheck // TODO: fix
 			quotedColNames,
-			fmt.Sprintf("%s ", relationalColumn.CanonicalSelectionString()),
+			fmt.Sprintf("%s", relationalColumn.CanonicalSelectionString()),
 		)
 	}
 	queryString, err := dc.sqlSystem.GenerateSelectDML(relationalTable, txnCtrlCtrs, selectSuffix, rewrittenWhere)

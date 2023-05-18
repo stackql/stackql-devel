@@ -638,7 +638,7 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 				indirectType := indirect.GetType()
 				templateString := ` ( %s ) `
 				if indirectType == astindirect.ViewType {
-					templateString = fmt.Sprintf(` ( %%s ) AS "%s" `, alias)
+					templateString = fmt.Sprintf(` ( %%s ) AS "%s"`, alias)
 				}
 				v.rewrittenQuery = templateString
 				v.indirectContexts = append(v.indirectContexts, indirect.GetSelectContext())

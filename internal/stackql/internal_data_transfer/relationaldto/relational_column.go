@@ -53,13 +53,13 @@ func (rc *standardRelationalColumn) CanonicalSelectionString() string {
 		// if !strings.ContainsAny(rc.decorated, " '`\t\n\"().") {
 		// 	return fmt.Sprintf(`"%s" `, rc.decorated)
 		// }
-		return fmt.Sprintf("%s ", rc.decorated)
+		return fmt.Sprintf("%s", rc.decorated)
 	}
 	var colStringBuilder strings.Builder
 	if rc.qualifier != "" {
-		colStringBuilder.WriteString(fmt.Sprintf(`"%s"."%s" `, rc.qualifier, rc.colName))
+		colStringBuilder.WriteString(fmt.Sprintf(`"%s"."%s"`, rc.qualifier, rc.colName))
 	} else {
-		colStringBuilder.WriteString(fmt.Sprintf(`"%s" `, rc.colName))
+		colStringBuilder.WriteString(fmt.Sprintf(`"%s"`, rc.colName))
 	}
 	if rc.alias != "" {
 		colStringBuilder.WriteString(fmt.Sprintf(` AS "%s"`, rc.alias))
@@ -81,18 +81,18 @@ func (rc *standardRelationalColumn) DelimitedSelectionString(delim string) strin
 		// 	return fmt.Sprintf(`"%s" `, rc.decorated)
 		// }
 		if rc.decorated == rc.colName {
-			return fmt.Sprintf("%s%s%s ", delim, rc.colName, delim)
+			return fmt.Sprintf("%s%s%s", delim, rc.colName, delim)
 		}
 		if rc.decorated == rc.qualifier+"."+rc.colName {
-			return fmt.Sprintf("%s%s%s.%s%s%s ", delim, rc.qualifier, delim, delim, rc.colName, delim)
+			return fmt.Sprintf("%s%s%s.%s%s%s", delim, rc.qualifier, delim, delim, rc.colName, delim)
 		}
-		return fmt.Sprintf("%s ", rc.decorated)
+		return fmt.Sprintf("%s", rc.decorated)
 	}
 	var colStringBuilder strings.Builder
 	if rc.qualifier != "" {
-		colStringBuilder.WriteString(fmt.Sprintf(`%s%s%s.%s%s%s `, delim, rc.qualifier, delim, delim, rc.colName, delim))
+		colStringBuilder.WriteString(fmt.Sprintf(`%s%s%s.%s%s%s`, delim, rc.qualifier, delim, delim, rc.colName, delim))
 	} else {
-		colStringBuilder.WriteString(fmt.Sprintf(`%s%s%s `, delim, rc.colName, delim))
+		colStringBuilder.WriteString(fmt.Sprintf(`%s%s%s`, delim, rc.colName, delim))
 	}
 
 	if rc.alias != "" {
