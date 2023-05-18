@@ -54,7 +54,7 @@ components:
                   json_extract_path_text(Properties, ''$RegionalDomainName'') as RegionalDomainName,
                   json_extract_path_text(Properties, ''$DualStackDomainName'') as DualStackDomainName,
                   json_extract_path_text(Properties, ''$WebsiteURL'') as WebsiteURL,
-                  json_extract_path_text(Properties, ''$OwnershipControls'', ''Rules'', 0, ''ObjectOwnership'') as ObjectOwnership,
+                  json_extract_path_text(Properties, ''$OwnershipControls'', ''Rules'', ''0'', ''ObjectOwnership'') as ObjectOwnership,
                   CASE WHEN json_extract_path_text(Properties, ''PublicAccessBlockConfiguration'', ''RestrictPublicBuckets'') = 0 THEN ''false'' ELSE ''true'' END as RestrictPublicBuckets,
                   CASE WHEN json_extract_path_text(Properties, ''PublicAccessBlockConfiguration'', ''BlockPublicPolicy'') = 0 THEN ''false'' ELSE ''true'' END as BlockPublicPolicy,
                   CASE WHEN json_extract_path_text(Properties, ''PublicAccessBlockConfiguration'', ''BlockPublicAcls'') = 0 THEN ''false'' ELSE ''true'' END as BlockPublicAcls,
