@@ -29,29 +29,15 @@ func PostgresSelectExprsFormatter(buf *sqlparser.TrackedBuffer, node sqlparser.S
 	case *sqlparser.FuncExpr:
 		if strings.ToLower(node.Name.GetRawVal()) == constants.SQLFuncJSONExtractPostgres && len(node.Exprs) > 1 {
 			sb := sqlparser.NewTrackedBuffer(PostgresSelectExprsFormatter)
-			rawLHS := sqlparser.String(node.Exprs[0])
 			lhsSuffix := "::json"
-			containsLHSSuffix := strings.Contains(rawLHS, lhsSuffix)
-			if !containsLHSSuffix {
-				sb.AstPrintf(node, "%s(%v%s, %v", constants.SQLFuncJSONExtractPostgres, node.Exprs[0], lhsSuffix, node.Exprs[1])
-			} else {
-				sb.AstPrintf(node, "%s(%s%s, %v", constants.SQLFuncJSONExtractPostgres, rawLHS, lhsSuffix, node.Exprs[1])
-			}
+			sb.AstPrintf(node, "%s(%v%s, %v", constants.SQLFuncJSONExtractPostgres, node.Exprs[0], lhsSuffix, node.Exprs[1])
 			for _, val := range node.Exprs[2:] {
 				sb.AstPrintf(node, ", %v", val)
 			}
 			sb.AstPrintf(node, ")")
 			buf.WriteString(sb.String())
 			return
-			// node.Format(buf)
-			// return
 		}
-		// if strings.ToLower(node.Name.GetRawVal()) == constants.SQLFuncGroupConcatConformed {
-		// 	sb := sqlparser.NewTrackedBuffer(PostgresSelectExprsFormatter)
-		// 	sb.AstPrintf(node, "%s(%v, %s)", constants.SQLFuncGroupConcatPostgres, node.Exprs[0], "','")
-		// 	buf.WriteString(sb.String())
-		// 	return
-		// }
 		node.Format(buf)
 		return
 	case *sqlparser.GroupConcatExpr:
