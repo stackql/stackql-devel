@@ -1,4 +1,4 @@
-package internaldto
+package typing
 
 import (
 	"reflect"
@@ -26,7 +26,7 @@ func (dc *standardORMCoupling) GetGolangKind() reflect.Kind {
 	return dc.golangKind
 }
 
-func NewDRMCoupling(relationalType string, golangKind reflect.Kind) ORMCoupling {
+func NewORMCoupling(relationalType string, golangKind reflect.Kind) ORMCoupling {
 	return &standardORMCoupling{
 		relationalType: relationalType,
 		golangKind:     golangKind,

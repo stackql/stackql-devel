@@ -6,6 +6,7 @@ import (
 	"github.com/lib/pq/oid"
 	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
+	"github.com/stackql/stackql/internal/stackql/typing"
 )
 
 var (
@@ -13,7 +14,7 @@ var (
 )
 
 type standardColumnMetadata struct {
-	coupling ORMCoupling
+	coupling typing.ORMCoupling
 	column   openapistackql.ColumnDescriptor
 }
 
@@ -72,7 +73,7 @@ func (cd *standardColumnMetadata) GetRelationalType() string {
 
 func NewColDescriptor(col openapistackql.ColumnDescriptor, relTypeStr string) ColumnMetadata {
 	return &standardColumnMetadata{
-		coupling: NewDRMCoupling(relTypeStr, reflect.String),
+		coupling: typing.NewORMCoupling(relTypeStr, reflect.String),
 		column:   col,
 	}
 }

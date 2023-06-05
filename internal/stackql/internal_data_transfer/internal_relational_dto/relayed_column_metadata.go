@@ -7,6 +7,7 @@ import (
 	"github.com/lib/pq/oid"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/relationaldto"
+	"github.com/stackql/stackql/internal/stackql/typing"
 )
 
 var (
@@ -14,7 +15,7 @@ var (
 )
 
 type relayedColumnMetadata struct {
-	coupling internaldto.ORMCoupling
+	coupling typing.ORMCoupling
 	column   relationaldto.RelationalColumn
 }
 
@@ -67,7 +68,7 @@ func (cd *relayedColumnMetadata) getOidForRelationalType(relType string) oid.Oid
 
 func NewRelayedColDescriptor(col relationaldto.RelationalColumn, relTypeStr string) internaldto.ColumnMetadata {
 	return &relayedColumnMetadata{
-		coupling: internaldto.NewDRMCoupling(relTypeStr, reflect.String),
+		coupling: typing.NewORMCoupling(relTypeStr, reflect.String),
 		column:   col,
 	}
 }
