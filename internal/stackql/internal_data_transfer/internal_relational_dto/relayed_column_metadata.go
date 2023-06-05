@@ -14,7 +14,7 @@ var (
 )
 
 type relayedColumnMetadata struct {
-	coupling internaldto.DRMCoupling
+	coupling internaldto.ORMCoupling
 	column   relationaldto.RelationalColumn
 }
 

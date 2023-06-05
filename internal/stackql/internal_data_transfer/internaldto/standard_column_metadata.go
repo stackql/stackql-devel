@@ -13,7 +13,7 @@ var (
 )
 
 type standardColumnMetadata struct {
-	coupling DRMCoupling
+	coupling ORMCoupling
 	column   openapistackql.ColumnDescriptor
 }
 

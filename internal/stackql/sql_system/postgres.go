@@ -40,7 +40,7 @@ func newPostgresSystem(
 	rv := &postgresSystem{
 		defaultGolangKind:     reflect.String,
 		defaultRelationalType: "text",
-		typeMappings: map[string]internaldto.DRMCoupling{
+		typeMappings: map[string]internaldto.ORMCoupling{
 			"array":   internaldto.NewDRMCoupling("text", reflect.Slice),
 			"boolean": internaldto.NewDRMCoupling("boolean", reflect.Bool),
 			"int":     internaldto.NewDRMCoupling("bigint", reflect.Int64),
@@ -88,7 +88,7 @@ type postgresSystem struct {
 	analyticsNamespaceLikeString string
 	sqlEngine                    sqlengine.SQLEngine
 	formatter                    sqlparser.NodeFormatter
-	typeMappings                 map[string]internaldto.DRMCoupling
+	typeMappings                 map[string]internaldto.ORMCoupling
 	defaultRelationalType        string
 	defaultGolangKind            reflect.Kind
 	tableSchema                  string
