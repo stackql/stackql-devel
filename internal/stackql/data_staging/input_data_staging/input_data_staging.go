@@ -3,7 +3,6 @@ package input_data_staging //nolint:revive,stylecheck // package name is helpful
 import (
 	"database/sql"
 	"fmt"
-	"strings"
 
 	"github.com/lib/pq/oid"
 	"github.com/stackql/psql-wire/pkg/sqldata"
@@ -81,7 +80,7 @@ func (np *naiveNativeResultSetPreparator) PrepareNativeResultSet() internaldto.E
 		if !hasNext {
 			break
 		}
-		rowPtr := getRowPointers(colTypes)
+		rowPtr := np.getRowPointers(colTypes)
 		err = rows.Scan(rowPtr...)
 		if err != nil {
 			return np.nativeProtect(internaldto.NewErroneousExecutorOutput(err), []string{"error"})
@@ -120,30 +119,13 @@ func (np *naiveNativeResultSetPreparator) PrepareNativeResultSet() internaldto.E
 	return rv
 }
 
-func getRowPointers(colTypes []*sql.ColumnType) []any {
+func (np *naiveNativeResultSetPreparator) getRowPointers(colTypes []*sql.ColumnType) []any {
 	var rowPtr []any
 
 	for _, col := range colTypes {
-		rowPtr = append(rowPtr, getScannableObjectForNativeResult(col))
+		rowPtr = append(rowPtr, np.typCfg.GetScannableObjectForNativeResult(col))
 	}
 	return rowPtr
-}
-
-func getScannableObjectForNativeResult(colSchema *sql.ColumnType) any {
-	switch strings.ToLower(colSchema.DatabaseTypeName()) {
-	case "int", "int32", "smallint", "tinyint":
-		return new(sql.NullInt32)
-	case "uint", "uint32":
-		return new(sql.NullInt64)
-	case "int64", "bigint":
-		return new(sql.NullInt64)
-	case "numeric", "decimal", "float", "float32", "float64":
-		return new(sql.NullFloat64)
-	case "bool":
-		return new(sql.NullBool)
-	default:
-		return new(sql.NullString)
-	}
 }
 
 func (np *naiveNativeResultSetPreparator) getColumnArr(colTypes []*sql.ColumnType) []sqldata.ISQLColumn {

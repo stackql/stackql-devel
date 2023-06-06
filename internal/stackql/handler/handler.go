@@ -430,7 +430,9 @@ func GetHandlerCtx(
 		txnCoordinatorCtx:   inputBundle.GetTxnCoordinatorContext(),
 		typCfg:              inputBundle.GetTypingConfig(),
 	}
-	drmCfg, err := drm.GetDRMConfig(inputBundle.GetSQLSystem(), rv.namespaceCollection, controlAttributes)
+	drmCfg, err := drm.GetDRMConfig(inputBundle.GetSQLSystem(),
+		inputBundle.GetTypingConfig(),
+		rv.namespaceCollection, controlAttributes)
 	if err != nil {
 		return nil, err
 	}

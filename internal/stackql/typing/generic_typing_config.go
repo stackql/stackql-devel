@@ -212,3 +212,47 @@ func getOidForSQLType(colType *sql.ColumnType) oid.Oid {
 	}
 	return getOidForSQLDatabaseTypeName(colType.DatabaseTypeName())
 }
+
+func (tc *genericTypingConfig) ExtractFromGolangValue(val interface{}) interface{} {
+	return tc.extractFromGolangValue(val)
+}
+
+func (tc *genericTypingConfig) extractFromGolangValue(val interface{}) interface{} {
+	if val == nil {
+		return nil
+	}
+	var retVal interface{}
+	//nolint:gocritic // TODO: fix
+	switch v := val.(type) {
+	case *sql.NullString:
+		retVal, _ = (*v).Value()
+	case *sql.NullBool:
+		retVal, _ = (*v).Value()
+	case *sql.NullInt64:
+		retVal, _ = (*v).Value()
+	case *sql.NullFloat64:
+		retVal, _ = (*v).Value()
+	}
+	return retVal
+}
+
+func (tc *genericTypingConfig) GetScannableObjectForNativeResult(colSchema *sql.ColumnType) any {
+	return tc.getScannableObjectForNativeResult(colSchema)
+}
+
+func (tc *genericTypingConfig) getScannableObjectForNativeResult(colSchema *sql.ColumnType) any {
+	switch strings.ToLower(colSchema.DatabaseTypeName()) {
+	case "int", "int32", "smallint", "tinyint":
+		return new(sql.NullInt32)
+	case "uint", "uint32":
+		return new(sql.NullInt64)
+	case "int64", "bigint":
+		return new(sql.NullInt64)
+	case "numeric", "decimal", "float", "float32", "float64":
+		return new(sql.NullFloat64)
+	case "bool":
+		return new(sql.NullBool)
+	default:
+		return new(sql.NullString)
+	}
+}

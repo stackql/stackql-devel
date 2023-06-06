@@ -19,6 +19,8 @@ type Config interface {
 		table sqldata.ISQLTable,
 		colName string, colSchema *sql.ColumnType) sqldata.ISQLColumn
 	GetDefaultOID() oid.Oid
+	ExtractFromGolangValue(val interface{}) interface{}
+	GetScannableObjectForNativeResult(colSchema *sql.ColumnType) any
 }
 
 func NewTypingConfig(sqlDialect string) (Config, error) {

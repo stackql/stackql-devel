@@ -75,6 +75,7 @@ type staticDRMConfig struct {
 	controlAttributes   sqlcontrol.ControlAttributes
 	sqlEngine           sqlengine.SQLEngine
 	sqlSystem           sql_system.SQLSystem
+	typCfg              typing.Config
 }
 
 func (dc *staticDRMConfig) GetSQLSystem() sql_system.SQLSystem {
@@ -283,26 +284,7 @@ func (dc *staticDRMConfig) GetGolangValue(discoType string) interface{} {
 }
 
 func (dc *staticDRMConfig) ExtractFromGolangValue(val interface{}) interface{} {
-	return dc.extractFromGolangValue(val)
-}
-
-func (dc *staticDRMConfig) extractFromGolangValue(val interface{}) interface{} {
-	if val == nil {
-		return nil
-	}
-	var retVal interface{}
-	//nolint:gocritic // TODO: fix
-	switch v := val.(type) {
-	case *sql.NullString:
-		retVal, _ = (*v).Value()
-	case *sql.NullBool:
-		retVal, _ = (*v).Value()
-	case *sql.NullInt64:
-		retVal, _ = (*v).Value()
-	case *sql.NullFloat64:
-		retVal, _ = (*v).Value()
-	}
-	return retVal
+	return dc.typCfg.ExtractFromGolangValue(val)
 }
 
 func (dc *staticDRMConfig) GetGolangKind(discoType string) reflect.Kind {
@@ -738,6 +720,7 @@ func (dc *staticDRMConfig) QueryDML(
 
 func GetDRMConfig(
 	sqlSystem sql_system.SQLSystem,
+	typCfg typing.Config,
 	namespaceCollection tablenamespace.Collection,
 	controlAttributes sqlcontrol.ControlAttributes,
 ) (Config, error) {
@@ -746,6 +729,7 @@ func GetDRMConfig(
 		controlAttributes:   controlAttributes,
 		sqlEngine:           sqlSystem.GetSQLEngine(),
 		sqlSystem:           sqlSystem,
+		typCfg:              typCfg,
 	}
 	return rv, nil
 }
