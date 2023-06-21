@@ -9,7 +9,9 @@ func DefaultSelectExprsFormatter(buf *sqlparser.TrackedBuffer, node sqlparser.SQ
 	case sqlparser.ColIdent:
 		formatColIdent(node, buf)
 		return
-
+	case *sqlparser.IntervalExpr:
+		sb := sqlparser.NewTrackedBuffer(PostgresSelectExprsFormatter)
+		sb.AstPrintf(node, "%s '%v %s'", "INTERVAL", node.Expr, node.Unit)
 	default:
 		node.Format(buf)
 		return

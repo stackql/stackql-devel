@@ -40,6 +40,9 @@ func PostgresSelectExprsFormatter(buf *sqlparser.TrackedBuffer, node sqlparser.S
 		}
 		node.Format(buf)
 		return
+	case *sqlparser.IntervalExpr:
+		sb := sqlparser.NewTrackedBuffer(PostgresSelectExprsFormatter)
+		sb.AstPrintf(node, "%s '%v %s'", "INTERVAL", node.Expr, node.Unit)
 	case *sqlparser.GroupConcatExpr:
 		sb := sqlparser.NewTrackedBuffer(PostgresSelectExprsFormatter)
 		sb.AstPrintf(node, "%s(%v, %s)", constants.SQLFuncGroupConcatPostgres, node.Exprs[0], `','`)

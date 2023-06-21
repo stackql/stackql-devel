@@ -21,7 +21,7 @@ If we want to implement a large result set / analytics cache, then:
         - **If** existing data is to be consumed, then the set of control predicates must be enforced.
         - **Else If** new data is added, control predicates used identically.
         - For either case, the relationship between active txn and control params must be updated atomically and the analyzer must accumulate the parameters for use during selection.
-        - Naive assumption is that perdicate sets apply only to individual insertion sets.
+        - Naive assumption is that predicate sets apply only to individual insertion sets.
     - This means that complex queries effectively possess a list of `{ Table, ControlPredicate }` pairs.  The `Table` is early-bound, the `ControlPredicate` is late-bound.
     - In a `query` (that is a simple SQL query, subquery or CTE), **all** of the tables analyzed must have control parameters persisted for the selection to later use.  This feature is not yet implemented.  The RW on control parameters must be thread safe, either using locking primitives or ordering invariants.
 
