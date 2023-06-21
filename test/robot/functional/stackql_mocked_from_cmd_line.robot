@@ -779,7 +779,7 @@ Recently Active Logic Multi Backend
     ...    ${GITHUB_SECRET_STR}
     ...    ${K8S_SECRET_STR}
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
-    ...    {"digitalocean": { "username_var": "DUMMY_DIGITALOCEAN_USERNAME", "password_var": "DUMMY_DIGITALOCEAN_PASSWORD", "type": "basic", "valuePrefix": "TOTALLY_CONTRIVED "}}
+    ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${inputStr}
     ...    ${outputStr}
