@@ -125,7 +125,7 @@ func (ri *StandardSQLRewriteInput) GetTables() taxonomy.TblMap {
 	return ri.tables
 }
 
-func GenerateSelectDML(input SQLRewriteInput) (drm.PreparedStatementCtx, error) {
+func GenerateRewrittenSelectDML(input SQLRewriteInput) (drm.PreparedStatementCtx, error) {
 	dc := input.GetDRMConfig()
 	cols := input.GetColumnDescriptors()
 	var txnCtrlCtrs internaldto.TxnControlCounters
@@ -157,6 +157,9 @@ func GenerateSelectDML(input SQLRewriteInput) (drm.PreparedStatementCtx, error) 
 		secondaryCtrlCounters = input.GetSecondaryCtrlCounters()
 	}
 	i := 0
+	// TODO: Only add control stuff to where clause if not
+	//       already in
+	//       an ON clause
 	for _, tb := range inputContainers {
 		if i > 0 {
 			_, secondaryCtr := tb.GetTableTxnCounters()
@@ -168,6 +171,7 @@ func GenerateSelectDML(input SQLRewriteInput) (drm.PreparedStatementCtx, error) 
 		i++
 	}
 
+	// TODO add in some handle for ON clause predicates
 	query, err := dc.GetSQLSystem().ComposeSelectQuery(
 		relationalColumns, tableAliases, input.GetFromString(),
 		rewrittenWhere, selectSuffix, input.GetPrepStmtOffset())

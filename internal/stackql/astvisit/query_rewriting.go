@@ -163,7 +163,7 @@ func (v *standardQueryRewriteAstVisitor) GenerateSelectDML() (drm.PreparedStatem
 		v.tableSlice,
 		v.namespaceCollection,
 	).WithIndirectContexts(v.indirectContexts).WithPrepStmtOffset(v.prepStmtOffset)
-	return sqlrewrite.GenerateSelectDML(rewriteInput)
+	return sqlrewrite.GenerateRewrittenSelectDML(rewriteInput)
 }
 
 // Need not be view-aware.
@@ -720,6 +720,19 @@ func (v *standardQueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		err = node.RightExpr.Accept(v)
 		if err != nil {
 			return err
+		}
+		switch node.Join {
+		case sqlparser.LeftJoinStr:
+		case sqlparser.RightJoinStr:
+		case sqlparser.StraightJoinStr:
+		case sqlparser.JoinStr:
+		case sqlparser.NaturalJoinStr:
+		case sqlparser.NaturalLeftJoinStr:
+		case sqlparser.NaturalRightJoinStr:
+		case sqlparser.LeftOuterJoinStr:
+			// TODO: accumulate RHS (nullable) conditions in ON clause
+		case sqlparser.RightOuterJoinStr:
+			// TODO: accumulate LHS (nullable) conditions in ON clause
 		}
 
 	case *sqlparser.IndexHints:

@@ -537,5 +537,5 @@ func (dp *standardDependencyPlanner) generateSelectDML(
 		nil,
 		dp.handlerCtx.GetNamespaceCollection(),
 	)
-	return sqlrewrite.GenerateSelectDML(rewriteInput)
+	return sqlrewrite.GenerateRewrittenSelectDML(rewriteInput)
 }
