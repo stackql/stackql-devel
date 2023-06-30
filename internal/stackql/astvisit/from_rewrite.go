@@ -746,12 +746,10 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		v.hoistedOnClauseTables = append(v.hoistedOnClauseTables, lhsHoistedIntoOn...)
 		v.hoistedOnClauseTables = append(v.hoistedOnClauseTables, rhsHoistedIntoOn...)
 		if len(v.hoistedOnClauseTables) > 0 {
-			buf.AstPrintf(node, "%s %s %s ON ( %%s ) AND %s", lVis.GetRewrittenQuery(), node.Join, rVis.GetRewrittenQuery(), conditionVis.GetRewrittenQuery())
+			v.rewrittenQuery = fmt.Sprintf("%s %s %s ON ( %%s ) AND %s", lVis.GetRewrittenQuery(), node.Join, rVis.GetRewrittenQuery(), conditionVis.GetRewrittenQuery())
 		} else {
-			buf.AstPrintf(node, "%s %s %s ON %s", lVis.GetRewrittenQuery(), node.Join, rVis.GetRewrittenQuery(), conditionVis.GetRewrittenQuery())
+			v.rewrittenQuery = fmt.Sprintf("%s %s %s ON %s", lVis.GetRewrittenQuery(), node.Join, rVis.GetRewrittenQuery(), conditionVis.GetRewrittenQuery())
 		}
-		bs := buf.String()
-		v.rewrittenQuery = bs
 
 	case *sqlparser.IndexHints:
 		buf.AstPrintf(node, " %sindex ", node.Type)
