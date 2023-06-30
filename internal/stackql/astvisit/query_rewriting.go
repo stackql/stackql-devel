@@ -59,7 +59,8 @@ type standardQueryRewriteAstVisitor struct {
 	//
 	indirectContexts []drm.PreparedStatementCtx
 	//
-	prepStmtOffset int
+	prepStmtOffset        int
+	hoistedOnClauseTables []sqlparser.SQLNode
 }
 
 func NewQueryRewriteAstVisitor(
@@ -162,6 +163,7 @@ func (v *standardQueryRewriteAstVisitor) GenerateSelectDML() (drm.PreparedStatem
 		v.fromStr,
 		v.tableSlice,
 		v.namespaceCollection,
+		v.hoistedOnClauseTables,
 	).WithIndirectContexts(v.indirectContexts).WithPrepStmtOffset(v.prepStmtOffset)
 	return sqlrewrite.GenerateRewrittenSelectDML(rewriteInput)
 }
@@ -231,6 +233,7 @@ func (v *standardQueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			if node.From != nil {
 				node.From.Accept(fromVis)
 				v.fromStr = fromVis.GetRewrittenQuery()
+				v.hoistedOnClauseTables = append(v.hoistedOnClauseTables, fromVis.GetHoistedOnClauseTables()...)
 			}
 			v.indirectContexts = fromVis.GetIndirectContexts()
 		}

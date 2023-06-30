@@ -523,13 +523,35 @@ func (v *standardTableRouteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		if err != nil {
 			return err
 		}
-		// TODO: if this is an OUTER JOIN
+		//       If this is an OUTER JOIN
 		//       then add some data to the annotation
 		//       so that later passes can rewrite
 		//       the ON clause with control
 		//       attributes
 		//       and also so that
 		//       these are omitted from the WHERE clause.
+		switch node.Join {
+		case sqlparser.LeftJoinStr:
+		case sqlparser.RightJoinStr:
+		case sqlparser.StraightJoinStr:
+		case sqlparser.JoinStr:
+		case sqlparser.LeftOuterJoinStr:
+			rhs := v.tables[node.RightExpr]
+			if rhs == nil {
+				return fmt.Errorf("table routing: nil RHS table in left outer join")
+			}
+			rhs.SetIsOnClauseHoistable(true)
+		case sqlparser.RightOuterJoinStr:
+			lhs := v.tables[node.LeftExpr]
+			if lhs == nil {
+				return fmt.Errorf("table routing: nil LHS table in right outer join")
+			}
+			lhs.SetIsOnClauseHoistable(true)
+		case sqlparser.NaturalLeftJoinStr:
+		case sqlparser.NaturalRightJoinStr:
+		default:
+			return fmt.Errorf("table routing: unknown join type: %v", node.Join)
+		}
 
 	case *sqlparser.IndexHints:
 		if len(node.Indexes) == 0 {

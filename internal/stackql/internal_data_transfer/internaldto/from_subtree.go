@@ -1,19 +1,27 @@
 package internaldto
 
-var (
-	_ FromSubtree = &fromSubtree{}
+import (
+	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 )
+
+var (
+	_ FromSubtree = &simpleFromSubtree{}
+)
+
+type tblLookasideMap struct {
+	hoistedTables []sqlparser.SQLNode
+}
 
 type FromSubtree interface {
 }
 
-type fromSubtree struct {
+type simpleFromSubtree struct {
 }
 
 func NewFromSubtree() (FromSubtree, error) {
-	return &fromSubtree{}, nil
+	return &simpleFromSubtree{}, nil
 }
 
-func (f *fromSubtree) Render() string {
+func (f *simpleFromSubtree) Render() string {
 	return ""
 }
