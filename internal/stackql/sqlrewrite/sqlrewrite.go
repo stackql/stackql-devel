@@ -136,6 +136,7 @@ func (ri *StandardSQLRewriteInput) GetTables() taxonomy.TblMap {
 	return ri.tables
 }
 
+//nolint:funlen,gocognit //TODO: review
 func GenerateRewrittenSelectDML(input SQLRewriteInput) (drm.PreparedStatementCtx, error) {
 	dc := input.GetDRMConfig()
 	cols := input.GetColumnDescriptors()
