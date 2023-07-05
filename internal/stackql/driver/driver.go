@@ -48,11 +48,15 @@ func (sdf *basicStackQLDriverFactory) newSQLDriver() (StackQLDriver, error) {
 	if txnProviderErr != nil {
 		return nil, txnProviderErr
 	}
+	txnOrchestrator, orcErr := txnProvider.GetOrchestrator(sdf.handlerCtx)
+	if orcErr != nil {
+		return nil, txnProviderErr
+	}
 	clonedCtx := sdf.handlerCtx.Clone()
 	clonedCtx.SetTxnCounterMgr(txCtr)
 	rv := &basicStackQLDriver{
-		handlerCtx:  clonedCtx,
-		txnProvider: txnProvider,
+		handlerCtx:      clonedCtx,
+		txnOrchestrator: txnOrchestrator,
 	}
 	return rv, nil
 }
@@ -112,8 +116,8 @@ func (dr *basicStackQLDriver) ProcessQuery(query string) {
 }
 
 type basicStackQLDriver struct {
-	handlerCtx  handler.HandlerContext
-	txnProvider transact.Provider
+	handlerCtx      handler.HandlerContext
+	txnOrchestrator transact.Orchestrator
 }
 
 func (dr *basicStackQLDriver) CloneSQLBackend() sqlbackend.ISQLBackend {
@@ -165,14 +169,18 @@ func NewStackQLDriver(handlerCtx handler.HandlerContext) (StackQLDriver, error) 
 	if txnProviderErr != nil {
 		return nil, txnProviderErr
 	}
+	txnOrchestrator, orcErr := txnProvider.GetOrchestrator(handlerCtx)
+	if orcErr != nil {
+		return nil, txnProviderErr
+	}
 	return &basicStackQLDriver{
-		handlerCtx:  handlerCtx,
-		txnProvider: txnProvider,
+		handlerCtx:      handlerCtx,
+		txnOrchestrator: txnOrchestrator,
 	}, nil
 }
 
 func (dr *basicStackQLDriver) processQueryOrQueries(
 	handlerCtx handler.HandlerContext,
 ) ([]internaldto.ExecutorOutput, bool) {
-	return dr.txnProvider.ProcessQueryOrQueries(handlerCtx)
+	return dr.txnOrchestrator.ProcessQueryOrQueries(handlerCtx)
 }
