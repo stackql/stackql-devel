@@ -50,7 +50,7 @@ func (sdf *basicStackQLDriverFactory) newSQLDriver() (StackQLDriver, error) {
 	}
 	txnOrchestrator, orcErr := txnProvider.GetOrchestrator(sdf.handlerCtx)
 	if orcErr != nil {
-		return nil, txnProviderErr
+		return nil, orcErr
 	}
 	clonedCtx := sdf.handlerCtx.Clone()
 	clonedCtx.SetTxnCounterMgr(txCtr)
@@ -171,7 +171,7 @@ func NewStackQLDriver(handlerCtx handler.HandlerContext) (StackQLDriver, error) 
 	}
 	txnOrchestrator, orcErr := txnProvider.GetOrchestrator(handlerCtx)
 	if orcErr != nil {
-		return nil, txnProviderErr
+		return nil, orcErr
 	}
 	return &basicStackQLDriver{
 		handlerCtx:      handlerCtx,
