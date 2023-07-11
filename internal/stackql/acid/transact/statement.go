@@ -18,6 +18,7 @@ type Statement interface {
 	IsReadOnly() bool
 	IsBegin() bool
 	IsCommit() bool
+	IsExecuted() bool
 	IsRollback() bool
 }
 
@@ -26,6 +27,7 @@ type basicStatement struct {
 	handlerCtx         handler.HandlerContext
 	querySubmitter     querysubmit.QuerySubmitter
 	transactionContext txn_context.ITransactionContext
+	isExecuted         bool
 }
 
 func NewStatement(
@@ -100,7 +102,12 @@ func (st *basicStatement) Prepare() error {
 }
 
 func (st *basicStatement) Execute() internaldto.ExecutorOutput {
+	st.isExecuted = true
 	return st.querySubmitter.SubmitQuery()
+}
+
+func (st *basicStatement) IsExecuted() bool {
+	return st.isExecuted
 }
 
 func (st *basicStatement) GetAST() (sqlparser.Statement, bool) {

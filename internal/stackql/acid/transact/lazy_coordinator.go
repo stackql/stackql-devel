@@ -20,6 +20,7 @@ type basicLazyTransactionCoordinator struct {
 	redoLogs          []binlog.LogEntry
 	maxTxnDepth       int
 	outputs           []internaldto.ExecutorOutput
+	isExecuted        bool
 }
 
 func newBasicLazyTransactionCoordinator(parent Coordinator, maxTxnDepth int) Coordinator {
@@ -101,7 +102,14 @@ func (m *basicLazyTransactionCoordinator) Execute() internaldto.ExecutorOutput {
 	)
 }
 
+func (m *basicLazyTransactionCoordinator) IsExecuted() bool {
+	return m.outputs != nil
+}
+
 func (m *basicLazyTransactionCoordinator) votingPhase() ([]internaldto.ExecutorOutput, error) {
+	defer func() {
+		m.isExecuted = true
+	}()
 	var rv []internaldto.ExecutorOutput
 	for _, stmt := range m.statementSequence {
 		coDomain := stmt.Execute()

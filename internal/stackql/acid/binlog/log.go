@@ -12,6 +12,7 @@ type LogEntry interface {
 	Clone() LogEntry
 	GetHumanReadable() []string
 	GetRaw() []byte
+	Size() int
 }
 
 type simpleLogEntry struct {
@@ -27,6 +28,10 @@ func NewSimpleLogEntry(
 		raw:           raw,
 		humanReadable: humanReadable,
 	}
+}
+
+func (l *simpleLogEntry) Size() int {
+	return len(l.raw)
 }
 
 func (l *simpleLogEntry) Clone() LogEntry {
