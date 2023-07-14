@@ -47,8 +47,12 @@ func (m *basicLazyTransactionCoordinator) GetParent() (Coordinator, bool) {
 	return m.parent, m.parent != nil
 }
 
-func (m *basicLazyTransactionCoordinator) SetRedoLog(log binlog.LogEntry) {
-	m.redoLogs = []binlog.LogEntry{log}
+func (m *basicLazyTransactionCoordinator) AppendRedoLog(log binlog.LogEntry) {
+	m.redoLogs = append(m.redoLogs, log)
+}
+
+func (m *basicLazyTransactionCoordinator) AppendUndoLog(log binlog.LogEntry) {
+	m.undoLogs = append(m.undoLogs, log)
 }
 
 func (m *basicLazyTransactionCoordinator) IsBegin() bool {
@@ -68,11 +72,25 @@ func (m *basicLazyTransactionCoordinator) SetUndoLog(log binlog.LogEntry) {
 }
 
 func (m *basicLazyTransactionCoordinator) GetRedoLog() (binlog.LogEntry, bool) {
-	return nil, false
+	rv := binlog.NewSimpleLogEntry(nil, nil)
+	if len(m.redoLogs) == 0 {
+		return nil, false
+	}
+	for _, log := range m.redoLogs {
+		rv = rv.Concatenate(log)
+	}
+	return rv, true
 }
 
 func (m *basicLazyTransactionCoordinator) GetUndoLog() (binlog.LogEntry, bool) {
-	return nil, false
+	rv := binlog.NewSimpleLogEntry(nil, nil)
+	if len(m.undoLogs) == 0 {
+		return nil, false
+	}
+	for _, log := range m.undoLogs {
+		rv = rv.Concatenate(log)
+	}
+	return rv, true
 }
 
 func (m *basicLazyTransactionCoordinator) Prepare() error {

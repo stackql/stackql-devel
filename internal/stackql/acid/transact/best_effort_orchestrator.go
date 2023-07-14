@@ -131,6 +131,9 @@ func (orc *bestEffortOrchestrator) processQuery(
 			stmtOutput,
 		}, true
 	}
+
+	// TODO: fix this crap
+	//       remember, we do not have all undo log data until we get pk back
 	undoLog, undoLogExists := transactStatement.GetUndoLog()
 	if !undoLogExists {
 		// TODO: bail
