@@ -44,7 +44,7 @@ func (orc *bestEffortOrchestrator) processQueryOrQueries(
 	return retVal, len(retVal) > 0
 }
 
-//nolint:gocognit,dupl // TODO: review
+//nolint:gocognit,dupl,funlen,revive,staticcheck // TODO: review
 func (orc *bestEffortOrchestrator) processQuery(
 	handlerCtx handler.HandlerContext,
 	query string,

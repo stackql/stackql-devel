@@ -21,7 +21,7 @@ import (
 )
 
 type InsertOrUpdate struct {
-	graph               primitivegraph.PrimitiveGraph
+	graphHolder         primitivegraph.PrimitiveGraphHolder
 	handlerCtx          handler.HandlerContext
 	drmCfg              drm.Config
 	root                primitivegraph.PrimitiveNode
@@ -34,7 +34,7 @@ type InsertOrUpdate struct {
 }
 
 func NewInsertOrUpdate(
-	graph primitivegraph.PrimitiveGraph,
+	graphHolder primitivegraph.PrimitiveGraphHolder,
 	handlerCtx handler.HandlerContext,
 	node sqlparser.SQLNode,
 	tbl tablemetadata.ExtendedTableMetadata,
@@ -44,7 +44,7 @@ func NewInsertOrUpdate(
 	verb string,
 ) Builder {
 	return &InsertOrUpdate{
-		graph:               graph,
+		graphHolder:         graphHolder,
 		handlerCtx:          handlerCtx,
 		drmCfg:              handlerCtx.GetDrmConfig(),
 		tbl:                 tbl,
@@ -272,11 +272,11 @@ func (ss *InsertOrUpdate) Build() error {
 		return err
 	}
 
-	graph := ss.graph
+	graphHolder := ss.graphHolder
 
 	insertPrimitive.SetInputAlias("", ss.selectPrimitiveNode.ID())
-	insertNode := graph.CreatePrimitiveNode(insertPrimitive)
-	graph.NewDependency(ss.selectPrimitiveNode, insertNode, 1.0)
+	insertNode := graphHolder.CreatePrimitiveNode(insertPrimitive)
+	graphHolder.NewDependency(ss.selectPrimitiveNode, insertNode, 1.0)
 	ss.root = ss.selectPrimitiveNode
 
 	return nil

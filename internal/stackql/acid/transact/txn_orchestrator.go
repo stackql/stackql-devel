@@ -39,7 +39,7 @@ func (orc *standardOrchestrator) processQueryOrQueries(
 	return retVal, len(retVal) > 0
 }
 
-//nolint:gocognit // TODO: review
+//nolint:gocognit,dupl // TODO: review
 func (orc *standardOrchestrator) processQuery(
 	handlerCtx handler.HandlerContext,
 	query string,

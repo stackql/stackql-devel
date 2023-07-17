@@ -42,11 +42,11 @@ type planGraphBuilder interface {
 	pgInternal(planbuilderinput.PlanBuilderInput) error
 	createInstructionFor(planbuilderinput.PlanBuilderInput) error
 	nop(planbuilderinput.PlanBuilderInput) error
-	getPlanGraph() primitivegraph.PrimitiveGraph
+	getPlanGraphHolder() primitivegraph.PrimitiveGraphHolder
 }
 
 type standardPlanGraphBuilder struct {
-	planGraph              primitivegraph.PrimitiveGraph
+	planGraphHolder        primitivegraph.PrimitiveGraphHolder
 	rootPrimitiveGenerator primitivegenerator.PrimitiveGenerator
 	transactionContext     txn_context.ITransactionContext
 }
@@ -56,13 +56,13 @@ func (pgb *standardPlanGraphBuilder) setRootPrimitiveGenerator(
 	pgb.rootPrimitiveGenerator = primitiveGenerator
 }
 
-func (pgb *standardPlanGraphBuilder) getPlanGraph() primitivegraph.PrimitiveGraph {
-	return pgb.planGraph
+func (pgb *standardPlanGraphBuilder) getPlanGraphHolder() primitivegraph.PrimitiveGraphHolder {
+	return pgb.planGraphHolder
 }
 
 func newPlanGraphBuilder(concurrencyLimit int, transactionContext txn_context.ITransactionContext) planGraphBuilder {
 	return &standardPlanGraphBuilder{
-		planGraph:          primitivegraph.NewPrimitiveGraph(concurrencyLimit),
+		planGraphHolder:    primitivegraph.NewPrimitiveGraphHolder(concurrencyLimit),
 		transactionContext: transactionContext,
 	}
 }
@@ -192,7 +192,7 @@ func (pgb *standardPlanGraphBuilder) handleAuth(pbi planbuilderinput.PlanBuilder
 			_, err = prov.Auth(authCtx, authType, true)
 			return internaldto.NewExecutorOutput(nil, nil, nil, nil, err)
 		})
-	pgb.planGraph.CreatePrimitiveNode(pr)
+	pgb.planGraphHolder.GetPrimitiveGraph().CreatePrimitiveNode(pr)
 	return nil
 }
 
@@ -221,7 +221,7 @@ func (pgb *standardPlanGraphBuilder) handleAuthRevoke(pbi planbuilderinput.PlanB
 		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 			return internaldto.NewExecutorOutput(nil, nil, nil, nil, prov.AuthRevoke(authCtx))
 		})
-	pgb.planGraph.CreatePrimitiveNode(pr)
+	pgb.planGraphHolder.CreatePrimitiveNode(pr)
 	return nil
 }
 
@@ -261,7 +261,7 @@ func (pgb *standardPlanGraphBuilder) handleDescribe(pbi planbuilderinput.PlanBui
 			func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 				return primitivebuilder.NewDescribeViewInstructionExecutor(handlerCtx, md, nonControlColummns, extended, full)
 			})
-		pgb.planGraph.CreatePrimitiveNode(pr)
+		pgb.planGraphHolder.CreatePrimitiveNode(pr)
 		return nil
 	}
 	pr := primitive.NewMetaDataPrimitive(
@@ -269,7 +269,7 @@ func (pgb *standardPlanGraphBuilder) handleDescribe(pbi planbuilderinput.PlanBui
 		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 			return primitivebuilder.NewDescribeTableInstructionExecutor(handlerCtx, md, extended, full)
 		})
-	pgb.planGraph.CreatePrimitiveNode(pr)
+	pgb.planGraphHolder.CreatePrimitiveNode(pr)
 	return nil
 }
 
@@ -280,7 +280,7 @@ func (pgb *standardPlanGraphBuilder) handleDDL(pbi planbuilderinput.PlanBuilderI
 		return fmt.Errorf("could not cast node of type '%T' to required DDL", pbi.GetStatement())
 	}
 	bldr := primitivebuilder.NewDDL(
-		pgb.planGraph,
+		pgb.planGraphHolder,
 		handlerCtx,
 		node,
 	)
@@ -328,7 +328,7 @@ func (pgb *standardPlanGraphBuilder) handleSelect(
 			if prErr != nil {
 				return nil, nil, err
 			}
-			rv := pgb.planGraph.CreatePrimitiveNode(pr)
+			rv := pgb.planGraphHolder.CreatePrimitiveNode(pr)
 			return rv, rv, nil
 		}
 		if primitiveGenerator.GetPrimitiveComposer().GetBuilder() == nil {
@@ -343,7 +343,7 @@ func (pgb *standardPlanGraphBuilder) handleSelect(
 		return root, tail, nil
 	}
 	pr := primitive.NewLocalPrimitive(nil)
-	rv := pgb.planGraph.CreatePrimitiveNode(pr)
+	rv := pgb.planGraphHolder.CreatePrimitiveNode(pr)
 	return rv, rv, nil
 }
 
@@ -394,7 +394,7 @@ func (pgb *standardPlanGraphBuilder) handleDelete(pbi planbuilderinput.PlanBuild
 			return err
 		}
 		bldr := primitivebuilder.NewDelete(
-			pgb.planGraph,
+			pgb.planGraphHolder,
 			handlerCtx,
 			node,
 			tbl,
@@ -408,7 +408,7 @@ func (pgb *standardPlanGraphBuilder) handleDelete(pbi planbuilderinput.PlanBuild
 		return nil
 	}
 	pr := primitive.NewHTTPRestPrimitive(nil, nil, nil, nil, primitive_context.NewPrimitiveContext())
-	pgb.planGraph.CreatePrimitiveNode(pr)
+	pgb.planGraphHolder.CreatePrimitiveNode(pr)
 	return nil
 }
 
@@ -501,7 +501,7 @@ func (pgb *standardPlanGraphBuilder) handleRegistry(
 			}
 		},
 	)
-	pgb.planGraph.CreatePrimitiveNode(pr)
+	pgb.planGraphHolder.CreatePrimitiveNode(pr)
 
 	return nil
 }
@@ -578,7 +578,7 @@ func (pgb *standardPlanGraphBuilder) handlePurge(pbi planbuilderinput.PlanBuilde
 			)
 		},
 	)
-	pgb.planGraph.CreatePrimitiveNode(pr)
+	pgb.planGraphHolder.CreatePrimitiveNode(pr)
 
 	return nil
 }
@@ -589,7 +589,7 @@ func (pgb *standardPlanGraphBuilder) handleNativeQuery(pbi planbuilderinput.Plan
 	if !ok {
 		return fmt.Errorf("could not cast statement of type '%T' to required Purge", pbi.GetStatement())
 	}
-	rns := primitivebuilder.NewRawNativeSelect(pgb.planGraph, handlerCtx, pbi.GetTxnCtrlCtrs(), node.QueryString)
+	rns := primitivebuilder.NewRawNativeSelect(pgb.planGraphHolder, handlerCtx, pbi.GetTxnCtrlCtrs(), node.QueryString)
 
 	err := rns.Build()
 
@@ -608,7 +608,7 @@ func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuild
 		return fmt.Errorf("could not cast statement of type '%T' to required Insert", pbi.GetStatement())
 	}
 	if !handlerCtx.GetRuntimeContext().TestWithoutAPICalls { //nolint:nestif // acceptable complexity
-		primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(node, handlerCtx, pgb.planGraph)
+		primitiveGenerator := primitivegenerator.NewRootPrimitiveGenerator(node, handlerCtx, pgb.planGraphHolder)
 		err := primitiveGenerator.AnalyzeInsert(pbi)
 		if err != nil {
 			return err
@@ -653,7 +653,7 @@ func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuild
 			if err != nil {
 				return err
 			}
-			sn := pgb.planGraph.CreatePrimitiveNode(selectPrimitive)
+			sn := pgb.planGraphHolder.CreatePrimitiveNode(selectPrimitive)
 			selectPrimitiveNode = sn
 		}
 		if selectPrimitiveNode == nil {
@@ -664,7 +664,7 @@ func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuild
 			return err
 		}
 		bldr := primitivebuilder.NewInsertOrUpdate(
-			pgb.planGraph,
+			pgb.planGraphHolder,
 			handlerCtx,
 			node,
 			tbl,
@@ -680,7 +680,7 @@ func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuild
 		return nil
 	}
 	pr := primitive.NewHTTPRestPrimitive(nil, nil, nil, nil, primitive_context.NewPrimitiveContext())
-	pgb.planGraph.CreatePrimitiveNode(pr)
+	pgb.planGraphHolder.CreatePrimitiveNode(pr)
 	return nil
 }
 
@@ -711,7 +711,7 @@ func (pgb *standardPlanGraphBuilder) handleUpdate(pbi planbuilderinput.PlanBuild
 		if err != nil {
 			return err
 		}
-		sn := pgb.planGraph.CreatePrimitiveNode(selectPrimitive)
+		sn := pgb.planGraphHolder.CreatePrimitiveNode(selectPrimitive)
 		selectPrimitiveNode = sn
 		if selectPrimitiveNode == nil {
 			return fmt.Errorf("nil selection for insert -- cannot work")
@@ -721,7 +721,7 @@ func (pgb *standardPlanGraphBuilder) handleUpdate(pbi planbuilderinput.PlanBuild
 			return err
 		}
 		bldr := primitivebuilder.NewInsertOrUpdate(
-			pgb.planGraph,
+			pgb.planGraphHolder,
 			handlerCtx,
 			node,
 			tbl,
@@ -737,7 +737,7 @@ func (pgb *standardPlanGraphBuilder) handleUpdate(pbi planbuilderinput.PlanBuild
 		return nil
 	}
 	pr := primitive.NewHTTPRestPrimitive(nil, nil, nil, nil, primitive_context.NewPrimitiveContext())
-	pgb.planGraph.CreatePrimitiveNode(pr)
+	pgb.planGraphHolder.CreatePrimitiveNode(pr)
 	return nil
 }
 
@@ -766,7 +766,7 @@ func (pgb *standardPlanGraphBuilder) handleExec(pbi planbuilderinput.PlanBuilder
 			return err
 		}
 		bldr := primitivebuilder.NewExec(
-			primitiveGenerator.GetPrimitiveComposer().GetGraph(),
+			primitiveGenerator.GetPrimitiveComposer().GetGraphHolder(),
 			handlerCtx,
 			node,
 			tbl,
@@ -780,7 +780,7 @@ func (pgb *standardPlanGraphBuilder) handleExec(pbi planbuilderinput.PlanBuilder
 		return nil
 	}
 	pr := primitive.NewHTTPRestPrimitive(nil, nil, nil, nil, primitive_context.NewPrimitiveContext())
-	pgb.planGraph.CreatePrimitiveNode(pr)
+	pgb.planGraphHolder.CreatePrimitiveNode(pr)
 	return nil
 }
 
@@ -828,7 +828,7 @@ func (pgb *standardPlanGraphBuilder) handleShow(pbi planbuilderinput.PlanBuilder
 				primitiveGenerator.GetPrimitiveComposer().GetTableFilter(),
 			)
 		})
-	pgb.planGraph.CreatePrimitiveNode(pr)
+	pgb.planGraphHolder.CreatePrimitiveNode(pr)
 	return nil
 }
 
@@ -863,7 +863,7 @@ func (pgb *standardPlanGraphBuilder) handleUse(pbi planbuilderinput.PlanBuilderI
 			handlerCtx.SetCurrentProvider(node.DBName.GetRawVal())
 			return internaldto.NewExecutorOutput(nil, nil, nil, nil, nil)
 		})
-	pgb.planGraph.CreatePrimitiveNode(pr)
+	pgb.planGraphHolder.CreatePrimitiveNode(pr)
 	return nil
 }
 

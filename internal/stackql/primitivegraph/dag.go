@@ -297,7 +297,7 @@ func (pn *standardPrimitiveNode) SetError(err error) {
 	pn.err = err
 }
 
-func NewPrimitiveGraph(concurrencyLimit int) PrimitiveGraph {
+func newPrimitiveGraph(concurrencyLimit int) PrimitiveGraph {
 	eg, egCtx := errgroup.WithContext(context.Background())
 	eg.SetLimit(concurrencyLimit)
 	return &standardPrimitiveGraph{
@@ -310,4 +310,96 @@ func NewPrimitiveGraph(concurrencyLimit int) PrimitiveGraph {
 func (pg *standardPrimitiveGraph) NewDependency(from PrimitiveNode, to PrimitiveNode, weight float64) {
 	e := pg.g.NewWeightedEdge(from, to, weight)
 	pg.g.SetWeightedEdge(e)
+}
+
+var (
+	_ PrimitiveGraphHolder = (*standardPrimitiveGraphHolder)(nil)
+)
+
+//nolint:revive // acceptable nomenclature
+type PrimitiveGraphHolder interface {
+	AddInverseTxnControlCounters(t internaldto.TxnControlCounters)
+	AddTxnControlCounters(t internaldto.TxnControlCounters)
+	ContainsIndirect() bool
+	CreateInversePrimitiveNode(pr primitive.IPrimitive) PrimitiveNode
+	CreatePrimitiveNode(pr primitive.IPrimitive) PrimitiveNode
+	GetInversePrimitiveGraph() PrimitiveGraph
+	GetInverseTxnControlCounterSlice() []internaldto.TxnControlCounters
+	GetPrimitiveGraph() PrimitiveGraph
+	GetTxnControlCounterSlice() []internaldto.TxnControlCounters
+	InverseContainsIndirect() bool
+	NewInverseDependency(from PrimitiveNode, to PrimitiveNode, weight float64)
+	NewDependency(from PrimitiveNode, to PrimitiveNode, weight float64)
+	SetContainsIndirect(bool)
+	SetInverseContainsIndirect(bool)
+}
+
+type standardPrimitiveGraphHolder struct {
+	pg  PrimitiveGraph
+	ipg PrimitiveGraph
+}
+
+func (pgh *standardPrimitiveGraphHolder) GetPrimitiveGraph() PrimitiveGraph {
+	return pgh.pg
+}
+
+func (pgh *standardPrimitiveGraphHolder) GetInversePrimitiveGraph() PrimitiveGraph {
+	return pgh.ipg
+}
+
+func (pgh *standardPrimitiveGraphHolder) AddTxnControlCounters(t internaldto.TxnControlCounters) {
+	pgh.pg.AddTxnControlCounters(t)
+}
+
+func (pgh *standardPrimitiveGraphHolder) AddInverseTxnControlCounters(t internaldto.TxnControlCounters) {
+	pgh.ipg.AddTxnControlCounters(t)
+}
+
+func (pgh *standardPrimitiveGraphHolder) CreatePrimitiveNode(pr primitive.IPrimitive) PrimitiveNode {
+	return pgh.pg.CreatePrimitiveNode(pr)
+}
+
+func (pgh *standardPrimitiveGraphHolder) CreateInversePrimitiveNode(pr primitive.IPrimitive) PrimitiveNode {
+	return pgh.ipg.CreatePrimitiveNode(pr)
+}
+
+func (pgh *standardPrimitiveGraphHolder) NewDependency(from PrimitiveNode, to PrimitiveNode, weight float64) {
+	pgh.pg.NewDependency(from, to, weight)
+}
+
+func (pgh *standardPrimitiveGraphHolder) NewInverseDependency(from PrimitiveNode, to PrimitiveNode, weight float64) {
+	pgh.ipg.NewDependency(to, from, weight)
+}
+
+func (pgh *standardPrimitiveGraphHolder) SetContainsIndirect(containsView bool) {
+	pgh.pg.SetContainsIndirect(containsView)
+}
+
+func (pgh *standardPrimitiveGraphHolder) ContainsIndirect() bool {
+	return pgh.pg.ContainsIndirect()
+}
+
+func (pgh *standardPrimitiveGraphHolder) InverseContainsIndirect() bool {
+	return pgh.ipg.ContainsIndirect()
+}
+
+func (pgh *standardPrimitiveGraphHolder) GetTxnControlCounterSlice() []internaldto.TxnControlCounters {
+	return pgh.pg.GetTxnControlCounterSlice()
+}
+
+func (pgh *standardPrimitiveGraphHolder) GetInverseTxnControlCounterSlice() []internaldto.TxnControlCounters {
+	return pgh.ipg.GetTxnControlCounterSlice()
+}
+
+func (pgh *standardPrimitiveGraphHolder) SetInverseContainsIndirect(containsView bool) {
+	pgh.pg.SetContainsIndirect(containsView)
+}
+
+func NewPrimitiveGraphHolder(concurrencyLimit int) PrimitiveGraphHolder {
+	pg := newPrimitiveGraph(concurrencyLimit)
+	ipg := newPrimitiveGraph(concurrencyLimit)
+	return &standardPrimitiveGraphHolder{
+		pg:  pg,
+		ipg: ipg,
+	}
 }
