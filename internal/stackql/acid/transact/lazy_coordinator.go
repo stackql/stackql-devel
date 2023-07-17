@@ -7,6 +7,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/acid/acid_dto"
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
+	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 )
 
 var (
@@ -28,6 +29,10 @@ func newBasicLazyTransactionCoordinator(parent Coordinator, maxTxnDepth int) Coo
 		parent:      parent,
 		maxTxnDepth: maxTxnDepth,
 	}
+}
+
+func (m *basicLazyTransactionCoordinator) GetPrimitiveGraphHolder() (primitivegraph.PrimitiveGraphHolder, bool) {
+	return nil, false
 }
 
 func (m *basicLazyTransactionCoordinator) IsReadOnly() bool {

@@ -98,10 +98,10 @@ func (pb *standardPlanBuilder) BuildPlanFromContext(handlerCtx handler.HandlerCo
 		if createInstructionError != nil {
 			return nil, createInstructionError
 		}
-		qPlan.SetInstructions(pGBuilder.getPlanGraphHolder().GetPrimitiveGraph())
+		qPlan.SetInstructions(pGBuilder.getPlanGraphHolder())
 
 		if qPlan.GetInstructions() != nil {
-			err = qPlan.GetInstructions().Optimise()
+			err = qPlan.GetInstructions().GetPrimitiveGraph().Optimise()
 			if err != nil {
 				return createErroneousPlan(handlerCtx, qPlan, rowSort, err)
 			}
@@ -130,10 +130,10 @@ func (pb *standardPlanBuilder) BuildPlanFromContext(handlerCtx handler.HandlerCo
 		qPlan.SetCacheable(false)
 	}
 
-	qPlan.SetInstructions(pGBuilder.getPlanGraphHolder().GetPrimitiveGraph())
+	qPlan.SetInstructions(pGBuilder.getPlanGraphHolder())
 
 	if qPlan.GetInstructions() != nil {
-		err = qPlan.GetInstructions().Optimise()
+		err = qPlan.GetInstructions().GetPrimitiveGraph().Optimise()
 		if err != nil {
 			return createErroneousPlan(handlerCtx, qPlan, rowSort, err)
 		}

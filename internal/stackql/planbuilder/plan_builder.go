@@ -867,13 +867,16 @@ func (pgb *standardPlanGraphBuilder) handleUse(pbi planbuilderinput.PlanBuilderI
 	return nil
 }
 
-//nolint:unparam,revive // TODO: fix this
+//nolint:unparam // TODO: fix this
 func createErroneousPlan(
 	handlerCtx handler.HandlerContext,
 	qPlan plan.Plan,
 	rowSort func(map[string]map[string]interface{}) []string,
 	err error) (plan.Plan, error) {
-	qPlan.SetInstructions(
+	instructions := primitivegraph.NewPrimitiveGraphHolder(
+		handlerCtx.GetRuntimeContext().ExecutionConcurrencyLimit,
+	)
+	instructions.CreatePrimitiveNode(
 		primitive.NewLocalPrimitive(func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 			return util.PrepareResultSet(
 				internaldto.PrepareResultSetDTO{
@@ -887,6 +890,9 @@ func createErroneousPlan(
 			)
 		},
 		),
+	)
+	qPlan.SetInstructions(
+		instructions,
 	)
 	return qPlan, err
 }

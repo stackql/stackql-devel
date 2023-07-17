@@ -8,6 +8,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/acid/txn_context"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
+	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 )
 
 var (
@@ -18,10 +19,14 @@ var (
 //   - Supports a simple reversibility semantic.
 //   - In cases of network partitioning or other failures,
 //     it will simply spew suggested undo logs.
+//
+//nolint:unused // TODO: fix this.
 type bestEffortOrchestrator struct {
 	txnCoordinator Coordinator
 	undoLogs       []binlog.LogEntry
 	redoLogs       []binlog.LogEntry
+	redoGraphs     []primitivegraph.PrimitiveGraph
+	undoGraphs     []primitivegraph.PrimitiveGraph
 }
 
 func (orc *bestEffortOrchestrator) ProcessQueryOrQueries(
@@ -134,16 +139,21 @@ func (orc *bestEffortOrchestrator) processQuery(
 
 	// TODO: fix this crap
 	//       remember, we do not have all undo log data until we get pk back
-	undoLog, undoLogExists := transactStatement.GetUndoLog()
-	if !undoLogExists {
+	primitiveGraphHolder, primitiveGraphHolderExists := transactStatement.GetPrimitiveGraphHolder()
+	if !primitiveGraphHolderExists {
 		// TODO: bail
 	}
+	undoGraphSize := primitiveGraphHolder.GetInversePrimitiveGraph().Size()
+	if undoGraphSize == 0 {
+		// TOOO: bail
+	}
+
 	redoLog, redoLogExists := transactStatement.GetRedoLog()
 	if redoLogExists {
 		orc.redoLogs = append(orc.redoLogs, redoLog)
 	}
 	// logging.GetLogger().Debugf("undoLog.Size() = %d", undoLog.Size())
-	orc.undoLogs = append(orc.undoLogs, undoLog)
+	// orc.undoLogs = append(orc.undoLogs, undoLog)
 	execErr := transactStatement.Execute()
 	if execErr != nil {
 		// TODO: bail

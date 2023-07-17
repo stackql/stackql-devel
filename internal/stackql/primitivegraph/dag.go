@@ -38,6 +38,7 @@ type PrimitiveGraph interface {
 	SetInputAlias(alias string, id int64) error
 	SetTxnID(id int)
 	Sort() (sorted []graph.Node, err error)
+	Size() int
 }
 
 type standardPrimitiveGraph struct {
@@ -47,6 +48,10 @@ type standardPrimitiveGraph struct {
 	errGroup               *errgroup.Group
 	errGroupCtx            context.Context
 	containsView           bool
+}
+
+func (pg *standardPrimitiveGraph) Size() int {
+	return pg.g.Nodes().Len()
 }
 
 func (pg *standardPrimitiveGraph) IsReadOnly() bool {
@@ -332,6 +337,8 @@ type PrimitiveGraphHolder interface {
 	NewDependency(from PrimitiveNode, to PrimitiveNode, weight float64)
 	SetContainsIndirect(bool)
 	SetInverseContainsIndirect(bool)
+	SetTxnID(int)
+	SetInverseTxnID(int)
 }
 
 type standardPrimitiveGraphHolder struct {
@@ -341,6 +348,14 @@ type standardPrimitiveGraphHolder struct {
 
 func (pgh *standardPrimitiveGraphHolder) GetPrimitiveGraph() PrimitiveGraph {
 	return pgh.pg
+}
+
+func (pgh *standardPrimitiveGraphHolder) SetTxnID(txnID int) {
+	pgh.pg.SetTxnID(txnID)
+}
+
+func (pgh *standardPrimitiveGraphHolder) SetInverseTxnID(txnID int) {
+	pgh.ipg.SetTxnID(txnID)
 }
 
 func (pgh *standardPrimitiveGraphHolder) GetInversePrimitiveGraph() PrimitiveGraph {

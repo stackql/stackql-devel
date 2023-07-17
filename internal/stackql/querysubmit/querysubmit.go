@@ -9,6 +9,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/plan"
 	"github.com/stackql/stackql/internal/stackql/planbuilder"
+	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 )
 
 var (
@@ -25,6 +26,7 @@ type QuerySubmitter interface {
 	GetRedoLog() (binlog.LogEntry, bool)
 	// Get the undo log entry.
 	GetUndoLog() (binlog.LogEntry, bool)
+	GetPrimitiveGraphHolder() (primitivegraph.PrimitiveGraphHolder, bool)
 }
 
 func NewQuerySubmitter() QuerySubmitter {
@@ -42,6 +44,10 @@ func (qs *basicQuerySubmitter) GetRedoLog() (binlog.LogEntry, bool) {
 		return nil, false
 	}
 	return qs.queryPlan.GetRedoLog()
+}
+
+func (qs *basicQuerySubmitter) GetPrimitiveGraphHolder() (primitivegraph.PrimitiveGraphHolder, bool) {
+	return qs.queryPlan.GetInstructions(), true
 }
 
 func (qs *basicQuerySubmitter) GetUndoLog() (binlog.LogEntry, bool) {
@@ -88,5 +94,5 @@ func (qs *basicQuerySubmitter) SubmitQuery() internaldto.ExecutorOutput {
 		qs.handlerCtx.GetOutfile(),
 		qs.handlerCtx.GetOutErrFile(),
 	)
-	return qs.queryPlan.GetInstructions().Execute(pl)
+	return qs.queryPlan.GetInstructions().GetPrimitiveGraph().Execute(pl)
 }

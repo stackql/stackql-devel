@@ -6,6 +6,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/acid/txn_context"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
+	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/querysubmit"
 )
 
@@ -13,6 +14,7 @@ type Statement interface {
 	Prepare() error
 	Execute() internaldto.ExecutorOutput
 	GetAST() (sqlparser.Statement, bool)
+	GetPrimitiveGraphHolder() (primitivegraph.PrimitiveGraphHolder, bool)
 	GetUndoLog() (binlog.LogEntry, bool)
 	GetRedoLog() (binlog.LogEntry, bool)
 	IsReadOnly() bool
@@ -112,4 +114,8 @@ func (st *basicStatement) IsExecuted() bool {
 
 func (st *basicStatement) GetAST() (sqlparser.Statement, bool) {
 	return st.querySubmitter.GetStatement()
+}
+
+func (st *basicStatement) GetPrimitiveGraphHolder() (primitivegraph.PrimitiveGraphHolder, bool) {
+	return st.querySubmitter.GetPrimitiveGraphHolder()
 }
