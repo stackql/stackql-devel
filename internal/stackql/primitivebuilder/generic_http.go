@@ -189,7 +189,6 @@ func (gh *genericHTTPStreamInput) Build() error {
 			pr,
 			svc,
 			m,
-			interestingMaps.getInputMap(),
 			interestingMaps.getParameterMap(),
 			nil,
 			nil,

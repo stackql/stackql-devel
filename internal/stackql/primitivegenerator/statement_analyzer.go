@@ -890,7 +890,6 @@ func (pb *standardPrimitiveGenerator) buildRequestContext(
 		pr,
 		svc,
 		m,
-		rowsToInsert,
 		paramMap,
 		nil,
 		execContext,
