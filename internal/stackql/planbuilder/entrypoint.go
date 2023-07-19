@@ -29,6 +29,10 @@ type standardPlanBuilder struct {
 	transactionContext txn_context.ITransactionContext
 }
 
+func (pb *standardPlanBuilder) BuildUndoPlanFromContext(handlerCtx handler.HandlerContext) (plan.Plan, error) {
+	return nil, nil
+}
+
 //nolint:funlen,gocognit // no big deal
 func (pb *standardPlanBuilder) BuildPlanFromContext(handlerCtx handler.HandlerContext) (plan.Plan, error) {
 	defer handlerCtx.GetGarbageCollector().Close()
