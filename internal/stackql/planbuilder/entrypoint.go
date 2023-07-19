@@ -29,7 +29,7 @@ type standardPlanBuilder struct {
 	transactionContext txn_context.ITransactionContext
 }
 
-func (pb *standardPlanBuilder) BuildUndoPlanFromContext(handlerCtx handler.HandlerContext) (plan.Plan, error) {
+func (pb *standardPlanBuilder) BuildUndoPlanFromContext(_ handler.HandlerContext) (plan.Plan, error) {
 	return nil, nil
 }
 
