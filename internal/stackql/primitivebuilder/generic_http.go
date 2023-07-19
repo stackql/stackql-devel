@@ -18,51 +18,102 @@ import (
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
+	"github.com/stackql/stackql/internal/stackql/util"
 )
 
-type genericHTTP struct {
+var (
+	_ mapsAggregatorDTO = (*standardMapsAggregatorDTO)(nil)
+)
+
+type mapsAggregatorDTO interface {
+	getParameterMap() map[int]map[string]interface{}
+	getInputMap() map[int]map[int]interface{}
+}
+
+type standardMapsAggregatorDTO struct {
+	parameterMap map[int]map[string]interface{}
+	inputMap     map[int]map[int]interface{}
+}
+
+func (dto *standardMapsAggregatorDTO) getParameterMap() map[int]map[string]interface{} {
+	return dto.parameterMap
+}
+
+func (dto *standardMapsAggregatorDTO) getInputMap() map[int]map[int]interface{} {
+	return dto.inputMap
+}
+
+func newMapsAggregatorDTO(
+	parameterMap map[int]map[string]interface{},
+	inputMap map[int]map[int]interface{},
+) mapsAggregatorDTO {
+	return &standardMapsAggregatorDTO{
+		parameterMap: parameterMap,
+		inputMap:     inputMap,
+	}
+}
+
+type genericHTTPStreamInput struct {
 	graphHolder       primitivegraph.PrimitiveGraphHolder
 	handlerCtx        handler.HandlerContext
 	drmCfg            drm.Config
 	root              primitivegraph.PrimitiveNode
 	tbl               tablemetadata.ExtendedTableMetadata
-	paramMap          map[int]map[string]interface{}
 	commentDirectives sqlparser.CommentDirectives
 	dependencyNode    primitivegraph.PrimitiveNode
+	parserNode        sqlparser.SQLNode
 	isAwait           bool
 	verb              string // may be "insert" or "update"
 	inputAlias        string
 	isUndo            bool
 }
 
-func NewGenericHTTP(
+func newGenericHTTPStreamInput(
 	builderInput builder_input.BuilderInput,
-) Builder {
-	handlerCtx := builderInput.GetHandlerContext()
-	return &genericHTTP{
-		graphHolder:       builderInput.GetGraphHolder(),
+) (Builder, error) {
+	handlerCtx, handlerCtxExists := builderInput.GetHandlerContext()
+	if !handlerCtxExists {
+		return nil, fmt.Errorf("handler context is required")
+	}
+	graphHolder, graphHolderExists := builderInput.GetGraphHolder()
+	if !graphHolderExists {
+		return nil, fmt.Errorf("graph holder is required")
+	}
+	tbl, tblExists := builderInput.GetTableMetadata()
+	if !tblExists {
+		return nil, fmt.Errorf("table metadata is required")
+	}
+	commentDirectives, _ := builderInput.GetCommentDirectives()
+	dependencyNode, dependencyNodeExists := builderInput.GetDependencyNode()
+	if !dependencyNodeExists {
+		return nil, fmt.Errorf("dependency node is required")
+	}
+	parserNode, _ := builderInput.GetParserNode()
+	return &genericHTTPStreamInput{
+		graphHolder:       graphHolder,
 		handlerCtx:        handlerCtx,
 		drmCfg:            handlerCtx.GetDrmConfig(),
-		tbl:               builderInput.GetTableMetadata(),
-		paramMap:          builderInput.GetParamMap(),
-		commentDirectives: builderInput.GetCommentDirectives(),
-		dependencyNode:    builderInput.GetDependencyNode(),
+		tbl:               tbl,
+		commentDirectives: commentDirectives,
+		dependencyNode:    dependencyNode,
 		isAwait:           builderInput.IsAwait(),
 		verb:              builderInput.GetVerb(),
 		inputAlias:        builderInput.GetInputAlias(),
 		isUndo:            builderInput.IsUndo(),
-	}
+		parserNode:        parserNode,
+	}, nil
 }
 
-func (gh *genericHTTP) GetRoot() primitivegraph.PrimitiveNode {
+func (gh *genericHTTPStreamInput) GetRoot() primitivegraph.PrimitiveNode {
 	return gh.root
 }
 
-func (gh *genericHTTP) GetTail() primitivegraph.PrimitiveNode {
+func (gh *genericHTTPStreamInput) GetTail() primitivegraph.PrimitiveNode {
 	return gh.root
 }
 
-func (gh *genericHTTP) decorateOutput(op internaldto.ExecutorOutput, tableName string) internaldto.ExecutorOutput {
+func (gh *genericHTTPStreamInput) decorateOutput(
+	op internaldto.ExecutorOutput, tableName string) internaldto.ExecutorOutput {
 	op.SetUndoLog(
 		binlog.NewSimpleLogEntry(
 			nil,
@@ -74,9 +125,32 @@ func (gh *genericHTTP) decorateOutput(op internaldto.ExecutorOutput, tableName s
 	return op
 }
 
-//nolint:funlen,errcheck,gocognit,cyclop,gocyclo // TODO: fix this
-func (gh *genericHTTP) Build() error {
-	paramMap := gh.paramMap
+func (gh *genericHTTPStreamInput) getInterestingMaps(actionPrimitive primitive.IPrimitive) (mapsAggregatorDTO, error) {
+	input, inputExists := actionPrimitive.GetInputFromAlias(gh.inputAlias)
+	if !inputExists {
+		return nil, fmt.Errorf("input does not exist")
+	}
+	inputStream, inputErr := input.ResultToMap()
+	if inputErr != nil {
+		return nil, inputErr
+	}
+	rr, rrErr := inputStream.Read()
+	if rrErr != nil {
+		return nil, rrErr
+	}
+	inputMap, inputErr := rr.GetMap()
+	if inputErr != nil {
+		return nil, inputErr
+	}
+	paramMap, paramErr := util.ExtractSQLNodeParams(gh.parserNode, inputMap)
+	if paramErr != nil {
+		return nil, paramErr
+	}
+	return newMapsAggregatorDTO(paramMap, inputMap), nil
+}
+
+//nolint:funlen,errcheck,gocognit // TODO: fix this
+func (gh *genericHTTPStreamInput) Build() error {
 	tbl := gh.tbl
 	handlerCtx := gh.handlerCtx
 	commentDirectives := gh.commentDirectives
@@ -103,32 +177,20 @@ func (gh *genericHTTP) Build() error {
 	)
 	target := make(map[string]interface{})
 	ex := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
-		input, inputExists := actionPrimitive.GetInputFromAlias(gh.inputAlias)
-		if !inputExists {
-			return internaldto.NewErroneousExecutorOutput(fmt.Errorf("input does not exist"))
-		}
-		inputStream, inputErr := input.ResultToMap()
-		if inputErr != nil {
-			return internaldto.NewErroneousExecutorOutput(inputErr)
-		}
-		rr, rrErr := inputStream.Read()
-		if rrErr != nil {
-			return internaldto.NewErroneousExecutorOutput(rrErr)
-		}
-		inputMap, inputErr := rr.GetMap()
-		if inputErr != nil {
-			return internaldto.NewErroneousExecutorOutput(inputErr)
-		}
 		pr, prErr := prov.GetProvider()
 		if prErr != nil {
 			return internaldto.NewErroneousExecutorOutput(prErr)
+		}
+		interestingMaps, mapsErr := gh.getInterestingMaps(actionPrimitive)
+		if mapsErr != nil {
+			return internaldto.NewErroneousExecutorOutput(mapsErr)
 		}
 		httpPreparator := openapistackql.NewHTTPPreparator(
 			pr,
 			svc,
 			m,
-			inputMap,
-			paramMap,
+			interestingMaps.getInputMap(),
+			interestingMaps.getParameterMap(),
 			nil,
 			nil,
 			logging.GetLogger(),
@@ -153,10 +215,10 @@ func (gh *genericHTTP) Build() error {
 				if apiErr != nil {
 					return internaldto.NewErroneousExecutorOutput(apiErr)
 				}
-				inverse := func() internaldto.ExecutorOutput {
-					return gh.decorateOutput(nil, tableName)
-				}
-				logging.GetLogger().Infoln(fmt.Sprintf("inverse = %v", inverse()))
+				// inverse := func() internaldto.ExecutorOutput {
+				// 	return gh.decorateOutput(nil, tableName)
+				// }
+				// logging.GetLogger().Infoln(fmt.Sprintf("inverse = %v", inverse()))
 
 				if responseAnalysisErr == nil {
 					var resp pkg_response.Response
@@ -272,14 +334,12 @@ func (gh *genericHTTP) Build() error {
 
 	graphHolder := gh.graphHolder
 
+	// actionNode := graphHolder.CreatePrimitiveNode(actionPrimitive)
+
+	actionPrimitive.SetInputAlias(gh.inputAlias, gh.dependencyNode.ID())
 	actionNode := graphHolder.CreatePrimitiveNode(actionPrimitive)
-	if gh.dependencyNode != nil {
-		actionPrimitive.SetInputAlias("", gh.dependencyNode.ID())
-		graphHolder.NewDependency(gh.dependencyNode, actionNode, 1.0)
-		gh.root = gh.dependencyNode
-	} else {
-		gh.root = actionNode
-	}
+	graphHolder.NewDependency(gh.dependencyNode, actionNode, 1.0)
+	gh.root = gh.dependencyNode
 
 	return nil
 }

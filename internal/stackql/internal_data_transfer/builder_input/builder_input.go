@@ -12,12 +12,13 @@ var (
 )
 
 type BuilderInput interface {
-	GetGraphHolder() primitivegraph.PrimitiveGraphHolder
-	GetHandlerContext() handler.HandlerContext
-	GetParamMap() map[int]map[string]interface{}
-	GetTableMetadata() tablemetadata.ExtendedTableMetadata
-	GetDependencyNode() primitivegraph.PrimitiveNode
-	GetCommentDirectives() sqlparser.CommentDirectives
+	GetGraphHolder() (primitivegraph.PrimitiveGraphHolder, bool)
+	GetHandlerContext() (handler.HandlerContext, bool)
+	GetParamMap() (map[int]map[string]interface{}, bool)
+	GetTableMetadata() (tablemetadata.ExtendedTableMetadata, bool)
+	GetDependencyNode() (primitivegraph.PrimitiveNode, bool)
+	GetCommentDirectives() (sqlparser.CommentDirectives, bool)
+	GetParserNode() (sqlparser.SQLNode, bool)
 	IsAwait() bool
 	GetVerb() string
 	GetInputAlias() string
@@ -26,6 +27,11 @@ type BuilderInput interface {
 	SetIsAwait(isAwait bool)
 	SetCommentDirectives(commentDirectives sqlparser.CommentDirectives)
 	SetIsUndo(isUndo bool)
+	SetDependencyNode(dependencyNode primitivegraph.PrimitiveNode)
+	SetParserNode(node sqlparser.SQLNode)
+	SetParamMap(paramMap map[int]map[string]interface{})
+	SetVerb(verb string)
+	Clone() BuilderInput
 }
 
 type builderInput struct {
@@ -39,48 +45,53 @@ type builderInput struct {
 	verb              string
 	inputAlias        string
 	isUndo            bool
+	node              sqlparser.SQLNode
 }
 
 func NewBuilderInput(
 	graphHolder primitivegraph.PrimitiveGraphHolder,
 	handlerCtx handler.HandlerContext,
-	paramMap map[int]map[string]interface{},
 	tbl tablemetadata.ExtendedTableMetadata,
-	verb string,
 ) BuilderInput {
 	return &builderInput{
 		graphHolder:       graphHolder,
 		handlerCtx:        handlerCtx,
-		paramMap:          paramMap,
 		tbl:               tbl,
-		verb:              verb,
 		commentDirectives: sqlparser.CommentDirectives{},
 		inputAlias:        "", // this default is explicit for emphasisis
 	}
 }
 
-func (bi *builderInput) GetGraphHolder() primitivegraph.PrimitiveGraphHolder {
-	return bi.graphHolder
+func (bi *builderInput) GetGraphHolder() (primitivegraph.PrimitiveGraphHolder, bool) {
+	return bi.graphHolder, bi.graphHolder != nil
 }
 
-func (bi *builderInput) GetHandlerContext() handler.HandlerContext {
-	return bi.handlerCtx
+func (bi *builderInput) GetParserNode() (sqlparser.SQLNode, bool) {
+	return bi.node, bi.node != nil
 }
 
-func (bi *builderInput) GetParamMap() map[int]map[string]interface{} {
-	return bi.paramMap
+func (bi *builderInput) SetParserNode(node sqlparser.SQLNode) {
+	bi.node = node
 }
 
-func (bi *builderInput) GetTableMetadata() tablemetadata.ExtendedTableMetadata {
-	return bi.tbl
+func (bi *builderInput) GetHandlerContext() (handler.HandlerContext, bool) {
+	return bi.handlerCtx, bi.handlerCtx != nil
 }
 
-func (bi *builderInput) GetDependencyNode() primitivegraph.PrimitiveNode {
-	return bi.dependencyNode
+func (bi *builderInput) GetParamMap() (map[int]map[string]interface{}, bool) {
+	return bi.paramMap, bi.paramMap != nil
 }
 
-func (bi *builderInput) GetCommentDirectives() sqlparser.CommentDirectives {
-	return bi.commentDirectives
+func (bi *builderInput) GetTableMetadata() (tablemetadata.ExtendedTableMetadata, bool) {
+	return bi.tbl, bi.tbl != nil
+}
+
+func (bi *builderInput) GetDependencyNode() (primitivegraph.PrimitiveNode, bool) {
+	return bi.dependencyNode, bi.dependencyNode != nil
+}
+
+func (bi *builderInput) GetCommentDirectives() (sqlparser.CommentDirectives, bool) {
+	return bi.commentDirectives, len(bi.commentDirectives) > 0
 }
 
 func (bi *builderInput) IsAwait() bool {
@@ -139,12 +150,13 @@ func (bi *builderInput) SetIsUndo(isUndo bool) {
 	bi.isUndo = isUndo
 }
 
-func (bi *builderInput) Copy() BuilderInput {
+func (bi *builderInput) Clone() BuilderInput {
 	return &builderInput{
 		graphHolder:       bi.graphHolder,
 		handlerCtx:        bi.handlerCtx,
 		paramMap:          bi.paramMap,
 		tbl:               bi.tbl,
+		node:              bi.node,
 		dependencyNode:    bi.dependencyNode,
 		commentDirectives: bi.commentDirectives,
 		isAwait:           bi.isAwait,

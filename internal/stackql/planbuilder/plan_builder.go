@@ -10,6 +10,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/acid/txn_context"
 	"github.com/stackql/stackql/internal/stackql/astanalysis/routeanalysis"
 	"github.com/stackql/stackql/internal/stackql/handler"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/builder_input"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/primitive_context"
 	"github.com/stackql/stackql/internal/stackql/iqlerror"
@@ -663,15 +664,17 @@ func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuild
 		if err != nil {
 			return err
 		}
-		bldr := primitivebuilder.NewInsertOrUpdate(
+		bldrInput := builder_input.NewBuilderInput(
 			pgb.planGraphHolder,
 			handlerCtx,
-			node,
 			tbl,
-			selectPrimitiveNode,
-			primitiveGenerator.GetPrimitiveComposer().GetCommentDirectives(),
-			primitiveGenerator.GetPrimitiveComposer().IsAwait(),
-			"insert",
+		)
+		bldrInput.SetDependencyNode(selectPrimitiveNode)
+		bldrInput.SetCommentDirectives(primitiveGenerator.GetPrimitiveComposer().GetCommentDirectives())
+		bldrInput.SetIsAwait(primitiveGenerator.GetPrimitiveComposer().IsAwait())
+		bldrInput.SetParserNode(node)
+		bldr := primitivebuilder.NewInsertOrUpdate(
+			bldrInput,
 		)
 		err = bldr.Build()
 		if err != nil {
@@ -720,15 +723,17 @@ func (pgb *standardPlanGraphBuilder) handleUpdate(pbi planbuilderinput.PlanBuild
 		if err != nil {
 			return err
 		}
-		bldr := primitivebuilder.NewInsertOrUpdate(
+		bldrInput := builder_input.NewBuilderInput(
 			pgb.planGraphHolder,
 			handlerCtx,
-			node,
 			tbl,
-			selectPrimitiveNode,
-			primitiveGenerator.GetPrimitiveComposer().GetCommentDirectives(),
-			primitiveGenerator.GetPrimitiveComposer().IsAwait(),
-			"update",
+		)
+		bldrInput.SetDependencyNode(selectPrimitiveNode)
+		bldrInput.SetCommentDirectives(primitiveGenerator.GetPrimitiveComposer().GetCommentDirectives())
+		bldrInput.SetIsAwait(primitiveGenerator.GetPrimitiveComposer().IsAwait())
+		bldrInput.SetParserNode(node)
+		bldr := primitivebuilder.NewInsertOrUpdate(
+			bldrInput,
 		)
 		err = bldr.Build()
 		if err != nil {
