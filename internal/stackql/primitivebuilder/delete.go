@@ -152,7 +152,7 @@ func (ss *Delete) Build() error {
 		primitive_context.NewPrimitiveContext(),
 	)
 	if ss.isAwait {
-		deletePrimitive, err = composeAsyncMonitor(handlerCtx, deletePrimitive, tbl, nil)
+		deletePrimitive, err = composeAsyncMonitor(handlerCtx, deletePrimitive, prov, m, nil)
 	}
 	if err != nil {
 		return err

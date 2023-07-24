@@ -82,6 +82,9 @@ type HandlerContext interface { //nolint:revive // don't mind stuttering this on
 	GetTypingConfig() typing.Config
 	GetIsolationLevel() constants.IsolationLevel
 	UpdateIsolationLevel(isolationLevelStr string) error
+
+	GetRollbackType() constants.RollbackType
+	UpdateRollbackType(rollbackTypeStr string) error
 }
 
 type standardHandlerContext struct {
@@ -340,6 +343,18 @@ func (hc *standardHandlerContext) GetIsolationLevel() constants.IsolationLevel {
 	hc.sessionCtxMutex.Lock()
 	defer hc.sessionCtxMutex.Unlock()
 	return hc.sessionContext.GetIsolationLevel()
+}
+
+func (hc *standardHandlerContext) UpdateRollbackType(rollbackTypeStr string) error {
+	hc.sessionCtxMutex.Lock()
+	defer hc.sessionCtxMutex.Unlock()
+	return hc.sessionContext.UpdateIsolationLevel(rollbackTypeStr)
+}
+
+func (hc *standardHandlerContext) GetRollbackType() constants.RollbackType {
+	hc.sessionCtxMutex.Lock()
+	defer hc.sessionCtxMutex.Unlock()
+	return hc.sessionContext.GetRollbackType()
 }
 
 func (hc *standardHandlerContext) updateAuthContextIfNotExists(providerName string, authCtx *dto.AuthCtx) {

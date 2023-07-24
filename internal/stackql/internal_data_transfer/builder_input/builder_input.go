@@ -1,10 +1,12 @@
 package builder_input //nolint:revive,stylecheck // permissable deviation from norm
 
 import (
+	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/streaming"
+	"github.com/stackql/stackql/internal/stackql/streaming/http_preparator_stream.go"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 )
 
@@ -21,6 +23,8 @@ type BuilderInput interface {
 	GetDependencyNode() (primitivegraph.PrimitiveNode, bool)
 	GetCommentDirectives() (sqlparser.CommentDirectives, bool)
 	GetParserNode() (sqlparser.SQLNode, bool)
+	GetOperationStore() (openapistackql.OperationStore, bool)
+	SetOperationStore(op openapistackql.OperationStore)
 	IsAwait() bool
 	GetVerb() string
 	GetInputAlias() string
@@ -35,6 +39,8 @@ type BuilderInput interface {
 	SetParamMapStream(streaming.MapStream)
 	SetVerb(verb string)
 	Clone() BuilderInput
+	GetHTTPPreparatorStream() (http_preparator_stream.HttpPreparatorStream, bool)
+	SetHTTPPreparatorStream(prepStream http_preparator_stream.HttpPreparatorStream)
 }
 
 type builderInput struct {
@@ -50,6 +56,8 @@ type builderInput struct {
 	isUndo            bool
 	node              sqlparser.SQLNode
 	paramMapStream    streaming.MapStream
+	httpPrepStream    http_preparator_stream.HttpPreparatorStream
+	op                openapistackql.OperationStore
 }
 
 func NewBuilderInput(
@@ -66,8 +74,24 @@ func NewBuilderInput(
 	}
 }
 
+func (bi *builderInput) GetOperationStore() (openapistackql.OperationStore, bool) {
+	return bi.op, bi.op != nil
+}
+
+func (bi *builderInput) SetOperationStore(op openapistackql.OperationStore) {
+	bi.op = op
+}
+
 func (bi *builderInput) GetParamMapStream() (streaming.MapStream, bool) {
 	return bi.paramMapStream, bi.paramMapStream != nil
+}
+
+func (bi *builderInput) GetHTTPPreparatorStream() (http_preparator_stream.HttpPreparatorStream, bool) {
+	return bi.httpPrepStream, bi.httpPrepStream != nil
+}
+
+func (bi *builderInput) SetHTTPPreparatorStream(prepStream http_preparator_stream.HttpPreparatorStream) {
+	bi.httpPrepStream = prepStream
 }
 
 func (bi *builderInput) SetParamMapStream(s streaming.MapStream) {

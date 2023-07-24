@@ -8,6 +8,7 @@ import (
 	pkg_response "github.com/stackql/go-openapistackql/pkg/response"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
+	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/httpmiddleware"
@@ -17,6 +18,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
+	"github.com/stackql/stackql/internal/stackql/streaming/http_preparator_stream.go"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 	"github.com/stackql/stackql/internal/stackql/util"
 )
@@ -34,6 +36,8 @@ type genericHTTPStreamInput struct {
 	verb              string // may be "insert" or "update"
 	inputAlias        string
 	isUndo            bool
+	reversalStream    http_preparator_stream.HttpPreparatorStream
+	rollbackType      constants.RollbackType
 }
 
 func newGenericHTTPStreamInput(
@@ -69,7 +73,13 @@ func newGenericHTTPStreamInput(
 		inputAlias:        builderInput.GetInputAlias(),
 		isUndo:            builderInput.IsUndo(),
 		parserNode:        parserNode,
+		reversalStream:    http_preparator_stream.NewHttpPreparatorStream(),
+		rollbackType:      handlerCtx.GetRollbackType(),
 	}, nil
+}
+
+func (gh *genericHTTPStreamInput) isReverseRequired() bool {
+	return gh.rollbackType != constants.NopRollback
 }
 
 func (gh *genericHTTPStreamInput) GetRoot() primitivegraph.PrimitiveNode {
@@ -80,9 +90,9 @@ func (gh *genericHTTPStreamInput) GetTail() primitivegraph.PrimitiveNode {
 	return gh.root
 }
 
-// func (gh *genericHTTPStreamInput) appendReversalData() error {
-// 	return nil
-// }
+func (gh *genericHTTPStreamInput) appendReversalData(prep openapistackql.HTTPPreparator) error {
+	return gh.reversalStream.Write(prep)
+}
 
 func (gh *genericHTTPStreamInput) decorateOutput(
 	op internaldto.ExecutorOutput, tableName string) internaldto.ExecutorOutput {
@@ -121,7 +131,7 @@ func (gh *genericHTTPStreamInput) getInterestingMaps(actionPrimitive primitive.I
 	return newMapsAggregatorDTO(paramMap, inputMap), nil
 }
 
-//nolint:funlen,gocognit // TODO: fix this
+//nolint:funlen,gocognit,gocyclo,cyclop,nestif // TODO: fix this
 func (gh *genericHTTPStreamInput) Build() error {
 	tbl := gh.tbl
 	handlerCtx := gh.handlerCtx
@@ -138,6 +148,15 @@ func (gh *genericHTTPStreamInput) Build() error {
 	m, err := tbl.GetMethod()
 	if err != nil {
 		return err
+	}
+	inverse, inverseExists := m.GetInverse()
+	if !inverseExists && gh.isReverseRequired() {
+		return fmt.Errorf("inverse is required")
+	}
+	if inverseExists {
+		logging.GetLogger().Debugf("inverse = %v", inverse)
+		// inverseInput :=
+		// inverseBuilder :=
 	}
 	_, _, responseAnalysisErr := tbl.GetResponseSchemaAndMediaType()
 	actionPrimitive := primitive.NewHTTPRestPrimitive(
@@ -187,16 +206,22 @@ func (gh *genericHTTPStreamInput) Build() error {
 				if apiErr != nil {
 					return internaldto.NewErroneousExecutorOutput(apiErr)
 				}
-				// inverse := func() internaldto.ExecutorOutput {
-				// 	return gh.decorateOutput(nil, tableName)
-				// }
-				// logging.GetLogger().Infoln(fmt.Sprintf("inverse = %v", inverse()))
 
 				if responseAnalysisErr == nil {
 					var resp pkg_response.Response
 					processed, procErr := m.ProcessResponse(response)
 					if err != nil {
 						return internaldto.NewErroneousExecutorOutput(procErr)
+					}
+					reversal, reversalExists := processed.GetReversal()
+					if reversalExists {
+						reversalAppendErr := gh.appendReversalData(reversal)
+						if reversalAppendErr != nil {
+							return internaldto.NewErroneousExecutorOutput(reversalAppendErr)
+						}
+					}
+					if !reversalExists && gh.isReverseRequired() {
+						return internaldto.NewErroneousExecutorOutput(fmt.Errorf("reversal is required but not provided"))
 					}
 					resp, respOk := processed.GetResponse()
 					if !respOk {
@@ -206,9 +231,6 @@ func (gh *genericHTTPStreamInput) Build() error {
 					switch processedBody := processedBody.(type) { //nolint:gocritic // TODO: fix this
 					case map[string]interface{}:
 						target = processedBody
-						// TODO: reversal transform
-						// if m.
-						// _ = reversalStream.Write([]map[string]interface{}{target})
 					}
 				}
 				if err != nil {
@@ -292,7 +314,7 @@ func (gh *genericHTTPStreamInput) Build() error {
 			if err != nil {
 				return internaldto.NewErroneousExecutorOutput(err)
 			}
-			execPrim, execErr := composeAsyncMonitor(handlerCtx, dependentInsertPrimitive, tbl, commentDirectives)
+			execPrim, execErr := composeAsyncMonitor(handlerCtx, dependentInsertPrimitive, prov, m, commentDirectives)
 			if execErr != nil {
 				return internaldto.NewErroneousExecutorOutput(execErr)
 			}
