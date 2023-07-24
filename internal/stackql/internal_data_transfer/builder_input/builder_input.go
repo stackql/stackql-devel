@@ -4,6 +4,7 @@ import (
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
+	"github.com/stackql/stackql/internal/stackql/streaming"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 )
 
@@ -15,6 +16,7 @@ type BuilderInput interface {
 	GetGraphHolder() (primitivegraph.PrimitiveGraphHolder, bool)
 	GetHandlerContext() (handler.HandlerContext, bool)
 	GetParamMap() (map[int]map[string]interface{}, bool)
+	GetParamMapStream() (streaming.MapStream, bool)
 	GetTableMetadata() (tablemetadata.ExtendedTableMetadata, bool)
 	GetDependencyNode() (primitivegraph.PrimitiveNode, bool)
 	GetCommentDirectives() (sqlparser.CommentDirectives, bool)
@@ -30,6 +32,7 @@ type BuilderInput interface {
 	SetDependencyNode(dependencyNode primitivegraph.PrimitiveNode)
 	SetParserNode(node sqlparser.SQLNode)
 	SetParamMap(paramMap map[int]map[string]interface{})
+	SetParamMapStream(streaming.MapStream)
 	SetVerb(verb string)
 	Clone() BuilderInput
 }
@@ -46,6 +49,7 @@ type builderInput struct {
 	inputAlias        string
 	isUndo            bool
 	node              sqlparser.SQLNode
+	paramMapStream    streaming.MapStream
 }
 
 func NewBuilderInput(
@@ -60,6 +64,14 @@ func NewBuilderInput(
 		commentDirectives: sqlparser.CommentDirectives{},
 		inputAlias:        "", // this default is explicit for emphasisis
 	}
+}
+
+func (bi *builderInput) GetParamMapStream() (streaming.MapStream, bool) {
+	return bi.paramMapStream, bi.paramMapStream != nil
+}
+
+func (bi *builderInput) SetParamMapStream(s streaming.MapStream) {
+	bi.paramMapStream = s
 }
 
 func (bi *builderInput) GetGraphHolder() (primitivegraph.PrimitiveGraphHolder, bool) {

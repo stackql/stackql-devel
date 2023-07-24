@@ -200,9 +200,13 @@ func (ss *SingleSelectAcquire) Build() error {
 						ss.handlerCtx.GetTypingConfig(),
 					))
 				}
-				res, resErr := m.ProcessResponse(response)
+				processed, resErr := m.ProcessResponse(response)
 				if resErr != nil {
 					return internaldto.NewErroneousExecutorOutput(resErr)
+				}
+				res, respOk := processed.GetResponse()
+				if !respOk {
+					return internaldto.NewErroneousExecutorOutput(fmt.Errorf("response is not a valid response"))
 				}
 				ss.handlerCtx.LogHTTPResponseMap(res.GetProcessedBody())
 				logging.GetLogger().Infoln(fmt.Sprintf("target = %v", res))
