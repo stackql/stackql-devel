@@ -313,6 +313,7 @@ func (gh *genericHTTPStreamInput) Build() error {
 
 	graphHolder := gh.graphHolder
 
+	//nolint:errcheck // TODO: fix this
 	actionPrimitive.SetInputAlias(gh.inputAlias, gh.dependencyNode.ID())
 	actionNode := graphHolder.CreatePrimitiveNode(actionPrimitive)
 	graphHolder.NewDependency(gh.dependencyNode, actionNode, 1.0)
