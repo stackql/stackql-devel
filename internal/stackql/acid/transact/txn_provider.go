@@ -30,19 +30,20 @@ type standardProvider struct {
 	ctx txn_context.ITransactionCoordinatorContext
 }
 
-func (sp *standardProvider) GetOrchestrator(_ handler.HandlerContext) (Orchestrator, error) {
-	txnCoordinator := newTxnCoordinator(sp.ctx)
+func (sp *standardProvider) GetOrchestrator(handlerCtx handler.HandlerContext) (Orchestrator, error) {
+	txnCoordinator := newTxnCoordinator(handlerCtx, sp.ctx)
 	return &standardOrchestrator{
 		txnCoordinator: txnCoordinator,
 	}, nil
 }
 
-func newTxnCoordinator(ctx txn_context.ITransactionCoordinatorContext) Coordinator {
+func newTxnCoordinator(handlerCtx handler.HandlerContext,
+	ctx txn_context.ITransactionCoordinatorContext) Coordinator {
 	maxTxnDepth := defaultMaxStackDepth
 	if ctx != nil {
 		maxTxnDepth = ctx.GetMaxStackDepth()
 	}
-	return NewCoordinator(maxTxnDepth)
+	return NewCoordinator(handlerCtx, maxTxnDepth)
 }
 
 func GetProviderInstance(ctx txn_context.ITransactionCoordinatorContext) (Provider, error) {

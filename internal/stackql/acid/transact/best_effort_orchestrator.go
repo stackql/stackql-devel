@@ -49,6 +49,28 @@ func (orc *bestEffortOrchestrator) processQueryOrQueries(
 	return retVal, len(retVal) > 0
 }
 
+func (orc *bestEffortOrchestrator) undo(precedingMessages []string) ([]internaldto.ExecutorOutput, bool) {
+	err := orc.txnCoordinator.Rollback()
+	if err != nil {
+		return []internaldto.ExecutorOutput{
+			internaldto.NewNopEmptyExecutorOutput(
+				precedingMessages,
+			),
+			internaldto.NewErroneousExecutorOutput(err),
+		}, true
+	}
+	return []internaldto.ExecutorOutput{
+		internaldto.NewNopEmptyExecutorOutput(
+			precedingMessages,
+		),
+		internaldto.NewNopEmptyExecutorOutput(
+			[]string{
+				"rollback successful",
+			},
+		),
+	}, true
+}
+
 //nolint:gocognit,dupl,funlen,revive,staticcheck // TODO: review
 func (orc *bestEffortOrchestrator) processQuery(
 	handlerCtx handler.HandlerContext,
@@ -137,30 +159,32 @@ func (orc *bestEffortOrchestrator) processQuery(
 		}, true
 	}
 
-	// TODO: fix this crap
-	//       remember, we do not have all undo log data until we get pk back
 	primitiveGraphHolder, primitiveGraphHolderExists := transactStatement.GetPrimitiveGraphHolder()
 	if !primitiveGraphHolderExists {
-		// TODO: bail
+		// bail
 	}
 	undoGraphSize := primitiveGraphHolder.GetInversePrimitiveGraph().Size()
 	if undoGraphSize == 0 {
-		// TOOO: bail
+		// bail
 	}
 
 	redoLog, redoLogExists := transactStatement.GetRedoLog()
 	if redoLogExists {
 		orc.redoLogs = append(orc.redoLogs, redoLog)
 	}
-	// logging.GetLogger().Debugf("undoLog.Size() = %d", undoLog.Size())
-	// orc.undoLogs = append(orc.undoLogs, undoLog)
-	execErr := transactStatement.Execute()
-	if execErr != nil {
-		// TODO: bail
+	enqueueError := orc.txnCoordinator.Enqueue(transactStatement)
+	if enqueueError != nil {
+		// bail
+		return orc.undo([]string{
+			enqueueError.Error(),
+		})
 	}
 	output := transactStatement.Execute()
 	if output.GetError() != nil {
-		// TODO: bail
+		// bail
+		return orc.undo([]string{
+			output.GetError().Error(),
+		})
 	}
 	return []internaldto.ExecutorOutput{output}, true
 }

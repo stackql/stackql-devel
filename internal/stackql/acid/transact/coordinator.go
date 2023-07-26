@@ -2,10 +2,20 @@ package transact
 
 import (
 	"github.com/stackql/stackql/internal/stackql/acid/acid_dto"
+	"github.com/stackql/stackql/internal/stackql/constants"
+	"github.com/stackql/stackql/internal/stackql/handler"
 )
 
-func NewCoordinator(maxTxnDepth int) Coordinator {
-	return newBasicLazyTransactionCoordinator(nil, maxTxnDepth)
+func NewCoordinator(handlerCtx handler.HandlerContext, maxTxnDepth int) Coordinator {
+	rollbackType := handlerCtx.GetRollbackType()
+	switch rollbackType {
+	case constants.NopRollback:
+		return newBasicLazyTransactionCoordinator(nil, maxTxnDepth)
+	case constants.EagerRollback:
+		return newBasicBestEffortTransactionCoordinator(nil, maxTxnDepth)
+	default:
+		return newBasicLazyTransactionCoordinator(nil, maxTxnDepth)
+	}
 }
 
 // The transaction coordinator ensures
