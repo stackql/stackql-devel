@@ -71,7 +71,7 @@ func (orc *bestEffortOrchestrator) undo(precedingMessages []string) ([]internald
 	}, true
 }
 
-//nolint:gocognit,dupl,funlen,revive,staticcheck // TODO: review
+//nolint:gocognit,funlen // TODO: review
 func (orc *bestEffortOrchestrator) processQuery(
 	handlerCtx handler.HandlerContext,
 	query string,
@@ -107,21 +107,9 @@ func (orc *bestEffortOrchestrator) processQuery(
 		commitCoDomain := orc.txnCoordinator.Commit()
 		commitErr, commitErrExists := commitCoDomain.GetError()
 		if commitErrExists {
-			retVal := []internaldto.ExecutorOutput{
-				internaldto.NewErroneousExecutorOutput(commitErr),
-			}
-			undoLog, undoLogExists := commitCoDomain.GetUndoLog()
-			if undoLogExists && undoLog != nil {
-				humanReadable := undoLog.GetHumanReadable()
-				if len(humanReadable) > 0 {
-					displayUndoLogs := make([]string, len(humanReadable))
-					for i, h := range humanReadable {
-						displayUndoLogs[i] = fmt.Sprintf("UNDO required: %s", h)
-					}
-					retVal = append(retVal, internaldto.NewNopEmptyExecutorOutput(displayUndoLogs))
-				}
-			}
-			return retVal, true
+			return orc.undo([]string{
+				commitErr.Error(),
+			})
 		}
 		retVal := commitCoDomain.GetExecutorOutput()
 		parent, hasParent := orc.txnCoordinator.GetParent()
@@ -162,10 +150,24 @@ func (orc *bestEffortOrchestrator) processQuery(
 	primitiveGraphHolder, primitiveGraphHolderExists := transactStatement.GetPrimitiveGraphHolder()
 	if !primitiveGraphHolderExists {
 		// bail
+		undoMessage := "primitive graph holder does not exist"
+		if query != "" {
+			undoMessage = fmt.Sprintf("primitive graph holder does not exist for query: '%s'", query)
+		}
+		return orc.undo([]string{
+			undoMessage,
+		})
 	}
 	undoGraphSize := primitiveGraphHolder.GetInversePrimitiveGraph().Size()
 	if undoGraphSize == 0 {
 		// bail
+		undoMessage := "undo graph does not exist"
+		if query != "" {
+			undoMessage = fmt.Sprintf("undo graph does not exist for query: '%s'", query)
+		}
+		return orc.undo([]string{
+			undoMessage,
+		})
 	}
 
 	redoLog, redoLogExists := transactStatement.GetRedoLog()

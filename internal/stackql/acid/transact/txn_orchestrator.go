@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/stackql/stackql/internal/stackql/acid/txn_context"
+	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 )
@@ -13,6 +14,30 @@ type Orchestrator interface {
 	ProcessQueryOrQueries(
 		handlerCtx handler.HandlerContext,
 	) ([]internaldto.ExecutorOutput, bool)
+}
+
+func newTxnOrchestrator(handlerCtx handler.HandlerContext, txnCoordinator Coordinator) (Orchestrator, error) {
+	rollbackType := handlerCtx.GetRollbackType()
+	switch rollbackType {
+	case constants.NopRollback:
+		return newStdTxnOrchestrator(handlerCtx, txnCoordinator)
+	case constants.EagerRollback:
+		return newBestEffortTxnOrchestrator(handlerCtx, txnCoordinator)
+	default:
+		return newStdTxnOrchestrator(handlerCtx, txnCoordinator)
+	}
+}
+
+func newStdTxnOrchestrator(_ handler.HandlerContext, txnCoordinator Coordinator) (Orchestrator, error) {
+	return &standardOrchestrator{
+		txnCoordinator: txnCoordinator,
+	}, nil
+}
+
+func newBestEffortTxnOrchestrator(_ handler.HandlerContext, txnCoordinator Coordinator) (Orchestrator, error) {
+	return &bestEffortOrchestrator{
+		txnCoordinator: txnCoordinator,
+	}, nil
 }
 
 type standardOrchestrator struct {
@@ -39,7 +64,7 @@ func (orc *standardOrchestrator) processQueryOrQueries(
 	return retVal, len(retVal) > 0
 }
 
-//nolint:gocognit,dupl // TODO: review
+//nolint:gocognit // TODO: review
 func (orc *standardOrchestrator) processQuery(
 	handlerCtx handler.HandlerContext,
 	query string,

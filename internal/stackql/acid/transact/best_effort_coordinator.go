@@ -34,6 +34,10 @@ func newBasicBestEffortTransactionCoordinator(parent Coordinator, maxTxnDepth in
 	}
 }
 
+func (m *basicBestEffortTransactionCoordinator) GetQuery() string {
+	return ""
+}
+
 func (m *basicBestEffortTransactionCoordinator) GetPrimitiveGraphHolder() (primitivegraph.PrimitiveGraphHolder, bool) {
 	return nil, false
 }

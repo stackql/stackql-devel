@@ -157,6 +157,10 @@ func (m *basicLazyTransactionCoordinator) completionPhase() error {
 	return nil
 }
 
+func (m *basicLazyTransactionCoordinator) GetQuery() string {
+	return ""
+}
+
 func (m *basicLazyTransactionCoordinator) Begin() (Coordinator, error) {
 	if m.maxTxnDepth >= 0 && m.Depth() >= m.maxTxnDepth {
 		return nil, fmt.Errorf("cannot begin nested transaction of depth = %d", m.Depth()+1)

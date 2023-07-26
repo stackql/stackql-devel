@@ -22,6 +22,7 @@ type Statement interface {
 	IsCommit() bool
 	IsExecuted() bool
 	IsRollback() bool
+	GetQuery() string
 }
 
 type basicStatement struct {
@@ -43,6 +44,10 @@ func NewStatement(
 		querySubmitter:     querysubmit.NewQuerySubmitter(),
 		transactionContext: transactionContext,
 	}
+}
+
+func (st *basicStatement) GetQuery() string {
+	return st.query
 }
 
 func (st *basicStatement) IsBegin() bool {

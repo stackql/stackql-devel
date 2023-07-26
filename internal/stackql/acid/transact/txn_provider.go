@@ -32,9 +32,7 @@ type standardProvider struct {
 
 func (sp *standardProvider) GetOrchestrator(handlerCtx handler.HandlerContext) (Orchestrator, error) {
 	txnCoordinator := newTxnCoordinator(handlerCtx, sp.ctx)
-	return &standardOrchestrator{
-		txnCoordinator: txnCoordinator,
-	}, nil
+	return newTxnOrchestrator(handlerCtx, txnCoordinator)
 }
 
 func newTxnCoordinator(handlerCtx handler.HandlerContext,
