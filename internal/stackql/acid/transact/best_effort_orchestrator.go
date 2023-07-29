@@ -158,6 +158,11 @@ func (orc *bestEffortOrchestrator) processQuery(
 			undoMessage,
 		})
 	}
+
+	enqueueError := orc.txnCoordinator.Enqueue(transactStatement)
+
+	// Before bailing on eager execution error,
+	// first assemble undo graph.
 	undoGraphSize := primitiveGraphHolder.GetInversePrimitiveGraph().Size()
 	if undoGraphSize == 0 {
 		// bail
@@ -174,7 +179,7 @@ func (orc *bestEffortOrchestrator) processQuery(
 	if redoLogExists {
 		orc.redoLogs = append(orc.redoLogs, redoLog)
 	}
-	enqueueError := orc.txnCoordinator.Enqueue(transactStatement)
+
 	if enqueueError != nil {
 		// bail
 		return orc.undo([]string{

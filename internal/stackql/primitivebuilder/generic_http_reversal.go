@@ -1,4 +1,3 @@
-//nolint:unused // TODO: review
 package primitivebuilder
 
 import (

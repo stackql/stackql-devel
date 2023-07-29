@@ -37,6 +37,7 @@ type genericHTTPStreamInput struct {
 	inputAlias        string
 	isUndo            bool
 	reversalStream    http_preparator_stream.HttpPreparatorStream
+	reversalBuilder   Builder
 	rollbackType      constants.RollbackType
 }
 
@@ -154,7 +155,27 @@ func (gh *genericHTTPStreamInput) Build() error {
 		return fmt.Errorf("inverse is required")
 	}
 	if inverseExists {
+		inverseOpStore, inverseOpStoreExists := inverse.GetOperationStore()
+		if !inverseOpStoreExists {
+			return fmt.Errorf("inverse operation store is required")
+		}
 		logging.GetLogger().Debugf("inverse = %v", inverse)
+		var reversalBuildInitErr error
+		reverseInput := builder_input.NewBuilderInput(
+			gh.graphHolder,
+			handlerCtx,
+			nil, // tbl,
+		)
+		reverseInput.SetHTTPPreparatorStream(gh.reversalStream)
+		reverseInput.SetOperationStore(inverseOpStore)
+		gh.reversalBuilder, reversalBuildInitErr = newGenericHTTPReversal(reverseInput)
+		if reversalBuildInitErr != nil {
+			return reversalBuildInitErr
+		}
+		buildErr := gh.reversalBuilder.Build()
+		if buildErr != nil {
+			return buildErr
+		}
 		// inverseInput :=
 		// inverseBuilder :=
 	}
