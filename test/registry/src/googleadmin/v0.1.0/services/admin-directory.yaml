@@ -31,12 +31,37 @@ components:
             mediaType: application/json
             openAPIDocKey: '200'
             objectKey: users
+        create:
+          operation:
+            $ref: '#/paths/~1admin~1directory~1v1~1users/post'
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+          inverse: 
+            sqlVerb:
+              $ref: '#/components/x-stackQL-resources/users/methods/delete'
+            tokens:
+              userKey:
+                key: id
+                location: body
+                args: {}
+                algorithm: toString
+        delete:
+          operation:
+            $ref: '#/paths/~1admin~1directory~1v1~1users~1{userKey}/delete'
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
       name: users
       title: users
       sqlVerbs:
         select:
           - $ref: '#/components/x-stackQL-resources/users/methods/get'
           - $ref: '#/components/x-stackQL-resources/users/methods/list'
+        insert:
+          - $ref: '#/components/x-stackQL-resources/users/methods/create'
+        delete:
+          - $ref: '#/components/x-stackQL-resources/users/methods/delete'
   schemas:
     User:
       description: A user entity in google directory
@@ -165,7 +190,7 @@ paths:
                     type: list
                     items: 
                       $ref: '#/components/schemas/User'
-    insert:
+    post:
       description: Create a new user.
       operationId: adminDirectory.users.insert
       requestBody:
@@ -180,15 +205,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-      inverse: 
-        operation:
-          $ref: '#/paths/~1admin~1directory~1v1~1users~1{userKey}/delete'
-        tokens:
-          path.userKey:
-            key: id
-            location: responseBody
-            args: {}
-            algorithm: toString
+      
   /admin/directory/v1/users/{userKey}:
     get:
       parameters:
