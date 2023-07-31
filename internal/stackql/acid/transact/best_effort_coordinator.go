@@ -25,10 +25,13 @@ type basicBestEffortTransactionCoordinator struct {
 	maxTxnDepth       int
 	outputs           []internaldto.ExecutorOutput
 	isExecuted        bool
+	// redoGraphs        []primitivegraph.PrimitiveGraph
+	// undoGraphs        []primitivegraph.PrimitiveGraph
 }
 
-func newBasicBestEffortTransactionCoordinator(parent Coordinator, maxTxnDepth int) Coordinator {
+func newBasicBestEffortTransactionCoordinator(handlerCtx handler.HandlerContext, parent Coordinator, maxTxnDepth int) Coordinator {
 	return &basicBestEffortTransactionCoordinator{
+		handlerCtx:  handlerCtx,
 		parent:      parent,
 		maxTxnDepth: maxTxnDepth,
 	}
@@ -168,7 +171,7 @@ func (m *basicBestEffortTransactionCoordinator) Begin() (Coordinator, error) {
 	if m.maxTxnDepth >= 0 && m.Depth() >= m.maxTxnDepth {
 		return nil, fmt.Errorf("cannot begin nested transaction of depth = %d", m.Depth()+1)
 	}
-	return newBasicLazyTransactionCoordinator(m, m.maxTxnDepth), nil
+	return newBasicBestEffortTransactionCoordinator(m.handlerCtx, m, m.maxTxnDepth), nil
 }
 
 func (m *basicBestEffortTransactionCoordinator) Commit() acid_dto.CommitCoDomain {
@@ -189,6 +192,14 @@ func (m *basicBestEffortTransactionCoordinator) Rollback() error {
 			m.handlerCtx.GetOutfile(),
 			m.handlerCtx.GetOutErrFile(),
 		)
+		inverseGraph := stmt.GetInversePrimitiveGraph()
+		if inverseGraph == nil {
+			return fmt.Errorf("cannot rollback statement without inverse primitive graph")
+		}
+		optimiseErr := inverseGraph.Optimise()
+		if optimiseErr != nil {
+			return optimiseErr
+		}
 		coDomain := stmt.GetInversePrimitiveGraph().Execute(pl)
 		if coDomain.GetError() != nil {
 			return coDomain.GetError()

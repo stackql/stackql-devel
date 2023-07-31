@@ -130,6 +130,12 @@ func (orc *bestEffortOrchestrator) processQuery(
 		parent, hasParent := orc.txnCoordinator.GetParent()
 		if hasParent {
 			orc.txnCoordinator = parent
+			for _, g := range orc.undoGraphs {
+				undoOutput := g.Execute(nil)
+				if undoOutput.GetError() != nil {
+					retVal = append(retVal, internaldto.NewErroneousExecutorOutput(undoOutput.GetError()))
+				}
+			}
 			retVal = append(retVal, internaldto.NewNopEmptyExecutorOutput([]string{"Rollback OK"}))
 			return retVal, true
 		}

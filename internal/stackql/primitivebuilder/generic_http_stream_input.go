@@ -168,6 +168,7 @@ func (gh *genericHTTPStreamInput) Build() error {
 		)
 		reverseInput.SetHTTPPreparatorStream(gh.reversalStream)
 		reverseInput.SetOperationStore(inverseOpStore)
+		reverseInput.SetProvider(prov)
 		gh.reversalBuilder, reversalBuildInitErr = newGenericHTTPReversal(reverseInput)
 		if reversalBuildInitErr != nil {
 			return reversalBuildInitErr

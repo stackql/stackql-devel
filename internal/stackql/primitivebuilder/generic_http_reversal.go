@@ -56,7 +56,13 @@ func newGenericHTTPReversal(
 	if !prepStreamExists {
 		return nil, fmt.Errorf("preparator stream is required")
 	}
+	prov, provExists := builderInput.GetProvider()
+	if !provExists {
+		return nil, fmt.Errorf("provider is required")
+	}
+
 	return &genericHTTPReversal{
+		prov:           prov,
 		graphHolder:    graphHolder,
 		handlerCtx:     handlerCtx,
 		drmCfg:         handlerCtx.GetDrmConfig(),

@@ -5,6 +5,7 @@ import (
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
+	"github.com/stackql/stackql/internal/stackql/provider"
 	"github.com/stackql/stackql/internal/stackql/streaming"
 	"github.com/stackql/stackql/internal/stackql/streaming/http_preparator_stream.go"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
@@ -23,6 +24,8 @@ type BuilderInput interface {
 	GetDependencyNode() (primitivegraph.PrimitiveNode, bool)
 	GetCommentDirectives() (sqlparser.CommentDirectives, bool)
 	GetParserNode() (sqlparser.SQLNode, bool)
+	GetProvider() (provider.IProvider, bool)
+	SetProvider(provider.IProvider)
 	GetOperationStore() (openapistackql.OperationStore, bool)
 	SetOperationStore(op openapistackql.OperationStore)
 	IsAwait() bool
@@ -58,6 +61,7 @@ type builderInput struct {
 	paramMapStream    streaming.MapStream
 	httpPrepStream    http_preparator_stream.HttpPreparatorStream
 	op                openapistackql.OperationStore
+	prov              provider.IProvider
 }
 
 func NewBuilderInput(
@@ -72,6 +76,14 @@ func NewBuilderInput(
 		commentDirectives: sqlparser.CommentDirectives{},
 		inputAlias:        "", // this default is explicit for emphasisis
 	}
+}
+
+func (bi *builderInput) GetProvider() (provider.IProvider, bool) {
+	return bi.prov, bi.prov != nil
+}
+
+func (bi *builderInput) SetProvider(prov provider.IProvider) {
+	bi.prov = prov
 }
 
 func (bi *builderInput) GetOperationStore() (openapistackql.OperationStore, bool) {

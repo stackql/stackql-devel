@@ -12,7 +12,7 @@ func NewCoordinator(handlerCtx handler.HandlerContext, maxTxnDepth int) Coordina
 	case constants.NopRollback:
 		return newBasicLazyTransactionCoordinator(nil, maxTxnDepth)
 	case constants.EagerRollback:
-		return newBasicBestEffortTransactionCoordinator(nil, maxTxnDepth)
+		return newBasicBestEffortTransactionCoordinator(handlerCtx, nil, maxTxnDepth)
 	default:
 		return newBasicLazyTransactionCoordinator(nil, maxTxnDepth)
 	}
