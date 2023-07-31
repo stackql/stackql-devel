@@ -219,7 +219,7 @@ func (m *basicBestEffortTransactionCoordinator) Rollback() acid_dto.CommitCoDoma
 			return acid_dto.NewCommitCoDomain(
 				coDomains,
 				nil,
-				nil,
+				coDomain.GetError(),
 			)
 		}
 	}

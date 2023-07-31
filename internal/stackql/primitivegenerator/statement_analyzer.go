@@ -484,7 +484,10 @@ func extractVarDefFromExec(node *sqlparser.Exec, argName string) (*sqlparser.Exe
 func (pb *standardPrimitiveGenerator) parseComments(comments sqlparser.Comments) {
 	if comments != nil {
 		pb.PrimitiveComposer.SetCommentDirectives(sqlparser.ExtractCommentDirectives(comments))
-		pb.PrimitiveComposer.SetAwait(pb.PrimitiveComposer.GetCommentDirectives().IsSet("AWAIT"))
+		// This pattern supports preset.
+		if pb.PrimitiveComposer.GetCommentDirectives().IsSet("AWAIT") {
+			pb.PrimitiveComposer.SetAwait(true)
+		}
 	}
 }
 

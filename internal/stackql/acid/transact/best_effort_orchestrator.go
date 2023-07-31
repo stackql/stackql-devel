@@ -128,6 +128,9 @@ func (orc *bestEffortOrchestrator) processQuery(
 		rollbackErr, rollbackErrExists := rollbackREsponse.GetError()
 		if rollbackErrExists {
 			retVal = append(retVal, internaldto.NewErroneousExecutorOutput(rollbackErr))
+			retVal = append(retVal, internaldto.NewErroneousExecutorOutput(
+				fmt.Errorf("Rollback failed")))
+			return retVal, true
 		}
 		parent, hasParent := orc.txnCoordinator.GetParent()
 		if hasParent {
@@ -136,6 +139,9 @@ func (orc *bestEffortOrchestrator) processQuery(
 				undoOutput := g.Execute(nil)
 				if undoOutput.GetError() != nil {
 					retVal = append(retVal, internaldto.NewErroneousExecutorOutput(undoOutput.GetError()))
+					retVal = append(retVal, internaldto.NewErroneousExecutorOutput(
+						fmt.Errorf("Rollback failed")))
+					return retVal, true
 				}
 			}
 			retVal = append(retVal, internaldto.NewNopEmptyExecutorOutput([]string{"Rollback OK"}))
