@@ -128,8 +128,9 @@ func (orc *standardOrchestrator) processQuery(
 		return retVal, true
 	} else if transactStatement.IsRollback() {
 		var retVal []internaldto.ExecutorOutput
-		rollbackErr := orc.txnCoordinator.Rollback()
-		if rollbackErr != nil {
+		rollbackREsponse := orc.txnCoordinator.Rollback()
+		rollbackErr, rollbackErrExists := rollbackREsponse.GetError()
+		if rollbackErrExists {
 			retVal = append(retVal, internaldto.NewErroneousExecutorOutput(rollbackErr))
 		}
 		parent, hasParent := orc.txnCoordinator.GetParent()

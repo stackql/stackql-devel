@@ -29,7 +29,11 @@ type basicBestEffortTransactionCoordinator struct {
 	// undoGraphs        []primitivegraph.PrimitiveGraph
 }
 
-func newBasicBestEffortTransactionCoordinator(handlerCtx handler.HandlerContext, parent Coordinator, maxTxnDepth int) Coordinator {
+func newBasicBestEffortTransactionCoordinator(
+	handlerCtx handler.HandlerContext,
+	parent Coordinator,
+	maxTxnDepth int,
+) Coordinator {
 	return &basicBestEffortTransactionCoordinator{
 		handlerCtx:  handlerCtx,
 		parent:      parent,
@@ -184,7 +188,8 @@ func (m *basicBestEffortTransactionCoordinator) Commit() acid_dto.CommitCoDomain
 }
 
 // Rollback is best effort and runs in reverse order.
-func (m *basicBestEffortTransactionCoordinator) Rollback() error {
+func (m *basicBestEffortTransactionCoordinator) Rollback() acid_dto.CommitCoDomain {
+	var coDomains []internaldto.ExecutorOutput
 	for i := len(m.statementGraphs) - 1; i >= 0; i-- {
 		stmt := m.statementGraphs[i]
 		pl := internaldto.NewBasicPrimitiveContext(
@@ -194,18 +199,35 @@ func (m *basicBestEffortTransactionCoordinator) Rollback() error {
 		)
 		inverseGraph := stmt.GetInversePrimitiveGraph()
 		if inverseGraph == nil {
-			return fmt.Errorf("cannot rollback statement without inverse primitive graph")
+			return acid_dto.NewCommitCoDomain(
+				nil,
+				nil,
+				fmt.Errorf("cannot rollback statement without inverse primitive graph"),
+			)
 		}
 		optimiseErr := inverseGraph.Optimise()
 		if optimiseErr != nil {
-			return optimiseErr
+			return acid_dto.NewCommitCoDomain(
+				nil,
+				nil,
+				optimiseErr,
+			)
 		}
 		coDomain := stmt.GetInversePrimitiveGraph().Execute(pl)
+		coDomains = append(coDomains, coDomain)
 		if coDomain.GetError() != nil {
-			return coDomain.GetError()
+			return acid_dto.NewCommitCoDomain(
+				coDomains,
+				nil,
+				nil,
+			)
 		}
 	}
-	return nil
+	return acid_dto.NewCommitCoDomain(
+		coDomains,
+		nil,
+		nil,
+	)
 }
 
 func (m *basicBestEffortTransactionCoordinator) Enqueue(stmt Statement) error {

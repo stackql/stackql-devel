@@ -50,13 +50,14 @@ func (orc *bestEffortOrchestrator) processQueryOrQueries(
 }
 
 func (orc *bestEffortOrchestrator) undo(precedingMessages []string) ([]internaldto.ExecutorOutput, bool) {
-	err := orc.txnCoordinator.Rollback()
-	if err != nil {
+	rollbackREsponse := orc.txnCoordinator.Rollback()
+	rollbackErr, rollbackErrExists := rollbackREsponse.GetError()
+	if rollbackErrExists {
 		return []internaldto.ExecutorOutput{
 			internaldto.NewNopEmptyExecutorOutput(
 				precedingMessages,
 			),
-			internaldto.NewErroneousExecutorOutput(err),
+			internaldto.NewErroneousExecutorOutput(rollbackErr),
 		}, true
 	}
 	return []internaldto.ExecutorOutput{
@@ -123,8 +124,9 @@ func (orc *bestEffortOrchestrator) processQuery(
 		return retVal, true
 	} else if transactStatement.IsRollback() {
 		var retVal []internaldto.ExecutorOutput
-		rollbackErr := orc.txnCoordinator.Rollback()
-		if rollbackErr != nil {
+		rollbackREsponse := orc.txnCoordinator.Rollback()
+		rollbackErr, rollbackErrExists := rollbackREsponse.GetError()
+		if rollbackErrExists {
 			retVal = append(retVal, internaldto.NewErroneousExecutorOutput(rollbackErr))
 		}
 		parent, hasParent := orc.txnCoordinator.GetParent()

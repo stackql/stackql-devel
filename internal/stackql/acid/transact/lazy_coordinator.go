@@ -180,8 +180,12 @@ func (m *basicLazyTransactionCoordinator) Commit() acid_dto.CommitCoDomain {
 // Rollback is a no-op for now.
 // The redo logs will simply be
 // displayed to the user.
-func (m *basicLazyTransactionCoordinator) Rollback() error {
-	return nil
+func (m *basicLazyTransactionCoordinator) Rollback() acid_dto.CommitCoDomain {
+	return acid_dto.NewCommitCoDomain(
+		nil,
+		nil,
+		nil,
+	)
 }
 
 func (m *basicLazyTransactionCoordinator) Enqueue(stmt Statement) error {
