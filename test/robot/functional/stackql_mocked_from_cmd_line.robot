@@ -1204,7 +1204,7 @@ Basic Count Star From View Returns Expected Result
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
-    ...    SELECT count(*) as repository_count FROM stackql_repositories ;
+    ...    SELECT count(*) FROM stackql_repositories ;
     ...    ${outputStr}
     ...    stdout=${CURDIR}/tmp/Basic-Count-Star-From-View-Returns-Expected-Result.tmp
 
