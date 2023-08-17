@@ -591,6 +591,15 @@ func (v *standardQueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			if err != nil {
 				return err
 			}
+			if col.IsAggregateExpr {
+				rv := typing.NewRelationalColumn(
+					col.Name,
+					"int",
+				).WithDecorated(col.DecoratedColumn).WithAlias(col.Alias)
+				v.relationalColumns = append(v.relationalColumns, rv)
+				return nil
+			}
+
 			r, ok := indirect.GetColumnByName(col.Name)
 			if !ok {
 				return fmt.Errorf("query rewriting for indirection: cannot find col = '%s'", col.Name)
