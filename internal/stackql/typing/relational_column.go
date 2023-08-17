@@ -74,8 +74,8 @@ func (rc *standardRelationalColumn) CanonicalSelectionString() string {
 	return colStringBuilder.String()
 }
 
+//nolint:gocritic // acceptable
 func (rc *standardRelationalColumn) DelimitedSelectionString(delim string) string {
-	//nolint:gocritic // acceptable
 	aliasDelim := delim
 	if rc.unquote {
 		delim = ""
