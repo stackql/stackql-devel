@@ -595,7 +595,11 @@ func (v *standardQueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 				rv := typing.NewRelationalColumn(
 					col.Name,
 					"int",
-				).WithDecorated(col.DecoratedColumn).WithAlias(col.Alias)
+				).WithDecorated(
+					col.DecoratedColumn,
+				).WithAlias(
+					col.Alias,
+				).WithUnquote(true)
 				v.relationalColumns = append(v.relationalColumns, rv)
 				return nil
 			}
