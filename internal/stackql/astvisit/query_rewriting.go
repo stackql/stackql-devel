@@ -95,6 +95,21 @@ func NewQueryRewriteAstVisitor(
 	return rv
 }
 
+// TODO: introduce dependency on RDBMS
+func (v *standardQueryRewriteAstVisitor) getTypeFromParserType(t sqlparser.ValType) string {
+	//nolint:exhaustive // acceptable
+	switch t {
+	case sqlparser.StrVal:
+		return "string"
+	case sqlparser.IntVal:
+		return "int"
+	case sqlparser.FloatVal:
+		return "float"
+	default:
+		return "string"
+	}
+}
+
 func (v *standardQueryRewriteAstVisitor) WithPrepStmtOffset(offset int) QueryRewriteAstVisitor {
 	v.prepStmtOffset = offset
 	return v
@@ -594,7 +609,7 @@ func (v *standardQueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			if col.IsAggregateExpr {
 				rv := typing.NewRelationalColumn(
 					col.Name,
-					"int",
+					v.getTypeFromParserType(col.Type),
 				).WithDecorated(
 					col.DecoratedColumn,
 				).WithAlias(
