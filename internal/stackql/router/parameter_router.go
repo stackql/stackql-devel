@@ -440,14 +440,21 @@ func (pr *standardParameterRouter) route(
 	}
 	indirect, _ := pr.annotatedAST.GetIndirect(tb)
 	hrView, hrViewPresent := hr.GetHeirarchyIds().GetView()
-	if indirect == nil && hrViewPresent {
-		indirect, err = astindirect.NewViewIndirect(hrView)
-		if err != nil {
-			return nil, err
-		}
-		err = indirect.Parse()
-		if err != nil {
-			return nil, err
+	if indirect == nil && hrViewPresent { //nolint:nestif // TODO: review
+		if hrView.IsMaterialized() {
+			indirect, err = astindirect.NewMaterializedViewIndirect(hrView, handlerCtx.GetSQLSystem())
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			indirect, err = astindirect.NewViewIndirect(hrView)
+			if err != nil {
+				return nil, err
+			}
+			err = indirect.Parse()
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	m := tablemetadata.NewExtendedTableMetadata(

@@ -812,7 +812,7 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 			}
 			return nil
 		} else if isMaterializedView {
-			indirect, newErr := astindirect.NewMaterializedViewIndirect(materializedViewDTO)
+			indirect, newErr := astindirect.NewMaterializedViewIndirect(materializedViewDTO, v.sqlSystem)
 			if newErr != nil {
 				return newErr
 			}

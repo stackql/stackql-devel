@@ -25,6 +25,10 @@ func (v *view) GetType() IndirectType {
 	return ViewType
 }
 
+func (v *view) GetRelationalColumns() []typing.RelationalColumn {
+	return nil
+}
+
 func (v *view) GetAssignedParameters() (internaldto.TableParameterCollection, bool) {
 	return v.paramCollection, v.paramCollection != nil
 }

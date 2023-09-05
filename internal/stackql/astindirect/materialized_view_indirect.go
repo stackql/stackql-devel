@@ -1,4 +1,3 @@
-//nolint:dupl // acceptable for now
 package astindirect
 
 import (
@@ -9,6 +8,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/parser"
+	"github.com/stackql/stackql/internal/stackql/sql_system"
 	"github.com/stackql/stackql/internal/stackql/symtab"
 	"github.com/stackql/stackql/internal/stackql/typing"
 )
@@ -16,8 +16,8 @@ import (
 type materializedView struct {
 	viewDTO               internaldto.ViewDTO
 	selectStmt            sqlparser.SelectStatement
-	selCtx                drm.PreparedStatementCtx
 	paramCollection       internaldto.TableParameterCollection
+	sqlSystem             sql_system.SQLSystem
 	underlyingSymbolTable symtab.SymTab
 }
 
@@ -46,7 +46,11 @@ func (v *materializedView) GetName() string {
 }
 
 func (v *materializedView) GetColumns() []typing.ColumnMetadata {
-	return v.selCtx.GetNonControlColumns()
+	return nil
+}
+
+func (v *materializedView) GetRelationalColumns() []typing.RelationalColumn {
+	return v.viewDTO.GetColumns()
 }
 
 func (v *materializedView) GetOptionalParameters() map[string]openapistackql.Addressable {
@@ -57,22 +61,16 @@ func (v *materializedView) GetRequiredParameters() map[string]openapistackql.Add
 	return nil
 }
 
-func (v *materializedView) GetColumnByName(name string) (typing.ColumnMetadata, bool) {
-	nccs := v.selCtx.GetNonControlColumns()
-	for _, col := range nccs {
-		if col.GetIdentifier() == name {
-			return col, true
-		}
-	}
+func (v *materializedView) GetColumnByName(_ string) (typing.ColumnMetadata, bool) {
 	return nil, false
 }
 
-func (v *materializedView) SetSelectContext(selCtx drm.PreparedStatementCtx) {
-	v.selCtx = selCtx
+func (v *materializedView) SetSelectContext(_ drm.PreparedStatementCtx) {
+	//
 }
 
 func (v *materializedView) GetSelectContext() drm.PreparedStatementCtx {
-	return v.selCtx
+	return nil
 }
 
 func (v *materializedView) GetTables() sqlparser.TableExprs {
@@ -92,7 +90,7 @@ func (v *materializedView) GetSelectAST() sqlparser.SelectStatement {
 }
 
 func (v *materializedView) GetSelectionCtx() (drm.PreparedStatementCtx, error) {
-	return v.selCtx, nil
+	return nil, fmt.Errorf("materialized view does not have select context")
 }
 
 func (v *materializedView) Parse() error {
@@ -101,8 +99,8 @@ func (v *materializedView) Parse() error {
 		return err
 	}
 	switch pr := parseResult.(type) {
-	case sqlparser.SelectStatement:
-		v.selectStmt = pr
+	case *sqlparser.DDL:
+		v.selectStmt = pr.SelectStatement
 		return nil
 	default:
 		return fmt.Errorf("materializedView of type '%T' not yet supported", pr)

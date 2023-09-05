@@ -532,15 +532,16 @@ func (eng *sqLiteSystem) GetViewByName(viewName string) (internaldto.ViewDTO, bo
 func (eng *sqLiteSystem) getViewByName(viewName string) (internaldto.ViewDTO, bool) {
 	q := `SELECT view_ddl FROM "__iql__.views" WHERE view_name = ? and deleted_dttm IS NULL`
 	row := eng.sqlEngine.QueryRow(q, viewName)
-	if row != nil {
-		var viewDDL string
-		err := row.Scan(&viewDDL)
-		if err != nil {
-			return nil, false
-		}
-		return internaldto.NewViewDTO(viewName, viewDDL), true
+	if row == nil {
+		return nil, false
 	}
-	return nil, false
+	var viewDDL string
+	err := row.Scan(&viewDDL)
+	if err != nil {
+		return nil, false
+	}
+	rv := internaldto.NewViewDTO(viewName, viewDDL)
+	return rv, true
 }
 
 func (eng *sqLiteSystem) DropView(viewName string) error {
@@ -678,22 +679,63 @@ func (eng *sqLiteSystem) DropMaterializedView(viewName string) error {
 	return commitErr
 }
 
-func (eng *sqLiteSystem) GetMaterializedViewByName(viewName string) (internaldto.MaterializedViewDTO, bool) {
+func (eng *sqLiteSystem) GetMaterializedViewByName(viewName string) (internaldto.ViewDTO, bool) {
 	return eng.getMaterializedViewByName(viewName)
 }
 
-func (eng *sqLiteSystem) getMaterializedViewByName(viewName string) (internaldto.MaterializedViewDTO, bool) {
+func (eng *sqLiteSystem) getMaterializedViewByName(viewName string) (internaldto.ViewDTO, bool) {
 	q := `SELECT view_ddl FROM "__iql__.materialized_views" WHERE view_name = ? and deleted_dttm IS NULL`
+	colQuery := `
+	SELECT
+		column_name 
+	   ,column_type
+	   ,"oid" 
+	   ,column_width 
+	   ,column_precision 
+	FROM
+	  "__iql__.materialized_views.columns"
+	WHERE
+	  view_name = ?
+	ORDER BY ordinal_position ASC
+	`
 	row := eng.sqlEngine.QueryRow(q, viewName)
-	if row != nil {
-		var viewDDL string
-		err := row.Scan(&viewDDL)
+	if row == nil {
+		return nil, false
+	}
+	var viewDDL string
+	err := row.Scan(&viewDDL)
+	if err != nil {
+		return nil, false
+	}
+	rv := internaldto.NewMaterializedViewDTO(viewName, viewDDL)
+	rows, err := eng.sqlEngine.Query(colQuery, viewName)
+	if err != nil || rows == nil || rows.Err() != nil {
+		return nil, false
+	}
+	defer rows.Close()
+	hasRow := false
+	var columns []typing.RelationalColumn
+	for {
+		if !rows.Next() {
+			break
+		}
+		hasRow = true
+		var columnName, columnType string
+		var oID, colWidth, colPrecision int
+		err = rows.Scan(&columnName, &columnType, &oID, &colWidth, &colPrecision)
 		if err != nil {
 			return nil, false
 		}
-		return internaldto.NewMaterializedViewDTO(viewName, viewDDL), true
+		relationalColumn := typing.NewRelationalColumn(
+			columnName,
+			columnType).WithWidth(colWidth).WithOID(oid.Oid(oID))
+		columns = append(columns, relationalColumn)
 	}
-	return nil, false
+	rv.SetColumns(columns)
+	if !hasRow {
+		return nil, false
+	}
+	return rv, true
 }
 
 func (eng *sqLiteSystem) IsTablePresent(

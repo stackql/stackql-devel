@@ -577,11 +577,11 @@ func (eng *postgresSystem) DropMaterializedView(viewName string) error {
 	return commitErr
 }
 
-func (eng *postgresSystem) GetMaterializedViewByName(viewName string) (internaldto.MaterializedViewDTO, bool) {
+func (eng *postgresSystem) GetMaterializedViewByName(viewName string) (internaldto.ViewDTO, bool) {
 	return eng.getMaterializedViewByName(viewName)
 }
 
-func (eng *postgresSystem) getMaterializedViewByName(viewName string) (internaldto.MaterializedViewDTO, bool) {
+func (eng *postgresSystem) getMaterializedViewByName(viewName string) (internaldto.ViewDTO, bool) {
 	q := `SELECT view_ddl FROM "__iql__.materialized_views" WHERE view_name = ? and deleted_dttm IS NULL`
 	row := eng.sqlEngine.QueryRow(q, viewName)
 	if row != nil {

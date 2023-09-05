@@ -9,6 +9,10 @@ import (
 	"github.com/stackql/stackql/internal/stackql/typing"
 )
 
+var (
+	_ PreparedStatementCtx = (*standardPreparedStatementCtx)(nil)
+)
+
 type PreparedStatementCtx interface {
 	GetAllCtrlCtrs() []internaldto.TxnControlCounters
 	GetGCCtrlCtrs() internaldto.TxnControlCounters

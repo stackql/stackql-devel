@@ -30,6 +30,10 @@ func (v *subquery) SetAssignedParameters(paramCollection internaldto.TableParame
 	v.paramCollection = paramCollection
 }
 
+func (v *subquery) GetRelationalColumns() []typing.RelationalColumn {
+	return nil
+}
+
 func (v *subquery) GetUnderlyingSymTab() symtab.SymTab {
 	return v.underlyingSymbolTable
 }

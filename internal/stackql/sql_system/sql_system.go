@@ -74,7 +74,7 @@ type SQLSystem interface {
 	// Materialized Views
 	CreateMaterializedView(viewName string, rawDDL string, translatedDDL string, loadDML string, replaceAllowed bool) error
 	DropMaterializedView(viewName string) error
-	GetMaterializedViewByName(viewName string) (internaldto.MaterializedViewDTO, bool)
+	GetMaterializedViewByName(viewName string) (internaldto.ViewDTO, bool)
 	QueryMaterializedView(colzString, actualRelationName, whereClause string) (*sql.Rows, error)
 
 	// External SQL data sources

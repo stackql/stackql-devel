@@ -125,7 +125,11 @@ func (v *standardQueryRewriteAstVisitor) getStarColumns(
 	tbl tablemetadata.ExtendedTableMetadata,
 ) ([]typing.RelationalColumn, error) {
 	if indirect, isIndirect := tbl.GetIndirect(); isIndirect {
-		rv := v.dc.ColumnsToRelationalColumns(indirect.GetColumns())
+		rv := indirect.GetRelationalColumns()
+		if len(rv) > 0 {
+			return rv, nil
+		}
+		rv = v.dc.ColumnsToRelationalColumns(indirect.GetColumns())
 		return rv, nil
 	}
 	schema, _, err := tbl.GetResponseSchemaAndMediaType()

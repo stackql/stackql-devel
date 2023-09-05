@@ -295,7 +295,7 @@ VALUES (
 );
 
 CREATE TABLE IF NOT EXISTS "__iql__.external.columns" (
-   iql_column_id BIGSERIAL PRIMARY KEY
+   iql_column_id INTEGER PRIMARY KEY AUTOINCREMENT
   ,connection_name TEXT
   ,catalog_name TEXT
   ,schema_name TEXT
@@ -308,4 +308,112 @@ CREATE TABLE IF NOT EXISTS "__iql__.external.columns" (
   ,column_precision TEXT
   ,UNIQUE(connection_name, catalog_name, schema_name, table_name, column_name)
 )
+;
+
+CREATE TABLE IF NOT EXISTS "__iql__.materialized_views" (
+   iql_view_id INTEGER PRIMARY KEY AUTOINCREMENT 
+  ,view_name TEXT NOT NULL UNIQUE
+  ,view_ddl TEXT
+  ,translated_ddl TEXT
+  ,translated_inline_dml TEXT -- for systems that do not have materialized views
+  ,view_stackql_ddl TEXT
+  ,created_dttm TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+  ,deleted_dttm TIMESTAMP WITH TIME ZONE DEFAULT null
+)
+;
+
+CREATE INDEX IF NOT EXISTS "idx.__iql__.materialized_views" 
+ON "__iql__.materialized_views" (view_name)
+;
+
+CREATE TABLE IF NOT EXISTS "__iql__.materialized_views.columns" (
+   iql_column_id INTEGER PRIMARY KEY AUTOINCREMENT
+  ,view_name TEXT
+  ,column_name TEXT
+  ,column_type TEXT
+  ,ordinal_position INT
+  ,"oid" INT
+  ,column_width INT
+  ,column_precision INT
+  ,UNIQUE(view_name, column_name)
+)
+;
+
+INSERT INTO "__iql__.materialized_views" (
+  view_name,
+  view_ddl,
+  translated_ddl,
+  translated_inline_dml
+) 
+VALUES (
+  'stackql_gossip',
+  '
+  create materialized view stackql_gossip as
+  select ''stackql is open to extension'' as gossip, ''tech'' as category
+  ',
+  '
+  create table view stackql_gossip(
+    gossip text UNIQUE,
+    category text)
+  ',
+  '
+  insert into stackql_gossip(gossip, category)
+  select ''stackql is open to extension'' as gossip, ''tech'' as category
+  '  
+)
+ON CONFLICT (view_name) DO NOTHING
+;
+
+INSERT INTO "__iql__.materialized_views.columns" (
+  view_name,
+  column_name,
+  column_type,
+  ordinal_position,
+  "oid",
+  column_width,
+  column_precision
+) 
+VALUES (
+  'stackql_gossip',
+  'gossip',
+  'text',
+  1,
+  25,  -- oid for text
+  0,
+  0
+)
+ON CONFLICT (view_name, column_name) DO NOTHING
+;
+
+INSERT INTO "__iql__.materialized_views.columns" (
+  view_name,
+  column_name,
+  column_type,
+  ordinal_position,
+  "oid",
+  column_width,
+  column_precision
+) 
+VALUES (
+  'stackql_gossip',
+  'category',
+  'text',
+  2,
+  25,  -- oid for text
+  0,
+  0
+)
+ON CONFLICT (view_name, column_name) DO NOTHING
+;
+
+create table if not exists stackql_gossip(
+  gossip text UNIQUE,
+  category text)
+;
+
+CREATE INDEX IF NOT EXISTS "idx.stackql_gossip_gossip" on stackql_gossip(category);
+
+INSERT INTO stackql_gossip(gossip, category)
+select 'stackql is open to extension' as gossip, 'tech' as category
+on conflict (gossip) do nothing
 ;
