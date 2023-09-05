@@ -116,7 +116,7 @@ func (sp *standardInitialPasses) Analyze(
 	return sp.initialPasses(statement, handlerCtx, tcc)
 }
 
-//nolint:funlen,gocognit // this is a large function abstracting plenty
+//nolint:funlen,gocognit,gocyclo,cyclop // this is a large function abstracting plenty
 func (sp *standardInitialPasses) initialPasses(
 	statement sqlparser.Statement,
 	handlerCtx handler.HandlerContext,
@@ -347,6 +347,7 @@ func (sp *standardInitialPasses) initialPasses(
 		}
 		pbi = routeAnalyzer.GetPlanBuilderInput()
 	}
+	pbi.SetCreateMAterializedView(isCreateMAterializedView)
 
 	sp.instructionType = StandardInstruction
 	sp.planBuilderInput = pbi
