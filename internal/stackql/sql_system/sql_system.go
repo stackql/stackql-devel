@@ -71,6 +71,12 @@ type SQLSystem interface {
 	DropView(viewName string) error
 	GetViewByName(viewName string) (internaldto.ViewDTO, bool)
 
+	// Materialized Views
+	CreateMaterializedView(viewName string, rawDDL string, translatedDDL string, loadDML string, replaceAllowed bool) error
+	DropMaterializedView(viewName string) error
+	GetMaterializedViewByName(viewName string) (internaldto.MaterializedViewDTO, bool)
+	QueryMaterializedView(colzString, actualRelationName, whereClause string) (*sql.Rows, error)
+
 	// External SQL data sources
 	RegisterExternalTable(connectionName string, tableDetails openapistackql.SQLExternalTable) error
 	ObtainRelationalColumnFromExternalSQLtable(

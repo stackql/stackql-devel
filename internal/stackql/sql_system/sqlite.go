@@ -594,6 +594,108 @@ func (eng *sqLiteSystem) generateViewDDL(relationalTable relationaldto.Relationa
 	return retVal, nil
 }
 
+func (eng *sqLiteSystem) CreateMaterializedView(
+	viewName string, rawDDL string, translatedDDL string, loadDML string, replaceAllowed bool) error {
+	q := `
+	INSERT INTO "__iql__.materialized_views" (
+		view_name,
+		view_ddl,
+		translated_ddl
+	  ) 
+	  VALUES (
+		?,
+		?,
+		?
+	  )
+	`
+	if replaceAllowed {
+		q += `
+		  ON CONFLICT(view_name)
+		  DO
+		    UPDATE SET view_ddl = EXCLUDED.view_ddl,
+			           translated_ddl = EXCLUDED.translated_ddl
+		`
+	}
+	tx, err := eng.sqlEngine.GetTx()
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec(q, viewName, rawDDL)
+	if err != nil {
+		//nolint:errcheck // TODO: merge variadic error(s) into one
+		tx.Rollback()
+		return err
+	}
+	if replaceAllowed {
+		_, err = tx.Exec(fmt.Sprintf(`drop table if exists "%s"`, viewName))
+		if err != nil {
+			//nolint:errcheck // TODO: merge variadic error(s) into one
+			tx.Rollback()
+			return err
+		}
+	}
+	_, err = tx.Exec(translatedDDL)
+	if err != nil {
+		//nolint:errcheck // TODO: merge variadic error(s) into one
+		tx.Rollback()
+		return err
+	}
+	_, err = tx.Exec(loadDML)
+	if err != nil {
+		//nolint:errcheck // TODO: merge variadic error(s) into one
+		tx.Rollback()
+		return err
+	}
+	commitErr := tx.Commit()
+	return commitErr
+}
+
+func (eng *sqLiteSystem) DropMaterializedView(viewName string) error {
+	dropRefQuery := `
+	DELETE FROM "__iql__.materialized_views"
+	WHERE view_name = ?
+	`
+	dropTableQuery := fmt.Sprintf(`
+	DROP TABLE IF EXISTS "%s"
+	`, viewName)
+	tx, err := eng.sqlEngine.GetTx()
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec(dropRefQuery, viewName)
+	if err != nil {
+		//nolint:errcheck // TODO: merge variadic error(s) into one
+		tx.Rollback()
+		return err
+	}
+	_, err = tx.Exec(dropTableQuery)
+	if err != nil {
+		//nolint:errcheck // TODO: merge variadic error(s) into one
+		tx.Rollback()
+		return err
+	}
+	commitErr := tx.Commit()
+	return commitErr
+}
+
+func (eng *sqLiteSystem) GetMaterializedViewByName(viewName string) (internaldto.MaterializedViewDTO, bool) {
+	return eng.getMaterializedViewByName(viewName)
+}
+
+func (eng *sqLiteSystem) getMaterializedViewByName(viewName string) (internaldto.MaterializedViewDTO, bool) {
+	q := `SELECT view_ddl FROM "__iql__.materialized_views" WHERE view_name = ? and deleted_dttm IS NULL`
+	row := eng.sqlEngine.QueryRow(q, viewName)
+	if row != nil {
+		var viewDDL string
+		err := row.Scan(&viewDDL)
+		if err != nil {
+			return nil, false
+		}
+		return internaldto.NewMaterializedViewDTO(viewName, viewDDL), true
+	}
+	return nil, false
+}
+
 func (eng *sqLiteSystem) IsTablePresent(
 	tableName string,
 	requestEncoding string,
@@ -1060,5 +1162,20 @@ func (eng *sqLiteSystem) QueryNamespaced(
 			requestEncodingColName,
 		),
 		requestEncoding,
+	)
+}
+
+func (eng *sqLiteSystem) QueryMaterializedView(
+	colzString,
+	actualRelationName,
+	whereClause string,
+) (*sql.Rows, error) {
+	return eng.sqlEngine.Query(
+		fmt.Sprintf(
+			`SELECT %s FROM "%s" WHERE %s`,
+			colzString,
+			actualRelationName,
+			whereClause,
+		),
 	)
 }

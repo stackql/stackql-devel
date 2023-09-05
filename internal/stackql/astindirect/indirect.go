@@ -23,10 +23,19 @@ const (
 	ViewType IndirectType = iota
 	SubqueryType
 	CTEType
+	MaterializedViewType
 )
 
 func NewViewIndirect(viewDTO internaldto.ViewDTO) (Indirect, error) {
 	rv := &view{
+		viewDTO:               viewDTO,
+		underlyingSymbolTable: symtab.NewHashMapTreeSymTab(),
+	}
+	return rv, nil
+}
+
+func NewMaterializedViewIndirect(viewDTO internaldto.ViewDTO) (Indirect, error) {
+	rv := &materializedView{
 		viewDTO:               viewDTO,
 		underlyingSymbolTable: symtab.NewHashMapTreeSymTab(),
 	}

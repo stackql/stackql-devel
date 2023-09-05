@@ -46,6 +46,9 @@ type PlanBuilderInput interface {
 	SetIsTccSetAheadOfTime(bool)
 	SetPrepStmtOffset(int)
 
+	SetCreateMAterializedView(bool)
+	IsCreateMaterializedView() bool
+
 	GetMessages() []string
 	WithMessages(messages []string) PlanBuilderInput
 	WithParameterRouter(router.ParameterRouter) PlanBuilderInput
@@ -55,23 +58,24 @@ type PlanBuilderInput interface {
 }
 
 type StandardPlanBuilderInput struct {
-	annotatedAST           annotatedast.AnnotatedAst
-	handlerCtx             handler.HandlerContext
-	stmt                   sqlparser.SQLNode
-	colRefs                parserutil.ColTableMap
-	aliasedTables          parserutil.TableAliasMap
-	assignedAliasedColumns parserutil.TableExprMap
-	tables                 sqlparser.TableExprs
-	paramsPlaceheld        parserutil.ParameterMap
-	tcc                    internaldto.TxnControlCounters
-	paramRouter            router.ParameterRouter
-	tableRouteVisitor      router.TableRouteAstVisitor
-	onConditionDataFlows   dataflow.Collection
-	onConditionsToRewrite  map[*sqlparser.ComparisonExpr]struct{}
-	tccSetAheadOfTime      bool
-	messages               []string
-	readOnly               bool
-	prepStmtOffset         int
+	annotatedAST             annotatedast.AnnotatedAst
+	handlerCtx               handler.HandlerContext
+	stmt                     sqlparser.SQLNode
+	colRefs                  parserutil.ColTableMap
+	aliasedTables            parserutil.TableAliasMap
+	assignedAliasedColumns   parserutil.TableExprMap
+	tables                   sqlparser.TableExprs
+	paramsPlaceheld          parserutil.ParameterMap
+	tcc                      internaldto.TxnControlCounters
+	paramRouter              router.ParameterRouter
+	tableRouteVisitor        router.TableRouteAstVisitor
+	onConditionDataFlows     dataflow.Collection
+	onConditionsToRewrite    map[*sqlparser.ComparisonExpr]struct{}
+	tccSetAheadOfTime        bool
+	messages                 []string
+	readOnly                 bool
+	prepStmtOffset           int
+	isCreateMaterializedView bool
 }
 
 func NewPlanBuilderInput(
@@ -143,7 +147,16 @@ func (pbi *StandardPlanBuilderInput) Clone() PlanBuilderInput {
 	)
 	clonedPbi.SetPrepStmtOffset(pbi.prepStmtOffset)
 	clonedPbi.SetReadOnly(pbi.IsReadOnly())
+	clonedPbi.SetCreateMAterializedView(pbi.isCreateMaterializedView)
 	return clonedPbi
+}
+
+func (pbi *StandardPlanBuilderInput) SetCreateMAterializedView(isCreateMaterializedView bool) {
+	pbi.isCreateMaterializedView = isCreateMaterializedView
+}
+
+func (pbi *StandardPlanBuilderInput) IsCreateMaterializedView() bool {
+	return pbi.isCreateMaterializedView
 }
 
 func (pbi *StandardPlanBuilderInput) SetPrepStmtOffset(offset int) {

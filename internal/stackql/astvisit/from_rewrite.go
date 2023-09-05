@@ -658,14 +658,27 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			}
 			if indirect, isIndirect := anCtx.GetTableMeta().GetIndirect(); isIndirect {
 				//
-				alias := indirect.GetName()
+				name := indirect.GetName()
 				indirectType := indirect.GetType()
-				templateString := ` ( %s ) `
-				if indirectType == astindirect.ViewType {
-					templateString = fmt.Sprintf(` ( %%s ) AS "%s" `, alias)
+				switch indirectType {
+				case astindirect.ViewType:
+					templateString := fmt.Sprintf(` ( %%s ) AS "%s" `, name)
+					v.rewrittenQuery = templateString
+					v.indirectContexts = append(v.indirectContexts, indirect.GetSelectContext())
+				case astindirect.SubqueryType:
+					templateString := ` ( %s ) `
+					v.rewrittenQuery = templateString
+					v.indirectContexts = append(v.indirectContexts, indirect.GetSelectContext())
+				case astindirect.MaterializedViewType: // TODO: expand to cover tables
+					refString := fmt.Sprintf(` "%s" `, name)
+					alias := ""
+					if alias != "" {
+						refString = fmt.Sprintf(` "%s" AS "%s" `, name, alias)
+					}
+					v.rewrittenQuery = refString
+				default:
+					return fmt.Errorf("unknown indirect type '%T'", indirectType)
 				}
-				v.rewrittenQuery = templateString
-				v.indirectContexts = append(v.indirectContexts, indirect.GetSelectContext())
 			} else {
 				switch ex := node.Expr.(type) {
 				case sqlparser.TableName:

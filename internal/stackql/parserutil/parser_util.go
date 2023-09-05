@@ -693,3 +693,22 @@ func IsFromExprSimple(from sqlparser.TableExprs) bool {
 	}
 	return true
 }
+
+func IsCreateMaterializedView(stmt sqlparser.Statement) bool {
+	switch st := stmt.(type) {
+	case *sqlparser.DDL:
+		switch st.Action {
+		case sqlparser.CreateStr:
+			switch strings.ToLower(st.Modifier) {
+			case "materialized":
+				return true
+			default:
+				return false
+			}
+		default:
+			return false
+		}
+	default:
+		return false
+	}
+}

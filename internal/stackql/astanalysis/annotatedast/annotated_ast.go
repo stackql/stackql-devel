@@ -10,12 +10,13 @@ import (
 
 func NewAnnotatedAst(parent AnnotatedAst, ast sqlparser.Statement) (AnnotatedAst, error) {
 	rv := &standardAnnotatedAst{
-		parent:              parent,
-		ast:                 ast,
-		tableIndirects:      make(map[string]astindirect.Indirect),
-		tableSQLDataSources: make(map[string]sql_datasource.SQLDataSource),
-		selectMetadataMap:   make(map[*sqlparser.Select]selectmetadata.SelectMetadata),
-		whereParamMaps:      make(map[*sqlparser.Where]parserutil.ParameterMap),
+		parent:               parent,
+		ast:                  ast,
+		tableIndirects:       make(map[string]astindirect.Indirect),
+		materializedViewRefs: make(map[string]astindirect.Indirect),
+		tableSQLDataSources:  make(map[string]sql_datasource.SQLDataSource),
+		selectMetadataMap:    make(map[*sqlparser.Select]selectmetadata.SelectMetadata),
+		whereParamMaps:       make(map[*sqlparser.Where]parserutil.ParameterMap),
 	}
 	return rv, nil
 }
@@ -24,9 +25,11 @@ type AnnotatedAst interface {
 	GetAST() sqlparser.Statement
 	GetIndirect(sqlparser.SQLNode) (astindirect.Indirect, bool)
 	GetIndirects() map[string]astindirect.Indirect
+	GetMaterializedView(sqlparser.SQLNode) (astindirect.Indirect, bool)
 	GetSelectMetadata(*sqlparser.Select) (selectmetadata.SelectMetadata, bool)
 	GetSQLDataSource(node sqlparser.SQLNode) (sql_datasource.SQLDataSource, bool)
 	SetIndirect(node sqlparser.SQLNode, indirect astindirect.Indirect)
+	SetMaterializedView(node sqlparser.SQLNode, indirect astindirect.Indirect)
 	SetSelectMetadata(*sqlparser.Select, selectmetadata.SelectMetadata)
 	SetSQLDataSource(node sqlparser.SQLNode, sqlDataSource sql_datasource.SQLDataSource)
 	SetWhereParamMapsEntry(*sqlparser.Where, parserutil.ParameterMap)
@@ -35,12 +38,13 @@ type AnnotatedAst interface {
 }
 
 type standardAnnotatedAst struct {
-	parent              AnnotatedAst
-	ast                 sqlparser.Statement
-	tableIndirects      map[string]astindirect.Indirect
-	tableSQLDataSources map[string]sql_datasource.SQLDataSource
-	selectMetadataMap   map[*sqlparser.Select]selectmetadata.SelectMetadata
-	whereParamMaps      map[*sqlparser.Where]parserutil.ParameterMap
+	parent               AnnotatedAst
+	ast                  sqlparser.Statement
+	tableIndirects       map[string]astindirect.Indirect
+	materializedViewRefs map[string]astindirect.Indirect
+	tableSQLDataSources  map[string]sql_datasource.SQLDataSource
+	selectMetadataMap    map[*sqlparser.Select]selectmetadata.SelectMetadata
+	whereParamMaps       map[*sqlparser.Where]parserutil.ParameterMap
 }
 
 func (aa *standardAnnotatedAst) SetWhereParamMapsEntry(node *sqlparser.Where, paramMap parserutil.ParameterMap) {
@@ -85,6 +89,22 @@ func (aa *standardAnnotatedAst) GetIndirect(node sqlparser.SQLNode) (astindirect
 	}
 }
 
+func (aa *standardAnnotatedAst) GetMaterializedView(node sqlparser.SQLNode) (astindirect.Indirect, bool) {
+	switch n := node.(type) {
+	case *sqlparser.AliasedTableExpr:
+		rv, ok := aa.materializedViewRefs[n.As.GetRawVal()]
+		if ok {
+			return rv, true
+		}
+		return aa.GetIndirect(n.Expr)
+	case sqlparser.TableName:
+		rv, ok := aa.materializedViewRefs[n.GetRawVal()]
+		return rv, ok
+	default:
+		return nil, false
+	}
+}
+
 func (aa *standardAnnotatedAst) GetIndirects() map[string]astindirect.Indirect {
 	return aa.tableIndirects
 }
@@ -96,6 +116,17 @@ func (aa *standardAnnotatedAst) SetIndirect(node sqlparser.SQLNode, indirect ast
 	case *sqlparser.AliasedTableExpr:
 		// this is for subqueries
 		aa.tableIndirects[n.As.GetRawVal()] = indirect
+	default:
+	}
+}
+
+func (aa *standardAnnotatedAst) SetMaterializedView(node sqlparser.SQLNode, indirect astindirect.Indirect) {
+	switch n := node.(type) {
+	case sqlparser.TableName:
+		aa.materializedViewRefs[n.GetRawVal()] = indirect
+	case *sqlparser.AliasedTableExpr:
+		// this is for subqueries
+		aa.materializedViewRefs[n.As.GetRawVal()] = indirect
 	default:
 	}
 }

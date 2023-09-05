@@ -76,6 +76,13 @@ func newIndirectExpandAstVisitor(
 	return rv, nil
 }
 
+func (v *indirectExpandAstVisitor) processMaterializedView(
+	node sqlparser.SQLNode,
+	indirect astindirect.Indirect) error {
+	v.annotatedAST.SetMaterializedView(node, indirect)
+	return nil
+}
+
 func (v *indirectExpandAstVisitor) processIndirect(node sqlparser.SQLNode, indirect astindirect.Indirect) error {
 	err := indirect.Parse()
 	if err != nil {
@@ -793,7 +800,8 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 		}
 		// END OPTIMISTIC DOC PERSISTENCE AND VIEW DEFINITION
 		viewDTO, isView := v.sqlSystem.GetViewByName(node.GetRawVal())
-		if isView {
+		materializedViewDTO, isMaterializedView := v.sqlSystem.GetMaterializedViewByName(node.GetRawVal())
+		if isView { //nolint:nestif // acceptable
 			indirect, newErr := astindirect.NewViewIndirect(viewDTO)
 			if newErr != nil {
 				return newErr
@@ -802,6 +810,17 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 			if err != nil {
 				return err
 			}
+			return nil
+		} else if isMaterializedView {
+			indirect, newErr := astindirect.NewMaterializedViewIndirect(materializedViewDTO)
+			if newErr != nil {
+				return newErr
+			}
+			err = v.processMaterializedView(node, indirect)
+			if err != nil {
+				return err
+			}
+			return nil
 		}
 		return nil
 
