@@ -552,7 +552,7 @@ func (eng *postgresSystem) CreateMaterializedView(
 func (eng *postgresSystem) DropMaterializedView(viewName string) error {
 	dropRefQuery := `
 	DELETE FROM "__iql__.materialized_views"
-	WHERE view_name = ?
+	WHERE view_name = $1
 	`
 	dropTableQuery := fmt.Sprintf(`
 	DROP MATERIALIZED VIEW IF EXISTS "%s"
@@ -582,17 +582,58 @@ func (eng *postgresSystem) GetMaterializedViewByName(viewName string) (internald
 }
 
 func (eng *postgresSystem) getMaterializedViewByName(viewName string) (internaldto.ViewDTO, bool) {
-	q := `SELECT view_ddl FROM "__iql__.materialized_views" WHERE view_name = ? and deleted_dttm IS NULL`
+	q := `SELECT view_ddl FROM "__iql__.materialized_views" WHERE view_name = $1 and deleted_dttm IS NULL`
+	colQuery := `
+	SELECT
+		column_name 
+	   ,column_type
+	   ,"oid" 
+	   ,column_width 
+	   ,column_precision 
+	FROM
+	  "__iql__.materialized_views.columns"
+	WHERE
+	  view_name = $1
+	ORDER BY ordinal_position ASC
+	`
 	row := eng.sqlEngine.QueryRow(q, viewName)
-	if row != nil {
-		var viewDDL string
-		err := row.Scan(&viewDDL)
+	if row == nil {
+		return nil, false
+	}
+	var viewDDL string
+	err := row.Scan(&viewDDL)
+	if err != nil {
+		return nil, false
+	}
+	rv := internaldto.NewMaterializedViewDTO(viewName, viewDDL)
+	rows, err := eng.sqlEngine.Query(colQuery, viewName)
+	if err != nil || rows == nil || rows.Err() != nil {
+		return nil, false
+	}
+	defer rows.Close()
+	hasRow := false
+	var columns []typing.RelationalColumn
+	for {
+		if !rows.Next() {
+			break
+		}
+		hasRow = true
+		var columnName, columnType string
+		var oID, colWidth, colPrecision int
+		err = rows.Scan(&columnName, &columnType, &oID, &colWidth, &colPrecision)
 		if err != nil {
 			return nil, false
 		}
-		return internaldto.NewMaterializedViewDTO(viewName, viewDDL), true
+		relationalColumn := typing.NewRelationalColumn(
+			columnName,
+			columnType).WithWidth(colWidth).WithOID(oid.Oid(oID))
+		columns = append(columns, relationalColumn)
 	}
-	return nil, false
+	rv.SetColumns(columns)
+	if !hasRow {
+		return nil, false
+	}
+	return rv, true
 }
 
 func (eng *postgresSystem) getViewByName(viewName string) (internaldto.ViewDTO, bool) {
