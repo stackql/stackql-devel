@@ -333,7 +333,7 @@ VALUES (
   'gossip',
   'text',
   1,
-  0,
+  25,  -- oid for text
   0,
   0
 )
@@ -354,7 +354,7 @@ VALUES (
   'category',
   'text',
   2,
-  0,
+  25,  -- oid for text
   0,
   0
 )
@@ -365,6 +365,10 @@ ON CONFLICT (view_name, column_name) DO NOTHING
 create materialized view if not exists stackql_gossip
 as 
 select 'stackql is open to extension' as gossip, 'tech' as category
+union all
+select 'stackql wants to hear from you' as gossip, 'community' as category
+union all
+select 'stackql is not opinionated' as gossip, 'opinion' as category
 ;
 
 CREATE INDEX IF NOT EXISTS "idx.stackql_gossip_gossip" on stackql_gossip(gossip);

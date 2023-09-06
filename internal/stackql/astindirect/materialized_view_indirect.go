@@ -53,6 +53,18 @@ func (v *materializedView) GetRelationalColumns() []typing.RelationalColumn {
 	return v.viewDTO.GetColumns()
 }
 
+func (v *materializedView) GetRelationalColumnByIdentifier(name string) (typing.RelationalColumn, bool) {
+	for _, col := range v.viewDTO.GetColumns() {
+		if col.GetName() == name {
+			return col, true
+		}
+		if col.GetAlias() == name {
+			return col, true
+		}
+	}
+	return nil, false
+}
+
 func (v *materializedView) GetOptionalParameters() map[string]openapistackql.Addressable {
 	return nil
 }

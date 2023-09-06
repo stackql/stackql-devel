@@ -415,5 +415,9 @@ CREATE INDEX IF NOT EXISTS "idx.stackql_gossip_gossip" on stackql_gossip(categor
 
 INSERT INTO stackql_gossip(gossip, category)
 select 'stackql is open to extension' as gossip, 'tech' as category
+union all
+select 'stackql wants to hear from you' as gossip, 'community' as category
+union all
+select 'stackql is not opinionated' as gossip, 'opinion' as category
 on conflict (gossip) do nothing
 ;

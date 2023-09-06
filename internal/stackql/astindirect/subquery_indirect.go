@@ -34,6 +34,10 @@ func (v *subquery) GetRelationalColumns() []typing.RelationalColumn {
 	return nil
 }
 
+func (v *subquery) GetRelationalColumnByIdentifier(_ string) (typing.RelationalColumn, bool) {
+	return nil, false
+}
+
 func (v *subquery) GetUnderlyingSymTab() symtab.SymTab {
 	return v.underlyingSymbolTable
 }

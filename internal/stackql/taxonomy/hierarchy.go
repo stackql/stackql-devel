@@ -24,7 +24,7 @@ func GetHeirarchyIDsFromParserNode(
 	return getHids(handlerCtx, node)
 }
 
-//nolint:funlen // lots of moving parts
+//nolint:funlen,gocognit // lots of moving parts
 func getHids(handlerCtx handler.HandlerContext, node sqlparser.SQLNode) (internaldto.HeirarchyIdentifiers, error) {
 	var hIds internaldto.HeirarchyIdentifiers
 	switch n := node.(type) {

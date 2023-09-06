@@ -16,6 +16,7 @@ import (
 var (
 	_ Indirect = &view{}
 	_ Indirect = &subquery{}
+	_ Indirect = &materializedView{}
 )
 
 type IndirectType int
@@ -61,6 +62,7 @@ type Indirect interface {
 	Parse() error
 	GetAssignedParameters() (internaldto.TableParameterCollection, bool)
 	GetColumnByName(name string) (typing.ColumnMetadata, bool)
+	GetRelationalColumnByIdentifier(name string) (typing.RelationalColumn, bool)
 	GetColumns() []typing.ColumnMetadata
 	GetRelationalColumns() []typing.RelationalColumn
 	GetName() string

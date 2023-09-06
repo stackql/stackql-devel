@@ -1,4 +1,3 @@
-//nolint:dupl // acceptable for now
 package astindirect
 
 import (
@@ -73,6 +72,10 @@ func (v *view) GetColumnByName(name string) (typing.ColumnMetadata, bool) {
 
 func (v *view) SetSelectContext(selCtx drm.PreparedStatementCtx) {
 	v.selCtx = selCtx
+}
+
+func (v *view) GetRelationalColumnByIdentifier(_ string) (typing.RelationalColumn, bool) {
+	return nil, false
 }
 
 func (v *view) GetSelectContext() drm.PreparedStatementCtx {
