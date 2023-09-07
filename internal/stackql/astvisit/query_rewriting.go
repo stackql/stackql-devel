@@ -596,7 +596,7 @@ func (v *standardQueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			if err != nil {
 				return err
 			}
-			if col.Alias == "" && col.Name == "" {
+			if col.Alias == "" && (col.Name == "" || strings.Contains(col.Name, " ")) {
 				col.Alias = v.getNextAlias()
 			}
 			v.columnNames = append(v.columnNames, col)
