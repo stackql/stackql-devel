@@ -352,7 +352,7 @@ VALUES (
   select ''stackql is open to extension'' as gossip, ''tech'' as category
   ',
   '
-  create table view stackql_gossip(
+  create table stackql_gossip(
     gossip text UNIQUE,
     category text)
   ',
@@ -528,7 +528,7 @@ VALUES (
 ON CONFLICT (table_name, column_name) DO NOTHING
 ;
 
-create table stackql_notes(
+create table if not exists stackql_notes(
   note_id INTEGER PRIMARY KEY AUTOINCREMENT,
   note text UNIQUE,
   priority int

@@ -480,7 +480,7 @@ VALUES (
 ON CONFLICT (table_name, column_name) DO NOTHING
 ;
 
-create table stackql_notes(
+create table if not exists stackql_notes(
   note_id BIGSERIAL PRIMARY KEY,
   note text UNIQUE,
   priority int
