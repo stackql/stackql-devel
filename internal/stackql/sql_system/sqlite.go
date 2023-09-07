@@ -525,11 +525,11 @@ func (eng *sqLiteSystem) generateDDL(relationalTable relationaldto.RelationalTab
 	return retVal, nil
 }
 
-func (eng *sqLiteSystem) GetViewByName(viewName string) (internaldto.ViewDTO, bool) {
+func (eng *sqLiteSystem) GetViewByName(viewName string) (internaldto.RelationDTO, bool) {
 	return eng.getViewByName(viewName)
 }
 
-func (eng *sqLiteSystem) getViewByName(viewName string) (internaldto.ViewDTO, bool) {
+func (eng *sqLiteSystem) getViewByName(viewName string) (internaldto.RelationDTO, bool) {
 	q := `SELECT view_ddl FROM "__iql__.views" WHERE view_name = ? and deleted_dttm IS NULL`
 	row := eng.sqlEngine.QueryRow(q, viewName)
 	if row == nil {
@@ -679,11 +679,11 @@ func (eng *sqLiteSystem) DropMaterializedView(viewName string) error {
 	return commitErr
 }
 
-func (eng *sqLiteSystem) GetMaterializedViewByName(viewName string) (internaldto.ViewDTO, bool) {
+func (eng *sqLiteSystem) GetMaterializedViewByName(viewName string) (internaldto.RelationDTO, bool) {
 	return eng.getMaterializedViewByName(viewName)
 }
 
-func (eng *sqLiteSystem) getMaterializedViewByName(viewName string) (internaldto.ViewDTO, bool) {
+func (eng *sqLiteSystem) getMaterializedViewByName(viewName string) (internaldto.RelationDTO, bool) {
 	q := `SELECT view_ddl FROM "__iql__.materialized_views" WHERE view_name = ? and deleted_dttm IS NULL`
 	colQuery := `
 	SELECT
@@ -736,6 +736,158 @@ func (eng *sqLiteSystem) getMaterializedViewByName(viewName string) (internaldto
 		return nil, false
 	}
 	return rv, true
+}
+
+func (eng *sqLiteSystem) GetTableByName(
+	tableName string, tcc internaldto.TxnControlCounters) (internaldto.RelationDTO, bool) {
+	return eng.getTableByName(tableName, tcc)
+}
+
+// TODO: implement temp tables
+func (eng *sqLiteSystem) getTableByName(
+	viewName string,
+	tcc internaldto.TxnControlCounters, //nolint:revive,unparam // future proof
+) (internaldto.RelationDTO, bool) {
+	q := `SELECT table_ddl FROM "__iql__.tables" WHERE table_name = ? and deleted_dttm IS NULL`
+	colQuery := `
+	SELECT
+		column_name 
+	   ,column_type
+	   ,"oid" 
+	   ,column_width 
+	   ,column_precision 
+	FROM
+	  "__iql__.tables.columns"
+	WHERE
+	  table_name = ?
+	ORDER BY ordinal_position ASC
+	`
+	row := eng.sqlEngine.QueryRow(q, viewName)
+	if row == nil {
+		return nil, false
+	}
+	var viewDDL string
+	err := row.Scan(&viewDDL)
+	if err != nil {
+		return nil, false
+	}
+	rv := internaldto.NewPhysicalTableDTO(viewName, viewDDL)
+	rows, err := eng.sqlEngine.Query(colQuery, viewName)
+	if err != nil || rows == nil || rows.Err() != nil {
+		return nil, false
+	}
+	defer rows.Close()
+	hasRow := false
+	var columns []typing.RelationalColumn
+	for {
+		if !rows.Next() {
+			break
+		}
+		hasRow = true
+		var columnName, columnType string
+		var oID, colWidth, colPrecision int
+		err = rows.Scan(&columnName, &columnType, &oID, &colWidth, &colPrecision)
+		if err != nil {
+			return nil, false
+		}
+		relationalColumn := typing.NewRelationalColumn(
+			columnName,
+			columnType).WithWidth(colWidth).WithOID(oid.Oid(oID))
+		columns = append(columns, relationalColumn)
+	}
+	rv.SetColumns(columns)
+	if !hasRow {
+		return nil, false
+	}
+	return rv, true
+}
+
+// TODO: implement temp table drop
+func (eng *sqLiteSystem) DropTable(tableName string,
+	ifExists bool,
+	tcc internaldto.TxnControlCounters, //nolint:revive // future proof
+) error {
+	dropRefQuery := `
+	DELETE FROM "__iql__.tables"
+	WHERE table_name = ?
+	`
+	dropTableQuery := fmt.Sprintf(`
+	DROP TABLE "%s"
+	`, tableName)
+	if ifExists {
+		dropTableQuery = fmt.Sprintf(`
+		DROP TABLE IF EXISTS "%s"
+		`, tableName)
+	}
+	tx, err := eng.sqlEngine.GetTx()
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec(dropRefQuery, tableName)
+	if err != nil {
+		//nolint:errcheck // TODO: merge variadic error(s) into one
+		tx.Rollback()
+		return err
+	}
+	_, err = tx.Exec(dropTableQuery)
+	if err != nil {
+		//nolint:errcheck // TODO: merge variadic error(s) into one
+		tx.Rollback()
+		return err
+	}
+	commitErr := tx.Commit()
+	return commitErr
+}
+
+// TODO: implement temp table creation
+func (eng *sqLiteSystem) CreateTable(
+	tableName string, rawDDL string, translatedDDL string, loadDML string, ifNotExists bool,
+	tcc internaldto.TxnControlCounters, //nolint:revive // future proof
+) error {
+	q := `
+	INSERT INTO "__iql__.tables" (
+		table_name,
+		table_ddl,
+		translated_ddl
+	  ) 
+	  VALUES (
+		?,
+		?,
+		?
+	  )
+	`
+	if !ifNotExists {
+		q += `
+		  ON CONFLICT(table_name)
+		  DO
+		    UPDATE SET table_ddl = EXCLUDED.table_ddl,
+			           translated_ddl = EXCLUDED.translated_ddl
+		`
+	}
+	tx, err := eng.sqlEngine.GetTx()
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec(q, tableName, rawDDL)
+	if err != nil {
+		//nolint:errcheck // TODO: merge variadic error(s) into one
+		tx.Rollback()
+		return err
+	}
+	_, err = tx.Exec(translatedDDL)
+	if err != nil {
+		//nolint:errcheck // TODO: merge variadic error(s) into one
+		tx.Rollback()
+		return err
+	}
+	_, err = tx.Exec(loadDML)
+	if err != nil {
+		//nolint:errcheck // TODO: merge variadic error(s) into one
+		tx.Rollback()
+		return err
+	}
+	commitErr := tx.Commit()
+	return commitErr
 }
 
 func (eng *sqLiteSystem) IsTablePresent(

@@ -86,12 +86,17 @@ func getHids(handlerCtx handler.HandlerContext, node sqlparser.SQLNode) (interna
 	if isMaterializedView {
 		hIds = hIds.WithView(materializedViewDTO)
 	}
+	// TODO: pass in current counters
+	physicalTableDTO, isPhysicalTable := handlerCtx.GetSQLSystem().GetTableByName(hIds.GetTableName(), nil)
+	if isPhysicalTable {
+		hIds = hIds.WithView(physicalTableDTO)
+	}
 	isInternallyRoutable := handlerCtx.GetPGInternalRouter().ExprIsRoutable(node)
 	if isInternallyRoutable {
 		hIds.SetContainsNativeDBMSTable(true)
 		return hIds, nil
 	}
-	if !(isView || isMaterializedView) && hIds.GetProviderStr() == "" {
+	if !(isView || isMaterializedView || isPhysicalTable) && hIds.GetProviderStr() == "" {
 		if handlerCtx.GetCurrentProvider() == "" {
 			return nil, fmt.Errorf("could not locate table '%s'", hIds.GetTableName())
 		}

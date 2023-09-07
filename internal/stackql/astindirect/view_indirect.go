@@ -13,7 +13,7 @@ import (
 )
 
 type view struct {
-	viewDTO               internaldto.ViewDTO
+	viewDTO               internaldto.RelationDTO
 	selectStmt            sqlparser.SelectStatement
 	selCtx                drm.PreparedStatementCtx
 	paramCollection       internaldto.TableParameterCollection

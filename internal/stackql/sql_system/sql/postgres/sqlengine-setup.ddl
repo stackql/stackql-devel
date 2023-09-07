@@ -373,3 +373,123 @@ select 'stackql is not opinionated' as gossip, 'opinion' as category
 
 CREATE INDEX IF NOT EXISTS "idx.stackql_gossip_gossip" on stackql_gossip(gossip);
 
+
+CREATE TABLE IF NOT EXISTS "__iql__.tables" (
+   iql_table_id BIGSERIAL PRIMARY KEY 
+  ,table_name TEXT NOT NULL UNIQUE
+  ,table_type TEXT
+  ,table_ddl TEXT
+  ,translated_ddl TEXT
+  ,translated_inline_dml TEXT -- for create like future proofing
+  ,iql_generation_id INTEGER -- for temp tables
+	,iql_session_id INTEGER -- for temp tables
+	,iql_txn_id INTEGER -- for temp tables
+  ,created_dttm TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+  ,deleted_dttm TIMESTAMP WITH TIME ZONE DEFAULT null
+  ,UNIQUE(table_name, table_type, iql_generation_id, iql_session_id, iql_txn_id, deleted_dttm)
+)
+;
+
+CREATE INDEX IF NOT EXISTS "idx.__iql__.tables" 
+ON "__iql__.tables" (table_name)
+;
+
+CREATE TABLE IF NOT EXISTS "__iql__.tables.columns" (
+   iql_column_id BIGSERIAL PRIMARY KEY
+  ,table_name TEXT
+  ,column_name TEXT
+  ,column_type TEXT
+  ,ordinal_position INT
+  ,"oid" INT
+  ,column_width INT
+  ,column_precision INT
+  ,UNIQUE(table_name, column_name)
+)
+;
+
+INSERT INTO "__iql__.tables" (
+  table_name,
+  table_type,
+  table_ddl,
+  translated_ddl,
+  translated_inline_dml
+) 
+VALUES (
+  'stackql_notes',
+  null, -- null or empty string for non temp table
+  '
+  create table stackql_notes(
+    note_id BIGSERIAL PRIMARY KEY,
+    note text UNIQUE,
+    priority int
+  )
+  ;
+  ',
+  '
+  create table stackql_notes(
+    note_id BIGSERIAL PRIMARY KEY,
+    note text UNIQUE,
+    priority int
+  )
+  ;
+  ',
+  NULL  
+)
+ON CONFLICT (table_name) DO NOTHING
+;
+
+INSERT INTO "__iql__.tables.columns" (
+  table_name,
+  column_name,
+  column_type,
+  ordinal_position,
+  "oid",
+  column_width,
+  column_precision
+) 
+VALUES (
+  'stackql_notes',
+  'note',
+  'text',
+  1,
+  25,  -- oid for text
+  0,
+  0
+)
+ON CONFLICT (table_name, column_name) DO NOTHING
+;
+
+INSERT INTO "__iql__.tables.columns" (
+  table_name,
+  column_name,
+  column_type,
+  ordinal_position,
+  "oid",
+  column_width,
+  column_precision
+) 
+VALUES (
+  'stackql_notes',
+  'priority',
+  'int',
+  2,
+  1700,  -- oid for numeric
+  0,
+  0
+)
+ON CONFLICT (table_name, column_name) DO NOTHING
+;
+
+create table stackql_notes(
+  note_id BIGSERIAL PRIMARY KEY,
+  note text UNIQUE,
+  priority int
+)
+;
+
+INSERT INTO stackql_notes(note, priority)
+select 'v0.5.418 introduced table valued functions, for example json_each.' as note, 1000 as priority
+union all
+select 'stackql supports the postgres wire protocol.' as note, 10 as priority
+on conflict (note) do nothing
+;

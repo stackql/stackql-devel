@@ -26,9 +26,10 @@ const (
 	SubqueryType
 	CTEType
 	MaterializedViewType
+	PhysicalTableType
 )
 
-func NewViewIndirect(viewDTO internaldto.ViewDTO) (Indirect, error) {
+func NewViewIndirect(viewDTO internaldto.RelationDTO) (Indirect, error) {
 	rv := &view{
 		viewDTO:               viewDTO,
 		underlyingSymbolTable: symtab.NewHashMapTreeSymTab(),
@@ -36,9 +37,18 @@ func NewViewIndirect(viewDTO internaldto.ViewDTO) (Indirect, error) {
 	return rv, nil
 }
 
-func NewMaterializedViewIndirect(viewDTO internaldto.ViewDTO, sqlSystem sql_system.SQLSystem) (Indirect, error) {
+func NewMaterializedViewIndirect(viewDTO internaldto.RelationDTO, sqlSystem sql_system.SQLSystem) (Indirect, error) {
 	rv := &materializedView{
 		viewDTO:               viewDTO,
+		underlyingSymbolTable: symtab.NewHashMapTreeSymTab(),
+		sqlSystem:             sqlSystem,
+	}
+	return rv, nil
+}
+
+func NewPhysicalTableIndirect(tableDTO internaldto.RelationDTO, sqlSystem sql_system.SQLSystem) (Indirect, error) {
+	rv := &physicalTable{
+		tableDTO:              tableDTO,
 		underlyingSymbolTable: symtab.NewHashMapTreeSymTab(),
 		sqlSystem:             sqlSystem,
 	}

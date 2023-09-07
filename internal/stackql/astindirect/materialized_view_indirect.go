@@ -1,3 +1,4 @@
+//nolint:dupl // TODO: refactor
 package astindirect
 
 import (
@@ -14,7 +15,7 @@ import (
 )
 
 type materializedView struct {
-	viewDTO               internaldto.ViewDTO
+	viewDTO               internaldto.RelationDTO
 	selectStmt            sqlparser.SelectStatement
 	paramCollection       internaldto.TableParameterCollection
 	sqlSystem             sql_system.SQLSystem

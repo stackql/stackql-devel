@@ -26,10 +26,12 @@ type AnnotatedAst interface {
 	GetIndirect(sqlparser.SQLNode) (astindirect.Indirect, bool)
 	GetIndirects() map[string]astindirect.Indirect
 	GetMaterializedView(sqlparser.SQLNode) (astindirect.Indirect, bool)
+	GetPhysicalTable(sqlparser.SQLNode) (astindirect.Indirect, bool)
 	GetSelectMetadata(*sqlparser.Select) (selectmetadata.SelectMetadata, bool)
 	GetSQLDataSource(node sqlparser.SQLNode) (sql_datasource.SQLDataSource, bool)
 	SetIndirect(node sqlparser.SQLNode, indirect astindirect.Indirect)
 	SetMaterializedView(node sqlparser.SQLNode, indirect astindirect.Indirect)
+	SetPhysicalTable(node sqlparser.SQLNode, indirect astindirect.Indirect)
 	SetSelectMetadata(*sqlparser.Select, selectmetadata.SelectMetadata)
 	SetSQLDataSource(node sqlparser.SQLNode, sqlDataSource sql_datasource.SQLDataSource)
 	SetWhereParamMapsEntry(*sqlparser.Where, parserutil.ParameterMap)
@@ -42,6 +44,7 @@ type standardAnnotatedAst struct {
 	ast                  sqlparser.Statement
 	tableIndirects       map[string]astindirect.Indirect
 	materializedViewRefs map[string]astindirect.Indirect
+	physicalTableRefs    map[string]astindirect.Indirect
 	tableSQLDataSources  map[string]sql_datasource.SQLDataSource
 	selectMetadataMap    map[*sqlparser.Select]selectmetadata.SelectMetadata
 	whereParamMaps       map[*sqlparser.Where]parserutil.ParameterMap
@@ -105,6 +108,22 @@ func (aa *standardAnnotatedAst) GetMaterializedView(node sqlparser.SQLNode) (ast
 	}
 }
 
+func (aa *standardAnnotatedAst) GetPhysicalTable(node sqlparser.SQLNode) (astindirect.Indirect, bool) {
+	switch n := node.(type) {
+	case *sqlparser.AliasedTableExpr:
+		rv, ok := aa.physicalTableRefs[n.As.GetRawVal()]
+		if ok {
+			return rv, true
+		}
+		return aa.GetIndirect(n.Expr)
+	case sqlparser.TableName:
+		rv, ok := aa.physicalTableRefs[n.GetRawVal()]
+		return rv, ok
+	default:
+		return nil, false
+	}
+}
+
 func (aa *standardAnnotatedAst) GetIndirects() map[string]astindirect.Indirect {
 	return aa.tableIndirects
 }
@@ -127,6 +146,17 @@ func (aa *standardAnnotatedAst) SetMaterializedView(node sqlparser.SQLNode, indi
 	case *sqlparser.AliasedTableExpr:
 		// this is for subqueries
 		aa.materializedViewRefs[n.As.GetRawVal()] = indirect
+	default:
+	}
+}
+
+func (aa *standardAnnotatedAst) SetPhysicalTable(node sqlparser.SQLNode, indirect astindirect.Indirect) {
+	switch n := node.(type) {
+	case sqlparser.TableName:
+		aa.physicalTableRefs[n.GetRawVal()] = indirect
+	case *sqlparser.AliasedTableExpr:
+		// this is for subqueries
+		aa.physicalTableRefs[n.As.GetRawVal()] = indirect
 	default:
 	}
 }

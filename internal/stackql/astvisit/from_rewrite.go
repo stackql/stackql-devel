@@ -669,7 +669,7 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 					templateString := ` ( %s ) `
 					v.rewrittenQuery = templateString
 					v.indirectContexts = append(v.indirectContexts, indirect.GetSelectContext())
-				case astindirect.MaterializedViewType: // TODO: expand to cover tables
+				case astindirect.MaterializedViewType, astindirect.PhysicalTableType:
 					refString := fmt.Sprintf(` "%s" `, name)
 					alias := ""
 					if alias != "" {

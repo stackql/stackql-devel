@@ -3,20 +3,21 @@ package internaldto
 import "github.com/stackql/stackql/internal/stackql/typing"
 
 var (
-	_ ViewDTO = &standardViewDTO{}
+	_ RelationDTO = &standardViewDTO{}
 )
 
-func NewViewDTO(viewName, rawViewQuery string) ViewDTO {
+func NewViewDTO(viewName, rawViewQuery string) RelationDTO {
 	return &standardViewDTO{
 		viewName:     viewName,
 		rawViewQuery: rawViewQuery,
 	}
 }
 
-type ViewDTO interface {
+type RelationDTO interface {
 	GetRawQuery() string
 	GetName() string
 	IsMaterialized() bool
+	IsTable() bool
 	GetColumns() []typing.RelationalColumn
 	SetColumns(columns []typing.RelationalColumn)
 }
@@ -36,6 +37,10 @@ func (v *standardViewDTO) GetName() string {
 }
 
 func (v *standardViewDTO) IsMaterialized() bool {
+	return false
+}
+
+func (v *standardViewDTO) IsTable() bool {
 	return false
 }
 

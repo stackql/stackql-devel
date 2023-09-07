@@ -441,8 +441,13 @@ func (pr *standardParameterRouter) route(
 	indirect, _ := pr.annotatedAST.GetIndirect(tb)
 	hrView, hrViewPresent := hr.GetHeirarchyIds().GetView()
 	if indirect == nil && hrViewPresent { //nolint:nestif // TODO: review
-		if hrView.IsMaterialized() {
+		if hrView.IsMaterialized() { //nolint:gocritic // TODO: review
 			indirect, err = astindirect.NewMaterializedViewIndirect(hrView, handlerCtx.GetSQLSystem())
+			if err != nil {
+				return nil, err
+			}
+		} else if hrView.IsTable() {
+			indirect, err = astindirect.NewPhysicalTableIndirect(hrView, handlerCtx.GetSQLSystem())
 			if err != nil {
 				return nil, err
 			}
