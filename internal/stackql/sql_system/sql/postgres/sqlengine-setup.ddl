@@ -418,7 +418,7 @@ VALUES (
   'stackql_notes',
   null, -- null or empty string for non temp table
   '
-  create table stackql_notes(
+  create table if not exists stackql_notes(
     note_id BIGSERIAL PRIMARY KEY,
     note text UNIQUE,
     priority int

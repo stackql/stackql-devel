@@ -770,6 +770,10 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		node.Condition.Accept(conditionVis)
 		lhsHoistedIntoOn := lVis.GetHoistedOnClauseTables()
 		rhsHoistedIntoOn := rVis.GetHoistedOnClauseTables()
+		lhsIndirectContexts := lVis.GetIndirectContexts()
+		rhsIndirectContexts := rVis.GetIndirectContexts()
+		v.indirectContexts = append(v.indirectContexts, lhsIndirectContexts...)
+		v.indirectContexts = append(v.indirectContexts, rhsIndirectContexts...)
 		// accumulate hoisted tables
 		v.hoistedOnClauseTables = append(v.hoistedOnClauseTables, lhsHoistedIntoOn...)
 		v.hoistedOnClauseTables = append(v.hoistedOnClauseTables, rhsHoistedIntoOn...)
