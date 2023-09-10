@@ -255,7 +255,7 @@ func (sp *standardInitialPasses) initialPasses(
 	}
 	pbi.SetReadOnly(astExpandVisitor.IsReadOnly())
 	isCreateMAterializedView := parserutil.IsCreateMaterializedView(ast)
-	pbi.SetCreateMAterializedView(isCreateMAterializedView)
+	pbi.SetCreateMaterializedView(isCreateMAterializedView)
 
 	sel, selOk := planbuilderinput.IsPGSetupQuery(pbi)
 	if selOk {
@@ -347,7 +347,7 @@ func (sp *standardInitialPasses) initialPasses(
 		}
 		pbi = routeAnalyzer.GetPlanBuilderInput()
 	}
-	pbi.SetCreateMAterializedView(isCreateMAterializedView)
+	pbi.SetCreateMaterializedView(isCreateMAterializedView)
 
 	sp.instructionType = StandardInstruction
 	sp.planBuilderInput = pbi

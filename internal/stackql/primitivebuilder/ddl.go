@@ -8,6 +8,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/astformat"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
+	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/util"
@@ -20,31 +21,40 @@ type ddl struct {
 	root, tail primitivegraph.PrimitiveNode
 }
 
-func (un *ddl) Build() error {
-	sqlSystem := un.handlerCtx.GetSQLSystem()
+func (ddo *ddl) Build() error {
+	sqlSystem := ddo.handlerCtx.GetSQLSystem()
 	if sqlSystem == nil {
 		return fmt.Errorf("cannot proceed DDL execution with nil sql system object")
 	}
-	unionObj := un.ddlObject
+	parserDDLObj := ddo.ddlObject
 	if sqlSystem == nil {
 		return fmt.Errorf("cannot proceed DDL execution with nil ddl object")
 	}
 	unionEx := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
-		actionLowered := strings.ToLower(unionObj.Action)
+		actionLowered := strings.ToLower(parserDDLObj.Action)
 		switch actionLowered {
 		case "create":
-			tableName := strings.Trim(astformat.String(unionObj.Table, sqlSystem.GetASTFormatter()), `"`)
-			viewDDL := strings.ReplaceAll(
-				astformat.String(unionObj.SelectStatement, astformat.DefaultSelectExprsFormatter), `"`, "")
-			err := sqlSystem.CreateView(tableName, viewDDL, unionObj.OrReplace)
+			tableName := strings.Trim(astformat.String(parserDDLObj.Table, sqlSystem.GetASTFormatter()), `"`)
+			isTable := parserutil.IsCreatePhysicalTable(parserDDLObj)
+			isTempTable := parserutil.IsCreateTemporaryPhysicalTable(parserDDLObj)
+			isMaterializedView := parserutil.IsCreateMaterializedView(parserDDLObj)
+			if isTable || isTempTable { // TODO: support for create tables
+				return internaldto.NewErroneousExecutorOutput(fmt.Errorf("create table is not supported"))
+			}
+			if isMaterializedView { // TODO: support for create materialized views
+				return internaldto.NewErroneousExecutorOutput(fmt.Errorf("create materialized view is not supported"))
+			}
+			relationDDL := strings.ReplaceAll(
+				astformat.String(parserDDLObj.SelectStatement, astformat.DefaultSelectExprsFormatter), `"`, "")
+			err := sqlSystem.CreateView(tableName, relationDDL, parserDDLObj.OrReplace)
 			if err != nil {
 				return internaldto.NewErroneousExecutorOutput(err)
 			}
 		case "drop":
-			if tl := len(unionObj.FromTables); tl != 1 {
+			if tl := len(parserDDLObj.FromTables); tl != 1 {
 				return internaldto.NewErroneousExecutorOutput(fmt.Errorf("cannot drop table with supplied table count = %d", tl))
 			}
-			tableName := strings.Trim(astformat.String(unionObj.FromTables[0], sqlSystem.GetASTFormatter()), `"`)
+			tableName := strings.Trim(astformat.String(parserDDLObj.FromTables[0], sqlSystem.GetASTFormatter()), `"`)
 			err := sqlSystem.DropView(tableName)
 			if err != nil {
 				return internaldto.NewErroneousExecutorOutput(err)
@@ -60,14 +70,14 @@ func (un *ddl) Build() error {
 				nil,
 				nil,
 				nil,
-				un.handlerCtx.GetTypingConfig(),
+				ddo.handlerCtx.GetTypingConfig(),
 			),
 		)
 	}
-	graph := un.graph
+	graph := ddo.graph
 	unionNode := graph.CreatePrimitiveNode(primitive.NewLocalPrimitive(unionEx))
-	un.root = unionNode
-	un.tail = unionNode
+	ddo.root = unionNode
+	ddo.tail = unionNode
 	return nil
 }
 
@@ -83,10 +93,10 @@ func NewDDL(
 	}
 }
 
-func (un *ddl) GetRoot() primitivegraph.PrimitiveNode {
-	return un.root
+func (ddo *ddl) GetRoot() primitivegraph.PrimitiveNode {
+	return ddo.root
 }
 
-func (un *ddl) GetTail() primitivegraph.PrimitiveNode {
-	return un.tail
+func (ddo *ddl) GetTail() primitivegraph.PrimitiveNode {
+	return ddo.tail
 }

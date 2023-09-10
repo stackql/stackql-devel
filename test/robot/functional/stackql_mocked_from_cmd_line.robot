@@ -525,6 +525,42 @@ Split Part Negative Index Invocation Working
     ...    ${outputStr}
     ...    ${CURDIR}/tmp/Split-Part-Negative-Index-Invocation-Working.tmp
 
+Create Table Scenario Working
+    ${inputStr} =    Catenate
+    ...    create table phystab_one(t_id int, z text);
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    create table is not supported
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${EMPTY}
+    ...    ${outputStr}
+    ...    stderr=${CURDIR}/tmp/Create-Table-Scenario-Working.tmp
+
+Create Materialized View Scenario Working
+    ${inputStr} =    Catenate
+    ...    create materialized view mv_one as select 1 as one;
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    create materialized view is not supported
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${EMPTY}
+    ...    ${outputStr}
+    ...    stderr=${CURDIR}/tmp/Create-Materialized-Scenario-Working.tmp
+
 GitHub Join Input Params Select
     Should Horrid Query StackQL Inline Equal
     ...    ${STACKQL_EXE}

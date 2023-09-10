@@ -46,7 +46,7 @@ type PlanBuilderInput interface {
 	SetIsTccSetAheadOfTime(bool)
 	SetPrepStmtOffset(int)
 
-	SetCreateMAterializedView(bool)
+	SetCreateMaterializedView(bool)
 	IsCreateMaterializedView() bool
 
 	GetMessages() []string
@@ -147,11 +147,11 @@ func (pbi *StandardPlanBuilderInput) Clone() PlanBuilderInput {
 	)
 	clonedPbi.SetPrepStmtOffset(pbi.prepStmtOffset)
 	clonedPbi.SetReadOnly(pbi.IsReadOnly())
-	clonedPbi.SetCreateMAterializedView(pbi.isCreateMaterializedView)
+	clonedPbi.SetCreateMaterializedView(pbi.isCreateMaterializedView)
 	return clonedPbi
 }
 
-func (pbi *StandardPlanBuilderInput) SetCreateMAterializedView(isCreateMaterializedView bool) {
+func (pbi *StandardPlanBuilderInput) SetCreateMaterializedView(isCreateMaterializedView bool) {
 	pbi.isCreateMaterializedView = isCreateMaterializedView
 }
 
