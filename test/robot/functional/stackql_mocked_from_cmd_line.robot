@@ -489,7 +489,7 @@ Split Part Simple Invocation Working
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    select name, id, network, split_part(network, '/', 8) as network_region from google.compute.firewalls where project \= 'testing-project' order by id desc;
-    ...    ${SELECT_GITHUB_REPOS_WITH_USEFUL_FUNCTIONS_EXPECTED}
+    ...    ${outputStr}
     ...    ${CURDIR}/tmp/Split-Part-Simple-Invocation-Working.tmp
 
 Split Part Negative Index Invocation Working
@@ -523,7 +523,7 @@ Split Part Negative Index Invocation Working
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    select name, id, network, split_part(network, '/', -3) as network_region from google.compute.firewalls where project \= 'testing-project' order by id desc;
-    ...    ${SELECT_GITHUB_REPOS_WITH_USEFUL_FUNCTIONS_EXPECTED}
+    ...    ${outputStr}
     ...    ${CURDIR}/tmp/Split-Part-Negative-Index-Invocation-Working.tmp
 
 GitHub Join Input Params Select
