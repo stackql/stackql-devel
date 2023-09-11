@@ -693,3 +693,70 @@ func IsFromExprSimple(from sqlparser.TableExprs) bool {
 	}
 	return true
 }
+
+func IsCreateMaterializedView(stmt sqlparser.Statement) bool {
+	switch st := stmt.(type) {
+	case *sqlparser.DDL:
+		return isCreateMaterializedView(st)
+	default:
+		return false
+	}
+}
+
+func isCreateMaterializedView(ddl *sqlparser.DDL) bool {
+	switch ddl.Action {
+	case sqlparser.CreateStr:
+		switch strings.ToLower(ddl.Modifier) {
+		case "materialized":
+			return true
+		default:
+			return false
+		}
+	default:
+		return false
+	}
+}
+
+func IsCreatePhysicalTable(stmt sqlparser.Statement) bool {
+	switch st := stmt.(type) {
+	case *sqlparser.DDL:
+		return isCreatePhysicalTable(st)
+	default:
+		return false
+	}
+}
+
+func IsCreateTemporaryPhysicalTable(stmt sqlparser.Statement) bool {
+	switch st := stmt.(type) {
+	case *sqlparser.DDL:
+		return isCreatePhysicalTable(st) && isCreateTemp(st)
+	default:
+		return false
+	}
+}
+
+func isCreateTemp(ddl *sqlparser.DDL) bool {
+	switch ddl.Action {
+	case sqlparser.CreateStr:
+		switch strings.ToLower(ddl.Modifier) {
+		case "temp", "temporary":
+			return true
+		default:
+			return false
+		}
+	default:
+		return false
+	}
+}
+
+func isCreatePhysicalTable(ddl *sqlparser.DDL) bool {
+	// if ddl.OptLike == nil && ddl.TableSpec == nil {
+	// 	return false
+	// }
+	switch ddl.Action {
+	case sqlparser.CreateStr:
+		return ddl.OptLike != nil || ddl.TableSpec != nil
+	default:
+		return false
+	}
+}

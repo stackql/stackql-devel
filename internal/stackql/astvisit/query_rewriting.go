@@ -125,7 +125,11 @@ func (v *standardQueryRewriteAstVisitor) getStarColumns(
 	tbl tablemetadata.ExtendedTableMetadata,
 ) ([]typing.RelationalColumn, error) {
 	if indirect, isIndirect := tbl.GetIndirect(); isIndirect {
-		rv := v.dc.ColumnsToRelationalColumns(indirect.GetColumns())
+		rv := indirect.GetRelationalColumns()
+		if len(rv) > 0 {
+			return rv, nil
+		}
+		rv = v.dc.ColumnsToRelationalColumns(indirect.GetColumns())
 		return rv, nil
 	}
 	schema, _, err := tbl.GetResponseSchemaAndMediaType()
@@ -592,7 +596,7 @@ func (v *standardQueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			if err != nil {
 				return err
 			}
-			if col.Alias == "" {
+			if col.Alias == "" && (col.Name == "" || strings.Contains(col.Name, " ")) {
 				col.Alias = v.getNextAlias()
 			}
 			v.columnNames = append(v.columnNames, col)
@@ -619,12 +623,15 @@ func (v *standardQueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 				return nil
 			}
 
-			r, ok := indirect.GetColumnByName(col.Name)
+			relationalCol, ok := indirect.GetRelationalColumnByIdentifier(col.Name)
 			if !ok {
-				return fmt.Errorf("query rewriting for indirection: cannot find col = '%s'", col.Name)
+				r, ok := indirect.GetColumnByName(col.Name)
+				if !ok {
+					return fmt.Errorf("query rewriting for indirection: cannot find col = '%s'", col.Name)
+				}
+				relationalCol = typing.NewRelationalColumn(col.Name, r.GetType()).WithDecorated(col.DecoratedColumn)
 			}
-			rv := typing.NewRelationalColumn(col.Name, r.GetType()).WithDecorated(col.DecoratedColumn)
-			v.relationalColumns = append(v.relationalColumns, rv)
+			v.relationalColumns = append(v.relationalColumns, relationalCol)
 			return nil
 		}
 		// TODO: accomodate SQL data source

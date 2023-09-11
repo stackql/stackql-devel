@@ -103,6 +103,9 @@
         "select fw.id, JSON_EXTRACT(fw.sourceRanges, '$[0]') sr  from google.compute.firewalls fw, json_each(sourceRanges) where project = 'stackql-demo';",
         "select fw.id, JSON_EXTRACT(fw.sourceRanges, '$[0]') sr, json_each.value as source_range  from google.compute.firewalls fw, json_each(sourceRanges) where project = 'stackql-demo';",
         "select fw.id, rd.value as source_range  from google.compute.firewalls fw, json_array_elements_text(sourceRanges) as rd where project = 'stackql-demo';",
+        "select * from stackql_gossip;",
+        "select * from stackql_notes order by priority desc;",
+        "select note, gossip from stackql_notes sn inner join stackql_gossip sg on case when sn.priority = 1000 then 'opinion' else 'tech' end = sg.category  order by sn.priority desc;",
       ],
       "default": "show providers;"
     },

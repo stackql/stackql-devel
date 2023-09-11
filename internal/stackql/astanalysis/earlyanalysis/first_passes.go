@@ -116,7 +116,7 @@ func (sp *standardInitialPasses) Analyze(
 	return sp.initialPasses(statement, handlerCtx, tcc)
 }
 
-//nolint:funlen,gocognit // this is a large function abstracting plenty
+//nolint:funlen,gocognit,gocyclo,cyclop // this is a large function abstracting plenty
 func (sp *standardInitialPasses) initialPasses(
 	statement sqlparser.Statement,
 	handlerCtx handler.HandlerContext,
@@ -250,10 +250,12 @@ func (sp *standardInitialPasses) initialPasses(
 		tpv.GetParameters(),
 		tcc.Clone(),
 	)
-	pbi.SetReadOnly(astExpandVisitor.IsReadOnly())
 	if err != nil {
 		return err
 	}
+	pbi.SetReadOnly(astExpandVisitor.IsReadOnly())
+	isCreateMAterializedView := parserutil.IsCreateMaterializedView(ast)
+	pbi.SetCreateMaterializedView(isCreateMAterializedView)
 
 	sel, selOk := planbuilderinput.IsPGSetupQuery(pbi)
 	if selOk {
@@ -295,7 +297,16 @@ func (sp *standardInitialPasses) initialPasses(
 		sp.planBuilderInput = otherPbi
 		return nil
 	}
-	switch node := ast.(type) {
+	astToAnalyse := ast
+	if isCreateMAterializedView {
+		switch node := astToAnalyse.(type) {
+		case *sqlparser.DDL:
+			astToAnalyse = node.SelectStatement
+		default:
+			return fmt.Errorf("expected DDL statement in analysing 'create materialized view' statement")
+		}
+	}
+	switch node := astToAnalyse.(type) {
 	case *sqlparser.Select:
 		routeAnalyzer := routeanalysis.NewSelectRoutePass(node, pbi, whereParams)
 		err = routeAnalyzer.RoutePass()
@@ -336,6 +347,7 @@ func (sp *standardInitialPasses) initialPasses(
 		}
 		pbi = routeAnalyzer.GetPlanBuilderInput()
 	}
+	pbi.SetCreateMaterializedView(isCreateMAterializedView)
 
 	sp.instructionType = StandardInstruction
 	sp.planBuilderInput = pbi

@@ -69,7 +69,26 @@ type SQLSystem interface {
 	// Views
 	CreateView(viewName string, rawDDL string, replaceAllowed bool) error
 	DropView(viewName string) error
-	GetViewByName(viewName string) (internaldto.ViewDTO, bool)
+	GetViewByName(viewName string) (internaldto.RelationDTO, bool)
+
+	// Materialized Views
+	CreateMaterializedView(viewName string, rawDDL string, translatedDDL string, loadDML string, replaceAllowed bool) error
+	DropMaterializedView(viewName string) error
+	GetMaterializedViewByName(viewName string) (internaldto.RelationDTO, bool)
+	QueryMaterializedView(colzString, actualRelationName, whereClause string) (*sql.Rows, error)
+
+	// Tables, both permanent and temp
+	CreateTable(
+		tableName string, rawDDL string, translatedDDL string, loadDML string, ifNotExists bool,
+		tcc internaldto.TxnControlCounters,
+	) error
+	DropTable(tableName string,
+		ifExists bool,
+		tcc internaldto.TxnControlCounters,
+	) error
+	GetTableByName(
+		tableName string, tcc internaldto.TxnControlCounters,
+	) (internaldto.RelationDTO, bool)
 
 	// External SQL data sources
 	RegisterExternalTable(connectionName string, tableDetails openapistackql.SQLExternalTable) error
