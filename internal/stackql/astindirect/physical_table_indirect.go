@@ -118,3 +118,11 @@ func (v *physicalTable) Parse() error {
 		return fmt.Errorf("physical table of type '%T' not yet supported", pr)
 	}
 }
+
+func (v *physicalTable) GetTranslatedDDL() (string, bool) {
+	return "", false
+}
+
+func (v *physicalTable) GetLoadDML() (string, bool) {
+	return "", false
+}

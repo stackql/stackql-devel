@@ -106,6 +106,7 @@
         "select * from stackql_gossip;",
         "select * from stackql_notes order by priority desc;",
         "select note, gossip from stackql_notes sn inner join stackql_gossip sg on case when sn.priority = 1000 then 'opinion' else 'tech' end = sg.category  order by sn.priority desc;",
+        "create materialized view silly_mv as select * from google.compute.firewalls where project = 'stackql-demo';",
       ],
       "default": "show providers;"
     },

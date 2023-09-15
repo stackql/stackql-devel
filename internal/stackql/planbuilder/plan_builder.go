@@ -280,11 +280,39 @@ func (pgb *standardPlanGraphBuilder) handleDDL(pbi planbuilderinput.PlanBuilderI
 	if !ok {
 		return fmt.Errorf("could not cast node of type '%T' to required DDL", pbi.GetStatement())
 	}
-	bldr := primitivebuilder.NewDDL(
+	bldrInput := builder_input.NewBuilderInput(
 		pgb.planGraphHolder,
 		handlerCtx,
-		node,
+		nil,
 	)
+	bldrInput.SetParserNode(node)
+	if node.SelectStatement != nil && parserutil.IsCreateMaterializedView(node) {
+		selPbi, selErr := planbuilderinput.NewPlanBuilderInput(
+			pbi.GetAnnotatedAST(),
+			pbi.GetHandlerCtx(),
+			node.SelectStatement,
+			pbi.GetTableExprs(),
+			pbi.GetAssignedAliasedColumns(),
+			pbi.GetAliasedTables(),
+			pbi.GetColRefs(),
+			pbi.GetPlaceholderParams(),
+			pbi.GetTxnCtrlCtrs())
+		if selErr != nil {
+			return selErr
+		}
+		_, selectPrimitiveNode, err := pgb.handleSelect(selPbi)
+		if err != nil {
+			return err
+		}
+		bldrInput.SetDependencyNode(selectPrimitiveNode)
+	}
+	bldrInput.SetAnnotatedAST(pbi.GetAnnotatedAST())
+	bldr, bldrErr := primitivebuilder.NewDDL(
+		bldrInput,
+	)
+	if bldrErr != nil {
+		return bldrErr
+	}
 	err := bldr.Build()
 	if err != nil {
 		return err

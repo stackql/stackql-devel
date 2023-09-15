@@ -94,3 +94,11 @@ func (v *subquery) GetSelectionCtx() (drm.PreparedStatementCtx, error) {
 func (v *subquery) Parse() error {
 	return nil
 }
+
+func (v *subquery) GetTranslatedDDL() (string, bool) {
+	return "", false
+}
+
+func (v *subquery) GetLoadDML() (string, bool) {
+	return "", false
+}

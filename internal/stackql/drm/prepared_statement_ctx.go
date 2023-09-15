@@ -24,6 +24,7 @@ type PreparedStatementCtx interface {
 	SetGCCtrlCtrs(tcc internaldto.TxnControlCounters)
 	SetIndirectContexts(indirectContexts []PreparedStatementCtx)
 	SetKind(kind string)
+	UpdateQuery(q string)
 }
 
 type standardPreparedStatementCtx struct {
@@ -62,6 +63,10 @@ func (ps *standardPreparedStatementCtx) SetKind(kind string) {
 
 func (ps *standardPreparedStatementCtx) GetQuery() string {
 	return ps.query
+}
+
+func (ps *standardPreparedStatementCtx) UpdateQuery(q string) {
+	ps.query = q
 }
 
 func (ps *standardPreparedStatementCtx) GetGCCtrlCtrs() internaldto.TxnControlCounters {

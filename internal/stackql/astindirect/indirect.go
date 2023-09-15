@@ -85,4 +85,6 @@ type Indirect interface {
 	SetAssignedParameters(internaldto.TableParameterCollection)
 	SetSelectContext(drm.PreparedStatementCtx)
 	SetUnderlyingSymTab(symtab.SymTab)
+	GetTranslatedDDL() (string, bool)
+	GetLoadDML() (string, bool)
 }

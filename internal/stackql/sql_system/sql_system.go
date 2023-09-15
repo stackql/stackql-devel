@@ -72,7 +72,14 @@ type SQLSystem interface {
 	GetViewByName(viewName string) (internaldto.RelationDTO, bool)
 
 	// Materialized Views
-	CreateMaterializedView(viewName string, rawDDL string, translatedDDL string, loadDML string, replaceAllowed bool) error
+	CreateMaterializedView(
+		relationName string,
+		colz []typing.RelationalColumn,
+		rawDDL string,
+		replaceAllowed bool,
+		selectQuery string,
+		varargs ...any,
+	) error
 	DropMaterializedView(viewName string) error
 	GetMaterializedViewByName(viewName string) (internaldto.RelationDTO, bool)
 	QueryMaterializedView(colzString, actualRelationName, whereClause string) (*sql.Rows, error)

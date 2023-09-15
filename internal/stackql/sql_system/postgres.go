@@ -493,60 +493,16 @@ func (eng *postgresSystem) GetViewByName(viewName string) (internaldto.RelationD
 	return eng.getViewByName(viewName)
 }
 
+//nolint:unparam // future proof
 func (eng *postgresSystem) CreateMaterializedView(
-	viewName string, rawDDL string, translatedDDL string, loadDML string, replaceAllowed bool) error {
-	q := `
-	INSERT INTO "__iql__.materialized_views" (
-		view_name,
-		view_ddl,
-		translated_ddl
-	  ) 
-	  VALUES (
-		$1,
-		$2,
-		$3
-	  )
-	`
-	if replaceAllowed {
-		q += `
-		  ON CONFLICT(view_name)
-		  DO
-		    UPDATE SET view_ddl = EXCLUDED.view_ddl,
-		               translated_ddl = EXCLUDED.translated_ddl
-		`
-	}
-	tx, err := eng.sqlEngine.GetTx()
-	if err != nil {
-		return err
-	}
-	_, err = tx.Exec(q, viewName, rawDDL, translatedDDL)
-	if err != nil {
-		//nolint:errcheck // TODO: merge variadic error(s) into one
-		tx.Rollback()
-		return err
-	}
-	if replaceAllowed {
-		_, err = tx.Exec(fmt.Sprintf(`drop materialized view if exists "%s"`, viewName))
-		if err != nil {
-			//nolint:errcheck // TODO: merge variadic error(s) into one
-			tx.Rollback()
-			return err
-		}
-	}
-	_, err = tx.Exec(translatedDDL)
-	if err != nil {
-		//nolint:errcheck // TODO: merge variadic error(s) into one
-		tx.Rollback()
-		return err
-	}
-	_, err = tx.Exec(loadDML)
-	if err != nil {
-		//nolint:errcheck // TODO: merge variadic error(s) into one
-		tx.Rollback()
-		return err
-	}
-	commitErr := tx.Commit()
-	return commitErr
+	relationName string,
+	colz []typing.RelationalColumn,
+	rawDDL string,
+	replaceAllowed bool,
+	selectQuery string,
+	varargs ...any,
+) error {
+	return fmt.Errorf("not implemented")
 }
 
 func (eng *postgresSystem) DropMaterializedView(viewName string) error {

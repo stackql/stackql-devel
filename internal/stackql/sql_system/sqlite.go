@@ -595,60 +595,22 @@ func (eng *sqLiteSystem) generateViewDDL(relationalTable relationaldto.Relationa
 	return retVal, nil
 }
 
+//nolint:unparam // future proof
 func (eng *sqLiteSystem) CreateMaterializedView(
-	viewName string, rawDDL string, translatedDDL string, loadDML string, replaceAllowed bool) error {
-	q := `
-	INSERT INTO "__iql__.materialized_views" (
-		view_name,
-		view_ddl,
-		translated_ddl
-	  ) 
-	  VALUES (
-		?,
-		?,
-		?
-	  )
-	`
-	if replaceAllowed {
-		q += `
-		  ON CONFLICT(view_name)
-		  DO
-		    UPDATE SET view_ddl = EXCLUDED.view_ddl,
-			           translated_ddl = EXCLUDED.translated_ddl
-		`
-	}
-	tx, err := eng.sqlEngine.GetTx()
-	if err != nil {
-		return err
-	}
-	_, err = tx.Exec(q, viewName, rawDDL)
-	if err != nil {
-		//nolint:errcheck // TODO: merge variadic error(s) into one
-		tx.Rollback()
-		return err
-	}
-	if replaceAllowed {
-		_, err = tx.Exec(fmt.Sprintf(`drop table if exists "%s"`, viewName))
-		if err != nil {
-			//nolint:errcheck // TODO: merge variadic error(s) into one
-			tx.Rollback()
-			return err
-		}
-	}
-	_, err = tx.Exec(translatedDDL)
-	if err != nil {
-		//nolint:errcheck // TODO: merge variadic error(s) into one
-		tx.Rollback()
-		return err
-	}
-	_, err = tx.Exec(loadDML)
-	if err != nil {
-		//nolint:errcheck // TODO: merge variadic error(s) into one
-		tx.Rollback()
-		return err
-	}
-	commitErr := tx.Commit()
-	return commitErr
+	relationName string,
+	colz []typing.RelationalColumn,
+	rawDDL string,
+	replaceAllowed bool,
+	selectQuery string,
+	varargs ...any,
+) error {
+	return eng.runMaterializedViewCreate(
+		relationName,
+		colz,
+		rawDDL,
+		selectQuery,
+		varargs...,
+	)
 }
 
 func (eng *sqLiteSystem) DropMaterializedView(viewName string) error {
@@ -1372,4 +1334,138 @@ func (eng *sqLiteSystem) QueryMaterializedView(
 			whereClause,
 		),
 	)
+}
+
+func (eng *sqLiteSystem) translateMaterializedViewDML(viewDML string) (internaldto.RelationDMLTranslation, error) {
+	rv := internaldto.NewRelationDMLTranslation(
+		viewDML,
+		viewDML,
+		"",
+	)
+	return rv, nil
+}
+
+func (eng *sqLiteSystem) generateTableDDL(
+	relationName string,
+	colz []typing.RelationalColumn,
+) string {
+	sb := strings.Builder{}
+	sb.WriteString(fmt.Sprintf(`CREATE TABLE "%s" ( `, relationName))
+	var colzString []string
+	for _, col := range colz {
+		colzString = append(colzString, fmt.Sprintf(`"%s" %s`, col.GetName(), col.GetType()))
+	}
+	sb.WriteString(strings.Join(colzString, ", "))
+	sb.WriteString(" ) ")
+	return sb.String()
+}
+
+func (eng *sqLiteSystem) generateTableInsertDMLFromViewSelect(
+	relationName string,
+	selectQuery string,
+	colz []typing.RelationalColumn,
+) string {
+	sb := strings.Builder{}
+	sb.WriteString(fmt.Sprintf(`INSERT INTO "%s" ( `, relationName))
+	var colzString []string
+	for _, col := range colz {
+		colzString = append(colzString, fmt.Sprintf(`"%s"`, col.GetName()))
+	}
+	sb.WriteString(strings.Join(colzString, ", "))
+	sb.WriteString(" ) ")
+	sb.WriteString(selectQuery)
+	return sb.String()
+}
+
+//nolint:errcheck // TODO: establish pattern
+func (eng *sqLiteSystem) runMaterializedViewCreate(
+	relationName string,
+	colz []typing.RelationalColumn,
+	rawDDL string,
+	selectQuery string,
+	varargs ...any,
+) error {
+	txn, txnErr := eng.sqlEngine.GetTx()
+	if txnErr != nil {
+		return txnErr
+	}
+	columnQuery := `
+	INSERT INTO "__iql__.materialized_views.columns" (
+		view_name,
+		column_name,
+		column_type,
+		ordinal_position,
+		"oid",
+		column_width,
+		column_precision
+	  ) 
+	  VALUES (
+		?,
+		?,
+		?,
+		?,
+		?,
+		?,
+		?
+	  )
+	  ;
+	`
+	for i, col := range colz {
+		oid, oidExists := col.GetOID()
+		if !oidExists {
+			oid = 25
+		}
+		_, err := txn.Exec(
+			columnQuery,
+			relationName,
+			col.GetName(),
+			col.GetType(),
+			i+1,
+			oid,
+			col.GetWidth(),
+			0, // TODO: implement precision record
+		)
+		if err != nil {
+			txn.Rollback()
+			return err
+		}
+	}
+	tableDDL := eng.generateTableDDL(relationName, colz)
+	_, err := txn.Exec(tableDDL)
+	if err != nil {
+		txn.Rollback()
+		return err
+	}
+	insertQuery := eng.generateTableInsertDMLFromViewSelect(relationName, selectQuery, colz)
+	_, err = txn.Exec(insertQuery, varargs...)
+	if err != nil {
+		txn.Rollback()
+		return err
+	}
+	relationCatalogueQuery := `
+	INSERT INTO "__iql__.materialized_views" (
+		view_name,
+		view_ddl,
+		translated_ddl,
+		translated_inline_dml
+	  ) 
+	  VALUES (
+		?,
+		?,
+		?,
+		''
+	  )
+	  ;
+	  `
+	_, err = txn.Exec(
+		relationCatalogueQuery,
+		relationName,
+		rawDDL,
+		tableDDL,
+	)
+	if err != nil {
+		txn.Rollback()
+		return err
+	}
+	return nil
 }

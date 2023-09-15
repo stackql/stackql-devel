@@ -68,6 +68,16 @@ type Config interface {
 	OpenapiColumnsToRelationalColumns(cols []openapistackql.ColumnDescriptor) []typing.RelationalColumn
 	OpenapiColumnsToRelationalColumn(col openapistackql.ColumnDescriptor) typing.RelationalColumn
 	QueryDML(sqlmachinery.Querier, PreparedStatementParameterized) (*sql.Rows, error)
+	ExecDDL(
+		querier sqlmachinery.ExecQuerier,
+		ctxParameterized PreparedStatementParameterized,
+	) (sql.Result, error)
+	CreateMaterializedView(
+		relationName string,
+		rawDDL string,
+		ctxParameterized PreparedStatementParameterized,
+		replaceAllowed bool,
+	) error
 }
 
 type staticDRMConfig struct {
@@ -701,6 +711,17 @@ func (dc *staticDRMConfig) QueryDML(
 	querier sqlmachinery.Querier,
 	ctxParameterized PreparedStatementParameterized,
 ) (*sql.Rows, error) {
+	prepStmt, err := dc.prepareCtx(ctxParameterized)
+	if err != nil {
+		return nil, err
+	}
+	query := prepStmt.GetRawQuery()
+	varArgs := prepStmt.GetArgs()
+	logging.GetLogger().Infoln(fmt.Sprintf("query = %s", query))
+	return querier.Query(query, varArgs...)
+}
+
+func (dc *staticDRMConfig) prepareCtx(ctxParameterized PreparedStatementParameterized) (internaldto.PrepStmt, error) {
 	if ctxParameterized.GetCtx() == nil {
 		return nil, fmt.Errorf("cannot execute based upon nil PreparedStatementContext")
 	}
@@ -714,8 +735,45 @@ func (dc *staticDRMConfig) QueryDML(
 	}
 	query := rootArgs.GetExpandedQuery()
 	varArgs := rootArgs.GetExpandedArgs()
+	return internaldto.NewPrepStmt(query, varArgs), nil
+}
+
+func (dc *staticDRMConfig) ExecDDL(
+	querier sqlmachinery.ExecQuerier,
+	ctxParameterized PreparedStatementParameterized,
+) (sql.Result, error) {
+	prepStmt, err := dc.prepareCtx(ctxParameterized)
+	if err != nil {
+		return nil, err
+	}
+	query := prepStmt.GetRawQuery()
+	varArgs := prepStmt.GetArgs()
 	logging.GetLogger().Infoln(fmt.Sprintf("query = %s", query))
-	return querier.Query(query, varArgs...)
+	return querier.Exec(query, varArgs...)
+}
+
+func (dc *staticDRMConfig) CreateMaterializedView(
+	relationName string,
+	rawDDL string,
+	ctxParameterized PreparedStatementParameterized,
+	replaceAllowed bool,
+) error {
+	relationalColumns := dc.ColumnsToRelationalColumns(ctxParameterized.GetNonControlColumns())
+	prepStmt, err := dc.prepareCtx(ctxParameterized)
+	if err != nil {
+		return err
+	}
+	query := prepStmt.GetRawQuery()
+	varArgs := prepStmt.GetArgs()
+	logging.GetLogger().Infoln(fmt.Sprintf("query = %s", query))
+	return dc.sqlSystem.CreateMaterializedView(
+		relationName,
+		relationalColumns,
+		rawDDL,
+		replaceAllowed,
+		query,
+		varArgs...,
+	)
 }
 
 func GetDRMConfig(

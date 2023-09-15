@@ -119,3 +119,11 @@ func (v *materializedView) Parse() error {
 		return fmt.Errorf("materializedView of type '%T' not yet supported", pr)
 	}
 }
+
+func (v *materializedView) GetTranslatedDDL() (string, bool) {
+	return "", false
+}
+
+func (v *materializedView) GetLoadDML() (string, bool) {
+	return "", false
+}

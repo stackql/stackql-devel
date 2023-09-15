@@ -74,6 +74,14 @@ func (v *view) SetSelectContext(selCtx drm.PreparedStatementCtx) {
 	v.selCtx = selCtx
 }
 
+func (v *view) GetTranslatedDDL() (string, bool) {
+	return "", false
+}
+
+func (v *view) GetLoadDML() (string, bool) {
+	return "", false
+}
+
 func (v *view) GetRelationalColumnByIdentifier(_ string) (typing.RelationalColumn, bool) {
 	return nil, false
 }

@@ -299,6 +299,21 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 			} else {
 				buf.AstPrintf(node, "%s table %v", node.Action, node.Table)
 			}
+			if node.SelectStatement != nil && parserutil.IsCreateMaterializedView(node) {
+				buf.AstPrintf(node, " as %v", node.SelectStatement)
+				tableName := node.Table.GetRawVal()
+				selectStr := parserutil.RenderDDLSelectStmt(node)
+				viewDTO := internaldto.NewViewDTO(tableName, selectStr)
+				indirect, err := astindirect.NewViewIndirect(viewDTO)
+				if err != nil {
+					return nil //nolint:nilerr //TODO: investigate
+				}
+				err = v.processIndirect(node, indirect)
+				if err != nil {
+					return nil //nolint:nilerr //TODO: investigate
+				}
+				return nil
+			}
 		case sqlparser.DropStr:
 			exists := ""
 			if node.IfExists {
