@@ -543,7 +543,7 @@ Create Table Scenario Working
     ...    ${outputStr}
     ...    stderr=${CURDIR}/tmp/Create-Table-Scenario-Working.tmp
 
-Create Materialized View Scenario Working
+Create Static Materialized View Scenario Working
     ${inputStr} =    Catenate
     ...    create materialized view mv_one as select 1 as one;
     ${outputStr} =    Catenate    SEPARATOR=\n
@@ -560,6 +560,64 @@ Create Materialized View Scenario Working
     ...    ${EMPTY}
     ...    ${outputStr}
     ...    stderr=${CURDIR}/tmp/Create-Materialized-Scenario-Working.tmp
+
+Create Dynamic Materialized View Scenario Working
+    ${inputStr} =    Catenate
+    ...    create materialized view silly_mv as select * from google.compute.firewalls where project = 'testing-project';
+    ...    select name, id from silly_mv order by name desc, id desc;
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |-------------------------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}message${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------------------------|
+    ...    |${SPACE}DDL${SPACE}execution${SPACE}completed${SPACE}|
+    ...    |-------------------------|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}name${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}id${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}selected-allow-rdesk${SPACE}${SPACE}${SPACE}|${SPACE}8888888888888${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}selected-allow-rdesk${SPACE}${SPACE}${SPACE}|${SPACE}8888888888888${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-ssh${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}777777777777${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-ssh${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}777777777777${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-rdp${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}6666666666${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-rdp${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}6666666666${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-internal${SPACE}|${SPACE}5555555555555${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-internal${SPACE}|${SPACE}5555555555555${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-icmp${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}4444444444444${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-icmp${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}4444444444444${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-https${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}33333333${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-https${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}33333333${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-http${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}22222222222${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-http${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}22222222222${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}allow-spark-ui${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}111111111111${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}allow-spark-ui${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}111111111111${SPACE}|
+    ...    |------------------------|---------------|
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    ${EMPTY}
+    ...    stdin=${CURDIR}/tmp/Create-Dynamic-Materialized-Scenario-Working.tmp
 
 GitHub Join Input Params Select
     Should Horrid Query StackQL Inline Equal

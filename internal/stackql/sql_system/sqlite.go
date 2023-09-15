@@ -1467,5 +1467,6 @@ func (eng *sqLiteSystem) runMaterializedViewCreate(
 		txn.Rollback()
 		return err
 	}
-	return nil
+	commitErr := txn.Commit()
+	return commitErr
 }

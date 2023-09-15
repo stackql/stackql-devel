@@ -68,12 +68,13 @@ func (ddo *ddl) Build() error {
 				if materializedViewCreateError != nil {
 					return internaldto.NewErroneousExecutorOutput(materializedViewCreateError)
 				}
-				return internaldto.NewErroneousExecutorOutput(fmt.Errorf("create materialized view is not supported"))
-			}
-			relationDDL := parserutil.RenderDDLSelectStmt(parserDDLObj)
-			err := sqlSystem.CreateView(tableName, relationDDL, parserDDLObj.OrReplace)
-			if err != nil {
-				return internaldto.NewErroneousExecutorOutput(err)
+				// return internaldto.NewErroneousExecutorOutput(fmt.Errorf("create materialized view is not supported"))
+			} else {
+				relationDDL := parserutil.RenderDDLSelectStmt(parserDDLObj)
+				err := sqlSystem.CreateView(tableName, relationDDL, parserDDLObj.OrReplace)
+				if err != nil {
+					return internaldto.NewErroneousExecutorOutput(err)
+				}
 			}
 		case "drop":
 			if tl := len(parserDDLObj.FromTables); tl != 1 {

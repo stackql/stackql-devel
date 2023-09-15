@@ -23,6 +23,22 @@ func (pb *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBui
 		return fmt.Errorf("could not cast statement of type '%T' to required Select", pbi.GetStatement())
 	}
 
+	// Before analysing AST, see if we can pass straight to SQL backend
+	_, isInternallyRoutable := handlerCtx.GetDBMSInternalRouter().CanRoute(annotatedAST.GetAST())
+	if isInternallyRoutable {
+		primitiveGenerator := pb
+		err := primitiveGenerator.AnalyzePGInternal(pbi)
+		if err != nil {
+			return err
+		}
+		builder := primitiveGenerator.GetPrimitiveComposer().GetBuilder()
+		if builder == nil {
+			return fmt.Errorf("nil pg internal builder")
+		}
+		err = builder.Build()
+		return err
+	}
+
 	// TODO: get rid of this and dependent tests.
 	// We need not emulate postgres for other backends at this stage.
 	if sel, ok := planbuilderinput.IsPGSetupQuery(pbi); ok {
@@ -36,6 +52,8 @@ func (pb *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBui
 
 	selectMetadata, ok := annotatedAST.GetSelectMetadata(node)
 	if !ok {
+		// selCtx := drm.NewQueryOnlyPreparedStatementCtx(query, nil)
+		// pb.PrimitiveComposer.SetSelectPreparedStatementCtx(selCtx)
 		return fmt.Errorf("could not obtain select metadata for select AST node")
 	}
 
