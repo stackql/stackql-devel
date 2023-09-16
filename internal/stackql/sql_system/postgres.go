@@ -493,7 +493,6 @@ func (eng *postgresSystem) GetViewByName(viewName string) (internaldto.RelationD
 	return eng.getViewByName(viewName)
 }
 
-//nolint:unparam // future proof
 func (eng *postgresSystem) CreateMaterializedView(
 	relationName string,
 	colz []typing.RelationalColumn,
@@ -502,7 +501,13 @@ func (eng *postgresSystem) CreateMaterializedView(
 	selectQuery string,
 	varargs ...any,
 ) error {
-	return fmt.Errorf("not implemented")
+	return eng.runMaterializedViewCreate(
+		relationName,
+		colz,
+		rawDDL,
+		selectQuery,
+		varargs...,
+	)
 }
 
 func (eng *postgresSystem) DropMaterializedView(viewName string) error {
@@ -1465,4 +1470,133 @@ func (eng *postgresSystem) QueryMaterializedView(
 			whereClause,
 		),
 	)
+}
+
+// func (eng *postgresSystem) generateTableDDL(
+// 	relationName string,
+// 	colz []typing.RelationalColumn,
+// ) string {
+// 	sb := strings.Builder{}
+// 	sb.WriteString(fmt.Sprintf(`CREATE TABLE "%s" ( `, relationName))
+// 	var colzString []string
+// 	for _, col := range colz {
+// 		colzString = append(colzString, fmt.Sprintf(`"%s" %s`, col.GetName(), col.GetType()))
+// 	}
+// 	sb.WriteString(strings.Join(colzString, ", "))
+// 	sb.WriteString(" ) ")
+// 	return sb.String()
+// }
+
+func (eng *postgresSystem) generateMaterializedViewDDL(
+	relationName string,
+	selectQuery string,
+) string {
+	sb := strings.Builder{}
+	sb.WriteString(fmt.Sprintf(`CREATE MATERIALIZED VIEW "%s" AS %s`, relationName, selectQuery))
+	return sb.String()
+}
+
+// func (eng *postgresSystem) generateTableInsertDMLFromViewSelect(
+// 	relationName string,
+// 	selectQuery string,
+// 	colz []typing.RelationalColumn,
+// ) string {
+// 	sb := strings.Builder{}
+// 	sb.WriteString(fmt.Sprintf(`INSERT INTO "%s" ( `, relationName))
+// 	var colzString []string
+// 	for _, col := range colz {
+// 		colzString = append(colzString, fmt.Sprintf(`"%s"`, col.GetName()))
+// 	}
+// 	sb.WriteString(strings.Join(colzString, ", "))
+// 	sb.WriteString(" ) ")
+// 	sb.WriteString(selectQuery)
+// 	return sb.String()
+// }
+
+//nolint:errcheck // TODO: establish pattern
+func (eng *postgresSystem) runMaterializedViewCreate(
+	relationName string,
+	colz []typing.RelationalColumn,
+	rawDDL string,
+	selectQuery string,
+	varargs ...any,
+) error {
+	txn, txnErr := eng.sqlEngine.GetTx()
+	if txnErr != nil {
+		return txnErr
+	}
+	columnQuery := `
+	INSERT INTO "__iql__.materialized_views.columns" (
+		view_name,
+		column_name,
+		column_type,
+		ordinal_position,
+		"oid",
+		column_width,
+		column_precision
+	  ) 
+	  VALUES (
+		$1,
+		$2,
+		$3,
+		$4,
+		$5,
+		$6,
+		$7
+	  )
+	  ;
+	`
+	for i, col := range colz {
+		oid, oidExists := col.GetOID()
+		if !oidExists {
+			oid = 25
+		}
+		_, err := txn.Exec(
+			columnQuery,
+			relationName,
+			col.GetName(),
+			col.GetType(),
+			i+1,
+			oid,
+			col.GetWidth(),
+			0, // TODO: implement precision record
+		)
+		if err != nil {
+			txn.Rollback()
+			return err
+		}
+	}
+	insertQuery := eng.generateMaterializedViewDDL(relationName, selectQuery)
+	_, err := txn.Exec(insertQuery, varargs...)
+	if err != nil {
+		txn.Rollback()
+		return err
+	}
+	relationCatalogueQuery := `
+	INSERT INTO "__iql__.materialized_views" (
+		view_name,
+		view_ddl,
+		translated_ddl,
+		translated_inline_dml
+	  ) 
+	  VALUES (
+		$1,
+		$2,
+		$3,
+		''
+	  )
+	  ;
+	  `
+	_, err = txn.Exec(
+		relationCatalogueQuery,
+		relationName,
+		rawDDL,
+		insertQuery,
+	)
+	if err != nil {
+		txn.Rollback()
+		return err
+	}
+	commitErr := txn.Commit()
+	return commitErr
 }
