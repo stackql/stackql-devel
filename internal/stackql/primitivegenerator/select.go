@@ -2,8 +2,11 @@ package primitivegenerator
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
+	"github.com/stackql/stackql/internal/stackql/astformat"
+	"github.com/stackql/stackql/internal/stackql/astvisit"
 	"github.com/stackql/stackql/internal/stackql/dependencyplanner"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
@@ -26,8 +29,29 @@ func (pb *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBui
 	// Before analysing AST, see if we can pass straight to SQL backend
 	_, isInternallyRoutable := handlerCtx.GetDBMSInternalRouter().CanRoute(annotatedAST.GetAST())
 	if isInternallyRoutable {
+		// TODO: add select context
+		selQuery := strings.ReplaceAll(astformat.String(node, handlerCtx.GetASTFormatter()), "from \"dual\"", "")
+		v := astvisit.NewInternallyRoutableTypingAstVisitor(
+			selQuery,
+			annotatedAST,
+			handlerCtx,
+			nil,
+			handlerCtx.GetDrmConfig(),
+			handlerCtx.GetNamespaceCollection(),
+		)
+		visitErr := v.Visit(annotatedAST.GetAST())
+		if visitErr != nil {
+			return visitErr
+		}
+		selCtx, selCtxExists := v.GetSelectContext()
+		if !selCtxExists {
+			return fmt.Errorf("internal routing error: could not obtain select context")
+		}
+		pb.PrimitiveComposer.SetSelectPreparedStatementCtx(selCtx)
 		primitiveGenerator := pb
-		err := primitiveGenerator.AnalyzePGInternal(pbi)
+		clonedPbi := pbi.Clone()
+		clonedPbi.SetRawQuery(selQuery)
+		err := primitiveGenerator.AnalyzePGInternal(clonedPbi)
 		if err != nil {
 			return err
 		}
@@ -35,8 +59,9 @@ func (pb *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBui
 		if builder == nil {
 			return fmt.Errorf("nil pg internal builder")
 		}
-		err = builder.Build()
-		return err
+		// err = builder.Build()
+		// return err
+		return nil
 	}
 
 	// TODO: get rid of this and dependent tests.

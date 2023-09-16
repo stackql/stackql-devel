@@ -139,10 +139,15 @@ func (sp *standardInitialPasses) initialPasses(
 		sp.instructionType = InternallyRoutableInstruction
 		sp.isReadOnly = true
 		logging.GetLogger().Debugf("%v", opType)
+		subjectAST := result.AST
+		switch node := subjectAST.(type) {
+		case *sqlparser.DDL:
+			subjectAST = node.SelectStatement
+		}
 		pbi, pbiErr := planbuilderinput.NewPlanBuilderInput(
 			annotatedAST,
 			handlerCtx,
-			result.AST,
+			subjectAST,
 			nil,
 			nil,
 			nil,

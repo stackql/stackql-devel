@@ -546,8 +546,18 @@ Create Table Scenario Working
 Create Static Materialized View Scenario Working
     ${inputStr} =    Catenate
     ...    create materialized view mv_one as select 1 as one;
+    ...    select * from mv_one;
     ${outputStr} =    Catenate    SEPARATOR=\n
-    ...    create materialized view is not supported
+    ...    |-------------------------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}message${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------------------------|
+    ...    |${SPACE}DDL${SPACE}execution${SPACE}completed${SPACE}|
+    ...    |-------------------------|
+    ...    |-----|
+    ...    |${SPACE}one${SPACE}|
+    ...    |-----|
+    ...    |${SPACE}${SPACE}${SPACE}1${SPACE}|
+    ...    |-----|
     Should Stackql Exec Inline Equal Both Streams
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
@@ -557,9 +567,9 @@ Create Static Materialized View Scenario Working
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${inputStr}
-    ...    ${EMPTY}
     ...    ${outputStr}
-    ...    stderr=${CURDIR}/tmp/Create-Materialized-Scenario-Working.tmp
+    ...    ${EMPTY}
+    ...    stdin=${CURDIR}/tmp/Create-Static-Materialized-Scenario-Working.tmp
 
 Create Dynamic Materialized View Scenario Working
     ${inputStr} =    Catenate

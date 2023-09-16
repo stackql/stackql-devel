@@ -32,6 +32,7 @@ type PlanBuilderInput interface {
 	GetPlaceholderParams() parserutil.ParameterMap
 	GetPurge() (*sqlparser.Purge, bool)
 	GetRawQuery() string
+	SetRawQuery(string)
 	GetRegistry() (*sqlparser.Registry, bool)
 	GetSelect() (*sqlparser.Select, bool)
 	GetShow() (*sqlparser.Show, bool)
@@ -76,6 +77,7 @@ type StandardPlanBuilderInput struct {
 	readOnly                 bool
 	prepStmtOffset           int
 	isCreateMaterializedView bool
+	rawQuery                 string
 }
 
 func NewPlanBuilderInput(
@@ -226,7 +228,14 @@ func (pbi *StandardPlanBuilderInput) WithTableRouteVisitor(
 }
 
 func (pbi *StandardPlanBuilderInput) GetRawQuery() string {
+	if pbi.rawQuery != "" {
+		return pbi.rawQuery
+	}
 	return pbi.handlerCtx.GetRawQuery()
+}
+
+func (pbi *StandardPlanBuilderInput) SetRawQuery(rawQuery string) {
+	pbi.rawQuery = rawQuery
 }
 
 // router.ParameterRouter.
