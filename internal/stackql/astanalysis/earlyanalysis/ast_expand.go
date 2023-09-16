@@ -11,6 +11,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
+	"github.com/stackql/stackql/internal/stackql/primitivebuilder"
 	"github.com/stackql/stackql/internal/stackql/primitivegenerator"
 	"github.com/stackql/stackql/internal/stackql/sql_system"
 	"github.com/stackql/stackql/internal/stackql/symtab"
@@ -30,6 +31,7 @@ type AstExpandVisitor interface {
 	Analyze() error
 	ContainsAnalyticsCacheMaterial() bool
 	IsReadOnly() bool
+	GetCreateBuilder() (primitivebuilder.Builder, bool)
 }
 
 type indirectExpandAstVisitor struct {
@@ -46,6 +48,7 @@ type indirectExpandAstVisitor struct {
 	indirectionDepth               int
 	selectCount                    int
 	mutateCount                    int
+	createBuilder                  primitivebuilder.Builder
 }
 
 func newIndirectExpandAstVisitor(
@@ -74,6 +77,10 @@ func newIndirectExpandAstVisitor(
 		indirectionDepth:    indirectionDepth,
 	}
 	return rv, nil
+}
+
+func (v *indirectExpandAstVisitor) GetCreateBuilder() (primitivebuilder.Builder, bool) {
+	return v.createBuilder, v.createBuilder != nil
 }
 
 func (v *indirectExpandAstVisitor) processMaterializedView(
@@ -115,6 +122,7 @@ func (v *indirectExpandAstVisitor) processIndirect(node sqlparser.SQLNode, indir
 		indirect.GetSelectAST(),
 		v.handlerCtx,
 	)
+	indirectPrimitiveGenerator.SetIsIndirect(true)
 	err = indirectPrimitiveGenerator.AnalyzeSelectStatement(childAnalyzer.GetPlanBuilderInput())
 	if err != nil {
 		return err
@@ -146,6 +154,14 @@ func (v *indirectExpandAstVisitor) processIndirect(node sqlparser.SQLNode, indir
 	if ok {
 		indirect.SetAssignedParameters(assignedParams)
 	}
+	createBuilder, createBuilderExists := indirectPrimitiveGenerator.GetIndirectCreateTailBuilder()
+	if createBuilderExists {
+		v.createBuilder = createBuilder
+	}
+	// createBuilder, createBuilderExists := childAnalyzer.GetIndirectCreateTail()
+	// if createBuilderExists {
+	// 	v.createBuilder = createBuilder
+	// }
 	return nil
 }
 

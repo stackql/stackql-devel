@@ -13,6 +13,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/planbuilderinput"
+	"github.com/stackql/stackql/internal/stackql/primitivebuilder"
 	"github.com/stackql/stackql/internal/stackql/primitivegenerator"
 )
 
@@ -48,6 +49,8 @@ type InitialPassesScreener interface {
 type InitialPassesScreenerAnalyzer interface {
 	Analyzer
 	InitialPassesScreener
+	GetIndirectCreateTail() (primitivebuilder.Builder, bool)
+	SetIndirectCreateTail(indirectCreateTail primitivebuilder.Builder)
 }
 
 var (
@@ -78,10 +81,19 @@ type standardInitialPasses struct {
 	parentWhereParams             parserutil.ParameterMap
 	indirectionDepth              int
 	isReadOnly                    bool
+	indirectCreateTail            primitivebuilder.Builder
 }
 
 func (sp *standardInitialPasses) GetIndirectionDepth() int {
 	return sp.indirectionDepth
+}
+
+func (sp *standardInitialPasses) GetIndirectCreateTail() (primitivebuilder.Builder, bool) {
+	return sp.indirectCreateTail, sp.indirectCreateTail != nil
+}
+
+func (sp *standardInitialPasses) SetIndirectCreateTail(indirectCreateTail primitivebuilder.Builder) {
+	sp.indirectCreateTail = indirectCreateTail
 }
 
 func (sp *standardInitialPasses) GetInstructionType() InstructionType {
@@ -195,6 +207,10 @@ func (sp *standardInitialPasses) initialPasses(
 	err = astExpandVisitor.Analyze()
 	if err != nil {
 		return err
+	}
+	bldr, createBldrExists := astExpandVisitor.GetCreateBuilder()
+	if createBldrExists {
+		sp.SetIndirectCreateTail(bldr)
 	}
 	sp.isReadOnly = astExpandVisitor.IsReadOnly()
 	annotatedAST = astExpandVisitor.GetAnnotatedAST()

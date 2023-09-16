@@ -44,12 +44,23 @@ type planGraphBuilder interface {
 	createInstructionFor(planbuilderinput.PlanBuilderInput) error
 	nop(planbuilderinput.PlanBuilderInput) error
 	getPlanGraphHolder() primitivegraph.PrimitiveGraphHolder
+	setPrebuiltIndirect(primitivebuilder.Builder)
+	getPrebuiltIndirect() (primitivebuilder.Builder, bool)
 }
 
 type standardPlanGraphBuilder struct {
 	planGraphHolder        primitivegraph.PrimitiveGraphHolder
 	rootPrimitiveGenerator primitivegenerator.PrimitiveGenerator
 	transactionContext     txn_context.ITransactionContext
+	preBuiltIndirect       primitivebuilder.Builder
+}
+
+func (pgb *standardPlanGraphBuilder) getPrebuiltIndirect() (primitivebuilder.Builder, bool) {
+	return pgb.preBuiltIndirect, pgb.preBuiltIndirect != nil
+}
+
+func (pgb *standardPlanGraphBuilder) setPrebuiltIndirect(builder primitivebuilder.Builder) {
+	pgb.preBuiltIndirect = builder
 }
 
 func (pgb *standardPlanGraphBuilder) setRootPrimitiveGenerator(
@@ -286,23 +297,40 @@ func (pgb *standardPlanGraphBuilder) handleDDL(pbi planbuilderinput.PlanBuilderI
 		nil,
 	)
 	bldrInput.SetParserNode(node)
+	//nolint:nestif // TODO: refactor
 	if node.SelectStatement != nil && parserutil.IsCreateMaterializedView(node) {
-		selPbi, selErr := planbuilderinput.NewPlanBuilderInput(
-			pbi.GetAnnotatedAST(),
-			pbi.GetHandlerCtx(),
-			node.SelectStatement,
-			pbi.GetTableExprs(),
-			pbi.GetAssignedAliasedColumns(),
-			pbi.GetAliasedTables(),
-			pbi.GetColRefs(),
-			pbi.GetPlaceholderParams(),
-			pbi.GetTxnCtrlCtrs())
-		if selErr != nil {
-			return selErr
-		}
-		_, selectPrimitiveNode, err := pgb.handleSelect(selPbi)
-		if err != nil {
-			return err
+		prebuiltIndirect, prebuildIndirectExists := pgb.getPrebuiltIndirect()
+		var selectPrimitiveNode primitivegraph.PrimitiveNode
+		if prebuildIndirectExists {
+			buildErr := prebuiltIndirect.Build()
+			if buildErr != nil {
+				return buildErr
+			}
+			tailNode := prebuiltIndirect.GetTail()
+			if tailNode != nil {
+				selectPrimitiveNode = tailNode
+			} else {
+				return fmt.Errorf("could not obtain tail node from prebuilt indirect")
+			}
+		} else {
+			selPbi, selErr := planbuilderinput.NewPlanBuilderInput(
+				pbi.GetAnnotatedAST(),
+				pbi.GetHandlerCtx(),
+				node.SelectStatement,
+				pbi.GetTableExprs(),
+				pbi.GetAssignedAliasedColumns(),
+				pbi.GetAliasedTables(),
+				pbi.GetColRefs(),
+				pbi.GetPlaceholderParams(),
+				pbi.GetTxnCtrlCtrs())
+			if selErr != nil {
+				return selErr
+			}
+			var err error
+			_, selectPrimitiveNode, err = pgb.handleSelect(selPbi)
+			if err != nil {
+				return err
+			}
 		}
 		bldrInput.SetDependencyNode(selectPrimitiveNode)
 	}

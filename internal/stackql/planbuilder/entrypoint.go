@@ -86,6 +86,10 @@ func (pb *standardPlanBuilder) BuildPlanFromContext(handlerCtx handler.HandlerCo
 	if err != nil {
 		return createErroneousPlan(handlerCtx, qPlan, rowSort, err)
 	}
+	prebuiltIndirect, prebuiltIndirectExists := earlyPassScreenerAnalyzer.GetIndirectCreateTail()
+	if prebuiltIndirectExists {
+		pGBuilder.setPrebuiltIndirect(prebuiltIndirect)
+	}
 	// TODO: full analysis of view, which will become child of top level query
 	statementType := earlyPassScreenerAnalyzer.GetStatementType()
 	qPlan.SetType(statementType)

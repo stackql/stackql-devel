@@ -212,6 +212,9 @@ func (pb *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBui
 				return err
 			}
 			bld := dp.GetBldr()
+			if pb.PrimitiveComposer.IsIndirect() {
+				pb.indirectCreateTailBuilder = bld
+			}
 			selCtx := dp.GetSelectCtx()
 			pChild.GetPrimitiveComposer().SetBuilder(bld)
 			pb.PrimitiveComposer.SetSelectPreparedStatementCtx(selCtx)

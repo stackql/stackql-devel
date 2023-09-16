@@ -586,33 +586,17 @@ Create Dynamic Materialized View Scenario Working
     ...    |------------------------|---------------|
     ...    |${SPACE}selected-allow-rdesk${SPACE}${SPACE}${SPACE}|${SPACE}8888888888888${SPACE}|
     ...    |------------------------|---------------|
-    ...    |${SPACE}selected-allow-rdesk${SPACE}${SPACE}${SPACE}|${SPACE}8888888888888${SPACE}|
-    ...    |------------------------|---------------|
     ...    |${SPACE}default-allow-ssh${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}777777777777${SPACE}|
-    ...    |------------------------|---------------|
-    ...    |${SPACE}default-allow-ssh${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}777777777777${SPACE}|
-    ...    |------------------------|---------------|
-    ...    |${SPACE}default-allow-rdp${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}6666666666${SPACE}|
     ...    |------------------------|---------------|
     ...    |${SPACE}default-allow-rdp${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}6666666666${SPACE}|
     ...    |------------------------|---------------|
     ...    |${SPACE}default-allow-internal${SPACE}|${SPACE}5555555555555${SPACE}|
     ...    |------------------------|---------------|
-    ...    |${SPACE}default-allow-internal${SPACE}|${SPACE}5555555555555${SPACE}|
-    ...    |------------------------|---------------|
-    ...    |${SPACE}default-allow-icmp${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}4444444444444${SPACE}|
-    ...    |------------------------|---------------|
     ...    |${SPACE}default-allow-icmp${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}4444444444444${SPACE}|
     ...    |------------------------|---------------|
     ...    |${SPACE}default-allow-https${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}33333333${SPACE}|
     ...    |------------------------|---------------|
-    ...    |${SPACE}default-allow-https${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}33333333${SPACE}|
-    ...    |------------------------|---------------|
     ...    |${SPACE}default-allow-http${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}22222222222${SPACE}|
-    ...    |------------------------|---------------|
-    ...    |${SPACE}default-allow-http${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}22222222222${SPACE}|
-    ...    |------------------------|---------------|
-    ...    |${SPACE}allow-spark-ui${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}111111111111${SPACE}|
     ...    |------------------------|---------------|
     ...    |${SPACE}allow-spark-ui${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}111111111111${SPACE}|
     ...    |------------------------|---------------|
