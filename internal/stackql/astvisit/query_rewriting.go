@@ -121,6 +121,7 @@ func (v *standardQueryRewriteAstVisitor) getNextAlias() string {
 	return fmt.Sprintf("col_%d", i)
 }
 
+//nolint:dupl // TODO: fix this
 func (v *standardQueryRewriteAstVisitor) getStarColumns(
 	tbl tablemetadata.ExtendedTableMetadata,
 ) ([]typing.RelationalColumn, error) {

@@ -152,6 +152,7 @@ func (sp *standardInitialPasses) initialPasses(
 		sp.isReadOnly = true
 		logging.GetLogger().Debugf("%v", opType)
 		subjectAST := result.AST
+		//nolint:gocritic // prefer switch
 		switch node := subjectAST.(type) {
 		case *sqlparser.DDL:
 			subjectAST = node.SelectStatement

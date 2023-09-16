@@ -1,4 +1,4 @@
-//nolint:dupl,nolintlint //TODO: fix this
+//nolint:dupl,nolintlint,revive //TODO: fix this
 package sql_system //nolint:revive,stylecheck // package name is meaningful and readable
 
 import (

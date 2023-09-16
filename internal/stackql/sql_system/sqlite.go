@@ -595,7 +595,7 @@ func (eng *sqLiteSystem) generateViewDDL(relationalTable relationaldto.Relationa
 	return retVal, nil
 }
 
-//nolint:unparam // future proof
+//nolint:unparam,revive // future proof
 func (eng *sqLiteSystem) CreateMaterializedView(
 	relationName string,
 	colz []typing.RelationalColumn,
@@ -1334,15 +1334,6 @@ func (eng *sqLiteSystem) QueryMaterializedView(
 			whereClause,
 		),
 	)
-}
-
-func (eng *sqLiteSystem) translateMaterializedViewDML(viewDML string) (internaldto.RelationDMLTranslation, error) {
-	rv := internaldto.NewRelationDMLTranslation(
-		viewDML,
-		viewDML,
-		"",
-	)
-	return rv, nil
 }
 
 func (eng *sqLiteSystem) generateTableDDL(

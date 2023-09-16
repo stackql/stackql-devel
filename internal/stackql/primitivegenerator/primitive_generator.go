@@ -66,7 +66,6 @@ type standardPrimitiveGenerator struct {
 	prepStmtOffset            int
 	PrimitiveComposer         primitivecomposer.PrimitiveComposer
 	isElideRead               bool
-	isIndirectGenerator       bool
 	indirectCreateTailBuilder primitivebuilder.Builder
 }
 
