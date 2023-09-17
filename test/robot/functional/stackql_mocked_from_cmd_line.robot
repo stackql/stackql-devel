@@ -707,6 +707,109 @@ Create Dynamic Materialized View Scenario Working
     ...    stdout=${CURDIR}/tmp/Create-Dynamic-Materialized-Scenario-Working.tmp
     ...    stderr=${CURDIR}/tmp/Create-Dynamic-Materialized-Scenario-Working-stderr.tmp
 
+Create Changing Dynamic Materialized View Scenario Working
+    ${inputStr} =    Catenate
+    ...    create materialized view silly_changing_mv as select * from google.compute.firewalls where project = 'changing-project';
+    ...    select name, id from silly_changing_mv order by name desc, id desc;
+    ...    drop materialized view silly_changing_mv;
+    ...    select name, id from silly_changing_mv order by name desc, id desc;
+    ...    create materialized view silly_changing_mv as select * from google.compute.firewalls where project = 'changing-project';
+    ...    select name, id from silly_changing_mv order by name desc, id desc;
+    ...    refresh materialized view silly_changing_mv;
+    ...    select name, id from silly_changing_mv order by name desc, id desc;
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |-------------------------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}message${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------------------------|
+    ...    |${SPACE}DDL${SPACE}execution${SPACE}completed${SPACE}|
+    ...    |-------------------------|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}name${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}id${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}selected-allow-rdesk${SPACE}${SPACE}${SPACE}|${SPACE}8888888888888${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-ssh${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}777777777777${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-rdp${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}6666666666${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-internal${SPACE}|${SPACE}5555555555555${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-icmp${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}4444444444444${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-https${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}33333333${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-http${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}22222222222${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}allow-spark-ui${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}111111111111${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |-------------------------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}message${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------------------------|
+    ...    |${SPACE}DDL${SPACE}execution${SPACE}completed${SPACE}|
+    ...    |-------------------------|
+    ...    |-------------------------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}message${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------------------------|
+    ...    |${SPACE}DDL${SPACE}execution${SPACE}completed${SPACE}|
+    ...    |-------------------------|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}name${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}id${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}selected-allow-rdesk${SPACE}${SPACE}${SPACE}|${SPACE}8888888888888${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-ssh${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}777777777777${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-rdp${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}6666666666${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-internal${SPACE}|${SPACE}5555555555555${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-icmp${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}4444444444444${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-https${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}33333333${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}default-allow-http${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}22222222222${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}allow-spark-ui${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}111111111111${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |--------------------------------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}message${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |--------------------------------|
+    ...    |${SPACE}refresh${SPACE}materialized${SPACE}view${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |${SPACE}completed${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |--------------------------------|
+    ...    |--------------------------------|---------------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}name${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}id${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |--------------------------------|---------------|
+    ...    |${SPACE}altered-selected-allow-rdesk${SPACE}${SPACE}${SPACE}|${SPACE}8888888888888${SPACE}|
+    ...    |--------------------------------|---------------|
+    ...    |${SPACE}altered-default-allow-ssh${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}777777777777${SPACE}|
+    ...    |--------------------------------|---------------|
+    ...    |${SPACE}altered-default-allow-rdp${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}6666666666${SPACE}|
+    ...    |--------------------------------|---------------|
+    ...    |${SPACE}altered-default-allow-internal${SPACE}|${SPACE}5555555555555${SPACE}|
+    ...    |--------------------------------|---------------|
+    ...    |${SPACE}altered-default-allow-icmp${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}4444444444444${SPACE}|
+    ...    |--------------------------------|---------------|
+    ...    |${SPACE}altered-default-allow-https${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}33333333${SPACE}|
+    ...    |--------------------------------|---------------|
+    ...    |${SPACE}altered-default-allow-http${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}22222222222${SPACE}|
+    ...    |--------------------------------|---------------|
+    ...    |${SPACE}altered-allow-spark-ui${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}111111111111${SPACE}|
+    ...    |--------------------------------|---------------|
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    could not locate table 'silly_changing_mv'
+    ...    stdout=${CURDIR}/tmp/Create-Changing-Dynamic-Materialized-Scenario-Working.tmp
+    ...    stderr=${CURDIR}/tmp/Create-Changing-Dynamic-Materialized-Scenario-Working-stderr.tmp
+
 GitHub Join Input Params Select
     Should Horrid Query StackQL Inline Equal
     ...    ${STACKQL_EXE}
