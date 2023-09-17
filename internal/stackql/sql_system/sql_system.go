@@ -80,6 +80,10 @@ type SQLSystem interface {
 		selectQuery string,
 		varargs ...any,
 	) error
+	RefreshMaterializedView(viewName string,
+		colz []typing.RelationalColumn,
+		selectQuery string,
+		varargs ...any) error
 	DropMaterializedView(viewName string) error
 	GetMaterializedViewByName(viewName string) (internaldto.RelationDTO, bool)
 	QueryMaterializedView(colzString, actualRelationName, whereClause string) (*sql.Rows, error)

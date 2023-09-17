@@ -510,6 +510,43 @@ func (eng *postgresSystem) CreateMaterializedView(
 	)
 }
 
+//nolint:errcheck // TODO: establish pattern
+func (eng *postgresSystem) RefreshMaterializedView(viewName string,
+	colz []typing.RelationalColumn,
+	selectQuery string,
+	varargs ...any) error {
+	//nolint:gosec // no viable alternative
+	deleteQuery := fmt.Sprintf(`
+		DELETE FROM "%s"`,
+		viewName,
+	)
+	txn, err := eng.sqlEngine.GetTx()
+	if err != nil {
+		return err
+	}
+	_, err = txn.Exec(deleteQuery)
+	if err != nil {
+		txn.Rollback()
+		return err
+	}
+	// TODO: check colz against supplied columns
+	relationDTO, relationDTOok := eng.getMaterializedViewByName(viewName, txn)
+	if !relationDTOok {
+		if len(relationDTO.GetColumns()) == 0 {
+		}
+		// no need to rollbak; assumed already done
+		return fmt.Errorf("cannot refresh materialized view = '%s': not found", viewName)
+	}
+	insertQuery := eng.generateTableInsertDMLFromViewSelect(viewName, selectQuery, colz)
+	_, err = txn.Exec(insertQuery, varargs...)
+	if err != nil {
+		txn.Rollback()
+		return err
+	}
+	commitErr := txn.Commit()
+	return commitErr
+}
+
 func (eng *postgresSystem) DropMaterializedView(viewName string) error {
 	dropRefQuery := `
 	DELETE FROM "__iql__.materialized_views"
@@ -551,11 +588,19 @@ func (eng *postgresSystem) DropMaterializedView(viewName string) error {
 	return commitErr
 }
 
+//nolint:errcheck // TODO: establish pattern
 func (eng *postgresSystem) GetMaterializedViewByName(viewName string) (internaldto.RelationDTO, bool) {
-	return eng.getMaterializedViewByName(viewName)
+	txn, err := eng.sqlEngine.GetTx()
+	if err != nil {
+		return nil, false
+	}
+	rv, ok := eng.getMaterializedViewByName(viewName, txn)
+	txn.Commit()
+	return rv, ok
 }
 
-func (eng *postgresSystem) getMaterializedViewByName(viewName string) (internaldto.RelationDTO, bool) {
+//nolint:errcheck // TODO: establish pattern
+func (eng *postgresSystem) getMaterializedViewByName(viewName string, txn *sql.Tx) (internaldto.RelationDTO, bool) {
 	q := `SELECT view_ddl FROM "__iql__.materialized_views" WHERE view_name = $1 and deleted_dttm IS NULL`
 	colQuery := `
 	SELECT
@@ -570,18 +615,21 @@ func (eng *postgresSystem) getMaterializedViewByName(viewName string) (internald
 	  view_name = $1
 	ORDER BY ordinal_position ASC
 	`
-	row := eng.sqlEngine.QueryRow(q, viewName)
+	row := txn.QueryRow(q, viewName)
 	if row == nil {
+		txn.Rollback()
 		return nil, false
 	}
 	var viewDDL string
 	err := row.Scan(&viewDDL)
 	if err != nil {
+		txn.Rollback()
 		return nil, false
 	}
 	rv := internaldto.NewMaterializedViewDTO(viewName, viewDDL)
-	rows, err := eng.sqlEngine.Query(colQuery, viewName)
+	rows, err := txn.Query(colQuery, viewName)
 	if err != nil || rows == nil || rows.Err() != nil {
+		txn.Rollback()
 		return nil, false
 	}
 	defer rows.Close()
@@ -596,6 +644,7 @@ func (eng *postgresSystem) getMaterializedViewByName(viewName string) (internald
 		var oID, colWidth, colPrecision int
 		err = rows.Scan(&columnName, &columnType, &oID, &colWidth, &colPrecision)
 		if err != nil {
+			txn.Rollback()
 			return nil, false
 		}
 		relationalColumn := typing.NewRelationalColumn(
@@ -605,6 +654,7 @@ func (eng *postgresSystem) getMaterializedViewByName(viewName string) (internald
 	}
 	rv.SetColumns(columns)
 	if !hasRow {
+		txn.Rollback()
 		return nil, false
 	}
 	return rv, true

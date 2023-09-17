@@ -33,6 +33,7 @@ type PlanBuilderInput interface {
 	GetPurge() (*sqlparser.Purge, bool)
 	GetRawQuery() string
 	SetRawQuery(string)
+	GetRefreshedMaterializedView() (*sqlparser.RefreshMaterializedView, bool)
 	GetRegistry() (*sqlparser.Registry, bool)
 	GetSelect() (*sqlparser.Select, bool)
 	GetShow() (*sqlparser.Show, bool)
@@ -312,6 +313,11 @@ func (pbi *StandardPlanBuilderInput) GetInsert() (*sqlparser.Insert, bool) {
 
 func (pbi *StandardPlanBuilderInput) GetDDL() (*sqlparser.DDL, bool) {
 	rv, ok := pbi.stmt.(*sqlparser.DDL)
+	return rv, ok
+}
+
+func (pbi *StandardPlanBuilderInput) GetRefreshedMaterializedView() (*sqlparser.RefreshMaterializedView, bool) {
+	rv, ok := pbi.stmt.(*sqlparser.RefreshMaterializedView)
 	return rv, ok
 }
 

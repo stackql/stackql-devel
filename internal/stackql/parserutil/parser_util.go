@@ -792,3 +792,19 @@ func renderDDLSelectStmt(ddl *sqlparser.DDL) string {
 	return strings.ReplaceAll(
 		astformat.String(ddl.SelectStatement, astformat.DefaultSelectExprsFormatter), `"`, "")
 }
+
+func RenderRefreshMaterializedViewSelectStmt(ref *sqlparser.RefreshMaterializedView) string {
+	return strings.ReplaceAll(
+		astformat.String(ref.ImplicitSelect, astformat.DefaultSelectExprsFormatter), `"`, "")
+}
+
+//nolint:gocritic // acceptable
+func ExtractSelectStatmentFromDDL(stmt sqlparser.Statement) (sqlparser.SelectStatement, bool) {
+	switch st := stmt.(type) {
+	case *sqlparser.DDL:
+		if st.SelectStatement != nil {
+			return st.SelectStatement, true
+		}
+	}
+	return nil, false
+}

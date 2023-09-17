@@ -305,6 +305,23 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 		case sqlparser.DropStr:
 		}
 
+	case *sqlparser.RefreshMaterializedView:
+		if node.ImplicitSelect != nil {
+			buf.AstPrintf(node, " as %v", node.ImplicitSelect)
+			tableName := node.ViewName.GetRawVal()
+			selectStr := parserutil.RenderRefreshMaterializedViewSelectStmt(node)
+			viewDTO := internaldto.NewViewDTO(tableName, selectStr)
+			indirect, err := astindirect.NewViewIndirect(viewDTO)
+			if err != nil {
+				return nil //nolint:nilerr //TODO: investigate
+			}
+			err = v.processIndirect(node, indirect)
+			if err != nil {
+				return nil //nolint:nilerr //TODO: investigate
+			}
+			return nil
+		}
+
 	case *sqlparser.DDL:
 		switch node.Action {
 		case sqlparser.CreateStr:

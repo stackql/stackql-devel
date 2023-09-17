@@ -78,6 +78,10 @@ type Config interface {
 		ctxParameterized PreparedStatementParameterized,
 		replaceAllowed bool,
 	) error
+	RefreshMaterializedView(
+		relationName string,
+		ctxParameterized PreparedStatementParameterized,
+	) error
 }
 
 type staticDRMConfig struct {
@@ -771,6 +775,26 @@ func (dc *staticDRMConfig) CreateMaterializedView(
 		relationalColumns,
 		rawDDL,
 		replaceAllowed,
+		query,
+		varArgs...,
+	)
+}
+
+func (dc *staticDRMConfig) RefreshMaterializedView(
+	relationName string,
+	ctxParameterized PreparedStatementParameterized,
+) error {
+	relationalColumns := dc.ColumnsToRelationalColumns(ctxParameterized.GetNonControlColumns())
+	prepStmt, err := dc.prepareCtx(ctxParameterized)
+	if err != nil {
+		return err
+	}
+	query := prepStmt.GetRawQuery()
+	varArgs := prepStmt.GetArgs()
+	logging.GetLogger().Infoln(fmt.Sprintf("query = %s", query))
+	return dc.sqlSystem.RefreshMaterializedView(
+		relationName,
+		relationalColumns,
 		query,
 		varArgs...,
 	)

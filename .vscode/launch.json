@@ -111,6 +111,8 @@
         "create materialized view silly_mv as select * from google.compute.firewalls where project = 'stackql-demo'; select * from silly_mv;",
         "drop materialized view mv_one;",
         "create materialized view mv_one as select 1 as one; drop materialized view mv_one; select * from mv_one; create materialized view mv_one as select 1 as one; select * from mv_one;",
+        "create materialized view mv_one as select 1 as one; refresh materialized view mv_one;",
+        "create materialized view silly_mv as select * from google.compute.firewalls where project = 'stackql-demo'; refresh materialized view silly_mv; select * from silly_mv;",
       ],
       "default": "show providers;"
     },

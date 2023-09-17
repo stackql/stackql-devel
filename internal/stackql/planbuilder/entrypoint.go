@@ -1,12 +1,16 @@
 package planbuilder
 
 import (
+	"fmt"
+
+	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/acid/txn_context"
 	"github.com/stackql/stackql/internal/stackql/astanalysis/earlyanalysis"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parser"
+	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/plan"
 	"github.com/stackql/stackql/internal/stackql/primitivegenerator"
 )
@@ -69,6 +73,25 @@ func (pb *standardPlanBuilder) BuildPlanFromContext(handlerCtx handler.HandlerCo
 	statement, err := sqlParser.ParseQuery(handlerCtx.GetQuery())
 	if err != nil {
 		return createErroneousPlan(handlerCtx, qPlan, rowSort, err)
+	}
+	switch stmt := statement.(type) {
+	case *sqlparser.RefreshMaterializedView:
+		relationName := stmt.ViewName.GetRawVal()
+		catalogueEntry, catalogueEntryExists := handlerCtx.GetSQLSystem().GetMaterializedViewByName(relationName)
+		if !catalogueEntryExists {
+			return createErroneousPlan(handlerCtx, qPlan, rowSort, fmt.Errorf("could not find materialized view '%s' to refresh", relationName))
+		}
+		rawQuery := catalogueEntry.GetRawQuery()
+		implicitStatement, err := sqlParser.ParseQuery(rawQuery)
+		if err != nil {
+			return createErroneousPlan(handlerCtx, qPlan, rowSort, err)
+		}
+		implicitSelectStatement, isSelect := parserutil.ExtractSelectStatmentFromDDL(implicitStatement)
+		if !isSelect {
+			return createErroneousPlan(handlerCtx, qPlan, rowSort, fmt.Errorf("could not find implicit select statement for materialized view '%s' to refresh", relationName))
+		}
+		stmt.ImplicitSelect = implicitSelectStatement
+		statement = stmt
 	}
 
 	pGBuilder := newPlanGraphBuilder(handlerCtx.GetRuntimeContext().ExecutionConcurrencyLimit, pb.transactionContext)

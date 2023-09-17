@@ -90,6 +90,9 @@ func (aa *standardAnnotatedAst) GetIndirect(node sqlparser.SQLNode) (astindirect
 	case *sqlparser.DDL:
 		rv, ok := aa.tableIndirects[n.Table.GetRawVal()]
 		return rv, ok
+	case *sqlparser.RefreshMaterializedView:
+		rv, ok := aa.tableIndirects[n.ViewName.GetRawVal()]
+		return rv, ok
 	default:
 		return nil, false
 	}
@@ -140,6 +143,8 @@ func (aa *standardAnnotatedAst) SetIndirect(node sqlparser.SQLNode, indirect ast
 		aa.tableIndirects[n.As.GetRawVal()] = indirect
 	case *sqlparser.DDL:
 		aa.tableIndirects[n.Table.GetRawVal()] = indirect
+	case *sqlparser.RefreshMaterializedView:
+		aa.tableIndirects[n.ViewName.GetRawVal()] = indirect
 	default:
 	}
 }
