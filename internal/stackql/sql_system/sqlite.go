@@ -618,6 +618,13 @@ func (eng *sqLiteSystem) DropMaterializedView(viewName string) error {
 	DELETE FROM "__iql__.materialized_views"
 	WHERE view_name = ?
 	`
+	dropColsQuery := `
+	DELETE
+	FROM
+	  "__iql__.materialized_views.columns"
+	WHERE
+	  view_name = ?
+	`
 	dropTableQuery := fmt.Sprintf(`
 	DROP TABLE IF EXISTS "%s"
 	`, viewName)
@@ -626,6 +633,12 @@ func (eng *sqLiteSystem) DropMaterializedView(viewName string) error {
 		return err
 	}
 	_, err = tx.Exec(dropRefQuery, viewName)
+	if err != nil {
+		//nolint:errcheck // TODO: merge variadic error(s) into one
+		tx.Rollback()
+		return err
+	}
+	_, err = tx.Exec(dropColsQuery, viewName)
 	if err != nil {
 		//nolint:errcheck // TODO: merge variadic error(s) into one
 		tx.Rollback()
@@ -660,6 +673,10 @@ func (eng *sqLiteSystem) getMaterializedViewByName(viewName string) (internaldto
 	  view_name = ?
 	ORDER BY ordinal_position ASC
 	`
+	// txn, txnErr := eng.sqlEngine.GetTx()
+	// if txnErr != nil {
+	// 	return nil, false
+	// }
 	row := eng.sqlEngine.QueryRow(q, viewName)
 	if row == nil {
 		return nil, false

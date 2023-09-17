@@ -48,6 +48,7 @@ type PrimitiveGenerator interface {
 	CreateIndirectPrimitiveGenerator(ast sqlparser.SQLNode, handlerCtx handler.HandlerContext) PrimitiveGenerator
 	GetPrimitiveComposer() primitivecomposer.PrimitiveComposer
 	SetIsIndirect(isIndirect bool)
+	SetContainsUserManagedRelation(bool)
 	WithDataFlowDependentPrimitiveGenerator(PrimitiveGenerator) PrimitiveGenerator
 	WithPrepStmtOffset(offset int) PrimitiveGenerator
 	GetPrepStmtOffset() int
@@ -123,6 +124,11 @@ func (pb *standardPrimitiveGenerator) GetPrimitiveComposer() primitivecomposer.P
 
 func (pb *standardPrimitiveGenerator) SetIsIndirect(isIndirect bool) {
 	pb.PrimitiveComposer.SetIsIndirect(isIndirect)
+}
+
+func (pb *standardPrimitiveGenerator) SetContainsUserManagedRelation(containsUserRelation bool) {
+	pb.PrimitiveComposer.SetContainsUserRelation(containsUserRelation)
+	pb.PrimitiveComposer.GetGraphHolder().SetContainsUserManagedRelation(containsUserRelation)
 }
 
 func (pb *standardPrimitiveGenerator) CreateIndirectPrimitiveGenerator(

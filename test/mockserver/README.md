@@ -80,7 +80,7 @@ This will obviously only occur in testing.
 
 ### Manually testing mocks
 
-With embedded `slqite`:
+With embedded `sqlite` (default):
 
 ```bash
 export workspaceFolder='/path/to/repository/root'  # change this

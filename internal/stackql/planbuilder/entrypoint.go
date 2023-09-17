@@ -138,6 +138,10 @@ func (pb *standardPlanBuilder) BuildPlanFromContext(handlerCtx handler.HandlerCo
 		qPlan.SetCacheable(false)
 	}
 
+	if pGBuilder.getPlanGraphHolder().ContainsUserManagedRelation() {
+		qPlan.SetCacheable(false)
+	}
+
 	qPlan.SetInstructions(pGBuilder.getPlanGraphHolder())
 
 	if qPlan.GetInstructions() != nil {

@@ -515,14 +515,27 @@ func (eng *postgresSystem) DropMaterializedView(viewName string) error {
 	DELETE FROM "__iql__.materialized_views"
 	WHERE view_name = $1
 	`
+	dropColsQuery := `
+	DELETE
+	FROM
+	  "__iql__.materialized_views.columns"
+	WHERE
+	  view_name = $1
+	`
 	dropTableQuery := fmt.Sprintf(`
-	DROP MATERIALIZED VIEW IF EXISTS "%s"
+	DROP TABLE IF EXISTS "%s"
 	`, viewName)
 	tx, err := eng.sqlEngine.GetTx()
 	if err != nil {
 		return err
 	}
 	_, err = tx.Exec(dropRefQuery, viewName)
+	if err != nil {
+		//nolint:errcheck // TODO: merge variadic error(s) into one
+		tx.Rollback()
+		return err
+	}
+	_, err = tx.Exec(dropColsQuery, viewName)
 	if err != nil {
 		//nolint:errcheck // TODO: merge variadic error(s) into one
 		tx.Rollback()

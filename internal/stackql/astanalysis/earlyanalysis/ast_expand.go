@@ -86,6 +86,7 @@ func (v *indirectExpandAstVisitor) GetCreateBuilder() (primitivebuilder.Builder,
 func (v *indirectExpandAstVisitor) processMaterializedView(
 	node sqlparser.SQLNode,
 	indirect astindirect.Indirect) error {
+	v.primitiveGenerator.SetContainsUserManagedRelation(true)
 	v.annotatedAST.SetMaterializedView(node, indirect)
 	return nil
 }
