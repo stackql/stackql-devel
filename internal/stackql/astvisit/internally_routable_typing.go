@@ -69,16 +69,16 @@ func NewInternallyRoutableTypingAstVisitor(
 
 // TODO: introduce dependency on RDBMS
 func (v *standardInternallyRoutableTypingAstVisitor) getTypeFromParserType(t sqlparser.ValType) string {
-	//nolint:exhaustive,goconst // acceptable
+	//nolint:exhaustive // acceptable
 	switch t {
 	case sqlparser.StrVal:
-		return "string"
+		return "TEXT"
 	case sqlparser.IntVal:
-		return "int"
+		return "INT"
 	case sqlparser.FloatVal:
-		return "float"
+		return "NUMERIC"
 	default:
-		return "string"
+		return "TEXT"
 	}
 }
 
@@ -523,9 +523,25 @@ func (v *standardInternallyRoutableTypingAstVisitor) Visit(node sqlparser.SQLNod
 				col.Alias = v.getNextAlias()
 			}
 			v.columnNames = append(v.columnNames, col)
-			cd := openapistackql.NewColumnDescriptor(col.Alias, col.Name, col.Qualifier, col.DecoratedColumn, node, nil, col.Val)
-			v.columnDescriptors = append(v.columnDescriptors, cd)
-			v.relationalColumns = append(v.relationalColumns, v.dc.OpenapiColumnsToRelationalColumn(cd))
+			// broadcastType := "TEXT"
+			// switch expr := node.Expr.(type) {
+			// case *sqlparser.SQLVal:
+			// 	broadcastType = v.getTypeFromParserType(expr.Type)
+			// default:
+			// }
+			// cd := openapistackql.NewColumnDescriptor(col.Alias, col.Name, col.Qualifier, col.DecoratedColumn, node, nil, col.Val)
+			// v.columnDescriptors = append(v.columnDescriptors, cd)
+			// relCol := v.dc.OpenapiColumnsToRelationalColumn(cd)
+			rv := typing.NewRelationalColumn(
+				col.Name,
+				v.getTypeFromParserType(col.Type),
+			).WithDecorated(
+				col.DecoratedColumn,
+			).WithAlias(
+				col.Alias,
+			).WithUnquote(true)
+			v.relationalColumns = append(v.relationalColumns, rv)
+			// v.relationalColumns = append(v.relationalColumns, relCol)
 			return nil
 		}
 		if indirect, isIndirect := tbl.GetIndirect(); isIndirect {

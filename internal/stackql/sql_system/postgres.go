@@ -1472,46 +1472,46 @@ func (eng *postgresSystem) QueryMaterializedView(
 	)
 }
 
-// func (eng *postgresSystem) generateTableDDL(
-// 	relationName string,
-// 	colz []typing.RelationalColumn,
-// ) string {
-// 	sb := strings.Builder{}
-// 	sb.WriteString(fmt.Sprintf(`CREATE TABLE "%s" ( `, relationName))
-// 	var colzString []string
-// 	for _, col := range colz {
-// 		colzString = append(colzString, fmt.Sprintf(`"%s" %s`, col.GetName(), col.GetType()))
-// 	}
-// 	sb.WriteString(strings.Join(colzString, ", "))
-// 	sb.WriteString(" ) ")
-// 	return sb.String()
-// }
-
-func (eng *postgresSystem) generateMaterializedViewDDL(
+func (eng *postgresSystem) generateTableDDL(
 	relationName string,
-	selectQuery string,
+	colz []typing.RelationalColumn,
 ) string {
 	sb := strings.Builder{}
-	sb.WriteString(fmt.Sprintf(`CREATE MATERIALIZED VIEW "%s" AS %s`, relationName, selectQuery))
+	sb.WriteString(fmt.Sprintf(`CREATE TABLE "%s" ( `, relationName))
+	var colzString []string
+	for _, col := range colz {
+		colzString = append(colzString, fmt.Sprintf(`"%s" %s`, col.GetName(), col.GetType()))
+	}
+	sb.WriteString(strings.Join(colzString, ", "))
+	sb.WriteString(" ) ")
 	return sb.String()
 }
 
-// func (eng *postgresSystem) generateTableInsertDMLFromViewSelect(
+// func (eng *postgresSystem) generateMaterializedViewDDL(
 // 	relationName string,
 // 	selectQuery string,
-// 	colz []typing.RelationalColumn,
 // ) string {
 // 	sb := strings.Builder{}
-// 	sb.WriteString(fmt.Sprintf(`INSERT INTO "%s" ( `, relationName))
-// 	var colzString []string
-// 	for _, col := range colz {
-// 		colzString = append(colzString, fmt.Sprintf(`"%s"`, col.GetName()))
-// 	}
-// 	sb.WriteString(strings.Join(colzString, ", "))
-// 	sb.WriteString(" ) ")
-// 	sb.WriteString(selectQuery)
+// 	sb.WriteString(fmt.Sprintf(`CREATE MATERIALIZED VIEW "%s" AS %s`, relationName, selectQuery))
 // 	return sb.String()
 // }
+
+func (eng *postgresSystem) generateTableInsertDMLFromViewSelect(
+	relationName string,
+	selectQuery string,
+	colz []typing.RelationalColumn,
+) string {
+	sb := strings.Builder{}
+	sb.WriteString(fmt.Sprintf(`INSERT INTO "%s" ( `, relationName))
+	var colzString []string
+	for _, col := range colz {
+		colzString = append(colzString, fmt.Sprintf(`"%s"`, col.GetName()))
+	}
+	sb.WriteString(strings.Join(colzString, ", "))
+	sb.WriteString(" ) ")
+	sb.WriteString(selectQuery)
+	return sb.String()
+}
 
 //nolint:errcheck // TODO: establish pattern
 func (eng *postgresSystem) runMaterializedViewCreate(
@@ -1566,8 +1566,14 @@ func (eng *postgresSystem) runMaterializedViewCreate(
 			return err
 		}
 	}
-	insertQuery := eng.generateMaterializedViewDDL(relationName, selectQuery)
-	_, err := txn.Exec(insertQuery, varargs...)
+	tableDDL := eng.generateTableDDL(relationName, colz)
+	_, err := txn.Exec(tableDDL)
+	if err != nil {
+		txn.Rollback()
+		return err
+	}
+	insertQuery := eng.generateTableInsertDMLFromViewSelect(relationName, selectQuery, colz)
+	_, err = txn.Exec(insertQuery, varargs...)
 	if err != nil {
 		txn.Rollback()
 		return err
