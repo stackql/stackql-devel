@@ -551,6 +551,8 @@ Create Static Materialized View Scenario Working
     ...    select * from mv_one;
     ...    create materialized view mv_one as select 1 as one;
     ...    select * from mv_one;
+    ...    refresh materialized view mv_one;
+    ...    select * from mv_one;
     ${outputStr} =    Catenate    SEPARATOR=\n
     ...    |-------------------------|
     ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}message${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
@@ -572,6 +574,17 @@ Create Static Materialized View Scenario Working
     ...    |-------------------------|
     ...    |${SPACE}DDL${SPACE}execution${SPACE}completed${SPACE}|
     ...    |-------------------------|
+    ...    |-----|
+    ...    |${SPACE}one${SPACE}|
+    ...    |-----|
+    ...    |${SPACE}${SPACE}${SPACE}1${SPACE}|
+    ...    |-----|
+    ...    |--------------------------------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}message${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |--------------------------------|
+    ...    |${SPACE}refresh${SPACE}materialized${SPACE}view${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |${SPACE}completed${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |--------------------------------|
     ...    |-----|
     ...    |${SPACE}one${SPACE}|
     ...    |-----|
