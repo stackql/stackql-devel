@@ -362,7 +362,6 @@ func (pgb *standardPlanGraphBuilder) handleRefreshMaterializedView(pbi planbuild
 		nil,
 	)
 	bldrInput.SetParserNode(node)
-	//nolint:nestif // TODO: refactor
 	if node.ImplicitSelect != nil {
 		prebuiltIndirect, prebuildIndirectExists := pgb.getPrebuiltIndirect()
 		var selectPrimitiveNode primitivegraph.PrimitiveNode

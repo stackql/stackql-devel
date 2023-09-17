@@ -74,21 +74,26 @@ func (pb *standardPlanBuilder) BuildPlanFromContext(handlerCtx handler.HandlerCo
 	if err != nil {
 		return createErroneousPlan(handlerCtx, qPlan, rowSort, err)
 	}
+	//nolint:gocritic // acceptable
 	switch stmt := statement.(type) {
 	case *sqlparser.RefreshMaterializedView:
 		relationName := stmt.ViewName.GetRawVal()
 		catalogueEntry, catalogueEntryExists := handlerCtx.GetSQLSystem().GetMaterializedViewByName(relationName)
 		if !catalogueEntryExists {
-			return createErroneousPlan(handlerCtx, qPlan, rowSort, fmt.Errorf("could not find materialized view '%s' to refresh", relationName))
+			return createErroneousPlan(
+				handlerCtx, qPlan, rowSort,
+				fmt.Errorf("could not find materialized view '%s' to refresh", relationName))
 		}
 		rawQuery := catalogueEntry.GetRawQuery()
-		implicitStatement, err := sqlParser.ParseQuery(rawQuery)
-		if err != nil {
-			return createErroneousPlan(handlerCtx, qPlan, rowSort, err)
+		implicitStatement, stmtErr := sqlParser.ParseQuery(rawQuery)
+		if stmtErr != nil {
+			return createErroneousPlan(handlerCtx, qPlan, rowSort, stmtErr)
 		}
 		implicitSelectStatement, isSelect := parserutil.ExtractSelectStatmentFromDDL(implicitStatement)
 		if !isSelect {
-			return createErroneousPlan(handlerCtx, qPlan, rowSort, fmt.Errorf("could not find implicit select statement for materialized view '%s' to refresh", relationName))
+			return createErroneousPlan(
+				handlerCtx, qPlan, rowSort,
+				fmt.Errorf("could not find implicit select statement for materialized view '%s' to refresh", relationName))
 		}
 		stmt.ImplicitSelect = implicitSelectStatement
 		statement = stmt

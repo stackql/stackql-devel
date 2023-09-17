@@ -510,7 +510,7 @@ func (eng *postgresSystem) CreateMaterializedView(
 	)
 }
 
-//nolint:errcheck // TODO: establish pattern
+//nolint:errcheck,revive,staticcheck // TODO: establish pattern
 func (eng *postgresSystem) RefreshMaterializedView(viewName string,
 	colz []typing.RelationalColumn,
 	selectQuery string,

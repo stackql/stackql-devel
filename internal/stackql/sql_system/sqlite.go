@@ -613,7 +613,7 @@ func (eng *sqLiteSystem) CreateMaterializedView(
 	)
 }
 
-//nolint:errcheck // TODO: establish pattern
+//nolint:errcheck,revive,staticcheck // TODO: establish pattern
 func (eng *sqLiteSystem) RefreshMaterializedView(viewName string,
 	colz []typing.RelationalColumn,
 	selectQuery string,
