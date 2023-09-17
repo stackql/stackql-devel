@@ -28,7 +28,7 @@ func (pb *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBui
 
 	// Before analysing AST, see if we can pass straight to SQL backend
 	_, isInternallyRoutable := handlerCtx.GetDBMSInternalRouter().CanRoute(annotatedAST.GetAST())
-	if isInternallyRoutable {
+	if isInternallyRoutable { //nolint:nestif // acceptable
 		// TODO: add select context
 		selQuery := strings.ReplaceAll(astformat.String(node, handlerCtx.GetASTFormatter()), "from \"dual\"", "")
 		v := astvisit.NewInternallyRoutableTypingAstVisitor(
@@ -58,6 +58,9 @@ func (pb *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBui
 		builder := primitiveGenerator.GetPrimitiveComposer().GetBuilder()
 		if builder == nil {
 			return fmt.Errorf("nil pg internal builder")
+		}
+		if pb.PrimitiveComposer.IsIndirect() {
+			pb.SetIndirectCreateTailBuilder(builder)
 		}
 		// err = builder.Build()
 		// return err
@@ -213,7 +216,7 @@ func (pb *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBui
 			}
 			bld := dp.GetBldr()
 			if pb.PrimitiveComposer.IsIndirect() {
-				pb.indirectCreateTailBuilder = bld
+				pb.SetIndirectCreateTailBuilder(bld)
 			}
 			selCtx := dp.GetSelectCtx()
 			pChild.GetPrimitiveComposer().SetBuilder(bld)

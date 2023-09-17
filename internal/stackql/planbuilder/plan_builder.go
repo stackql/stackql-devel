@@ -362,41 +362,41 @@ func (pgb *standardPlanGraphBuilder) handleRefreshMaterializedView(pbi planbuild
 		nil,
 	)
 	bldrInput.SetParserNode(node)
+	//nolint:nestif // acceptable
 	if node.ImplicitSelect != nil {
 		prebuiltIndirect, prebuildIndirectExists := pgb.getPrebuiltIndirect()
 		var selectPrimitiveNode primitivegraph.PrimitiveNode
-		if !prebuildIndirectExists {
-			return fmt.Errorf("could not find prebuilt indirect for materialized view")
-		}
-		buildErr := prebuiltIndirect.Build()
-		if buildErr != nil {
-			return buildErr
-		}
-		tailNode := prebuiltIndirect.GetTail()
-		if tailNode != nil {
-			selectPrimitiveNode = tailNode
+		if prebuildIndirectExists {
+			buildErr := prebuiltIndirect.Build()
+			if buildErr != nil {
+				return buildErr
+			}
+			tailNode := prebuiltIndirect.GetTail()
+			if tailNode != nil {
+				selectPrimitiveNode = tailNode
+			} else {
+				return fmt.Errorf("could not obtain tail node from prebuilt indirect")
+			}
 		} else {
-			return fmt.Errorf("could not obtain tail node from prebuilt indirect")
+			selPbi, selErr := planbuilderinput.NewPlanBuilderInput(
+				pbi.GetAnnotatedAST(),
+				pbi.GetHandlerCtx(),
+				node.ImplicitSelect,
+				pbi.GetTableExprs(),
+				pbi.GetAssignedAliasedColumns(),
+				pbi.GetAliasedTables(),
+				pbi.GetColRefs(),
+				pbi.GetPlaceholderParams(),
+				pbi.GetTxnCtrlCtrs())
+			if selErr != nil {
+				return selErr
+			}
+			var err error
+			_, selectPrimitiveNode, err = pgb.handleSelect(selPbi)
+			if err != nil {
+				return err
+			}
 		}
-		// selPbi, selErr := planbuilderinput.NewPlanBuilderInput(
-		// 	pbi.GetAnnotatedAST(),
-		// 	pbi.GetHandlerCtx(),
-		// 	node.ImplicitSelect,
-		// 	pbi.GetTableExprs(),
-		// 	pbi.GetAssignedAliasedColumns(),
-		// 	pbi.GetAliasedTables(),
-		// 	pbi.GetColRefs(),
-		// 	pbi.GetPlaceholderParams(),
-		// 	pbi.GetTxnCtrlCtrs())
-		// if selErr != nil {
-		// 	return selErr
-		// }
-		// var err error
-		// _, selectPrimitiveNode, err = pgb.handleSelect(selPbi)
-		// if err != nil {
-		// 	return err
-		// }
-
 		bldrInput.SetDependencyNode(selectPrimitiveNode)
 	}
 	bldrInput.SetAnnotatedAST(pbi.GetAnnotatedAST())
