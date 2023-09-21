@@ -6,6 +6,7 @@ import (
 
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/astformat"
+	"github.com/stackql/stackql/internal/stackql/astindirect"
 	"github.com/stackql/stackql/internal/stackql/astvisit"
 	"github.com/stackql/stackql/internal/stackql/dependencyplanner"
 	"github.com/stackql/stackql/internal/stackql/logging"
@@ -194,7 +195,7 @@ func (pb *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBui
 				dataFlows,
 				colRefs,
 				rewrittenWhere,
-				pbi.GetStatement(),
+				node,
 				tblz,
 				pb.PrimitiveComposer,
 				tcc,
@@ -235,6 +236,11 @@ func (pb *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBui
 			if err != nil {
 				return err
 			}
+			selIndirect, indirectErr := astindirect.NewParserSelectIndirect(node, pChild.GetPrimitiveComposer().GetSelectPreparedStatementCtx())
+			if indirectErr != nil {
+				return indirectErr
+			}
+			annotatedAST.SetSelectIndirect(node, selIndirect)
 			pChild.GetPrimitiveComposer().SetBuilder(
 				primitivebuilder.NewSingleAcquireAndSelect(
 					pChild.GetPrimitiveComposer().GetGraphHolder(),

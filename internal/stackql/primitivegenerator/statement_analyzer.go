@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/stackql/stackql/internal/stackql/astindirect"
 	"github.com/stackql/stackql/internal/stackql/astvisit"
 	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/drm"
@@ -649,6 +650,11 @@ func (pb *standardPrimitiveGenerator) analyzeExec(pbi planbuilderinput.PlanBuild
 				nil, nil))
 		return nil
 	}
+	selIndirect, indirectErr := astindirect.NewParserSelectIndirect(node, pChild.GetPrimitiveComposer().GetSelectPreparedStatementCtx())
+	if indirectErr != nil {
+		return indirectErr
+	}
+	annotatedAST.SetSelectIndirect(node, selIndirect)
 	pb.PrimitiveComposer.SetBuilder(
 		primitivebuilder.NewSingleAcquireAndSelect(
 			pb.PrimitiveComposer.GetGraphHolder(),
@@ -930,18 +936,7 @@ func (pb *standardPrimitiveGenerator) AnalyzeInsert(pbi planbuilderinput.PlanBui
 	if err != nil {
 		return err
 	}
-	prov, err := tbl.GetProvider()
-	if err != nil {
-		return err
-	}
-	currentService, err := tbl.GetServiceStr()
-	if err != nil {
-		return err
-	}
-	currentResource, err := tbl.GetResourceStr()
-	if err != nil {
-		return err
-	}
+	pb.PrimitiveComposer.SetTable(node, tbl)
 	insertValOnlyRows, nonValCols, err := parserutil.ExtractInsertValColumnsPlusPlaceHolders(node)
 	if err != nil {
 		return err
@@ -961,6 +956,22 @@ func (pb *standardPrimitiveGenerator) AnalyzeInsert(pbi planbuilderinput.PlanBui
 		default:
 			return fmt.Errorf("insert with rows of type '%T' not currently supported", rowsNode)
 		}
+	}
+	isPhysicalTable := tbl.IsPhysicalTable()
+	if isPhysicalTable {
+		return nil
+	}
+	prov, err := tbl.GetProvider()
+	if err != nil {
+		return err
+	}
+	currentService, err := tbl.GetServiceStr()
+	if err != nil {
+		return err
+	}
+	currentResource, err := tbl.GetResourceStr()
+	if err != nil {
+		return err
 	}
 
 	pb.parseComments(node.Comments)
@@ -983,7 +994,6 @@ func (pb *standardPrimitiveGenerator) AnalyzeInsert(pbi planbuilderinput.PlanBui
 	if err != nil {
 		return err
 	}
-	pb.PrimitiveComposer.SetTable(node, tbl)
 	return nil
 }
 

@@ -82,6 +82,10 @@ type Config interface {
 		relationName string,
 		ctxParameterized PreparedStatementParameterized,
 	) error
+	InsertIntoPhysicalTable(
+		relationName string,
+		ctxParameterized PreparedStatementParameterized,
+	) error
 }
 
 type staticDRMConfig struct {
@@ -793,6 +797,26 @@ func (dc *staticDRMConfig) RefreshMaterializedView(
 	varArgs := prepStmt.GetArgs()
 	logging.GetLogger().Infoln(fmt.Sprintf("query = %s", query))
 	return dc.sqlSystem.RefreshMaterializedView(
+		relationName,
+		relationalColumns,
+		query,
+		varArgs...,
+	)
+}
+
+func (dc *staticDRMConfig) InsertIntoPhysicalTable(
+	relationName string,
+	ctxParameterized PreparedStatementParameterized,
+) error {
+	relationalColumns := dc.ColumnsToRelationalColumns(ctxParameterized.GetNonControlColumns())
+	prepStmt, err := dc.prepareCtx(ctxParameterized)
+	if err != nil {
+		return err
+	}
+	query := prepStmt.GetRawQuery()
+	varArgs := prepStmt.GetArgs()
+	logging.GetLogger().Infoln(fmt.Sprintf("query = %s", query))
+	return dc.sqlSystem.InsertIntoPhysicalTable(
 		relationName,
 		relationalColumns,
 		query,

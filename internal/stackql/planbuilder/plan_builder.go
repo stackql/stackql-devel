@@ -794,6 +794,10 @@ func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuild
 		bldrInput.SetCommentDirectives(primitiveGenerator.GetPrimitiveComposer().GetCommentDirectives())
 		bldrInput.SetIsAwait(primitiveGenerator.GetPrimitiveComposer().IsAwait())
 		bldrInput.SetParserNode(node)
+		isPhysicalTable := tbl.IsPhysicalTable()
+		if isPhysicalTable {
+			bldrInput.SetIsTargetPhysicalTable(true)
+		}
 		bldr := primitivebuilder.NewInsertOrUpdate(
 			bldrInput,
 		)
@@ -853,6 +857,10 @@ func (pgb *standardPlanGraphBuilder) handleUpdate(pbi planbuilderinput.PlanBuild
 		bldrInput.SetCommentDirectives(primitiveGenerator.GetPrimitiveComposer().GetCommentDirectives())
 		bldrInput.SetIsAwait(primitiveGenerator.GetPrimitiveComposer().IsAwait())
 		bldrInput.SetParserNode(node)
+		isPhysicalTable := tbl.IsPhysicalTable()
+		if isPhysicalTable {
+			bldrInput.SetIsTargetPhysicalTable(true)
+		}
 		bldr := primitivebuilder.NewInsertOrUpdate(
 			bldrInput,
 		)

@@ -547,6 +547,33 @@ func (eng *postgresSystem) RefreshMaterializedView(viewName string,
 	return commitErr
 }
 
+//nolint:errcheck,revive,staticcheck // TODO: establish pattern
+func (eng *postgresSystem) InsertIntoPhysicalTable(tableName string,
+	colz []typing.RelationalColumn,
+	selectQuery string,
+	varargs ...any) error {
+	txn, err := eng.sqlEngine.GetTx()
+	if err != nil {
+		return err
+	}
+	// TODO: check colz against supplied columns
+	relationDTO, relationDTOok := eng.getMaterializedViewByName(tableName, txn)
+	if !relationDTOok {
+		if len(relationDTO.GetColumns()) == 0 {
+		}
+		// no need to rollbak; assumed already done
+		return fmt.Errorf("cannot refresh materialized view = '%s': not found", tableName)
+	}
+	insertQuery := eng.generateTableInsertDMLFromViewSelect(tableName, selectQuery, colz)
+	_, err = txn.Exec(insertQuery, varargs...)
+	if err != nil {
+		txn.Rollback()
+		return err
+	}
+	commitErr := txn.Commit()
+	return commitErr
+}
+
 func (eng *postgresSystem) DropMaterializedView(viewName string) error {
 	dropRefQuery := `
 	DELETE FROM "__iql__.materialized_views"

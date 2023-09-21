@@ -89,6 +89,7 @@ func getHids(handlerCtx handler.HandlerContext, node sqlparser.SQLNode) (interna
 	// TODO: pass in current counters
 	physicalTableDTO, isPhysicalTable := handlerCtx.GetSQLSystem().GetTableByName(hIds.GetTableName(), nil)
 	if isPhysicalTable {
+		hIds.SetIsPhysicalTable(true)
 		hIds = hIds.WithView(physicalTableDTO)
 	}
 	isInternallyRoutable := handlerCtx.GetPGInternalRouter().ExprIsRoutable(node)

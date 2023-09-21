@@ -100,6 +100,10 @@ type SQLSystem interface {
 	GetTableByName(
 		tableName string, tcc internaldto.TxnControlCounters,
 	) (internaldto.RelationDTO, bool)
+	InsertIntoPhysicalTable(tableName string,
+		colz []typing.RelationalColumn,
+		selectQuery string,
+		varargs ...any) error
 
 	// External SQL data sources
 	RegisterExternalTable(connectionName string, tableDetails openapistackql.SQLExternalTable) error
