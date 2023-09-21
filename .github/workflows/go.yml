@@ -799,6 +799,7 @@ jobs:
         platforms: linux/amd64,linux/arm64
         push: false
         target: app
+        load: true
         tags: stackql/stackql:${{github.sha}},stackql/stackql:latest
 
     - name: Mock Server Download
@@ -882,6 +883,7 @@ jobs:
         context: .
         platforms: linux/amd64,linux/arm64
         push: true
+        target: app
         tags: stackql/stackql:${{github.sha}},stackql/stackql:latest
     
 
