@@ -799,6 +799,10 @@ jobs:
       with:
         context: .
         platforms: linux/amd64
+        build-args: |
+          BUILDMAJORVERSION=${{env.BUILDMAJORVERSION}}
+          BUILDMINORVERSION=${{env.BUILDMINORVERSION}}
+          BUILDPATCHVERSION=${{env.BUILDPATCHVERSION}}
         push: false
         target: app
         load: true
@@ -879,11 +883,15 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Push stackql image to Docker Hub
-      if: ${{ ( success() && github.ref_type == 'branch' && github.ref_name == 'main' && github.repository == 'stackql/stackql' && github.event_name == 'push' ) || ( github.ref_type == 'tag' && startsWith(github.ref_name, 'build-release') ) }}
+      if: ${{ ( success() && github.ref_type == 'branch' && github.ref_name == 'main' && github.repository == 'stackql/stackql' && github.event_name == 'push' ) || ( success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'build-release') ) }}
       uses: docker/build-push-action@v5
       with:
         context: .
         platforms: linux/amd64,linux/arm64
+        build-args: |
+          BUILDMAJORVERSION=${{env.BUILDMAJORVERSION}}
+          BUILDMINORVERSION=${{env.BUILDMINORVERSION}}
+          BUILDPATCHVERSION=${{env.BUILDPATCHVERSION}}
         push: true
         target: app
         tags: stackql/stackql:${{github.sha}},stackql/stackql:latest
