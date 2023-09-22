@@ -776,27 +776,29 @@ jobs:
         openssl req -x509 -keyout vol/srv/credentials/pg_client_key.pem -out  vol/srv/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
         openssl req -x509 -keyout vol/srv/credentials/pg_rubbish_key.pem -out vol/srv/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365
 
-    - name: Push stackql image to Docker Hub
+    - name: Build certs image and store locally
       uses: docker/build-push-action@v5
       with:
         context: .
         push: false
+        load: true
         target: certificates
         tags: stackql/stackqlsrvcertificates
 
-    - name: Push stackql image to Docker Hub
+    - name: Build integration testing image and store locally
       uses: docker/build-push-action@v5
       with:
         context: .
         push: false
+        load: true
         target: integration
         tags: stackql/integration
 
-    - name: Push stackql image to Docker Hub
+    - name: Build stackql image and store locally
       uses: docker/build-push-action@v5
       with:
         context: .
-        platforms: linux/amd64,linux/arm64
+        platforms: linux/amd64
         push: false
         target: app
         load: true
@@ -885,5 +887,3 @@ jobs:
         push: true
         target: app
         tags: stackql/stackql:${{github.sha}},stackql/stackql:latest
-    
-
