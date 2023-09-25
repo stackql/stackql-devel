@@ -89,15 +89,15 @@ type SQLSystem interface {
 	QueryMaterializedView(colzString, actualRelationName, whereClause string) (*sql.Rows, error)
 
 	// Tables, both permanent and temp
-	CreateTable(
+	CreatePhysicalTable(
 		tableName string, rawDDL string, translatedDDL string, loadDML string, ifNotExists bool,
 		tcc internaldto.TxnControlCounters,
 	) error
-	DropTable(tableName string,
+	DropPhysicalTable(tableName string,
 		ifExists bool,
 		tcc internaldto.TxnControlCounters,
 	) error
-	GetTableByName(
+	GetPhysicalTableByName(
 		tableName string,
 	) (internaldto.RelationDTO, bool)
 	InsertIntoPhysicalTable(tableName string,

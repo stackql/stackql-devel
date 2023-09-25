@@ -794,7 +794,7 @@ func (eng *sqLiteSystem) getMaterializedViewByName(viewName string, txn *sql.Tx)
 }
 
 //nolint:errcheck // TODO: establish pattern
-func (eng *sqLiteSystem) GetTableByName(
+func (eng *sqLiteSystem) GetPhysicalTableByName(
 	tableName string) (internaldto.RelationDTO, bool) {
 	txn, err := eng.sqlEngine.GetTx()
 	if err != nil {
@@ -872,7 +872,7 @@ func (eng *sqLiteSystem) getTableByName(
 }
 
 // TODO: implement temp table drop
-func (eng *sqLiteSystem) DropTable(tableName string,
+func (eng *sqLiteSystem) DropPhysicalTable(tableName string,
 	ifExists bool,
 	tcc internaldto.TxnControlCounters, //nolint:revive // future proof
 ) error {
@@ -909,7 +909,7 @@ func (eng *sqLiteSystem) DropTable(tableName string,
 }
 
 // TODO: implement temp table creation
-func (eng *sqLiteSystem) CreateTable(
+func (eng *sqLiteSystem) CreatePhysicalTable(
 	tableName string, rawDDL string, translatedDDL string, loadDML string, ifNotExists bool,
 	tcc internaldto.TxnControlCounters, //nolint:revive // future proof
 ) error {

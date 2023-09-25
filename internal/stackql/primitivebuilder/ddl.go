@@ -26,7 +26,7 @@ type ddl struct {
 	bldrInput    builder_input.BuilderInput
 }
 
-//nolint:gocognit,nestif // acceptable
+//nolint:gocognit,nestif,funlen // acceptable
 func (ddo *ddl) Build() error {
 	sqlSystem := ddo.handlerCtx.GetSQLSystem()
 	if sqlSystem == nil {
@@ -45,6 +45,9 @@ func (ddo *ddl) Build() error {
 			isTempTable := parserutil.IsCreateTemporaryPhysicalTable(parserDDLObj)
 			isMaterializedView := parserutil.IsCreateMaterializedView(parserDDLObj)
 			if isTable || isTempTable { // TODO: support for create tables
+				if isTempTable {
+					return internaldto.NewErroneousExecutorOutput(fmt.Errorf("create temp table is not supported"))
+				}
 				return internaldto.NewErroneousExecutorOutput(fmt.Errorf("create table is not supported"))
 			}
 			if isMaterializedView { // TODO: support for create materialized views

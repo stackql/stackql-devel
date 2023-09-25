@@ -116,6 +116,7 @@
         "refresh materialized view stackql_gossip;",
         "insert into stackql_notes(note, priority) values ('this is a test', 2000); select note from stackql_notes order by priority desc;",
         "insert into stackql_notes(note, priority) select name from google.compute.firewalls where project = 'stackql-demo'; select * from silly_mv;",
+        "select gossip, 3000 from stackql_gossip;"
       ],
       "default": "show providers;"
     },

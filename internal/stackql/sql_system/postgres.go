@@ -689,7 +689,7 @@ func (eng *postgresSystem) getMaterializedViewByName(viewName string, txn *sql.T
 }
 
 //nolint:errcheck // TODO: establish pattern
-func (eng *postgresSystem) GetTableByName(
+func (eng *postgresSystem) GetPhysicalTableByName(
 	tableName string) (internaldto.RelationDTO, bool) {
 	txn, err := eng.sqlEngine.GetTx()
 	if err != nil {
@@ -766,7 +766,7 @@ func (eng *postgresSystem) getTableByName(
 }
 
 // TODO: implement temp table drop
-func (eng *postgresSystem) DropTable(tableName string,
+func (eng *postgresSystem) DropPhysicalTable(tableName string,
 	ifExists bool,
 	tcc internaldto.TxnControlCounters, //nolint:revive // future proof
 ) error {
@@ -803,7 +803,7 @@ func (eng *postgresSystem) DropTable(tableName string,
 }
 
 // TODO: implement temp table creation
-func (eng *postgresSystem) CreateTable(
+func (eng *postgresSystem) CreatePhysicalTable(
 	tableName string, rawDDL string, translatedDDL string, loadDML string, ifNotExists bool,
 	tcc internaldto.TxnControlCounters, //nolint:revive // future proof
 ) error {
