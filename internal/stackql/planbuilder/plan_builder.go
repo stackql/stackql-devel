@@ -722,7 +722,7 @@ func (pgb *standardPlanGraphBuilder) handleNativeQuery(pbi planbuilderinput.Plan
 	return nil
 }
 
-//nolint:gocognit // acceptable complexity
+//nolint:gocognit,funlen // acceptable complexity
 func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuilderInput) error {
 	handlerCtx := pbi.GetHandlerCtx()
 	annotatedAST := pbi.GetAnnotatedAST()

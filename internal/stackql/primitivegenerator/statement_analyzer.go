@@ -652,7 +652,8 @@ func (pb *standardPrimitiveGenerator) analyzeExec(pbi planbuilderinput.PlanBuild
 				nil, nil))
 		return nil
 	}
-	selIndirect, indirectErr := astindirect.NewParserExecIndirect(node, pb.PrimitiveComposer.GetSelectPreparedStatementCtx())
+	selIndirect, indirectErr := astindirect.NewParserExecIndirect(
+		node, pb.PrimitiveComposer.GetSelectPreparedStatementCtx())
 	if indirectErr != nil {
 		return indirectErr
 	}
@@ -923,7 +924,7 @@ func (pb *standardPrimitiveGenerator) buildRequestContext(
 	return httpArmoury, err
 }
 
-//nolint:gocognit // TODO: review
+//nolint:gocognit,funlen // TODO: review
 func (pb *standardPrimitiveGenerator) AnalyzeInsert(pbi planbuilderinput.PlanBuilderInput) error {
 	handlerCtx := pbi.GetHandlerCtx()
 	annotatedAST := pbi.GetAnnotatedAST()

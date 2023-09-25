@@ -667,6 +667,7 @@ func (eng *sqLiteSystem) InsertIntoPhysicalTable(tableName string,
 		// no need to rollbak; assumed already done
 		return fmt.Errorf("cannot refresh materialized view = '%s': not found", tableName)
 	}
+	//nolint:gosec // no viable alternative
 	insertQuery := fmt.Sprintf("INSERT INTO \"%s\" %s %s", tableName, columnsString, selectQuery)
 	_, err = txn.Exec(insertQuery, varargs...)
 	if err != nil {
@@ -827,6 +828,7 @@ func (eng *sqLiteSystem) getTableByName(
 	`
 	row := txn.QueryRow(q, viewName)
 	if row == nil {
+		txn.Rollback()
 		return nil, false
 	}
 	var viewDDL string
@@ -838,6 +840,7 @@ func (eng *sqLiteSystem) getTableByName(
 	rv := internaldto.NewPhysicalTableDTO(viewName, viewDDL)
 	rows, err := txn.Query(colQuery, viewName)
 	if err != nil || rows == nil || rows.Err() != nil {
+		txn.Rollback()
 		return nil, false
 	}
 	defer rows.Close()

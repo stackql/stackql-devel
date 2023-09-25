@@ -557,14 +557,15 @@ func (eng *postgresSystem) InsertIntoPhysicalTable(tableName string,
 		return err
 	}
 	// TODO: check colz against supplied columns
-	relationDTO, relationDTOok := eng.getMaterializedViewByName(tableName, txn)
+	relationDTO, relationDTOok := eng.getTableByName(tableName, txn)
 	if !relationDTOok {
 		if len(relationDTO.GetColumns()) == 0 {
 		}
 		// no need to rollbak; assumed already done
 		return fmt.Errorf("cannot refresh materialized view = '%s': not found", tableName)
 	}
-	insertQuery := fmt.Sprintf("INSERT INTO \"%s\" ( %s ) %s", tableName, columnsString, selectQuery)
+	//nolint:gosec // no viable alternative
+	insertQuery := fmt.Sprintf("INSERT INTO \"%s\" %s %s", tableName, columnsString, selectQuery)
 	_, err = txn.Exec(insertQuery, varargs...)
 	if err != nil {
 		txn.Rollback()
@@ -687,14 +688,24 @@ func (eng *postgresSystem) getMaterializedViewByName(viewName string, txn *sql.T
 	return rv, true
 }
 
+//nolint:errcheck // TODO: establish pattern
 func (eng *postgresSystem) GetTableByName(
 	tableName string) (internaldto.RelationDTO, bool) {
-	return eng.getTableByName(tableName)
+	txn, err := eng.sqlEngine.GetTx()
+	if err != nil {
+		return nil, false
+	}
+	rv, ok := eng.getTableByName(tableName, txn)
+	txn.Commit()
+	return rv, ok
 }
 
 // TODO: implement temp tables
+//
+//nolint:errcheck // TODO: establish pattern
 func (eng *postgresSystem) getTableByName(
-	viewName string) (internaldto.RelationDTO, bool) {
+	tableName string,
+	txn *sql.Tx) (internaldto.RelationDTO, bool) {
 	q := `SELECT table_ddl FROM "__iql__.tables" WHERE table_name = $1 and deleted_dttm IS NULL`
 	colQuery := `
 	SELECT
@@ -709,18 +720,21 @@ func (eng *postgresSystem) getTableByName(
 	  table_name = $1
 	ORDER BY ordinal_position ASC
 	`
-	row := eng.sqlEngine.QueryRow(q, viewName)
+	row := txn.QueryRow(q, tableName)
 	if row == nil {
+		txn.Rollback()
 		return nil, false
 	}
 	var viewDDL string
 	err := row.Scan(&viewDDL)
 	if err != nil {
+		txn.Rollback()
 		return nil, false
 	}
-	rv := internaldto.NewPhysicalTableDTO(viewName, viewDDL)
-	rows, err := eng.sqlEngine.Query(colQuery, viewName)
+	rv := internaldto.NewPhysicalTableDTO(tableName, viewDDL)
+	rows, err := txn.Query(colQuery, tableName)
 	if err != nil || rows == nil || rows.Err() != nil {
+		txn.Rollback()
 		return nil, false
 	}
 	defer rows.Close()
@@ -735,6 +749,7 @@ func (eng *postgresSystem) getTableByName(
 		var oID, colWidth, colPrecision int
 		err = rows.Scan(&columnName, &columnType, &oID, &colWidth, &colPrecision)
 		if err != nil {
+			txn.Rollback()
 			return nil, false
 		}
 		relationalColumn := typing.NewRelationalColumn(
@@ -744,6 +759,7 @@ func (eng *postgresSystem) getTableByName(
 	}
 	rv.SetColumns(columns)
 	if !hasRow {
+		txn.Rollback()
 		return nil, false
 	}
 	return rv, true

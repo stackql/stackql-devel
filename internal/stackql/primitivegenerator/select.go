@@ -241,7 +241,8 @@ func (pb *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBui
 			if err != nil {
 				return err
 			}
-			selIndirect, indirectErr := astindirect.NewParserSelectIndirect(node, pChild.GetPrimitiveComposer().GetSelectPreparedStatementCtx())
+			selIndirect, indirectErr := astindirect.NewParserSelectIndirect(
+				node, pChild.GetPrimitiveComposer().GetSelectPreparedStatementCtx())
 			if indirectErr != nil {
 				return indirectErr
 			}
