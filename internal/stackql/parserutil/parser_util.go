@@ -784,6 +784,15 @@ func isCreatePhysicalTable(ddl *sqlparser.DDL) bool {
 	}
 }
 
+func RenderDDLStmt(ddl *sqlparser.DDL) string {
+	return renderDDLStmt(ddl)
+}
+
+func renderDDLStmt(ddl *sqlparser.DDL) string {
+	return strings.ReplaceAll(
+		astformat.String(ddl, astformat.DefaultSelectExprsFormatter), `"`, "")
+}
+
 func RenderDDLSelectStmt(ddl *sqlparser.DDL) string {
 	return renderDDLSelectStmt(ddl)
 }

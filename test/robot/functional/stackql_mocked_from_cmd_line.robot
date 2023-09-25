@@ -529,7 +529,7 @@ Create Table Scenario Working
     ${inputStr} =    Catenate
     ...    create table phystab_one(t_id int, z text);
     ${outputStr} =    Catenate    SEPARATOR=\n
-    ...    create table is not supported
+    ...    DDL Execution Completed
     Should Stackql Exec Inline Equal Both Streams
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
@@ -2082,6 +2082,36 @@ Insert All Simple Patterns Into Embedded Table Then Projection Returns Expected 
     ...    ${inputStr}
     ...    ${outputStr}
     ...    stdout=${CURDIR}/tmp/Insert-All-Simple-Patterns-Into-Embedded-Table-Then-Projection-Returns-Expected-Results.tmp
+
+Table Lifecycle Returns Expected Results
+    ${inputStr} =    Catenate
+    ...    create table my_silly_table(id int, name text, magnitude numeric);
+    ...    insert into my_silly_table(id, name, magnitude) values (1, 'one', 1.0); 
+    ...    insert into my_silly_table(id, name, magnitude) values (2, 'two', 2.0); 
+    ...    insert into my_silly_table(id, name, magnitude) values (3, 'three', 3.0); 
+    ...    select name, magnitude from my_silly_table order by magnitude desc;
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |-------|-----------|
+    ...    |${SPACE}name${SPACE}${SPACE}|${SPACE}magnitude${SPACE}|
+    ...    |-------|-----------|
+    ...    |${SPACE}three${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}3${SPACE}|
+    ...    |-------|-----------|
+    ...    |${SPACE}two${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}2${SPACE}|
+    ...    |-------|-----------|
+    ...    |${SPACE}one${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}1${SPACE}|
+    ...    |-------|-----------|
+    Should Stackql Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    stdout=${CURDIR}/tmp/Table-Lifecycle-Returns-Expected-Results.tmp
+
 
 Basic View of Union Returns Results
     Should Stackql Exec Inline Contain

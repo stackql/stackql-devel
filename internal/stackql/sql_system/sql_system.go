@@ -90,8 +90,10 @@ type SQLSystem interface {
 
 	// Tables, both permanent and temp
 	CreatePhysicalTable(
-		tableName string, rawDDL string, translatedDDL string, loadDML string, ifNotExists bool,
-		tcc internaldto.TxnControlCounters,
+		relationName string,
+		colz []typing.RelationalColumn,
+		rawDDL string,
+		ifNotExists bool,
 	) error
 	DropPhysicalTable(tableName string,
 		ifExists bool,

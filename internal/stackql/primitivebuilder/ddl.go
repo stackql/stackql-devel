@@ -44,13 +44,23 @@ func (ddo *ddl) Build() error {
 			isTable := parserutil.IsCreatePhysicalTable(parserDDLObj)
 			isTempTable := parserutil.IsCreateTemporaryPhysicalTable(parserDDLObj)
 			isMaterializedView := parserutil.IsCreateMaterializedView(parserDDLObj)
+			//nolint:gocritic // apathy
 			if isTable || isTempTable { // TODO: support for create tables
 				if isTempTable {
 					return internaldto.NewErroneousExecutorOutput(fmt.Errorf("create temp table is not supported"))
 				}
-				return internaldto.NewErroneousExecutorOutput(fmt.Errorf("create table is not supported"))
-			}
-			if isMaterializedView { // TODO: support for create materialized views
+				drmCfg := ddo.handlerCtx.GetDrmConfig()
+				createTableErr := drmCfg.CreatePhysicalTable(
+					tableName,
+					parserutil.RenderDDLStmt(parserDDLObj),
+					parserDDLObj.TableSpec,
+					parserDDLObj.IfNotExists,
+				)
+				if createTableErr != nil {
+					return internaldto.NewErroneousExecutorOutput(createTableErr)
+				}
+				// return internaldto.NewErroneousExecutorOutput(fmt.Errorf("create table is not supported"))
+			} else if isMaterializedView { // TODO: support for create materialized views
 				indirect, indirectExists := ddo.annotatedAst.GetIndirect(ddo.ddlObject)
 				if !indirectExists {
 					return internaldto.NewErroneousExecutorOutput(fmt.Errorf("cannot find indirect object for materialized view"))
