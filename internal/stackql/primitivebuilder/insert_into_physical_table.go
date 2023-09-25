@@ -40,10 +40,12 @@ func (ddo *insertIntoPhysicalTable) Build() error {
 		if !indirectExists {
 			return internaldto.NewErroneousExecutorOutput(fmt.Errorf("cannot find indirect object for materialized view"))
 		}
+		insertColumnsString := astformat.String(parserInsertObj.Columns, sqlSystem.GetASTFormatter())
 		drmCfg := ddo.handlerCtx.GetDrmConfig()
 		selCtx := indirect.GetSelectContext()
-		materializedViewRefreshError := drmCfg.RefreshMaterializedView(
+		materializedViewRefreshError := drmCfg.InsertIntoPhysicalTable(
 			tableName,
+			insertColumnsString,
 			drm.NewPreparedStatementParameterized(selCtx, nil, true),
 		)
 		if materializedViewRefreshError != nil {

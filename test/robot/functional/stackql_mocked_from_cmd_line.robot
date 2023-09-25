@@ -2030,6 +2030,35 @@ Function Expression And Where Clause Function Expression Predicate Alongside Pro
     ...    ${outputStr}
     ...    stdout=${CURDIR}/tmp/Function-Expression-And-Where-Clause-Function-Expression-Predicate-Alongside-Projection-Returns-Expected-Results.tmp
 
+Insert Values Into Embedded Table Then Projection Returns Expected Results
+    ${inputStr} =    Catenate
+    ...    insert into stackql_notes(note, priority) values ('this is a test', 2000); 
+    ...    select note from stackql_notes order by priority desc;
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |--------------------------------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}note${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |--------------------------------|
+    ...    |${SPACE}this${SPACE}is${SPACE}a${SPACE}test${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |--------------------------------|
+    ...    |${SPACE}v0.5.418${SPACE}introduced${SPACE}table${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |${SPACE}valued${SPACE}functions,${SPACE}for${SPACE}example${SPACE}${SPACE}|
+    ...    |${SPACE}json_each.${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |--------------------------------|
+    ...    |${SPACE}stackql${SPACE}supports${SPACE}the${SPACE}postgres${SPACE}${SPACE}|
+    ...    |${SPACE}wire${SPACE}protocol.${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |--------------------------------|
+    Should Stackql Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    stdout=${CURDIR}/tmp/Insert-Values-Into-Embedded-Table-Then-Projection-Returns-Expected-Results.tmp
+
 Basic View of Union Returns Results
     Should Stackql Exec Inline Contain
     ...    ${STACKQL_EXE}

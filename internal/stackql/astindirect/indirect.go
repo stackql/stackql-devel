@@ -29,6 +29,7 @@ const (
 	PhysicalTableType
 	SelectType
 	ExecType
+	InsertRowsType
 )
 
 func NewViewIndirect(viewDTO internaldto.RelationDTO) (Indirect, error) {
@@ -49,7 +50,7 @@ func NewMaterializedViewIndirect(viewDTO internaldto.RelationDTO, sqlSystem sql_
 }
 
 func NewParserSelectIndirect(selectObj *sqlparser.Select, selCtx drm.PreparedStatementCtx) (Indirect, error) {
-	rv := &parserSelectIndirect{
+	rv := &parserSelectionIndirect{
 		selCtx:                selCtx,
 		selectObj:             selectObj,
 		underlyingSymbolTable: symtab.NewHashMapTreeSymTab(),
@@ -57,10 +58,19 @@ func NewParserSelectIndirect(selectObj *sqlparser.Select, selCtx drm.PreparedSta
 	return rv, nil
 }
 
-func NewParserExecIndirect(selectObj *sqlparser.Select, selCtx drm.PreparedStatementCtx) (Indirect, error) {
-	rv := &parserSelectIndirect{
+func NewInsertRowsIndirect(insertObj *sqlparser.Insert, selCtx drm.PreparedStatementCtx) (Indirect, error) {
+	rv := &parserSelectionIndirect{
 		selCtx:                selCtx,
-		selectObj:             selectObj,
+		insertObj:             insertObj,
+		underlyingSymbolTable: symtab.NewHashMapTreeSymTab(),
+	}
+	return rv, nil
+}
+
+func NewParserExecIndirect(execObj *sqlparser.Exec, selCtx drm.PreparedStatementCtx) (Indirect, error) {
+	rv := &parserSelectionIndirect{
+		selCtx:                selCtx,
+		execObj:               execObj,
 		underlyingSymbolTable: symtab.NewHashMapTreeSymTab(),
 	}
 	return rv, nil

@@ -48,6 +48,11 @@ func (pb *standardPrimitiveGenerator) analyzeSelect(pbi planbuilderinput.PlanBui
 			return fmt.Errorf("internal routing error: could not obtain select context")
 		}
 		pb.PrimitiveComposer.SetSelectPreparedStatementCtx(selCtx)
+		selectIndirect, indirectError := astindirect.NewParserSelectIndirect(node, selCtx)
+		if indirectError != nil {
+			return indirectError
+		}
+		annotatedAST.SetSelectIndirect(node, selectIndirect)
 		primitiveGenerator := pb
 		clonedPbi := pbi.Clone()
 		clonedPbi.SetRawQuery(selQuery)

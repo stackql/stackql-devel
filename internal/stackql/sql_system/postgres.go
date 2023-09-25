@@ -549,7 +549,7 @@ func (eng *postgresSystem) RefreshMaterializedView(viewName string,
 
 //nolint:errcheck,revive,staticcheck // TODO: establish pattern
 func (eng *postgresSystem) InsertIntoPhysicalTable(tableName string,
-	colz []typing.RelationalColumn,
+	columnsString string,
 	selectQuery string,
 	varargs ...any) error {
 	txn, err := eng.sqlEngine.GetTx()
@@ -564,7 +564,7 @@ func (eng *postgresSystem) InsertIntoPhysicalTable(tableName string,
 		// no need to rollbak; assumed already done
 		return fmt.Errorf("cannot refresh materialized view = '%s': not found", tableName)
 	}
-	insertQuery := eng.generateTableInsertDMLFromViewSelect(tableName, selectQuery, colz)
+	insertQuery := fmt.Sprintf("INSERT INTO \"%s\" ( %s ) %s", tableName, columnsString, selectQuery)
 	_, err = txn.Exec(insertQuery, varargs...)
 	if err != nil {
 		txn.Rollback()
@@ -688,14 +688,13 @@ func (eng *postgresSystem) getMaterializedViewByName(viewName string, txn *sql.T
 }
 
 func (eng *postgresSystem) GetTableByName(
-	tableName string, tcc internaldto.TxnControlCounters) (internaldto.RelationDTO, bool) {
-	return eng.getTableByName(tableName, tcc)
+	tableName string) (internaldto.RelationDTO, bool) {
+	return eng.getTableByName(tableName)
 }
 
 // TODO: implement temp tables
 func (eng *postgresSystem) getTableByName(
-	viewName string,
-	_ internaldto.TxnControlCounters) (internaldto.RelationDTO, bool) {
+	viewName string) (internaldto.RelationDTO, bool) {
 	q := `SELECT table_ddl FROM "__iql__.tables" WHERE table_name = $1 and deleted_dttm IS NULL`
 	colQuery := `
 	SELECT

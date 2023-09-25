@@ -84,6 +84,7 @@ type Config interface {
 	) error
 	InsertIntoPhysicalTable(
 		relationName string,
+		insertColumnsString string,
 		ctxParameterized PreparedStatementParameterized,
 	) error
 }
@@ -806,9 +807,9 @@ func (dc *staticDRMConfig) RefreshMaterializedView(
 
 func (dc *staticDRMConfig) InsertIntoPhysicalTable(
 	relationName string,
+	insertColumnsString string,
 	ctxParameterized PreparedStatementParameterized,
 ) error {
-	relationalColumns := dc.ColumnsToRelationalColumns(ctxParameterized.GetNonControlColumns())
 	prepStmt, err := dc.prepareCtx(ctxParameterized)
 	if err != nil {
 		return err
@@ -818,7 +819,7 @@ func (dc *staticDRMConfig) InsertIntoPhysicalTable(
 	logging.GetLogger().Infoln(fmt.Sprintf("query = %s", query))
 	return dc.sqlSystem.InsertIntoPhysicalTable(
 		relationName,
-		relationalColumns,
+		insertColumnsString,
 		query,
 		varArgs...,
 	)

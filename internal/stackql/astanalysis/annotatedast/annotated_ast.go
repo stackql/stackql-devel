@@ -19,6 +19,8 @@ func NewAnnotatedAst(parent AnnotatedAst, ast sqlparser.Statement) (AnnotatedAst
 		whereParamMaps:       make(map[*sqlparser.Where]parserutil.ParameterMap),
 		insertRowsIndirect:   make(map[*sqlparser.Insert]astindirect.Indirect),
 		selectIndirectCache:  make(map[*sqlparser.Select]astindirect.Indirect),
+		execIndirectCache:    make(map[*sqlparser.Exec]astindirect.Indirect),
+		unionIndirectCache:   make(map[*sqlparser.Union]astindirect.Indirect),
 	}
 	return rv, nil
 }
@@ -43,6 +45,8 @@ type AnnotatedAst interface {
 	GetInsertRowsIndirect(*sqlparser.Insert) (astindirect.Indirect, bool)
 	GetSelectIndirect(selNode *sqlparser.Select) (astindirect.Indirect, bool)
 	SetSelectIndirect(selNode *sqlparser.Select, indirect astindirect.Indirect)
+	GetExecIndirect(selNode *sqlparser.Exec) (astindirect.Indirect, bool)
+	SetExecIndirect(selNode *sqlparser.Exec, indirect astindirect.Indirect)
 }
 
 type standardAnnotatedAst struct {
@@ -56,6 +60,17 @@ type standardAnnotatedAst struct {
 	selectMetadataMap    map[*sqlparser.Select]selectmetadata.SelectMetadata
 	whereParamMaps       map[*sqlparser.Where]parserutil.ParameterMap
 	selectIndirectCache  map[*sqlparser.Select]astindirect.Indirect
+	unionIndirectCache   map[*sqlparser.Union]astindirect.Indirect
+	execIndirectCache    map[*sqlparser.Exec]astindirect.Indirect
+}
+
+func (aa *standardAnnotatedAst) GetExecIndirect(selNode *sqlparser.Exec) (astindirect.Indirect, bool) {
+	rv, ok := aa.execIndirectCache[selNode]
+	return rv, ok
+}
+
+func (aa *standardAnnotatedAst) SetExecIndirect(selNode *sqlparser.Exec, indirect astindirect.Indirect) {
+	aa.execIndirectCache[selNode] = indirect
 }
 
 func (aa *standardAnnotatedAst) GetSelectIndirect(selNode *sqlparser.Select) (astindirect.Indirect, bool) {
@@ -73,7 +88,20 @@ func (aa *standardAnnotatedAst) SetInsertRowsIndirect(node *sqlparser.Insert, in
 
 func (aa *standardAnnotatedAst) GetInsertRowsIndirect(node *sqlparser.Insert) (astindirect.Indirect, bool) {
 	rv, ok := aa.insertRowsIndirect[node]
-	return rv, ok
+	if ok {
+		return rv, true
+	}
+	switch n := node.Rows.(type) {
+	case *sqlparser.Select:
+		return aa.GetSelectIndirect(n)
+	case *sqlparser.Union:
+		rv, ok = aa.unionIndirectCache[n]
+		return rv, ok
+	case *sqlparser.ParenSelect:
+		return nil, false
+	default:
+		return nil, false
+	}
 }
 
 func (aa *standardAnnotatedAst) SetWhereParamMapsEntry(node *sqlparser.Where, paramMap parserutil.ParameterMap) {

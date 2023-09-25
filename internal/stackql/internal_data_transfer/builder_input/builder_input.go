@@ -235,5 +235,6 @@ func (bi *builderInput) Clone() BuilderInput {
 		inputAlias:        bi.inputAlias,
 		isUndo:            bi.isUndo,
 		isTargetPhysical:  bi.isTargetPhysical,
+		annotatedAst:      bi.annotatedAst,
 	}
 }

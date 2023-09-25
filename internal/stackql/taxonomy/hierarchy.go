@@ -87,7 +87,7 @@ func getHids(handlerCtx handler.HandlerContext, node sqlparser.SQLNode) (interna
 		hIds = hIds.WithView(materializedViewDTO)
 	}
 	// TODO: pass in current counters
-	physicalTableDTO, isPhysicalTable := handlerCtx.GetSQLSystem().GetTableByName(hIds.GetTableName(), nil)
+	physicalTableDTO, isPhysicalTable := handlerCtx.GetSQLSystem().GetTableByName(hIds.GetTableName())
 	if isPhysicalTable {
 		hIds.SetIsPhysicalTable(true)
 		hIds = hIds.WithView(physicalTableDTO)

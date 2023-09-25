@@ -9,58 +9,64 @@ import (
 	"github.com/stackql/stackql/internal/stackql/typing"
 )
 
-type parserSelectIndirect struct {
+type parserSelectionIndirect struct {
 	selectObj             *sqlparser.Select
+	execObj               *sqlparser.Exec
+	insertObj             *sqlparser.Insert
 	selCtx                drm.PreparedStatementCtx
 	paramCollection       internaldto.TableParameterCollection
 	underlyingSymbolTable symtab.SymTab
 }
 
-func (v *parserSelectIndirect) GetType() IndirectType {
-	return SubqueryType
+func (v *parserSelectionIndirect) GetType() IndirectType {
+	isExec := v.execObj != nil
+	if isExec {
+		return ExecType
+	}
+	return SelectType
 }
 
-func (v *parserSelectIndirect) GetAssignedParameters() (internaldto.TableParameterCollection, bool) {
+func (v *parserSelectionIndirect) GetAssignedParameters() (internaldto.TableParameterCollection, bool) {
 	return v.paramCollection, v.paramCollection != nil
 }
 
-func (v *parserSelectIndirect) SetAssignedParameters(paramCollection internaldto.TableParameterCollection) {
+func (v *parserSelectionIndirect) SetAssignedParameters(paramCollection internaldto.TableParameterCollection) {
 	v.paramCollection = paramCollection
 }
 
-func (v *parserSelectIndirect) GetRelationalColumns() []typing.RelationalColumn {
+func (v *parserSelectionIndirect) GetRelationalColumns() []typing.RelationalColumn {
 	return nil
 }
 
-func (v *parserSelectIndirect) GetRelationalColumnByIdentifier(_ string) (typing.RelationalColumn, bool) {
+func (v *parserSelectionIndirect) GetRelationalColumnByIdentifier(_ string) (typing.RelationalColumn, bool) {
 	return nil, false
 }
 
-func (v *parserSelectIndirect) GetUnderlyingSymTab() symtab.SymTab {
+func (v *parserSelectionIndirect) GetUnderlyingSymTab() symtab.SymTab {
 	return v.underlyingSymbolTable
 }
 
-func (v *parserSelectIndirect) SetUnderlyingSymTab(symbolTable symtab.SymTab) {
+func (v *parserSelectionIndirect) SetUnderlyingSymTab(symbolTable symtab.SymTab) {
 	v.underlyingSymbolTable = symbolTable
 }
 
-func (v *parserSelectIndirect) GetName() string {
+func (v *parserSelectionIndirect) GetName() string {
 	return ""
 }
 
-func (v *parserSelectIndirect) GetColumns() []typing.ColumnMetadata {
+func (v *parserSelectionIndirect) GetColumns() []typing.ColumnMetadata {
 	return v.selCtx.GetNonControlColumns()
 }
 
-func (v *parserSelectIndirect) GetOptionalParameters() map[string]openapistackql.Addressable {
+func (v *parserSelectionIndirect) GetOptionalParameters() map[string]openapistackql.Addressable {
 	return nil
 }
 
-func (v *parserSelectIndirect) GetRequiredParameters() map[string]openapistackql.Addressable {
+func (v *parserSelectionIndirect) GetRequiredParameters() map[string]openapistackql.Addressable {
 	return nil
 }
 
-func (v *parserSelectIndirect) GetColumnByName(name string) (typing.ColumnMetadata, bool) {
+func (v *parserSelectionIndirect) GetColumnByName(name string) (typing.ColumnMetadata, bool) {
 	for _, col := range v.selCtx.GetNonControlColumns() {
 		if col.GetIdentifier() == name {
 			return col, true
@@ -69,34 +75,34 @@ func (v *parserSelectIndirect) GetColumnByName(name string) (typing.ColumnMetada
 	return nil, false
 }
 
-func (v *parserSelectIndirect) SetSelectContext(selCtx drm.PreparedStatementCtx) {
+func (v *parserSelectionIndirect) SetSelectContext(selCtx drm.PreparedStatementCtx) {
 	v.selCtx = selCtx
 }
 
-func (v *parserSelectIndirect) GetSelectContext() drm.PreparedStatementCtx {
+func (v *parserSelectionIndirect) GetSelectContext() drm.PreparedStatementCtx {
 	return v.selCtx
 }
 
-func (v *parserSelectIndirect) GetTables() sqlparser.TableExprs {
+func (v *parserSelectionIndirect) GetTables() sqlparser.TableExprs {
 	return nil
 }
 
-func (v *parserSelectIndirect) GetSelectAST() sqlparser.SelectStatement {
+func (v *parserSelectionIndirect) GetSelectAST() sqlparser.SelectStatement {
 	return v.selectObj
 }
 
-func (v *parserSelectIndirect) GetSelectionCtx() (drm.PreparedStatementCtx, error) {
+func (v *parserSelectionIndirect) GetSelectionCtx() (drm.PreparedStatementCtx, error) {
 	return v.selCtx, nil
 }
 
-func (v *parserSelectIndirect) Parse() error {
+func (v *parserSelectionIndirect) Parse() error {
 	return nil
 }
 
-func (v *parserSelectIndirect) GetTranslatedDDL() (string, bool) {
+func (v *parserSelectionIndirect) GetTranslatedDDL() (string, bool) {
 	return "", false
 }
 
-func (v *parserSelectIndirect) GetLoadDML() (string, bool) {
+func (v *parserSelectionIndirect) GetLoadDML() (string, bool) {
 	return "", false
 }

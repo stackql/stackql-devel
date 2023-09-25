@@ -98,10 +98,10 @@ type SQLSystem interface {
 		tcc internaldto.TxnControlCounters,
 	) error
 	GetTableByName(
-		tableName string, tcc internaldto.TxnControlCounters,
+		tableName string,
 	) (internaldto.RelationDTO, bool)
 	InsertIntoPhysicalTable(tableName string,
-		colz []typing.RelationalColumn,
+		insertClause string,
 		selectQuery string,
 		varargs ...any) error
 
