@@ -95,9 +95,9 @@ type SQLSystem interface {
 		rawDDL string,
 		ifNotExists bool,
 	) error
-	DropPhysicalTable(tableName string,
+	DropPhysicalTable(
+		tableName string,
 		ifExists bool,
-		tcc internaldto.TxnControlCounters,
 	) error
 	GetPhysicalTableByName(
 		tableName string,

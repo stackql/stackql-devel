@@ -874,7 +874,6 @@ func (eng *sqLiteSystem) getTableByName(
 // TODO: implement temp table drop
 func (eng *sqLiteSystem) DropPhysicalTable(tableName string,
 	ifExists bool,
-	tcc internaldto.TxnControlCounters, //nolint:revive // future proof
 ) error {
 	dropRefQuery := `
 	DELETE FROM "__iql__.tables"
@@ -888,6 +887,13 @@ func (eng *sqLiteSystem) DropPhysicalTable(tableName string,
 		DROP TABLE IF EXISTS "%s"
 		`, tableName)
 	}
+	dropColsQuery := `
+	DELETE
+	FROM
+	  "__iql__.tables.columns"
+	WHERE
+	  table_name = ?
+	`
 	tx, err := eng.sqlEngine.GetTx()
 	if err != nil {
 		return err
@@ -899,6 +905,12 @@ func (eng *sqLiteSystem) DropPhysicalTable(tableName string,
 		return err
 	}
 	_, err = tx.Exec(dropTableQuery)
+	if err != nil {
+		//nolint:errcheck // TODO: merge variadic error(s) into one
+		tx.Rollback()
+		return err
+	}
+	_, err = tx.Exec(dropColsQuery, tableName)
 	if err != nil {
 		//nolint:errcheck // TODO: merge variadic error(s) into one
 		tx.Rollback()

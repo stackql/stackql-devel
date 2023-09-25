@@ -94,8 +94,13 @@ func (ddo *ddl) Build() error {
 				return internaldto.NewErroneousExecutorOutput(fmt.Errorf("cannot drop table with supplied table count = %d", tl))
 			}
 			tableName := strings.Trim(astformat.String(parserDDLObj.FromTables[0], sqlSystem.GetASTFormatter()), `"`)
-			if parserutil.IsDropMaterializedView(parserDDLObj) {
+			if parserutil.IsDropMaterializedView(parserDDLObj) { //nolint:gocritic // apathy
 				err := sqlSystem.DropMaterializedView(tableName)
+				if err != nil {
+					return internaldto.NewErroneousExecutorOutput(err)
+				}
+			} else if parserutil.IsDropPhysicalTable(parserDDLObj) {
+				err := sqlSystem.DropPhysicalTable(tableName, parserDDLObj.IfExists)
 				if err != nil {
 					return internaldto.NewErroneousExecutorOutput(err)
 				}

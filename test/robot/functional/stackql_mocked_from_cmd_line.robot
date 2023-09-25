@@ -2090,6 +2090,15 @@ Table Lifecycle Returns Expected Results
     ...    insert into my_silly_table(id, name, magnitude) values (2, 'two', 2.0); 
     ...    insert into my_silly_table(id, name, magnitude) values (3, 'three', 3.0); 
     ...    select name, magnitude from my_silly_table order by magnitude desc;
+    ...    drop table my_silly_table;
+    ...    select name, magnitude from my_silly_table order by magnitude desc;
+    ...    create table my_silly_table(id int, name text, magnitude numeric);
+    ...    insert into my_silly_table(id, name, magnitude) values (11, 'eleven', 11.0); 
+    ...    insert into my_silly_table(id, name, magnitude) values (12, 'twelve', 12.0); 
+    ...    insert into my_silly_table(id, name, magnitude) values (13, 'thirteen', 13.0);
+    ...    select name, magnitude from my_silly_table order by magnitude desc;
+    ...    drop table my_silly_table;
+    ...    select name, magnitude from my_silly_table order by magnitude desc;
     ${outputStr} =    Catenate    SEPARATOR=\n
     ...    |-------|-----------|
     ...    |${SPACE}name${SPACE}${SPACE}|${SPACE}magnitude${SPACE}|
@@ -2100,7 +2109,29 @@ Table Lifecycle Returns Expected Results
     ...    |-------|-----------|
     ...    |${SPACE}one${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}1${SPACE}|
     ...    |-------|-----------|
-    Should Stackql Exec Inline Equal
+    ...    |----------|-----------|
+    ...    |${SPACE}${SPACE}${SPACE}name${SPACE}${SPACE}${SPACE}|${SPACE}magnitude${SPACE}|
+    ...    |----------|-----------|
+    ...    |${SPACE}thirteen${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}13${SPACE}|
+    ...    |----------|-----------|
+    ...    |${SPACE}twelve${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}12${SPACE}|
+    ...    |----------|-----------|
+    ...    |${SPACE}eleven${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}11${SPACE}|
+    ...    |----------|-----------|
+    ${stdErrStr} =    Catenate    SEPARATOR=\n
+    ...    DDL Execution Completed
+    ...    insert into table completed
+    ...    insert into table completed
+    ...    insert into table completed
+    ...    DDL Execution Completed
+    ...    could not locate table 'my_silly_table'
+    ...    DDL Execution Completed
+    ...    insert into table completed
+    ...    insert into table completed
+    ...    insert into table completed
+    ...    DDL Execution Completed
+    ...    could not locate table 'my_silly_table'
+    Should Stackql Exec Inline Equal Both Streams
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
     ...    ${GITHUB_SECRET_STR}
@@ -2110,7 +2141,9 @@ Table Lifecycle Returns Expected Results
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${inputStr}
     ...    ${outputStr}
+    ...    ${stdErrStr}
     ...    stdout=${CURDIR}/tmp/Table-Lifecycle-Returns-Expected-Results.tmp
+    ...    stderr=${CURDIR}/tmp/Table-Lifecycle-Returns-Expected-Results-stderr.tmp
 
 
 Basic View of Union Returns Results

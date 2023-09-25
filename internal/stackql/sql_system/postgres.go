@@ -768,7 +768,6 @@ func (eng *postgresSystem) getTableByName(
 // TODO: implement temp table drop
 func (eng *postgresSystem) DropPhysicalTable(tableName string,
 	ifExists bool,
-	tcc internaldto.TxnControlCounters, //nolint:revive // future proof
 ) error {
 	dropRefQuery := `
 	DELETE FROM "__iql__.tables"
@@ -782,11 +781,24 @@ func (eng *postgresSystem) DropPhysicalTable(tableName string,
 		DROP TABLE IF EXISTS "%s"
 		`, tableName)
 	}
+	dropColsQuery := `
+	DELETE
+	FROM
+	  "__iql__.tables.columns"
+	WHERE
+	  table_name = $1
+	`
 	tx, err := eng.sqlEngine.GetTx()
 	if err != nil {
 		return err
 	}
 	_, err = tx.Exec(dropRefQuery, tableName)
+	if err != nil {
+		//nolint:errcheck // TODO: merge variadic error(s) into one
+		tx.Rollback()
+		return err
+	}
+	_, err = tx.Exec(dropColsQuery, tableName)
 	if err != nil {
 		//nolint:errcheck // TODO: merge variadic error(s) into one
 		tx.Rollback()
