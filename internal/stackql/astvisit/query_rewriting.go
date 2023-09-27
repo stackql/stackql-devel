@@ -184,6 +184,7 @@ func (v *standardQueryRewriteAstVisitor) GenerateSelectDML() (drm.PreparedStatem
 		v.tableSlice,
 		v.namespaceCollection,
 		v.hoistedOnClauseTables,
+		make(map[string]interface{}),
 	).WithIndirectContexts(v.indirectContexts).WithPrepStmtOffset(v.prepStmtOffset)
 	return sqlrewrite.GenerateRewrittenSelectDML(rewriteInput)
 }

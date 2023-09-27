@@ -1,6 +1,7 @@
 package util
 
 import (
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/stackql/go-openapistackql/openapistackql"
 )
 
@@ -70,6 +71,28 @@ func (ta *simpleTableSchemaAnalyzer) GetColumns() ([]Column, error) {
 	return rv, nil
 }
 
+func (ta *simpleTableSchemaAnalyzer) generateServerVarColumnDescriptor(
+	k string, m openapistackql.OperationStore) openapistackql.ColumnDescriptor {
+	sc := openapi3.NewSchema()
+	sc.Type = "string"
+	schema := openapistackql.NewSchema(
+		sc,
+		m.GetService(),
+		"",
+		"",
+	)
+	colDesc := openapistackql.NewColumnDescriptor(
+		"",
+		k,
+		"",
+		"",
+		nil,
+		schema,
+		nil,
+	)
+	return colDesc
+}
+
 func (ta *simpleTableSchemaAnalyzer) GetColumnDescriptors(
 	tabAnnotated AnnotatedTabulation,
 ) ([]openapistackql.ColumnDescriptor, error) {
@@ -88,6 +111,7 @@ func (ta *simpleTableSchemaAnalyzer) GetColumnDescriptors(
 		if _, ok := existingColumns[k]; ok {
 			continue
 		}
+		existingColumns[k] = struct{}{}
 		schema, _ := col.GetSchema()
 		colDesc := openapistackql.NewColumnDescriptor(
 			"",
@@ -99,6 +123,33 @@ func (ta *simpleTableSchemaAnalyzer) GetColumnDescriptors(
 			nil,
 		)
 		rv = append(rv, colDesc)
+	}
+	servers := ta.m.GetServers()
+	if servers != nil && len(*servers) > 0 { //nolint:nestif // tactical
+		for _, srv := range *servers {
+			for k := range srv.Variables {
+				if _, ok := existingColumns[k]; ok {
+					continue
+				}
+				existingColumns[k] = struct{}{}
+				colDesc := ta.generateServerVarColumnDescriptor(k, ta.m)
+				rv = append(rv, colDesc)
+			}
+		}
+	} else {
+		svcServers := ta.m.GetService().GetServers()
+		if len(svcServers) > 0 {
+			for _, srv := range svcServers {
+				for k := range srv.Variables {
+					if _, ok := existingColumns[k]; ok {
+						continue
+					}
+					existingColumns[k] = struct{}{}
+					colDesc := ta.generateServerVarColumnDescriptor(k, ta.m)
+					rv = append(rv, colDesc)
+				}
+			}
+		}
 	}
 	return rv, nil
 }
