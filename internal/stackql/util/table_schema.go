@@ -93,6 +93,7 @@ func (ta *simpleTableSchemaAnalyzer) generateServerVarColumnDescriptor(
 	return colDesc
 }
 
+//nolint:gocognit,nestif // tactical
 func (ta *simpleTableSchemaAnalyzer) GetColumnDescriptors(
 	tabAnnotated AnnotatedTabulation,
 ) ([]openapistackql.ColumnDescriptor, error) {
@@ -125,7 +126,7 @@ func (ta *simpleTableSchemaAnalyzer) GetColumnDescriptors(
 		rv = append(rv, colDesc)
 	}
 	servers := ta.m.GetServers()
-	if servers != nil && len(*servers) > 0 { //nolint:nestif // tactical
+	if servers != nil && len(*servers) > 0 {
 		for _, srv := range *servers {
 			for k := range srv.Variables {
 				if _, ok := existingColumns[k]; ok {
