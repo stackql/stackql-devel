@@ -13,14 +13,11 @@ class SQLAlchemyClient(object):
   def _exec_raw_query(self, query :str) -> typing.List[typing.Dict]:
     r = self._eng.execute(query)
     rv = []
-    first = r.fetchone()
-    if first is None or len(first) == 0:
-      return rv
-    rv.append(first)
-    remainder = r.fetchall()
-    if remainder:
-      for r in remainder:
-        rv.append(r)
+    try:
+      for row in r:
+        rv.append(row)
+    except Exception as err:
+      pass
     return rv
 
 
