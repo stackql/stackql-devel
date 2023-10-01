@@ -11,10 +11,17 @@ class SQLAlchemyClient(object):
 
 
   def _exec_raw_query(self, query :str) -> typing.List[typing.Dict]:
-    conn = self._eng.raw_connection()
-    curs = conn.cursor()
     r = self._eng.execute(query)
-    return [ b for b in r.fetchall() ]
+    rv = []
+    first = r.fetchone()
+    if first is None or len(first) == 0:
+      return rv
+    rv.append(first)
+    remainder = r.fetchall()
+    if remainder:
+      for r in remainder:
+        rv.append(r)
+    return rv
 
 
   def _run_raw_queries(self, queries :typing.List[str]) -> typing.List[typing.Dict]:

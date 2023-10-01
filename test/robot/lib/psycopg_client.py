@@ -16,17 +16,35 @@ class PsycoPGClient(object):
     )
 
 
-  def _exec_query(self, query :str) -> typing.List[typing.Dict]:  
+  def _exec_query(self, query :str) -> typing.List[typing.Dict]: 
+    rv = [] 
     try:
-      r = self._connection.execute(query)
-      return r.fetchall()
+      with self._connection.execute(query) as r:
+        first = r.fetchone()
+        if first is None or len(first) == 0:
+          return rv
+        rv.append(first)
+        remainder = r.fetchall()
+        if remainder:
+          for r in remainder:
+            rv.append(r)
+        return rv
     except Exception as err:
       return []
 
-  def _exec_query_strict(self, query :str) -> typing.List[typing.Dict]:  
+  def _exec_query_strict(self, query :str) -> typing.List[typing.Dict]:
+    rv = []
     try:
-      r = self._connection.execute(query)
-      return r.fetchall()
+      with self._connection.execute(query) as r:
+        first = r.fetchone()
+        if first is None or len(first) == 0:
+          return rv
+        rv.append(first)
+        remainder = r.fetchall()
+        if remainder:
+          for r in remainder:
+            rv.append(r)
+        return rv
     except Exception as err:
       print(err)
       raise err
