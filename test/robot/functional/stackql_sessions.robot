@@ -104,7 +104,6 @@ PG Session Materialized View Lifecycle
     ...    { "UserName":  "Andrew", "UserId": "AID2MAB8DPLSRHEXAMPLE", "Arn": "arn:aws:iam::123456789012:user/division_abc/subdivision_xyz/engineering/Andrew", "region": "us-east-1" }
     ...    ]
     ${outputList} =    Evaluate    ${outputStr}
-    Log    This test expects exactly 4 results per query in the sequence
     Should PG Client Session Inline Equal
     ...    ${POSTGRES_URL_UNENCRYPTED_CONN}
     ...    ${inputList}
@@ -127,7 +126,6 @@ PG Session V2 Materialized View Lifecycle
     ...    { "UserName":  "Andrew", "UserId": "AID2MAB8DPLSRHEXAMPLE", "Arn": "arn:aws:iam::123456789012:user/division_abc/subdivision_xyz/engineering/Andrew", "region": "us-east-1" }
     ...    ]
     ${outputList} =    Evaluate    ${outputStr}
-    Log    This test expects exactly 4 results per query in the sequence
     Should PG Client V2 Session Inline Equal
     ...    ${POSTGRES_URL_UNENCRYPTED_CONN}
     ...    ${inputList}
