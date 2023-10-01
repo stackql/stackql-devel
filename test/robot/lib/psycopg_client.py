@@ -20,14 +20,8 @@ class PsycoPGClient(object):
     rv = [] 
     try:
       with self._connection.execute(query) as r:
-        first = r.fetchone()
-        if first is None or len(first) == 0:
-          return rv
-        rv.append(first)
-        remainder = r.fetchall()
-        if remainder:
-          for r in remainder:
-            rv.append(r)
+        for row in r:
+          rv.append(row)
         return rv
     except Exception as err:
       return []
@@ -36,14 +30,8 @@ class PsycoPGClient(object):
     rv = []
     try:
       with self._connection.execute(query) as r:
-        first = r.fetchone()
-        if first is None or len(first) == 0:
-          return rv
-        rv.append(first)
-        remainder = r.fetchall()
-        if remainder:
-          for r in remainder:
-            rv.append(r)
+        for row in r:
+          rv.append(row)
         return rv
     except Exception as err:
       print(err)

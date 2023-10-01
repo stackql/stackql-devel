@@ -41,6 +41,7 @@ SQLAlchemy Session Postgres Intel Views Exist
     [Teardown]    NONE
 
 SQLAlchemy Session Materialized View Lifecycle
+    Pass Execution If    "${SQL_BACKEND}" != "postgres_tcp"    This is a postgres only test
     ${inputStr} =    Catenate
     ...    [
     ...    "create materialized view vw_aws_usr as select Arn, UserName, UserId, region from aws.iam.users where region = 'us-east-1';",
