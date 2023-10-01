@@ -13,11 +13,8 @@ class SQLAlchemyClient(object):
   def _exec_raw_query(self, query :str) -> typing.List[typing.Dict]:
     r = self._eng.execute(query)
     rv = []
-    try:
-      for row in r:
-        rv.append(row)
-    except Exception as err:
-      pass
+    for row in r:
+      rv.append(row)
     return rv
 
 
