@@ -16,7 +16,9 @@ Serializations of undo and redo DAGs are written to [WAL](#wal).
 
 ## Consistency
 
-Transactions will accept only permissible operations, and runtime errors can trigger undo, depending upon recovery configuration
+Transactions will accept only permissible operations, and runtime errors can trigger undo, thus impacting [atomicity](#atomicity), depending upon recovery configuration. 
+
+A naive implementation of consistency does not support SQL-style constraints (eg: foreign key, unique) and simply offloads such consistency aspects to the providers.  An example aspect that can be handled this way is referential integrity, treated as implicit and presumed enforced by the provider.
 
 ## Isolation
 
