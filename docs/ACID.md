@@ -11,7 +11,7 @@
 
 ## __`stackql`__ and the CAP Theorem
 
-In a general sense, `stackql` is a distributed data store.  With regard to the [CAP theorem](https://en.wikipedia.org/wiki/CAP_theorem), `stackql` does not meaningfully address partition tolerance.  If we defer / ignore user space constraints and offload the bulk of consistency to the provider systems, then that leaves availability (the `A` in `CAP`), which can be optimised using standard approaches for failover, disaster recovery, load balancing, etc.  This effectively dictates that prolonged network partitioning or provider defects supporting consistencey may require admin intervention.
+In a general sense, `stackql` is a distributed data store.  With regard to the [CAP theorem](https://en.wikipedia.org/wiki/CAP_theorem), `stackql` does not meaningfully address partition tolerance.  If we defer / ignore user space constraints and offload the bulk of consistency to the provider systems, then that leaves availability (the `A` in `CAP`), which can be optimised using standard approaches for failover, disaster recovery, load balancing, etc.  This effectively dictates that prolonged network partitioning or provider defects supporting consistency may require admin intervention.
 
 ## Atomicity
 
@@ -20,6 +20,17 @@ For each reversible action, the reversal operation defines an edge on an abstrac
 In similar vein, execution of all unactioned edges on an abstract DAG (the "redo DAG") from current to target state constitutes a successful `COMMIT` operation.
 
 Serializations of undo and redo DAGs are written to [WAL](#wal).
+
+### Two phase commit
+
+[Two phased commit (2PC)](https://en.wikipedia.org/wiki/Two-phase_commit_protocol) is supported in `stackql`, through the `transact.Coordinator` interface.  Briefly, 2PC is (affirmative; `COMMIT`,  or negative; `ROLLBACK`) transaction finalization by sequential phases of:
+
+- (i) Voting.
+- (ii) Completion.
+
+The role of the transaction coordinator, sometimes called a transaction manager, is to tally all required votes and then mark the transaction as complete.
+
+For now, we do not expand upon exactly how `transact.Coordinator` implementations should to this.  Configurable commitment behaviour is supported in `stackql`.
 
 ## Consistency
 
@@ -57,6 +68,21 @@ All above apply.  Reads on subsequent transactions cannot be initiated until pre
 ## WAL
 
 [Write Ahead Logging (WAL)](https://en.wikipedia.org/wiki/Write-ahead_logging) is the cornerstone of atomicity and durability.
+
+### Implementation of WAL
+
+We need some intermediate representation (IR) to describe the collections of DAGs that comprise `stackql` transactions.  This IR, desirably, should be:
+
+- (a) Deterministic and repeatable.  This simplifies reasoning about executions and estimating costs.
+- (b) Secure.  We do not want to expose credentials or sensitive information.
+- (c) Suitable for all recovery scenarios.  Foreseeably, undo and redo operations may need to run in different orders, eg: depending on network partitioning or provider degradation.
+
+To this end, we propose WAL v1.  The key design points are:
+
+- (i) Logs are at primitive level, for their finest grain, in most cases.  If data caches are warranted and absent any security concerns, then caches may be used.
+- (ii) DAG ordering of primitives will be in WAL.  Point to note: there is no reason that DAGs cannot be re sorted or dependencies added / subtracted for any reason (eg: performance, handling network partition event, ) 
+- (iii) As a matter of principle, credentials and any other ephemeral tokens are not persisted in WAL.  `v1` will not include any secure secret storage, so this is sensible.
+- (iv) SERDE between WAL and DAGs should be a simple and modular as possible.  Also extensible.
 
 ## Implementations of ACID
 
