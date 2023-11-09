@@ -30,7 +30,7 @@ Serializations of undo and redo DAGs are written to [WAL](#wal).
 
 The role of the transaction coordinator, sometimes called a transaction manager, is to tally all required votes and then mark the transaction as complete.
 
-For now, we do not expand upon exactly how `transact.Coordinator` implementations should to this.  Configurable commitment behaviour is supported in `stackql`.
+For now, we do not expand upon exactly how `transact.Coordinator` implementations should do this.  Configurable commitment behaviour is supported in `stackql`.
 
 ## Consistency
 
@@ -77,12 +77,18 @@ We need some intermediate representation (IR) to describe the collections of DAG
 - (b) Secure.  We do not want to expose credentials or sensitive information.
 - (c) Suitable for all recovery scenarios.  Foreseeably, undo and redo operations may need to run in different orders, eg: depending on network partitioning or provider degradation.
 
-To this end, we propose WAL v1.  The key design points are:
+To this end, we propose `WAL v1`.  The key design points are:
 
 - (i) Logs are at primitive level, for their finest grain, in most cases.  If data caches are warranted and absent any security concerns, then caches may be used.
-- (ii) DAG ordering of primitives will be in WAL.  Point to note: there is no reason that DAGs cannot be re sorted or dependencies added / subtracted for any reason (eg: performance, handling network partition event, ) 
+- (ii) DAG ordering of primitives will be in WAL.  Point to note: there is no reason that DAGs cannot be re sorted or dependencies added / subtracted for any reason (eg: performance, handling network partition events). 
 - (iii) As a matter of principle, credentials and any other ephemeral tokens are not persisted in WAL.  `v1` will not include any secure secret storage, so this is sensible.
 - (iv) SERDE between WAL and DAGs should be a simple and modular as possible.  Also extensible.
+- (v) Let us re-use design points from [the existing __`postgres`__ WAL implementation](https://www.postgresql.org/docs/16/wal.html).  We do not want to re-invent the wheel:
+    - A devoted WAL directory.
+    - A control data structure records the most recent checkpoint.
+    - Individual files ("segment" files in `postgres`) are discarded / renamed once obsoleted.
+- (vi) Depending on ACID configuration, UNDO logs for committed transactions have the  same lifetime as REDO logs for the same transaction.
+- (vi) WAL can incorporate some of the thinking and opcodes from [SQLite bytecode](https://www.sqlite.org/opcode.html), although it need not be so fulsome, in light of heavy pushdown to RDBMS.
 
 ## Implementations of ACID
 
@@ -93,7 +99,7 @@ Locks, latches and lookup tables can probably handle most of this.
 Per [this `stackoverflow` post](https://stackoverflow.com/questions/3111403/what-is-the-difference-between-a-lock-and-a-latch-in-the-context-of-concurrent-a#:~:text=Locks%20ensure%20that%20same%20record,consistency%20of%20the%20memory%20area.):
 
 > From CMU 15-721 (Spring 2016), lecture 6 presentation, slides 25 and 26, which cites [A Survey of B-Tree Locking Techniques by Goetz Graefe](https://15721.courses.cs.cmu.edu/spring2016/papers/a16-graefe.pdf):
-> 
+>
 > Locks
 > → Protects the index’s logical contents from other txns.
 > → Held for txn duration.
