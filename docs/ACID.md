@@ -2,7 +2,7 @@
 
 # The Transaction Storage Manager (TSM)
 
-The TSM is conventionally regarded as a monolith for co-ordinating:
+The TSM [^1] is conventionally regarded as a monolith for co-ordinating:
 
 - Recovery via a `log manager`.  WAL is the canonical example.
 - Concurrency via a `lock manager`.  Two classes are: (i) strict two phase locking (S2PL) and (ii) multi version concurrency control (MVCC).
@@ -139,5 +139,5 @@ Per [this `stackoverflow` post](https://stackoverflow.com/questions/3111403/what
 > → Do not need to be able to rollback changes.
 
 
-[^1]: Hellerstein et al.; "Architecture of a Database System"; Foundations and Trends in Databases; Vol. 1, No. 2 (2007); 141–259
+[^1]: Hellerstein JM, Stonebraker M, Hamilton J; "Architecture of a Database System"; Foundations and Trends in Databases; Vol. 1, No. 2 (2007); 141–259
 
