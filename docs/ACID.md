@@ -1,5 +1,21 @@
 
 
+# The Transaction Storage Manager (TSM)
+
+The TSM is conventionally regarded as a monolith for co-ordinating:
+
+- Recovery via a `log manager`.  WAL is the canonical example.
+- Concurrency via a `lock manager`.  Two classes are: (i) strict two phase locking (S2PL) and (ii) multi version concurrency control (MVCC).
+- Data access via `access methods`.  Traditionally: B+ tree and heap file(s).
+- Buffer pool management via a `buffer manager`.  
+
+For the most part, these components are tightly coupled.  Some illustrative examples of why this is the case and necessary:
+
+- Canonical B+ tree data structure includes latches for concurrent access.  Such latches are aspects of the lock manager.
+- `physical` logs better support atomic disk updates and therefore the log manager requires access method internals.
+- The log manager requires lock lifetime coupling in order to safely support undo / redo.
+
+Anecdotally, the buffer manager component is not so tightly coupled to the remainder and can potentially be replaced in modular fashion.
 
 
 # ACID
@@ -71,7 +87,16 @@ All above apply.  Reads on subsequent transactions cannot be initiated until pre
 
 ### Implementation of WAL
 
-We need some intermediate representation (IR) to describe the collections of DAGs that comprise `stackql` transactions.  This IR, desirably, should be:
+Modern WAL is often comprised of a combination of physical and logical logging, dubbed "physiological" [^1].  For `stackql`, the closest one can imagine coming to physical logging is fully expanded database update operations, ie: independent and fully parameterized RDBMS queries.  This is scarcely the sort of tight coupling between WAL, buffer pool pages and disk sectors that traditional RDBMSs implement.  Let us then, at least for early versions of `stackql`, consider all logging to be logical.
+
+Feasibly, `stackql` can model logical logging as:
+
+1. HTTP requests, exclusive of secrets, with some indirection to credentials and token generation flow.  This latter is generally core `stackql` code or SDK code. ~~Because request multiplicity may be dependent on upstream data flows, this will operate at some sort of templated level in many cases.~~
+2. RDBMS transactions.  These could be quite large in the context of `rollback` operations. 
+
+The consideration of security for inputs to RDBMS transactions is delicate.  A naive implementation is to regard logs as insecure and wrap in encryption machinery as required.
+
+In order to simplify logical logging, we postulate some mnemonic representation (MR) to describe the collections of DAGs that comprise `stackql` transactions.  This MR, desirably, should be:
 
 - (a) Deterministic and repeatable.  This simplifies reasoning about executions and estimating costs.
 - (b) Secure.  We do not want to expose credentials or sensitive information.
@@ -88,7 +113,10 @@ To this end, we propose `WAL v1`.  The key design points are:
     - A control data structure records the most recent checkpoint.
     - Individual files ("segment" files in `postgres`) are discarded / renamed once obsoleted.
 - (vi) Depending on ACID configuration, UNDO logs for committed transactions have the  same lifetime as REDO logs for the same transaction.
-- (vi) WAL can incorporate some of the thinking and opcodes from [SQLite bytecode](https://www.sqlite.org/opcode.html), although it need not be so fulsome, in light of heavy pushdown to RDBMS.
+
+## SQL and VMs
+
+We *can* incorporate some of the thinking and opcodes from [SQLite bytecode](https://www.sqlite.org/opcode.html), although it need not be so fulsome, in light of heavy pushdown to RDBMS.
 
 ## Implementations of ACID
 
@@ -111,5 +139,5 @@ Per [this `stackoverflow` post](https://stackoverflow.com/questions/3111403/what
 > → Do not need to be able to rollback changes.
 
 
-
+[^1]: Hellerstein et al.; "Architecture of a Database System"; Foundations and Trends in Databases; Vol. 1, No. 2 (2007); 141–259
 
