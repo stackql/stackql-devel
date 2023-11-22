@@ -38911,7 +38911,8 @@ components:
             $ref: '#/paths/~1users/get'
           response:
             mediaType: application/json
-            openAPIDocKey: '200'
+            openAPIDocKey: '2XX'
+            objectKey: $.value
         user_CreateUser:
           operation:
             $ref: '#/paths/~1users/post'
@@ -38923,7 +38924,7 @@ components:
             $ref: '#/paths/~1users~1{user-id}/get'
           response:
             mediaType: application/json
-            openAPIDocKey: '200'
+            openAPIDocKey: '2XX'
         user_UpdateUser:
           operation:
             $ref: '#/paths/~1users~1{user-id}/patch'
