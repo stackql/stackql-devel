@@ -1208,6 +1208,15 @@ providerServices:
       $ref: azure/v0.1.0/services/traffic_manager.yaml
     title: TrafficManagerManagementClient (Microsoft.Network)
     version: v0.1.0
+  users:
+    description: User management API
+    id: users:v0.1.0
+    name: users
+    preferred: true
+    service:
+      $ref: azure/v0.1.0/services/users.yaml
+    title: Microsoft Users
+    version: v0.1.0
   virtual_machine_images:
     description: virtual_machine_images
     id: virtual_machine_images:v0.1.0
