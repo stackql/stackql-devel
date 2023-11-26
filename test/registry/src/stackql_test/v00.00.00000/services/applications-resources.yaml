@@ -1,0 +1,1465 @@
+components:
+  x-stackQL-resources:
+    applications:
+      id: azuread.applications.applications
+      name: applications
+      title: Applications
+      resTokens: []
+      methods:
+        application_ListApplication:
+          operation:
+            $ref: applications.yaml#/paths/~1applications/get
+            opId: applications.application.ListApplication
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        application_CreateApplication:
+          operation:
+            $ref: applications.yaml#/paths/~1applications/post
+            opId: applications.application.CreateApplication
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        application_GetApplication:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}/get'
+            opId: applications.application.GetApplication
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        application_UpdateApplication:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}/patch'
+            opId: applications.application.UpdateApplication
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        application_DeleteApplication:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}/delete'
+            opId: applications.application.DeleteApplication
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    appManagementPolicies:
+      id: azuread.applications.appManagementPolicies
+      name: appManagementPolicies
+      title: AppManagementPolicies
+      resTokens:
+        - appManagementPolicies
+      methods:
+        ListAppManagementPolicies:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1appManagementPolicies/get'
+            opId: applications.ListAppManagementPolicies
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        DeleteRefAppManagementPolicies:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1appManagementPolicies~1{appManagementPolicy-id}~1$ref/delete'
+            opId: applications.DeleteRefAppManagementPolicies
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        ListRefAppManagementPolicies:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1appManagementPolicies~1$ref/get'
+            opId: applications.ListRefAppManagementPolicies
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        CreateRefAppManagementPolicies:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1appManagementPolicies~1$ref/post'
+            opId: applications.CreateRefAppManagementPolicies
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        appManagementPolicies_GetCount_3aad:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1appManagementPolicies~1$count/get'
+            opId: applications.appManagementPolicies.GetCount-3aad
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    createdOnBehalfOf:
+      id: azuread.applications.createdOnBehalfOf
+      name: createdOnBehalfOf
+      title: CreatedOnBehalfOf
+      resTokens:
+        - createdOnBehalfOf
+      methods:
+        GetCreatedOnBehalfOf:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1createdOnBehalfOf/get'
+            opId: applications.GetCreatedOnBehalfOf
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    extensionProperties:
+      id: azuread.applications.extensionProperties
+      name: extensionProperties
+      title: ExtensionProperties
+      resTokens:
+        - extensionProperties
+      methods:
+        ListExtensionProperties:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1extensionProperties/get'
+            opId: applications.ListExtensionProperties
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        CreateExtensionProperties:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1extensionProperties/post'
+            opId: applications.CreateExtensionProperties
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        GetExtensionProperties:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1extensionProperties~1{extensionProperty-id}/get'
+            opId: applications.GetExtensionProperties
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        UpdateExtensionProperties:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1extensionProperties~1{extensionProperty-id}/patch'
+            opId: applications.UpdateExtensionProperties
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        DeleteExtensionProperties:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1extensionProperties~1{extensionProperty-id}/delete'
+            opId: applications.DeleteExtensionProperties
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        extensionProperties_GetCount_3535:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1extensionProperties~1$count/get'
+            opId: applications.extensionProperties.GetCount-3535
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    federatedIdentityCredentials:
+      id: azuread.applications.federatedIdentityCredentials
+      name: federatedIdentityCredentials
+      title: FederatedIdentityCredentials
+      resTokens:
+        - federatedIdentityCredentials
+      methods:
+        ListFederatedIdentityCredentials:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1federatedIdentityCredentials/get'
+            opId: applications.ListFederatedIdentityCredentials
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        CreateFederatedIdentityCredentials:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1federatedIdentityCredentials/post'
+            opId: applications.CreateFederatedIdentityCredentials
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        GetFederatedIdentityCredentials:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1federatedIdentityCredentials~1{federatedIdentityCredential-id}/get'
+            opId: applications.GetFederatedIdentityCredentials
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        UpdateFederatedIdentityCredentials:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1federatedIdentityCredentials~1{federatedIdentityCredential-id}/patch'
+            opId: applications.UpdateFederatedIdentityCredentials
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        DeleteFederatedIdentityCredentials:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1federatedIdentityCredentials~1{federatedIdentityCredential-id}/delete'
+            opId: applications.DeleteFederatedIdentityCredentials
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        federatedIdentityCredentials_GetCount_d653:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1federatedIdentityCredentials~1$count/get'
+            opId: applications.federatedIdentityCredentials.GetCount-d653
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    homeRealmDiscoveryPolicies:
+      id: azuread.applications.homeRealmDiscoveryPolicies
+      name: homeRealmDiscoveryPolicies
+      title: HomeRealmDiscoveryPolicies
+      resTokens:
+        - homeRealmDiscoveryPolicies
+      methods:
+        ListHomeRealmDiscoveryPolicies:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1homeRealmDiscoveryPolicies/get'
+            opId: applications.ListHomeRealmDiscoveryPolicies
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        GetHomeRealmDiscoveryPolicies:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1homeRealmDiscoveryPolicies~1{homeRealmDiscoveryPolicy-id}/get'
+            opId: applications.GetHomeRealmDiscoveryPolicies
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        homeRealmDiscoveryPolicies_GetCount_1662:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1homeRealmDiscoveryPolicies~1$count/get'
+            opId: applications.homeRealmDiscoveryPolicies.GetCount-1662
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    logo:
+      id: azuread.applications.logo
+      name: logo
+      title: Logo
+      resTokens:
+        - logo
+      methods:
+        application_GetLogo:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1logo/get'
+            opId: applications.application.GetLogo
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        application_UpdateLogo:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1logo/put'
+            opId: applications.application.UpdateLogo
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    addKey:
+      id: azuread.applications.addKey
+      name: addKey
+      title: AddKey
+      resTokens:
+        - addKey
+      methods:
+        application_addKey:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1addKey/post'
+            opId: applications.application.addKey
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    addPassword:
+      id: azuread.applications.addPassword
+      name: addPassword
+      title: AddPassword
+      resTokens:
+        - addPassword
+      methods:
+        application_addPassword:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1addPassword/post'
+            opId: applications.application.addPassword
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    checkMemberGroups:
+      id: azuread.applications.checkMemberGroups
+      name: checkMemberGroups
+      title: CheckMemberGroups
+      resTokens:
+        - checkMemberGroups
+      methods:
+        application_checkMemberGroups:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1checkMemberGroups/post'
+            opId: applications.application.checkMemberGroups
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    checkMemberObjects:
+      id: azuread.applications.checkMemberObjects
+      name: checkMemberObjects
+      title: CheckMemberObjects
+      resTokens:
+        - checkMemberObjects
+      methods:
+        application_checkMemberObjects:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1checkMemberObjects/post'
+            opId: applications.application.checkMemberObjects
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    getMemberGroups:
+      id: azuread.applications.getMemberGroups
+      name: getMemberGroups
+      title: GetMemberGroups
+      resTokens:
+        - getMemberGroups
+      methods:
+        application_getMemberGroups:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1getMemberGroups/post'
+            opId: applications.application.getMemberGroups
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    getMemberObjects:
+      id: azuread.applications.getMemberObjects
+      name: getMemberObjects
+      title: GetMemberObjects
+      resTokens:
+        - getMemberObjects
+      methods:
+        application_getMemberObjects:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1getMemberObjects/post'
+            opId: applications.application.getMemberObjects
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    removeKey:
+      id: azuread.applications.removeKey
+      name: removeKey
+      title: RemoveKey
+      resTokens:
+        - removeKey
+      methods:
+        application_removeKey:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1removeKey/post'
+            opId: applications.application.removeKey
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    removePassword:
+      id: azuread.applications.removePassword
+      name: removePassword
+      title: RemovePassword
+      resTokens:
+        - removePassword
+      methods:
+        application_removePassword:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1removePassword/post'
+            opId: applications.application.removePassword
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    restore:
+      id: azuread.applications.restore
+      name: restore
+      title: Restore
+      resTokens:
+        - restore
+      methods:
+        application_restore:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1restore/post'
+            opId: applications.application.restore
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    setVerifiedPublisher:
+      id: azuread.applications.setVerifiedPublisher
+      name: setVerifiedPublisher
+      title: SetVerifiedPublisher
+      resTokens:
+        - setVerifiedPublisher
+      methods:
+        application_setVerifiedPublisher:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1setVerifiedPublisher/post'
+            opId: applications.application.setVerifiedPublisher
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    unsetVerifiedPublisher:
+      id: azuread.applications.unsetVerifiedPublisher
+      name: unsetVerifiedPublisher
+      title: UnsetVerifiedPublisher
+      resTokens:
+        - unsetVerifiedPublisher
+      methods:
+        application_unsetVerifiedPublisher:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1unsetVerifiedPublisher/post'
+            opId: applications.application.unsetVerifiedPublisher
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    owners:
+      id: azuread.applications.owners
+      name: owners
+      title: Owners
+      resTokens:
+        - owners
+      methods:
+        ListOwners:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1owners/get'
+            opId: applications.ListOwners
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        DeleteRefOwners:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1owners~1{directoryObject-id}~1$ref/delete'
+            opId: applications.DeleteRefOwners
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        ListRefOwners:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1owners~1$ref/get'
+            opId: applications.ListRefOwners
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        CreateRefOwners:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1owners~1$ref/post'
+            opId: applications.CreateRefOwners
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        owners_GetCount_2b88:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1owners~1$count/get'
+            opId: applications.owners.GetCount-2b88
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    owners_graph_appRoleAssignment:
+      id: azuread.applications.owners_graph_appRoleAssignment
+      name: owners_graph_appRoleAssignment
+      title: Owners Graph AppRoleAssignment
+      resTokens:
+        - owners
+        - graph
+        - appRoleAssignment
+      methods:
+        GetOwners_AsAppRoleAssignment:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1owners~1{directoryObject-id}~1graph.appRoleAssignment/get'
+            opId: applications.GetOwners.AsAppRoleAssignment
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        ListOwners_AsAppRoleAssignment:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1owners~1graph.appRoleAssignment/get'
+            opId: applications.ListOwners.AsAppRoleAssignment
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        Owners_GetCount_AsAppRoleAssignment_eb25:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1owners~1graph.appRoleAssignment~1$count/get'
+            opId: applications.Owners.GetCount.AsAppRoleAssignment-eb25
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    owners_graph_endpoint:
+      id: azuread.applications.owners_graph_endpoint
+      name: owners_graph_endpoint
+      title: Owners Graph Endpoint
+      resTokens:
+        - owners
+        - graph
+        - endpoint
+      methods:
+        GetOwners_AsEndpoint:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1owners~1{directoryObject-id}~1graph.endpoint/get'
+            opId: applications.GetOwners.AsEndpoint
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        ListOwners_AsEndpoint:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1owners~1graph.endpoint/get'
+            opId: applications.ListOwners.AsEndpoint
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        Owners_GetCount_AsEndpoint_0426:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1owners~1graph.endpoint~1$count/get'
+            opId: applications.Owners.GetCount.AsEndpoint-0426
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    owners_graph_servicePrincipal:
+      id: azuread.applications.owners_graph_servicePrincipal
+      name: owners_graph_servicePrincipal
+      title: Owners Graph ServicePrincipal
+      resTokens:
+        - owners
+        - graph
+        - servicePrincipal
+      methods:
+        GetOwners_AsServicePrincipal:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1owners~1{directoryObject-id}~1graph.servicePrincipal/get'
+            opId: applications.GetOwners.AsServicePrincipal
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        ListOwners_AsServicePrincipal:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1owners~1graph.servicePrincipal/get'
+            opId: applications.ListOwners.AsServicePrincipal
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        Owners_GetCount_AsServicePrincipal_0959:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1owners~1graph.servicePrincipal~1$count/get'
+            opId: applications.Owners.GetCount.AsServicePrincipal-0959
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    owners_graph_user:
+      id: azuread.applications.owners_graph_user
+      name: owners_graph_user
+      title: Owners Graph User
+      resTokens:
+        - owners
+        - graph
+        - user
+      methods:
+        GetOwners_AsUser:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1owners~1{directoryObject-id}~1graph.user/get'
+            opId: applications.GetOwners.AsUser
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        ListOwners_AsUser:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1owners~1graph.user/get'
+            opId: applications.ListOwners.AsUser
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        Owners_GetCount_AsUser_c674:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1owners~1graph.user~1$count/get'
+            opId: applications.Owners.GetCount.AsUser-c674
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    synchronization:
+      id: azuread.applications.synchronization
+      name: synchronization
+      title: Synchronization
+      resTokens:
+        - synchronization
+      methods:
+        GetSynchronization:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization/get'
+            opId: applications.GetSynchronization
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        UpdateSynchronization:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization/put'
+            opId: applications.UpdateSynchronization
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        DeleteSynchronization:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization/delete'
+            opId: applications.DeleteSynchronization
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_ListJobs:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs/get'
+            opId: applications.synchronization.ListJobs
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_CreateJobs:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs/post'
+            opId: applications.synchronization.CreateJobs
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_GetJobs:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}/get'
+            opId: applications.synchronization.GetJobs
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_UpdateJobs:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}/patch'
+            opId: applications.synchronization.UpdateJobs
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_DeleteJobs:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}/delete'
+            opId: applications.synchronization.DeleteJobs
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        application_synchronization_acquireAccessToken:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1acquireAccessToken/post'
+            opId: applications.application.synchronization.acquireAccessToken
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_UpdateSecrets:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1secrets/put'
+            opId: applications.synchronization.UpdateSecrets
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_ListTemplates:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1templates/get'
+            opId: applications.synchronization.ListTemplates
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_CreateTemplates:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1templates/post'
+            opId: applications.synchronization.CreateTemplates
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_GetTemplates:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1templates~1{synchronizationTemplate-id}/get'
+            opId: applications.synchronization.GetTemplates
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_UpdateTemplates:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1templates~1{synchronizationTemplate-id}/patch'
+            opId: applications.synchronization.UpdateTemplates
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_DeleteTemplates:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1templates~1{synchronizationTemplate-id}/delete'
+            opId: applications.synchronization.DeleteTemplates
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    synchronization_jobs_pause:
+      id: azuread.applications.synchronization_jobs_pause
+      name: synchronization_jobs_pause
+      title: Synchronization Jobs Pause
+      resTokens:
+        - synchronization
+        - jobs
+        - pause
+      methods:
+        application_synchronization_jobs_synchronizationJob_pause:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}~1pause/post'
+            opId: applications.application.synchronization.jobs.synchronizationJob.pause
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    synchronization_jobs_provisionOnDemand:
+      id: azuread.applications.synchronization_jobs_provisionOnDemand
+      name: synchronization_jobs_provisionOnDemand
+      title: Synchronization Jobs ProvisionOnDemand
+      resTokens:
+        - synchronization
+        - jobs
+        - provisionOnDemand
+      methods:
+        application_synchronization_jobs_synchronizationJob_provisionOnDemand:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}~1provisionOnDemand/post'
+            opId: applications.application.synchronization.jobs.synchronizationJob.provisionOnDemand
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    synchronization_jobs_restart:
+      id: azuread.applications.synchronization_jobs_restart
+      name: synchronization_jobs_restart
+      title: Synchronization Jobs Restart
+      resTokens:
+        - synchronization
+        - jobs
+        - restart
+      methods:
+        application_synchronization_jobs_synchronizationJob_restart:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}~1restart/post'
+            opId: applications.application.synchronization.jobs.synchronizationJob.restart
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    synchronization_jobs_start:
+      id: azuread.applications.synchronization_jobs_start
+      name: synchronization_jobs_start
+      title: Synchronization Jobs Start
+      resTokens:
+        - synchronization
+        - jobs
+        - start
+      methods:
+        application_synchronization_jobs_synchronizationJob_start:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}~1start/post'
+            opId: applications.application.synchronization.jobs.synchronizationJob.start
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    synchronization_jobs_validateCredentials:
+      id: azuread.applications.synchronization_jobs_validateCredentials
+      name: synchronization_jobs_validateCredentials
+      title: Synchronization Jobs ValidateCredentials
+      resTokens:
+        - synchronization
+        - jobs
+        - validateCredentials
+      methods:
+        application_synchronization_jobs_synchronizationJob_validateCredentials:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}~1validateCredentials/post'
+            opId: applications.application.synchronization.jobs.synchronizationJob.validateCredentials
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        application_synchronization_jobs_validateCredentials:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1validateCredentials/post'
+            opId: applications.application.synchronization.jobs.validateCredentials
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    synchronization_jobs_schema:
+      id: azuread.applications.synchronization_jobs_schema
+      name: synchronization_jobs_schema
+      title: Synchronization Jobs Schema
+      resTokens:
+        - synchronization
+        - jobs
+        - schema
+      methods:
+        synchronization_jobs_GetSchema:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}~1schema/get'
+            opId: applications.synchronization.jobs.GetSchema
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_jobs_UpdateSchema:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}~1schema/patch'
+            opId: applications.synchronization.jobs.UpdateSchema
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_jobs_DeleteSchema:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}~1schema/delete'
+            opId: applications.synchronization.jobs.DeleteSchema
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_jobs_schema_ListDirectories:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}~1schema~1directories/get'
+            opId: applications.synchronization.jobs.schema.ListDirectories
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_jobs_schema_CreateDirectories:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}~1schema~1directories/post'
+            opId: applications.synchronization.jobs.schema.CreateDirectories
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_jobs_schema_GetDirectories:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}~1schema~1directories~1{directoryDefinition-id}/get'
+            opId: applications.synchronization.jobs.schema.GetDirectories
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_jobs_schema_UpdateDirectories:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}~1schema~1directories~1{directoryDefinition-id}/patch'
+            opId: applications.synchronization.jobs.schema.UpdateDirectories
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_jobs_schema_DeleteDirectories:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}~1schema~1directories~1{directoryDefinition-id}/delete'
+            opId: applications.synchronization.jobs.schema.DeleteDirectories
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        application_synchronization_jobs_synchronizationJob_schema_filterOperators:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}~1schema~1filterOperators()/get'
+            opId: applications.application.synchronization.jobs.synchronizationJob.schema.filterOperators
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        application_synchronization_jobs_synchronizationJob_schema_functions:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}~1schema~1functions()/get'
+            opId: applications.application.synchronization.jobs.synchronizationJob.schema.functions
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        application_synchronization_jobs_synchronizationJob_schema_parseExpression:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}~1schema~1parseExpression/post'
+            opId: applications.application.synchronization.jobs.synchronizationJob.schema.parseExpression
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    synchronization_jobs_schema_directories_discover:
+      id: azuread.applications.synchronization_jobs_schema_directories_discover
+      name: synchronization_jobs_schema_directories_discover
+      title: Synchronization Jobs Schema Directories Discover
+      resTokens:
+        - synchronization
+        - jobs
+        - schema
+        - directories
+        - discover
+      methods:
+        application_synchronization_jobs_synchronizationJob_schema_directories_directoryDefinition_discover:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}~1schema~1directories~1{directoryDefinition-id}~1discover/post'
+            opId: applications.application.synchronization.jobs.synchronizationJob.schema.directories.directoryDefinition.discover
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    synchronization_jobs_schema_directories_$count:
+      id: azuread.applications.synchronization_jobs_schema_directories_$count
+      name: synchronization_jobs_schema_directories_$count
+      title: Synchronization Jobs Schema Directories $count
+      resTokens:
+        - synchronization
+        - jobs
+        - schema
+        - directories
+        - $count
+      methods:
+        synchronization_jobs_schema_directories_GetCount_03bf:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1{synchronizationJob-id}~1schema~1directories~1$count/get'
+            opId: applications.synchronization.jobs.schema.directories.GetCount-03bf
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    synchronization_jobs_$count:
+      id: azuread.applications.synchronization_jobs_$count
+      name: synchronization_jobs_$count
+      title: Synchronization Jobs $count
+      resTokens:
+        - synchronization
+        - jobs
+        - $count
+      methods:
+        synchronization_jobs_GetCount_30ed:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1jobs~1$count/get'
+            opId: applications.synchronization.jobs.GetCount-30ed
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    synchronization_secrets_$count:
+      id: azuread.applications.synchronization_secrets_$count
+      name: synchronization_secrets_$count
+      title: Synchronization Secrets $count
+      resTokens:
+        - synchronization
+        - secrets
+        - $count
+      methods:
+        synchronization_Secrets_GetCount_26f1:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1secrets~1$count/get'
+            opId: applications.synchronization.Secrets.GetCount-26f1
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    synchronization_templates_schema:
+      id: azuread.applications.synchronization_templates_schema
+      name: synchronization_templates_schema
+      title: Synchronization Templates Schema
+      resTokens:
+        - synchronization
+        - templates
+        - schema
+      methods:
+        synchronization_templates_GetSchema:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1templates~1{synchronizationTemplate-id}~1schema/get'
+            opId: applications.synchronization.templates.GetSchema
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_templates_UpdateSchema:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1templates~1{synchronizationTemplate-id}~1schema/patch'
+            opId: applications.synchronization.templates.UpdateSchema
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_templates_DeleteSchema:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1templates~1{synchronizationTemplate-id}~1schema/delete'
+            opId: applications.synchronization.templates.DeleteSchema
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_templates_schema_ListDirectories:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1templates~1{synchronizationTemplate-id}~1schema~1directories/get'
+            opId: applications.synchronization.templates.schema.ListDirectories
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_templates_schema_CreateDirectories:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1templates~1{synchronizationTemplate-id}~1schema~1directories/post'
+            opId: applications.synchronization.templates.schema.CreateDirectories
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_templates_schema_GetDirectories:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1templates~1{synchronizationTemplate-id}~1schema~1directories~1{directoryDefinition-id}/get'
+            opId: applications.synchronization.templates.schema.GetDirectories
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_templates_schema_UpdateDirectories:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1templates~1{synchronizationTemplate-id}~1schema~1directories~1{directoryDefinition-id}/patch'
+            opId: applications.synchronization.templates.schema.UpdateDirectories
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        synchronization_templates_schema_DeleteDirectories:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1templates~1{synchronizationTemplate-id}~1schema~1directories~1{directoryDefinition-id}/delete'
+            opId: applications.synchronization.templates.schema.DeleteDirectories
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        application_synchronization_templates_synchronizationTemplate_schema_filterOperators:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1templates~1{synchronizationTemplate-id}~1schema~1filterOperators()/get'
+            opId: applications.application.synchronization.templates.synchronizationTemplate.schema.filterOperators
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        application_synchronization_templates_synchronizationTemplate_schema_functions:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1templates~1{synchronizationTemplate-id}~1schema~1functions()/get'
+            opId: applications.application.synchronization.templates.synchronizationTemplate.schema.functions
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        application_synchronization_templates_synchronizationTemplate_schema_parseExpression:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1templates~1{synchronizationTemplate-id}~1schema~1parseExpression/post'
+            opId: applications.application.synchronization.templates.synchronizationTemplate.schema.parseExpression
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    synchronization_templates_schema_directories_discover:
+      id: azuread.applications.synchronization_templates_schema_directories_discover
+      name: synchronization_templates_schema_directories_discover
+      title: Synchronization Templates Schema Directories Discover
+      resTokens:
+        - synchronization
+        - templates
+        - schema
+        - directories
+        - discover
+      methods:
+        application_synchronization_templates_synchronizationTemplate_schema_directories_directoryDefinition_discover:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1templates~1{synchronizationTemplate-id}~1schema~1directories~1{directoryDefinition-id}~1discover/post'
+            opId: applications.application.synchronization.templates.synchronizationTemplate.schema.directories.directoryDefinition.discover
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    synchronization_templates_schema_directories_$count:
+      id: azuread.applications.synchronization_templates_schema_directories_$count
+      name: synchronization_templates_schema_directories_$count
+      title: Synchronization Templates Schema Directories $count
+      resTokens:
+        - synchronization
+        - templates
+        - schema
+        - directories
+        - $count
+      methods:
+        synchronization_templates_schema_directories_GetCount_27bc:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1templates~1{synchronizationTemplate-id}~1schema~1directories~1$count/get'
+            opId: applications.synchronization.templates.schema.directories.GetCount-27bc
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    synchronization_templates_$count:
+      id: azuread.applications.synchronization_templates_$count
+      name: synchronization_templates_$count
+      title: Synchronization Templates $count
+      resTokens:
+        - synchronization
+        - templates
+        - $count
+      methods:
+        synchronization_templates_GetCount_738a:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1synchronization~1templates~1$count/get'
+            opId: applications.synchronization.templates.GetCount-738a
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    tokenIssuancePolicies:
+      id: azuread.applications.tokenIssuancePolicies
+      name: tokenIssuancePolicies
+      title: TokenIssuancePolicies
+      resTokens:
+        - tokenIssuancePolicies
+      methods:
+        ListTokenIssuancePolicies:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1tokenIssuancePolicies/get'
+            opId: applications.ListTokenIssuancePolicies
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        DeleteRefTokenIssuancePolicies:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1tokenIssuancePolicies~1{tokenIssuancePolicy-id}~1$ref/delete'
+            opId: applications.DeleteRefTokenIssuancePolicies
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        ListRefTokenIssuancePolicies:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1tokenIssuancePolicies~1$ref/get'
+            opId: applications.ListRefTokenIssuancePolicies
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        CreateRefTokenIssuancePolicies:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1tokenIssuancePolicies~1$ref/post'
+            opId: applications.CreateRefTokenIssuancePolicies
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        tokenIssuancePolicies_GetCount_4be5:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1tokenIssuancePolicies~1$count/get'
+            opId: applications.tokenIssuancePolicies.GetCount-4be5
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    tokenLifetimePolicies:
+      id: azuread.applications.tokenLifetimePolicies
+      name: tokenLifetimePolicies
+      title: TokenLifetimePolicies
+      resTokens:
+        - tokenLifetimePolicies
+      methods:
+        ListTokenLifetimePolicies:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1tokenLifetimePolicies/get'
+            opId: applications.ListTokenLifetimePolicies
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        DeleteRefTokenLifetimePolicies:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1tokenLifetimePolicies~1{tokenLifetimePolicy-id}~1$ref/delete'
+            opId: applications.DeleteRefTokenLifetimePolicies
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        ListRefTokenLifetimePolicies:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1tokenLifetimePolicies~1$ref/get'
+            opId: applications.ListRefTokenLifetimePolicies
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        CreateRefTokenLifetimePolicies:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1tokenLifetimePolicies~1$ref/post'
+            opId: applications.CreateRefTokenLifetimePolicies
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        tokenLifetimePolicies_GetCount_5de4:
+          operation:
+            $ref: 'applications.yaml#/paths/~1applications~1{application-id}~1tokenLifetimePolicies~1$count/get'
+            opId: applications.tokenLifetimePolicies.GetCount-5de4
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    # 'applications(appId=''{appId}'')':
+    #   id: 'azuread.applications.applications(appId=''{appId}'')'
+    #   name: 'applications(appId=''{appId}'')'
+    #   title: 'Applications(appId=''{appId}'')'
+    #   resTokens:
+    #     - 'applications(appId=''{appId}'')'
+    #   methods:
+    #     application_GetApplicationByAppId:
+    #       operation:
+    #         $ref: 'applications.yaml#/paths/~1applications(appId=''{appId}'')/get'
+    #         opId: applications.application.GetApplicationByAppId
+    #       response:
+    #         mediaType: application/json
+    #         openAPIDocKey: '200'
+    #     application_UpdateApplicationByAppId:
+    #       operation:
+    #         $ref: 'applications.yaml#/paths/~1applications(appId=''{appId}'')/patch'
+    #         opId: applications.application.UpdateApplicationByAppId
+    #       response:
+    #         mediaType: application/json
+    #         openAPIDocKey: '200'
+    #     application_DeleteApplicationByAppId:
+    #       operation:
+    #         $ref: 'applications.yaml#/paths/~1applications(appId=''{appId}'')/delete'
+    #         opId: applications.application.DeleteApplicationByAppId
+    #       response:
+    #         mediaType: application/json
+    #         openAPIDocKey: '200'
+    #   sqlVerbs:
+    #     select: []
+    #     insert: []
+    #     update: []
+    #     delete: []
+    # $count:
+    #   id: azuread.applications.$count
+    #   name: $count
+    #   title: $count
+    #   resTokens:
+    #     - $count
+    #   methods:
+    #     GetCount_8398:
+    #       operation:
+    #         $ref: applications.yaml#/paths/~1applications~1$count/get
+    #         opId: applications.GetCount-8398
+    #       response:
+    #         mediaType: application/json
+    #         openAPIDocKey: '200'
+    #   sqlVerbs:
+    #     select: []
+    #     insert: []
+    #     update: []
+    #     delete: []
+    # delta():
+    #   id: azuread.applications.delta()
+    #   name: delta()
+    #   title: Delta()
+    #   resTokens:
+    #     - delta()
+    #   methods:
+    #     delta:
+    #       operation:
+    #         $ref: applications.yaml#/paths/~1applications~1delta()/get
+    #         opId: applications.delta
+    #       response:
+    #         mediaType: application/json
+    #         openAPIDocKey: '200'
+    #   sqlVerbs:
+    #     select: []
+    #     insert: []
+    #     update: []
+    #     delete: []
+    getAvailableExtensionProperties:
+      id: azuread.applications.getAvailableExtensionProperties
+      name: getAvailableExtensionProperties
+      title: GetAvailableExtensionProperties
+      resTokens:
+        - getAvailableExtensionProperties
+      methods:
+        getAvailableExtensionProperties:
+          operation:
+            $ref: applications.yaml#/paths/~1applications~1getAvailableExtensionProperties/post
+            opId: applications.getAvailableExtensionProperties
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    getByIds:
+      id: azuread.applications.getByIds
+      name: getByIds
+      title: GetByIds
+      resTokens:
+        - getByIds
+      methods:
+        getByIds:
+          operation:
+            $ref: applications.yaml#/paths/~1applications~1getByIds/post
+            opId: applications.getByIds
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
+    validateProperties:
+      id: azuread.applications.validateProperties
+      name: validateProperties
+      title: ValidateProperties
+      resTokens:
+        - validateProperties
+      methods:
+        validateProperties:
+          operation:
+            $ref: applications.yaml#/paths/~1applications~1validateProperties/post
+            opId: applications.validateProperties
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        select: []
+        insert: []
+        update: []
+        delete: []
