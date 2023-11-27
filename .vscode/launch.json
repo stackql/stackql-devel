@@ -131,6 +131,9 @@
         "create materialized view org_celeb_contributors as select login, contributions FROM github.repos.contributors WHERE owner = 'stackql' AND repo = 'go-openapistackql' UNION ALL select login, contributions FROM github.repos.contributors WHERE owner = 'stackql' AND repo = 'stackql' UNION ALL select login, contributions FROM github.repos.contributors WHERE owner = 'stackql' AND repo = 'stackql-provider-registry' ;",
         "SELECT f.url, f.login FROM ( SELECT  clone_url as url, SPLIT_PART(clone_url, '/', -2) as login FROM github.repos.forks WHERE owner = 'stackql' AND repo = 'stackql' ) f LEFT OUTER JOIN github.activity.repo_stargazers s ON s.login = f.login WHERE owner = 'stackql' AND repo = 'stackql' ;",
         "select u1.UserName, u.UserId, u.Arn, u1.region from ( select Arn, UserName, UserId from aws.iam.users where region = 'us-east-1' ) u inner join aws.iam.users u1 on u1.Arn = u.Arn where region = 'us-east-1'  order by u1.UserName desc;",
+        "INSERT INTO aws.cloud_control.resources ( data__TypeName,  region, data__DesiredState ) SELECT 'AWS::Logs::LogGroup',     'ap-southeast-1', '{\"LogGroupName\": \"LogGroupResourceExampleThree\",\"RetentionInDays\":90}' ;",
+        "INSERT INTO aws.cloud_control.resources ( data__TypeName,  region, data__DesiredState ) SELECT 'AWS::Logs::LogGroup',     'ap-southeast-1', '{\\\"LogGroupName\\\": \\\"LogGroupResourceExampleTwo\\\",\\\"RetentionInDays\\\":90}' ;",
+        "SELECT * from aws.cloud_control.resources where data__TypeName = 'AWS::Logs::LogGroup' and region = 'ap-southeast-2' ;",
       ],
       "default": "show providers;"
     },
