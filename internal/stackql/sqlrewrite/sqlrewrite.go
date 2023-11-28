@@ -224,13 +224,15 @@ func GenerateRewrittenSelectDML(input SQLRewriteInput) (drm.PreparedStatementCtx
 		if txnCtrlCtrs == nil {
 			_, txnCtrlCtrs = tb.GetTableTxnCounters()
 		}
-		if i > 0 {
+		// TODO: fix this hack
+		//       Alias is a marker for "inside insertion group"
+		alias := v.GetAlias()
+		_, aliasPresent := aliasCache[alias]
+		if i > 0 && !aliasPresent {
 			_, secondaryCtr := tb.GetTableTxnCounters()
 			secondaryCtrlCounters = append(secondaryCtrlCounters, secondaryCtr)
 		}
 		i++
-		alias := v.GetAlias()
-		_, aliasPresent := aliasCache[alias]
 		if aliasPresent {
 			continue
 		}
