@@ -131,6 +131,9 @@
         "create materialized view org_celeb_contributors as select login, contributions FROM github.repos.contributors WHERE owner = 'stackql' AND repo = 'go-openapistackql' UNION ALL select login, contributions FROM github.repos.contributors WHERE owner = 'stackql' AND repo = 'stackql' UNION ALL select login, contributions FROM github.repos.contributors WHERE owner = 'stackql' AND repo = 'stackql-provider-registry' ;",
         "SELECT f.url, f.login FROM ( SELECT  clone_url as url, SPLIT_PART(clone_url, '/', -2) as login FROM github.repos.forks WHERE owner = 'stackql' AND repo = 'stackql' ) f LEFT OUTER JOIN github.activity.repo_stargazers s ON s.login = f.login WHERE owner = 'stackql' AND repo = 'stackql' ;",
         "select u1.UserName, u.UserId, u.Arn, u1.region from ( select Arn, UserName, UserId from aws.iam.users where region = 'us-east-1' ) u inner join aws.iam.users u1 on u1.Arn = u.Arn where region = 'us-east-1'  order by u1.UserName desc;",
+        "select instanceId, ipAddress from aws.ec2.instances where region in ('ap-southeast-2');",
+        "select instanceId, ipAddress from aws.ec2.instances where region = 'ap-southeast-2' and instanceId in ('i-073a04c5fea909160', 'i-0f8d73a00583ffad8') and instanceId in ('i-073a04c5fea909160', 'i-0f8d73a00583ffad8');",
+        "select instanceId, ipAddress from aws.ec2.instances where instanceId in ('i-073a04c5fea909160') and region in ('ap-southeast-1', 'ap-southeast-2');",
       ],
       "default": "show providers;"
     },

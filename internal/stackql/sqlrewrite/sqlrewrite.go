@@ -212,6 +212,7 @@ func GenerateRewrittenSelectDML(input SQLRewriteInput) (drm.PreparedStatementCtx
 		}
 		i++
 	}
+	aliasCache := make(map[string]struct{})
 	// Second pass; deal with non-hoisted tables
 	for _, tb := range inputContainers {
 		v := tb.GetTableMetadata()
@@ -227,9 +228,14 @@ func GenerateRewrittenSelectDML(input SQLRewriteInput) (drm.PreparedStatementCtx
 			_, secondaryCtr := tb.GetTableTxnCounters()
 			secondaryCtrlCounters = append(secondaryCtrlCounters, secondaryCtr)
 		}
-		alias := v.GetAlias()
-		tableAliases = append(tableAliases, alias)
 		i++
+		alias := v.GetAlias()
+		_, aliasPresent := aliasCache[alias]
+		if aliasPresent {
+			continue
+		}
+		aliasCache[alias] = struct{}{}
+		tableAliases = append(tableAliases, alias)
 	}
 
 	// TODO add in some handle for ON clause predicates

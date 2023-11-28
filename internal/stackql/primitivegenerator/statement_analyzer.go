@@ -385,6 +385,13 @@ func (pb *standardPrimitiveGenerator) traverseWhereFilter(
 	}
 }
 
+type whereClauseAnalysisReport struct {
+	rewrittenWhere *sqlparser.Where
+	paramsPresent  []string
+	err            error
+	staticInParams string
+}
+
 func (pb *standardPrimitiveGenerator) whereComparisonExprCopyAndReWrite(
 	expr *sqlparser.ComparisonExpr,
 	requiredParameters,
