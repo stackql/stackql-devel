@@ -124,10 +124,8 @@ We *can* incorporate some of the thinking and opcodes from [SQLite bytecode](htt
 
 Locks, latches and lookup tables can probably handle most of this.  
 
-Per [this `stackoverflow` post](https://stackoverflow.com/questions/3111403/what-is-the-difference-between-a-lock-and-a-latch-in-the-context-of-concurrent-a#:~:text=Locks%20ensure%20that%20same%20record,consistency%20of%20the%20memory%20area.):
+Per [this `stackoverflow` post](https://stackoverflow.com/questions/3111403/what-is-the-difference-between-a-lock-and-a-latch-in-the-context-of-concurrent-a#:~:text=Locks%20ensure%20that%20same%20record,consistency%20of%20the%20memory%20area.), which sites a paper by Graefe ([^2]):
 
-> From CMU 15-721 (Spring 2016), lecture 6 presentation, slides 25 and 26, which cites [A Survey of B-Tree Locking Techniques by Goetz Graefe](https://15721.courses.cs.cmu.edu/spring2016/papers/a16-graefe.pdf):
->
 > Locks
 > → Protects the index’s logical contents from other txns.
 > → Held for txn duration.
@@ -140,4 +138,5 @@ Per [this `stackoverflow` post](https://stackoverflow.com/questions/3111403/what
 
 
 [^1]: Hellerstein JM, Stonebraker M, Hamilton J; "Architecture of a Database System"; Foundations and Trends in Databases; Vol. 1, No. 2 (2007); 141–259
+[^2]: Graefe G; "A Survey of B-Tree Locking Techniques"; ACM Transactions on Database Systems; Vol. 35, No. 3 (2010); Article 16
 
