@@ -12,8 +12,8 @@ type WALReader interface {
 }
 
 type walReader struct {
-	cfg      walcfg.WALConfig
-	walState walstate.WALState
+	cfg      walcfg.WALConfig  //nolint:unused // future proofing
+	walState walstate.WALState //nolint:unused // future proofing
 }
 
 func NewWALReader() WALReader {
