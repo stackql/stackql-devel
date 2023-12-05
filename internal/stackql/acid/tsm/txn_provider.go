@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/stackql/stackql/internal/stackql/acid/txn_context"
+	"github.com/stackql/stackql/internal/stackql/acid/wal"
 	"github.com/stackql/stackql/internal/stackql/handler"
 )
 
@@ -24,6 +25,7 @@ const (
 type Provider interface {
 	// Create a new transaction manager.
 	GetOrchestrator(handler.HandlerContext) (Orchestrator, error)
+	GetWAL(handlerCtx handler.HandlerContext) (wal.WAL, error)
 }
 
 type standardProvider struct {
@@ -33,6 +35,10 @@ type standardProvider struct {
 func (sp *standardProvider) GetOrchestrator(handlerCtx handler.HandlerContext) (Orchestrator, error) {
 	txnCoordinator := newTxnCoordinator(handlerCtx, sp.ctx)
 	return newTxnOrchestrator(handlerCtx, txnCoordinator)
+}
+
+func (sp *standardProvider) GetWAL(handlerCtx handler.HandlerContext) (wal.WAL, error) {
+	return newWALManager(handlerCtx)
 }
 
 func newTxnCoordinator(handlerCtx handler.HandlerContext,
