@@ -6,17 +6,12 @@ import (
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/primitive"
-	"github.com/stackql/stackql/internal/stackql/wal/walformat"
 )
 
 var (
 	_ Operation = &reversibleOperation{}
 	_ Operation = &irreversibleOperation{}
 )
-
-func OperationFromWALEntry(walEntry walformat.WALEntry) (Operation, error) {
-	return nil, nil
-}
 
 // The Operation is an abstract
 // data type that represents

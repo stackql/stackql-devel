@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/stackql/psql-wire/pkg/sqldata"
-	"github.com/stackql/stackql/internal/stackql/acid/transact"
+	"github.com/stackql/stackql/internal/stackql/acid/tsm"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/logging"
@@ -44,7 +44,7 @@ func (sdf *basicStackQLDriverFactory) newSQLDriver() (StackQLDriver, error) {
 	if err != nil {
 		return nil, err
 	}
-	txnProvider, txnProviderErr := transact.GetProviderInstance(sdf.handlerCtx.GetTxnCoordinatorCtx())
+	txnProvider, txnProviderErr := tsm.GetProviderInstance(sdf.handlerCtx.GetTxnCoordinatorCtx())
 	if txnProviderErr != nil {
 		return nil, txnProviderErr
 	}
@@ -117,7 +117,7 @@ func (dr *basicStackQLDriver) ProcessQuery(query string) {
 
 type basicStackQLDriver struct {
 	handlerCtx      handler.HandlerContext
-	txnOrchestrator transact.Orchestrator
+	txnOrchestrator tsm.Orchestrator
 }
 
 func (dr *basicStackQLDriver) CloneSQLBackend() sqlbackend.ISQLBackend {
@@ -164,7 +164,7 @@ func (dr *basicStackQLDriver) SplitCompoundQuery(s string) ([]string, error) {
 }
 
 func NewStackQLDriver(handlerCtx handler.HandlerContext) (StackQLDriver, error) {
-	txnProvider, txnProviderErr := transact.GetProviderInstance(
+	txnProvider, txnProviderErr := tsm.GetProviderInstance(
 		handlerCtx.GetTxnCoordinatorCtx())
 	if txnProviderErr != nil {
 		return nil, txnProviderErr
