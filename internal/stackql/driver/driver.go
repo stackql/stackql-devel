@@ -52,6 +52,11 @@ func (sdf *basicStackQLDriverFactory) newSQLDriver() (StackQLDriver, error) {
 	if orcErr != nil {
 		return nil, orcErr
 	}
+	walInstance, walError := tsm.GetWAL(sdf.handlerCtx)
+	if walError != nil {
+		return nil, walError
+	}
+	sdf.handlerCtx.SetWAL(walInstance)
 	clonedCtx := sdf.handlerCtx.Clone()
 	clonedCtx.SetTxnCounterMgr(txCtr)
 	rv := &basicStackQLDriver{
