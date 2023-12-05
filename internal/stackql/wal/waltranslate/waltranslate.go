@@ -19,7 +19,7 @@ type walTranslator struct {
 
 func (wr *walTranslator) Translate(entries []walformat.WALEntry) ([]primitivegraph.PrimitiveGraphHolder, error) {
 	for _, entry := range entries {
-		switch entry.GetType() {
+		switch entry.GetType() { //nolint:gocritic,exhaustive // prefer this
 		case walformat.Primitive:
 		}
 	}

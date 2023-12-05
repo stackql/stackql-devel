@@ -25,7 +25,7 @@ type WALEntry interface {
 func NewWALEntry(
 	walType WALType,
 	crc WALCRC,
-	tcc internaldto.TxnControlCounters,
+	tcc internaldto.TxnControlCounters, //nolint:revive // future proofing
 	raw []byte,
 ) WALEntry {
 	return newWALEntry(walType, crc, raw)

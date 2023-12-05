@@ -9,7 +9,7 @@ type WALPage interface {
 }
 
 type walPage struct {
-	data []byte
+	// data []byte
 }
 
 func (wp *walPage) Write() error {
