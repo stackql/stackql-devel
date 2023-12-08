@@ -71,7 +71,7 @@ func HTTPApiCallFromRequest(
 			handlerCtx.GetOutErrFile().Write([]byte(fmt.Sprintf("http request body = '%s'\n", bodyStr)))
 		}
 	}
-	walObj, _ := handlerCtx.GetWAL()
+	walObj, _ := handlerCtx.GetTSM()
 	logging.GetLogger().Debugf("Proof of invariant: walObj = %v", walObj)
 	r, err := httpClient.Do(translatedRequest)
 	if handlerCtx.GetRuntimeContext().HTTPLogEnabled { //nolint:nestif // acceptable

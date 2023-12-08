@@ -6,7 +6,7 @@ type (
 
 type WALState interface {
 	GetWALState() string
-	SetWALState(string)
+	SetTSMState(string)
 	CurrentWALID() WALID
 	NextWALID() WALID
 	OldestWALID() WALID

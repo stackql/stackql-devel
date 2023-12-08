@@ -1,4 +1,4 @@
-package tsm
+package tsm_physio //nolint:revive,stylecheck // prefer this nomenclature
 
 import (
 	"fmt"
