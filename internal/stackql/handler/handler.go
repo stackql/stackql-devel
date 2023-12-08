@@ -10,8 +10,8 @@ import (
 
 	"github.com/stackql/go-openapistackql/openapistackql"
 	"github.com/stackql/go-openapistackql/pkg/nomenclature"
+	"github.com/stackql/stackql/internal/stackql/acid/tsm"
 	"github.com/stackql/stackql/internal/stackql/acid/txn_context"
-	"github.com/stackql/stackql/internal/stackql/acid/wal"
 	"github.com/stackql/stackql/internal/stackql/bundle"
 	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/datasource/sql_datasource"
@@ -87,8 +87,8 @@ type HandlerContext interface { //nolint:revive // don't mind stuttering this on
 	GetRollbackType() constants.RollbackType
 	UpdateRollbackType(rollbackTypeStr string) error
 
-	GetWAL() (wal.WAL, bool)
-	SetWAL(wal.WAL)
+	GetTSM() (tsm.TSM, bool)
+	SetTSM(tsm.TSM)
 }
 
 type standardHandlerContext struct {
@@ -122,14 +122,14 @@ type standardHandlerContext struct {
 	txnCoordinatorCtx   txn_context.ITransactionCoordinatorContext
 	typCfg              typing.Config
 	sessionContext      dto.SessionContext
-	walInstance         wal.WAL
+	walInstance         tsm.TSM
 }
 
-func (hc *standardHandlerContext) GetWAL() (wal.WAL, bool) {
+func (hc *standardHandlerContext) GetTSM() (tsm.TSM, bool) {
 	return hc.walInstance, hc.walInstance != nil
 }
 
-func (hc *standardHandlerContext) SetWAL(w wal.WAL) {
+func (hc *standardHandlerContext) SetTSM(w tsm.TSM) {
 	hc.walInstance = w
 }
 

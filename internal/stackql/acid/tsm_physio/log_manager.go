@@ -1,29 +1,27 @@
-package tsm
-
+package tsm_physio //nolint:revive,stylecheck // prefer this nomenclature
 import (
 	"sync"
 
-	"github.com/stackql/stackql/internal/stackql/acid/wal"
 	"github.com/stackql/stackql/internal/stackql/handler"
 )
 
 var (
-	_ wal.WAL = &walManager{}
+	_ LogManager = (*walManager)(nil)
 )
 
 //nolint:gochecknoglobals // singleton pattern
 var (
 	walOnce      sync.Once
-	walSingleton wal.WAL
+	walSingleton LogManager
 )
+
+type LogManager interface {
+	//
+}
 
 type walManager struct{}
 
-func newWALManager(_ handler.HandlerContext) (wal.WAL, error) {
-	return &walManager{}, nil
-}
-
-func GetWAL(_ handler.HandlerContext) (wal.WAL, error) {
+func getWalManager(_ handler.HandlerContext) (LogManager, error) {
 	var err error
 	walOnce.Do(func() {
 		if err != nil {

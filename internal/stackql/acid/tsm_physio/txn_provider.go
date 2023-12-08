@@ -1,10 +1,10 @@
-package tsm
+package tsm_physio //nolint:revive,stylecheck // prefer this nomenclature
 
 import (
 	"sync"
 
+	"github.com/stackql/stackql/internal/stackql/acid/tsm"
 	"github.com/stackql/stackql/internal/stackql/acid/txn_context"
-	"github.com/stackql/stackql/internal/stackql/acid/wal"
 	"github.com/stackql/stackql/internal/stackql/handler"
 )
 
@@ -25,7 +25,7 @@ const (
 type Provider interface {
 	// Create a new transaction manager.
 	GetOrchestrator(handler.HandlerContext) (Orchestrator, error)
-	GetWAL(handlerCtx handler.HandlerContext) (wal.WAL, error)
+	GetTSM(handlerCtx handler.HandlerContext) (tsm.TSM, error)
 }
 
 type standardProvider struct {
@@ -37,8 +37,8 @@ func (sp *standardProvider) GetOrchestrator(handlerCtx handler.HandlerContext) (
 	return newTxnOrchestrator(handlerCtx, txnCoordinator)
 }
 
-func (sp *standardProvider) GetWAL(handlerCtx handler.HandlerContext) (wal.WAL, error) {
-	return newWALManager(handlerCtx)
+func (sp *standardProvider) GetTSM(handlerCtx handler.HandlerContext) (tsm.TSM, error) {
+	return GetTSM(handlerCtx)
 }
 
 func newTxnCoordinator(handlerCtx handler.HandlerContext,
