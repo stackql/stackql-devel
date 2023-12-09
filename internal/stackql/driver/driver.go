@@ -178,6 +178,11 @@ func NewStackQLDriver(handlerCtx handler.HandlerContext) (StackQLDriver, error) 
 	if orcErr != nil {
 		return nil, orcErr
 	}
+	tsmInstance, walError := tsm_physio.GetTSM(handlerCtx)
+	if walError != nil {
+		return nil, walError
+	}
+	handlerCtx.SetTSM(tsmInstance)
 	return &basicStackQLDriver{
 		handlerCtx:      handlerCtx,
 		txnOrchestrator: txnOrchestrator,

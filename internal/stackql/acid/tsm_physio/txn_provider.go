@@ -33,21 +33,26 @@ type standardProvider struct {
 }
 
 func (sp *standardProvider) GetOrchestrator(handlerCtx handler.HandlerContext) (Orchestrator, error) {
-	txnCoordinator := newTxnCoordinator(handlerCtx, sp.ctx)
-	return newTxnOrchestrator(handlerCtx, txnCoordinator)
+	tsmInstance, walError := GetTSM(handlerCtx)
+	if walError != nil {
+		return nil, walError
+	}
+	txnCoordinator := newTxnCoordinator(tsmInstance, handlerCtx, sp.ctx)
+	orc, err := newTxnOrchestrator(tsmInstance, handlerCtx, txnCoordinator)
+	return orc, err
 }
 
 func (sp *standardProvider) GetTSM(handlerCtx handler.HandlerContext) (tsm.TSM, error) {
 	return GetTSM(handlerCtx)
 }
 
-func newTxnCoordinator(handlerCtx handler.HandlerContext,
+func newTxnCoordinator(tsmInstance tsm.TSM, handlerCtx handler.HandlerContext,
 	ctx txn_context.ITransactionCoordinatorContext) Coordinator {
 	maxTxnDepth := defaultMaxStackDepth
 	if ctx != nil {
 		maxTxnDepth = ctx.GetMaxStackDepth()
 	}
-	return NewCoordinator(handlerCtx, maxTxnDepth)
+	return newCoordinator(tsmInstance, handlerCtx, maxTxnDepth)
 }
 
 func GetProviderInstance(ctx txn_context.ITransactionCoordinatorContext) (Provider, error) {
