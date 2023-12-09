@@ -172,7 +172,7 @@ func (pb *standardPrimitiveGenerator) AddChildPrimitiveGenerator(
 	return retVal
 }
 
-//nolint:gocognit,unparam,revive // acceptable
+//nolint:unparam,revive // acceptable
 func (pb *standardPrimitiveGenerator) comparisonExprToFilterFunc(
 	table openapistackql.ITable,
 	parentNode *sqlparser.Show,

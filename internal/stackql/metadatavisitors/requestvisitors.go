@@ -24,6 +24,8 @@ const (
 	strType    = "string"
 	objectType = "object"
 	arrayType  = "array"
+	tokenRHS   = " >>"
+	tokenLHS   = "<< "
 )
 
 type TemplatedProduct interface {
@@ -464,7 +466,7 @@ func (sv *SchemaRequestTemplateVisitor) retrieveJsonnetPlaceholderVal(
 			}
 			if ss != nil && ((ss.GetType() != arrayType) || !sv.isVisited(ss.GetTitle(), propertyLocalSchemaVisitedMap)) {
 				if propertyLocalSchemaVisitedMap[ss.GetTitle()] {
-					return "<< " + templateValName + " >>", nil
+					return tokenLHS + templateValName + tokenRHS, nil
 				}
 				propertyLocalSchemaVisitedMap[ss.GetTitle()] = true
 				sv, svErr := sv.retrieveJsonnetPlaceholderVal(ss, svc, templateValName+"."+k, propertyLocalSchemaVisitedMap)
@@ -519,9 +521,9 @@ func (sv *SchemaRequestTemplateVisitor) retrieveJsonnetPlaceholderVal(
 		}
 		return arr, nil
 	case strType:
-		return "<< " + templateValName + " >>", nil
+		return tokenLHS + templateValName + tokenRHS, nil
 	default:
-		return "<< " + templateValName + " >>", nil
+		return tokenLHS + templateValName + tokenRHS, nil
 	}
 }
 

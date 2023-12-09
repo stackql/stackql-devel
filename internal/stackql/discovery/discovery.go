@@ -228,7 +228,7 @@ func (store *TTLDiscoveryStore) PersistServiceShard(
 	return shard, err
 }
 
-//nolint:gocognit,revive // complexity is fine
+//nolint:revive // complexity is fine
 func (store *TTLDiscoveryStore) processResourcesDiscoveryDoc(
 	prov openapistackql.Provider,
 	serviceHandle openapistackql.ProviderService,
