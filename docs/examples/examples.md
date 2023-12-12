@@ -27,9 +27,9 @@ Google:
 
 ```sh
 
-export OKTA_SECRET_KEY="$(cat ${HOME}/stackql/stackql-devel/keys/okta-token.txt)"
+export OKTA_SECRET_KEY="$(cat ${HOME}/stackql/stackql-devel/cicd/keys/okta-token.txt)"
 
-export AUTH_STR='{ "google": { "credentialsfilepath": "'${HOME}'/stackql/stackql-devel/keys/sa-key.json", "type": "service_account" }, "okta": { "credentialsenvvar": "OKTA_SECRET_KEY", "type": "api_key" } }'
+export AUTH_STR='{ "google": { "credentialsfilepath": "'${HOME}'/stackql/stackql-devel/cicd/keys/sa-key.json", "type": "service_account" }, "okta": { "credentialsenvvar": "OKTA_SECRET_KEY", "type": "api_key" } }'
 
 ./stackql shell --auth="${AUTH_STR}"
 
