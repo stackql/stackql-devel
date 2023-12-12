@@ -145,7 +145,7 @@
         "{ \"url\": \"file://${workspaceFolder}/test/registry-mocked-native\", \"localDocRoot\": \"${workspaceFolder}/test/registry-mocked-native\", \"verifyConfig\": { \"nopVerify\": true } }",
         "{ \"url\": \"file://${workspaceFolder}/test/registry-advanced\", \"localDocRoot\": \"${workspaceFolder}/test/registry-advanced\", \"verifyConfig\": { \"nopVerify\": true } }",
         "{ \"url\": \"file://${workspaceFolder}/build/.stackql\", \"localDocRoot\": \"${workspaceFolder}/build/.stackql\" }",
-        "{ \"url\": \"file://${workspaceFolder}/examples/empty-registry\", \"localDocRoot\": \"${workspaceFolder}/examples/empty-registry\" }",
+        "{ \"url\": \"file://${workspaceFolder}/docs/examples/empty-registry\", \"localDocRoot\": \"${workspaceFolder}/docs/examples/empty-registry\" }",
         "{ \"url\": \"https://cdn.statically.io/gh/stackql/stackql-provider-registry/main/providers\", \"localDocRoot\": \"${workspaceFolder}/test/registry\" }",
         "{ \"url\": \"https://cdn.statically.io/gh/stackql/stackql-provider-registry/dev/providers\" }",
         "{ \"url\": \"https://registry-dev.stackql.app/providers\" }",
