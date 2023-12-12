@@ -771,9 +771,9 @@ jobs:
         openssl req -x509 -keyout test/server/mtls/credentials/pg_server_key.pem -out test/server/mtls/credentials/pg_server_cert.pem -config test/server/mtls/openssl.cnf -days 365
         openssl req -x509 -keyout test/server/mtls/credentials/pg_client_key.pem -out test/server/mtls/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
         openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365 
-        openssl req -x509 -keyout vol/srv/credentials/pg_server_key.pem -out  vol/srv/credentials/pg_server_cert.pem -config test/server/mtls/openssl.cnf -days 365
-        openssl req -x509 -keyout vol/srv/credentials/pg_client_key.pem -out  vol/srv/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
-        openssl req -x509 -keyout vol/srv/credentials/pg_rubbish_key.pem -out vol/srv/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365
+        openssl req -x509 -keyout cicd/vol/srv/credentials/pg_server_key.pem -out  cicd/vol/srv/credentials/pg_server_cert.pem -config test/server/mtls/openssl.cnf -days 365
+        openssl req -x509 -keyout cicd/vol/srv/credentials/pg_client_key.pem -out  cicd/vol/srv/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
+        openssl req -x509 -keyout cicd/vol/srv/credentials/pg_rubbish_key.pem -out cicd/vol/srv/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365
 
     - name: Build image
       run: |
