@@ -17,7 +17,7 @@ var (
 )
 
 type basicBestEffortTransactionCoordinator struct {
-	tsm               tsm.TSM
+	tsmInstance       tsm.TSM
 	handlerCtx        handler.HandlerContext
 	parent            Coordinator
 	statementSequence []Statement
@@ -38,7 +38,7 @@ func newBasicBestEffortTransactionCoordinator(
 	maxTxnDepth int,
 ) Coordinator {
 	return &basicBestEffortTransactionCoordinator{
-		tsm:         tsmInstance,
+		tsmInstance: tsmInstance,
 		handlerCtx:  handlerCtx,
 		parent:      parent,
 		maxTxnDepth: maxTxnDepth,
@@ -175,7 +175,7 @@ func (m *basicBestEffortTransactionCoordinator) Begin() (Coordinator, error) {
 	if m.maxTxnDepth >= 0 && m.Depth() >= m.maxTxnDepth {
 		return nil, fmt.Errorf("cannot begin nested transaction of depth = %d", m.Depth()+1)
 	}
-	return newBasicBestEffortTransactionCoordinator(m.tsm, m.handlerCtx, m, m.maxTxnDepth), nil
+	return newBasicBestEffortTransactionCoordinator(m.tsmInstance, m.handlerCtx, m, m.maxTxnDepth), nil
 }
 
 func (m *basicBestEffortTransactionCoordinator) Commit() acid_dto.CommitCoDomain {

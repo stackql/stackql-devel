@@ -16,7 +16,7 @@ var (
 )
 
 type basicLazyTransactionCoordinator struct {
-	tsm               tsm.TSM
+	tsmInstance       tsm.TSM
 	parent            Coordinator
 	statementSequence []Statement
 	undoLogs          []binlog.LogEntry
@@ -28,7 +28,7 @@ type basicLazyTransactionCoordinator struct {
 
 func newBasicLazyTransactionCoordinator(tsmInstance tsm.TSM, parent Coordinator, maxTxnDepth int) Coordinator {
 	return &basicLazyTransactionCoordinator{
-		tsm:         tsmInstance,
+		tsmInstance: tsmInstance,
 		parent:      parent,
 		maxTxnDepth: maxTxnDepth,
 	}
@@ -164,7 +164,7 @@ func (m *basicLazyTransactionCoordinator) Begin() (Coordinator, error) {
 	if m.maxTxnDepth >= 0 && m.Depth() >= m.maxTxnDepth {
 		return nil, fmt.Errorf("cannot begin nested transaction of depth = %d", m.Depth()+1)
 	}
-	return newBasicLazyTransactionCoordinator(m.tsm, m, m.maxTxnDepth), nil
+	return newBasicLazyTransactionCoordinator(m.tsmInstance, m, m.maxTxnDepth), nil
 }
 
 func (m *basicLazyTransactionCoordinator) Commit() acid_dto.CommitCoDomain {

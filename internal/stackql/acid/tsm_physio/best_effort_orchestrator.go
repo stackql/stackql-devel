@@ -23,7 +23,7 @@ var (
 //
 //nolint:unused // TODO: fix this.
 type bestEffortOrchestrator struct {
-	tsm            tsm.TSM
+	tsmInstance    tsm.TSM
 	txnCoordinator Coordinator
 	undoLogs       []binlog.LogEntry
 	redoLogs       []binlog.LogEntry

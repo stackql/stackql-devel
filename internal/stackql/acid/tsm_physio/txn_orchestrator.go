@@ -47,7 +47,7 @@ func newBestEffortTxnOrchestrator(
 	_ handler.HandlerContext,
 	txnCoordinator Coordinator) (Orchestrator, error) {
 	return &bestEffortOrchestrator{
-		tsm:            tsmInstance,
+		tsmInstance:    tsmInstance,
 		txnCoordinator: txnCoordinator,
 	}, nil
 }
