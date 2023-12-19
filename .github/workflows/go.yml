@@ -567,6 +567,8 @@ jobs:
         openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365 
 
     - name: Run robot mocked functional tests
+      env:
+        PGCONNECT_TIMEOUT: 130
       if: success()
       run: |
         python cicd/python/build.py --robot-test
@@ -583,6 +585,7 @@ jobs:
         AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         AZURE_INTEGRATION_TESTING_SUB_ID: ${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        PGCONNECT_TIMEOUT: 130
       run: |
         python cicd/python/build.py --robot-test-integration
     
