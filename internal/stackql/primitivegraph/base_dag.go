@@ -139,10 +139,18 @@ func (pg *standardBasePrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) inter
 	//nolint:stylecheck // prefer declarative
 	var output internaldto.ExecutorOutput = internaldto.NewExecutorOutput(
 		nil, nil, nil, nil, fmt.Errorf("empty execution graph"))
+	primitiveNodeCount := 0
 	for _, node := range pg.sorted {
-		outChan := make(chan internaldto.ExecutorOutput, 1)
+		switch node.(type) {
+		case PrimitiveNode:
+			primitiveNodeCount++
+		}
+	}
+	outChan := make(chan internaldto.ExecutorOutput, primitiveNodeCount)
+	for _, node := range pg.sorted {
 		switch node := node.(type) {
 		case PrimitiveNode:
+			thisOutChan := make(chan internaldto.ExecutorOutput, 1)
 			incidentNodes := pg.g.To(node.ID())
 			for {
 				hasNext := incidentNodes.Next()
@@ -163,23 +171,42 @@ func (pg *standardBasePrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) inter
 			}
 			pg.errGroup.Go(
 				func() error {
-					output := node.GetOperation().Execute(ctx) //nolint:govet // intentional
-					outChan <- output
-					close(outChan)
-					return output.GetError()
+					funOutput := node.GetOperation().Execute(ctx)
+					thisOutChan <- funOutput
+					close(thisOutChan)
+					// for {
+					// 	select {
+					// 	case thisOutChan <- funOutput:
+					// 		close(thisOutChan)
+					for {
+						select {
+						case outChan <- funOutput:
+							// cover off pass through primitive
+							if funOutput == nil {
+								return nil
+							}
+							rv := funOutput.GetError()
+							return rv
+						}
+					}
+					// 	default:
+					// 		logging.GetLogger().Debugf("waiting for output from node: %d", node.ID())
+					// 	}
+					// }
 				},
 			)
 			destinationNodes := pg.g.From(node.ID())
-			output = <-outChan
+			// output = <-outChan
 			for {
 				if !destinationNodes.Next() {
 					break
 				}
+				inputFromDependency := <-thisOutChan
 				fromNode := destinationNodes.Node()
 				switch fromNode := fromNode.(type) { //nolint:gocritic // acceptable
 				case PrimitiveNode:
 					op := fromNode.GetOperation()
-					op.IncidentData(node.ID(), output) //nolint:errcheck // TODO: consider design options
+					op.IncidentData(node.ID(), inputFromDependency) //nolint:errcheck // TODO: consider design options
 				}
 			}
 			node.SetIsDone(true)
@@ -190,6 +217,13 @@ func (pg *standardBasePrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) inter
 	if err := pg.errGroup.Wait(); err != nil {
 		undoLog, _ := output.GetUndoLog()
 		return internaldto.NewExecutorOutput(nil, nil, nil, nil, err).WithUndoLog(undoLog)
+	}
+	for i := 0; i < primitiveNodeCount; i++ {
+		staging, ok := <-outChan
+		if !ok {
+			break
+		}
+		output = staging
 	}
 	return output
 }
