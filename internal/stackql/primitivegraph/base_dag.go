@@ -141,7 +141,7 @@ func (pg *standardBasePrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) inter
 		nil, nil, nil, nil, fmt.Errorf("empty execution graph"))
 	primitiveNodeCount := 0
 	for _, node := range pg.sorted {
-		switch node.(type) {
+		switch node.(type) { //nolint:gocritic // acceptable
 		case PrimitiveNode:
 			primitiveNodeCount++
 		}
@@ -179,7 +179,7 @@ func (pg *standardBasePrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) inter
 					// 	case thisOutChan <- funOutput:
 					// 		close(thisOutChan)
 					for {
-						select {
+						select { //nolint:gosimple // acceptable
 						case outChan <- funOutput:
 							// cover off pass through primitive
 							if funOutput == nil {
