@@ -174,10 +174,6 @@ func (pg *standardBasePrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) inter
 					funOutput := node.GetOperation().Execute(ctx)
 					thisOutChan <- funOutput
 					close(thisOutChan)
-					// for {
-					// 	select {
-					// 	case thisOutChan <- funOutput:
-					// 		close(thisOutChan)
 					for {
 						select { //nolint:gosimple // acceptable
 						case outChan <- funOutput:
@@ -189,19 +185,14 @@ func (pg *standardBasePrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) inter
 							return rv
 						}
 					}
-					// 	default:
-					// 		logging.GetLogger().Debugf("waiting for output from node: %d", node.ID())
-					// 	}
-					// }
 				},
 			)
 			destinationNodes := pg.g.From(node.ID())
-			// output = <-outChan
 			for {
 				if !destinationNodes.Next() {
 					break
 				}
-				inputFromDependency := <-thisOutChan
+				inputFromDependency := <-thisOutChan // must be done once only
 				fromNode := destinationNodes.Node()
 				switch fromNode := fromNode.(type) { //nolint:gocritic // acceptable
 				case PrimitiveNode:
