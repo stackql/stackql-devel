@@ -62,6 +62,8 @@ type standardDependencyPlanner struct {
 	prepStmtOffset int
 	//
 	isElideRead bool
+	//
+	dataflowToEdges map[int][]int
 }
 
 func NewStandardDependencyPlanner(
@@ -94,6 +96,7 @@ func NewStandardDependencyPlanner(
 		tcc:                  tcc,
 		tccSetAheadOfTime:    tccSetAheadOfTime,
 		equivalencyGroupTCCs: make(map[int64]internaldto.TxnControlCounters),
+		dataflowToEdges:      make(map[int][]int),
 	}, nil
 }
 
@@ -155,7 +158,7 @@ func (dp *standardDependencyPlanner) Plan() error {
 				return insErr
 			}
 			stream := streaming.NewNopMapStream()
-			err = dp.orchestrate(unit.GetEquivalencyGroup(), annotation, insPsc, dp.defaultStream, stream)
+			_, err = dp.orchestrate(unit.GetEquivalencyGroup(), annotation, insPsc, dp.defaultStream, stream)
 			if err != nil {
 				return err
 			}
@@ -202,9 +205,9 @@ func (dp *standardDependencyPlanner) Plan() error {
 						if streamErr != nil {
 							return streamErr
 						}
-						err = dp.orchestrate(-1, annotation, insPsc, dp.defaultStream, stream)
-						if err != nil {
-							return err
+						fromIdx, fromErr := dp.orchestrate(-1, annotation, insPsc, dp.defaultStream, stream)
+						if fromErr != nil {
+							return fromErr
 						}
 						//
 						dp.annMap[toTableExpr] = toAnnotation
@@ -213,11 +216,12 @@ func (dp *standardDependencyPlanner) Plan() error {
 						if err != nil {
 							return err
 						}
-						err = dp.orchestrate(-1, toAnnotation, insPsc, stream, streaming.NewNopMapStream())
-						if err != nil {
-							return err
+						toIdx, toErr := dp.orchestrate(-1, toAnnotation, insPsc, stream, streaming.NewNopMapStream())
+						if toErr != nil {
+							return toErr
 						}
 						idsVisited[toNode.ID()] = struct{}{}
+						dp.dataflowToEdges[toIdx] = append(dp.dataflowToEdges[toIdx], fromIdx)
 					}
 				}
 			}
@@ -298,6 +302,7 @@ func (dp *standardDependencyPlanner) Plan() error {
 		dp.primitiveComposer.GetGraphHolder(),
 		dp.execSlice,
 		selBld,
+		nil,
 	)
 	dp.selCtx = selCtx
 	return nil
@@ -342,7 +347,7 @@ func (dp *standardDependencyPlanner) orchestrate(
 	insPsc drm.PreparedStatementCtx,
 	inStream streaming.MapStream,
 	outStream streaming.MapStream,
-) error {
+) (int, error) {
 	rc, err := tableinsertioncontainer.NewTableInsertionContainer(
 		annotationCtx.GetTableMeta(),
 		dp.handlerCtx.GetSQLEngine(),
@@ -354,12 +359,12 @@ func (dp *standardDependencyPlanner) orchestrate(
 			tn, _ := rc.GetTableTxnCounters()
 			setErr := rc.SetTableTxnCounters(tn, tcc)
 			if setErr != nil {
-				return setErr
+				return -1, setErr
 			}
 		}
 	}
 	if err != nil {
-		return err
+		return -1, err
 	}
 	sqlDataSource, isSQLDataSource := annotationCtx.GetTableMeta().GetSQLDataSource()
 	var builder primitivebuilder.Builder
@@ -375,7 +380,7 @@ func (dp *standardDependencyPlanner) orchestrate(
 		projectionStr := strings.Join(colNames, ", ")
 		_, tErr := dp.handlerCtx.GetDrmConfig().GetCurrentTable(annotationCtx.GetHIDs())
 		if tErr != nil {
-			return tErr
+			return -1, tErr
 		}
 		tableName := annotationCtx.GetHIDs().GetSQLDataSourceTableName()
 		// targetTableName := annotationCtx.GetHIDs().GetStackQLTableName()
@@ -404,9 +409,10 @@ func (dp *standardDependencyPlanner) orchestrate(
 		)
 	}
 	dp.execSlice = append(dp.execSlice, builder)
+	idx := len(dp.execSlice) - 1
 	dp.tableSlice = append(dp.tableSlice, rc)
 	err = annotationCtx.Prepare(dp.handlerCtx, inStream)
-	return err
+	return idx, err
 }
 
 func (dp *standardDependencyPlanner) processAcquire(
