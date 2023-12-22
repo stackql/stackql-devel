@@ -131,7 +131,7 @@ func (pg *standardBasePrimitiveGraph) reset() {
 //   - Uses the errgroup package to execute the graph in parallel.
 //   - Blocks on any node that has a dependency that has not been executed.
 //
-//nolint:gocognit,funlen // inherent complexity
+//nolint:gocognit // inherent complexity
 func (pg *standardBasePrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 	// Reset the graph.
 	// Absolutely necessary for re-execution
@@ -195,13 +195,9 @@ func (pg *standardBasePrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) inter
 			pg.errGroup.Go(
 				func() error {
 					funOutput := node.GetOperation().Execute(ctx)
-					// destinationNodes := pg.g.From(nodeID)
-					// destCount := destinationNodes.Len()
-					// if destCount > 0 {
 					thisChan := outChan[nodeIdx]
 					thisChan <- funOutput
 					close(thisChan)
-					// }
 					// cover off pass through primitive
 					if funOutput == nil {
 						return nil
@@ -216,31 +212,11 @@ func (pg *standardBasePrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) inter
 			return internaldto.NewExecutorOutput(nil, nil, nil, nil, fmt.Errorf("unknown execution primitive type: '%T'", node))
 		}
 	}
-	// for _, node := range pg.sorted {
-	// 	switch node := node.(type) { //nolint:gocritic // acceptable
-	// 	case PrimitiveNode:
-	// 		nodeID := node.ID()
-	// 		nodeIdx, ok := idxMap[nodeID]
-	// 		if !ok {
-	// 			return internaldto.NewExecutorOutput(
-	// 				nil, nil, nil, nil,
-	// 				fmt.Errorf("final pass: unknown incident node index: '%d'", currentNodeIdx))
-	// 		}
-	// 		inputFromDependency, ok := outCache[nodeIdx]
-	// 		if !ok {
-	// 			inputFromDependency = <-outChan[nodeIdx]
-	// 			outCache[nodeIdx] = inputFromDependency
-	// 		}
-	// 	}
-	// }
 	if err := pg.errGroup.Wait(); err != nil {
 		undoLog, _ := output.GetUndoLog()
 		return internaldto.NewExecutorOutput(nil, nil, nil, nil, err).WithUndoLog(undoLog)
 	}
 	output = <-outChan[primitiveNodeCount-1]
-	// if !ok {
-	// 	return internaldto.NewExecutorOutput(nil, nil, nil, nil, fmt.Errorf("exeuction graph not properly executed"))
-	// }
 	return output
 }
 
