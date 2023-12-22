@@ -64,6 +64,7 @@ type standardDependencyPlanner struct {
 	isElideRead bool
 	//
 	dataflowToEdges map[int][]int
+	nodeIDIdxMap    map[int64]int
 }
 
 func NewStandardDependencyPlanner(
@@ -97,6 +98,7 @@ func NewStandardDependencyPlanner(
 		tccSetAheadOfTime:    tccSetAheadOfTime,
 		equivalencyGroupTCCs: make(map[int64]internaldto.TxnControlCounters),
 		dataflowToEdges:      make(map[int][]int),
+		nodeIDIdxMap:         make(map[int64]int),
 	}, nil
 }
 
@@ -158,10 +160,11 @@ func (dp *standardDependencyPlanner) Plan() error {
 				return insErr
 			}
 			stream := streaming.NewNopMapStream()
-			_, err = dp.orchestrate(unit.GetEquivalencyGroup(), annotation, insPsc, dp.defaultStream, stream)
-			if err != nil {
-				return err
+			idx, orcErr := dp.orchestrate(unit.GetEquivalencyGroup(), annotation, insPsc, dp.defaultStream, stream)
+			if orcErr != nil {
+				return orcErr
 			}
+			dp.nodeIDIdxMap[unit.ID()] = idx
 		case dataflow.WeaklyConnectedComponent:
 			weaklyConnectedComponentCount++
 			orderedNodes, oErr := unit.GetOrderedNodes()
@@ -209,6 +212,7 @@ func (dp *standardDependencyPlanner) Plan() error {
 						if fromErr != nil {
 							return fromErr
 						}
+						dp.nodeIDIdxMap[e.From().ID()] = fromIdx
 						//
 						dp.annMap[toTableExpr] = toAnnotation
 						toAnnotation.SetDynamic()
@@ -220,9 +224,22 @@ func (dp *standardDependencyPlanner) Plan() error {
 						if toErr != nil {
 							return toErr
 						}
+						dp.nodeIDIdxMap[e.To().ID()] = toIdx
 						idsVisited[toNode.ID()] = struct{}{}
 						dp.dataflowToEdges[toIdx] = append(dp.dataflowToEdges[toIdx], fromIdx)
 					}
+				}
+				// another pass for AOT dataflows; to wit, on clauses
+				for _, e := range edges {
+					toIdx, toFound := dp.nodeIDIdxMap[e.To().ID()]
+					if !toFound {
+						return fmt.Errorf("unknown to node index")
+					}
+					fromIdx, fromFound := dp.nodeIDIdxMap[e.From().ID()]
+					if !fromFound {
+						return fmt.Errorf("unknown from node index")
+					}
+					dp.dataflowToEdges[toIdx] = append(dp.dataflowToEdges[toIdx], fromIdx)
 				}
 			}
 		default:
@@ -302,7 +319,7 @@ func (dp *standardDependencyPlanner) Plan() error {
 		dp.primitiveComposer.GetGraphHolder(),
 		dp.execSlice,
 		selBld,
-		nil,
+		dp.dataflowToEdges,
 	)
 	dp.selCtx = selCtx
 	return nil
