@@ -131,7 +131,7 @@ func (pg *standardBasePrimitiveGraph) reset() {
 //   - Uses the errgroup package to execute the graph in parallel.
 //   - Blocks on any node that has a dependency that has not been executed.
 //
-//nolint:gocognit // inherent complexity
+//nolint:gocognit,funlen // inherent complexity
 func (pg *standardBasePrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 	// Reset the graph.
 	// Absolutely necessary for re-execution
@@ -146,12 +146,18 @@ func (pg *standardBasePrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) inter
 			primitiveNodeCount++
 		}
 	}
-	outChan := make(chan internaldto.ExecutorOutput, primitiveNodeCount)
+	outChan := make([]chan internaldto.ExecutorOutput, primitiveNodeCount)
+	for i := 0; i < primitiveNodeCount; i++ {
+		outChan[i] = make(chan internaldto.ExecutorOutput, 1)
+	}
+	outCache := make(map[int]internaldto.ExecutorOutput)
+	var currentNodeIdx int
+	idxMap := make(map[int64]int)
 	for _, node := range pg.sorted {
+		nodeID := node.ID()
 		switch node := node.(type) {
 		case PrimitiveNode:
-			thisOutChan := make(chan internaldto.ExecutorOutput, 1)
-			incidentNodes := pg.g.To(node.ID())
+			incidentNodes := pg.g.To(nodeID)
 			for {
 				hasNext := incidentNodes.Next()
 				if !hasNext {
@@ -162,6 +168,21 @@ func (pg *standardBasePrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) inter
 				case PrimitiveNode:
 					// await completion of the incident node
 					// and replenish the IsDone() channel
+					incidentNodeID := incidentNode.ID()
+					incidentNodeIdx, ok := idxMap[incidentNodeID]
+					if !ok {
+						return internaldto.NewExecutorOutput(
+							nil, nil, nil, nil,
+							fmt.Errorf("unknown incident node index: '%d'", currentNodeIdx))
+					}
+					inputFromDependency, ok := outCache[incidentNodeIdx]
+					if !ok {
+						inputFromDependency = <-outChan[incidentNodeIdx]
+						outCache[incidentNodeIdx] = inputFromDependency
+					}
+					//nolint:errcheck // TODO: consider design options
+					node.GetOperation().IncidentData(
+						incidentNode.ID(), inputFromDependency)
 					incidentNode.SetIsDone(<-incidentNode.IsDone())
 				default:
 					return internaldto.NewExecutorOutput(
@@ -169,53 +190,57 @@ func (pg *standardBasePrimitiveGraph) Execute(ctx primitive.IPrimitiveCtx) inter
 						fmt.Errorf("unknown execution primitive type: '%T'", incidentNode))
 				}
 			}
+			nodeIdx := currentNodeIdx
+			idxMap[nodeID] = nodeIdx
 			pg.errGroup.Go(
 				func() error {
 					funOutput := node.GetOperation().Execute(ctx)
-					thisOutChan <- funOutput
-					close(thisOutChan)
-					for {
-						select { //nolint:gosimple // acceptable
-						case outChan <- funOutput:
-							// cover off pass through primitive
-							if funOutput == nil {
-								return nil
-							}
-							rv := funOutput.GetError()
-							return rv
-						}
+					// destinationNodes := pg.g.From(nodeID)
+					// destCount := destinationNodes.Len()
+					// if destCount > 0 {
+					thisChan := outChan[nodeIdx]
+					thisChan <- funOutput
+					close(thisChan)
+					// }
+					// cover off pass through primitive
+					if funOutput == nil {
+						return nil
 					}
+					rv := funOutput.GetError()
+					return rv
 				},
 			)
-			destinationNodes := pg.g.From(node.ID())
-			for {
-				if !destinationNodes.Next() {
-					break
-				}
-				inputFromDependency := <-thisOutChan // must be done once only
-				fromNode := destinationNodes.Node()
-				switch fromNode := fromNode.(type) { //nolint:gocritic // acceptable
-				case PrimitiveNode:
-					op := fromNode.GetOperation()
-					op.IncidentData(node.ID(), inputFromDependency) //nolint:errcheck // TODO: consider design options
-				}
-			}
+			currentNodeIdx++
 			node.SetIsDone(true)
 		default:
 			return internaldto.NewExecutorOutput(nil, nil, nil, nil, fmt.Errorf("unknown execution primitive type: '%T'", node))
 		}
 	}
+	// for _, node := range pg.sorted {
+	// 	switch node := node.(type) { //nolint:gocritic // acceptable
+	// 	case PrimitiveNode:
+	// 		nodeID := node.ID()
+	// 		nodeIdx, ok := idxMap[nodeID]
+	// 		if !ok {
+	// 			return internaldto.NewExecutorOutput(
+	// 				nil, nil, nil, nil,
+	// 				fmt.Errorf("final pass: unknown incident node index: '%d'", currentNodeIdx))
+	// 		}
+	// 		inputFromDependency, ok := outCache[nodeIdx]
+	// 		if !ok {
+	// 			inputFromDependency = <-outChan[nodeIdx]
+	// 			outCache[nodeIdx] = inputFromDependency
+	// 		}
+	// 	}
+	// }
 	if err := pg.errGroup.Wait(); err != nil {
 		undoLog, _ := output.GetUndoLog()
 		return internaldto.NewExecutorOutput(nil, nil, nil, nil, err).WithUndoLog(undoLog)
 	}
-	for i := 0; i < primitiveNodeCount; i++ {
-		staging, ok := <-outChan
-		if !ok {
-			break
-		}
-		output = staging
-	}
+	output = <-outChan[primitiveNodeCount-1]
+	// if !ok {
+	// 	return internaldto.NewExecutorOutput(nil, nil, nil, nil, fmt.Errorf("exeuction graph not properly executed"))
+	// }
 	return output
 }
 
