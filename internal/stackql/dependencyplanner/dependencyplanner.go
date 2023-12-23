@@ -132,7 +132,8 @@ func (dp *standardDependencyPlanner) Plan() error {
 	}
 	// TODO: lift this restriction once all traversal algorithms are adequate
 	weaklyConnectedComponentCount := 0
-	for _, unit := range units {
+	for _, u := range units {
+		unit := u
 		switch unit := unit.(type) {
 		case dataflow.Vertex:
 			inDegree := dp.dataflowCollection.InDegree(unit)
@@ -155,12 +156,13 @@ func (dp *standardDependencyPlanner) Plan() error {
 				continue
 			}
 			dp.annMap[tableExpr] = annotation
-			insPsc, _, insErr := dp.processOrphan(tableExpr, annotation, dp.defaultStream, unit)
+			connectorStream := streaming.NewStandardMapStream()
+			insPsc, _, insErr := dp.processOrphan(tableExpr, annotation, connectorStream, unit)
 			if insErr != nil {
 				return insErr
 			}
 			stream := streaming.NewNopMapStream()
-			idx, orcErr := dp.orchestrate(unit.GetEquivalencyGroup(), annotation, insPsc, dp.defaultStream, stream)
+			idx, orcErr := dp.orchestrate(unit.GetEquivalencyGroup(), annotation, insPsc, connectorStream, stream)
 			if orcErr != nil {
 				return orcErr
 			}
@@ -197,7 +199,8 @@ func (dp *standardDependencyPlanner) Plan() error {
 					//nolint:nestif // TODO: refactor
 					if e.From().ID() == n.ID() {
 						//
-						insPsc, tcc, insErr := dp.processOrphan(tableExpr, annotation, dp.defaultStream, n)
+						connectorStream := streaming.NewStandardMapStream()
+						insPsc, tcc, insErr := dp.processOrphan(tableExpr, annotation, connectorStream, n)
 						if insErr != nil {
 							return insErr
 						}
@@ -208,7 +211,7 @@ func (dp *standardDependencyPlanner) Plan() error {
 						if streamErr != nil {
 							return streamErr
 						}
-						fromIdx, fromErr := dp.orchestrate(-1, annotation, insPsc, dp.defaultStream, stream)
+						fromIdx, fromErr := dp.orchestrate(-1, annotation, insPsc, connectorStream, stream)
 						if fromErr != nil {
 							return fromErr
 						}
