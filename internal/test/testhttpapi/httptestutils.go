@@ -1,4 +1,4 @@
-//nolint:lll,gocritic,nestif,gosimple // test boilerplate
+//nolint:lll,gocritic,nestif // test boilerplate
 package testhttpapi
 
 import (
@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
 	"path"
 	"reflect"
 	"strings"
@@ -236,10 +235,10 @@ func compareHTTPBodyToExpected(req *http.Request, expectations *HTTPRequestExpec
 		}
 		expectations.Body = io.NopCloser(bytes.NewReader(expectedBodyBytes))
 		retVal = io.NopCloser(bytes.NewReader(actualBodyBytes))
-		fmt.Fprintln(os.Stderr, "body check completed successfully!")
-		fmt.Fprintln(os.Stderr, "")
-		fmt.Fprintln(os.Stderr, fmt.Sprintf("body = '%s'", string(actualBodyBytes)))
-		fmt.Fprintln(os.Stderr, "")
+		// fmt.Fprintln(os.Stderr, "body check completed successfully!")
+		// fmt.Fprintln(os.Stderr, "")
+		// fmt.Fprintln(os.Stderr, fmt.Sprintf("body = '%s'", string(actualBodyBytes)))
+		// fmt.Fprintln(os.Stderr, "")
 	}
 	return retVal, nil
 }
@@ -261,7 +260,7 @@ func compareHTTPHeaderToExpected(actualHeader http.Header, expectations *HTTPReq
 			if !actualVals[v[i]] {
 				return fmt.Errorf("missing expected header value '%s' for k '%s'", v[i], k)
 			}
-			fmt.Fprintln(os.Stderr, fmt.Sprintf("header key '%s' and val '%s' OK", k, v[i]))
+			// fmt.Fprintln(os.Stderr, fmt.Sprintf("header key '%s' and val '%s' OK", k, v[i]))
 		}
 	}
 	return nil
@@ -313,15 +312,15 @@ func compareHTTPRequestToExpected(req *http.Request, expectations *HTTPRequestEx
 			if err != nil {
 				return err
 			}
-			fmt.Fprintln(os.Stderr, "SUCCESS: request body checks out ok!")
-			fmt.Fprintln(os.Stderr, "")
-			fmt.Fprintln(os.Stderr, "")
+			// fmt.Fprintln(os.Stderr, "SUCCESS: request body checks out ok!")
+			// fmt.Fprintln(os.Stderr, "")
+			// fmt.Fprintln(os.Stderr, "")
 		}
 		if expectations.Method != "" {
 			if req.Method != expectations.Method {
 				return fmt.Errorf("FAIL: http request method: actual != expected: '%s' != '%s'", req.Method, expectations.Method)
 			}
-			fmt.Fprintln(os.Stderr, "SUCCESS: request method checks out ok!")
+			// fmt.Fprintln(os.Stderr, "SUCCESS: request method checks out ok!")
 		}
 		err = compareHTTPURLToExpected(req.URL, expectations)
 		if err != nil {
