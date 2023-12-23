@@ -478,9 +478,6 @@ func ValidateHTTPResponseAndErr(t *testing.T, response *http.Response, err error
 	t.Fatalf("HTTPS call failed: %v", err)
 }
 
-type testObject interface {
-}
-
 func StartServer(t testing.TB, expectations ExpectationStore) {
 	transport := newSimpleTransportHandler(expectations) //nolint:bodyclose // TODO: fix
 	var roundTripper http.RoundTripper = NewSimulatedRoundTripper(t, expectations, transport, true)
