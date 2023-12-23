@@ -37,7 +37,7 @@ TBA.
 ### Benchmarks with `go test`
 
 ```bash
-go test -run='^$' -bench=. -count=1 ./... > cicd/log/current-bench.txt
+go test -run='^$' -bench . -count=3 ./... > cicd/log/current-bench.txt
 
 ```
 

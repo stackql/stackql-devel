@@ -175,6 +175,19 @@
         "-tags=json1,sqleanall"
       ]
     },
+    {
+      "type": "pickString",
+      "id": "concurrencyLimit",
+      "description": "Concurrency Limit",
+      "default": "1",
+      "options": [
+        "1",
+        "-1",
+        "3",
+        "10",
+        "50"
+      ]
+    },
 
     {
       "type": "pickString",
@@ -420,6 +433,7 @@
         "--sqlBackend=${input:sqlBackendString}",
         "--namespaces=${input:namespaceString}",
         "--dbInternal=${input:dbInternalString}",
+        "--execution.concurrency.limit=${input:concurrencyLimit}",
         "${input:queryString}"
       ],
     },
