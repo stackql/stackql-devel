@@ -59,7 +59,7 @@ func BenchmarkSelectGoogleComputeInstanceDriver(b *testing.B) {
 
 	dr.ProcessQuery(handlerCtx.GetRawQuery())
 
-	b.Logf("benchmark select driver integration test passed")
+	// b.Logf("benchmark select driver integration test passed")
 }
 
 //nolint:lll // legacy test
@@ -109,7 +109,7 @@ func BenchmarkParallelProjectSelectGoogleComputeInstanceDriver(b *testing.B) {
 
 	dr.ProcessQuery(handlerCtx.GetRawQuery())
 
-	b.Logf("benchmark parallel select driver integration test passed")
+	// b.Logf("benchmark parallel select driver integration test passed")
 }
 
 //nolint:lll // legacy test
@@ -319,7 +319,7 @@ func BenchmarkHighlyParallelProjectSelectGoogleComputeInstanceDriver(b *testing.
 
 	dr.ProcessQuery(handlerCtx.GetRawQuery())
 
-	b.Logf("benchmark parallel select driver integration test passed")
+	// b.Logf("benchmark parallel select driver integration test passed")
 }
 
 //nolint:lll // legacy test
@@ -529,5 +529,5 @@ func BenchmarkUnlimitedHighlyParallelProjectSelectGoogleComputeInstanceDriver(b 
 
 	dr.ProcessQuery(handlerCtx.GetRawQuery())
 
-	b.Logf("benchmark parallel select driver integration test passed")
+	// b.Logf("benchmark parallel select driver integration test passed")
 }

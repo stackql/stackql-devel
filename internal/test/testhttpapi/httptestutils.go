@@ -152,7 +152,7 @@ func (srt SimulatedRoundTripper) RoundTrip(req *http.Request) (*http.Response, e
 		reqKey = reqKey + "?" + req.URL.RawQuery
 	}
 	ok := srt.Expectations.HasKey(reqKey)
-	srt.T.Logf("searching for expectations with key = '%s', found = %v", reqKey, ok)
+	// srt.T.Logf("searching for expectations with key = '%s', found = %v", reqKey, ok)
 	if !ok && srt.Strict {
 		srt.T.Fatalf("FAIL: no expectations found for key '%s' in strict mode, existing keys  = %s", reqKey, strings.Join(srt.Expectations.Keys(), ", "))
 	}
