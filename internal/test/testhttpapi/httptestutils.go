@@ -104,7 +104,7 @@ func (ex ExpectationStore) Keys() []string {
 }
 
 type SimulatedRoundTripper struct {
-	T            *testing.T
+	T            testing.TB
 	Expectations ExpectationStore
 	RoundTripper func(*http.Request) (*http.Response, error)
 	Strict       bool
@@ -168,7 +168,7 @@ func NewURL(scheme, host, path string) *url.URL {
 	}
 }
 
-func NewSimulatedRoundTripper(t *testing.T, expectations ExpectationStore, roundTripper func(*http.Request) (*http.Response, error), strict bool) SimulatedRoundTripper {
+func NewSimulatedRoundTripper(t testing.TB, expectations ExpectationStore, roundTripper func(*http.Request) (*http.Response, error), strict bool) SimulatedRoundTripper {
 	return SimulatedRoundTripper{
 		T:            t,
 		Expectations: expectations,
@@ -332,7 +332,7 @@ func compareHTTPRequestToExpected(req *http.Request, expectations *HTTPRequestEx
 	return err
 }
 
-func GetRequestTestHandler(t *testing.T, expectationStore ExpectationStore, handler http.HandlerFunc) http.HandlerFunc {
+func GetRequestTestHandler(t testing.TB, expectationStore ExpectationStore, handler http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			reqKey := r.Host + r.URL.Path
@@ -359,7 +359,7 @@ func GetRequestTestHandler(t *testing.T, expectationStore ExpectationStore, hand
 	)
 }
 
-func SetupHTTPCallHeavyweight(t *testing.T, expectationStore ExpectationStore, handlerFunc http.HandlerFunc, roundTripper http.RoundTripper) {
+func SetupHTTPCallHeavyweight(t testing.TB, expectationStore ExpectationStore, handlerFunc http.HandlerFunc, roundTripper http.RoundTripper) {
 	handler := GetRequestTestHandler(t, expectationStore, handlerFunc)
 	s := httptest.NewServer(handler)
 	u, err := url.Parse(s.URL)
@@ -478,7 +478,10 @@ func ValidateHTTPResponseAndErr(t *testing.T, response *http.Response, err error
 	t.Fatalf("HTTPS call failed: %v", err)
 }
 
-func StartServer(t *testing.T, expectations ExpectationStore) {
+type testObject interface {
+}
+
+func StartServer(t testing.TB, expectations ExpectationStore) {
 	transport := newSimpleTransportHandler(expectations) //nolint:bodyclose // TODO: fix
 	var roundTripper http.RoundTripper = NewSimulatedRoundTripper(t, expectations, transport, true)
 	SetupHTTPCallHeavyweight(t, expectations, DefaultHandler, roundTripper)
