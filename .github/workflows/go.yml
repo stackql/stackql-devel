@@ -248,6 +248,7 @@ jobs:
       run: |
         git config --global "url.https://${GH_ACCESS_TOKEN}@github.com/.insteadOf" https://github.com/
         go get -v -t -d ./...
+        go install golang.org/x/perf/cmd/benchstat@latest
       env:
         GH_ACCESS_TOKEN: ${{env.GH_ACCESS_TOKEN}}
         GOPRIVATE: ${{env.GOPRIVATE}}
@@ -295,7 +296,19 @@ jobs:
     
     - name: Benchmark
       if: success()
-      run: go test -run='^$' -bench . -count=3 ./...
+      run: |
+        outFile="cicd/log/current-bench-nocache.txt"
+        go test -run='^$' -bench . -benchtime=100x -count=6 \
+          --tags "json1 sqleanall" --ldflags "-X stackql/internal/stackql/planbuilder.PlanCacheEnabled=false"  \
+          ./... > ${outFile}
+        if [ "$?" = "0" ]; then
+          echo "Benchmarking run completed successfully"
+        else
+          echo "Benchmarking run failed"
+          exit 1
+        fi
+        cat ${outFile}
+        benchstat ${outFile}
 
     - name: Mock Server Download
       run: |
