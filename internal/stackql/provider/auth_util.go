@@ -62,7 +62,7 @@ func newTransport(
 	authType,
 	authValuePrefix,
 	tokenLocation,
-	key string, //nolint:unparam //TODO: review
+	key string,
 	underlyingTransport http.RoundTripper,
 ) (*transport, error) {
 	switch authType {
@@ -252,7 +252,7 @@ func customAuth(authCtx *dto.AuthCtx, runtimeCtx dto.RuntimeCtx) (*http.Client, 
 	}
 	activateAuth(authCtx, "", "custom")
 	httpClient := netutils.GetHTTPClient(runtimeCtx, http.DefaultClient)
-	tr, err := newTransport(b, authTypeCustom, authCtx.ValuePrefix, authCtx.Location, "", httpClient.Transport)
+	tr, err := newTransport(b, authTypeCustom, authCtx.ValuePrefix, authCtx.Location, authCtx.Name, httpClient.Transport)
 	if err != nil {
 		return nil, err
 	}
@@ -268,7 +268,7 @@ func customAuth(authCtx *dto.AuthCtx, runtimeCtx dto.RuntimeCtx) (*http.Client, 
 				authTypeCustom,
 				successor.ValuePrefix,
 				successor.Location,
-				"",
+				successor.Name,
 			)
 			addTknErr := tr.addTokenCfg(successorTokenConfig)
 			if addTknErr != nil {

@@ -30,6 +30,7 @@ type AuthCtx struct {
 	Successor               *AuthCtx       `json:"successor" yaml:"successor"`
 	Active                  bool           `json:"-" yaml:"-"`
 	Location                string         `json:"location" yaml:"location"`
+	Name                    string         `json:"name" yaml:"name"`
 }
 
 func (ac *AuthCtx) GetSQLCfg() (SQLBackendCfg, bool) {
@@ -64,6 +65,8 @@ func (ac *AuthCtx) Clone() *AuthCtx {
 		EnvVarPassword:          ac.EnvVarPassword,
 		Successor:               ac.Successor,
 		EncodedBasicCredentials: ac.EncodedBasicCredentials,
+		Location:                ac.Location,
+		Name:                    ac.Name,
 	}
 	return rv
 }
