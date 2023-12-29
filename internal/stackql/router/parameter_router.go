@@ -281,6 +281,7 @@ func (pr *standardParameterRouter) GetOnConditionDataFlows() (dataflow.Collectio
 	return rv, nil
 }
 
+//nolint:gocognit // who cares
 func (pr *standardParameterRouter) getAvailableParameters(
 	tb sqlparser.TableExpr,
 ) parserutil.TableParameterCoupling {

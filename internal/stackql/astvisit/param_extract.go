@@ -13,7 +13,7 @@ import (
 
 var (
 	_       ParserParamAstVisitor = &standardParserParamAstVisitor{}
-	ordinal int                   // TODO: remove this global
+	ordinal int                   //nolint:gochecknoglobals  // TODO: remove this global
 )
 
 type ParserParamAstVisitor interface {
