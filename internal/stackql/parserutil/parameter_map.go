@@ -23,7 +23,8 @@ type ParameterMap interface {
 }
 
 type standardParameterMap struct {
-	m map[ColumnarReference]ParameterMetadata
+	ordinal int
+	m       map[ColumnarReference]ParameterMetadata
 }
 
 func NewParameterMap() ParameterMap {
