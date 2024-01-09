@@ -277,8 +277,9 @@ Acceptable Secure Connection to mTLS Server Returns Error Message
     ...    -cert       ${STACKQL_PG_CLIENT_CERT_PATH}
     ...    -key        ${STACKQL_PG_CLIENT_KEY_PATH}
     ...    -CAfile     ${STACKQL_PG_SERVER_CERT_PATH}
+    ${shellExe} =    Set Variable If    "${IS_WINDOWS}" == "1"    powershell    sh
     ${result} =    Run Process
-    ...    sh     \-c    ${input}
+    ...    ${shellExe}     \-c    ${input}
     ...    stdout=${CURDIR}/tmp/Acceptable-Secure-Connection-to-mTLS-Server-Returns-Success-Message.tmp
     ...    stderr=${CURDIR}/tmp/Acceptable-Secure-Connection-to-mTLS-Server-Returns-Success-Message-stderr.tmp
     Should Contain    ${result.stdout}    Verify return code: 0
@@ -291,8 +292,9 @@ Unacceptable Insecure Connection to mTLS Server Returns Error Message
     ...    -cert       ${STACKQL_PG_CLIENT_CERT_PATH}
     ...    -key        ${STACKQL_PG_CLIENT_KEY_PATH}
     ...    -CAfile     ${STACKQL_PG_RUBBISH_CERT_PATH}
+    ${shellExe} =    Set Variable If    "${IS_WINDOWS}" == "1"    powershell    sh
     ${result} =    Run Process
-    ...    sh     \-c    ${input}
+    ...    ${shellExe}     \-c    ${input}
     ...    stdout=${CURDIR}/tmp/Unacceptable-Insecure-Connection-to-mTLS-Server-Returns-Error-Message.tmp
     ...    stderr=${CURDIR}/tmp/Unacceptable-Insecure-Connection-to-mTLS-Server-Returns-Error-Message-stderr.tmp
     Should Contain    ${result.stdout}    Verify return code: 18
