@@ -269,7 +269,7 @@ High Volume IN Query Is Correct and Performs OK
     ...    ${outputStr}
     ...    max_mean_time=1.7
 
-Acceptable Secure Connection to mTLS Server Returns Error Message
+Acceptable Secure Connection to mTLS Server Returns Success Message
     ${input} =     Catenate
     ...    echo     ""     |
     ...    openssl     s_client     -starttls    postgres 
