@@ -13,6 +13,8 @@ openssl req -x509 -keyout ./cicd/vol/srv/credentials/pg_client_key.pem -out ./ci
 
 export CLIENT_CERT=$(base64 ./cicd/vol/srv/credentials/pg_client_cert.pem)
 
+echo "$CLIENT_CERT" > ./cicd/vol/srv/credentials/pg_client_cert.pem.base64
+
 ```
 
 ### Run

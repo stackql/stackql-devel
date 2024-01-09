@@ -268,3 +268,13 @@ High Volume IN Query Is Correct and Performs OK
     ...    ${inputStr}
     ...    ${outputStr}
     ...    max_mean_time=1.7
+
+Unacceptable Insecure Connection to mTLS Server Returns Error Message
+    Should PG Client StdErr Inline Contain
+    ...    ${CURDIR}
+    ...    ${PSQL_EXE}
+    ...    ${PSQL_MTLS_DISABLE_CONN_STR}
+    ...    select fake_name from github.repos.branches where owner \= 'dummyorg' and repo \= 'dummyapp.io' order by name desc;
+    ...    column
+    ...    stdout=${CURDIR}/tmp/Unacceptable-Insecure-Connection-to-mTLS-Server-Returns-Error-Message.tmp
+    ...    stderr=${CURDIR}/tmp/Unacceptable-Insecure-Connection-to-mTLS-Server-Returns-Error-Message-stderr.tmp
