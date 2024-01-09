@@ -269,12 +269,30 @@ High Volume IN Query Is Correct and Performs OK
     ...    ${outputStr}
     ...    max_mean_time=1.7
 
+Acceptable Secure Connection to mTLS Server Returns Error Message
+    ${input} =     Catenate
+    ...    echo     ""     |
+    ...    openssl     s_client     -starttls    postgres 
+    ...    -connect     ${PSQL_CLIENT_HOST}:${PG_SRV_PORT_MTLS}
+    ...    -cert       ${STACKQL_PG_CLIENT_CERT_PATH}
+    ...    -key        ${STACKQL_PG_CLIENT_KEY_PATH}
+    ...    -CAfile     ${STACKQL_PG_SERVER_CERT_PATH}
+    ${result} =    Run Process
+    ...    sh     \-c    ${input}
+    ...    stdout=${CURDIR}/tmp/Acceptable-Secure-Connection-to-mTLS-Server-Returns-Success-Message.tmp
+    ...    stderr=${CURDIR}/tmp/Acceptable-Secure-Connection-to-mTLS-Server-Returns-Success-Message-stderr.tmp
+    Should Contain    ${result.stdout}    Verify return code: 0
+
 Unacceptable Insecure Connection to mTLS Server Returns Error Message
-    Should PG Client StdErr Inline Contain
-    ...    ${CURDIR}
-    ...    ${PSQL_EXE}
-    ...    ${PSQL_MTLS_DISABLE_CONN_STR}
-    ...    select fake_name from github.repos.branches where owner \= 'dummyorg' and repo \= 'dummyapp.io' order by name desc;
-    ...    column
+    ${input} =     Catenate
+    ...    echo     ""     |
+    ...    openssl     s_client     -starttls    postgres 
+    ...    -connect     ${PSQL_CLIENT_HOST}:${PG_SRV_PORT_MTLS}
+    ...    -cert       ${STACKQL_PG_CLIENT_CERT_PATH}
+    ...    -key        ${STACKQL_PG_CLIENT_KEY_PATH}
+    ...    -CAfile     ${STACKQL_PG_RUBBISH_CERT_PATH}
+    ${result} =    Run Process
+    ...    sh     \-c    ${input}
     ...    stdout=${CURDIR}/tmp/Unacceptable-Insecure-Connection-to-mTLS-Server-Returns-Error-Message.tmp
     ...    stderr=${CURDIR}/tmp/Unacceptable-Insecure-Connection-to-mTLS-Server-Returns-Error-Message-stderr.tmp
+    Should Contain    ${result.stdout}    Verify return code: 18
