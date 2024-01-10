@@ -24,7 +24,7 @@ require (
 	github.com/stackql/any-sdk v0.0.1-alpha06
 	github.com/stackql/go-sqlite3 v0.0.3-stackqlalpha02
 	github.com/stackql/go-suffix-map v0.0.1-alpha01
-	github.com/stackql/psql-wire v0.1.1-alpha05
+	github.com/stackql/psql-wire v0.1.1-alpha07
 	github.com/stackql/stackql-parser v0.0.13-beta25
 	github.com/stretchr/testify v1.8.4
 	github.com/xo/dburl v0.12.4

@@ -298,3 +298,25 @@ Unacceptable Insecure Connection to mTLS Server Returns Error Message
     ...    stdout=${CURDIR}/tmp/Unacceptable-Insecure-Connection-to-mTLS-Server-Returns-Error-Message.tmp
     ...    stderr=${CURDIR}/tmp/Unacceptable-Insecure-Connection-to-mTLS-Server-Returns-Error-Message-stderr.tmp
     Should Contain    ${result.stdout}    Verify return code: 18
+
+Acceptable Secure PSQL Connection to mTLS Server With Diagnostic Query Returns Connection Info
+    ${input} =     Catenate
+    ...    echo     '\\conninfo'     |
+    ...    ${PSQL_EXE}    -d     "${PSQL_MTLS_CONN_STR_UNIX}"
+    ${shellExe} =    Set Variable If    "${IS_WINDOWS}" == "1"    powershell    bash
+    ${result} =    Run Process
+    ...    ${shellExe}     \-c    ${input}
+    ...    stdout=${CURDIR}/tmp/Acceptable-Secure-PSQL-Connection-to-mTLS-Server-With-Diagnostic-Query-Returns-Connection-Info.tmp
+    ...    stderr=${CURDIR}/tmp/Acceptable-Secure-PSQL-Connection-to-mTLS-Server-With-Diagnostic-Query-Returns-Connection-Info-stderr.tmp
+    Should Contain    ${result.stdout}    SSL connection (protocol: TLSv1.3
+
+Unacceptable Insecure PSQL Connection to mTLS Server Returns Error Message
+    ${input} =     Catenate
+    ...    echo     '\\conninfo'     |
+    ...    ${PSQL_EXE}    -d    "${PSQL_MTLS_DISABLE_CONN_STR_UNIX}"
+    ${shellExe} =    Set Variable If    "${IS_WINDOWS}" == "1"    powershell    bash
+    ${result} =    Run Process
+    ...    ${shellExe}     \-c    ${input}
+    ...    stdout=${CURDIR}/tmp/Unacceptable-Insecure-PSQL-Connection-to-mTLS-Server-Returns-Error-Message.tmp
+    ...    stderr=${CURDIR}/tmp/Unacceptable-Insecure-PSQL-Connection-to-mTLS-Server-Returns-Error-Message-stderr.tmp
+    Should Contain    ${result.stderr}    server closed the connection unexpectedly
