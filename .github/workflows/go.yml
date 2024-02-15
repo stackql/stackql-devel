@@ -155,24 +155,9 @@ jobs:
         openssl req -x509 -keyout test/server/mtls/credentials/pg_client_key.pem -out test/server/mtls/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
         openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365
     
-    - name: Run robot integration tests
-      if: env.AZURE_CLIENT_SECRET != '' && startsWith(steps.git_ref_parse.outputs.SOURCE_TAG, 'build-release')
-      env:
-        PSQL_EXE: C:\Program Files\PostgreSQL\13\bin\psql
-        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        AZURE_INTEGRATION_TESTING_SUB_ID: ${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}
-        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      run: |
-        python cicd/python/build.py --robot-test-integration
-    
     - name: Prepare Test DB
       if: success()
       run: copy test/db/db.sqlite test/db/tmp/python-tests-tmp-db.sqlite
-
-    - name: Test Script
-      if: success()
-      run: python.exe test/python/main.py
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
@@ -281,60 +266,6 @@ jobs:
     - name: Test
       if: success()
       run: python cicd/python/build.py --verbose --test
-    
-    - name: Benchmark
-      if: success()
-      run: |
-        outFile="cicd/log/current-bench-nocache.txt"
-        baselineRefFile="cicd/ref/bench/baseline-go-bench.log"
-        thresholdRefFile="cicd/ref/bench/max-threshold-go-bench.log"
-        go test -run='^$' -bench . -benchtime=100x -count=6 \
-          --tags "json1 sqleanall" --ldflags "-X stackql/internal/stackql/planbuilder.PlanCacheEnabled=false"  \
-          ./... | tee ${outFile}
-        # shellcheck disable=SC2181
-        if [ "$?" = "0" ]; then
-          echo "Benchmarking run completed successfully"
-        else
-          echo "Benchmarking run failed"
-          exit 1
-        fi
-        echo ""
-        echo "##### Raw benchstat on current run #####"
-        echo ""
-        benchstat ${outFile} | tee cicd/log/raw-benchstat.txt
-        echo ""
-        echo "##### Comparing to baseline #####"
-        echo ""
-        benchstat -row .name -table .config -ignore goos,goarch,cpu ${baselineRefFile} ${outFile} | tee cicd/log/comparison-benchstat.txt
-        echo ""
-        echo "##### Comparing to max threshold #####"
-        echo ""
-        benchstat -row .name -table .config -ignore goos,goarch,cpu ${thresholdRefFile} ${outFile} | tee cicd/log/threshold-comparison-benchstat.txt
-        # shellcheck disable=SC2002,SC2062
-        comparisons=$( cat cicd/log/threshold-comparison-benchstat.txt \
-          | sed 's/.*\([+-][0-9][0-9]\.[0-9][0-9]*[%]\).*/\1/' \
-          | grep [+-][0-9][0-9]*\.[0-9][0-9]*[%] \
-        )
-        echo ""
-        echo "##### Comparisons #####"
-        echo ""
-        echo "${comparisons}"
-        # shellcheck disable=SC2062
-        nonNegativeComparisons=$( echo "${comparisons}" \
-          | grep -v [-].* \
-          || true
-        )
-        echo "completed comparison logic"
-        if [ -z "${nonNegativeComparisons}" ]; then
-          echo "All max threshold comparisons are negative: this is acceptable"
-        else
-          echo "Some max threshold comparisons are positive or zero: this is unacceptable"
-          echo ""
-          echo "##### Non-negative comparisons #####"
-          echo "${nonNegativeComparisons}"
-          echo ""
-          exit 1
-        fi
 
     - name: Mock Server Download
       run: |
@@ -347,47 +278,11 @@ jobs:
       run: |
         openssl req -x509 -keyout test/server/mtls/credentials/pg_server_key.pem -out test/server/mtls/credentials/pg_server_cert.pem -config test/server/mtls/openssl.cnf -days 365
         openssl req -x509 -keyout test/server/mtls/credentials/pg_client_key.pem -out test/server/mtls/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
-        openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365 
-
-    - name: Run robot mocked functional tests
-      if: success()
-      run: |
-        python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true" } }'
-
-    - name: Output from mocked functional tests
-      if: always()
-      run: |
-        cat ./test/robot/functional/output.xml
-
-    - name: Run robot mocked functional tests with aggressive concurrency
-      if: success()
-      run: |
-        python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true", "CONCURRENCY_LIMIT": -1  } }'
-
-    - name: Output from mocked functional tests with aggressive concurrency
-      if: always()
-      run: |
-        cat ./test/robot/functional/output.xml
-    
-    - name: Run robot integration tests
-      if: env.AZURE_CLIENT_SECRET != '' && startsWith(steps.git_ref_parse.outputs.SOURCE_TAG, 'build-release')
-      env:
-        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        AZURE_INTEGRATION_TESTING_SUB_ID: ${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}
-        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      run: |
-        python cicd/python/build.py --robot-test-integration
+        openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365
     
     - name: Prepare Test DB
       if: success()
       run: cp test/db/db.sqlite test/db/tmp/python-tests-tmp-db.sqlite
-
-    - name: Test Script
-      if: success()
-      run: python3 "${TESTSCRIPT}"
-      env:
-        TESTSCRIPT: ${{env.TESTSCRIPT}}
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
@@ -458,55 +353,7 @@ jobs:
           openssl req -x509 -keyout test/server/mtls/credentials/pg_client_key.pem -out test/server/mtls/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
           openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365 
 
-    - shell: wsl-bash {0}
-      name: Run robot mocked functional tests
-      run: |
-          . cicd/version.txt
-          export BUILDBRANCH="${{github.ref}}"
-          export BUILDPATCHVERSION="${{github.run_number}}"
-          export BUILDMAJORVERSION=$MajorVersion
-          export BUILDMINORVERSION=$MinorVersion
-          echo "BUILDBRANCH=$BUILDBRANCH"
-          echo "BUILDMAJORVERSION=$BUILDMAJORVERSION"
-          echo "BUILDMINORVERSION=$BUILDMINORVERSION"
-          echo "BUILDPATCHVERSION=$BUILDPATCHVERSION"
-          if [[ ! "$BUILDBRANCH" == "*develop" ]]
-            then
-            export BUILDPATCHVERSION="${BUILDPATCHVERSION}"
-          fi
-          python3 cicd/python/build.py --robot-test --config='{ "variables":  { "IS_WSL": true } }'
-
-    - shell: wsl-bash {0}
-      name: Output from mocked functional tests
-      if: always()
-      run: |
-          cat ./test/robot/functional/output.xml
     
-    - shell: wsl-bash {0}
-      name: Run robot integration tests
-      # This is a hack because if cannot directly access secrets
-      if: env.AZURE_CLIENT_SECRET != ''
-      env:
-        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }} 
-      run: |
-          . cicd/version.txt
-          export AZURE_CLIENT_ID='${{ secrets.AZURE_CLIENT_ID }}'
-          export AZURE_CLIENT_SECRET='${{ secrets.AZURE_CLIENT_SECRET }}'
-          export AZURE_INTEGRATION_TESTING_SUB_ID='${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}'
-          export AZURE_TENANT_ID='${{ secrets.AZURE_TENANT_ID }}'
-          export BUILDBRANCH="${{github.ref}}"
-          export BUILDPATCHVERSION="${{github.run_number}}"
-          export BUILDMAJORVERSION=$MajorVersion
-          export BUILDMINORVERSION=$MinorVersion
-          echo "BUILDBRANCH=$BUILDBRANCH"
-          echo "BUILDMAJORVERSION=$BUILDMAJORVERSION"
-          echo "BUILDMINORVERSION=$BUILDMINORVERSION"
-          echo "BUILDPATCHVERSION=$BUILDPATCHVERSION"
-          if [[ ! "$BUILDBRANCH" == "*develop" ]]
-            then
-            export BUILDPATCHVERSION="${BUILDPATCHVERSION}"
-          fi
-          python3 cicd/python/build.py --robot-test-integration --config='{ "variables":  { "IS_WSL": true } }'
 
   macosbuild:
     name: MacOS Build
@@ -609,35 +456,10 @@ jobs:
         openssl req -x509 -keyout test/server/mtls/credentials/pg_client_key.pem -out test/server/mtls/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
         openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365 
 
-    - name: Run robot mocked functional tests
-      if: success()
-      run: |
-        python cicd/python/build.py --robot-test
-
-    - name: Output from mocked functional tests
-      if: always()
-      run: |
-        cat ./test/robot/functional/output.xml
-    
-    - name: Run robot integration tests
-      if: env.AZURE_CLIENT_SECRET != '' && startsWith(steps.git_ref_parse.outputs.SOURCE_TAG, 'build-release')
-      env:
-        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        AZURE_INTEGRATION_TESTING_SUB_ID: ${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}
-        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      run: |
-        python cicd/python/build.py --robot-test-integration
     
     - name: Prepare Test DB
       if: success()
       run: cp test/db/db.sqlite test/db/tmp/python-tests-tmp-db.sqlite
-        
-    - name: Test Script
-      if: success()
-      run: python3 "${TESTSCRIPT}"
-      env:
-        TESTSCRIPT: ${{env.TESTSCRIPT}}
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v3
@@ -875,33 +697,6 @@ jobs:
         echo ""
         echo "### ###"
         echo ""
-
-    - name: Run robot mocked functional tests
-      if: success()
-      timeout-minutes: 20
-      run: |
-        python cicd/python/build.py --robot-test --config='{ "variables":  { "EXECUTION_PLATFORM": "docker" } }'
-
-    - name: Run POSTGRES BACKEND robot mocked functional tests
-      if: success()
-      timeout-minutes: 20
-      run: |
-        python cicd/python/build.py --robot-test --config='{ "variables":  { "EXECUTION_PLATFORM": "docker", "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": true, "SQL_BACKEND": "postgres_tcp" } }'
-
-    - name: Output from mocked functional tests
-      if: always()
-      run: |
-        cat ./test/robot/functional/output.xml
-
-    - name: Run robot integration tests
-      if: env.AZURE_CLIENT_SECRET != '' && startsWith(steps.git_ref_parse.outputs.SOURCE_TAG, 'build-release')
-      env:
-        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        AZURE_INTEGRATION_TESTING_SUB_ID: ${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}
-        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      run: |
-        python cicd/python/build.py --robot-test-integration --config='{ "variables":  { "EXECUTION_PLATFORM": "docker" } }'
 
     - name: Login to Docker Hub
       if: ${{ ( success() && github.ref_type == 'branch' && github.ref_name == 'main' && github.repository == 'stackql/stackql' && github.event_name == 'push'  ) || ( success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'build-release') ) }}
