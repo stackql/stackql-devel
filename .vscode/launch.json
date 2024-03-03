@@ -132,6 +132,7 @@
         "SELECT f.url, f.login FROM ( SELECT  clone_url as url, SPLIT_PART(clone_url, '/', -2) as login FROM github.repos.forks WHERE owner = 'stackql' AND repo = 'stackql' ) f LEFT OUTER JOIN github.activity.repo_stargazers s ON s.login = f.login WHERE owner = 'stackql' AND repo = 'stackql' ;",
         "select u1.UserName, u.UserId, u.Arn, u1.region from ( select Arn, UserName, UserId from aws.iam.users where region = 'us-east-1' ) u inner join aws.iam.users u1 on u1.Arn = u.Arn where region = 'us-east-1'  order by u1.UserName desc;",
         "select * from aws.iam.user_policies where region = 'us-east-1' and UserName = 'kieran.rimmer';",
+        "select \"Key\", Size, StorageClass from  aws.s3.objects where region = 'ap-southeast-2' and bucket = 'stackql-trial-bucket-02' order by \"Key\" ASC;",
       ],
       "default": "show providers;"
     },
