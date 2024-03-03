@@ -59,7 +59,6 @@ jobs:
 
     - name: Cache Chocolatey packages
       id: cache-choco
-      # uses: actions/cache@v3
       uses: actions/cache@v4.0.0
       env:
         cache-name: cache-choco-packages
@@ -83,7 +82,6 @@ jobs:
         version: '8.1.0'
 
     - name: Choco install postgres
-      # uses: crazy-max/ghaction-chocolatey@v2
       uses: crazy-max/ghaction-chocolatey@v3.0.0
       timeout-minutes: 20
       with:
@@ -157,6 +155,18 @@ jobs:
         openssl req -x509 -keyout test/server/mtls/credentials/pg_server_key.pem -out test/server/mtls/credentials/pg_server_cert.pem -config test/server/mtls/openssl.cnf -days 365
         openssl req -x509 -keyout test/server/mtls/credentials/pg_client_key.pem -out test/server/mtls/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
         openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365
+
+    - name: Run robot mocked functional tests
+      if: success()
+      env:
+        PSQL_EXE: C:\Program Files\PostgreSQL\13\bin\psql
+      run: |
+        python cicd/python/build.py --robot-test 
+
+    - name: Output from mocked functional tests
+      if: always()
+      run: |
+        cat ./test/robot/functional/output.xml
     
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(steps.git_ref_parse.outputs.SOURCE_TAG, 'build-release')
@@ -178,7 +188,6 @@ jobs:
       run: python.exe test/python/main.py
 
     - name: Upload Artifact
-      # uses: actions/upload-artifact@v3
       uses: actions/upload-artifact@v4.3.1
       if: success()
       with:
