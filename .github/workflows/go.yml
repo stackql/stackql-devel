@@ -32,7 +32,7 @@ jobs:
 
   winbuild:
     name: Windows Build
-    runs-on: windows-latest
+    runs-on: windows-latest-l
     steps:
 
     - name: Get rid of disruptive line endings before checkout
