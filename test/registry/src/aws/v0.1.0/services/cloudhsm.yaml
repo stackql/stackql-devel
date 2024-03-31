@@ -591,7 +591,6 @@ paths:
           application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DescribeClustersRequest'
-              default: {}
       parameters:
         - name: MaxResults
           in: query
@@ -1351,9 +1350,9 @@ components:
       title: DescribeClustersRequest
       properties:
         Filters:
-          allOf:
-            - $ref: '#/components/schemas/Filters'
-            - description: <p>One or more filters to limit the items returned in the response.</p> <p>Use the <code>clusterIds</code> filter to return only the specified clusters. Specify clusters by their cluster identifier (ID).</p> <p>Use the <code>vpcIds</code> filter to return only the clusters in the specified virtual private clouds (VPCs). Specify VPCs by their VPC identifier (ID).</p> <p>Use the <code>states</code> filter to return only clusters that match the specified state.</p>
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Strings'
         NextToken:
           allOf:
             - $ref: '#/components/schemas/NextToken'
@@ -1931,6 +1930,24 @@ components:
             $ref: '#/paths/~1/post'
           request:
             mediaType: application/x-amz-json-1.1
+            default: |
+              {
+                "Filters": {
+                  {
+                    "states": [
+                      "CREATE_IN_PROGRESS",
+                      "UNINITIALIZED",
+                      "INITIALIZE_IN_PROGRESS",
+                      "INITIALIZED",
+                      "ACTIVE",
+                      "UPDATE_IN_PROGRESS",
+                      "DELETE_IN_PROGRESS",
+                      "DELETED",
+                      "DEGRADED"
+                    ]
+                  }
+                }
+              }
           response:
             objectKey: '$.Clusters'
             mediaType: application/json
