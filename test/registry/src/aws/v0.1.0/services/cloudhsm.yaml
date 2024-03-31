@@ -17,7 +17,7 @@ info:
     name: Apache 2.0 License
     url: 'http:/~1www.apache.org/licenses/'
   x-providerName: amazonaws.com
-  x-serviceName: cloudhsmv2
+  x-serviceName: cloudhsm
   x-aws-signingName: cloudhsm
   x-origin:
     - contentType: application/json
@@ -544,7 +544,7 @@ paths:
       - $ref: '#/components/parameters/X-Amz-Security-Token'
       - $ref: '#/components/parameters/X-Amz-Signature'
       - $ref: '#/components/parameters/X-Amz-SignedHeaders'
-  /?X-Amz-Target=BaldrApiService.DescribeClusters:
+  /:
     post:
       operationId: DescribeClusters
       description: '<p>Gets information about AWS CloudHSM clusters.</p> <p>This is a paginated operation, which means that each response might contain only a subset of all the clusters. When the response contains only a subset of clusters, it includes a <code>NextToken</code> value. Use this value in a subsequent <code>DescribeClusters</code> request to get more clusters. When you receive a response with no <code>NextToken</code> (or an empty or null value), that means there are no more clusters to get.</p>'
@@ -588,7 +588,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DescribeClustersRequest'
               default: {}
@@ -611,6 +611,12 @@ paths:
             type: string
             default: 'BaldrApiService.DescribeClusters'
           description: Target operation
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+            default: 'application/x-amz-json-1.1'
+          description: Proprietary Content Type
     parameters:
       - $ref: '#/components/parameters/X-Amz-Content-Sha256'
       - $ref: '#/components/parameters/X-Amz-Date'
@@ -1302,9 +1308,9 @@ components:
       type: object
       properties:
         Backups:
-          allOf:
-            - $ref: '#/components/schemas/Backups'
-            - description: A list of backups.
+          type: array
+          items:
+            $ref: '#/components/schemas/Backup'
         NextToken:
           allOf:
             - $ref: '#/components/schemas/NextToken'
@@ -1333,9 +1339,9 @@ components:
       type: object
       properties:
         Clusters:
-          allOf:
-            - $ref: '#/components/schemas/Clusters'
-            - description: A list of clusters.
+          type: array
+          items:
+            $ref: '#/components/schemas/Cluster'
         NextToken:
           allOf:
             - $ref: '#/components/schemas/NextToken'
@@ -1922,10 +1928,11 @@ components:
             openAPIDocKey: '200'
         describe_clusters:
           operation:
-            $ref: '#/paths/~1?X-Amz-Target=BaldrApiService.DescribeClusters/post'
+            $ref: '#/paths/~1/post'
           request:
-            mediaType: application/json
+            mediaType: application/x-amz-json-1.1
           response:
+            objectKey: '$.Clusters'
             mediaType: application/json
             openAPIDocKey: '200'
         initialize_cluster:
@@ -1944,15 +1951,14 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      id: aws.cloudhsmv2.clusters
+      id: aws.cloudhsm.clusters
       sqlVerbs:
         delete:
           - $ref: '#/components/x-stackQL-resources/clusters/methods/delete_cluster'
         insert:
           - $ref: '#/components/x-stackQL-resources/clusters/methods/create_cluster'
         select:
-          - $ref: >-
-              #/components/x-stackQL-resources/clusters/methods/describe_clusters
+          - $ref: '#/components/x-stackQL-resources/clusters/methods/describe_clusters'
         update: []
       title: clusters
     hsm:
@@ -1974,7 +1980,7 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      id: aws.cloudhsmv2.hsm
+      id: aws.cloudhsm.hsm
       sqlVerbs:
         delete:
           - $ref: '#/components/x-stackQL-resources/hsm/methods/delete_hsm'
@@ -2010,7 +2016,7 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-            # objectKey: $.ResourceDescriptions
+            objectKey: $.Backups
         modify_backup_attributes:
           operation:
             $ref: '#/paths/~1#X-Amz-Target=BaldrApiService.ModifyBackupAttributes/post'
@@ -2027,7 +2033,7 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      id: aws.cloudhsmv2.backups
+      id: aws.cloudhsm.backups
       sqlVerbs:
         delete:
           - $ref: '#/components/x-stackQL-resources/backups/methods/delete_backup'
@@ -2064,7 +2070,7 @@ components:
           response:
             mediaType: application/json
             openAPIDocKey: '200'
-      id: aws.cloudhsmv2.tags
+      id: aws.cloudhsm.tags
       sqlVerbs:
         delete: []
         insert: []
@@ -2074,3 +2080,6 @@ components:
       title: tags
 security:
   - hmac: []
+x-stackQL-config:
+  queryParamTranspose:
+    algorithm: AWSCanonical
