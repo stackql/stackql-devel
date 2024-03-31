@@ -1932,21 +1932,7 @@ components:
             mediaType: application/x-amz-json-1.1
             default: |
               {
-                "Filters": {
-                  {
-                    "states": [
-                      "CREATE_IN_PROGRESS",
-                      "UNINITIALIZED",
-                      "INITIALIZE_IN_PROGRESS",
-                      "INITIALIZED",
-                      "ACTIVE",
-                      "UPDATE_IN_PROGRESS",
-                      "DELETE_IN_PROGRESS",
-                      "DELETED",
-                      "DEGRADED"
-                    ]
-                  }
-                }
+                "Filters": {}
               }
           response:
             objectKey: '$.Clusters'
