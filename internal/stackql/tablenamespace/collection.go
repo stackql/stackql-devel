@@ -8,6 +8,7 @@ import (
 
 type Collection interface {
 	GetAnalyticsCacheTableNamespaceConfigurator() Configurator
+	GetExportTableNamespaceConfigurator() Configurator
 	GetViewsTableNamespaceConfigurator() Configurator
 	WithSQLSystem(sql_system.SQLSystem) (Collection, error)
 }
@@ -22,6 +23,7 @@ func NewStandardTableNamespaceCollection(
 	}
 	analyticsCfgDirector := getAnalyticsCacheTableNamespaceConfiguratorBuilderDirector(cfg["analytics"], sqlEngine)
 	viewsCfgDirector := getViewsTableNamespaceConfiguratorBuilderDirector(cfg["views"], sqlEngine)
+	exportCfgDirector := getViewsTableNamespaceConfiguratorBuilderDirector(cfg["export"], sqlEngine)
 	err := analyticsCfgDirector.Construct()
 	if err != nil {
 		return nil, err
@@ -30,9 +32,14 @@ func NewStandardTableNamespaceCollection(
 	if err != nil {
 		return nil, err
 	}
+	err = exportCfgDirector.Construct()
+	if err != nil {
+		return nil, err
+	}
 	rv := &StandardTableNamespaceCollection{
 		analyticsCfg: analyticsCfgDirector.GetResult(),
 		viewCfg:      viewsCfgDirector.GetResult(),
+		exportCfg:    exportCfgDirector.GetResult(),
 		sqlEngine:    sqlEngine,
 	}
 	return rv, nil
@@ -41,11 +48,16 @@ func NewStandardTableNamespaceCollection(
 type StandardTableNamespaceCollection struct {
 	analyticsCfg Configurator
 	viewCfg      Configurator
+	exportCfg    Configurator
 	sqlEngine    sqlengine.SQLEngine
 }
 
 func (col *StandardTableNamespaceCollection) GetAnalyticsCacheTableNamespaceConfigurator() Configurator {
 	return col.analyticsCfg
+}
+
+func (col *StandardTableNamespaceCollection) GetExportTableNamespaceConfigurator() Configurator {
+	return col.exportCfg
 }
 
 func (col *StandardTableNamespaceCollection) GetViewsTableNamespaceConfigurator() Configurator {

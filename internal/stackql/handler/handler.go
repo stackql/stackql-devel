@@ -89,6 +89,9 @@ type HandlerContext interface { //nolint:revive // don't mind stuttering this on
 
 	GetTSM() (tsm.TSM, bool)
 	SetTSM(tsm.TSM)
+
+	SetIsExportEnabled(bool)
+	IsExportEnabled() bool
 }
 
 type standardHandlerContext struct {
@@ -123,6 +126,7 @@ type standardHandlerContext struct {
 	typCfg              typing.Config
 	sessionContext      dto.SessionContext
 	walInstance         tsm.TSM
+	isExportEnabled     bool
 }
 
 func (hc *standardHandlerContext) GetTSM() (tsm.TSM, bool) {
@@ -413,6 +417,14 @@ func getRegistry(runtimeCtx dto.RuntimeCtx) (anysdk.RegistryAPI, error) {
 	return anysdk.NewRegistry(rc, rt)
 }
 
+func (hc *standardHandlerContext) SetIsExportEnabled(isExportEnabled bool) {
+	hc.isExportEnabled = isExportEnabled
+}
+
+func (hc *standardHandlerContext) IsExportEnabled() bool {
+	return hc.isExportEnabled
+}
+
 func (hc *standardHandlerContext) Clone() HandlerContext {
 	rv := standardHandlerContext{
 		authMapMutex:        hc.authMapMutex,
@@ -442,6 +454,7 @@ func (hc *standardHandlerContext) Clone() HandlerContext {
 		txnCoordinatorCtx:   hc.txnCoordinatorCtx,
 		typCfg:              hc.typCfg,
 		sessionContext:      hc.sessionContext,
+		isExportEnabled:     hc.isExportEnabled,
 	}
 	return &rv
 }

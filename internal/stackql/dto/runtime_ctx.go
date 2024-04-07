@@ -37,6 +37,7 @@ type RuntimeCtx struct {
 	PGSrvLogLevel                string
 	PGSrvPort                    int
 	PGSrvRawTLSCfg               string
+	IsExportEnabled              bool
 	ProviderStr                  string
 	RegistryRaw                  string
 	SessionCtxRaw                string
@@ -172,6 +173,8 @@ func (rc *RuntimeCtx) Set(key string, val string) error {
 		rc.TemplateCtxFilePath = val
 	case TestWithoutAPICallsKey:
 		retVal = setBool(&rc.TestWithoutAPICalls, val)
+	case IsExportEnabledKey:
+		retVal = setBool(&rc.IsExportEnabled, val)
 	case UseNonPreferredAPIsKEy:
 		retVal = setBool(&rc.UseNonPreferredAPIs, val)
 	case VarListKey:

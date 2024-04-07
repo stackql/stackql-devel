@@ -61,6 +61,7 @@ const (
 	StoreTxnCfgRawKey               string = "store.txn"
 	TemplateCtxFilePathKey          string = "iqldata"
 	TestWithoutAPICallsKey          string = "TestWithoutAPICalls"
+	IsExportEnabledKey              string = "exportEnabled"
 	UseNonPreferredAPIsKEy          string = "usenonpreferredapis"
 	VarListKey                      string = "var"
 	VerboseFlagKey                  string = "verbose"

@@ -141,6 +141,7 @@ func init() {
 	rootCmd.PersistentFlags().IntVar(&runtimeCtx.CacheKeyCount, dto.CacheKeyCountKey, 100, "Cache initial key count")              //nolint:gomnd // TODO: investigate
 	rootCmd.PersistentFlags().IntVar(&runtimeCtx.CacheTTL, dto.CacheTTLKey, 3600, "TTL for cached metadata documents, in seconds") //nolint:gomnd // TODO: investigate
 	rootCmd.PersistentFlags().BoolVar(&runtimeCtx.TestWithoutAPICalls, dto.TestWithoutAPICallsKey, false, "Flag to omit api calls for testing")
+	rootCmd.PersistentFlags().BoolVar(&runtimeCtx.IsExportEnabled, dto.IsExportEnabledKey, false, "Flag to support export of ELT material")
 	rootCmd.PersistentFlags().BoolVar(&runtimeCtx.UseNonPreferredAPIs, dto.UseNonPreferredAPIsKEy, false, "Flag to enable non-preferred APIs")
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.LogLevelStr, dto.LogLevelStrKey, config.GetDefaultLogLevelString(), "Log level")
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.ErrorPresentation, dto.ErrorPresentationKey, config.GetDefaultErrorPresentationString(), `Error presentation, options are: {"stderr", "record"}`)
