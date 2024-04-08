@@ -92,6 +92,9 @@ type HandlerContext interface { //nolint:revive // don't mind stuttering this on
 
 	SetIsExportEnabled(bool)
 	IsExportEnabled() bool
+
+	SetExportNamespace(string)
+	GetExportNamespace() string
 }
 
 type standardHandlerContext struct {
@@ -127,6 +130,15 @@ type standardHandlerContext struct {
 	sessionContext      dto.SessionContext
 	walInstance         tsm.TSM
 	isExportEnabled     bool
+	exportNamespace     string
+}
+
+func (hc *standardHandlerContext) SetExportNamespace(exportNamespace string) {
+	hc.exportNamespace = exportNamespace
+}
+
+func (hc *standardHandlerContext) GetExportNamespace() string {
+	return hc.exportNamespace
 }
 
 func (hc *standardHandlerContext) GetTSM() (tsm.TSM, bool) {
@@ -455,6 +467,7 @@ func (hc *standardHandlerContext) Clone() HandlerContext {
 		typCfg:              hc.typCfg,
 		sessionContext:      hc.sessionContext,
 		isExportEnabled:     hc.isExportEnabled,
+		exportNamespace:     hc.exportNamespace,
 	}
 	return &rv
 }
@@ -497,6 +510,8 @@ func GetHandlerCtx(
 		txnCoordinatorCtx:   inputBundle.GetTxnCoordinatorContext(),
 		typCfg:              inputBundle.GetTypingConfig(),
 		sessionContext:      inputBundle.GetSessionContext(),
+		isExportEnabled:     runtimeCtx.IsExportEnabled,
+		exportNamespace:     runtimeCtx.ExportAlias,
 	}
 	drmCfg, err := drm.GetDRMConfig(inputBundle.GetSQLSystem(),
 		inputBundle.GetTypingConfig(),

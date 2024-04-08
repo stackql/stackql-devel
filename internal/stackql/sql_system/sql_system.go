@@ -116,6 +116,8 @@ type SQLSystem interface {
 	ObtainRelationalColumnsFromExternalSQLtable(
 		hierarchyIDs internaldto.HeirarchyIdentifiers,
 	) ([]typing.RelationalColumn, error)
+
+	GetFullyQualifiedRelationName(tableName string) string
 }
 
 func getNodeFormatter(name string) sqlparser.NodeFormatter {
@@ -135,6 +137,7 @@ func NewSQLSystem(
 	sqlCfg dto.SQLBackendCfg,
 	authCfg map[string]*dto.AuthCtx,
 	typCfg typing.Config,
+	exportNamepsace string,
 ) (SQLSystem, error) {
 	name := sqlCfg.SQLSystem
 	nameLowered := strings.ToLower(name)
@@ -149,6 +152,7 @@ func NewSQLSystem(
 			sqlCfg,
 			authCfg,
 			typCfg,
+			exportNamepsace,
 		)
 	case constants.SQLDialectPostgres:
 		return newPostgresSystem(
@@ -159,6 +163,7 @@ func NewSQLSystem(
 			sqlCfg,
 			authCfg,
 			typCfg,
+			exportNamepsace,
 		)
 	default:
 		return nil, fmt.Errorf("cannot initialise sql system: cannot accomodate sql dialect '%s'", name)

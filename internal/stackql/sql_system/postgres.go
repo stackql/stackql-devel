@@ -30,6 +30,7 @@ func newPostgresSystem(
 	sqlCfg dto.SQLBackendCfg,
 	authCfg map[string]*dto.AuthCtx,
 	typCfg typing.Config,
+	exportNamepsace string,
 ) (SQLSystem, error) {
 	catalogName, err := sqlCfg.GetDatabaseName()
 	if err != nil {
@@ -50,6 +51,7 @@ func newPostgresSystem(
 		tableSchema:                  tableSchemaName,
 		tableCatalog:                 catalogName,
 		authCfg:                      authCfg,
+		exportNamespace:              exportNamepsace,
 	}
 	viewSchemataEnabled, err := rv.inferViewSchemataEnabled(sqlCfg.Schemata)
 	if err != nil {
@@ -90,6 +92,7 @@ type postgresSystem struct {
 	intelViewSchema              string
 	tableCatalog                 string
 	authCfg                      map[string]*dto.AuthCtx
+	exportNamespace              string
 }
 
 func (eng *postgresSystem) initPostgresEngine() error {
@@ -511,14 +514,15 @@ func (eng *postgresSystem) CreateMaterializedView(
 }
 
 //nolint:errcheck,revive,staticcheck // TODO: establish pattern
-func (eng *postgresSystem) RefreshMaterializedView(viewName string,
+func (eng *postgresSystem) RefreshMaterializedView(naiveViewName string,
 	colz []typing.RelationalColumn,
 	selectQuery string,
 	varargs ...any) error {
+	fullyQualifiedRelationName := eng.getFullyQualifiedRelationName(naiveViewName)
 	//nolint:gosec // no viable alternative
 	deleteQuery := fmt.Sprintf(`
 		DELETE FROM "%s"`,
-		viewName,
+		fullyQualifiedRelationName,
 	)
 	txn, err := eng.sqlEngine.GetTx()
 	if err != nil {
@@ -530,14 +534,14 @@ func (eng *postgresSystem) RefreshMaterializedView(viewName string,
 		return err
 	}
 	// TODO: check colz against supplied columns
-	relationDTO, relationDTOok := eng.getMaterializedViewByName(viewName, txn)
+	relationDTO, relationDTOok := eng.getMaterializedViewByName(naiveViewName, txn)
 	if !relationDTOok {
 		if len(relationDTO.GetColumns()) == 0 {
 		}
 		// no need to rollbak; assumed already done
-		return fmt.Errorf("cannot refresh materialized view = '%s': not found", viewName)
+		return fmt.Errorf("cannot refresh materialized view = '%s': not found", naiveViewName)
 	}
-	insertQuery := eng.generateTableInsertDMLFromViewSelect(viewName, selectQuery, colz)
+	insertQuery := eng.generateTableInsertDMLFromViewSelect(fullyQualifiedRelationName, selectQuery, colz)
 	_, err = txn.Exec(insertQuery, varargs...)
 	if err != nil {
 		txn.Rollback()
@@ -548,24 +552,25 @@ func (eng *postgresSystem) RefreshMaterializedView(viewName string,
 }
 
 //nolint:errcheck,revive,staticcheck // TODO: establish pattern
-func (eng *postgresSystem) InsertIntoPhysicalTable(tableName string,
+func (eng *postgresSystem) InsertIntoPhysicalTable(naiveTableName string,
 	columnsString string,
 	selectQuery string,
 	varargs ...any) error {
+	fullyQualifiedRelationName := eng.getFullyQualifiedRelationName(naiveTableName)
 	txn, err := eng.sqlEngine.GetTx()
 	if err != nil {
 		return err
 	}
 	// TODO: check colz against supplied columns
-	relationDTO, relationDTOok := eng.getTableByName(tableName, txn)
+	relationDTO, relationDTOok := eng.getTableByName(fullyQualifiedRelationName, txn)
 	if !relationDTOok {
 		if len(relationDTO.GetColumns()) == 0 {
 		}
 		// no need to rollbak; assumed already done
-		return fmt.Errorf("cannot refresh materialized view = '%s': not found", tableName)
+		return fmt.Errorf("cannot refresh materialized view = '%s': not found", fullyQualifiedRelationName)
 	}
 	//nolint:gosec // no viable alternative
-	insertQuery := fmt.Sprintf("INSERT INTO \"%s\" %s %s", tableName, columnsString, selectQuery)
+	insertQuery := fmt.Sprintf("INSERT INTO \"%s\" %s %s", fullyQualifiedRelationName, columnsString, selectQuery)
 	_, err = txn.Exec(insertQuery, varargs...)
 	if err != nil {
 		txn.Rollback()
@@ -575,7 +580,8 @@ func (eng *postgresSystem) InsertIntoPhysicalTable(tableName string,
 	return commitErr
 }
 
-func (eng *postgresSystem) DropMaterializedView(viewName string) error {
+func (eng *postgresSystem) DropMaterializedView(naiveViewName string) error {
+	fullyQualifiedRelationName := eng.getFullyQualifiedRelationName(naiveViewName)
 	dropRefQuery := `
 	DELETE FROM "__iql__.materialized_views"
 	WHERE view_name = $1
@@ -589,18 +595,18 @@ func (eng *postgresSystem) DropMaterializedView(viewName string) error {
 	`
 	dropTableQuery := fmt.Sprintf(`
 	DROP TABLE IF EXISTS "%s"
-	`, viewName)
+	`, fullyQualifiedRelationName)
 	tx, err := eng.sqlEngine.GetTx()
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec(dropRefQuery, viewName)
+	_, err = tx.Exec(dropRefQuery, fullyQualifiedRelationName)
 	if err != nil {
 		//nolint:errcheck // TODO: merge variadic error(s) into one
 		tx.Rollback()
 		return err
 	}
-	_, err = tx.Exec(dropColsQuery, viewName)
+	_, err = tx.Exec(dropColsQuery, fullyQualifiedRelationName)
 	if err != nil {
 		//nolint:errcheck // TODO: merge variadic error(s) into one
 		tx.Rollback()
@@ -654,7 +660,7 @@ func (eng *postgresSystem) getMaterializedViewByName(viewName string, txn *sql.T
 		txn.Rollback()
 		return nil, false
 	}
-	rv := internaldto.NewMaterializedViewDTO(viewName, viewDDL)
+	rv := internaldto.NewMaterializedViewDTO(viewName, viewDDL, eng.exportNamespace)
 	rows, err := txn.Query(colQuery, viewName)
 	if err != nil || rows == nil || rows.Err() != nil {
 		txn.Rollback()
@@ -704,8 +710,9 @@ func (eng *postgresSystem) GetPhysicalTableByName(
 //
 //nolint:errcheck // TODO: establish pattern
 func (eng *postgresSystem) getTableByName(
-	tableName string,
+	naiveTableName string,
 	txn *sql.Tx) (internaldto.RelationDTO, bool) {
+	fullyQualifiedTableName := eng.getFullyQualifiedRelationName(naiveTableName)
 	q := `SELECT table_ddl FROM "__iql__.tables" WHERE table_name = $1 and deleted_dttm IS NULL`
 	colQuery := `
 	SELECT
@@ -720,7 +727,7 @@ func (eng *postgresSystem) getTableByName(
 	  table_name = $1
 	ORDER BY ordinal_position ASC
 	`
-	row := txn.QueryRow(q, tableName)
+	row := txn.QueryRow(q, fullyQualifiedTableName)
 	if row == nil {
 		txn.Rollback()
 		return nil, false
@@ -731,8 +738,8 @@ func (eng *postgresSystem) getTableByName(
 		txn.Rollback()
 		return nil, false
 	}
-	rv := internaldto.NewPhysicalTableDTO(tableName, viewDDL)
-	rows, err := txn.Query(colQuery, tableName)
+	rv := internaldto.NewPhysicalTableDTO(fullyQualifiedTableName, viewDDL, eng.exportNamespace)
+	rows, err := txn.Query(colQuery, fullyQualifiedTableName)
 	if err != nil || rows == nil || rows.Err() != nil {
 		txn.Rollback()
 		return nil, false
@@ -766,20 +773,21 @@ func (eng *postgresSystem) getTableByName(
 }
 
 // TODO: implement temp table drop
-func (eng *postgresSystem) DropPhysicalTable(tableName string,
+func (eng *postgresSystem) DropPhysicalTable(naiveTableName string,
 	ifExists bool,
 ) error {
+	fullyQualifiedTableName := eng.getFullyQualifiedRelationName(naiveTableName)
 	dropRefQuery := `
 	DELETE FROM "__iql__.tables"
 	WHERE table_name = $1
 	`
 	dropTableQuery := fmt.Sprintf(`
 	DROP TABLE "%s"
-	`, tableName)
+	`, fullyQualifiedTableName)
 	if ifExists {
 		dropTableQuery = fmt.Sprintf(`
 		DROP TABLE IF EXISTS "%s"
-		`, tableName)
+		`, fullyQualifiedTableName)
 	}
 	dropColsQuery := `
 	DELETE
@@ -792,13 +800,13 @@ func (eng *postgresSystem) DropPhysicalTable(tableName string,
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec(dropRefQuery, tableName)
+	_, err = tx.Exec(dropRefQuery, fullyQualifiedTableName)
 	if err != nil {
 		//nolint:errcheck // TODO: merge variadic error(s) into one
 		tx.Rollback()
 		return err
 	}
-	_, err = tx.Exec(dropColsQuery, tableName)
+	_, err = tx.Exec(dropColsQuery, fullyQualifiedTableName)
 	if err != nil {
 		//nolint:errcheck // TODO: merge variadic error(s) into one
 		tx.Rollback()
@@ -827,6 +835,17 @@ func (eng *postgresSystem) CreatePhysicalTable(
 		rawDDL,
 		ifNotExists,
 	)
+}
+
+func (eng *postgresSystem) GetFullyQualifiedRelationName(tableName string) string {
+	return eng.getFullyQualifiedRelationName(tableName)
+}
+
+func (eng *postgresSystem) getFullyQualifiedRelationName(tableName string) string {
+	if eng.exportNamespace == "" {
+		return tableName
+	}
+	return fmt.Sprintf("%s.%s", eng.exportNamespace, tableName)
 }
 
 func (eng *postgresSystem) getViewByName(viewName string) (internaldto.RelationDTO, bool) {
@@ -1610,12 +1629,13 @@ func (eng *postgresSystem) generateTableInsertDMLFromViewSelect(
 
 //nolint:errcheck // TODO: establish pattern
 func (eng *postgresSystem) runMaterializedViewCreate(
-	relationName string,
+	naiveRelationName string,
 	colz []typing.RelationalColumn,
 	rawDDL string,
 	selectQuery string,
 	varargs ...any,
 ) error {
+	fullyQualifiedRelationName := eng.getFullyQualifiedRelationName(naiveRelationName)
 	txn, txnErr := eng.sqlEngine.GetTx()
 	if txnErr != nil {
 		return txnErr
@@ -1648,7 +1668,7 @@ func (eng *postgresSystem) runMaterializedViewCreate(
 		}
 		_, err := txn.Exec(
 			columnQuery,
-			relationName,
+			fullyQualifiedRelationName,
 			col.GetName(),
 			col.GetType(),
 			i+1,
@@ -1661,13 +1681,13 @@ func (eng *postgresSystem) runMaterializedViewCreate(
 			return err
 		}
 	}
-	tableDDL := eng.generateTableDDL(relationName, colz)
+	tableDDL := eng.generateTableDDL(fullyQualifiedRelationName, colz)
 	_, err := txn.Exec(tableDDL)
 	if err != nil {
 		txn.Rollback()
 		return err
 	}
-	insertQuery := eng.generateTableInsertDMLFromViewSelect(relationName, selectQuery, colz)
+	insertQuery := eng.generateTableInsertDMLFromViewSelect(fullyQualifiedRelationName, selectQuery, colz)
 	_, err = txn.Exec(insertQuery, varargs...)
 	if err != nil {
 		txn.Rollback()
@@ -1690,7 +1710,7 @@ func (eng *postgresSystem) runMaterializedViewCreate(
 	  `
 	_, err = txn.Exec(
 		relationCatalogueQuery,
-		relationName,
+		fullyQualifiedRelationName,
 		rawDDL,
 		insertQuery,
 	)
