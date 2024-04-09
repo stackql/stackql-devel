@@ -1587,7 +1587,7 @@ func (eng *postgresSystem) generateTableDDL(
 	colz []typing.RelationalColumn,
 ) string {
 	sb := strings.Builder{}
-	sb.WriteString(fmt.Sprintf(`CREATE TABLE "%s" ( `, relationName))
+	sb.WriteString(fmt.Sprintf(`CREATE TABLE %s ( `, relationName))
 	var colzString []string
 	for _, col := range colz {
 		colType := col.GetType()
@@ -1616,7 +1616,7 @@ func (eng *postgresSystem) generateTableInsertDMLFromViewSelect(
 	colz []typing.RelationalColumn,
 ) string {
 	sb := strings.Builder{}
-	sb.WriteString(fmt.Sprintf(`INSERT INTO "%s" ( `, relationName))
+	sb.WriteString(fmt.Sprintf(`INSERT INTO %s ( `, relationName))
 	var colzString []string
 	for _, col := range colz {
 		colzString = append(colzString, fmt.Sprintf(`"%s"`, col.GetName()))

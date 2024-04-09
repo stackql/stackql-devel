@@ -673,7 +673,7 @@ func (eng *sqLiteSystem) InsertIntoPhysicalTable(naiveTableName string,
 		return fmt.Errorf("cannot refresh materialized view = '%s': not found", fullyQualifiedRelationName)
 	}
 	//nolint:gosec // no viable alternative
-	insertQuery := fmt.Sprintf("INSERT INTO \"%s\" %s %s", fullyQualifiedRelationName, columnsString, selectQuery)
+	insertQuery := fmt.Sprintf("INSERT INTO %s %s %s", fullyQualifiedRelationName, columnsString, selectQuery)
 	_, err = txn.Exec(insertQuery, varargs...)
 	if err != nil {
 		txn.Rollback()
@@ -1454,7 +1454,7 @@ func (eng *sqLiteSystem) generateTableDDL(
 	colz []typing.RelationalColumn,
 ) string {
 	sb := strings.Builder{}
-	sb.WriteString(fmt.Sprintf(`CREATE TABLE "%s" ( `, relationName))
+	sb.WriteString(fmt.Sprintf(`CREATE TABLE %s ( `, relationName))
 	var colzString []string
 	for _, col := range colz {
 		colzString = append(colzString, fmt.Sprintf(`"%s" %s`, col.GetName(), col.GetType()))
@@ -1470,7 +1470,7 @@ func (eng *sqLiteSystem) generateTableInsertDMLFromViewSelect(
 	colz []typing.RelationalColumn,
 ) string {
 	sb := strings.Builder{}
-	sb.WriteString(fmt.Sprintf(`INSERT INTO "%s" ( `, relationName))
+	sb.WriteString(fmt.Sprintf(`INSERT INTO %s ( `, relationName))
 	var colzString []string
 	for _, col := range colz {
 		colzString = append(colzString, fmt.Sprintf(`"%s"`, col.GetName()))

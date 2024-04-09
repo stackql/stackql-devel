@@ -2,6 +2,7 @@ package astvisit
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/stackql/stackql/internal/stackql/astanalysis/annotatedast"
@@ -670,10 +671,14 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 					v.rewrittenQuery = templateString
 					v.indirectContexts = append(v.indirectContexts, indirect.GetSelectContext())
 				case astindirect.MaterializedViewType, astindirect.PhysicalTableType:
-					refString := fmt.Sprintf(` "%s" `, name)
+					refString := fmt.Sprintf(` %s `, name)
+					isQuoted, _ := regexp.MatchString(`^".*"$`, name)
+					if !isQuoted {
+						refString = fmt.Sprintf(` "%s" `, name)
+					}
 					alias := ""
 					if alias != "" {
-						refString = fmt.Sprintf(` "%s" AS "%s" `, name, alias)
+						refString = fmt.Sprintf(` %s AS "%s" `, refString, alias)
 					}
 					v.rewrittenQuery = refString
 				default:

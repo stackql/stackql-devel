@@ -133,6 +133,7 @@
         "select u1.UserName, u.UserId, u.Arn, u1.region from ( select Arn, UserName, UserId from aws.iam.users where region = 'us-east-1' ) u inner join aws.iam.users u1 on u1.Arn = u.Arn where region = 'us-east-1'  order by u1.UserName desc;",
         "show resources in aws.cloudhsm;",
         "select * from aws.cloudhsm.clusters where region = 'ap-southeast-2' and data__Filters = '{\"states\": [\"UNINITIALIZED\"]}' ;",
+        "create materialized view nv as select BackupId, BackupState from aws.cloudhsm.backups where region = 'ap-southeast-2' order by BackupId; select * from nv;",
       ],
       "default": "show providers;"
     },
@@ -254,6 +255,16 @@
     },
     {
       "type": "pickString",
+      "id": "exportAliasString",
+      "description": "export namespace",
+      "default": "{}",
+      "options": [
+        "",
+        "stackql_export"
+      ]
+    },
+    {
+      "type": "pickString",
       "id": "pgsrvTlsString",
       "description": "pgsrv.tls config",
       // you will need to fill in the gaps here
@@ -323,6 +334,7 @@
         "--namespaces=${input:namespaceString}",
         "--dbInternal=${input:dbInternalString}",
         "--execution.concurrency.limit=${input:concurrencyLimit}",
+        "--export.alias=${input:exportAliasString}",
         "${input:queryString}"
       ],
     },
