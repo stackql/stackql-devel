@@ -12,7 +12,7 @@ from robot.libraries.Collections import Collections
 from robot.libraries.Process import Process
 from robot.libraries.OperatingSystem import OperatingSystem 
 
-from stackql_context import RegistryCfg, _TEST_APP_CACHE_ROOT
+from stackql_context import RegistryCfg, _TEST_APP_CACHE_ROOT, PSQL_EXE, SQLITE_EXE
 from ShellSession import ShellSession
 from psycopg_client import PsycoPGClient
 from psycopg2_client import PsycoPG2Client
@@ -55,8 +55,71 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       psql_exe, 
       '-d', _mod_conn, 
       '-c', query,
+      *args,
       **cfg,
     )
+    self.log(result.stdout)
+    self.log(result.stderr)
+    return result
+  
+  @keyword
+  def should_rdbms_query_return_csv_result(
+    self,
+    db_name :str,
+    sql_client_export_connection_arg :str,
+    query :str,
+    expected_output :str,
+    expected_stderr_output :str,
+    *args,
+    **kwargs):
+    result = None
+    if db_name == "sqlite":
+      result = self._run_sqlite_command(
+        SQLITE_EXE,
+        sql_client_export_connection_arg,
+        query,
+        *("--csv",),
+        **kwargs,
+      )
+    elif db_name == "postgres":
+      result = self._run_PG_client_command(
+        os.getcwd(),
+        PSQL_EXE,
+        sql_client_export_connection_arg,
+        query,
+        *("--csv",),
+        **kwargs,
+      )
+    return self._verify_both_streams(result, expected_output, expected_stderr_output)
+  
+
+  def _verify_both_streams(self, result, expected_output, expected_stderr_output):
+    stdout_ok = self.should_be_equal(result.stdout, expected_output)
+    if self._execution_platform == "docker":
+      # cannot silence stupid compose status logs
+      stderr_ok = self.should_contain(result.stderr, expected_stderr_output)
+      return stdout_ok and stderr_ok
+    stderr_ok = self.should_be_equal(result.stderr, expected_stderr_output)
+    return stdout_ok and stderr_ok
+
+  def _run_sqlite_command(self, sqlite_exe :str, sqlite_db_file :str, query :str, *args, **cfg):
+    self.log_to_console(f"sqlite_exe = '{sqlite_exe}'")
+    result = None
+    if len(args) == 0:
+      result = super().run_process(
+        sqlite_exe,
+        sqlite_db_file, 
+        query,
+        **cfg,
+      )
+    else:
+      result = super().run_process(
+        sqlite_exe,
+        *args,
+        sqlite_db_file, 
+        query,
+        **cfg,
+      )
     self.log(result.stdout)
     self.log(result.stderr)
     return result
@@ -155,6 +218,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
   def _docker_transform_args(self, *args) -> typing.Iterable:
     rv = [ f"--namespaces='{b[13:]}'" if type(b) == str and b.startswith('--namespaces=') else b for b in list(args) ]
     rv = [ f"--sqlBackend='{b[13:]}'" if type(b) == str and b.startswith('--sqlBackend=') else b for b in list(rv) ]
+    rv = [ f"--export.alias='{b[15:]}'" if type(b) == str and b.startswith('--export.alias=') else b for b in list(rv) ]
     return rv
 
   def _run_stackql_exec_command_docker(
@@ -483,6 +547,27 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
   
 
   @keyword
+  def should_sqlite_inline_equal(self, curdir :str, sqlite_exe :str, sqlite_db_file :str, query :str, expected_output :str, *args, **kwargs):
+    result = None
+    if len(args) == 0:
+      result =    self._run_sqlite_command(
+        curdir,
+        sqlite_exe,
+        sqlite_db_file,
+        query
+      )
+    else:
+      result =    self._run_sqlite_command(
+        curdir,
+        sqlite_exe,
+        *args,
+        sqlite_db_file,
+        query
+      ) 
+    return self.should_be_equal(result.stdout, expected_output)
+  
+
+  @keyword
   def should_PG_client_inline_equal_bench(self, curdir :str, psql_exe :str, psql_conn_str :str, query :str, expected_output :str, max_mean_time :float = 1.7, max_time :float = 10.0, repeat_count = 10, **cfg):
     times = []
     for i in range(repeat_count):
@@ -706,13 +791,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       *args,
       **cfg
     )
-    stdout_ok = self.should_be_equal(result.stdout, expected_output)
-    if self._execution_platform == "docker":
-      # cannot silence stupid compose status logs
-      stderr_ok = self.should_contain(result.stderr, expected_stderr_output)
-      return stdout_ok and stderr_ok
-    stderr_ok = self.should_be_equal(result.stderr, expected_stderr_output)
-    return stdout_ok and stderr_ok
+    return self._verify_both_streams(result, expected_output, expected_stderr_output)
 
 
   @keyword

@@ -376,6 +376,13 @@ def get_analytics_db_init_path(sql_backend_str :str) -> str:
   return os.path.abspath(os.path.join(REPOSITORY_ROOT, "test", "db", sql_dialect,  "cache_setup.sql"))
 
 
+def get_sqlite_export_db_path(execution_env :str) -> str:
+  if execution_env == 'native':
+    return os.path.abspath(os.path.join(REPOSITORY_ROOT, "test", "db", "tmp",  "export_testing.sqlite"))
+  if execution_env == 'docker':
+    return get_unix_path(os.path.join('/opt', 'stackql', "db", "export_testing.sqlite"))
+
+
 ANALYTICS_DB_INIT_PATH_DOCKER :str = get_unix_path(os.path.join('/opt', 'stackql', "db", "cache_setup.sql"))
 
 def get_analytics_db_init_path_unix(sql_backend_str :str) ->str:
@@ -401,6 +408,25 @@ def get_canonical_sql_backend(execution_env :str, sql_backend_str :str) -> str:
       return f'{{ "dbEngine": "postgres_tcp", "dsn": "{_SQL_BACKEND_POSTGRES_DOCKER_DSN}", "sqlDialect": "postgres", "schemata": {{ "tableSchema": "{_PG_SCHEMA_PHYSICAL_TABLES}", "intelViewSchema": "{_PG_SCHEMA_INTEL}", "opsViewSchema": "stackql_ops" }} }}'.replace(' ', '')
     return '{}'
 
+
+def get_export_sql_backend(execution_env :str, sql_backend_str :str) -> str:
+  sqlite_file_path = get_sqlite_export_db_path(execution_env)
+  if execution_env == 'native':
+    return f'{{ "dsn": "file:{sqlite_file_path}" }} }}'
+  if execution_env == 'docker':
+    if sql_backend_str == 'postgres_tcp':
+      # same as always
+      return f'{{ "dbEngine": "postgres_tcp", "dsn": "{_SQL_BACKEND_POSTGRES_DOCKER_DSN}", "sqlDialect": "postgres", "schemata": {{ "tableSchema": "{_PG_SCHEMA_PHYSICAL_TABLES}", "intelViewSchema": "{_PG_SCHEMA_INTEL}", "opsViewSchema": "stackql_ops" }} }}'.replace(' ', '')
+    return f'{{ "dsn":  "file:{sqlite_file_path}" }}'
+
+def get_export_sql_connection_arg(execution_env :str, sql_backend_str :str) -> str:
+  sqlite_file_path = get_sqlite_export_db_path(execution_env)
+  if execution_env == 'native':
+    return sqlite_file_path
+  if execution_env == 'docker':
+    if sql_backend_str == 'postgres_tcp':
+      return _SQL_BACKEND_POSTGRES_DOCKER_DSN
+    return sqlite_file_path
 
 with open(os.path.join(REPOSITORY_ROOT, 'test', 'server', 'mtls', 'credentials', 'pg_client_cert.pem'), 'rb') as f:
   _CLIENT_CERT_ENCODED :str = base64.b64encode(f.read()).decode('utf-8')
@@ -525,6 +551,7 @@ PG_SRV_PORT_DOCKER_MTLS_WITH_EAGER_GC = 5596
 PG_SRV_PORT_DOCKER_UNENCRYPTED = 5577
 
 PSQL_EXE :str = os.environ.get('PSQL_EXE', 'psql')
+SQLITE_EXE :str = os.environ.get('SQLITE_EXE', 'sqlite3')
 
 PSQL_CLIENT_HOST :str = "127.0.0.1"
 
@@ -852,6 +879,8 @@ def get_variables(execution_env :str, sql_backend_str :str):
     'POSTGRES_URL_UNENCRYPTED_CONN':                  POSTGRES_URL_UNENCRYPTED_CONN,
     'PSQL_CLIENT_HOST':                               PSQL_CLIENT_HOST,
     'PSQL_EXE':                                       PSQL_EXE,
+    'SQLITE_EXE':                                     SQLITE_EXE,
+    'EXPORT_SQLITE_FILE_PATH':                        get_sqlite_export_db_path(execution_env),
     'REGISTRY_ROOT_CANONICAL':                        _REGISTRY_CANONICAL,
     'REGISTRY_ROOT_DEPRECATED':                       _REGISTRY_DEPRECATED,
     'REGISTRY_CANONICAL_CFG_STR':                     _REGISTRY_CANONICAL,
@@ -863,6 +892,8 @@ def get_variables(execution_env :str, sql_backend_str :str):
     'REPOSITORY_ROOT':                                REPOSITORY_ROOT,
     'SQL_BACKEND_CFG_STR_ANALYTICS':                  get_analytics_sql_backend(execution_env, sql_backend_str),
     'SQL_BACKEND_CFG_STR_CANONICAL':                  get_canonical_sql_backend(execution_env, sql_backend_str),
+    'SQL_CLIENT_EXPORT_BACKEND':                      get_export_sql_backend(execution_env, sql_backend_str),
+    'SQL_CLIENT_EXPORT_CONNECTION_ARG':               get_export_sql_connection_arg(execution_env, sql_backend_str),
     'STACKQL_EXE':                                    STACKQL_EXE,
     'SUMOLOGIC_SECRET_STR':                           SUMOLOGIC_SECRET_STR,
     ## queries and expectations
