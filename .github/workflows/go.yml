@@ -87,7 +87,7 @@ jobs:
       uses: crazy-max/ghaction-chocolatey@v3.0.0
       timeout-minutes: 20
       with:
-        args: "install --force postgresql13 openssl"
+        args: "install --force postgresql13 openssl sqlite"
     
     - name: Git Ref Parse
       id: git_ref_parse
@@ -431,6 +431,7 @@ jobs:
           postgresql
           python3
           python3-pip
+          sqlite3
         wsl-conf: |
           [automount]
           options = "metadata"
