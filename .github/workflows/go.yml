@@ -85,7 +85,7 @@ jobs:
     - name: Choco install postgres
       # uses: crazy-max/ghaction-chocolatey@v2
       uses: crazy-max/ghaction-chocolatey@v3.0.0
-      timeout-minutes: 20
+      timeout-minutes: 30
       with:
         args: "install --force postgresql13 openssl sqlite"
     
