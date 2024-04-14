@@ -390,6 +390,8 @@ def get_analytics_db_init_path_unix(sql_backend_str :str) ->str:
 
 _SQL_BACKEND_POSTGRES_DOCKER_DSN :str = 'postgres://stackql:stackql@postgres_stackql:5432/stackql'
 
+_SQL_BACKEND_POSTGRES_PUBLISHED_DOCKER_DSN :str = 'postgres://stackql:stackql@127.0.0.1:5532/stackql'
+
 
 def get_analytics_sql_backend(execution_env :str, sql_backend_str :str) -> str:
   if execution_env == 'native':
@@ -425,7 +427,7 @@ def get_export_sql_connection_arg(execution_env :str, sql_backend_str :str) -> s
     return sqlite_file_path
   if execution_env == 'docker':
     if sql_backend_str == 'postgres_tcp':
-      return _SQL_BACKEND_POSTGRES_DOCKER_DSN
+      return _SQL_BACKEND_POSTGRES_PUBLISHED_DOCKER_DSN
     return os.path.abspath(os.path.join(REPOSITORY_ROOT, "cicd", "vol", "stackql", "test",  "export_testing.sqlite"))
 
 with open(os.path.join(REPOSITORY_ROOT, 'test', 'server', 'mtls', 'credentials', 'pg_client_cert.pem'), 'rb') as f:

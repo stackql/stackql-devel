@@ -13,7 +13,7 @@ Export Materialized View and then Access From RDBMSs
     ${queryStringSQLite} =    Catenate
     ...    select BackupId, BackupState from "stackql_export.nv" order by BackupId;
     ${queryStringPostgres} =    Catenate
-    ...    select BackupId, BackupState from stackql_export.nv order by BackupId;
+    ...    select "BackupId", "BackupState" from stackql_export.nv order by "BackupId";
     ${dbName} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"     postgres    sqlite
     ${queryString} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"     ${queryStringPostgres}    ${queryStringSQLite}
     ${queryOutputStr} =    Catenate    SEPARATOR=\n
