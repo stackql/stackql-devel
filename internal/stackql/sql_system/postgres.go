@@ -638,7 +638,8 @@ func (eng *postgresSystem) GetMaterializedViewByName(viewName string) (internald
 }
 
 //nolint:errcheck // TODO: establish pattern
-func (eng *postgresSystem) getMaterializedViewByName(naiveViewName string, txn *sql.Tx) (internaldto.RelationDTO, bool) {
+func (eng *postgresSystem) getMaterializedViewByName(
+	naiveViewName string, txn *sql.Tx) (internaldto.RelationDTO, bool) {
 	fullyQualifiedRelationName := eng.getFullyQualifiedRelationName(naiveViewName)
 	q := `SELECT view_ddl FROM "__iql__.materialized_views" WHERE view_name = $1 and deleted_dttm IS NULL`
 	colQuery := `
