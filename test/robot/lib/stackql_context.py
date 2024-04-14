@@ -426,7 +426,7 @@ def get_export_sql_connection_arg(execution_env :str, sql_backend_str :str) -> s
   if execution_env == 'docker':
     if sql_backend_str == 'postgres_tcp':
       return _SQL_BACKEND_POSTGRES_DOCKER_DSN
-    return sqlite_file_path
+    return os.path.abspath(os.path.join(REPOSITORY_ROOT, "cicd", "vol", "stackql", "test",  "export_testing.sqlite"))
 
 with open(os.path.join(REPOSITORY_ROOT, 'test', 'server', 'mtls', 'credentials', 'pg_client_cert.pem'), 'rb') as f:
   _CLIENT_CERT_ENCODED :str = base64.b64encode(f.read()).decode('utf-8')
