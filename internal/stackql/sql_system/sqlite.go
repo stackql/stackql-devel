@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 	"time"
 
@@ -732,6 +733,14 @@ func (eng *sqLiteSystem) GetMaterializedViewByName(viewName string) (internaldto
 	rv, ok := eng.getMaterializedViewByName(viewName, txn)
 	txn.Commit()
 	return rv, ok
+}
+
+func (eng *sqLiteSystem) IsRelationExported(relationName string) bool {
+	if eng.exportNamespace == "" {
+		return false
+	}
+	matches, _ := regexp.MatchString(fmt.Sprintf(`^%s.*$`, eng.exportNamespace), relationName)
+	return matches
 }
 
 //nolint:errcheck // TODO: establish pattern

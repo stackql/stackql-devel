@@ -675,7 +675,8 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 					refString := fmt.Sprintf(` %s `, name)
 					isQuoted, _ := regexp.MatchString(`^".*"$`, name)
 					isPostgres := v.sqlSystem.GetName() == constants.SQLDialectPostgres
-					if !isQuoted && !isPostgres {
+					isRelationExported := v.sqlSystem.IsRelationExported(name)
+					if !isQuoted && !(isPostgres && isRelationExported) {
 						refString = fmt.Sprintf(` "%s" `, name)
 					}
 					alias := ""

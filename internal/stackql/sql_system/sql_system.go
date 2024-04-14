@@ -118,6 +118,7 @@ type SQLSystem interface {
 	) ([]typing.RelationalColumn, error)
 
 	GetFullyQualifiedRelationName(tableName string) string
+	IsRelationExported(relationName string) bool
 }
 
 func getNodeFormatter(name string) sqlparser.NodeFormatter {

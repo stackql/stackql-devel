@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 	"time"
 
@@ -110,6 +111,14 @@ func (eng *postgresSystem) generateDropTableStatement(relationalTable relational
 
 func (eng *postgresSystem) GetFullyQualifiedTableName(unqualifiedTableName string) (string, error) {
 	return eng.getFullyQualifiedTableName(unqualifiedTableName)
+}
+
+func (eng *postgresSystem) IsRelationExported(relationName string) bool {
+	if eng.exportNamespace == "" {
+		return false
+	}
+	matches, _ := regexp.MatchString(fmt.Sprintf(`^%s.*$`, eng.exportNamespace), relationName)
+	return matches
 }
 
 func (eng *postgresSystem) getFullyQualifiedTableName(unqualifiedTableName string) (string, error) {
