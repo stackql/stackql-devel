@@ -1635,7 +1635,6 @@ func (eng *postgresSystem) runMaterializedViewCreate(
 	selectQuery string,
 	varargs ...any,
 ) error {
-	fullyQualifiedRelationName := eng.getFullyQualifiedRelationName(naiveRelationName)
 	txn, txnErr := eng.sqlEngine.GetTx()
 	if txnErr != nil {
 		return txnErr
@@ -1668,7 +1667,7 @@ func (eng *postgresSystem) runMaterializedViewCreate(
 		}
 		_, err := txn.Exec(
 			columnQuery,
-			fullyQualifiedRelationName,
+			naiveRelationName,
 			col.GetName(),
 			col.GetType(),
 			i+1,
@@ -1681,13 +1680,13 @@ func (eng *postgresSystem) runMaterializedViewCreate(
 			return err
 		}
 	}
-	tableDDL := eng.generateTableDDL(fullyQualifiedRelationName, colz)
+	tableDDL := eng.generateTableDDL(naiveRelationName, colz)
 	_, err := txn.Exec(tableDDL)
 	if err != nil {
 		txn.Rollback()
 		return err
 	}
-	insertQuery := eng.generateTableInsertDMLFromViewSelect(fullyQualifiedRelationName, selectQuery, colz)
+	insertQuery := eng.generateTableInsertDMLFromViewSelect(naiveRelationName, selectQuery, colz)
 	_, err = txn.Exec(insertQuery, varargs...)
 	if err != nil {
 		txn.Rollback()
@@ -1710,7 +1709,7 @@ func (eng *postgresSystem) runMaterializedViewCreate(
 	  `
 	_, err = txn.Exec(
 		relationCatalogueQuery,
-		fullyQualifiedRelationName,
+		naiveRelationName,
 		rawDDL,
 		insertQuery,
 	)
