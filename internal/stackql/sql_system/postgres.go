@@ -560,8 +560,11 @@ func (eng *postgresSystem) RefreshMaterializedView(naiveViewName string,
 	return commitErr
 }
 
-func (eng *postgresSystem) getExportSchemaCreateQuery() string {
-	return fmt.Sprintf("CREATE SCHEMA IF NOT EXISTS %s", eng.exportNamespace)
+func (eng *postgresSystem) getExportSchemaCreateQuery() (string, bool) {
+	if eng.exportNamespace == "" {
+		return "", false
+	}
+	return fmt.Sprintf("CREATE SCHEMA IF NOT EXISTS %s", eng.exportNamespace), true
 }
 
 //nolint:errcheck,revive,staticcheck // TODO: establish pattern
@@ -1654,10 +1657,13 @@ func (eng *postgresSystem) runMaterializedViewCreate(
 	if txnErr != nil {
 		return txnErr
 	}
-	_, txnErr = txn.Exec(eng.getExportSchemaCreateQuery())
-	if txnErr != nil {
-		txn.Rollback()
-		return txnErr
+	exportSchemaCreateQuery, isExportSchemaCreateQueryRequired := eng.getExportSchemaCreateQuery()
+	if isExportSchemaCreateQueryRequired {
+		_, txnErr = txn.Exec(exportSchemaCreateQuery)
+		if txnErr != nil {
+			txn.Rollback()
+			return txnErr
+		}
 	}
 	columnQuery := `
 	INSERT INTO "__iql__.materialized_views.columns" (
@@ -1752,10 +1758,13 @@ func (eng *postgresSystem) runPhysicalTableCreate(
 	if txnErr != nil {
 		return txnErr
 	}
-	_, txnErr = txn.Exec(eng.getExportSchemaCreateQuery())
-	if txnErr != nil {
-		txn.Rollback()
-		return txnErr
+	exportSchemaCreateQuery, isExportSchemaCreateQueryRequired := eng.getExportSchemaCreateQuery()
+	if isExportSchemaCreateQueryRequired {
+		_, txnErr = txn.Exec(exportSchemaCreateQuery)
+		if txnErr != nil {
+			txn.Rollback()
+			return txnErr
+		}
 	}
 	columnQuery := `
 	INSERT INTO "__iql__.tables.columns" (
