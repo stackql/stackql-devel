@@ -8,6 +8,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/astanalysis/annotatedast"
 	"github.com/stackql/stackql/internal/stackql/astformat"
 	"github.com/stackql/stackql/internal/stackql/astindirect"
+	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/sql_system"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
@@ -673,7 +674,8 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 				case astindirect.MaterializedViewType, astindirect.PhysicalTableType:
 					refString := fmt.Sprintf(` %s `, name)
 					isQuoted, _ := regexp.MatchString(`^".*"$`, name)
-					if !isQuoted {
+					isPostgres := v.sqlSystem.GetName() == constants.SQLDialectPostgres
+					if !isQuoted && !isPostgres {
 						refString = fmt.Sprintf(` "%s" `, name)
 					}
 					alias := ""

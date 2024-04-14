@@ -551,6 +551,10 @@ func (eng *postgresSystem) RefreshMaterializedView(naiveViewName string,
 	return commitErr
 }
 
+func (eng *postgresSystem) getExportSchemaCreateQuery() string {
+	return fmt.Sprintf("CREATE SCHEMA IF NOT EXISTS %s", eng.exportNamespace)
+}
+
 //nolint:errcheck,revive,staticcheck // TODO: establish pattern
 func (eng *postgresSystem) InsertIntoPhysicalTable(naiveTableName string,
 	columnsString string,
@@ -634,7 +638,8 @@ func (eng *postgresSystem) GetMaterializedViewByName(viewName string) (internald
 }
 
 //nolint:errcheck // TODO: establish pattern
-func (eng *postgresSystem) getMaterializedViewByName(viewName string, txn *sql.Tx) (internaldto.RelationDTO, bool) {
+func (eng *postgresSystem) getMaterializedViewByName(naiveViewName string, txn *sql.Tx) (internaldto.RelationDTO, bool) {
+	fullyQualifiedRelationName := eng.getFullyQualifiedRelationName(naiveViewName)
 	q := `SELECT view_ddl FROM "__iql__.materialized_views" WHERE view_name = $1 and deleted_dttm IS NULL`
 	colQuery := `
 	SELECT
@@ -649,7 +654,7 @@ func (eng *postgresSystem) getMaterializedViewByName(viewName string, txn *sql.T
 	  view_name = $1
 	ORDER BY ordinal_position ASC
 	`
-	row := txn.QueryRow(q, viewName)
+	row := txn.QueryRow(q, fullyQualifiedRelationName)
 	if row == nil {
 		txn.Rollback()
 		return nil, false
@@ -660,8 +665,8 @@ func (eng *postgresSystem) getMaterializedViewByName(viewName string, txn *sql.T
 		txn.Rollback()
 		return nil, false
 	}
-	rv := internaldto.NewMaterializedViewDTO(viewName, viewDDL, eng.exportNamespace)
-	rows, err := txn.Query(colQuery, viewName)
+	rv := internaldto.NewMaterializedViewDTO(fullyQualifiedRelationName, viewDDL, eng.exportNamespace)
+	rows, err := txn.Query(colQuery, fullyQualifiedRelationName)
 	if err != nil || rows == nil || rows.Err() != nil {
 		txn.Rollback()
 		return nil, false
@@ -1639,6 +1644,11 @@ func (eng *postgresSystem) runMaterializedViewCreate(
 	if txnErr != nil {
 		return txnErr
 	}
+	_, txnErr = txn.Exec(eng.getExportSchemaCreateQuery())
+	if txnErr != nil {
+		txn.Rollback()
+		return txnErr
+	}
 	columnQuery := `
 	INSERT INTO "__iql__.materialized_views.columns" (
 		view_name,
@@ -1730,6 +1740,11 @@ func (eng *postgresSystem) runPhysicalTableCreate(
 ) error {
 	txn, txnErr := eng.sqlEngine.GetTx()
 	if txnErr != nil {
+		return txnErr
+	}
+	_, txnErr = txn.Exec(eng.getExportSchemaCreateQuery())
+	if txnErr != nil {
+		txn.Rollback()
 		return txnErr
 	}
 	columnQuery := `
