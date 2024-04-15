@@ -58,7 +58,7 @@ Export Materialized View and then Access From RDBMSs Over Stackql Postgres Serve
     ...    ${shellExe}     \-c    ${input}
     ...    stdout=${CURDIR}/tmp/Export-Materialized-View-and-then-Access-From-RDBMSs-Over-Stackql-Postgres-Server.tmp
     ...    stderr=${CURDIR}/tmp/Export-Materialized-View-and-then-Access-From-RDBMSs-Over-Stackql-Postgres-Server-stderr.tmp
-    Should Be Empty    ${result.stdout}
+    Should Be Equal    ${result.stdout}    OK
     ${queryStringSQLite} =    Catenate
     ...    select BackupId, BackupState from "stackql_export.nv" order by BackupId;
     ${queryStringPostgres} =    Catenate
