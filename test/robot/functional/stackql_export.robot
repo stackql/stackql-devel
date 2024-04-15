@@ -66,6 +66,7 @@ Export Materialized View and then Access From RDBMSs Over Stackql Postgres Serve
     ${dbName} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"     postgres    sqlite
     ${queryString} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"     ${queryStringPostgres}    ${queryStringSQLite}
     ${queryOutputStr} =    Catenate    SEPARATOR=\n
+    ...    BackupId,BackupState
     ...    bkp-000001,READY
     ...    bkp-000002,READY
     Should RDBMS Query Return CSV Result
