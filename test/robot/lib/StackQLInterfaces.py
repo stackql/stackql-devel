@@ -237,6 +237,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       query = query.decode("utf-8") 
     reg_location = registry_cfg.get_source_path_for_docker()
     supplied_args = []
+    stackql_persist_postgres_as_needed = cfg.pop('stackql_persist_postgres_as_needed', False)
     if cfg.pop('stackql_rollback_eager', False):
       supplied_args.append("--session='{\"rollback_type\":\"eager\"}'")
     if cfg.pop('stackql_H', False):
@@ -411,6 +412,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     self.set_environment_variable("DUMMY_DIGITALOCEAN_USERNAME", f"{self._get_default_env().get('DUMMY_DIGITALOCEAN_USERNAME')}")
     self.set_environment_variable("DUMMY_DIGITALOCEAN_PASSWORD", f"{self._get_default_env().get('DUMMY_DIGITALOCEAN_PASSWORD')}")
     supplied_args = [ stackql_exe, "exec" ]
+    stackql_persist_postgres_as_needed = cfg.pop('stackql_persist_postgres_as_needed', False)
     if cfg.pop('stackql_rollback_eager', False):
       supplied_args.append("--session={\"rollback_type\":\"eager\"}")
     if cfg.pop('stackql_H', False):
