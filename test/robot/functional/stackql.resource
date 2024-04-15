@@ -126,9 +126,9 @@ Start StackQL PG Server mTLS Expose Backing DB
     ELSE IF    "${EXECUTION_PLATFORM}" == "docker"
         ${process} =    Start Process    docker    compose
                         ...  \-p     stackqlpgsrv\-mtls\-${_DOCKER_PORT}
+                        ...  \-f    ./docker\-compose\-persist\-postgres.yml
                         ...  run
                         ...  \-\-rm    \-p${_SRV_PORT_MTLS}:${_DOCKER_PORT}/tcp
-                        ...  \-f    ./docker\-compose\-persist\-postgres.yml
                         ...  stackqlsrv
                         ...  bash
                         ...  \-c
