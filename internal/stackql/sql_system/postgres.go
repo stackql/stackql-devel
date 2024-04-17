@@ -578,7 +578,7 @@ func (eng *postgresSystem) InsertIntoPhysicalTable(naiveTableName string,
 		return err
 	}
 	// TODO: check colz against supplied columns
-	relationDTO, relationDTOok := eng.getTableByName(fullyQualifiedRelationName, txn)
+	relationDTO, relationDTOok := eng.getTableByName(naiveTableName, txn)
 	if !relationDTOok {
 		if len(relationDTO.GetColumns()) == 0 {
 		}
