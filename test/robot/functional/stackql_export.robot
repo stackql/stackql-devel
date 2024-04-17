@@ -137,6 +137,32 @@ Export User Space Table and then Access From RDBMSs Over Stackql Postgres Server
     ...    stdout=${CURDIR}/tmp/Export-User-Space-Table-and-then-Access-From-RDBMSs-Over-Stackql-Postgres-Server.tmp
     ...    stderr=${CURDIR}/tmp/Export-User-Space-Table-and-then-Access-From-RDBMSs-Over-Stackql-Postgres-Server-stderr.tmp
     Should Be Equal    ${result.stdout}    OK
+    ${ddlInputStr} =    Catenate
+    ...    insert into my_silly_export_table_two(id, name, magnitude) values (1, 'one', 1.0);
+    ${posixInput} =     Catenate
+    ...    "${PSQL_EXE}"    -d     "${PSQL_MTLS_CONN_STR_EXPORT_UNIX}"   -c   "${ddlInputStr}"
+    ${windowsInput} =     Catenate
+    ...    &    ${posixInput}
+    ${input} =    Set Variable If    "${IS_WINDOWS}" == "1"    ${windowsInput}    ${posixInput}
+    ${shellExe} =    Set Variable If    "${IS_WINDOWS}" == "1"    powershell    sh
+    ${result} =    Run Process
+    ...    ${shellExe}     \-c    ${input}
+    ...    stdout=${CURDIR}/tmp/Export-User-Space-Table-and-then-Access-From-RDBMSs-Over-Stackql-Postgres-Server-insert-one.tmp
+    ...    stderr=${CURDIR}/tmp/Export-User-Space-Table-and-then-Access-From-RDBMSs-Over-Stackql-Postgres-Server-insert-one-stderr.tmp
+    Should Be Equal    ${result.stdout}    OK
+    ${ddlInputStr} =    Catenate
+    ...    insert into my_silly_export_table_two(id, name, magnitude) values (2, 'two', 2.0);
+    ${posixInput} =     Catenate
+    ...    "${PSQL_EXE}"    -d     "${PSQL_MTLS_CONN_STR_EXPORT_UNIX}"   -c   "${ddlInputStr}"
+    ${windowsInput} =     Catenate
+    ...    &    ${posixInput}
+    ${input} =    Set Variable If    "${IS_WINDOWS}" == "1"    ${windowsInput}    ${posixInput}
+    ${shellExe} =    Set Variable If    "${IS_WINDOWS}" == "1"    powershell    sh
+    ${result} =    Run Process
+    ...    ${shellExe}     \-c    ${input}
+    ...    stdout=${CURDIR}/tmp/Export-User-Space-Table-and-then-Access-From-RDBMSs-Over-Stackql-Postgres-Server-insert-two.tmp
+    ...    stderr=${CURDIR}/tmp/Export-User-Space-Table-and-then-Access-From-RDBMSs-Over-Stackql-Postgres-Server-insert-two-stderr.tmp
+    Should Be Equal    ${result.stdout}    OK
     ${queryStringSQLite} =    Catenate
     ...    select id, name, magnitude from "stackql_export.my_silly_export_table_two" order by id;
     ${queryStringPostgres} =    Catenate
