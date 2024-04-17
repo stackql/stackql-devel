@@ -145,8 +145,8 @@ Export User Space Table and then Access From RDBMSs Over Stackql Postgres Server
     ${queryString} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"     ${queryStringPostgres}    ${queryStringSQLite}
     ${queryOutputStr} =    Catenate    SEPARATOR=\n
     ...    id,name,magnitude
-    ...    1,one,1
-    ...    2,two,2
+    ...    1,one,1.0
+    ...    2,two,2.0
     Should RDBMS Query Return CSV Result
     ...    ${dbName}
     ...    ${SQL_CLIENT_EXPORT_CONNECTION_ARG}
