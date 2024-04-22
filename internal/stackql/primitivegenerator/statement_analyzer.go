@@ -1112,7 +1112,7 @@ func (pb *standardPrimitiveGenerator) inferHeirarchyAndPersist(
 	return err
 }
 
-//nolint:funlen,gocognit // TODO: review
+//nolint:funlen,gocognit,gocyclo,cyclop // TODO: review
 func (pb *standardPrimitiveGenerator) analyzeDelete(
 	pbi planbuilderinput.PlanBuilderInput,
 ) error {
