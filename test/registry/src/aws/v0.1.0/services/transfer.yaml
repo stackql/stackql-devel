@@ -114,7 +114,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/CreateAccessRequest'
       parameters:
@@ -183,7 +183,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/CreateAgreementRequest'
       parameters:
@@ -252,7 +252,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/CreateConnectorRequest'
       parameters:
@@ -315,7 +315,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/CreateProfileRequest'
       parameters:
@@ -453,7 +453,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/CreateUserRequest'
       parameters:
@@ -522,7 +522,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/CreateWorkflowRequest'
       parameters:
@@ -575,7 +575,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DeleteAccessRequest'
       parameters:
@@ -628,7 +628,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DeleteAgreementRequest'
       parameters:
@@ -681,7 +681,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DeleteCertificateRequest'
       parameters:
@@ -734,7 +734,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DeleteConnectorRequest'
       parameters:
@@ -793,7 +793,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DeleteHostKeyRequest'
       parameters:
@@ -846,7 +846,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DeleteProfileRequest'
       parameters:
@@ -905,7 +905,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DeleteServerRequest'
       parameters:
@@ -964,7 +964,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DeleteSshPublicKeyRequest'
       parameters:
@@ -1017,7 +1017,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DeleteUserRequest'
       parameters:
@@ -1076,7 +1076,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DeleteWorkflowRequest'
       parameters:
@@ -1133,7 +1133,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DescribeAccessRequest'
       parameters:
@@ -1190,7 +1190,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DescribeAgreementRequest'
       parameters:
@@ -1247,7 +1247,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DescribeCertificateRequest'
       parameters:
@@ -1304,7 +1304,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DescribeConnectorRequest'
       parameters:
@@ -1361,7 +1361,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DescribeExecutionRequest'
       parameters:
@@ -1418,7 +1418,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DescribeHostKeyRequest'
       parameters:
@@ -1475,7 +1475,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DescribeProfileRequest'
       parameters:
@@ -1532,7 +1532,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DescribeSecurityPolicyRequest'
       parameters:
@@ -1589,7 +1589,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DescribeServerRequest'
       parameters:
@@ -1646,7 +1646,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DescribeUserRequest'
       parameters:
@@ -1703,7 +1703,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/DescribeWorkflowRequest'
       parameters:
@@ -1760,7 +1760,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/ImportCertificateRequest'
       parameters:
@@ -1829,7 +1829,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/ImportHostKeyRequest'
       parameters:
@@ -1898,7 +1898,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/ImportSshPublicKeyRequest'
       parameters:
@@ -1961,7 +1961,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/ListAccessesRequest'
       parameters:
@@ -2036,7 +2036,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/ListAgreementsRequest'
       parameters:
@@ -2111,7 +2111,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/ListCertificatesRequest'
       parameters:
@@ -2186,7 +2186,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/ListConnectorsRequest'
       parameters:
@@ -2261,7 +2261,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/ListExecutionsRequest'
       parameters:
@@ -2336,7 +2336,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/ListHostKeysRequest'
       parameters:
@@ -2399,7 +2399,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/ListProfilesRequest'
       parameters:
@@ -2468,7 +2468,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/ListSecurityPoliciesRequest'
       parameters:
@@ -2609,7 +2609,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/ListTagsForResourceRequest'
       parameters:
@@ -2684,7 +2684,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/ListUsersRequest'
       parameters:
@@ -2753,7 +2753,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/ListWorkflowsRequest'
       parameters:
@@ -2834,7 +2834,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/SendWorkflowStepStateRequest'
       parameters:
@@ -2897,7 +2897,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/StartFileTransferRequest'
       parameters:
@@ -2956,7 +2956,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/StartServerRequest'
       parameters:
@@ -3015,7 +3015,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/StopServerRequest'
       parameters:
@@ -3068,7 +3068,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/TagResourceRequest'
       parameters:
@@ -3125,7 +3125,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/TestConnectionRequest'
       parameters:
@@ -3182,7 +3182,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/TestIdentityProviderRequest'
       parameters:
@@ -3235,7 +3235,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/UntagResourceRequest'
       parameters:
@@ -3304,7 +3304,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/UpdateAccessRequest'
       parameters:
@@ -3373,7 +3373,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/UpdateAgreementRequest'
       parameters:
@@ -3436,7 +3436,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/UpdateCertificateRequest'
       parameters:
@@ -3505,7 +3505,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/UpdateConnectorRequest'
       parameters:
@@ -3568,7 +3568,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/UpdateHostKeyRequest'
       parameters:
@@ -3631,7 +3631,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/UpdateProfileRequest'
       parameters:
@@ -3712,7 +3712,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/UpdateServerRequest'
       parameters:
@@ -3775,7 +3775,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/UpdateUserRequest'
       parameters:
@@ -3820,14 +3820,41 @@ components:
             objectKey: '$.Servers'
             mediaType: application/json
             openAPIDocKey: '200'
+        describe_server:
+          operation:
+            $ref: '#/paths/~1?__X-Amz-Target=TransferService.DescribeServer/post'
+          request:
+            mediaType: application/x-amz-json-1.1
+          response:
+            objectKey: '$.Server'
+            mediaType: application/json
+            openAPIDocKey: '200'
+        update_server:
+          operation:
+            $ref: '#/paths/~1?__X-Amz-Target=TransferService.UpdateServer/post'
+          request:
+            mediaType: application/x-amz-json-1.1
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+        delete_server:
+          operation:
+            $ref: '#/paths/~1?__X-Amz-Target=TransferService.DeleteServer/post'
+          request:
+            mediaType: application/x-amz-json-1.1
+          response:
+            openAPIDocKey: '200'
       id: aws.transfer.servers
       sqlVerbs:
-        delete: []
+        delete:
+          - $ref: '#/components/x-stackQL-resources/servers/methods/delete_server'
         insert:
           - $ref: '#/components/x-stackQL-resources/servers/methods/create_server'
         select:
+          - $ref: '#/components/x-stackQL-resources/servers/methods/describe_server'
           - $ref: '#/components/x-stackQL-resources/servers/methods/list_servers'
-        update: []
+        update:
+          - $ref: '#/components/x-stackQL-resources/servers/methods/update_server'
       title: servers
     users:
       name: users
@@ -3836,7 +3863,7 @@ components:
           operation:
             $ref: '#/paths/~1?__X-Amz-Target=TransferService.ListUsers/post'
           request:
-            mediaType: application/json
+            mediaType: application/x-amz-json-1.1
           response:
             objectKey: '$.Users'
             mediaType: application/json
@@ -3845,8 +3872,7 @@ components:
           operation:
             $ref: '#/paths/~1?__X-Amz-Target=TransferService.CreateUser/post'
           request:
-            mediaType: application/json
-            default:
+            mediaType: application/x-amz-json-1.1
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3866,7 +3892,7 @@ components:
           operation:
             $ref: '#/paths/~1?__X-Amz-Target=TransferService.CreateConnector/post'
           request:
-            mediaType: application/json
+            mediaType: application/x-amz-json-1.1
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3874,7 +3900,7 @@ components:
           operation:
             $ref: '#/paths/~1?__X-Amz-Target=TransferService.ListConnectors/post'
           request:
-            mediaType: application/json
+            mediaType: application/x-amz-json-1.1
           response:
             objectKey: '$.Connectors'
             mediaType: application/json
@@ -4291,9 +4317,7 @@ components:
       title: DeleteProfileRequest
       properties:
         ProfileId:
-          allOf:
-            - $ref: '#/components/schemas/ProfileId'
-            - description: The identifier of the profile that you are deleting.
+          $ref: '#/components/schemas/ProfileId'
     DeleteServerRequest:
       type: object
       required:
@@ -4301,9 +4325,7 @@ components:
       title: DeleteServerRequest
       properties:
         ServerId:
-          allOf:
-            - $ref: '#/components/schemas/ServerId'
-            - description: A unique system-assigned identifier for a server instance.
+          $ref: '#/components/schemas/ServerId'
     DeleteSshPublicKeyRequest:
       type: object
       required:
@@ -4537,9 +4559,7 @@ components:
         - Server
       properties:
         Server:
-          allOf:
-            - $ref: '#/components/schemas/DescribedServer'
-            - description: An array containing the properties of a server with the <code>ServerID</code> you specified.
+          $ref: '#/components/schemas/DescribedServer'
     DescribeServerRequest:
       type: object
       required:
@@ -4547,9 +4567,7 @@ components:
       title: DescribeServerRequest
       properties:
         ServerId:
-          allOf:
-            - $ref: '#/components/schemas/ServerId'
-            - description: A system-assigned unique identifier for a server.
+          $ref: '#/components/schemas/ServerId'
     DescribeUserResponse:
       type: object
       required:
