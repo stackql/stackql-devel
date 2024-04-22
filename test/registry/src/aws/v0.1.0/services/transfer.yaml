@@ -390,7 +390,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/CreateServerRequest'
       parameters:
@@ -2540,7 +2540,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-amz-json-1.1:
             schema:
               $ref: '#/components/schemas/ListServersRequest'
       parameters:
@@ -3803,7 +3803,9 @@ components:
           operation:
             $ref: '#/paths/~1?__X-Amz-Target=TransferService.CreateServer/post'
           request:
-            mediaType: application/json
+            mediaType: application/x-amz-json-1.1
+            default: |
+              {}
           response:
             mediaType: application/json
             openAPIDocKey: '200'
@@ -3811,7 +3813,9 @@ components:
           operation:
             $ref: '#/paths/~1?__X-Amz-Target=TransferService.ListServers/post'
           request:
-            mediaType: application/json
+            mediaType: application/x-amz-json-1.1
+            default: |
+              {}
           response:
             objectKey: '$.Servers'
             mediaType: application/json
