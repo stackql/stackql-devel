@@ -1310,9 +1310,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.DescribeConnector
             enum:
               - TransferService.DescribeConnector
     parameters:
@@ -1367,9 +1367,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.DescribeExecution
             enum:
               - TransferService.DescribeExecution
     parameters:
@@ -1424,9 +1424,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.DescribeHostKey
             enum:
               - TransferService.DescribeHostKey
     parameters:
@@ -1481,9 +1481,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.DescribeProfile
             enum:
               - TransferService.DescribeProfile
     parameters:
@@ -1538,9 +1538,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.DescribeSecurityPolicy
             enum:
               - TransferService.DescribeSecurityPolicy
     parameters:
@@ -1595,9 +1595,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.DescribeServer
             enum:
               - TransferService.DescribeServer
     parameters:
@@ -1652,9 +1652,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.DescribeUser
             enum:
               - TransferService.DescribeUser
     parameters:
@@ -1709,9 +1709,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.DescribeWorkflow
             enum:
               - TransferService.DescribeWorkflow
     parameters:
@@ -1766,9 +1766,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.ImportCertificate
             enum:
               - TransferService.ImportCertificate
     parameters:
@@ -1835,9 +1835,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.ImportHostKey
             enum:
               - TransferService.ImportHostKey
     parameters:
@@ -1904,9 +1904,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.ImportSshPublicKey
             enum:
               - TransferService.ImportSshPublicKey
     parameters:
@@ -1979,9 +1979,9 @@ paths:
           required: false
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.ListAccesses
             enum:
               - TransferService.ListAccesses
     parameters:
@@ -2054,9 +2054,9 @@ paths:
           required: false
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.ListAgreements
             enum:
               - TransferService.ListAgreements
     parameters:
@@ -2129,9 +2129,9 @@ paths:
           required: false
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.ListCertificates
             enum:
               - TransferService.ListCertificates
     parameters:
@@ -2279,9 +2279,9 @@ paths:
           required: false
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.ListExecutions
             enum:
               - TransferService.ListExecutions
     parameters:
@@ -2342,9 +2342,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.ListHostKeys
             enum:
               - TransferService.ListHostKeys
     parameters:
@@ -2417,9 +2417,9 @@ paths:
           required: false
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.ListProfiles
             enum:
               - TransferService.ListProfiles
     parameters:
@@ -2486,9 +2486,9 @@ paths:
           required: false
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.ListSecurityPolicies
             enum:
               - TransferService.ListSecurityPolicies
     parameters:
@@ -2558,9 +2558,9 @@ paths:
           required: false
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.ListServers
             enum:
               - TransferService.ListServers
     parameters:
@@ -2627,9 +2627,9 @@ paths:
           required: false
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.ListTagsForResource
             enum:
               - TransferService.ListTagsForResource
     parameters:
@@ -2702,9 +2702,9 @@ paths:
           required: false
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.ListUsers
             enum:
               - TransferService.ListUsers
     parameters:
@@ -2771,9 +2771,9 @@ paths:
           required: false
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.ListWorkflows
             enum:
               - TransferService.ListWorkflows
     parameters:
@@ -2840,9 +2840,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.SendWorkflowStepState
             enum:
               - TransferService.SendWorkflowStepState
     parameters:
@@ -2903,9 +2903,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.StartFileTransfer
             enum:
               - TransferService.StartFileTransfer
     parameters:
@@ -2962,9 +2962,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.StartServer
             enum:
               - TransferService.StartServer
     parameters:
@@ -3021,9 +3021,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.StopServer
             enum:
               - TransferService.StopServer
     parameters:
@@ -3074,9 +3074,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.TagResource
             enum:
               - TransferService.TagResource
     parameters:
@@ -3131,9 +3131,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.TestConnection
             enum:
               - TransferService.TestConnection
     parameters:
@@ -3188,9 +3188,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.TestIdentityProvider
             enum:
               - TransferService.TestIdentityProvider
     parameters:
@@ -3241,9 +3241,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.UntagResource
             enum:
               - TransferService.UntagResource
     parameters:
@@ -3310,9 +3310,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.UpdateAccess
             enum:
               - TransferService.UpdateAccess
     parameters:
@@ -3379,9 +3379,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.UpdateAgreement
             enum:
               - TransferService.UpdateAgreement
     parameters:
@@ -3442,9 +3442,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.UpdateCertificate
             enum:
               - TransferService.UpdateCertificate
     parameters:
@@ -3511,9 +3511,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.UpdateConnector
             enum:
               - TransferService.UpdateConnector
     parameters:
@@ -3574,9 +3574,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.UpdateHostKey
             enum:
               - TransferService.UpdateHostKey
     parameters:
@@ -3637,9 +3637,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.UpdateProfile
             enum:
               - TransferService.UpdateProfile
     parameters:
@@ -3718,9 +3718,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.UpdateServer
             enum:
               - TransferService.UpdateServer
     parameters:
@@ -3781,9 +3781,9 @@ paths:
       parameters:
         - name: X-Amz-Target
           in: header
-          required: true
           schema:
             type: string
+            default: TransferService.UpdateUser
             enum:
               - TransferService.UpdateUser
     parameters:
