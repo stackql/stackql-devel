@@ -137,7 +137,7 @@ func GetTableNameFromStatement(node sqlparser.SQLNode, formatter sqlparser.NodeF
 //   - Supplied parameters that are **not** consumed in Hierarchy inference
 //   - Error if applicable.
 //
-//nolint:funlen,gocognit,gocyclo,cyclop // lots of moving parts
+//nolint:funlen,gocognit,gocyclo,cyclop,goconst // lots of moving parts
 func GetHeirarchyFromStatement(
 	handlerCtx handler.HandlerContext,
 	node sqlparser.SQLNode,
@@ -216,7 +216,7 @@ func GetHeirarchyFromStatement(
 	retVal.SetResource(rsc)
 	//nolint:nestif // not overly complex
 	if viewBodyDDL, ok := rsc.GetViewBodyDDLForSQLDialect(
-		handlerCtx.GetSQLSystem().GetName()); ok {
+		handlerCtx.GetSQLSystem().GetName()); ok && methodAction == "select" {
 		viewName := hIds.GetStackQLTableName()
 		// TODO: mutex required or some other strategy
 		viewDTO, viewExists := handlerCtx.GetSQLSystem().GetViewByName(viewName) //nolint:govet // acceptable shadow

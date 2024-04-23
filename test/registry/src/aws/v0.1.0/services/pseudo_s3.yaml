@@ -16,9 +16,110 @@ info:
 externalDocs:
   description: Amazon Web Services documentation
   url: 'https://docs.aws.amazon.com/cloudcontrolapi/'
-servers: []
-paths: {}
+paths:
+  /?Action=CreateResource&Version=2021-09-30:
+    parameters:
+    - $ref: '#/components/parameters/X-Amz-Content-Sha256'
+    - $ref: '#/components/parameters/X-Amz-Date'
+    - $ref: '#/components/parameters/X-Amz-Algorithm'
+    - $ref: '#/components/parameters/X-Amz-Credential'
+    - $ref: '#/components/parameters/X-Amz-Security-Token'
+    - $ref: '#/components/parameters/X-Amz-Signature'
+    - $ref: '#/components/parameters/X-Amz-SignedHeaders'
+    post:
+      operationId: CreateResource
+      parameters:
+      - description: Action Header
+        in: header
+        name: X-Amz-Target
+        required: false
+        schema:
+          default: CloudApiService.CreateResource
+          enum:
+          - CloudApiService.CreateResource
+          type: string
+      - in: header
+        name: Content-Type
+        required: false
+        schema:
+          default: application/x-amz-json-1.0
+          enum:
+          - application/x-amz-json-1.0
+          type: string
+      requestBody:
+        content:
+          application/x-amz-json-1.0:
+            schema:
+              $ref: '#/components/schemas/CreateResourceInput'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProgressEvent'
+          description: Success
 components:
+  schemas:
+    CreateResourceInput:
+      properties:
+        ClientToken:
+          type: string
+        DesiredState:
+          format: password
+          maxLength: 65536
+          minLength: 1
+          pattern: '[\s\S]*'
+          type: string
+          x-stackQL-stringOnly: true
+          description: <p>Structured data format representing the desired state
+              of the resource, consisting of that resource's properties and their
+              desired values.</p> <note> <p>Cloud Control API currently supports JSON
+              as a structured data format.</p> </note> <pre><code> &lt;p&gt;Specify
+              the desired state as one of the following:&lt;/p&gt; &lt;ul&gt; &lt;li&gt;
+              &lt;p&gt;A JSON blob&lt;/p&gt; &lt;/li&gt; &lt;li&gt; &lt;p&gt;A local
+              path containing the desired state in JSON data format&lt;/p&gt; &lt;/li&gt;
+              &lt;/ul&gt; &lt;p&gt;For more information, see &lt;a href=&quot;https://docs.aws.amazon.com/cloudcontrolapi/latest/userguide/resource-operations-create.html#resource-operations-create-desiredstate&quot;&gt;Composing
+              the desired state of the resource&lt;/a&gt; in the &lt;i&gt;Amazon Web
+              Services Cloud Control API User Guide&lt;/i&gt;.&lt;/p&gt; &lt;p&gt;For
+              more information about the properties of a specific resource, refer
+              to the related topic for the resource in the &lt;a href=&quot;https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html&quot;&gt;Resource
+              and property types reference&lt;/a&gt; in the &lt;i&gt;CloudFormation
+              Users Guide&lt;/i&gt;.&lt;/p&gt; </code></pre>
+        RoleArn:
+          type: string
+        TypeName:
+          type: string
+        TypeVersionId:
+          type: string
+      required:
+      - TypeName
+      - DesiredState
+      title: CreateResourceInput
+      type: object
+    ProgressEvent:
+      properties:
+        ErrorCode:
+          type: string
+        EventTime:
+          type: number
+        Identifier:
+          type: string
+        Operation:
+          type: string
+        OperationStatus:
+          type: string
+        RequestToken:
+          type: string
+        ResourceModel:
+          type: string
+        RetryAfter:
+          type: number
+        StatusMessage:
+          type: string
+        TypeName:
+          type: string
+      type: object
   x-stackQL-resources:
     s3_bucket_listing:
       name: s3_bucket_listing
@@ -64,6 +165,22 @@ components:
     s3_bucket_detail:
       name: s3_bucket_detail
       id: aws.pseudo_s3.s3_bucket_detail
+      methods:
+        create_resource:
+          operation:
+            $ref: '#/paths/~1?Action=CreateResource&Version=2021-09-30/post'
+          request:
+            mediaType: application/x-amz-json-1.0
+            base: |
+              {
+                "TypeName" = "AWS::S3::Bucket"
+              }
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      sqlVerbs:
+        insert:
+          - $ref: '#/components/x-stackQL-resources/s3_bucket_detail/methods/create_resource'
       config:
         views:
           'select':
@@ -136,5 +253,36 @@ components:
                   AND data__Identifier = '<BucketName>'
                   AND region = 'us-east-1'
                   ;
+servers:
+  - url: 'https://cloudcontrolapi.{region}.amazonaws.com'
+    variables:
+      region:
+        description: The AWS region
+        enum:
+          - us-east-1
+          - us-east-2
+          - us-west-1
+          - us-west-2
+          - us-gov-west-1
+          - us-gov-east-1
+          - ca-central-1
+          - eu-north-1
+          - eu-west-1
+          - eu-west-2
+          - eu-west-3
+          - eu-central-1
+          - eu-south-1
+          - af-south-1
+          - ap-northeast-1
+          - ap-northeast-2
+          - ap-northeast-3
+          - ap-southeast-1
+          - ap-southeast-2
+          - ap-east-1
+          - ap-south-1
+          - sa-east-1
+          - me-south-1
+        default: us-east-1
+    description: The CloudControlApi multi-region endpoint
 security:
   - hmac: []
