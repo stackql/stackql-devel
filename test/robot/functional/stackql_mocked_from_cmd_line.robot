@@ -306,9 +306,9 @@ GitHub Orgs Org Update Simple
     ...    ${UPDATE_GITHUB_ORG}
     ...    The operation was despatched successfully
 
-AWS Hybrid Service Cloud Control S3 Bucket Insert
+AWS Hybrid Service Cloud Control S3 Bucket Insert Defaulted
     ${inputStr} =    Catenate
-    ...              insert into aws.pseudo_s3.s3_bucket_detail(
+    ...              insert into aws.pseudo_s3.s3_bucket_detail_defaulted(
     ...              region
     ...              ) 
     ...              select 
@@ -325,8 +325,32 @@ AWS Hybrid Service Cloud Control S3 Bucket Insert
     ...    ${inputStr}
     ...    ${EMPTY}
     ...    The operation was despatched successfully
-    ...    stdout=${CURDIR}/tmp/AWS-Hybrid-Service-Cloud-Control-S3-Bucket-Insert.tmp
-    ...    stderr=${CURDIR}/tmp/AWS-Hybrid-Service-Cloud-Control-S3-Bucket-Insert-stderr.tmp
+    ...    stdout=${CURDIR}/tmp/AWS-Hybrid-Service-Cloud-Control-S3-Bucket-Insert-Defaulted.tmp
+    ...    stderr=${CURDIR}/tmp/AWS-Hybrid-Service-Cloud-Control-S3-Bucket-Insert-Defaulted-stderr.tmp
+
+AWS Hybrid Service Cloud Control S3 Bucket Insert Dynamic
+    ${inputStr} =    Catenate
+    ...              insert into aws.pseudo_s3.s3_bucket_detail(
+    ...              region,
+    ...              data__DesiredState
+    ...              ) 
+    ...              select 
+    ...              'ap-southeast-1',
+    ...              string('{ "Properties": { "BucketName": "my-bucket" } }')
+    ...              ;
+    Should StackQL Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${EMPTY}
+    ...    The operation was despatched successfully
+    ...    stdout=${CURDIR}/tmp/AWS-Hybrid-Service-Cloud-Control-S3-Bucket-Insert-Dynamic.tmp
+    ...    stderr=${CURDIR}/tmp/AWS-Hybrid-Service-Cloud-Control-S3-Bucket-Insert-Dynamic-stderr.tmp
 
 AWS Cloud Control Log Group Insert Simple
     ${inputStr} =    Catenate
