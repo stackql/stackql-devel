@@ -135,9 +135,6 @@ components:
           type: string
         TypeVersionId:
           type: string
-      required:
-      - TypeName
-      - DesiredState
       title: CreateResourceInput
       type: object
     ProgressEvent:
@@ -214,9 +211,10 @@ components:
             $ref: '#/paths/~1?Action=CreateResource&Version=2021-09-30/post'
           request:
             mediaType: application/x-amz-json-1.0
-            base: |
+            default: |
               {
-                "TypeName" = "AWS::S3::Bucket"
+                "TypeName": "AWS::S3::Bucket",
+                "DesiredState": "{ \"Properties\": { \"BucketName\": \"my-bucket\" } }"
               }
           response:
             mediaType: application/json

@@ -306,6 +306,28 @@ GitHub Orgs Org Update Simple
     ...    ${UPDATE_GITHUB_ORG}
     ...    The operation was despatched successfully
 
+AWS Hybrid Service Cloud Control S3 Bucket Insert
+    ${inputStr} =    Catenate
+    ...              insert into aws.pseudo_s3.s3_bucket_detail(
+    ...              region
+    ...              ) 
+    ...              select 
+    ...              'ap-southeast-1'
+    ...              ;
+    Should StackQL Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${EMPTY}
+    ...    The operation was despatched successfully
+    ...    stdout=${CURDIR}/tmp/AWS-Hybrid-Service-Cloud-Control-S3-Bucket-Insert.tmp
+    ...    stderr=${CURDIR}/tmp/AWS-Hybrid-Service-Cloud-Control-S3-Bucket-Insert-stderr.tmp
+
 AWS Cloud Control Log Group Insert Simple
     ${inputStr} =    Catenate
     ...              insert into aws.cloud_control.resources(
