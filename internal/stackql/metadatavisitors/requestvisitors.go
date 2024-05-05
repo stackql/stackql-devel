@@ -200,7 +200,7 @@ func ToInsertStatement(
 
 	colMap := getColsMap(columns)
 
-	if columns != nil {
+	if columns != nil { //nolint:nestif // acceptable
 		for _, c := range columns {
 			cName := c.GetRawVal()
 			if !isRequestBodyParam(cName, m) {
