@@ -137,6 +137,8 @@
         "select gossip from stackql_gossip order by category desc;",
         "describe github.repos.pages;",
         "insert into aws.pseudo_s3.s3_bucket_detail( region, data__DesiredState ) select 'ap-southeast-1', string('{ \"BucketName\": \"my-bucket\" }') ;",
+        "insert into aws.pseudo_s3.s3_bucket_detail_transformed( region, BucketName ) select 'ap-southeast-1', 'my-bucket' ;",
+        "SHOW METHODS IN aws.pseudo_s3.s3_bucket_detail_transformed",
       ],
       "default": "show providers;"
     },
