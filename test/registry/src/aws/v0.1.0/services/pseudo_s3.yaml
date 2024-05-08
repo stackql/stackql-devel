@@ -485,7 +485,7 @@ components:
             default: |
               {
                 "TypeName": "AWS::S3::Bucket",
-                "DesiredState": "{ \"BucketName\": \"my-bucket\" }"
+                "DesiredState": "{\"BucketName\":\"my-bucket\"}"
               }
           response:
             mediaType: application/json
