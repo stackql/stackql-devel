@@ -530,6 +530,26 @@ AWS Transfer Server Delete Simple Exemplifies No Response Body and Non Null Requ
     ...    stdout=${CURDIR}/tmp/AWS-Transfer-Server-Delete-Simple-Exemplifies-No-Response-Body-and-Non-Null-Request-Body-Delete.tmp
     ...    stderr=${CURDIR}/tmp/AWS-Transfer-Server-Delete-Simple-Exemplifies-No-Response-Body-and-Non-Null-Request-Body-Delete-stderr.tmp
 
+AWS Transfer Exec Server Stop Simple Exemplifies No Response Body and Non Null Request Body Exec
+    ${inputStr} =    Catenate
+    ...              EXEC aws.transfer.servers.stop_server 
+    ...              @region = 'ap-southeast-2' 
+    ...              @@json='{ "ServerId": "s-0000000001" }'
+    ...              ;
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${EMPTY}
+    ...    The operation was despatched successfully
+    ...    stdout=${CURDIR}/tmp/AWS-Transfer-Exec-Server-Stop-Simple-Exemplifies-No-Response-Body-and-Non-Null-Request-Body-Exec.tmp
+    ...    stderr=${CURDIR}/tmp/AWS-Transfer-Exec-Server-Stop-Simple-Exemplifies-No-Response-Body-and-Non-Null-Request-Body-Exec-stderr.tmp
+
 AWS Transfer Server Insert Simple Exemplifies Empty Request Body Insert
     ${inputStr} =    Catenate
     ...              insert into aws.transfer.servers(region)

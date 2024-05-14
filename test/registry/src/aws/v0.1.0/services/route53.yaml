@@ -434,11 +434,19 @@ paths:
           schema:
             type: string
             maxLength: 32
+        - in: header
+          name: region
+          required: false
+          schema:
+            default: us-east-1
+            type: string
       requestBody:
         required: true
         content:
           text/xml:
             schema:
+              xml:
+                name: ChangeResourceRecordSetsRequest
               type: object
               required:
                 - ChangeBatch
@@ -446,6 +454,8 @@ paths:
                 ChangeBatch:
                   description: The information for a change request.
                   type: object
+                  xml:
+                    name: ChangeBatch
                   properties:
                     Comment:
                       $ref: "#/components/schemas/ResourceDescription"
