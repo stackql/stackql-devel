@@ -7821,5 +7821,3 @@ security:
 x-stackQL-config:
   queryParamTranspose:
     algorithm: AWSCanonical
-  requestTranslate:
-    algorithm: get_query_to_post_form_utf_8
