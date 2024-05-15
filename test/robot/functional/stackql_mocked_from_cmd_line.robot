@@ -560,7 +560,7 @@ AWS Route53 Create Record Set Simple Exemplifies XML Request Body
     ...    region
     ...    ) 
     ...    select 
-    ...    '<Change><Action>CREATE</Action><ResourceRecordSet><Name>my.domain.com</Name><Type>A</Type><TTL>900</TTL><ResourceRecords><ResourceRecord><Value>10.10.10.10</Value></ResourceRecord></ResourceRecords></ResourceRecordSet></Change>', 
+    ...    '<Changes><Change><Action>CREATE</Action><ResourceRecordSet><Name>my.domain.com</Name><Type>A</Type><TTL>900</TTL><ResourceRecords><ResourceRecord><Value>10.10.10.10</Value></ResourceRecord></ResourceRecords></ResourceRecordSet></Change></Changes>', 
     ...    'some-id', 
     ...    'us-east-1'
     ...    ;
@@ -577,6 +577,34 @@ AWS Route53 Create Record Set Simple Exemplifies XML Request Body
     ...    The operation was despatched successfully
     ...    stdout=${CURDIR}/tmp/AWS-Route53-Create-Record-Set-Simple-Exemplifies-XML-Request-Body.tmp
     ...    stderr=${CURDIR}/tmp/AWS-Route53-Create-Record-Set-Simple-Exemplifies-XML-Request-Body-stderr.tmp
+
+AWS Route53 Create Record Set CNAME Simple Exemplifies XML Request Body In Real Life
+    ${inputStr} =    Catenate
+    ...    insert into 
+    ...    aws.route53.resource_record_sets
+    ...    (
+    ...    data__ChangeBatch, 
+    ...    Id, 
+    ...    region
+    ...    ) 
+    ...    select 
+    ...    '<Changes><Change><Action>CREATE</Action><ResourceRecordSet><Name>dev-srv.my.domain.com</Name><Type>CNAME</Type><TTL>900</TTL><ResourceRecords><ResourceRecord><Value>s-1000000000000.server-bank.my.domain.com</Value></ResourceRecord></ResourceRecords></ResourceRecordSet></Change></Changes>', 
+    ...    'some-id', 
+    ...    'us-east-1'
+    ...    ;
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${EMPTY}
+    ...    The operation was despatched successfully
+    ...    stdout=${CURDIR}/tmp/AWS-Route53-Create-Record-Set-CNAME-Simple-Exemplifies-XML-Request-Body-In-Real-Life.tmp
+    ...    stderr=${CURDIR}/tmp/AWS-Route53-Create-Record-Set-CNAME-Simple-Exemplifies-XML-Request-Body-In-Real-Life-stderr.tmp
 
 AWS Route53 List Record Sets Simple
     ${inputStr} =    Catenate
