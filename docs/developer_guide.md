@@ -13,7 +13,7 @@ See [the CICD documentation](/docs/CICD.md).
 
 The inherent difficulty in generically serialising `xml` is nicely expressed by the golang dev community in [the `encoding/xml` documentation](https://pkg.go.dev/encoding/xml#pkg-note-BUG):
 
-> Mapping between XML elements and data structures is inherently flawed: an XML element is an order-dependent collection of anonymous values, while a data structure is an order-independent collection of named values. See encoding/json for a textual representation more suitable to data structures.
+> Mapping between XML elements and data structures is inherently flawed: an XML element is an order-dependent collection of anonymous values, while a data structure is an order-independent collection of named values. See [encoding/json](https://pkg.go.dev/encoding/json) for a textual representation more suitable to data structures.
 
 As of now, `stackql` handles `xml` SERDE through the core, and does not route this to SDKs.  Depending on priorities, this can be revisited *with care*.
 
