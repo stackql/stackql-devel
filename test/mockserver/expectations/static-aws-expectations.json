@@ -27,7 +27,7 @@
       },
       "body" : {
         "type" : "STRING",
-        "value": "<ChangeResourceRecordSetsRequest><ChangeBatch><Change><Action>CREATE</Action><ResourceRecordSet><Name>my.domain.com</Name><Type>A</Type><TTL>900</TTL><ResourceRecords><ResourceRecord><Value>10.10.10.10</Value></ResourceRecord></ResourceRecords></ResourceRecordSet></Change></ChangeBatch></ChangeResourceRecordSetsRequest>"
+        "value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ChangeResourceRecordSetsRequest><ChangeBatch><Change><Action>CREATE</Action><ResourceRecordSet><Name>my.domain.com</Name><Type>A</Type><TTL>900</TTL><ResourceRecords><ResourceRecord><Value>10.10.10.10</Value></ResourceRecord></ResourceRecords></ResourceRecordSet></Change></ChangeBatch></ChangeResourceRecordSetsRequest>"
       }
     },
     "httpResponse": {
