@@ -551,6 +551,51 @@ AWS Transfer Users Delete Simple Exemplifies No Response Body and Non Null Reque
     ...    stdout=${CURDIR}/tmp/AWS-Transfer-User-Delete-Simple-Exemplifies-No-Response-Body-and-Non-Null-Request-Body-Delete.tmp
     ...    stderr=${CURDIR}/tmp/AWS-Transfer-User-Delete-Simple-Exemplifies-No-Response-Body-and-Non-Null-Request-Body-Delete-stderr.tmp
 
+AWS Transfer Servers Update Simple Exemplifies Non Null Response Body and Non Null Request Body Update
+    ${inputStr} =    Catenate
+    ...              update aws.transfer.servers 
+    ...              set 
+    ...              data__ServerId = 's-0000000001',
+    ...              data__Protocols = '[ "SFTP" ]',
+    ...              region = 'ap-southeast-2'
+    ...              ;
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${EMPTY}
+    ...    The operation was despatched successfully
+    ...    stdout=${CURDIR}/tmp/AWS-Transfer-Servers-Update-Simple-Exemplifies-No-Response-Body-and-Non-Null-Request-Body-Update.tmp
+    ...    stderr=${CURDIR}/tmp/AWS-Transfer-Servers-Update-Simple-Exemplifies-No-Response-Body-and-Non-Null-Request-Body-Update-stderr.tmp
+
+AWS Transfer Users Update Simple Exemplifies Non Null Response Body and Non Null Request Body Update
+    ${inputStr} =    Catenate
+    ...              update aws.transfer.users 
+    ...              set 
+    ...              data__ServerId = 's-0000000001',
+    ...              data__UserName = 'some-jimbo@stackql.io',
+    ...              data__HomeDirectory = '/',
+    ...              region = 'ap-southeast-2'
+    ...              ;
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${EMPTY}
+    ...    The operation was despatched successfully
+    ...    stdout=${CURDIR}/tmp/AWS-Transfer-User-Update-Simple-Exemplifies-No-Response-Body-and-Non-Null-Request-Body-Update.tmp
+    ...    stderr=${CURDIR}/tmp/AWS-Transfer-User-Update-Simple-Exemplifies-No-Response-Body-and-Non-Null-Request-Body-Update-stderr.tmp
+
 AWS Transfer Exec Server Stop Simple Exemplifies No Response Body and Non Null Request Body Exec
     ${inputStr} =    Catenate
     ...              EXEC aws.transfer.servers.stop_server 

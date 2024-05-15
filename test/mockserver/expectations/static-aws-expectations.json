@@ -374,6 +374,62 @@
       "path": "/",
       "headers": {
         "Authorization": ["^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$" ],
+        "X-Amz-Target" : [ "TransferService.UpdateServer" ]
+      },
+      "body": {
+        "type": "JSON",
+        "json": {
+           "ServerId": "s-0000000001",
+           "Protocols": [ "SFTP" ]
+        },
+        "matchType": "STRICT"
+      }
+    },
+    "httpResponse": {
+      "headers": {
+        "content-type": [ "application/x-amz-json-1.0" ]
+      },
+      "statusCode": 200,
+      "body": {
+        "ServerId": "s-0000000001"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "Authorization": ["^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$" ],
+        "X-Amz-Target" : [ "TransferService.UpdateUser" ]
+      },
+      "body": {
+        "type": "JSON",
+        "json": {
+           "ServerId": "s-0000000001",
+           "UserName": "some-jimbo@stackql.io",
+           "HomeDirectory": "/"
+        },
+        "matchType": "STRICT"
+      }
+    },
+    "httpResponse": {
+      "headers": {
+        "content-type": [ "application/x-amz-json-1.0" ]
+      },
+      "statusCode": 200,
+      "body": {
+        "ServerId": "s-0000000001",
+        "UserName": "some-jimbo@stackql.io"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "Authorization": ["^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$" ],
         "X-Amz-Target" : [ "TransferService.CreateServer" ]
       },
       "body": {
