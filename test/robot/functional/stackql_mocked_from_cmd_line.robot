@@ -1413,6 +1413,10 @@ Transparent Placeholder URL and Defaulted Request Body Returns Expected Result
 Response Body Printed by Default on Error
     ${inputStr} =    Catenate
     ...    select BackupId, BackupState from aws.cloudhsm.backups where region = 'rubbish-region' order by BackupId;
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |----------|-------------|
+    ...    |${SPACE}BackupId${SPACE}|${SPACE}BackupState${SPACE}|
+    ...    |----------|-------------|
     ${outputErrStr} =    Catenate    SEPARATOR=\n
     ...    http${SPACE}error${SPACE}response${SPACE}body:${SPACE}{
     ...    ${SPACE}${SPACE}"error"${SPACE}:${SPACE}{
@@ -1422,7 +1426,6 @@ Response Body Printed by Default on Error
     ...    ${SPACE}${SPACE}${SPACE}${SPACE}}
     ...    ${SPACE}${SPACE}}
     ...    }
-    ...    unknown${SPACE}key${SPACE}Backups
     Should Stackql Exec Inline Equal Both Streams
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
@@ -1432,7 +1435,7 @@ Response Body Printed by Default on Error
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${inputStr}
-    ...    ${EMPTY}
+    ...    ${outputStr}
     ...    ${outputErrStr}
     ...    stdout=${CURDIR}/tmp/Response-Body-Printed-by-Default-on-Error.tmp
     ...    stderr=${CURDIR}/tmp/Response-Body-Printed-by-Default-on-Error-stderr.tmp
