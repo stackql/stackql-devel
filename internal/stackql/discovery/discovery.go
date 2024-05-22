@@ -108,6 +108,7 @@ func (adp *BasicDiscoveryAdapter) GetServiceShard(
 	if viewCollectionPresent {
 		for i, view := range viewCollection {
 			viewName := view.GetNameNaive()
+			//nolint:revive,staticcheck // future proofing
 			if i > 0 {
 				// viewName = fmt.Sprintf("%s_%d", viewName, i)
 			}
