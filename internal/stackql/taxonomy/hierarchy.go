@@ -221,25 +221,27 @@ func GetHeirarchyFromStatement(
 	}
 	retVal.SetResource(rsc)
 	//nolint:nestif // not overly complex
-	if viewBodyDDL, ok := rsc.GetViewBodyDDLForSQLDialect(
+	if viewCollection, ok := rsc.GetViewsForSqlDialect(
 		handlerCtx.GetSQLSystem().GetName()); ok && methodAction == "select" && !isView {
-		viewName := hIds.GetStackQLTableName()
-		// TODO: mutex required or some other strategy
-		viewDTO, viewExists := handlerCtx.GetSQLSystem().GetViewByName(viewName) //nolint:govet // acceptable shadow
-		if !viewExists {
-			// TODO: resolve any possible data race
-			err = handlerCtx.GetSQLSystem().CreateView(viewName, viewBodyDDL, true)
-			if err != nil {
-				return nil, err
+		for _, view := range viewCollection {
+			viewName := view.GetNameNaive()
+			// TODO: mutex required or some other strategy
+			viewDTO, viewExists := handlerCtx.GetSQLSystem().GetViewByName(viewName) //nolint:govet // acceptable shadow
+			if !viewExists {
+				// TODO: resolve any possible data race
+				err = handlerCtx.GetSQLSystem().CreateView(viewName, view.GetDDL(), true)
+				if err != nil {
+					return nil, err
+				}
+				viewDTO, isView := handlerCtx.GetSQLSystem().GetViewByName(hIds.GetTableName()) //nolint:govet // acceptable shadow
+				if isView {
+					hIds = hIds.WithView(viewDTO) //nolint:staticcheck,wastedassign // TODO: fix this
+				}
+				return retVal, nil
 			}
-			viewDTO, isView := handlerCtx.GetSQLSystem().GetViewByName(hIds.GetTableName()) //nolint:govet // acceptable shadow
-			if isView {
-				hIds = hIds.WithView(viewDTO) //nolint:staticcheck,wastedassign // TODO: fix this
-			}
-			return retVal, nil
+			hIds = hIds.WithView(viewDTO) //nolint:staticcheck,wastedassign // TODO: fix this
+			return retVal, nil            //nolint:staticcheck // TODO: fix this
 		}
-		hIds = hIds.WithView(viewDTO) //nolint:staticcheck,wastedassign // TODO: fix this
-		return retVal, nil
 	}
 	var method anysdk.OperationStore
 	switch node.(type) {

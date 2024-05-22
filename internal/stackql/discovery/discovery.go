@@ -104,15 +104,20 @@ func (adp *BasicDiscoveryAdapter) GetServiceShard(
 	if err != nil && resourceKey != "" {
 		return nil, err
 	}
-	viewBodyDDL, viewBodyDDLPresent := rsc.GetViewBodyDDLForSQLDialect(adp.sqlSystem.GetName())
-	if viewBodyDDLPresent {
-		viewName := rsc.GetID()
-		_, viewExists := adp.sqlSystem.GetViewByName(viewName)
-		if !viewExists {
-			// TODO: resolve any possible data race
-			err = adp.sqlSystem.CreateView(viewName, viewBodyDDL, true)
-			if err != nil {
-				return nil, err
+	viewCollection, viewCollectionPresent := rsc.GetViewsForSqlDialect(adp.sqlSystem.GetName())
+	if viewCollectionPresent {
+		for i, view := range viewCollection {
+			viewName := view.GetNameNaive()
+			if i > 0 {
+				// viewName = fmt.Sprintf("%s_%d", viewName, i)
+			}
+			_, viewExists := adp.sqlSystem.GetViewByName(viewName)
+			if !viewExists {
+				// TODO: resolve any possible data race
+				err = adp.sqlSystem.CreateView(viewName, view.GetDDL(), true)
+				if err != nil {
+					return nil, err
+				}
 			}
 		}
 	}
