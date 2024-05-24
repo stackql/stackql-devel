@@ -21,6 +21,7 @@ type RelationDTO interface {
 	GetNamespace() string
 	GetColumns() []typing.RelationalColumn
 	SetColumns(columns []typing.RelationalColumn)
+	MatchOnParams(map[string]any) (RelationDTO, bool)
 }
 
 type standardViewDTO struct {
@@ -31,6 +32,10 @@ type standardViewDTO struct {
 
 func (v *standardViewDTO) GetRawQuery() string {
 	return v.rawViewQuery
+}
+
+func (v *standardViewDTO) MatchOnParams(map[string]any) (RelationDTO, bool) {
+	return v, true
 }
 
 func (v *standardViewDTO) GetName() string {

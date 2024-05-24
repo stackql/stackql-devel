@@ -86,6 +86,13 @@ func (adp *BasicDiscoveryAdapter) GetServiceHandle(
 	return prov.GetProviderService(serviceKey)
 }
 
+func mangleViewName(viewName string, i int) string {
+	if i == 0 {
+		return viewName
+	}
+	return fmt.Sprintf("%s_%d", viewName, i)
+}
+
 func (adp *BasicDiscoveryAdapter) GetServiceShard(
 	prov anysdk.Provider,
 	serviceKey,
@@ -107,11 +114,7 @@ func (adp *BasicDiscoveryAdapter) GetServiceShard(
 	viewCollection, viewCollectionPresent := rsc.GetViewsForSqlDialect(adp.sqlSystem.GetName())
 	if viewCollectionPresent {
 		for i, view := range viewCollection {
-			viewName := view.GetNameNaive()
-			//nolint:revive,staticcheck // future proofing
-			if i > 0 {
-				// viewName = fmt.Sprintf("%s_%d", viewName, i)
-			}
+			viewName := mangleViewName(view.GetNameNaive(), i)
 			_, viewExists := adp.sqlSystem.GetViewByName(viewName)
 			if !viewExists {
 				// TODO: resolve any possible data race

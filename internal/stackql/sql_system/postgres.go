@@ -505,6 +505,14 @@ func (eng *postgresSystem) GetViewByName(viewName string) (internaldto.RelationD
 	return eng.getViewByName(viewName)
 }
 
+func (eng *postgresSystem) GetViewByNameAndParameters(viewName string, params map[string]any) (internaldto.RelationDTO, bool) {
+	rv, ok := eng.getViewByName(viewName)
+	if !ok {
+		return nil, false
+	}
+	return rv.MatchOnParams(params)
+}
+
 func (eng *postgresSystem) CreateMaterializedView(
 	relationName string,
 	colz []typing.RelationalColumn,

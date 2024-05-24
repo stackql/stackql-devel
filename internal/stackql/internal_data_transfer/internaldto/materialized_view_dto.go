@@ -28,6 +28,10 @@ func (v *standardMaterializedViewDTO) GetRawQuery() string {
 	return v.rawViewQuery
 }
 
+func (v *standardMaterializedViewDTO) MatchOnParams(map[string]any) (RelationDTO, bool) {
+	return v, true
+}
+
 func (v *standardMaterializedViewDTO) GetName() string {
 	return v.viewName
 }

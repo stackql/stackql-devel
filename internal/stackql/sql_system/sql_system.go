@@ -70,6 +70,7 @@ type SQLSystem interface {
 	CreateView(viewName string, rawDDL string, replaceAllowed bool) error
 	DropView(viewName string) error
 	GetViewByName(viewName string) (internaldto.RelationDTO, bool)
+	GetViewByNameAndParameters(viewName string, params map[string]any) (internaldto.RelationDTO, bool)
 
 	// Materialized Views
 	CreateMaterializedView(

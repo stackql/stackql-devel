@@ -533,6 +533,14 @@ func (eng *sqLiteSystem) GetViewByName(viewName string) (internaldto.RelationDTO
 	return eng.getViewByName(viewName)
 }
 
+func (eng *sqLiteSystem) GetViewByNameAndParameters(viewName string, params map[string]any) (internaldto.RelationDTO, bool) {
+	rv, ok := eng.getViewByName(viewName)
+	if !ok {
+		return nil, false
+	}
+	return rv.MatchOnParams(params)
+}
+
 func (eng *sqLiteSystem) getViewByName(viewName string) (internaldto.RelationDTO, bool) {
 	q := `SELECT view_ddl FROM "__iql__.views" WHERE view_name = ? and deleted_dttm IS NULL`
 	row := eng.sqlEngine.QueryRow(q, viewName)

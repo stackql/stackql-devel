@@ -28,6 +28,10 @@ func (v *standardPhysicalTableDTO) GetRawQuery() string {
 	return v.rawViewQuery
 }
 
+func (v *standardPhysicalTableDTO) MatchOnParams(map[string]any) (RelationDTO, bool) {
+	return v, true
+}
+
 func (v *standardPhysicalTableDTO) GetName() string {
 	return v.viewName
 }
