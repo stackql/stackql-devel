@@ -14,7 +14,6 @@ var (
 var (
 	//nolint:revive // prefer explicit
 	standardUnmangleRegexp *regexp.Regexp = regexp.MustCompile(`([\S]+)_([0-9]+)$`)
-	// standardWhereFragmentPostgres string         = `view_name LIKE ?`
 )
 
 type NameMangler interface {

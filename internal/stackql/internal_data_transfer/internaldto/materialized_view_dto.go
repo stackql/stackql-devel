@@ -28,7 +28,7 @@ func (v *standardMaterializedViewDTO) GetRawQuery() string {
 	return v.rawViewQuery
 }
 
-func (v *standardMaterializedViewDTO) WithRequiredParams(req map[string]any) RelationDTO {
+func (v *standardMaterializedViewDTO) WithRequiredParams(_ map[string]any) RelationDTO {
 	return v
 }
 

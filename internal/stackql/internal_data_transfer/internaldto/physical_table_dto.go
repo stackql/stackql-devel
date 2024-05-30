@@ -32,7 +32,7 @@ func (v *standardPhysicalTableDTO) MatchOnParams(map[string]any) (RelationDTO, b
 	return v, true
 }
 
-func (v *standardPhysicalTableDTO) WithRequiredParams(req map[string]any) RelationDTO {
+func (v *standardPhysicalTableDTO) WithRequiredParams(_ map[string]any) RelationDTO {
 	return v
 }
 

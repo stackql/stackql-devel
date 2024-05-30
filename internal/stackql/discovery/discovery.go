@@ -88,13 +88,6 @@ func (adp *BasicDiscoveryAdapter) GetServiceHandle(
 	return prov.GetProviderService(serviceKey)
 }
 
-func mangleViewName(viewName string, i int) string {
-	if i == 0 {
-		return viewName
-	}
-	return fmt.Sprintf("%s_%d", viewName, i)
-}
-
 func (adp *BasicDiscoveryAdapter) GetServiceShard(
 	prov anysdk.Provider,
 	serviceKey,
