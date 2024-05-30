@@ -32,6 +32,10 @@ func (v *standardPhysicalTableDTO) MatchOnParams(map[string]any) (RelationDTO, b
 	return v, true
 }
 
+func (v *standardPhysicalTableDTO) WithRequiredParams(req map[string]any) RelationDTO {
+	return v
+}
+
 func (v *standardPhysicalTableDTO) GetName() string {
 	return v.viewName
 }

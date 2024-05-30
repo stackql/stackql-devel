@@ -21,6 +21,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/sqlcontrol"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/typing"
+	"github.com/stackql/stackql/pkg/serde"
 )
 
 func newPostgresSystem(
@@ -475,19 +476,28 @@ func (eng *postgresSystem) DropView(viewName string) error {
 	return err
 }
 
-func (eng *postgresSystem) CreateView(viewName string, rawDDL string, replaceAllowed bool) error {
-	return eng.createView(viewName, rawDDL, replaceAllowed)
+func (eng *postgresSystem) CreateView(
+	viewName string, rawDDL string, replaceAllowed bool, requiredParams []string) error {
+	return eng.createView(viewName, rawDDL, replaceAllowed, requiredParams)
 }
 
-func (eng *postgresSystem) createView(viewName string, rawDDL string, replaceAllowed bool) error {
+func (eng *postgresSystem) createView(
+	viewName string, rawDDL string, replaceAllowed bool, requiredParams []string) error {
+	paramSerDe := serde.NewStringArrayMapSerDe()
+	requiredParamsString, serdeErr := paramSerDe.Serialize(requiredParams)
+	if serdeErr != nil {
+		return serdeErr
+	}
 	q := `
 	INSERT INTO "__iql__.views" (
 		view_name,
-		view_ddl
+		view_ddl,
+		required_params
 	  ) 
 	  VALUES (
 		$1,
-		$2
+		$2,
+		$3
 	  )
 	`
 	if replaceAllowed {
@@ -497,7 +507,7 @@ func (eng *postgresSystem) createView(viewName string, rawDDL string, replaceAll
 		    UPDATE SET view_ddl = EXCLUDED.view_ddl
 		`
 	}
-	_, err := eng.sqlEngine.Exec(q, viewName, rawDDL)
+	_, err := eng.sqlEngine.Exec(q, viewName, rawDDL, requiredParamsString)
 	return err
 }
 
@@ -505,12 +515,68 @@ func (eng *postgresSystem) GetViewByName(viewName string) (internaldto.RelationD
 	return eng.getViewByName(viewName)
 }
 
-func (eng *postgresSystem) GetViewByNameAndParameters(viewName string, params map[string]any) (internaldto.RelationDTO, bool) {
-	rv, ok := eng.getViewByName(viewName)
-	if !ok {
+func (eng *postgresSystem) GetViewByNameAndParameters(
+	viewName string, params map[string]any) (internaldto.RelationDTO, bool) {
+	rv, err := eng.selectMatchingView(viewName, params)
+	if err != nil {
 		return nil, false
 	}
-	return rv.MatchOnParams(params)
+	return rv, true
+}
+
+func (eng *postgresSystem) selectMatchingView(viewName string, params map[string]any) (internaldto.RelationDTO, error) {
+	candidates, err := eng.getAwareViewsByName(viewName)
+	if err != nil {
+		return nil, err
+	}
+	for _, candidate := range candidates {
+		if successfulCandidate, ok := candidate.MatchOnParams(params); ok {
+			return successfulCandidate, nil
+		}
+	}
+	return nil, fmt.Errorf("no matching view found for viewName = '%s'", viewName)
+}
+
+func (eng *postgresSystem) getAwareViewsByName(viewName string) ([]internaldto.RelationDTO, error) {
+	q := `SELECT view_name, view_ddl, required_parameters 
+	FROM "__iql__.views" WHERE view_name LIKE $1 and deleted_dttm IS NULL`
+	txn, err := eng.sqlEngine.GetTx()
+	if err != nil {
+		return nil, err
+	}
+	var rv []internaldto.RelationDTO
+	defer txn.Commit() //nolint:errcheck // TODO: establish pattern
+	rows, err := txn.Query(q, fmt.Sprintf(`%s%%`, viewName))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+	var hasRow bool
+	for {
+		if !rows.Next() {
+			break
+		}
+		hasRow = true
+		var viewNameAware, viewDDL, requiredParametersStr string
+		err = rows.Scan(&viewNameAware, &viewDDL, &requiredParametersStr)
+		if err != nil {
+			return nil, err
+		}
+		paramSerDe := serde.NewStringArrayMapSerDe()
+		requiredParameters, serDeErr := paramSerDe.Deserialize(requiredParametersStr)
+		if serDeErr != nil {
+			return nil, serDeErr
+		}
+		viewDTO := internaldto.NewViewDTO(viewNameAware, viewDDL).WithRequiredParams(requiredParameters)
+		rv = append(rv, viewDTO)
+	}
+	if !hasRow {
+		return nil, fmt.Errorf("no views found for viewName = '%s'", viewName)
+	}
+	return rv, nil
 }
 
 func (eng *postgresSystem) CreateMaterializedView(

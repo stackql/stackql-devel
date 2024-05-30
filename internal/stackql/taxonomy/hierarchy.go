@@ -10,6 +10,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
+	"github.com/stackql/stackql/pkg/name_mangle"
 
 	"strings"
 
@@ -220,16 +221,18 @@ func GetHeirarchyFromStatement(
 		return returnViewOnErrorIfPresent(retVal, err, isView)
 	}
 	retVal.SetResource(rsc)
+	viewNameMangler := name_mangle.NewViewNameMangler()
 	//nolint:nestif // not overly complex
 	if viewCollection, ok := rsc.GetViewsForSqlDialect(
 		handlerCtx.GetSQLSystem().GetName()); ok && methodAction == "select" && !isView {
-		for _, view := range viewCollection {
-			viewName := view.GetNameNaive()
+		for i, view := range viewCollection {
+			viewNameNaive := view.GetNameNaive()
+			viewName := viewNameMangler.MangleName(viewNameNaive, i)
 			// TODO: mutex required or some other strategy
 			viewDTO, viewExists := handlerCtx.GetSQLSystem().GetViewByName(viewName) //nolint:govet // acceptable shadow
 			if !viewExists {
 				// TODO: resolve any possible data race
-				err = handlerCtx.GetSQLSystem().CreateView(viewName, view.GetDDL(), true)
+				err = handlerCtx.GetSQLSystem().CreateView(viewName, view.GetDDL(), true, nil)
 				if err != nil {
 					return nil, err
 				}

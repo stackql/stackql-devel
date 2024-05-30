@@ -22,19 +22,35 @@ type RelationDTO interface {
 	GetColumns() []typing.RelationalColumn
 	SetColumns(columns []typing.RelationalColumn)
 	MatchOnParams(map[string]any) (RelationDTO, bool)
+	WithRequiredParams(map[string]any) RelationDTO
 }
 
 type standardViewDTO struct {
-	rawViewQuery string
-	viewName     string
-	columns      []typing.RelationalColumn
+	rawViewQuery   string
+	viewName       string
+	columns        []typing.RelationalColumn
+	requiredParams map[string]any
 }
 
 func (v *standardViewDTO) GetRawQuery() string {
 	return v.rawViewQuery
 }
 
-func (v *standardViewDTO) MatchOnParams(map[string]any) (RelationDTO, bool) {
+func (v *standardViewDTO) WithRequiredParams(req map[string]any) RelationDTO {
+	v.requiredParams = req
+	return v
+}
+
+func (v *standardViewDTO) MatchOnParams(params map[string]any) (RelationDTO, bool) {
+	if len(params) == 0 {
+		return v, true
+	}
+	for k := range v.requiredParams {
+		_, ok := params[k]
+		if !ok {
+			return nil, false
+		}
+	}
 	return v, true
 }
 
