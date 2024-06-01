@@ -491,6 +491,29 @@ AWS Hybrid Service Select View Polymorphic No Supplied Parameters
     ...    stdout=${CURDIR}/tmp/AWS-Hybrid-Service-Select-View-Polymorphic-No-Supplied-Parameters.tmp
     ...    stderr=${CURDIR}/tmp/AWS-Hybrid-Service-Select-View-Polymorphic-No-Supplied-Parameters-stderr.tmp
 
+AWS Hybrid Service Select View Polymorphic Plus Correct Supplied Parameters
+    ${inputStr} =    Catenate
+    ...              select * from aws.pseudo_s3.s3_bucket_polymorphic where data__Identifier = 'stackql-testing-bucket-01';
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |----------------------------------------|---------------------------|--------------------------------------------|------------------------------------------------------|----------------------------------------------------------------|---------------------------------------------------------------------|---------------------|-----------------------|-------------------|-----------------|------------------|------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}Arn${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}BucketName${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}DomainName${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}RegionalDomainName${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}DualStackDomainName${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}WebsiteURL${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}ObjectOwnership${SPACE}${SPACE}${SPACE}|${SPACE}RestrictPublicBuckets${SPACE}|${SPACE}BlockPublicPolicy${SPACE}|${SPACE}BlockPublicAcls${SPACE}|${SPACE}IgnorePublicAcls${SPACE}|${SPACE}Tags${SPACE}|
+    ...    |----------------------------------------|---------------------------|--------------------------------------------|------------------------------------------------------|----------------------------------------------------------------|---------------------------------------------------------------------|---------------------|-----------------------|-------------------|-----------------|------------------|------|
+    ...    |${SPACE}arn:aws:s3:::stackql-testing-bucket-01${SPACE}|${SPACE}stackql-testing-bucket-01${SPACE}|${SPACE}stackql-testing-bucket-01.s3.amazonaws.com${SPACE}|${SPACE}stackql-testing-bucket-01.s3.us-west-1.amazonaws.com${SPACE}|${SPACE}stackql-testing-bucket-01.s3.dualstack.us-west-1.amazonaws.com${SPACE}|${SPACE}http://stackql-testing-bucket-01.s3-website-us-west-1.amazonaws.com${SPACE}|${SPACE}BucketOwnerEnforced${SPACE}|${SPACE}true${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}true${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}true${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}true${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}null${SPACE}|
+    ...    |----------------------------------------|---------------------------|--------------------------------------------|------------------------------------------------------|----------------------------------------------------------------|---------------------------------------------------------------------|---------------------|-----------------------|-------------------|-----------------|------------------|------|
+    Should StackQL Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    ${EMPTY}
+    ...    stdout=${CURDIR}/tmp/AWS-Hybrid-Service-Select-View-Polymorphic-Plus-Correct-Supplied-Parameters.tmp
+    ...    stderr=${CURDIR}/tmp/AWS-Hybrid-Service-Select-View-Polymorphic-Plus-Correct-Supplied-Parameters-stderr.tmp
+
 AWS Cloud Control Log Group Insert Simple
     ${inputStr} =    Catenate
     ...              insert into aws.cloud_control.resources(
