@@ -21,6 +21,14 @@ type MaterializedView struct {
 	underlyingSymbolTable symtab.SymTab
 }
 
+func (v *MaterializedView) IsElide() bool {
+	return false
+}
+
+func (v *MaterializedView) SetElide(bool) {
+	//
+}
+
 func (v *MaterializedView) MatchOnParams(_ map[string]any) (Indirect, bool) {
 	return nil, false
 }

@@ -19,6 +19,15 @@ type View struct {
 	paramCollection       internaldto.TableParameterCollection
 	underlyingSymbolTable symtab.SymTab
 	next                  Indirect
+	isElide               bool
+}
+
+func (v *View) IsElide() bool {
+	return v.isElide
+}
+
+func (v *View) SetElide(isElide bool) {
+	v.isElide = isElide
 }
 
 func (v *View) GetType() IndirectType {

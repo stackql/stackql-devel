@@ -120,4 +120,6 @@ type Indirect interface {
 	Next() (Indirect, bool)
 	WithNext(Indirect) Indirect
 	MatchOnParams(map[string]any) (Indirect, bool)
+	SetElide(bool)
+	IsElide() bool
 }

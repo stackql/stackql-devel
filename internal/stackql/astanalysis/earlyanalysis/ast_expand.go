@@ -126,7 +126,7 @@ func (v *indirectExpandAstVisitor) processIndirect(node sqlparser.SQLNode, indir
 	indirectPrimitiveGenerator := v.primitiveGenerator.CreateIndirectPrimitiveGenerator(
 		indirect.GetSelectAST(),
 		v.handlerCtx,
-	)
+	).WithAstIndirect(indirect)
 	indirectPrimitiveGenerator.SetIsIndirect(true)
 	err = indirectPrimitiveGenerator.AnalyzeSelectStatement(childAnalyzer.GetPlanBuilderInput())
 	if err != nil {

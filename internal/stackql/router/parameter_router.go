@@ -487,16 +487,22 @@ func (pr *standardParameterRouter) route(
 	}
 	indirect, _ := pr.annotatedAST.GetIndirect(tb)
 	currentIndirect := indirect
+	// TODO: elide all non selected indirects
+	var alreadyMatched bool
 	for {
 		if currentIndirect == nil {
 			break
 		}
 		ind, matches := currentIndirect.MatchOnParams(abbreviatedConsumedMap)
-		if matches {
+		if matches && !alreadyMatched {
 			indirect = ind
-			break
+			alreadyMatched = true
+		} else {
+			// elide this indirect
+			currentIndirect.SetElide(true)
 		}
-		currentIndirect, hasNext := indirect.Next()
+		var hasNext bool
+		currentIndirect, hasNext = currentIndirect.Next()
 		if !hasNext {
 			break
 		}
