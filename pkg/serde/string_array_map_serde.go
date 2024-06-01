@@ -22,6 +22,9 @@ func (s *stringArrayMapSerDe) Deserialize(str string) (map[string]any, error) {
 	strArr := strings.Split(str, ",")
 	rv := make(map[string]any, len(strArr))
 	for _, strElem := range strArr {
+		if strElem == "" {
+			continue
+		}
 		rv[strElem] = struct{}{}
 	}
 	return rv, nil

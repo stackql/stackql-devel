@@ -117,4 +117,7 @@ type Indirect interface {
 	SetUnderlyingSymTab(symtab.SymTab)
 	GetTranslatedDDL() (string, bool)
 	GetLoadDML() (string, bool)
+	Next() (Indirect, bool)
+	WithNext(Indirect) Indirect
+	MatchOnParams(map[string]any) (Indirect, bool)
 }

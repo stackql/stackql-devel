@@ -532,7 +532,17 @@ func (eng *sqLiteSystem) generateDDL(relationalTable relationaldto.RelationalTab
 }
 
 func (eng *sqLiteSystem) GetViewByName(viewName string) (internaldto.RelationDTO, bool) {
-	return eng.getViewByName(viewName)
+	rv, ok := eng.getViewByName(viewName)
+	candidates, err := eng.getAwareViewsByName(viewName)
+	currentNode := rv
+	if err == nil {
+		for _, candidate := range candidates {
+			if rv.GetName() != candidate.GetName() {
+				currentNode = currentNode.WithNext(candidate)
+			}
+		}
+	}
+	return rv, ok
 }
 
 func (eng *sqLiteSystem) GetViewByNameAndParameters(
@@ -545,17 +555,22 @@ func (eng *sqLiteSystem) GetViewByNameAndParameters(
 }
 
 func (eng *sqLiteSystem) getViewByName(viewName string) (internaldto.RelationDTO, bool) {
-	q := `SELECT view_ddl FROM "__iql__.views" WHERE view_name = ? and deleted_dttm IS NULL`
+	q := `SELECT view_ddl, required_params FROM "__iql__.views" WHERE view_name = ? and deleted_dttm IS NULL`
 	row := eng.sqlEngine.QueryRow(q, viewName)
 	if row == nil {
 		return nil, false
 	}
-	var viewDDL string
-	err := row.Scan(&viewDDL)
+	var viewDDL, requiredParametersStr string
+	err := row.Scan(&viewDDL, &requiredParametersStr)
 	if err != nil {
 		return nil, false
 	}
-	rv := internaldto.NewViewDTO(viewName, viewDDL)
+	paramSerDe := serde.NewStringArrayMapSerDe()
+	requiredParameters, serDeErr := paramSerDe.Deserialize(requiredParametersStr)
+	if serDeErr != nil {
+		return nil, false
+	}
+	rv := internaldto.NewViewDTO(viewName, viewDDL).WithRequiredParams(requiredParameters)
 	return rv, true
 }
 
@@ -573,7 +588,7 @@ func (eng *sqLiteSystem) selectMatchingView(viewName string, params map[string]a
 }
 
 func (eng *sqLiteSystem) getAwareViewsByName(viewName string) ([]internaldto.RelationDTO, error) {
-	q := `SELECT view_name, view_ddl, required_parameters 
+	q := `SELECT view_name, view_ddl, required_params 
 	FROM "__iql__.views" WHERE view_name LIKE ? and deleted_dttm IS NULL`
 	txn, err := eng.sqlEngine.GetTx()
 	if err != nil {

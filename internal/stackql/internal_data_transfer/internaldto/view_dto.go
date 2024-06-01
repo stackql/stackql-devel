@@ -23,6 +23,8 @@ type RelationDTO interface {
 	SetColumns(columns []typing.RelationalColumn)
 	MatchOnParams(map[string]any) (RelationDTO, bool)
 	WithRequiredParams(map[string]any) RelationDTO
+	Next() (RelationDTO, bool)
+	WithNext(RelationDTO) RelationDTO
 }
 
 type standardViewDTO struct {
@@ -30,10 +32,20 @@ type standardViewDTO struct {
 	viewName       string
 	columns        []typing.RelationalColumn
 	requiredParams map[string]any
+	next           RelationDTO
 }
 
 func (v *standardViewDTO) GetRawQuery() string {
 	return v.rawViewQuery
+}
+
+func (v *standardViewDTO) Next() (RelationDTO, bool) {
+	return v.next, v.next != nil
+}
+
+func (v *standardViewDTO) WithNext(next RelationDTO) RelationDTO {
+	v.next = next
+	return v.next
 }
 
 func (v *standardViewDTO) WithRequiredParams(req map[string]any) RelationDTO {
@@ -43,7 +55,10 @@ func (v *standardViewDTO) WithRequiredParams(req map[string]any) RelationDTO {
 
 func (v *standardViewDTO) MatchOnParams(params map[string]any) (RelationDTO, bool) {
 	if len(params) == 0 {
-		return v, true
+		if len(v.requiredParams) == 0 {
+			return v, true
+		}
+		return nil, false
 	}
 	for k := range v.requiredParams {
 		_, ok := params[k]

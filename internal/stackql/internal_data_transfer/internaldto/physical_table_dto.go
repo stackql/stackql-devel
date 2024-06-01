@@ -32,6 +32,15 @@ func (v *standardPhysicalTableDTO) MatchOnParams(map[string]any) (RelationDTO, b
 	return v, true
 }
 
+func (v *standardPhysicalTableDTO) Next() (RelationDTO, bool) {
+	return nil, false
+}
+
+func (v *standardPhysicalTableDTO) WithNext(_ RelationDTO) RelationDTO {
+	// v.next = next
+	return v
+}
+
 func (v *standardPhysicalTableDTO) WithRequiredParams(_ map[string]any) RelationDTO {
 	return v
 }

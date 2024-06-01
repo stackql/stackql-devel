@@ -512,7 +512,17 @@ func (eng *postgresSystem) createView(
 }
 
 func (eng *postgresSystem) GetViewByName(viewName string) (internaldto.RelationDTO, bool) {
-	return eng.getViewByName(viewName)
+	rv, ok := eng.getViewByName(viewName)
+	candidates, err := eng.getAwareViewsByName(fmt.Sprintf("%s%%", viewName))
+	currentNode := rv
+	if err != nil {
+		for _, candidate := range candidates {
+			if rv.GetName() != candidate.GetName() {
+				currentNode = currentNode.WithNext(candidate)
+			}
+		}
+	}
+	return rv, ok
 }
 
 func (eng *postgresSystem) GetViewByNameAndParameters(
@@ -538,7 +548,7 @@ func (eng *postgresSystem) selectMatchingView(viewName string, params map[string
 }
 
 func (eng *postgresSystem) getAwareViewsByName(viewName string) ([]internaldto.RelationDTO, error) {
-	q := `SELECT view_name, view_ddl, required_parameters 
+	q := `SELECT view_name, view_ddl, required_params 
 	FROM "__iql__.views" WHERE view_name LIKE $1 and deleted_dttm IS NULL`
 	txn, err := eng.sqlEngine.GetTx()
 	if err != nil {
