@@ -530,7 +530,7 @@ func (dp *standardDependencyPlanner) processAcquire(
 
 func (dp *standardDependencyPlanner) getStreamFromEdge(
 	e dataflow.Edge,
-	ac taxonomy.AnnotationCtx,
+	toAc taxonomy.AnnotationCtx,
 	tcc internaldto.TxnControlCounters,
 ) (streaming.MapStream, error) {
 	if e.IsSQL() {
@@ -546,11 +546,16 @@ func (dp *standardDependencyPlanner) getStreamFromEdge(
 		if err != nil {
 			return nil, err
 		}
+		transformedStaticParams, paramTRansformErr := util.TransformSQLRawParameters(toAc.GetParameters())
+		if paramTRansformErr != nil {
+			return nil, paramTRansformErr
+		}
 		return sqlstream.NewSimpleSQLMapStream(
 			selectCtx,
 			insertContainer,
 			dp.handlerCtx.GetDrmConfig(),
 			dp.handlerCtx.GetSQLEngine(),
+			transformedStaticParams,
 		), nil
 	}
 	projection, err := e.GetProjection()
@@ -561,7 +566,7 @@ func (dp *standardDependencyPlanner) getStreamFromEdge(
 	for _, v := range projection {
 		incomingCols[v] = struct{}{}
 	}
-	params := ac.GetParameters()
+	params := toAc.GetParameters()
 	staticParams := make(map[string]interface{})
 	for k, v := range params {
 		if _, ok := incomingCols[k]; !ok {
@@ -610,6 +615,6 @@ func (dp *standardDependencyPlanner) generateSelectDML(
 		dp.handlerCtx.GetNamespaceCollection(),
 		nil,
 		map[string]interface{}{},
-	)
+	).WithSelectQualifier("DISTINCT")
 	return sqlrewrite.GenerateRewrittenSelectDML(rewriteInput)
 }

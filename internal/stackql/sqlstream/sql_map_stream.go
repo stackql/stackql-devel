@@ -15,7 +15,7 @@ type SimpleSQLMapStream struct {
 	drmCfg          drm.Config
 	sqlEngine       sqlengine.SQLEngine
 	// No buffering just yet; let us revisit soon
-	// store     []map[string]interface{}
+	staticParams map[string]interface{}
 }
 
 func NewSimpleSQLMapStream(
@@ -23,12 +23,14 @@ func NewSimpleSQLMapStream(
 	insertContainer tableinsertioncontainer.TableInsertionContainer,
 	drmCfg drm.Config,
 	sqlEngine sqlengine.SQLEngine,
+	staticParams map[string]interface{},
 ) streaming.MapStream {
 	return &SimpleSQLMapStream{
 		selectCtx:       selectCtx,
 		insertContainer: insertContainer,
 		drmCfg:          drmCfg,
 		sqlEngine:       sqlEngine,
+		staticParams:    staticParams,
 	}
 }
 
@@ -67,6 +69,9 @@ func (ss *SimpleSQLMapStream) Read() ([]map[string]interface{}, error) {
 				return nil, errScan
 			}
 			im := make(map[string]interface{})
+			for k, v := range ss.staticParams {
+				im[k] = v
+			}
 			for ord, key := range keyArr {
 				val := ifArr[ord]
 				ev := ss.drmCfg.ExtractFromGolangValue(val)
