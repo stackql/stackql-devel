@@ -22,6 +22,10 @@ func (ss *StaticMapStream) Write(_ []map[string]interface{}) error {
 	return nil
 }
 
+func (ss *StaticMapStream) WriteStatic(_ []map[string]interface{}) error {
+	return nil
+}
+
 func (ss *StaticMapStream) Read() ([]map[string]interface{}, error) {
 	return ss.payload, io.EOF
 }

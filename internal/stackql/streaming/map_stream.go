@@ -21,6 +21,7 @@ type MapReader interface {
 type MapWriter interface {
 	StackQLWriter
 	Write([]map[string]interface{}) error
+	WriteStatic([]map[string]interface{}) error
 }
 
 type StandardMapStream struct {
@@ -38,6 +39,10 @@ func NewStandardMapStream() MapStream {
 
 func (ss *StandardMapStream) Write(input []map[string]interface{}) error {
 	ss.store = append(ss.store, input...)
+	return nil
+}
+
+func (ss *StandardMapStream) WriteStatic(input []map[string]interface{}) error {
 	return nil
 }
 

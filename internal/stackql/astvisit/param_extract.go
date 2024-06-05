@@ -738,6 +738,25 @@ func (v *standardParserParamAstVisitor) Visit(node sqlparser.SQLNode) error {
 					lt,
 					v.getNextOrdinal(),
 				))
+			case *sqlparser.FuncExpr:
+				k, err := parserutil.NewUnknownTypeColumnarReference(lt)
+				if err != nil {
+					return err
+				}
+				v.params.Set(k, parserutil.NewComparisonParameterMetadata(
+					node,
+					rt,
+					v.getNextOrdinal(),
+				))
+				kr, err := parserutil.NewUnknownTypeColumnarReference(rt)
+				if err != nil {
+					return err
+				}
+				v.params.Set(kr, parserutil.NewComparisonParameterMetadata(
+					node,
+					lt,
+					v.getNextOrdinal(),
+				))
 			case sqlparser.ValTuple:
 				k, err := parserutil.NewUnknownTypeColumnarReference(lt)
 				if err != nil {

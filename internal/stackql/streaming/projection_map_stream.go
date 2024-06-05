@@ -23,6 +23,10 @@ func (ss *SimpleProjectionMapStream) Write(input []map[string]interface{}) error
 	return nil
 }
 
+func (ss *SimpleProjectionMapStream) WriteStatic(input []map[string]interface{}) error {
+	return nil
+}
+
 func (ss *SimpleProjectionMapStream) Read() ([]map[string]interface{}, error) {
 	var rv []map[string]interface{}
 	for _, row := range ss.dynamicStore {

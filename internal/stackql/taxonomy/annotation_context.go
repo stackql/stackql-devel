@@ -104,6 +104,7 @@ func (ac *standardAnnotationCtx) Prepare(
 	if err != nil {
 		return err
 	}
+	params := ac.GetParameters()
 	// LAZY EVAL if dynamic
 	if ac.isDynamic {
 		viewDTO, isView := ac.GetView()
@@ -115,6 +116,15 @@ func (ac *standardAnnotationCtx) Prepare(
 		if provErr != nil {
 			return provErr
 		}
+		parametersCleaned, cleanErr := util.TransformSQLRawParameters(params)
+		if cleanErr != nil {
+			return cleanErr
+		}
+		stream.WriteStatic( //nolint:errcheck // TODO: handle error
+			[]map[string]interface{}{
+				parametersCleaned,
+			},
+		)
 		ac.tableMeta.WithGetHTTPArmoury(
 			func() (anysdk.HTTPArmoury, error) {
 				httpPreparator := anysdk.NewHTTPPreparator(
@@ -132,7 +142,7 @@ func (ac *standardAnnotationCtx) Prepare(
 		)
 		return nil
 	}
-	params := ac.GetParameters()
+
 	ac.tableMeta.WithGetHTTPArmoury(
 		func() (anysdk.HTTPArmoury, error) {
 			// need to dynamically generate stream, otherwise repeated calls result in empty body
