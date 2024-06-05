@@ -4249,3 +4249,40 @@ Normal Response 200 Should Return Populated Table on GCP KMS Key Rings
     ...    ${EMPTY}
     ...    stdout=${CURDIR}/tmp/Normal-Response-200-Should-Return-Populated-Table-on-GCP-KMS-Key-Rings.tmp
     ...    stderr=${CURDIR}/tmp/Normal-Response-200-Should-Return-Populated-Table-on-GCP-KMS-Key-Rings-stderr.tmp
+
+Verify Data Flow Replication in ON Conditions Is Mitigated Using Example of Networks Subnetworks Join Aggregate
+    ${inputStr} =    Catenate
+    ...    select nw.name as network_name, sn.name as subnetwork_name, count(1) as subnet_count 
+    ...    from google.compute.networks nw LEFT OUTER JOIN google.compute.subnetworks sn 
+    ...    on lower(nw.name) = lower(split_part(sn.network, '/', 10)) and sn.project = split_part(nw.selfLink, '/', 7) 
+    ...    where nw.project = 'testing-project' and sn.region = 'australia-southeast1' 
+    ...    group by network_name, subnetwork_name ;
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |------------------------------|-----------------|--------------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}network_name${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}subnetwork_name${SPACE}|${SPACE}subnet_count${SPACE}|
+    ...    |------------------------------|-----------------|--------------|
+    ...    |${SPACE}demo-disk-xx5${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}demo-disk-xx5${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}1${SPACE}|
+    ...    |------------------------------|-----------------|--------------|
+    ...    |${SPACE}k8s-01-vpc${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}null${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}1${SPACE}|
+    ...    |------------------------------|-----------------|--------------|
+    ...    |${SPACE}kr-vpc-01${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}aus-sn-01${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}1${SPACE}|
+    ...    |------------------------------|-----------------|--------------|
+    ...    |${SPACE}kr-vpc-01${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}aus-sn-02${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}1${SPACE}|
+    ...    |------------------------------|-----------------|--------------|
+    ...    |${SPACE}kubernetes-the-hard-way-vpc2${SPACE}|${SPACE}null${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}1${SPACE}|
+    ...    |------------------------------|-----------------|--------------|
+    ...    |${SPACE}testing-network-01${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}null${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}1${SPACE}|
+    ...    |------------------------------|-----------------|--------------|
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    ${EMPTY}
+    ...    stdout=${CURDIR}/tmp/Verify-Data-Flow-Replication-in-ON-Conditions-Is-Mitigated-Using-Example-of-Networks-Subnetworks-Join-Aggregate.tmp
+    ...    stderr=${CURDIR}/tmp/Verify-Data-Flow-Replication-in-ON-Conditions-Is-Mitigated-Using-Example-of-Networks-Subnetworks-Join-Aggregate-stderr.tmp
