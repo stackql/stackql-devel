@@ -592,8 +592,12 @@ func (dp *standardDependencyPlanner) generateSelectDML(
 	if err != nil {
 		return nil, err
 	}
+	discoID, discoIDErr := dp.handlerCtx.GetSQLEngine().GetCurrentDiscoveryGenerationID(ann.GetHIDs().GetProviderStr())
+	if discoIDErr != nil {
+		return nil, fmt.Errorf("error generating select dml: %w", discoIDErr)
+	}
 	alias := ann.GetTableMeta().GetAlias()
-	tn, err := dp.handlerCtx.GetDrmConfig().GetTable(ann.GetHIDs(), dp.tcc.GetGenID())
+	tn, err := dp.handlerCtx.GetDrmConfig().GetTable(ann.GetHIDs(), discoID)
 	if err != nil {
 		return nil, err
 	}
