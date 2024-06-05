@@ -38,10 +38,6 @@ func (ss *SimpleSQLMapStream) Write(_ []map[string]interface{}) error {
 	return nil
 }
 
-func (ss *SimpleSQLMapStream) WriteStatic(_ []map[string]interface{}) error {
-	return nil
-}
-
 func (ss *SimpleSQLMapStream) Read() ([]map[string]interface{}, error) {
 	var rv []map[string]interface{}
 	nonControlColumns := ss.selectCtx.GetNonControlColumns()

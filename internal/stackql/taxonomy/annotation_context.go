@@ -116,15 +116,6 @@ func (ac *standardAnnotationCtx) Prepare(
 		if provErr != nil {
 			return provErr
 		}
-		parametersCleaned, cleanErr := util.TransformSQLRawParameters(params)
-		if cleanErr != nil {
-			return cleanErr
-		}
-		stream.WriteStatic( //nolint:errcheck // TODO: handle error
-			[]map[string]interface{}{
-				parametersCleaned,
-			},
-		)
 		ac.tableMeta.WithGetHTTPArmoury(
 			func() (anysdk.HTTPArmoury, error) {
 				httpPreparator := anysdk.NewHTTPPreparator(
