@@ -1110,7 +1110,7 @@ func (eng *postgresSystem) composeSelectQuery(
 	}
 	whereExprsStr := wq.String()
 
-	q.WriteString(fmt.Sprintf(`SELECT %s, %s `, selectQualifier, strings.Join(quotedColNames, ", ")))
+	q.WriteString(fmt.Sprintf(`SELECT %s %s `, selectQualifier, strings.Join(quotedColNames, ", ")))
 	if fromString != "" {
 		q.WriteString(fmt.Sprintf(`FROM %s `, fromString))
 	}

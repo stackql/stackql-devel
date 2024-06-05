@@ -4286,3 +4286,32 @@ Verify Data Flow Replication in ON Conditions Is Mitigated Using Example of Netw
     ...    ${EMPTY}
     ...    stdout=${CURDIR}/tmp/Verify-Data-Flow-Replication-in-ON-Conditions-Is-Mitigated-Using-Example-of-Networks-Subnetworks-Join-Aggregate.tmp
     ...    stderr=${CURDIR}/tmp/Verify-Data-Flow-Replication-in-ON-Conditions-Is-Mitigated-Using-Example-of-Networks-Subnetworks-Join-Aggregate-stderr.tmp
+
+Verify Data Flow ON Conditions With Functions Do NOT Halt Analysis Using Example of GCP KMS Keyrings to Keys Join
+    ${inputStr} =    Catenate
+    ...    select split_part(rings.name, '/', -1) 
+    ...    from google.cloudkms.key_rings rings inner join google.cloudkms.crypto_keys keys 
+    ...    on keys.keyRingsId = split_part(rings.name, '/', -1) and keys.projectsId = 'testing-project' 
+    ...    where rings.projectsId = 'testing-project' and rings.locationsId = 'global' and keys.locationsId = 'global';
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |---------|
+    ...    |${SPACE}${SPACE}name${SPACE}${SPACE}${SPACE}|
+    ...    |---------|
+    ...    |${SPACE}testing${SPACE}|
+    ...    |---------|
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    ${EMPTY}
+    ...    stdout=${CURDIR}/tmp/Verify-Data-Flow-ON-Conditions-With-Functions-Do-NOT-Halt-Analysis-Using-Example-of-GCP-KMS-Keyrings-to-Keys-Join.tmp
+    ...    stderr=${CURDIR}/tmp/Verify-Data-Flow-ON-Conditions-With-Functions-Do-NOT-Halt-Analysis-Using-Example-of-GCP-KMS-Keyrings-to-Keys-Join-stderr.tmp
+
+
+

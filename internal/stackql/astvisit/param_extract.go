@@ -650,7 +650,7 @@ func (v *standardParserParamAstVisitor) Visit(node sqlparser.SQLNode) error {
 
 	case *sqlparser.JoinTableExpr:
 		node.LeftExpr.Accept(v)
-		node.LeftExpr.Accept(v)
+		node.RightExpr.Accept(v)
 		node.Condition.On.Accept(v)
 		buf.AstPrintf(node, "%v %s %v%v", node.LeftExpr, node.Join, node.RightExpr, node.Condition)
 
@@ -748,9 +748,16 @@ func (v *standardParserParamAstVisitor) Visit(node sqlparser.SQLNode) error {
 					rt,
 					v.getNextOrdinal(),
 				))
-				kr, err := parserutil.NewUnknownTypeColumnarReference(rt)
-				if err != nil {
-					return err
+				colRef, colRefOk := parserutil.ExtractLHSTable(rt)
+				var kr parserutil.ColumnarReference
+				var colRefErr error
+				if colRefOk {
+					kr, colRefErr = parserutil.NewUnknownTypeColumnarReference(colRef)
+				} else {
+					kr, colRefErr = parserutil.NewUnknownTypeColumnarReference(rt)
+				}
+				if colRefErr != nil {
+					return colRefErr
 				}
 				v.params.Set(kr, parserutil.NewComparisonParameterMetadata(
 					node,
