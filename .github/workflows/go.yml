@@ -828,9 +828,9 @@ jobs:
         docker pull golang:1.18.4-bullseye
         docker pull ubuntu:22.04
 
-    - name: Pull Docker image for cache purposes
-      run: |
-        docker pull stackql/stackql:latest || echo 'could not pull image for cache purposes'
+    # - name: Pull Docker image for cache purposes
+    #   run: |
+    #     docker pull stackql/stackql:latest || echo 'could not pull image for cache purposes'
 
     - name: Create certificates for robot tests
       run: |
