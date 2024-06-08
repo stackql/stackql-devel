@@ -602,6 +602,11 @@ func (dp *standardDependencyPlanner) generateSelectDML(
 		return nil, err
 	}
 	tableName := fmt.Sprintf(`"%s"`, tn.GetName())
+	// TODO: obtain namespace prefix for postgres
+	tableSchema := tn.GetNameSpace()
+	if tableSchema != "" {
+		tableName = fmt.Sprintf(`"%s"."%s"`, tableSchema, tn.GetName())
+	}
 	if alias != "" {
 		tableName = fmt.Sprintf("%s AS %s", tableName, alias)
 	}

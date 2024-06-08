@@ -1621,7 +1621,7 @@ func (eng *postgresSystem) getTable(
 		tableHeirarchyIDs.GetTableName(),
 		discoveryID,
 		tableHeirarchyIDs,
-	), err
+	).WithNameSpace(eng.tableSchema), err
 }
 
 func (eng *postgresSystem) GetCurrentTable(
