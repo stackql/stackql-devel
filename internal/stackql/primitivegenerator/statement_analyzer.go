@@ -165,26 +165,29 @@ func (pb *standardPrimitiveGenerator) analyzeUnion(
 
 	pb.prepStmtOffset = ctx.GetCtrlColumnRepeats()
 
+	currentPbi := pbi
+	var currentPbiExists bool
+
 	for _, rhsStmt := range node.UnionSelects {
 		i++
 		leaf, err := pb.PrimitiveComposer.GetSymTab().NewLeaf(i)
 		if err != nil {
 			return err
 		}
+		currentPbi, currentPbiExists = currentPbi.Next()
+		if !currentPbiExists {
+			return fmt.Errorf("no more PBIs for union selects in analysis of union statement")
+		}
 		pChild := pb.AddChildPrimitiveGenerator(rhsStmt.Statement, leaf).WithPrepStmtOffset(pb.prepStmtOffset)
 		pChild.SetElideRead(true)
 		ctrClone = ctrClone.CloneAndIncrementInsertID()
-		sPbi, err := planbuilderinput.NewPlanBuilderInput(
-			pbi.GetAnnotatedAST(),
-			handlerCtx,
-			rhsStmt.Statement,
-			nil, nil, nil, nil, nil, ctrClone)
+
 		if err != nil {
 			return err
 		}
-		sPbi.SetIsTccSetAheadOfTime(true)
-		sPbi.SetPrepStmtOffset(pb.prepStmtOffset)
-		err = pChild.AnalyzeSelectStatement(sPbi)
+		currentPbi.SetIsTccSetAheadOfTime(true)
+		currentPbi.SetPrepStmtOffset(pb.prepStmtOffset)
+		err = pChild.AnalyzeSelectStatement(currentPbi)
 		if err != nil {
 			return err
 		}
