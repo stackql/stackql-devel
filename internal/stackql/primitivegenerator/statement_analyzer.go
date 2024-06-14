@@ -193,7 +193,7 @@ func (pb *standardPrimitiveGenerator) analyzeUnion(
 		}
 		ctx := pChild.GetPrimitiveComposer().GetSelectPreparedStatementCtx()
 		ctx.SetKind(rhsStmt.Type)
-		ctx.SetGCCtrlCtrs(ctrClone)
+		// ctx.SetGCCtrlCtrs(ctrClone)
 		selectStatementContexts = append(selectStatementContexts, ctx)
 		pb.prepStmtOffset += ctx.GetCtrlColumnRepeats()
 		// unionSelectCtx

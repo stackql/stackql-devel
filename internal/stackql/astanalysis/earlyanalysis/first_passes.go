@@ -456,7 +456,7 @@ func (sp *standardInitialPasses) initialPasses(
 				rhsThreeToFiveAgg.GetAliasMap(),
 				rhsThreeToFiveAgg.GetColRefs(),
 				rhsThreeToFiveAgg.GetParameters(),
-				tcc.Clone(),
+				tcc.CloneAndIncrementInsertID(),
 			)
 			if pbiErr != nil {
 				return pbiErr
