@@ -4645,7 +4645,7 @@ Union of List And Details Dataflow View Works As Exemplified By AWS KMS Key Clou
     ...    json_extract_path_text(detail.Properties, 'Tags') as key_tags, 
     ...    json_extract_path_text(detail.Properties, 'KeyUsage') as key_usage, 
     ...    json_extract_path_text(detail.Properties, 'Origin') as key_origin, 
-    ...    json_extract_path_text(detail.Properties, 'MultiRegion') as key_is_multi_region, 
+    ...    case when json_extract_path_text(detail.Properties, 'MultiRegion') = 1 then 'true' else 'false' end as key_is_multi_region, 
     ...    detail.region 
     ...    from aws.cloud_control.resources listing 
     ...    inner join 
@@ -4663,7 +4663,7 @@ Union of List And Details Dataflow View Works As Exemplified By AWS KMS Key Clou
     ...    json_extract_path_text(detail.Properties, 'Tags') as key_tags, 
     ...    json_extract_path_text(detail.Properties, 'KeyUsage') as key_usage, 
     ...    json_extract_path_text(detail.Properties, 'Origin') as key_origin, 
-    ...    case when json_extract_path_text(detail.Properties, 'MultiRegion') = true then 'true' else 'false' end as key_is_multi_region, 
+    ...    case when json_extract_path_text(detail.Properties, 'MultiRegion') = 1 then 'true' else 'false' end as key_is_multi_region, 
     ...    detail.region 
     ...    from 
     ...    aws.cloud_control.resources listing 
