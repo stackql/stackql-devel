@@ -1440,7 +1440,7 @@ Create Then Replace and Interrogate Materialized View With Union of MAterialized
 
 Create and Interrogate Materialized View With Parenthesized Select and Union
     ${inputStr} =    Catenate
-    ...    create materialized view vw_aws_usr as select Arn, UserName, UserId, region from aws.iam.users where region = 'us-east-1' union all select 'prefixed' || Arn, UserName, 'prefixed' || UserId, region from aws.iam.users where region = 'us-east-1';
+    ...    create materialized view vw_aws_usr as (select Arn, UserName, UserId, region from aws.iam.users where region = 'us-east-1' union all select 'prefixed' || Arn, UserName, 'prefixed' || UserId, region from aws.iam.users where region = 'us-east-1');
     ...    select * from vw_aws_usr order by Arn desc;
     ...    drop materialized view vw_aws_usr;
     ${outputStr} =    Catenate    SEPARATOR=\n
