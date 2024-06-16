@@ -178,6 +178,7 @@ func (sp *standardInitialPasses) Analyze(
 	return sp.initialPasses(statement, handlerCtx, tcc)
 }
 
+//nolint:unparam // future proofing
 func thirdToFifthPasses(
 	ast sqlparser.SQLNode, annotatedAST annotatedast.AnnotatedAst) (threeToFivePassAggregate, error) {
 	// Third pass AST analysis; extract parser table objects.

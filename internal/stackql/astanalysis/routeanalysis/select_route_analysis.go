@@ -59,7 +59,7 @@ func (sp *standardSelectRoutePass) RoutePass() error {
 
 	pbi := sp.inputPbi.Clone()
 
-	//counters := pbi.GetTxnCtrlCtrs()
+	// counters := pbi.GetTxnCtrlCtrs()
 
 	switch n := sp.node.(type) {
 	case *sqlparser.Select:
