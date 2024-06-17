@@ -841,6 +841,12 @@ jobs:
         openssl req -x509 -keyout cicd/vol/srv/credentials/pg_client_key.pem -out  cicd/vol/srv/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
         openssl req -x509 -keyout cicd/vol/srv/credentials/pg_rubbish_key.pem -out cicd/vol/srv/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365
 
+    - name: Add self signed certificates for robot tests to trust store
+      run: |
+        # per https://ubuntu.com/server/docs/install-a-root-ca-certificate-in-the-trust-store
+        sudo cp cicd/vol/srv/credentials/pg_server_cert.pem /usr/local/share/ca-certificates/pg_server_cert.crt
+        sudo update-ca-certificates
+
     - name: Build image
       run: |
         docker compose -f docker-compose-credentials.yml build credentialsgen
