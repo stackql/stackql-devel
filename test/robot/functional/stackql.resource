@@ -27,7 +27,7 @@ Start Mock Server
     ...  \-serverPort    ${_MOCKSERVER_PORT}
     ...  stderr=${CURDIR}/tmp/stdout-mockserver-${_MOCKSERVER_PORT}.txt
     ...  stdout=${CURDIR}/tmp/stderr-mockserver-${_MOCKSERVER_PORT}.txt
-    [Return]    ${process}
+    Return    ${process}
 
 Start All Mock Servers
     Start Mock Server    ${JSON_INIT_FILE_PATH_GOOGLE}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_GOOGLE}
@@ -103,7 +103,7 @@ Start StackQL PG Server mTLS
                         ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
                         ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
     END
-    [Return]    ${process}
+    Return    ${process}
 
 Start StackQL PG Server mTLS Expose Backing DB
     [Arguments]    ${_SRV_PORT_MTLS}    ${_MTLS_CFG_STR}    ${_NAMESPACES_CFG}    ${_GC_CFG}    ${_SQL_BACKEND_CFG}    ${_DOCKER_PORT}
@@ -136,7 +136,7 @@ Start StackQL PG Server mTLS Expose Backing DB
                         ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-mtls-backing-${_SRV_PORT_MTLS}.txt
                         ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-mtls-backing-${_SRV_PORT_MTLS}.txt
     END
-    [Return]    ${process}
+    Return    ${process}
 
 Start StackQL PG Server unencrypted
     [Arguments]    ${_SRV_PORT_UNENCRYPTED}    ${_NAMESPACES_CFG}   ${_SQL_BACKEND_CFG}
@@ -165,7 +165,7 @@ Start StackQL PG Server unencrypted
                         ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-unencrypted-${_SRV_PORT_UNENCRYPTED}.txt
                         ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-unencrypted-${_SRV_PORT_UNENCRYPTED}.txt
     END
-    [Return]    ${process}
+    Return    ${process}
 
 Start Postgres External Source If Viable
     IF    "${SHOULD_RUN_DOCKER_EXTERNAL_TESTS}" == "true"
