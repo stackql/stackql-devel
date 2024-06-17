@@ -913,8 +913,8 @@ jobs:
         docker container ls --format "table {{.ID}}\t{{.Names}}\t{{.Ports}}" -a
         echo "## End ##"
         docker compose down
-        docker stop $(docker ps -a -q)
-        docker rm $(docker ps -a -q)
+        docker stop "$(docker ps -a -q)"
+        docker rm "$(docker ps -a -q)"
         echo "## Stray docker containers after compose down ##"
         docker container ls --format "table {{.ID}}\t{{.Names}}\t{{.Ports}}" -a
         echo "## End ##"
