@@ -45,7 +45,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5.0.0
       with:
-        go-version: ^1.19
+        go-version: ^1.21
         check-latest: true
         cache: true
       id: go
@@ -172,6 +172,11 @@ jobs:
       if: startsWith(steps.git_ref_parse.outputs.SOURCE_TAG, 'build-release')
       run: |
         cat ./test/robot/functional/output.xml
+
+    - name: Output deposited in tmp dir
+      if: startsWith(steps.git_ref_parse.outputs.SOURCE_TAG, 'build-release')
+      run: |
+        cat ./test/robot/functional/tmp/*
     
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(steps.git_ref_parse.outputs.SOURCE_TAG, 'build-release')
@@ -212,7 +217,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5.0.0
       with:
-        go-version: ^1.19
+        go-version: ^1.21
         check-latest: true
         cache: true
       id: go
@@ -541,7 +546,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5.0.0
       with:
-        go-version: ^1.19
+        go-version: ^1.21
         check-latest: true
         cache: true
       id: go
@@ -686,7 +691,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5.0.0
       with:
-        go-version: ^1.19
+        go-version: ^1.21
         check-latest: true
         cache: true
       id: go
