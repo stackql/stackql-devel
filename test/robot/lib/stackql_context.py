@@ -378,7 +378,7 @@ def get_analytics_db_init_path(sql_backend_str :str) -> str:
 
 def get_sqlite_export_db_path(execution_env :str) -> str:
   if execution_env == 'native':
-    return os.path.abspath(os.path.join(REPOSITORY_ROOT, "test", "db", "tmp",  "export_testing.sqlite"))
+    return get_unix_path(os.path.abspath(os.path.join(REPOSITORY_ROOT, "test", "db", "tmp",  "export_testing.sqlite")))
   if execution_env == 'docker':
     return get_unix_path(os.path.join('/opt', 'stackql', "test", "export_testing.sqlite"))
 
