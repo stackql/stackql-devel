@@ -915,6 +915,16 @@ jobs:
       if: always()
       run: |
         cat ./test/robot/functional/output.xml
+    
+    - name: Output from postgres backing server stdout
+      if: always()
+      run: |
+        cat ./test/robot/functional/tmp/stdout-stackql-srv-mtls-backing-5497.txt
+    
+    - name: Output from postgres backing server stderr
+      if: always()
+      run: |
+        cat ./test/robot/functional/tmp/stderr-stackql-srv-mtls-backing-5497.txt
 
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(steps.git_ref_parse.outputs.SOURCE_TAG, 'build-release')
