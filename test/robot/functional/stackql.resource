@@ -121,11 +121,11 @@ Start StackQL PG Server mTLS Expose Backing DB
                         ...  \-\-sqlBackend\=${_SQL_BACKEND_CFG}
                         ...  \-\-dbInternal\=${DB_INTERNAL_CFG_LAX}
                         ...  \-\-export.alias\=stackql_export
-                        ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
-                        ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
+                        ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-mtls-backing-${_SRV_PORT_MTLS}.txt
+                        ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-mtls-backing-${_SRV_PORT_MTLS}.txt
     ELSE IF    "${EXECUTION_PLATFORM}" == "docker"
         ${process} =    Start Process    docker    compose
-                        ...  \-p     stackqlpgsrv\-mtls\-${_DOCKER_PORT}
+                        ...  \-p     stackqlpgsrv\-mtls\-backing\-${_DOCKER_PORT}
                         ...  \-f    ./docker\-compose\-persist\-postgres.yml
                         ...  run
                         ...  \-\-rm    \-p${_SRV_PORT_MTLS}:${_DOCKER_PORT}/tcp
@@ -133,8 +133,8 @@ Start StackQL PG Server mTLS Expose Backing DB
                         ...  bash
                         ...  \-c
                         ...  sleep 2 && stackql srv \-\-execution\.concurrency\.limit\=${CONCURRENCY_LIMIT} \-\-registry\='${REGISTRY_NO_VERIFY_CFG_STR.get_config_str('docker')}' \-\-auth\='${AUTH_CFG_STR}' \-\-namespaces\='${_NAMESPACES_CFG}' \-\-gc\='${_GC_CFG}' \-\-sqlBackend\='${_SQL_BACKEND_CFG}' \-\-export.alias\='stackql_export' \-\-dbInternal\='${DB_INTERNAL_CFG_LAX}' \-\-tls\.allowInsecure\=true \-\-pgsrv\.address\='0.0.0.0' \-\-pgsrv\.port\=${_DOCKER_PORT} \-\-pgsrv\.tls\='{\"keyFilePath\": \"/opt/stackql/srv/credentials/pg_server_key.pem\", \"certFilePath\": \"/opt/stackql/srv/credentials/pg_server_cert.pem\", \"clientCAs\": [\"'$(base64 -w 0 /opt/stackql/srv/credentials/pg_client_cert.pem)'\"]}'
-                        ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
-                        ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-mtls-${_SRV_PORT_MTLS}.txt
+                        ...  stderr=${CURDIR}/tmp/stdout-stackql-srv-mtls-backing-${_SRV_PORT_MTLS}.txt
+                        ...  stdout=${CURDIR}/tmp/stderr-stackql-srv-mtls-backing-${_SRV_PORT_MTLS}.txt
     END
     [Return]    ${process}
 
