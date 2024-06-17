@@ -169,14 +169,14 @@ jobs:
         python cicd/python/build.py --robot-test
 
     - name: Output from mocked functional tests
-      if: ${{ github.ref_type == 'tag' && startsWith(github.ref_name, 'build-win') }}
+      if: always()
       run: |
-        cat ./test/robot/functional/output.xml
+        cat ./test/robot/functional/output.xml || echo "no functional test output present"
 
     - name: Output deposited in tmp dir
-      if: ${{ github.ref_type == 'tag' && startsWith(github.ref_name, 'build-win') }}
+      if: always()
       run: |
-        cat ./test/robot/functional/tmp/*
+        cat ./test/robot/functional/tmp/* || echo "no tmp dir output present"
     
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release')
