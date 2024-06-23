@@ -221,6 +221,7 @@ func extractRaw(raw interface{}, ignoreTuples bool) (interface{}, error) {
 		return extractRaw(r.GetVal(), ignoreTuples)
 	default:
 		if ignoreTuples {
+			//nolint:nilnil // TODO: fix
 			return nil, nil
 		}
 		err := fmt.Errorf("unsupported type on RHS of comparison '%T'", r)
