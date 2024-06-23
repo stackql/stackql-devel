@@ -552,7 +552,7 @@ func (dp *standardDependencyPlanner) getStreamFromEdge(
 		if err != nil {
 			return nil, err
 		}
-		transformedStaticParams, paramTRansformErr := util.TransformSQLRawParameters(toAc.GetParameters())
+		transformedStaticParams, paramTRansformErr := util.TransformSQLRawParameters(toAc.GetParameters(), false)
 		if paramTRansformErr != nil {
 			return nil, paramTRansformErr
 		}
@@ -581,7 +581,7 @@ func (dp *standardDependencyPlanner) getStreamFromEdge(
 		}
 	}
 	if len(staticParams) > 0 {
-		staticParams, err = util.TransformSQLRawParameters(staticParams)
+		staticParams, err = util.TransformSQLRawParameters(staticParams, false)
 		if err != nil {
 			return nil, err
 		}

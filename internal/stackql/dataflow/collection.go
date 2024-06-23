@@ -123,10 +123,13 @@ func (dc *standardDataFlowCollection) AddOrUpdateEdge(
 func (dc *standardDataFlowCollection) AddVertex(v Vertex) {
 	_, ok := dc.verticesForTableExprs[v.GetTableExpr()]
 	if ok {
+		var isNew bool
 		if v.GetEquivalencyGroup() > 0 {
-			dc.g.AddNode(v) // TODO: change to acceptable idion
+			_, isNew = dc.g.NodeWithID(v.ID()) // TODO: change to acceptable idion
 		}
-		return
+		if !isNew {
+			return
+		}
 	}
 	dc.vertices[v] = struct{}{}
 	dc.verticesForTableExprs[v.GetTableExpr()] = struct{}{}
