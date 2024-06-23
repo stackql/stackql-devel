@@ -329,6 +329,7 @@ func (dp *standardDependencyPlanner) Plan() error {
 		dp.execSlice,
 		selBld,
 		dp.dataflowToEdges,
+		dp.handlerCtx.GetSQLSystem(),
 	)
 	dp.selCtx = selCtx
 	return nil
