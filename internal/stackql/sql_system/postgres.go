@@ -1034,7 +1034,7 @@ func (eng *postgresSystem) render(alias string,
 			iIDcn := fmt.Sprintf(`"%s"."%s"`, alias, insIDColName)
 			//nolint:lll // better expressed compactly
 			controls = append(controls, fmt.Sprintf(`%s = $%d AND %s = $%d AND %s = $%d AND %s = $%d`, gIDcn, j+1, sIDcn, j+2, tIDcn, j+3, iIDcn, j+4)) //nolint:gomnd // the magic numbers are offsets
-			j += controlIterationCount
+			j += constants.ControlColumnCount
 		}
 		return fmt.Sprintf(`( %s )`, strings.Join(controls, " OR "))
 	}
@@ -1045,7 +1045,7 @@ func (eng *postgresSystem) render(alias string,
 		iIDcn := fmt.Sprintf(`"%s"`, insIDColName)
 		//nolint:lll // better expressed compactly
 		controls = append(controls, fmt.Sprintf(`%s = $%d AND %s = $%d AND %s = $%d AND %s = $%d`, gIDcn, j+1, sIDcn, j+2, tIDcn, j+3, iIDcn, j+4)) //nolint:gomnd // the magic numbers are offsets
-		j += controlIterationCount
+		j += constants.ControlColumnCount
 	}
 	return fmt.Sprintf(`( %s )`, strings.Join(controls, " OR "))
 }

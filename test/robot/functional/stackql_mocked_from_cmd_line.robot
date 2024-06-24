@@ -5082,7 +5082,7 @@ Materialized View of In Clause Split of List And Details Dataflow View Works As 
     ...    on detail.data__Identifier = listing.Identifier 
     ...    and detail.region = listing.region 
     ...    where listing.data__TypeName = 'AWS::KMS::Key' 
-    ...    and listing.region IN ('us-east-1', 'ap-southeast-1') 
+    ...    and listing.region IN ('us-east-1', 'ap-southeast-1')
     ...    and detail.data__TypeName = 'AWS::KMS::Key'
     ...    order by key_policy_id ASC
     ...    ;
