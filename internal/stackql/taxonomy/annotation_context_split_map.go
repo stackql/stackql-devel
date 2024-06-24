@@ -3,6 +3,7 @@ package taxonomy
 type AnnotationCtxSplitMap interface {
 	Put(AnnotationCtx, AnnotationCtx)
 	Get(AnnotationCtx) ([]AnnotationCtx, bool)
+	Len() int
 }
 
 type annotationCtxSplitMap struct {
@@ -27,4 +28,8 @@ func (am *annotationCtxSplitMap) Put(k, v AnnotationCtx) {
 func (am *annotationCtxSplitMap) Get(k AnnotationCtx) ([]AnnotationCtx, bool) {
 	rv, ok := am.m[k]
 	return rv, ok
+}
+
+func (am *annotationCtxSplitMap) Len() int {
+	return len(am.m)
 }

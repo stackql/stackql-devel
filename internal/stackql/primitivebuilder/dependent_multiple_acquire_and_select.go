@@ -68,11 +68,11 @@ func (ss *DependentMultipleAcquireAndSelect) Build() error {
 		graph.NewDependency(tail, ss.selectBuilder.GetRoot(), 1.0)
 		toEdges := ss.dataflowToEdges[i]
 		for _, toEdge := range toEdges {
-			predecssorTail, ok := tails[toEdge]
+			predecessorTail, ok := tails[toEdge]
 			if !ok {
 				return fmt.Errorf("unknown predecessor tail")
 			}
-			graph.NewDependency(predecssorTail, acbBld.GetRoot(), 1.0)
+			graph.NewDependency(predecessorTail, acbBld.GetRoot(), 1.0)
 		}
 	}
 	return nil

@@ -276,6 +276,10 @@ func (pg *standardBasePrimitiveGraph) Sort() ([]graph.Node, error) {
 	return topo.Sort(pg.g)
 }
 
+func (pg *standardBasePrimitiveGraph) WithDebugName(_ string) primitive.IPrimitive {
+	return pg
+}
+
 func newBasePrimitiveGraph(concurrencyLimit int) BasePrimitiveGraph {
 	eg, egCtx := errgroup.WithContext(context.Background())
 	eg.SetLimit(concurrencyLimit)

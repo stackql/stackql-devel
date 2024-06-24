@@ -206,7 +206,7 @@ func (dp *standardDependencyPlanner) Plan() error {
 						}
 						toNode := e.GetDest()
 						toTableExpr := toNode.GetTableExpr()
-						toAnnotation := toNode.GetAnnotation()
+						toAnnotation := toNode.GetAnnotation().Clone() // this bodge protects split source vertices
 						stream, streamErr := dp.getStreamFromEdge(e, toAnnotation, tcc)
 						if streamErr != nil {
 							return streamErr

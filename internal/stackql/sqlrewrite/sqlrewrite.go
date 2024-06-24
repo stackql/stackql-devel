@@ -234,6 +234,7 @@ func GenerateRewrittenSelectDML(input SQLRewriteInput) (drm.PreparedStatementCtx
 			continue
 		}
 		// This is required because of TOPO SORT
+		// TODO: support in clause dataflow stuff
 		if txnCtrlCtrs == nil {
 			_, txnCtrlCtrs = tb.GetTableTxnCounters()
 		}

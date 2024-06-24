@@ -314,7 +314,7 @@ func (pr *standardParameterRouter) GetOnConditionDataFlows() (dataflow.Collectio
 			}
 		}
 	}
-	return rv, nil
+	return rv.WithSplitAnnotationContextMap(splitAnnotationContextMap), nil
 }
 
 //nolint:gocognit // who cares

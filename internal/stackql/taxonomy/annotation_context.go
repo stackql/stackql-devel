@@ -58,7 +58,7 @@ func (ac *standardAnnotationCtx) Clone() AnnotationCtx {
 		isDynamic:  ac.isDynamic,
 		schema:     ac.schema,
 		hIDs:       ac.hIDs,
-		tableMeta:  ac.tableMeta,
+		tableMeta:  ac.tableMeta.Clone(),
 		parameters: clonedParams,
 	}
 }
