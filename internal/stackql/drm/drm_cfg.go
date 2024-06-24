@@ -673,8 +673,9 @@ func (dc *staticDRMConfig) generateControlVarArgs(
 	var varArgs []interface{}
 	if cp.IsControlArgsRequired() {
 		ctrSlice := cp.GetCtx().GetOrderedTccs()
-		if len(ctrSlice) == 0 {
-			ctrSlice = cp.GetCtx().GetAllCtrlCtrs()
+		legacyCtrSlice := cp.GetCtx().GetAllCtrlCtrs()
+		if len(ctrSlice) < len(legacyCtrSlice) {
+			ctrSlice = legacyCtrSlice
 		}
 		for _, ctrs := range ctrSlice {
 			if ctrs == nil {
