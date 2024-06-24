@@ -672,7 +672,10 @@ func (dc *staticDRMConfig) generateControlVarArgs(
 ) ([]interface{}, error) {
 	var varArgs []interface{}
 	if cp.IsControlArgsRequired() {
-		ctrSlice := cp.GetCtx().GetAllCtrlCtrs()
+		ctrSlice := cp.GetCtx().GetOrderedTccs()
+		if len(ctrSlice) == 0 {
+			ctrSlice = cp.GetCtx().GetAllCtrlCtrs()
+		}
 		for _, ctrs := range ctrSlice {
 			if ctrs == nil {
 				continue
