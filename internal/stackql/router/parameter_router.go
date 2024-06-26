@@ -165,6 +165,53 @@ func (pr *standardParameterRouter) extractFromFunctionExpr(
 	return nil, nil, fmt.Errorf("cannot accomodate this")
 }
 
+//nolint:unparam // future proofing
+func invalidateParams(
+	paramKey string,
+	param any,
+	rawTableExpr sqlparser.TableExpr,
+	rawAnnotationCtx taxonomy.AnnotationCtx,
+	splitAnnotationContextMap taxonomy.AnnotationCtxSplitMap,
+	dataflowColection dataflow.Collection,
+	tableEquivalencyID int64,
+) (bool, error) {
+	var isSplit bool
+	switch param := param.(type) { //nolint:gocritic // TODO: review
+	case parserutil.ParameterMetadata:
+		rhs := param.GetVal()
+		switch rhs := rhs.(type) { //nolint:gocritic // TODO: review
+		case sqlparser.ValTuple:
+			// TODO: fix update anomale for dataflow graph!!!
+			for _, valTmp := range rhs {
+				val := valTmp
+				clonedParams := make(map[string]interface{})
+				for k2, v2 := range rawAnnotationCtx.GetParameters() {
+					if k2 != paramKey {
+						val2 := v2
+						clonedParams[k2] = val2
+					}
+				}
+
+				clonedParams[paramKey] = val
+				clonedAnnotationCtx := taxonomy.NewStaticStandardAnnotationCtx(
+					rawAnnotationCtx.GetSchema(),
+					rawAnnotationCtx.GetHIDs(),
+					rawAnnotationCtx.GetTableMeta().Clone(),
+					clonedParams,
+				)
+				splitAnnotationContextMap.Put(rawAnnotationCtx, clonedAnnotationCtx)
+				// TODO: this has gotta replace the original and also be duplicated
+				sourceVertexIteration := dataflowColection.UpsertStandardDataFlowVertex(clonedAnnotationCtx, rawTableExpr)
+				sourceVertexIteration.SetEquivalencyGroup(tableEquivalencyID)
+				dataflowColection.AddVertex(sourceVertexIteration)
+			}
+			// return rv, nil
+			isSplit = true
+		}
+	}
+	return isSplit, nil
+}
+
 //nolint:funlen,gocognit // inherently complex functionality
 func (pr *standardParameterRouter) GetOnConditionDataFlows() (dataflow.Collection, error) {
 	rv := dataflow.NewStandardDataFlowCollection(pr.dataFlowCfg)
@@ -177,38 +224,20 @@ func (pr *standardParameterRouter) GetOnConditionDataFlows() (dataflow.Collectio
 		tableEquivalencyID++ // start at 1 for > 0 logic
 		var skipBaseAdd bool
 		for k1, param := range v.GetParameters() {
-			switch param := param.(type) { //nolint:gocritic // TODO: review
-			case parserutil.ParameterMetadata:
-				rhs := param.GetVal()
-				switch rhs := rhs.(type) { //nolint:gocritic // TODO: review
-				case sqlparser.ValTuple:
-					// TODO: fix update anomale for dataflow graph!!!
-					for _, valTmp := range rhs {
-						val := valTmp
-						clonedParams := make(map[string]interface{})
-						for k2, v2 := range v.GetParameters() {
-							if k2 != k1 {
-								val2 := v2
-								clonedParams[k2] = val2
-							}
-						}
-
-						clonedParams[k1] = val
-						clonedAnnotationCtx := taxonomy.NewStaticStandardAnnotationCtx(
-							v.GetSchema(),
-							v.GetHIDs(),
-							v.GetTableMeta().Clone(),
-							clonedParams,
-						)
-						splitAnnotationContextMap.Put(v, clonedAnnotationCtx)
-						// TODO: this has gotta replace the original and also be duplicated
-						sourceVertexIteration := rv.UpsertStandardDataFlowVertex(clonedAnnotationCtx, k)
-						sourceVertexIteration.SetEquivalencyGroup(tableEquivalencyID)
-						rv.AddVertex(sourceVertexIteration)
-					}
-					// return rv, nil
-					skipBaseAdd = true
-				}
+			isSplit, err := invalidateParams(
+				k1,
+				param,
+				k,
+				v,
+				splitAnnotationContextMap,
+				rv,
+				tableEquivalencyID,
+			)
+			if err != nil {
+				return nil, err
+			}
+			if isSplit {
+				skipBaseAdd = true
 			}
 		}
 		if !skipBaseAdd {
