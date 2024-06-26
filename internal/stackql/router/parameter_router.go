@@ -37,7 +37,7 @@ type ParameterRouter interface {
 
 	// Records the fact that parameters have been assigned to a table and
 	// cannot be used elsewhere.
-	// invalidateParams(params map[string]interface{}) error
+	// splitParams(params map[string]interface{}) error
 
 	// First pass assignment of columnar objects
 	// to tables, only for HTTP method parameters.  All data accrual is done herein:
@@ -165,8 +165,8 @@ func (pr *standardParameterRouter) extractFromFunctionExpr(
 	return nil, nil, fmt.Errorf("cannot accomodate this")
 }
 
-//nolint:unparam // future proofing
-func invalidateParams(
+//nolint:gocognit // future proofing
+func splitParams(
 	paramKey string,
 	param any,
 	rawTableExpr sqlparser.TableExpr,
@@ -193,6 +193,28 @@ func invalidateParams(
 				}
 
 				clonedParams[paramKey] = val
+				var isSplitRecursively bool
+				for k, v := range clonedParams {
+					logging.GetLogger().Debugf("%v = %v\n", k, v)
+					recursiveSplit, recursionErr := splitParams(
+						k,
+						v,
+						rawTableExpr,
+						rawAnnotationCtx,
+						splitAnnotationContextMap,
+						dataflowColection,
+						tableEquivalencyID,
+					)
+					if recursionErr != nil {
+						return false, recursionErr
+					}
+					if recursiveSplit {
+						isSplitRecursively = true
+					}
+				}
+				if isSplitRecursively {
+					continue
+				}
 				clonedAnnotationCtx := taxonomy.NewStaticStandardAnnotationCtx(
 					rawAnnotationCtx.GetSchema(),
 					rawAnnotationCtx.GetHIDs(),
@@ -224,7 +246,7 @@ func (pr *standardParameterRouter) GetOnConditionDataFlows() (dataflow.Collectio
 		tableEquivalencyID++ // start at 1 for > 0 logic
 		var skipBaseAdd bool
 		for k1, param := range v.GetParameters() {
-			isSplit, err := invalidateParams(
+			isSplit, err := splitParams(
 				k1,
 				param,
 				k,
@@ -533,7 +555,7 @@ func (pr *standardParameterRouter) route(
 	// }
 	// TODO: fix this mess and make it global
 	//       so that ancestor params can be correctly consumed!!!
-	// err = pr.invalidateParams(abbreviatedConsumedMap)
+	// err = pr.splitParams(abbreviatedConsumedMap)
 	// if err != nil {
 	// 	return nil, err
 	// }
