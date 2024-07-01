@@ -171,8 +171,10 @@ type paramSplitter interface {
 	getSplitAnnotationContextMap() taxonomy.AnnotationCtxSplitMap
 }
 
-type standardPAramSplitter struct {
+type standardParamSplitter struct {
 	alreadySplit              map[string]struct{}
+	splitParamMap             map[sqlparser.TableExpr]map[string][]any
+	paramToTableExprMap       map[string]sqlparser.TableExpr
 	splitAnnotationContextMap taxonomy.AnnotationCtxSplitMap
 	tableToAnnotationCtx      map[sqlparser.TableExpr]taxonomy.AnnotationCtx
 	dataflowCollection        dataflow.Collection
@@ -182,19 +184,25 @@ func newParamSplitter(
 	tableToAnnotationCtx map[sqlparser.TableExpr]taxonomy.AnnotationCtx,
 	dataFlowCfg dto.DataFlowCfg,
 ) paramSplitter {
-	return &standardPAramSplitter{
+	splitParamMap := make(map[sqlparser.TableExpr]map[string][]any)
+	for k := range tableToAnnotationCtx {
+		splitParamMap[k] = make(map[string][]any)
+	}
+	return &standardParamSplitter{
 		alreadySplit:              make(map[string]struct{}),
+		splitParamMap:             splitParamMap,
+		paramToTableExprMap:       make(map[string]sqlparser.TableExpr),
 		splitAnnotationContextMap: taxonomy.NewAnnotationCtxSplitMap(),
 		tableToAnnotationCtx:      tableToAnnotationCtx,
 		dataflowCollection:        dataflow.NewStandardDataFlowCollection(dataFlowCfg),
 	}
 }
 
-func (sp *standardPAramSplitter) getSplitAnnotationContextMap() taxonomy.AnnotationCtxSplitMap {
+func (sp *standardParamSplitter) getSplitAnnotationContextMap() taxonomy.AnnotationCtxSplitMap {
 	return sp.splitAnnotationContextMap
 }
 
-func (sp *standardPAramSplitter) split() (bool, error) {
+func (sp *standardParamSplitter) split() (bool, error) {
 	var tableEquivalencyID int64
 	// Rist, see if any dependencies need splitting
 	var isAnythingSplit bool
@@ -202,20 +210,17 @@ func (sp *standardPAramSplitter) split() (bool, error) {
 		tableEquivalencyID++ // start at 1 for > 0 logic
 		var skipBaseAdd bool
 		for k1, param := range v.GetParameters() {
-			isSplit, err := sp.splitParams(
-				k1,
-				param,
-				k,
-				v,
-				tableEquivalencyID,
-			)
-			if err != nil {
-				return false, err
-			}
+			sp.paramToTableExprMap[k1] = k
+			paramSlice, isSplit := sp.splitSingleParam(param)
+			sp.splitParamMap[k][k1] = paramSlice
 			if isSplit {
 				skipBaseAdd = true
 				isAnythingSplit = true
 			}
+		}
+		_, assembleErr := sp.assembleSplitParams(k, tableEquivalencyID)
+		if assembleErr != nil {
+			return false, assembleErr
 		}
 		if !skipBaseAdd {
 			sp.dataflowCollection.AddVertex(sp.dataflowCollection.UpsertStandardDataFlowVertex(v, k))
@@ -224,76 +229,63 @@ func (sp *standardPAramSplitter) split() (bool, error) {
 	return isAnythingSplit, nil
 }
 
-func (sp *standardPAramSplitter) getSplitDataFlowCollection() dataflow.Collection {
+func (sp *standardParamSplitter) getSplitDataFlowCollection() dataflow.Collection {
 	return sp.dataflowCollection
 }
 
-//nolint:gocognit // future proofing
-func (sp *standardPAramSplitter) splitParams(
-	paramKey string,
-	param any,
-	rawTableExpr sqlparser.TableExpr,
-	rawAnnotationCtx taxonomy.AnnotationCtx,
+func (sp *standardParamSplitter) assembleSplitParams(
+	tableExpr sqlparser.TableExpr,
 	tableEquivalencyID int64,
 ) (bool, error) {
+	rawAnnotationCtx, ok := sp.tableToAnnotationCtx[tableExpr]
+	if !ok {
+		return false, fmt.Errorf("table expression '%s' has not been assigned to hierarchy", sqlparser.String(tableExpr))
+	}
+	combinationComposerObj := newCombinationComposer()
+	splitParams := sp.splitParamMap[tableExpr]
+	analysisErr := combinationComposerObj.analyse(splitParams)
+	if analysisErr != nil {
+		return false, analysisErr
+	}
+	combinations := combinationComposerObj.getCombinations()
+	_, isAnythingSplit := len(combinations), combinationComposerObj.getIsAnythingSplit()
+	for _, paramCombination := range combinations {
+		splitAnnotationCtx := taxonomy.NewStaticStandardAnnotationCtx(
+			rawAnnotationCtx.GetSchema(),
+			rawAnnotationCtx.GetHIDs(),
+			rawAnnotationCtx.GetTableMeta().Clone(),
+			paramCombination,
+		)
+		sp.splitAnnotationContextMap.Put(rawAnnotationCtx, splitAnnotationCtx)
+		// TODO: this has gotta replace the original and also be duplicated
+		sourceVertexIteration := sp.dataflowCollection.UpsertStandardDataFlowVertex(splitAnnotationCtx, tableExpr)
+		sourceVertexIteration.SetEquivalencyGroup(tableEquivalencyID)
+		sp.dataflowCollection.AddVertex(sourceVertexIteration)
+	}
+	return isAnythingSplit, nil
+}
+
+func (sp *standardParamSplitter) splitSingleParam(
+	param any,
+) ([]any, bool) {
 	var isSplit bool
+	var rv []any
 	switch param := param.(type) { //nolint:gocritic // TODO: review
 	case parserutil.ParameterMetadata:
 		rhs := param.GetVal()
-		switch rhs := rhs.(type) { //nolint:gocritic // TODO: review
+		switch rhs := rhs.(type) {
 		case sqlparser.ValTuple:
 			// TODO: fix update anomale for dataflow graph!!!
 			for _, valTmp := range rhs {
 				val := valTmp
-				clonedParams := make(map[string]interface{})
-				for k2, v2 := range rawAnnotationCtx.GetParameters() {
-					if k2 != paramKey {
-						val2 := v2
-						clonedParams[k2] = val2
-					}
-				}
-
-				clonedParams[paramKey] = val
-				var isSplitRecursively bool
-				for k, v := range clonedParams {
-					if k == paramKey {
-						continue
-					}
-					logging.GetLogger().Debugf("%v = %v\n", k, v)
-					recursiveSplit, recursionErr := sp.splitParams(
-						k,
-						v,
-						rawTableExpr,
-						rawAnnotationCtx,
-						tableEquivalencyID,
-					)
-					if recursionErr != nil {
-						return false, recursionErr
-					}
-					if recursiveSplit {
-						isSplitRecursively = true
-					}
-				}
-				if isSplitRecursively {
-					continue
-				}
-				splitAnnotationCtx := taxonomy.NewStaticStandardAnnotationCtx(
-					rawAnnotationCtx.GetSchema(),
-					rawAnnotationCtx.GetHIDs(),
-					rawAnnotationCtx.GetTableMeta().Clone(),
-					clonedParams,
-				)
-				sp.splitAnnotationContextMap.Put(rawAnnotationCtx, splitAnnotationCtx)
-				// TODO: this has gotta replace the original and also be duplicated
-				sourceVertexIteration := sp.dataflowCollection.UpsertStandardDataFlowVertex(splitAnnotationCtx, rawTableExpr)
-				sourceVertexIteration.SetEquivalencyGroup(tableEquivalencyID)
-				sp.dataflowCollection.AddVertex(sourceVertexIteration)
+				rv = append(rv, val)
+				isSplit = true
 			}
-			// return rv, nil
-			isSplit = true
+		default:
+			rv = append(rv, rhs)
 		}
 	}
-	return isSplit, nil
+	return rv, isSplit
 }
 
 //nolint:funlen,gocognit // inherently complex functionality
