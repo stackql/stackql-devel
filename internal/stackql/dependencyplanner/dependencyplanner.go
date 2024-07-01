@@ -591,11 +591,38 @@ func (dp *standardDependencyPlanner) getStreamFromEdge(
 	return streaming.NewSimpleProjectionMapStream(projection, staticParams), nil
 }
 
+func (dp *standardDependencyPlanner) harvestFilter(sourceAnnotation taxonomy.AnnotationCtx) (string, bool) {
+	type kv struct {
+		k string
+		v string
+	}
+	var valz []string
+	for k, p := range sourceAnnotation.GetParameters() {
+		switch pt := p.(type) {
+		case *sqlparser.SQLVal:
+			val := string(pt.Val)
+			s := fmt.Sprintf(`"%s" = '%s' `, k, val)
+			valz = append(valz, s)
+		}
+	}
+	if len(valz) == 0 {
+		return "", false
+	}
+	// var sb strings.Builder
+	// for _, kVal := range valz {
+	// 	s := fmt.Sprintf(`"%s" = %s `, kVal.k, kVal.v)
+	// 	sb.WriteString(s)
+	// }
+	rv := strings.Join(valz, " AND ")
+	return rv, true
+}
+
 func (dp *standardDependencyPlanner) generateSelectDML(
 	e dataflow.Edge,
 	tcc internaldto.TxnControlCounters,
 ) (drm.PreparedStatementCtx, error) {
 	ann := e.GetSource().GetAnnotation()
+	whereStr, _ := dp.harvestFilter(ann)
 	columnDescriptors, err := e.GetColumnDescriptors()
 	if err != nil {
 		return nil, err
@@ -624,10 +651,10 @@ func (dp *standardDependencyPlanner) generateSelectDML(
 		relationalColumns,
 		tcc,
 		"",
-		"",
+		whereStr, // TODO: add where string as required
 		dp.secondaryTccs,
 		dp.tblz,
-		tableName,
+		tableName, // this is the sole from string
 		nil,
 		dp.handlerCtx.GetNamespaceCollection(),
 		nil,
