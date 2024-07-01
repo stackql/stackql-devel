@@ -592,12 +592,9 @@ func (dp *standardDependencyPlanner) getStreamFromEdge(
 }
 
 func (dp *standardDependencyPlanner) harvestFilter(sourceAnnotation taxonomy.AnnotationCtx) (string, bool) {
-	type kv struct {
-		k string
-		v string
-	}
 	var valz []string
 	for k, p := range sourceAnnotation.GetParameters() {
+		//nolint:gocritic // fine with this
 		switch pt := p.(type) {
 		case *sqlparser.SQLVal:
 			val := string(pt.Val)
@@ -608,11 +605,6 @@ func (dp *standardDependencyPlanner) harvestFilter(sourceAnnotation taxonomy.Ann
 	if len(valz) == 0 {
 		return "", false
 	}
-	// var sb strings.Builder
-	// for _, kVal := range valz {
-	// 	s := fmt.Sprintf(`"%s" = %s `, kVal.k, kVal.v)
-	// 	sb.WriteString(s)
-	// }
 	rv := strings.Join(valz, " AND ")
 	return rv, true
 }
