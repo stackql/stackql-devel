@@ -471,9 +471,10 @@ func (pb *standardPrimitiveGenerator) analyzeWhere(
 		}
 	}
 
-	for l, w := range requiredParameters.GetAll() {
-		remainingRequiredParameters.Put(l, w)
-	}
+	// This should be totally obviated, let us see...
+	// for l, w := range requiredParameters.GetAll() {
+	// 	remainingRequiredParameters.Put(l, w)
+	// }
 
 	for k := range existingParams {
 		remainingRequiredParameters.Delete(k)
