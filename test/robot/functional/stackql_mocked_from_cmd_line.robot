@@ -5329,7 +5329,7 @@ Poly Dependency In Clause Split of List And Sublist Dimensions Dataflow View Wor
     ...    stackql_dataflow_permissive=True
 
 
-Materialized View of Poly Dependency In Clause Split of List And Sublist Dimensions Dataflow View Works As Exemplified By AWS KMS Key Cloud Control
+Materialized View Beware Keywords of Poly Dependency In Clause Split of List And Sublist Dimensions Dataflow View Works As Exemplified By AWS KMS Key Cloud Control
     ${sqliteInputStr} =    Catenate
     ...    create or replace materialized view de_gen_03
     ...    as 
@@ -5337,16 +5337,16 @@ Materialized View of Poly Dependency In Clause Split of List And Sublist Dimensi
     ...    rings.projectsId as project, 
     ...    rings.locationsId as locale, 
     ...    split_part(rings.name, '/', -1) as key_ring_name, 
-    ...    split_part(keys.name, '/', -1) as key_name, 
-    ...    json_extract(keys."versionTemplate", '$.algorithm') as key_algorithm, 
-    ...    json_extract(keys."versionTemplate", '$.protectionLevel') as key_protection_level 
+    ...    split_part(keyz.name, '/', -1) as key_name, 
+    ...    json_extract(keyz."versionTemplate", '$.algorithm') as key_algorithm, 
+    ...    json_extract(keyz."versionTemplate", '$.protectionLevel') as key_protection_level 
     ...    from 
     ...    google.cloudkms.key_rings rings 
-    ...    inner join google.cloudkms.crypto_keys keys 
+    ...    inner join google.cloudkms.crypto_keys keyz 
     ...    on 
-    ...    keys.keyRingsId = split_part(rings.name, '/', -1) 
-    ...    and keys.projectsId = rings.projectsId 
-    ...    and keys.locationsId = rings.locationsId 
+    ...    keyz.keyRingsId = split_part(rings.name, '/', -1) 
+    ...    and keyz.projectsId = rings.projectsId 
+    ...    and keyz.locationsId = rings.locationsId 
     ...    where 
     ...    rings.projectsId in ('testing-project', 'testing-project-two', 'testing-project-three') 
     ...    and rings.locationsId in ('global', 'australia-southeast1', 'australia-southeast2') 
@@ -5372,16 +5372,16 @@ Materialized View of Poly Dependency In Clause Split of List And Sublist Dimensi
     ...    rings.projectsId as project, 
     ...    rings.locationsId as locale, 
     ...    split_part(rings.name, '/', -1) as key_ring_name, 
-    ...    split_part(keys.name, '/', -1) as key_name, 
-    ...    json_extract_path_text(keys."versionTemplate", 'algorithm') as key_algorithm, 
-    ...    json_extract_path_text(keys."versionTemplate", 'protectionLevel') as key_protection_level 
+    ...    split_part(keyz.name, '/', -1) as key_name, 
+    ...    json_extract_path_text(keyz."versionTemplate", 'algorithm') as key_algorithm, 
+    ...    json_extract_path_text(keyz."versionTemplate", 'protectionLevel') as key_protection_level 
     ...    from 
     ...    google.cloudkms.key_rings rings 
-    ...    inner join google.cloudkms.crypto_keys keys 
+    ...    inner join google.cloudkms.crypto_keys keyz 
     ...    on 
-    ...    keys.keyRingsId = split_part(rings.name, '/', -1) 
-    ...    and keys.projectsId = rings.projectsId 
-    ...    and keys.locationsId = rings.locationsId 
+    ...    keyz.keyRingsId = split_part(rings.name, '/', -1) 
+    ...    and keyz.projectsId = rings.projectsId 
+    ...    and keyz.locationsId = rings.locationsId 
     ...    where 
     ...    rings.projectsId in ('testing-project', 'testing-project-two', 'testing-project-three') 
     ...    and rings.locationsId in ('global', 'australia-southeast1', 'australia-southeast2') 
@@ -5441,7 +5441,7 @@ Materialized View of Poly Dependency In Clause Split of List And Sublist Dimensi
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${inputStr}
     ...    ${outputStr}
-    ...    stdout=${CURDIR}/tmp/Materialized-View-of-Poly-Dependency-In-Clause-Split-of-List-And-Sublist-Dimensions-Dataflow-View-Works-As-Exemplified-By-AWS-KMS-Key-Cloud-Control.tmp
-    ...    stderr=${CURDIR}/tmp/Materialized-View-of-Poly-Dependency-In-Clause-Split-of-List-And-Sublist-Dimensions-Dataflow-View-Works-As-Exemplified-By-AWS-KMS-Key-Cloud-Control-stderr.tmp
+    ...    stdout=${CURDIR}/tmp/Materialized-View-Beware-Keywords-of-Poly-Dependency-In-Clause-Split-of-List-And-Sublist-Dimensions-Dataflow-View-Works-As-Exemplified-By-AWS-KMS-Key-Cloud-Control.tmp
+    ...    stderr=${CURDIR}/tmp/Materialized-View-Beware-Keywords-of-Poly-Dependency-In-Clause-Split-of-List-And-Sublist-Dimensions-Dataflow-View-Works-As-Exemplified-By-AWS-KMS-Key-Cloud-Control-stderr.tmp
     ...    stackql_dataflow_permissive=True
 
