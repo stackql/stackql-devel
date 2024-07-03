@@ -5329,7 +5329,7 @@ Poly Dependency In Clause Split of List And Sublist Dimensions Dataflow View Wor
     ...    stackql_dataflow_permissive=True
 
 
-Materialized View Beware Keywords of Poly Dependency In Clause Split of List And Sublist Dimensions Dataflow View Works As Exemplified By AWS KMS Key Cloud Control
+Materialized View Beware Keywords of Poly Dependency In Clause Split of List And Sublist Dimensions Dataflow View Works As Exemplified By Google KMS Key
     ${sqliteInputStr} =    Catenate
     ...    create or replace materialized view de_gen_03
     ...    as 
@@ -5441,12 +5441,12 @@ Materialized View Beware Keywords of Poly Dependency In Clause Split of List And
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${inputStr}
     ...    ${outputStr}
-    ...    stdout=${CURDIR}/tmp/Materialized-View-Beware-Keywords-of-Poly-Dependency-In-Clause-Split-of-List-And-Sublist-Dimensions-Dataflow-View-Works-As-Exemplified-By-AWS-KMS-Key-Cloud-Control.tmp
-    ...    stderr=${CURDIR}/tmp/Materialized-View-Beware-Keywords-of-Poly-Dependency-In-Clause-Split-of-List-And-Sublist-Dimensions-Dataflow-View-Works-As-Exemplified-By-AWS-KMS-Key-Cloud-Control-stderr.tmp
+    ...    stdout=${CURDIR}/tmp/Materialized-View-Beware-Keywords-of-Poly-Dependency-In-Clause-Split-of-List-And-Sublist-Dimensions-Dataflow-View-Works-As-Exemplified-By-Google-KMS-Key.tmp
+    ...    stderr=${CURDIR}/tmp/Materialized-View-Beware-Keywords-of-Poly-Dependency-In-Clause-Split-of-List-And-Sublist-Dimensions-Dataflow-View-Works-As-Exemplified-By-Google-KMS-Key-stderr.tmp
     ...    stackql_dataflow_permissive=True
 
 
-View No Where Clause Beware Keywords of Poly Dependency In Clause Split of List And Sublist Dimensions Dataflow View Works As Exemplified By AWS KMS Key Cloud Control
+View No Where Clause Beware Keywords of Poly Dependency In Clause Split of List And Sublist Dimensions Dataflow View Works As Exemplified By Google KMS Key
     ${sqliteInputStr} =    Catenate
     ...    create or replace view dev_gen_03
     ...    as 
@@ -5558,7 +5558,7 @@ View No Where Clause Beware Keywords of Poly Dependency In Clause Split of List 
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${inputStr}
     ...    ${outputStr}
-    ...    stdout=${CURDIR}/tmp/View-No-Where-Clause-Beware-Keywords-of-Poly-Dependency-In-Clause-Split-of-List-And-Sublist-Dimensions-Dataflow-View-Works-As-Exemplified-By-AWS-KMS-Key-Cloud-Control.tmp
-    ...    stderr=${CURDIR}/tmp/View-No-Where-Clause-Beware-Keywords-of-Poly-Dependency-In-Clause-Split-of-List-And-Sublist-Dimensions-Dataflow-View-Works-As-Exemplified-By-AWS-KMS-Key-Cloud-Control-stderr.tmp
+    ...    stdout=${CURDIR}/tmp/View-No-Where-Clause-Beware-Keywords-of-Poly-Dependency-In-Clause-Split-of-List-And-Sublist-Dimensions-Dataflow-View-Works-As-Exemplified-By-Google-KMS-Key.tmp
+    ...    stderr=${CURDIR}/tmp/View-No-Where-Clause-Beware-Keywords-of-Poly-Dependency-In-Clause-Split-of-List-And-Sublist-Dimensions-Dataflow-View-Works-As-Exemplified-By-Google-KMS-Key-stderr.tmp
     ...    stackql_dataflow_permissive=True
 
