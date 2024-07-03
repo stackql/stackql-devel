@@ -1062,7 +1062,7 @@ components:
                 predicate: sqlDialect == "postgres"
                 ddl: |
                   SELECT
-                  region,
+                  detail.region,
                   detail.data__Identifier,
                   json_extract_path_text(detail.Properties, 'AccelerateConfiguration') as accelerate_configuration,
                   json_extract_path_text(detail.Properties, 'AccessControl') as access_control,
