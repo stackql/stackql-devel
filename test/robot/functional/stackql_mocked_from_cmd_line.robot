@@ -5515,7 +5515,7 @@ View No Where Clause Beware Keywords of Poly Dependency In Clause Split of List 
     ...    dev_gen_03
     ...    order by project, locale, key_name ASC
     ...    ;
-    ...    drop materialized view if exists dev_gen_03
+    ...    drop view if exists dev_gen_03
     ...    ;
     ${inputStr} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"     ${postgresInputStr}    ${sqliteInputStr}
     ${outputStr} =    Catenate    SEPARATOR=\n
