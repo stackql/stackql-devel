@@ -22,7 +22,7 @@ type AnnotationCtx interface {
 	GetParameters() map[string]interface{}
 	GetSchema() anysdk.Schema
 	GetTableMeta() tablemetadata.ExtendedTableMetadata
-	Prepare(handlerCtx handler.HandlerContext, inStream streaming.MapStream) error
+	Prepare(handlerCtx handler.HandlerContext, inStreams streaming.MapStream) error
 	SetDynamic()
 	Equals(AnnotationCtx) bool
 	Clone() AnnotationCtx
@@ -120,6 +120,7 @@ func (ac *standardAnnotationCtx) SetDynamic() {
 	ac.isDynamic = true
 }
 
+// TODO: send collection
 func (ac *standardAnnotationCtx) Prepare(
 	handlerCtx handler.HandlerContext, //nolint:revive // future proofing
 	stream streaming.MapStream,

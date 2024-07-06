@@ -188,6 +188,15 @@ func (dp *standardDependencyPlanner) Plan() error {
 					edgeCount, dependencyMax)
 			}
 			idsVisited := make(map[int64]struct{})
+			// assemble incident edge collections
+			incidentStreams := make(map[int64]streaming.MapStreamCollection)
+			for _, e := range edges {
+				toIdx := e.To().ID()
+				_, ok := incidentStreams[toIdx]
+				if !ok {
+					incidentStreams[toIdx] = streaming.NewStandardMapStreamCollection()
+				}
+			}
 			for _, n := range orderedNodes {
 				if _, ok := idsVisited[n.ID()]; ok {
 					continue
@@ -208,6 +217,9 @@ func (dp *standardDependencyPlanner) Plan() error {
 						toNode := e.GetDest()
 						toTableExpr := toNode.GetTableExpr()
 						toAnnotation := toNode.GetAnnotation().Clone() // this bodge protects split source vertices
+						// This is the point of origin for the stream reading the "from" node.
+						// TODO: merge this with any other streams on the "to" node.
+						// TODO: pre-asssemble stream collection per "to" node.
 						stream, streamErr := dp.getStreamFromEdge(e, toAnnotation, tcc)
 						if streamErr != nil {
 							return streamErr
@@ -224,7 +236,9 @@ func (dp *standardDependencyPlanner) Plan() error {
 						if err != nil {
 							return err
 						}
-						toIdx, toErr := dp.orchestrate(-1, toAnnotation, insPsc, stream, streaming.NewNopMapStream())
+						inputStreamCollection := incidentStreams[e.To().ID()]
+						inputStreamCollection.Push(stream)
+						toIdx, toErr := dp.orchestrate(-1, toAnnotation, insPsc, inputStreamCollection, streaming.NewNopMapStream())
 						if toErr != nil {
 							return toErr
 						}
