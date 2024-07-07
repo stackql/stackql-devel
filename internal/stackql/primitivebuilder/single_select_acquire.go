@@ -131,6 +131,9 @@ func (ss *SingleSelectAcquire) Build() error {
 		// TODO: instrument for split source vertices !!!important!!!
 		httpArmoury, armouryErr := ss.tableMeta.GetHTTPArmoury()
 		if armouryErr != nil {
+			//nolint:errcheck // TODO: fix
+			ss.handlerCtx.GetOutErrFile().Write([]byte(fmt.Sprintf(
+				"error assembling http aspects: %s\n", armouryErr.Error())))
 			return internaldto.NewErroneousExecutorOutput(armouryErr)
 		}
 		if mr != nil {
