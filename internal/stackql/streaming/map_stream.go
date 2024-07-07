@@ -73,6 +73,9 @@ func (sc *standardMapStreamCollection) Read() ([]map[string]interface{}, error) 
 			return output, err
 		}
 		thisLen := len(output)
+		if thisLen == 0 {
+			continue
+		}
 		allOutputs = append(allOutputs, output)
 		allLengths = append(allLengths, thisLen)
 		if thisLen > maxLength {
