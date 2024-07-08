@@ -81,11 +81,13 @@ func (ss *SimpleSQLMapStream) Read() ([]map[string]interface{}, error) {
 				im[key] = ev
 			}
 			rv = append(rv, im)
+			logging.GetLogger().Infof(
+				"sql map stream query returning row '''%v''' for query: '''%s'''", im, ss.selectCtx.GetQuery())
 			i++
 		}
 	}
 	if i == 0 {
-		logging.GetLogger().Infof("sql map stream query returned no rows for query: %s", ss.selectCtx.GetQuery())
+		logging.GetLogger().Infof("sql map stream query returned no rows for query: '''%s'''", ss.selectCtx.GetQuery())
 	}
 	return rv, io.EOF
 }
