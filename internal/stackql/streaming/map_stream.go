@@ -58,6 +58,7 @@ func (sc *standardMapStreamCollection) Write(input []map[string]interface{}) err
 	return nil
 }
 
+//nolint:gocognit // acceptable complexity
 func (sc *standardMapStreamCollection) Read() ([]map[string]interface{}, error) {
 	var allOutputs [][]map[string]interface{}
 	maxLength := 0
