@@ -109,7 +109,7 @@ func (ss *SingleSelectAcquire) GetTail() primitivegraph.PrimitiveNode {
 	return ss.root
 }
 
-//nolint:funlen,gocognit,gocyclo,cyclop,nestif // TODO: investigate
+//nolint:funlen,gocognit,gocyclo,cyclop,nestif,revive // TODO: investigate
 func (ss *SingleSelectAcquire) Build() error {
 	prov, err := ss.tableMeta.GetProvider()
 	if err != nil {
@@ -123,7 +123,6 @@ func (ss *SingleSelectAcquire) Build() error {
 	if err != nil {
 		return err
 	}
-	//nolint:revive // acceptable for now
 	ex := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 		logging.GetLogger().Infof("SingleSelectAcquire.Execute() beginning execution for table %s", tableName)
 		currentTcc := ss.insertPreparedStatementCtx.GetGCCtrlCtrs().Clone()
@@ -132,6 +131,15 @@ func (ss *SingleSelectAcquire) Build() error {
 		// TODO: instrument for split source vertices !!!important!!!
 		httpArmoury, armouryErr := ss.tableMeta.GetHTTPArmoury()
 		if armouryErr != nil {
+			//nolint:errcheck // TODO: fix
+			ss.handlerCtx.GetOutErrFile().Write([]byte(
+				fmt.Sprintf(
+					"error assembling http aspects for resource '%s': %s\n",
+					m.GetResource().GetID(),
+					armouryErr.Error(),
+				),
+			),
+			)
 			return internaldto.NewErroneousExecutorOutput(armouryErr)
 		}
 		if mr != nil {

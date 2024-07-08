@@ -389,6 +389,7 @@ func (pr *standardParameterRouter) GetOnConditionDataFlows() (dataflow.Collectio
 		// rv[dependencies] = destHierarchy
 
 		for _, dependency := range dependencies {
+			// TODO: handle case where multiple dependencies are present
 			srcVertex := rv.UpsertStandardDataFlowVertex(dependency, dependencyTable)
 			destVertex := rv.UpsertStandardDataFlowVertex(destHierarchy, destinationTable)
 
