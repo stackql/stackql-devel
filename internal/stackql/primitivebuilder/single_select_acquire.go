@@ -109,7 +109,7 @@ func (ss *SingleSelectAcquire) GetTail() primitivegraph.PrimitiveNode {
 	return ss.root
 }
 
-//nolint:funlen,gocognit,gocyclo,cyclop,nestif // TODO: investigate
+//nolint:funlen,gocognit,gocyclo,cyclop,nestif,revive // TODO: investigate
 func (ss *SingleSelectAcquire) Build() error {
 	prov, err := ss.tableMeta.GetProvider()
 	if err != nil {
@@ -132,8 +132,14 @@ func (ss *SingleSelectAcquire) Build() error {
 		httpArmoury, armouryErr := ss.tableMeta.GetHTTPArmoury()
 		if armouryErr != nil {
 			//nolint:errcheck // TODO: fix
-			ss.handlerCtx.GetOutErrFile().Write([]byte(fmt.Sprintf(
-				"error assembling http aspects: %s\n", armouryErr.Error())))
+			ss.handlerCtx.GetOutErrFile().Write([]byte(
+				fmt.Sprintf(
+					"error assembling http aspects for resource '%s': %s\n",
+					m.GetResource().GetID(),
+					armouryErr.Error(),
+				),
+			),
+			)
 			return internaldto.NewErroneousExecutorOutput(armouryErr)
 		}
 		if mr != nil {
@@ -178,7 +184,6 @@ func (ss *SingleSelectAcquire) Build() error {
 				//nolint:errcheck // TODO: fix
 				ss.insertionContainer.SetTableTxnCounters(tableName, olderTcc)
 				ss.insertPreparedStatementCtx.SetGCCtrlCtrs(olderTcc)
-				//nolint:rowserrcheck // TODO: fix this
 				r, sqlErr := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Read(
 					tableName, reqEncoding,
 					ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIDColumnName(),

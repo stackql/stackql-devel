@@ -190,11 +190,17 @@ func (dp *standardDependencyPlanner) Plan() error {
 			idsVisited := make(map[int64]struct{})
 			// assemble incident edge collections
 			incidentStreams := make(map[int64]streaming.MapStreamCollection)
+			departingStreams := make(map[int64]streaming.MapStreamCollection)
 			for _, e := range edges {
-				toNopdeID := e.To().ID()
-				_, ok := incidentStreams[toNopdeID]
+				fromNodeID := e.From().ID()
+				toNodeID := e.To().ID()
+				_, ok := incidentStreams[toNodeID]
 				if !ok {
-					incidentStreams[toNopdeID] = streaming.NewStandardMapStreamCollection()
+					incidentStreams[toNodeID] = streaming.NewStandardMapStreamCollection()
+				}
+				_, ok = departingStreams[fromNodeID]
+				if !ok {
+					departingStreams[fromNodeID] = streaming.NewStandardMapStreamCollection()
 				}
 			}
 			for _, n := range orderedNodes {
@@ -211,8 +217,10 @@ func (dp *standardDependencyPlanner) Plan() error {
 					//nolint:nestif // TODO: refactor
 					if fromNodeID == nodeID {
 						//
+						departingStreamCollection := departingStreams[fromNodeID]
 						connectorStream := streaming.NewStandardMapStream()
-						insPsc, tcc, insErr := dp.processOrphan(tableExpr, annotation, connectorStream, n)
+						departingStreamCollection.Push(connectorStream)
+						insPsc, tcc, insErr := dp.processOrphan(tableExpr, annotation, departingStreamCollection, n)
 						if insErr != nil {
 							return insErr
 						}
@@ -227,7 +235,8 @@ func (dp *standardDependencyPlanner) Plan() error {
 						if streamErr != nil {
 							return streamErr
 						}
-						fromIdx, fromErr := dp.orchestrate(-1, annotation, insPsc, connectorStream, stream)
+
+						fromIdx, fromErr := dp.orchestrate(-1, annotation, insPsc, departingStreamCollection, stream)
 						if fromErr != nil {
 							return fromErr
 						}
