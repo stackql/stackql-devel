@@ -92,6 +92,8 @@ func (wc *standardDataFlowWeaklyConnectedComponent) Analyze() error {
 		for {
 			itemPresent := incidentNodes.Next()
 			if !itemPresent {
+				// wc.orderedNodes = append(wc.orderedNodes, node)
+				// wc.idsVisited[node.ID()] = struct{}{}
 				break
 			}
 			fromNode := incidentNodes.Node()

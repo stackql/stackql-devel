@@ -151,6 +151,7 @@
         "select * from aws.ec2.vpcs where region = 'ap-southeast-1';",
         "create or replace materialized view de_gen_01 as select json_extract_path_text(detail.Properties, 'KeyPolicy', 'Id') as key_policy_id, json_extract_path_text(detail.Properties, 'Tags') as key_tags, json_extract_path_text(detail.Properties, 'KeyUsage') as key_usage, json_extract_path_text(detail.Properties, 'Origin') as key_origin, case when json_extract_path_text(detail.Properties, 'MultiRegion') = 'true' then 1 else 0 end as key_is_multi_region, detail.region from aws.cloud_control.resources listing inner join aws.cloud_control.resource detail on detail.data__Identifier = listing.Identifier and detail.region = listing.region where listing.data__TypeName = 'AWS::KMS::Key' and listing.region IN ('us-east-1', 'ap-southeast-1') and detail.data__TypeName = 'AWS::KMS::Key' order by key_policy_id ASC ; select key_policy_id, key_tags, key_usage, key_origin, key_is_multi_region, region from de_gen_01 order by key_policy_id ASC ; drop materialized view if exists de_gen_01 ;",
         "select keyz.id as key_id, keyz.name as key_name, keyz.tags as key_tags, detail.properties as key_properties, keyz.type as key_type from azure.key_vault.vaults vaultz inner join azure.key_vault.keys keyz on keyz.vaultName = split_part(vaultz.id, '/', -1) and keyz.subscriptionId = vaultz.subscriptionId and keyz.resourceGroupName = split_part(vaultz.id, '/', 5) inner join azure.key_vault.keys detail on detail.vaultName = split_part(vaultz.id, '/', -1) and detail.subscriptionId = vaultz.subscriptionId and detail.resourceGroupName = split_part(vaultz.id, '/', 5) and detail.keyName = split_part(keyz.id, '/', -1) where vaultz.subscriptionId = '631d1c6d-2a65-43e7-93c2-688bfe4e1468' ;",
+        "select rings.projectsId as project, rings.locationsId as locale, split_part(rings.name, '/', -1) as key_ring_name, split_part(keys.name, '/', -1) as key_name, json_extract(keys.\"versionTemplate\", '$.algorithm') as key_algorithm, json_extract(keys.\"versionTemplate\", '$.protectionLevel') as key_protection_level from google.cloudkms.key_rings rings inner join google.cloudkms.crypto_keys keys on keys.keyRingsId = split_part(rings.name, '/', -1) and keys.projectsId = rings.projectsId and keys.locationsId = rings.locationsId where rings.projectsId in ('testing-project', 'testing-project-two', 'testing-project-three') and rings.locationsId in ('global', 'australia-southeast1', 'australia-southeast2') order by project, locale, key_name ;",
       ],
       "default": "show providers;"
     },
@@ -211,7 +212,7 @@
       "type": "pickString",
       "id": "dataflowDependencyMax",
       "description": "Data Flow Dependency Limit",
-      "default": "1",
+      "default": "50",
       "options": [
         "1",
         "3",
@@ -224,7 +225,7 @@
       "type": "pickString",
       "id": "dataflowComponentsMax",
       "description": "Data Flow Weakly Connected Components Limit",
-      "default": "1",
+      "default": "50",
       "options": [
         "1",
         "3",

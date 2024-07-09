@@ -38,6 +38,7 @@ type MapStream interface {
 type MapStreamCollection interface {
 	MapStream
 	Push(MapStream)
+	Len() int
 }
 
 func NewStandardMapStreamCollection() MapStreamCollection {
@@ -56,6 +57,15 @@ func (sc *standardMapStreamCollection) Push(stream MapStream) {
 func (sc *standardMapStreamCollection) Write(input []map[string]interface{}) error {
 	sc.store = append(sc.store, input...)
 	return nil
+}
+
+func (sc *standardMapStreamCollection) Len() int {
+	streamLen := len(sc.streams)
+	storeLen := len(sc.store)
+	if streamLen > storeLen {
+		return streamLen
+	}
+	return storeLen
 }
 
 //nolint:gocognit // acceptable complexity
