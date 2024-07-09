@@ -272,6 +272,9 @@ func (dp *standardDependencyPlanner) Plan() error {
 				tableExpr := n.GetTableExpr()
 				toEdges := streamDependencies.GetArriving(fromNodeID)
 				fromEdges := streamDependencies.GetDeparting(fromNodeID)
+				if toEdges.Len() > 0 {
+					annotation.SetDynamic()
+				}
 				insPsc, insPscExists := preparedStatementsStore[fromNodeID]
 				if !insPscExists {
 					if fromEdges.Len() == 0 {
@@ -298,8 +301,9 @@ func (dp *standardDependencyPlanner) Plan() error {
 						if !idxOk {
 							continue // TODO: fix this!!!
 							// return fmt.Errorf("unknown from node index violates invariant")
+						} else {
+							dp.dataflowToEdges[fromIdx] = append(dp.dataflowToEdges[fromIdx], edgeFromNodeIdx)
 						}
-						dp.dataflowToEdges[fromIdx] = append(dp.dataflowToEdges[fromIdx], edgeFromNodeIdx)
 					}
 				}
 			}
