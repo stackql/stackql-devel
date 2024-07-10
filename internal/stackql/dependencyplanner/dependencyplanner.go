@@ -200,10 +200,7 @@ func (dp *standardDependencyPlanner) Plan() error {
 				annotation := n.GetAnnotation()
 				dp.annMap[tableExpr] = annotation
 				for _, e := range edges {
-					//nolint:nestif // TODO: refactor
 					if e.From().ID() == n.ID() {
-						//
-
 						insPsc, tcc, insErr := dp.processOrphan(tableExpr, annotation, n)
 						if insErr != nil {
 							return insErr
@@ -217,9 +214,9 @@ func (dp *standardDependencyPlanner) Plan() error {
 							return streamErr
 						}
 						edgeStreams[e] = stream
-						toInsPsc, _, err := dp.processOrphan(toTableExpr, toAnnotation, toNode)
-						if err != nil {
-							return err
+						toInsPsc, _, toErr := dp.processOrphan(toTableExpr, toAnnotation, toNode)
+						if toErr != nil {
+							return toErr
 						}
 						insertPrepearedStatements[toNode.ID()] = toInsPsc
 					}
