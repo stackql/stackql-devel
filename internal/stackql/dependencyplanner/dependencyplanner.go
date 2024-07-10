@@ -188,129 +188,55 @@ func (dp *standardDependencyPlanner) Plan() error {
 					edgeCount, dependencyMax)
 			}
 			idsVisited := make(map[int64]struct{})
-			// assemble incident edge collections
-			incidentStreams := make(map[int64]streaming.MapStreamCollection)
-			departingStreams := make(map[int64]streaming.MapStreamCollection)
-			streamDependencies := NewStreamDependecyCollection()
-			for _, e := range edges {
-				fromNodeID := e.From().ID()
-				toNodeID := e.To().ID()
-				_, ok := incidentStreams[toNodeID]
-				if !ok {
-					incidentStreams[toNodeID] = streaming.NewStandardMapStreamCollection()
-				}
-				_, ok = departingStreams[fromNodeID]
-				if !ok {
-					departingStreams[fromNodeID] = streaming.NewStandardMapStreamCollection()
-				}
-			}
-			preparedStatementsStore := make(map[int64]drm.PreparedStatementCtx)
-			// 1st pass: create and store prepared statements
 			for _, n := range orderedNodes {
-				nodeID := n.ID()
-				if _, ok := idsVisited[nodeID]; ok {
+				if _, ok := idsVisited[n.ID()]; ok {
 					continue
 				}
-				idsVisited[nodeID] = struct{}{}
+				idsVisited[n.ID()] = struct{}{}
 				tableExpr := n.GetTableExpr()
 				annotation := n.GetAnnotation()
 				dp.annMap[tableExpr] = annotation
 				for _, e := range edges {
-					fromNodeID := e.From().ID()
 					//nolint:nestif // TODO: refactor
-					if fromNodeID == nodeID {
+					if e.From().ID() == n.ID() {
 						//
-						departingStreamCollection := departingStreams[fromNodeID]
 						connectorStream := streaming.NewStandardMapStream()
-						departingStreamCollection.Push(connectorStream)
-						insPsc, tcc, insErr := dp.processOrphan(tableExpr, annotation, departingStreamCollection, n)
+						insPsc, tcc, insErr := dp.processOrphan(tableExpr, annotation, connectorStream, n)
 						if insErr != nil {
 							return insErr
 						}
-						preparedStatementsStore[fromNodeID] = insPsc
 						toNode := e.GetDest()
-						toNodeID := e.To().ID()
-						// toTableExpr := toNode.GetTableExpr()
+						toTableExpr := toNode.GetTableExpr()
 						toAnnotation := toNode.GetAnnotation().Clone() // this bodge protects split source vertices
-						// This is the point of origin for the stream reading the "from" node.
-						// TODO: merge this with any other streams on the "to" node.
-						// TODO: pre-asssemble stream collection per "to" node.
 						stream, streamErr := dp.getStreamFromEdge(e, toAnnotation, tcc)
 						if streamErr != nil {
 							return streamErr
 						}
-						streamDependencies.Add(fromNodeID, toNodeID, stream)
-
-						// fromIdx, fromErr := dp.orchestrate(-1, annotation, insPsc, departingStreamCollection, stream)
-						// if fromErr != nil {
-						// 	return fromErr
-						// }
-						// dp.nodeIDIdxMap[fromNodeID] = fromIdx
-						// //
-						// dp.annMap[toTableExpr] = toAnnotation
-						// toAnnotation.SetDynamic()
-						// insPsc, _, err = dp.processOrphan(toTableExpr, toAnnotation, stream, toNode)
-						// if err != nil {
-						// 	return err
-						// }
-						// inputStreamCollection := incidentStreams[toNodeID]
-						// inputStreamCollection.Push(stream)
-						// toIdx, toErr := dp.orchestrate(-1, toAnnotation, insPsc, inputStreamCollection, streaming.NewNopMapStream())
-						// if toErr != nil {
-						// 	return toErr
-						// }
-						// dp.nodeIDIdxMap[toNodeID] = toIdx
-						// // idsVisited[toNode.ID()] = struct{}{} // this should
+						fromIdx, fromErr := dp.orchestrate(-1, annotation, insPsc, connectorStream, stream)
+						if fromErr != nil {
+							return fromErr
+						}
+						dp.nodeIDIdxMap[e.From().ID()] = fromIdx
+						//
+						dp.annMap[toTableExpr] = toAnnotation
+						toAnnotation.SetDynamic()
+						insPsc, _, err = dp.processOrphan(toTableExpr, toAnnotation, stream, toNode)
+						if err != nil {
+							return err
+						}
+						toIdx, toErr := dp.orchestrate(-1, toAnnotation, insPsc, stream, streaming.NewNopMapStream())
+						if toErr != nil {
+							return toErr
+						}
+						dp.nodeIDIdxMap[e.To().ID()] = toIdx
+						idsVisited[toNode.ID()] = struct{}{}
+						dp.dataflowToEdges[toIdx] = append(dp.dataflowToEdges[toIdx], fromIdx)
 					}
 				}
 			}
-			// 2nd pass: conect streams
 			for _, n := range orderedNodes {
-				fromNodeID := n.ID()
-				// fromTableExpr := n.GetTableExpr()
-				annotation := n.GetAnnotation()
-				tableExpr := n.GetTableExpr()
-				toEdges := streamDependencies.GetArriving(fromNodeID)
-				fromEdges := streamDependencies.GetDeparting(fromNodeID)
-				if toEdges.Len() > 0 {
-					annotation.SetDynamic()
-				}
-				insPsc, insPscExists := preparedStatementsStore[fromNodeID]
-				if !insPscExists {
-					if fromEdges.Len() == 0 {
-						var insErr error
-						insPsc, _, insErr = dp.processOrphan(tableExpr, annotation, streaming.NewNopMapStream(), n)
-						if insErr != nil {
-							return insErr
-						}
-					} else {
-						return fmt.Errorf("second pass: prepared statement not found")
-					}
-				}
-				fromIdx, fromErr := dp.orchestrate(-1, annotation, insPsc, toEdges, fromEdges)
-				if fromErr != nil {
-					return fromErr
-				}
-				dp.nodeIDIdxMap[fromNodeID] = fromIdx
-				idsVisited[fromNodeID] = struct{}{}
-				for _, e := range edges {
-					edgeToNodeID := e.To().ID()
-					edgeFromID := e.From().ID()
-					if fromNodeID == edgeToNodeID {
-						edgeFromNodeIdx, idxOk := dp.nodeIDIdxMap[edgeFromID]
-						if !idxOk {
-							continue // TODO: fix this!!!
-							// return fmt.Errorf("unknown from node index violates invariant")
-						} else {
-							dp.dataflowToEdges[fromIdx] = append(dp.dataflowToEdges[fromIdx], edgeFromNodeIdx)
-						}
-					}
-				}
-			}
-			// another pass for AOT dataflows; to wit, on clauses
-			for _, n := range orderedNodes {
-				nodeID := n.ID()
-				if _, ok := idsVisited[nodeID]; ok {
+				// another pass for AOT dataflows; to wit, on clauses
+				if _, ok := idsVisited[n.ID()]; ok {
 					continue
 				}
 				for _, e := range edges {
