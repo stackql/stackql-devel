@@ -157,7 +157,7 @@ func (dp *standardDependencyPlanner) Plan() error {
 			}
 			dp.annMap[tableExpr] = annotation
 			connectorStream := streaming.NewStandardMapStream()
-			insPsc, _, insErr := dp.processOrphan(tableExpr, annotation, connectorStream, unit)
+			insPsc, _, insErr := dp.processOrphan(tableExpr, annotation, unit)
 			if insErr != nil {
 				return insErr
 			}
@@ -188,6 +188,9 @@ func (dp *standardDependencyPlanner) Plan() error {
 					edgeCount, dependencyMax)
 			}
 			idsVisited := make(map[int64]struct{})
+			// first pass: set up AOT stuff
+			edgeStreams := make(map[dataflow.Edge]streaming.MapStream)
+			insertPrepearedStatements := make(map[int64]drm.PreparedStatementCtx)
 			for _, n := range orderedNodes {
 				if _, ok := idsVisited[n.ID()]; ok {
 					continue
@@ -200,38 +203,69 @@ func (dp *standardDependencyPlanner) Plan() error {
 					//nolint:nestif // TODO: refactor
 					if e.From().ID() == n.ID() {
 						//
-						connectorStream := streaming.NewStandardMapStream()
-						insPsc, tcc, insErr := dp.processOrphan(tableExpr, annotation, connectorStream, n)
+
+						insPsc, tcc, insErr := dp.processOrphan(tableExpr, annotation, n)
 						if insErr != nil {
 							return insErr
 						}
+						insertPrepearedStatements[n.ID()] = insPsc
 						toNode := e.GetDest()
-						toTableExpr := toNode.GetTableExpr()
 						toAnnotation := toNode.GetAnnotation().Clone() // this bodge protects split source vertices
+						toTableExpr := toNode.GetTableExpr()
 						stream, streamErr := dp.getStreamFromEdge(e, toAnnotation, tcc)
 						if streamErr != nil {
 							return streamErr
 						}
-						fromIdx, fromErr := dp.orchestrate(-1, annotation, insPsc, connectorStream, stream)
-						if fromErr != nil {
-							return fromErr
-						}
-						dp.nodeIDIdxMap[e.From().ID()] = fromIdx
-						//
-						dp.annMap[toTableExpr] = toAnnotation
-						toAnnotation.SetDynamic()
-						insPsc, _, err = dp.processOrphan(toTableExpr, toAnnotation, stream, toNode)
+						edgeStreams[e] = stream
+						toInsPsc, _, err := dp.processOrphan(toTableExpr, toAnnotation, toNode)
 						if err != nil {
 							return err
 						}
-						toIdx, toErr := dp.orchestrate(-1, toAnnotation, insPsc, stream, streaming.NewNopMapStream())
-						if toErr != nil {
-							return toErr
-						}
-						dp.nodeIDIdxMap[e.To().ID()] = toIdx
-						idsVisited[toNode.ID()] = struct{}{}
-						dp.dataflowToEdges[toIdx] = append(dp.dataflowToEdges[toIdx], fromIdx)
+						insertPrepearedStatements[toNode.ID()] = toInsPsc
 					}
+				}
+			}
+			// second pass: connect streams
+			// idsVisited = make(map[int64]struct{})
+			for _, n := range orderedNodes {
+				for _, e := range edges {
+					if e.From().ID() != n.ID() {
+						continue
+					}
+					fromNode := e.GetSource()
+					toNode := e.GetDest()
+					fromAnnotation := fromNode.GetAnnotation()
+					toAnnotation := toNode.GetAnnotation().Clone() // this bodge protects split source vertices
+					toTableExpr := toNode.GetTableExpr()
+					stream, streamFound := edgeStreams[e]
+					if !streamFound {
+						continue
+					}
+					insPsc, pscExists := insertPrepearedStatements[fromNode.ID()]
+					if !pscExists {
+						return fmt.Errorf("unknown insert prepared statement")
+					}
+					toInsPsc, pscExists := insertPrepearedStatements[toNode.ID()]
+					if !pscExists {
+						return fmt.Errorf("unknown insert prepared statement")
+					}
+					connectorStream := streaming.NewStandardMapStream()
+					fromIdx, fromErr := dp.orchestrate(-1, fromAnnotation, insPsc, connectorStream, stream)
+					if fromErr != nil {
+						return fromErr
+					}
+					dp.nodeIDIdxMap[fromNode.ID()] = fromIdx
+					//
+					dp.annMap[toTableExpr] = toAnnotation
+					toAnnotation.SetDynamic()
+					toIdx, toErr := dp.orchestrate(-1, toAnnotation, toInsPsc, stream, streaming.NewNopMapStream())
+					if toErr != nil {
+						return toErr
+					}
+					dp.nodeIDIdxMap[e.To().ID()] = toIdx
+					dp.dataflowToEdges[toIdx] = append(dp.dataflowToEdges[toIdx], fromIdx)
+					// idsVisited[fromNode.ID()] = struct{}{}
+					// idsVisited[toNode.ID()] = struct{}{}
 				}
 			}
 			for _, n := range orderedNodes {
@@ -339,10 +373,9 @@ func (dp *standardDependencyPlanner) Plan() error {
 func (dp *standardDependencyPlanner) processOrphan(
 	sqlNode sqlparser.SQLNode,
 	annotationCtx taxonomy.AnnotationCtx,
-	inStream streaming.MapStream,
 	vertex dataflow.Vertex,
 ) (drm.PreparedStatementCtx, internaldto.TxnControlCounters, error) {
-	anTab, tcc, err := dp.processAcquire(sqlNode, annotationCtx, inStream, vertex)
+	anTab, tcc, err := dp.processAcquire(sqlNode, annotationCtx, vertex)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -446,7 +479,6 @@ func (dp *standardDependencyPlanner) orchestrate(
 func (dp *standardDependencyPlanner) processAcquire(
 	sqlNode sqlparser.SQLNode,
 	annotationCtx taxonomy.AnnotationCtx,
-	stream streaming.MapStream, //nolint:unparam,revive // TODO: remove this
 	vertex dataflow.Vertex,
 ) (util.AnnotatedTabulation, internaldto.TxnControlCounters, error) {
 	inputTableName, err := annotationCtx.GetInputTableName()
