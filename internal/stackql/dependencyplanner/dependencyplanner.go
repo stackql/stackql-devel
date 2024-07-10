@@ -191,6 +191,7 @@ func (dp *standardDependencyPlanner) Plan() error {
 			// first pass: set up AOT stuff
 			edgeStreams := make(map[dataflow.Edge]streaming.MapStream)
 			insertPrepearedStatements := make(map[int64]drm.PreparedStatementCtx)
+			var orderedEdges []dataflow.Edge
 			for _, n := range orderedNodes {
 				if _, ok := idsVisited[n.ID()]; ok {
 					continue
@@ -219,51 +220,47 @@ func (dp *standardDependencyPlanner) Plan() error {
 							return toErr
 						}
 						insertPrepearedStatements[toNode.ID()] = toInsPsc
+						orderedEdges = append(orderedEdges, e)
 					}
 				}
 			}
 			// second pass: connect streams
 			// idsVisited = make(map[int64]struct{})
-			for _, n := range orderedNodes {
-				for _, e := range edges {
-					if e.From().ID() != n.ID() {
-						continue
-					}
-					fromNode := e.GetSource()
-					toNode := e.GetDest()
-					fromAnnotation := fromNode.GetAnnotation()
-					toAnnotation := toNode.GetAnnotation().Clone() // this bodge protects split source vertices
-					toTableExpr := toNode.GetTableExpr()
-					stream, streamFound := edgeStreams[e]
-					if !streamFound {
-						continue
-					}
-					insPsc, pscExists := insertPrepearedStatements[fromNode.ID()]
-					if !pscExists {
-						return fmt.Errorf("unknown insert prepared statement")
-					}
-					toInsPsc, pscExists := insertPrepearedStatements[toNode.ID()]
-					if !pscExists {
-						return fmt.Errorf("unknown insert prepared statement")
-					}
-					connectorStream := streaming.NewStandardMapStream()
-					fromIdx, fromErr := dp.orchestrate(-1, fromAnnotation, insPsc, connectorStream, stream)
-					if fromErr != nil {
-						return fromErr
-					}
-					dp.nodeIDIdxMap[fromNode.ID()] = fromIdx
-					//
-					dp.annMap[toTableExpr] = toAnnotation
-					toAnnotation.SetDynamic()
-					toIdx, toErr := dp.orchestrate(-1, toAnnotation, toInsPsc, stream, streaming.NewNopMapStream())
-					if toErr != nil {
-						return toErr
-					}
-					dp.nodeIDIdxMap[e.To().ID()] = toIdx
-					dp.dataflowToEdges[toIdx] = append(dp.dataflowToEdges[toIdx], fromIdx)
-					// idsVisited[fromNode.ID()] = struct{}{}
-					// idsVisited[toNode.ID()] = struct{}{}
+			for _, e := range orderedEdges {
+				fromNode := e.GetSource()
+				toNode := e.GetDest()
+				fromAnnotation := fromNode.GetAnnotation()
+				toAnnotation := toNode.GetAnnotation().Clone() // this bodge protects split source vertices
+				toTableExpr := toNode.GetTableExpr()
+				stream, streamFound := edgeStreams[e]
+				if !streamFound {
+					continue
 				}
+				insPsc, pscExists := insertPrepearedStatements[fromNode.ID()]
+				if !pscExists {
+					return fmt.Errorf("unknown insert prepared statement")
+				}
+				toInsPsc, pscExists := insertPrepearedStatements[toNode.ID()]
+				if !pscExists {
+					return fmt.Errorf("unknown insert prepared statement")
+				}
+				connectorStream := streaming.NewStandardMapStream()
+				fromIdx, fromErr := dp.orchestrate(-1, fromAnnotation, insPsc, connectorStream, stream)
+				if fromErr != nil {
+					return fromErr
+				}
+				dp.nodeIDIdxMap[fromNode.ID()] = fromIdx
+				//
+				dp.annMap[toTableExpr] = toAnnotation
+				toAnnotation.SetDynamic()
+				toIdx, toErr := dp.orchestrate(-1, toAnnotation, toInsPsc, stream, streaming.NewNopMapStream())
+				if toErr != nil {
+					return toErr
+				}
+				dp.nodeIDIdxMap[e.To().ID()] = toIdx
+				dp.dataflowToEdges[toIdx] = append(dp.dataflowToEdges[toIdx], fromIdx)
+				// idsVisited[fromNode.ID()] = struct{}{}
+				// idsVisited[toNode.ID()] = struct{}{}
 			}
 			for _, n := range orderedNodes {
 				// another pass for AOT dataflows; to wit, on clauses
