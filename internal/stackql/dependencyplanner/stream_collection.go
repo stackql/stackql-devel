@@ -36,6 +36,9 @@ func (sdc *streamDependencyCollection) GetArriving(id int64) streaming.MapStream
 	for _, stream := range sdc.arrivingStreams[id] {
 		rv.Push(stream)
 	}
+	if rv.Len() == 0 {
+		rv.Push(streaming.NewStandardMapStream())
+	}
 	return rv
 }
 
@@ -43,6 +46,9 @@ func (sdc *streamDependencyCollection) GetDeparting(id int64) streaming.MapStrea
 	rv := streaming.NewStandardMapStreamCollection()
 	for _, stream := range sdc.departingStreams[id] {
 		rv.Push(stream)
+	}
+	if rv.Len() == 0 {
+		rv.Push(streaming.NewNopMapStream())
 	}
 	return rv
 }

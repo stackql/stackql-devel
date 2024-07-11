@@ -235,8 +235,10 @@ func (dp *standardDependencyPlanner) Plan() error {
 				fromAnnotation := fromNode.GetAnnotation()
 				toAnnotation := toNode.GetAnnotation().Clone() // this bodge protects split source vertices
 				toTableExpr := toNode.GetTableExpr()
-				fromStream := nodeStreamCollections.GetDeparting(fromNode.ID())
-				toStream := nodeStreamCollections.GetArriving(toNode.ID())
+				departingSourceNodeStream := nodeStreamCollections.GetDeparting(fromNode.ID())
+				arrivingDestinationNodeStream := nodeStreamCollections.GetArriving(toNode.ID())
+				arrivingSourceNodeStream := nodeStreamCollections.GetArriving(fromNode.ID())
+				departingDestinationNodeStream := nodeStreamCollections.GetDeparting(toNode.ID())
 				insPsc, pscExists := insertPrepearedStatements[fromNode.ID()]
 				if !pscExists {
 					return fmt.Errorf("unknown insert prepared statement")
@@ -245,15 +247,14 @@ func (dp *standardDependencyPlanner) Plan() error {
 				if !pscExists {
 					return fmt.Errorf("unknown insert prepared statement")
 				}
-				connectorStream := streaming.NewStandardMapStream()
-				fromIdx, fromErr := dp.orchestrate(-1, fromAnnotation, insPsc, connectorStream, fromStream)
+				fromIdx, fromErr := dp.orchestrate(-1, fromAnnotation, insPsc, arrivingSourceNodeStream, departingSourceNodeStream)
 				if fromErr != nil {
 					return fromErr
 				}
 				dp.nodeIDIdxMap[fromNode.ID()] = fromIdx
 				dp.annMap[toTableExpr] = toAnnotation
 				toAnnotation.SetDynamic()
-				toIdx, toErr := dp.orchestrate(-1, toAnnotation, toInsPsc, toStream, streaming.NewNopMapStream())
+				toIdx, toErr := dp.orchestrate(-1, toAnnotation, toInsPsc, arrivingDestinationNodeStream, departingDestinationNodeStream)
 				if toErr != nil {
 					return toErr
 				}

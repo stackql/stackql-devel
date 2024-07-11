@@ -43,6 +43,6 @@ func (ss *StandardMapStream) Write(input []map[string]interface{}) error {
 
 func (ss *StandardMapStream) Read() ([]map[string]interface{}, error) {
 	rv := ss.store
-	ss.store = nil
+	ss.store = nil // TODO: uplift even though this is required for some queries
 	return rv, io.EOF
 }
