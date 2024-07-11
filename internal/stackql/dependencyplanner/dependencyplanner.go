@@ -254,7 +254,8 @@ func (dp *standardDependencyPlanner) Plan() error {
 				dp.nodeIDIdxMap[fromNode.ID()] = fromIdx
 				dp.annMap[toTableExpr] = toAnnotation
 				toAnnotation.SetDynamic()
-				toIdx, toErr := dp.orchestrate(-1, toAnnotation, toInsPsc, arrivingDestinationNodeStream, departingDestinationNodeStream)
+				toIdx, toErr := dp.orchestrate(
+					-1, toAnnotation, toInsPsc, arrivingDestinationNodeStream, departingDestinationNodeStream)
 				if toErr != nil {
 					return toErr
 				}
