@@ -102,6 +102,20 @@ func NewStandardDependencyPlanner(
 	}, nil
 }
 
+func (dp *standardDependencyPlanner) dataflowEdgeExists(from, to int) bool {
+	edges, ok := dp.dataflowToEdges[to]
+	if !ok {
+		return false
+	}
+	for _, e := range edges {
+		if e == from {
+			return true
+		}
+	}
+	return false
+
+}
+
 func (dp *standardDependencyPlanner) WithPrepStmtOffset(offset int) DependencyPlanner {
 	dp.prepStmtOffset = offset
 	return dp
@@ -173,6 +187,7 @@ func (dp *standardDependencyPlanner) Plan() error {
 			if oErr != nil {
 				return oErr
 			}
+			dp.nodeIDIdxMap = make(map[int64]int)
 			logging.GetLogger().Infof("%v\n", orderedNodes)
 			edges, eErr := unit.GetEdges()
 			if eErr != nil {
@@ -247,20 +262,30 @@ func (dp *standardDependencyPlanner) Plan() error {
 				if !pscExists {
 					return fmt.Errorf("unknown insert prepared statement")
 				}
-				fromIdx, fromErr := dp.orchestrate(-1, fromAnnotation, insPsc, arrivingSourceNodeStream, departingSourceNodeStream)
-				if fromErr != nil {
-					return fromErr
+				fromIdx, fromBuilderExists := dp.nodeIDIdxMap[fromNode.ID()]
+				if !fromBuilderExists {
+					var fromErr error
+					fromIdx, fromErr = dp.orchestrate(-1, fromAnnotation, insPsc, arrivingSourceNodeStream, departingSourceNodeStream)
+					if fromErr != nil {
+						return fromErr
+					}
+					dp.nodeIDIdxMap[fromNode.ID()] = fromIdx
 				}
-				dp.nodeIDIdxMap[fromNode.ID()] = fromIdx
-				dp.annMap[toTableExpr] = toAnnotation
-				toAnnotation.SetDynamic()
-				toIdx, toErr := dp.orchestrate(
-					-1, toAnnotation, toInsPsc, arrivingDestinationNodeStream, departingDestinationNodeStream)
-				if toErr != nil {
-					return toErr
+				toIdx, toBuilderExists := dp.nodeIDIdxMap[e.To().ID()]
+				if !toBuilderExists {
+					dp.annMap[toTableExpr] = toAnnotation
+					toAnnotation.SetDynamic()
+					var toErr error
+					toIdx, toErr = dp.orchestrate(
+						-1, toAnnotation, toInsPsc, arrivingDestinationNodeStream, departingDestinationNodeStream)
+					if toErr != nil {
+						return toErr
+					}
+					dp.nodeIDIdxMap[e.To().ID()] = toIdx
 				}
-				dp.nodeIDIdxMap[e.To().ID()] = toIdx
-				dp.dataflowToEdges[toIdx] = append(dp.dataflowToEdges[toIdx], fromIdx)
+				if !dp.dataflowEdgeExists(fromIdx, toIdx) {
+					dp.dataflowToEdges[toIdx] = append(dp.dataflowToEdges[toIdx], fromIdx)
+				}
 			}
 			for _, n := range orderedNodes {
 				// another pass for AOT dataflows; to wit, on clauses
