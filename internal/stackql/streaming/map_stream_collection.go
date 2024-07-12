@@ -84,27 +84,7 @@ func (sc *standardMapStreamCollection) Read() ([]map[string]interface{}, error) 
 	if maxLength == 0 {
 		return nil, io.EOF
 	}
-	lcm := maths.LcmMultiple(allLengths...)
-	rv := make([]map[string]interface{}, lcm)
-	for i := range rv {
-		rv[i] = make(map[string]interface{})
-	}
-	for _, output := range allOutputs {
-		thisLen := len(output)
-		for i := 0; i < lcm; i++ {
-			thisMap := output[i%thisLen]
-			for k, v := range thisMap {
-				rv[i][k] = v
-			}
-		}
-	}
-	if storeLen > 0 {
-		for i := 0; i < lcm; i++ {
-			thisMap := sc.store[i%storeLen]
-			for k, v := range thisMap {
-				rv[i][k] = v
-			}
-		}
-	}
+	// lcm := maths.LcmMultiple(allLengths...)
+	rv := maths.CartesianProduct(allOutputs...)
 	return rv, io.EOF
 }

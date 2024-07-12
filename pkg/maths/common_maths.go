@@ -27,3 +27,29 @@ func LcmMultiple(args ...int) int {
 	}
 	return rv
 }
+
+func CartesianProduct(args ...[]map[string]interface{}) []map[string]interface{} {
+	// """Return the Cartesian product of args."""
+	if len(args) == 0 {
+		return []map[string]interface{}{}
+	}
+	rv := []map[string]interface{}{}
+	rv = append(rv, args[0]...)
+	for i := 1; i < len(args); i++ {
+		newRV := []map[string]interface{}{}
+		for _, row := range args[i] {
+			for _, existingRow := range rv {
+				newRow := map[string]interface{}{}
+				for k, v := range existingRow {
+					newRow[k] = v
+				}
+				for k, v := range row {
+					newRow[k] = v
+				}
+				newRV = append(newRV, newRow)
+			}
+		}
+		rv = newRV
+	}
+	return rv
+}
