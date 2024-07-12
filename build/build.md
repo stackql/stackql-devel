@@ -104,3 +104,11 @@ stackql  >>exit
 The selection contexts formed for sql streaming queries lack control counters.
 
 Do not have a convenient test to hand.
+
+
+## Control counter invariants
+
+- What are they??!!
+- Enforce strictly.
+- Document.
+

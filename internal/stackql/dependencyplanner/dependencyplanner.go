@@ -113,7 +113,6 @@ func (dp *standardDependencyPlanner) dataflowEdgeExists(from, to int) bool {
 		}
 	}
 	return false
-
 }
 
 func (dp *standardDependencyPlanner) WithPrepStmtOffset(offset int) DependencyPlanner {
