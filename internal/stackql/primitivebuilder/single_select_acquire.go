@@ -160,7 +160,12 @@ func (ss *SingleSelectAcquire) Build() error {
 		}
 		reqParams := httpArmoury.GetRequestParams()
 		logging.GetLogger().Infof("SingleSelectAcquire.Execute() req param count = %d", len(reqParams))
-		for _, rc := range reqParams {
+		for i, rc := range reqParams {
+			var urlStringForLogging string
+			if rc.GetRequest() != nil && rc.GetRequest().URL != nil {
+				urlStringForLogging = rc.GetRequest().URL.String()
+			}
+			logging.GetLogger().Infof("SingleSelectAcquire.Execute() executing request %d: %s", i, urlStringForLogging)
 			reqCtx := rc
 			paramsUsed, paramErr := reqCtx.ToFlatMap()
 			if paramErr != nil {
@@ -203,6 +208,10 @@ func (ss *SingleSelectAcquire) Build() error {
 					reqCtx.GetRequest().Context(),
 				),
 			)
+			// TODO: refactor into package !!TECH_DEBT!!
+			if response != nil && response.StatusCode >= 400 {
+				continue
+			}
 			housekeepingDone := false
 			npt := prov.InferNextPageResponseElement(ss.tableMeta.GetHeirarchyObjects())
 			nptRequest := prov.InferNextPageRequestElement(ss.tableMeta.GetHeirarchyObjects())
