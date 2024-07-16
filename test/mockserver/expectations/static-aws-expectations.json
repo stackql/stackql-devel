@@ -1161,7 +1161,7 @@
       "method": "POST",
       "path": "/",
       "headers": {
-        "Authorization": ["^.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$" ],
+        "Authorization": ["^.*ap-southeast-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$" ],
         "X-Amz-Target": [ "CloudApiService.ListResources" ]
       },
       "body": {
@@ -1209,7 +1209,7 @@
       "method": "POST",
       "path": "/",
       "headers": {
-        "Authorization": ["^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$" ],
+        "Authorization": ["^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$" ],
         "X-Amz-Target": [ "CloudApiService.GetResource" ]
       },
       "body": {
@@ -1240,7 +1240,7 @@
       "method": "POST",
       "path": "/",
       "headers": {
-        "Authorization": ["^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$" ],
+        "Authorization": ["^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$" ],
         "X-Amz-Target": [ "CloudApiService.GetResource" ]
       },
       "body": {
@@ -1271,7 +1271,7 @@
       "method": "POST",
       "path": "/",
       "headers": {
-        "Authorization": ["^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$" ],
+        "Authorization": ["^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$" ],
         "X-Amz-Target": [ "CloudApiService.GetResource" ]
       },
       "body": {
@@ -1302,7 +1302,7 @@
       "method": "POST",
       "path": "/",
       "headers": {
-        "Authorization": ["^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$" ],
+        "Authorization": ["^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$" ],
         "X-Amz-Target": [ "CloudApiService.GetResource" ]
       },
       "body": {
@@ -1333,7 +1333,7 @@
       "method": "POST",
       "path": "/",
       "headers": {
-        "Authorization": ["^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$" ],
+        "Authorization": ["^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$" ],
         "X-Amz-Target": [ "CloudApiService.GetResource" ]
       },
       "body": {
@@ -1762,7 +1762,7 @@
       "method": "POST",
       "path": "/",
       "headers": {
-        "Authorization": ["^.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$" ],
+        "Authorization": ["^.*ap-southeast-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$" ],
         "X-Amz-Target": [ "CloudApiService.GetResource" ]
       },
       "body": {
