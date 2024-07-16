@@ -6201,3 +6201,80 @@ Multi Dependency Multi Dependent Multiple List And Detail Dataflow Works As Exem
     ...    stdout=${CURDIR}/tmp/Multi-Dependency-Multi-Dependent-Multiple-List-And-Detail-Dataflow-Works-As-Exemplified-By-Azure-Vault-and-Keys-and-Key-Details.tmp
     ...    stderr=${CURDIR}/tmp/Multi-Dependency-Multi-Dependent-Multiple-List-And-Detail-Dataflow-Works-As-Exemplified-By-Azure-Vault-and-Keys-and-Key-Details-stderr.tmp
     ...    stackql_dataflow_permissive=True
+
+Error GTE 400 Response Code Does Not Stop The World As Exemplified By AWS Subnet Route Associations List And Detail Pattern
+    ${sqliteInputStr} =    Catenate
+    ...    SELECT 
+    ...    listing.region, 
+    ...    listing.Identifier as lhs_id, 
+    ...    JSON_EXTRACT(detail.Properties, '$.Id') as rhs_id, 
+    ...    JSON_EXTRACT(detail.Properties, '$.RouteTableId') as route_table_id,
+    ...    JSON_EXTRACT(detail.Properties, '$.SubnetId') as subnet_id 
+    ...    FROM 
+    ...    aws.cloud_control.resources listing 
+    ...    LEFT OUTER JOIN aws.cloud_control.resource detail 
+    ...    ON detail.data__Identifier = listing.Identifier 
+    ...    AND detail.region = listing.region 
+    ...    WHERE 
+    ...    listing.data__TypeName = 'AWS::EC2::SubnetRouteTableAssociation' 
+    ...    AND detail.data__TypeName = 'AWS::EC2::SubnetRouteTableAssociation' 
+    ...    AND listing.region = 'ap-southeast-2' 
+    ...    ORDER BY lhs_id ASC
+    ...    ;
+    ${postgresInputStr} =    Catenate
+    ...    SELECT 
+    ...    listing.region, 
+    ...    listing.Identifier as lhs_id, 
+    ...    JSON_EXTRACT_PATH_TEXT(detail.Properties, 'Id') as rhs_id, 
+    ...    JSON_EXTRACT_PATH_TEXT(detail.Properties, 'RouteTableId') as route_table_id,
+    ...    JSON_EXTRACT_PATH_TEXT(detail.Properties, 'SubnetId') as subnet_id 
+    ...    FROM 
+    ...    aws.cloud_control.resources listing 
+    ...    LEFT OUTER JOIN aws.cloud_control.resource detail 
+    ...    ON detail.data__Identifier = listing.Identifier 
+    ...    AND detail.region = listing.region 
+    ...    WHERE 
+    ...    listing.data__TypeName = 'AWS::EC2::SubnetRouteTableAssociation' 
+    ...    AND detail.data__TypeName = 'AWS::EC2::SubnetRouteTableAssociation' 
+    ...    AND listing.region = 'ap-southeast-2' 
+    ...    ORDER BY lhs_id ASC
+    ...    ;
+    ${inputStr} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"     ${postgresInputStr}    ${sqliteInputStr}
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |----------------|--------------|--------------|----------------|--------------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}region${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}lhs_id${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}rhs_id${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}route_table_id${SPACE}|${SPACE}${SPACE}subnet_id${SPACE}${SPACE}${SPACE}|
+    ...    |----------------|--------------|--------------|----------------|--------------|
+    ...    |${SPACE}ap-southeast-2${SPACE}|${SPACE}ltbassoc-001${SPACE}|${SPACE}null${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}null${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}null${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |----------------|--------------|--------------|----------------|--------------|
+    ...    |${SPACE}ap-southeast-2${SPACE}|${SPACE}ltbassoc-002${SPACE}|${SPACE}ltbassoc-002${SPACE}|${SPACE}ltb-002a${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}subnet-0022b${SPACE}|
+    ...    |----------------|--------------|--------------|----------------|--------------|
+    ...    |${SPACE}ap-southeast-2${SPACE}|${SPACE}rtbassoc-001${SPACE}|${SPACE}rtbassoc-001${SPACE}|${SPACE}rtb-001a${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}subnet-0001b${SPACE}|
+    ...    |----------------|--------------|--------------|----------------|--------------|
+    ...    |${SPACE}ap-southeast-2${SPACE}|${SPACE}rtbassoc-002${SPACE}|${SPACE}null${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}null${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}null${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |----------------|--------------|--------------|----------------|--------------|
+    ...    |${SPACE}ap-southeast-2${SPACE}|${SPACE}rtbassoc-003${SPACE}|${SPACE}rtbassoc-003${SPACE}|${SPACE}rtb-001a${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}subnet-0003b${SPACE}|
+    ...    |----------------|--------------|--------------|----------------|--------------|
+    ${outputErrStr} =    Catenate    SEPARATOR=\n
+    ...    http${SPACE}response${SPACE}status${SPACE}code:${SPACE}400,${SPACE}response${SPACE}body:${SPACE}{
+    ...    ${SPACE}${SPACE}"__type"${SPACE}:${SPACE}"com.amazon.cloudapiservice#InvalidRequestException",
+    ...    ${SPACE}${SPACE}"Message"${SPACE}:${SPACE}"AWS::EC2::SubnetRouteTableAssociation${SPACE}Handler${SPACE}returned${SPACE}status${SPACE}FAILED:${SPACE}The${SPACE}RouteTableAssociation${SPACE}does${SPACE}not${SPACE}belong${SPACE}to${SPACE}a${SPACE}subnet${SPACE}(HandlerErrorCode:${SPACE}InvalidRequest,${SPACE}RequestToken:${SPACE}00000000-0000-0000-0000-00000001)"
+    ...    }
+    ...    http${SPACE}response${SPACE}status${SPACE}code:${SPACE}400,${SPACE}response${SPACE}body:${SPACE}{
+    ...    ${SPACE}${SPACE}"__type"${SPACE}:${SPACE}"com.amazon.cloudapiservice#InvalidRequestException",
+    ...    ${SPACE}${SPACE}"Message"${SPACE}:${SPACE}"AWS::EC2::SubnetRouteTableAssociation${SPACE}Handler${SPACE}returned${SPACE}status${SPACE}FAILED:${SPACE}The${SPACE}RouteTableAssociation${SPACE}does${SPACE}not${SPACE}belong${SPACE}to${SPACE}a${SPACE}subnet${SPACE}(HandlerErrorCode:${SPACE}InvalidRequest,${SPACE}RequestToken:${SPACE}00000000-0000-0000-0000-00000001)"
+    ...    }
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    ${outputErrStr}
+    ...    stdout=${CURDIR}/tmp/Error-GTE-400-Response-Code-Does-Not-Stop-The-World-As-Exemplified-By-AWS-Subnet-Route-Associations-List-And-Detail-Pattern.tmp
+    ...    stderr=${CURDIR}/tmp/Error-GTE-400-Response-Code-Does-Not-Stop-The-World-As-Exemplified-By-AWS-Subnet-Route-Associations-List-And-Detail-Pattern-stderr.tmp
+    ...    stackql_dataflow_permissive=True
+
