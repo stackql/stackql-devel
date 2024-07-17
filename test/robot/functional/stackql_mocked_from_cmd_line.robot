@@ -6278,3 +6278,79 @@ Error GTE 400 Response Code Does Not Stop The World As Exemplified By AWS Subnet
     ...    stderr=${CURDIR}/tmp/Error-GTE-400-Response-Code-Does-Not-Stop-The-World-As-Exemplified-By-AWS-Subnet-Route-Associations-List-And-Detail-Pattern-stderr.tmp
     ...    stackql_dataflow_permissive=True
 
+
+View Not Found Does Not Cause Crash and View Param Race Condition Scenario
+    ${inputStr} =    Catenate
+    ...    select * from aws.ec2_nextgen.vpcs_list_only where region in ('ap-southeast-1', 'ap-southeast-2') order by vpc_id asc;
+    ...    select * from aws.ec2_nextgen.vpcs_list_only where region = 'ap-southeast-1' order by vpc_id asc;
+    ...    select tag_key, tag_value from aws.ec2_nextgen.vpc_tags where region = 'ap-southeast-1' order by tag_key asc, tag_value asc;
+    ...    select * from aws.ec2_nextgen.vpcs where region = 'ap-southeast-1' order by vpc_id asc;
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |----------------|------------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}region${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}vpc_id${SPACE}${SPACE}${SPACE}|
+    ...    |----------------|------------|
+    ...    |${SPACE}ap-southeast-1${SPACE}|${SPACE}vpc-0001${SPACE}${SPACE}${SPACE}|
+    ...    |----------------|------------|
+    ...    |${SPACE}ap-southeast-1${SPACE}|${SPACE}vpc-0002${SPACE}${SPACE}${SPACE}|
+    ...    |----------------|------------|
+    ...    |${SPACE}ap-southeast-1${SPACE}|${SPACE}vpc-0003${SPACE}${SPACE}${SPACE}|
+    ...    |----------------|------------|
+    ...    |${SPACE}ap-southeast-1${SPACE}|${SPACE}vpc-0004${SPACE}${SPACE}${SPACE}|
+    ...    |----------------|------------|
+    ...    |${SPACE}ap-southeast-1${SPACE}|${SPACE}vpc-0005${SPACE}${SPACE}${SPACE}|
+    ...    |----------------|------------|
+    ...    |${SPACE}ap-southeast-2${SPACE}|${SPACE}vpc-2-0001${SPACE}|
+    ...    |----------------|------------|
+    ...    |----------------|----------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}region${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}vpc_id${SPACE}${SPACE}|
+    ...    |----------------|----------|
+    ...    |${SPACE}ap-southeast-1${SPACE}|${SPACE}vpc-0001${SPACE}|
+    ...    |----------------|----------|
+    ...    |${SPACE}ap-southeast-1${SPACE}|${SPACE}vpc-0002${SPACE}|
+    ...    |----------------|----------|
+    ...    |${SPACE}ap-southeast-1${SPACE}|${SPACE}vpc-0003${SPACE}|
+    ...    |----------------|----------|
+    ...    |${SPACE}ap-southeast-1${SPACE}|${SPACE}vpc-0004${SPACE}|
+    ...    |----------------|----------|
+    ...    |${SPACE}ap-southeast-1${SPACE}|${SPACE}vpc-0005${SPACE}|
+    ...    |----------------|----------|
+    ...    |---------|-----------|
+    ...    |${SPACE}tag_key${SPACE}|${SPACE}tag_value${SPACE}|
+    ...    |---------|-----------|
+    ...    |${SPACE}Name${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vpc1${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |---------|-----------|
+    ...    |${SPACE}Name${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vpc2${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |---------|-----------|
+    ...    |${SPACE}Name${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vpc3${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |---------|-----------|
+    ...    |${SPACE}Name${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vpc4${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |---------|-----------|
+    ...    |${SPACE}Name${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vpc5${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |---------|-----------|
+    ...    |----------------|----------|------------------|---------------------|-----------------------------|-------------|-------------------|---------------------|--------------------|------------------|------------------------|----------------------|---------------------------------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}region${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}vpc_id${SPACE}${SPACE}|${SPACE}instance_tenancy${SPACE}|${SPACE}ipv4_netmask_length${SPACE}|${SPACE}${SPACE}${SPACE}cidr_block_associations${SPACE}${SPACE}${SPACE}|${SPACE}cidr_block${SPACE}${SPACE}|${SPACE}ipv4_ipam_pool_id${SPACE}|${SPACE}default_network_acl${SPACE}|${SPACE}enable_dns_support${SPACE}|${SPACE}ipv6_cidr_blocks${SPACE}|${SPACE}default_security_group${SPACE}|${SPACE}enable_dns_hostnames${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}tags${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |----------------|----------|------------------|---------------------|-----------------------------|-------------|-------------------|---------------------|--------------------|------------------|------------------------|----------------------|---------------------------------|
+    ...    |${SPACE}ap-southeast-1${SPACE}|${SPACE}vpc-0001${SPACE}|${SPACE}default${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}null${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}\["vpc-cidr-assoc-00000001"]${SPACE}|${SPACE}10.0.0.0/16${SPACE}|${SPACE}null${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}acl-000000001${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}1${SPACE}|${SPACE}\[]${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}sg-00000000001${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}1${SPACE}|${SPACE}\[{"Value":"vpc1","Key":"Name"}]${SPACE}|
+    ...    |----------------|----------|------------------|---------------------|-----------------------------|-------------|-------------------|---------------------|--------------------|------------------|------------------------|----------------------|---------------------------------|
+    ...    |${SPACE}ap-southeast-1${SPACE}|${SPACE}vpc-0002${SPACE}|${SPACE}default${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}null${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}\["vpc-cidr-assoc-00000001"]${SPACE}|${SPACE}10.1.0.0/16${SPACE}|${SPACE}null${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}acl-000000001${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}1${SPACE}|${SPACE}\[]${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}sg-00000000001${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}1${SPACE}|${SPACE}\[{"Value":"vpc2","Key":"Name"}]${SPACE}|
+    ...    |----------------|----------|------------------|---------------------|-----------------------------|-------------|-------------------|---------------------|--------------------|------------------|------------------------|----------------------|---------------------------------|
+    ...    |${SPACE}ap-southeast-1${SPACE}|${SPACE}vpc-0003${SPACE}|${SPACE}default${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}null${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}\["vpc-cidr-assoc-00000001"]${SPACE}|${SPACE}10.2.0.0/16${SPACE}|${SPACE}null${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}acl-000000001${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}1${SPACE}|${SPACE}\[]${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}sg-00000000001${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}1${SPACE}|${SPACE}\[{"Value":"vpc3","Key":"Name"}]${SPACE}|
+    ...    |----------------|----------|------------------|---------------------|-----------------------------|-------------|-------------------|---------------------|--------------------|------------------|------------------------|----------------------|---------------------------------|
+    ...    |${SPACE}ap-southeast-1${SPACE}|${SPACE}vpc-0004${SPACE}|${SPACE}default${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}null${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}\["vpc-cidr-assoc-00000001"]${SPACE}|${SPACE}10.3.0.0/16${SPACE}|${SPACE}null${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}acl-000000001${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}1${SPACE}|${SPACE}\[]${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}sg-00000000001${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}1${SPACE}|${SPACE}\[{"Value":"vpc4","Key":"Name"}]${SPACE}|
+    ...    |----------------|----------|------------------|---------------------|-----------------------------|-------------|-------------------|---------------------|--------------------|------------------|------------------------|----------------------|---------------------------------|
+    ...    |${SPACE}ap-southeast-1${SPACE}|${SPACE}vpc-0005${SPACE}|${SPACE}default${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}null${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}\["vpc-cidr-assoc-00000001"]${SPACE}|${SPACE}10.4.0.0/16${SPACE}|${SPACE}null${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}acl-000000001${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}1${SPACE}|${SPACE}\[]${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}sg-00000000001${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}1${SPACE}|${SPACE}\[{"Value":"vpc5","Key":"Name"}]${SPACE}|
+    ...    |----------------|----------|------------------|---------------------|-----------------------------|-------------|-------------------|---------------------|--------------------|------------------|------------------------|----------------------|---------------------------------|
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    ${EMPTY}
+    ...    stdout=${CURDIR}/tmp/View-Not-Found-Does-Not-Cause-Crash-and-View-Param-Race-Condition-Scenario.tmp
+    ...    stderr=${CURDIR}/tmp/View-Not-Found-Does-Not-Cause-Crash-and-View-Param-Race-Condition-Scenario-stderr.tmp
+    ...    stackql_dataflow_permissive=True
