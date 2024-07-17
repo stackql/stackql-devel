@@ -321,6 +321,11 @@ func (sp *standardInitialPasses) initialPasses(
 	if err != nil {
 		return err
 	}
+	parameters := threeToFiveAgg.GetParameters()
+	// for k, v := range whereParams.GetMap() {
+	// 	//nolint:errcheck // acceptable for now
+	// 	parameters.SetIntolerant(k, v)
+	// }
 
 	pbi, err := planbuilderinput.NewPlanBuilderInput(
 		annotatedAST,
@@ -330,7 +335,7 @@ func (sp *standardInitialPasses) initialPasses(
 		threeToFiveAgg.GetAliasedColumns(),
 		threeToFiveAgg.GetAliasMap(),
 		threeToFiveAgg.GetColRefs(),
-		threeToFiveAgg.GetParameters(),
+		parameters,
 		tcc.Clone(),
 	)
 	if err != nil {
