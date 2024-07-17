@@ -46,6 +46,7 @@ func (pm standardParameterMap) Merge(rhs ParameterMap) ParameterMap {
 	if rhs != nil {
 		allEntries := rhs.GetAll()
 		for _, kv := range allEntries {
+			pm.DeleteByString(kv.K.GetStringKey())
 			pm.m[kv.K] = kv.V
 		}
 	}
