@@ -109,11 +109,8 @@ func (de *standardDataFlowEdge) GetSelectExprs() (sqlparser.SelectExprs, error) 
 
 func (de *standardDataFlowEdge) HasSourceAttribute(attr string) bool {
 	for _, rel := range de.relations {
-		src, _, err := rel.GetProjection()
-		if err != nil {
-			continue
-		}
-		if src == attr {
+		dest := rel.GetDestColumnName()
+		if dest == attr {
 			return true
 		}
 	}
