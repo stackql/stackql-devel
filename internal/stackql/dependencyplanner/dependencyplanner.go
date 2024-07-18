@@ -604,16 +604,28 @@ func (dp *standardDependencyPlanner) getStreamFromEdge(
 		if err != nil {
 			return nil, err
 		}
-		transformedStaticParams, paramTRansformErr := util.TransformSQLRawParameters(toAc.GetParameters(), false)
-		if paramTRansformErr != nil {
-			return nil, paramTRansformErr
+		// fromParams := ann.GetParameters()
+		toParams := toAc.GetParameters()
+		// transformedFromStaticParams, fromParamTransformErr := util.TransformSQLRawParameters(fromParams, false)
+		// if fromParamTransformErr != nil {
+		// 	return nil, fromParamTransformErr
+		// }
+		for k := range toParams {
+			hasSourceAttr := e.HasSourceAttribute(k)
+			if !hasSourceAttr {
+				delete(toParams, k)
+			}
+		}
+		transformedToStaticParams, paramTransformErr := util.TransformSQLRawParameters(toParams, false)
+		if paramTransformErr != nil {
+			return nil, paramTransformErr
 		}
 		return sqlstream.NewSimpleSQLMapStream(
 			selectCtx,
 			insertContainer,
 			dp.handlerCtx.GetDrmConfig(),
 			dp.handlerCtx.GetSQLEngine(),
-			transformedStaticParams,
+			transformedToStaticParams,
 		), nil
 	}
 	projection, err := e.GetProjection()

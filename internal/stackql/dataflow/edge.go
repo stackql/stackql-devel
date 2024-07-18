@@ -13,6 +13,7 @@ type Edge interface {
 	GetDest() Vertex
 	GetProjection() (map[string]string, error)
 	GetSelectExprs() (sqlparser.SelectExprs, error)
+	HasSourceAttribute(attr string) bool
 	GetSource() Vertex
 	IsSQL() bool
 }
@@ -104,6 +105,19 @@ func (de *standardDataFlowEdge) GetSelectExprs() (sqlparser.SelectExprs, error) 
 		rv = append(rv, selExpr)
 	}
 	return rv, nil
+}
+
+func (de *standardDataFlowEdge) HasSourceAttribute(attr string) bool {
+	for _, rel := range de.relations {
+		src, _, err := rel.GetProjection()
+		if err != nil {
+			continue
+		}
+		if src == attr {
+			return true
+		}
+	}
+	return false
 }
 
 func (de *standardDataFlowEdge) GetColumnDescriptors() ([]anysdk.ColumnDescriptor, error) {
