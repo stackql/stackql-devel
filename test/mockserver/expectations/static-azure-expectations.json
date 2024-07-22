@@ -12,7 +12,7 @@
         "gatewayName": ["gateway2"]
       },
       "queryStringParameters" : {
-        "api-version" : [ "2022-01-01" ]
+        "api-version" : [ "2023-11-01" ]
       }
     },
     "httpResponse": {
@@ -226,7 +226,7 @@
         "gatewayName": ["gateway1"]
       },
       "queryStringParameters" : {
-        "api-version" : [ "2022-01-01" ]
+        "api-version" : [ "2023-11-01" ]
       }
     },
     "httpResponse": {
@@ -438,7 +438,7 @@
         "subscriptionId": ["000000-0000-0000-0000-000000000022"] 
       },
       "queryStringParameters" : {
-        "api-version" : [ "2022-01-01" ]
+        "api-version" : [ "2023-11-01" ]
       }
     },
     "httpResponse": {
