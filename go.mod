@@ -22,7 +22,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.10.1
 	github.com/stackql/any-sdk v0.0.3-beta01
-	github.com/stackql/go-sqlite3 v0.0.3-stackqlalpha02
+	github.com/stackql/go-sqlite3 v0.0.13-stackqlalpha01
 	github.com/stackql/go-suffix-map v0.0.1-alpha01
 	github.com/stackql/psql-wire v0.1.1-alpha07
 	github.com/stackql/stackql-parser v0.0.13-beta30
