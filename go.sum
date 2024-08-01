@@ -482,8 +482,8 @@ github.com/stackql/psql-wire v0.1.1-alpha07 h1:LQWVUlx4Bougk6dztDNG5tmXxpIVeeTSs
 github.com/stackql/psql-wire v0.1.1-alpha07/go.mod h1:a44Wd8kDC3irFLpGutarKDBqhJ/aqXlj1aMzO5bVJYg=
 github.com/stackql/readline v0.0.2-alpha05 h1:ID4QzGdplFBsrSnTuz8pvKzWw96JbrJg8fsLry2UriU=
 github.com/stackql/readline v0.0.2-alpha05/go.mod h1:OFAYOdXk/X4+5GYiDXFfaGrk+bCN6Qv0SYY5HNzD2E0=
-github.com/stackql/stackql-gosqlite3 v0.0.3-stackqlalpha h1:1oN69anZyrGI2bO2ck6iB8tSdSAVOmcrmpFZw54Gq20=
-github.com/stackql/stackql-gosqlite3 v0.0.3-stackqlalpha/go.mod h1:pXVRWdrLyPK4wn+elZqCavYjVgsbOG53qTWxqtygF8g=
+github.com/stackql/stackql-gosqlite3 v0.0.4-stackqlalpha01 h1:bvj+cQwnJR8c05lW3RWtiPrr/yG15KJVABCloxmVuNY=
+github.com/stackql/stackql-gosqlite3 v0.0.4-stackqlalpha01/go.mod h1:pXVRWdrLyPK4wn+elZqCavYjVgsbOG53qTWxqtygF8g=
 github.com/stackql/stackql-parser v0.0.13-beta30 h1:+M5PJxC2lCO9pR8gxxQfWcpq2geAQN3R3l3K0ypWcYI=
 github.com/stackql/stackql-parser v0.0.13-beta30/go.mod h1:iyB47SvRS+Fvpn7joF7mHAkeiWSq83TbUhglRmLzPLQ=
 github.com/stackql/stackql-provider-registry v0.0.1-rc06 h1:MgroWOr0bSqjSTDGnXB0UoZGFXpW3SRtN0EFkzB8Rpo=
