@@ -360,58 +360,58 @@ jobs:
           exit 1
         fi
 
-    # - name: Mock Server Download
-    #   run: |
-    #     mvn \
-    #     org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy \
-    #     -Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded \
-    #     -DoutputDirectory=test/downloads
+    - name: Mock Server Download
+      run: |
+        mvn \
+        org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy \
+        -Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded \
+        -DoutputDirectory=test/downloads
 
-    # - name: Create certificates for robot tests
-    #   run: |
-    #     openssl req -x509 -keyout test/server/mtls/credentials/pg_server_key.pem -out test/server/mtls/credentials/pg_server_cert.pem -config test/server/mtls/openssl.cnf -days 365
-    #     openssl req -x509 -keyout test/server/mtls/credentials/pg_client_key.pem -out test/server/mtls/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
-    #     openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365 
+    - name: Create certificates for robot tests
+      run: |
+        openssl req -x509 -keyout test/server/mtls/credentials/pg_server_key.pem -out test/server/mtls/credentials/pg_server_cert.pem -config test/server/mtls/openssl.cnf -days 365
+        openssl req -x509 -keyout test/server/mtls/credentials/pg_client_key.pem -out test/server/mtls/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
+        openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365 
 
-    # - name: Run robot mocked functional tests
-    #   if: success()
-    #   run: |
-    #     python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true" } }'
+    - name: Run robot mocked functional tests
+      if: success()
+      run: |
+        python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true" } }'
 
-    # - name: Output from mocked functional tests
-    #   if: always()
-    #   run: |
-    #     cat ./test/robot/functional/output.xml
+    - name: Output from mocked functional tests
+      if: always()
+      run: |
+        cat ./test/robot/functional/output.xml
 
-    # - name: Run robot mocked functional tests with aggressive concurrency
-    #   if: success()
-    #   run: |
-    #     python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true", "CONCURRENCY_LIMIT": -1  } }'
+    - name: Run robot mocked functional tests with aggressive concurrency
+      if: success()
+      run: |
+        python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true", "CONCURRENCY_LIMIT": -1  } }'
 
-    # - name: Output from mocked functional tests with aggressive concurrency
-    #   if: always()
-    #   run: |
-    #     cat ./test/robot/functional/output.xml
+    - name: Output from mocked functional tests with aggressive concurrency
+      if: always()
+      run: |
+        cat ./test/robot/functional/output.xml
     
-    # - name: Run robot integration tests
-    #   if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release')
-    #   env:
-    #     AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-    #     AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-    #     AZURE_INTEGRATION_TESTING_SUB_ID: ${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}
-    #     AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-    #   run: |
-    #     python cicd/python/build.py --robot-test-integration
+    - name: Run robot integration tests
+      if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release')
+      env:
+        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        AZURE_INTEGRATION_TESTING_SUB_ID: ${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}
+        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      run: |
+        python cicd/python/build.py --robot-test-integration
     
-    # - name: Prepare Test DB
-    #   if: success()
-    #   run: cp test/db/db.sqlite test/db/tmp/python-tests-tmp-db.sqlite
+    - name: Prepare Test DB
+      if: success()
+      run: cp test/db/db.sqlite test/db/tmp/python-tests-tmp-db.sqlite
 
-    # - name: Test Script
-    #   if: success()
-    #   run: python3 "${TESTSCRIPT}"
-    #   env:
-    #     TESTSCRIPT: ${{env.TESTSCRIPT}}
+    - name: Test Script
+      if: success()
+      run: python3 "${TESTSCRIPT}"
+      env:
+        TESTSCRIPT: ${{env.TESTSCRIPT}}
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4.3.1
