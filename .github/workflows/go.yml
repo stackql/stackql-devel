@@ -298,11 +298,11 @@ jobs:
           echo "BUILDMINORVERSION=${BUILDMINORVERSION}"
           echo "BUILDPATCHVERSION=${BUILDPATCHVERSION}"
         } >> "${GITHUB_ENV}"
-        python cicd/python/build.py --verbose --build
+        python cicd/python/build.py --build
       
     - name: Test
       if: success()
-      run: python cicd/python/build.py --verbose --test
+      run: python cicd/python/build.py --test
     
     - name: Benchmark
       if: success()
