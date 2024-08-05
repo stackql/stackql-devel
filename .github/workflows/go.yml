@@ -23,6 +23,8 @@ on:
 
 env:
   GOTESTCMD: "go test -timeout 1200s --tags \"json1 sqleanall\" -v ./..."
+  # GOVERBOSE: "--verbose"
+  GOVERBOSE: ""
   TESTSCRIPT: "test/python/main.py"
   GOPRIVATE: github.com/stackql/*
   GH_ACCESS_TOKEN: ${{ secrets.ACTIONS_PRIVATE_PACKAGE_SECRET }}
@@ -145,11 +147,11 @@ jobs:
         echo "BUILDMINORVERSION=$env:BUILDMINORVERSION" >> $GITHUB_ENV
         echo "BUILDPATCHVERSION=$env:BUILDPATCHVERSION" >> $GITHUB_ENV
 
-        python cicd/python/build.py --verbose --build 
+        python cicd/python/build.py --build ${{ env.GOVERBOSE }}
 
     - name: Test
       if: success()
-      run: python cicd/python/build.py --verbose --test
+      run: python cicd/python/build.py --test ${{ env.GOVERBOSE }} 
 
     - name: Mock Server Download
       run: |
@@ -298,11 +300,11 @@ jobs:
           echo "BUILDMINORVERSION=${BUILDMINORVERSION}"
           echo "BUILDPATCHVERSION=${BUILDPATCHVERSION}"
         } >> "${GITHUB_ENV}"
-        python cicd/python/build.py --build
+        python cicd/python/build.py --build ${{ env.GOVERBOSE }}
       
     - name: Test
       if: success()
-      run: python cicd/python/build.py --test
+      run: python cicd/python/build.py --test ${{ env.GOVERBOSE }}
     
     - name: Benchmark
       if: success()
@@ -615,11 +617,11 @@ jobs:
           echo "BUILDPATCHVERSION=$BUILDPATCHVERSION"
         } >> "${GITHUB_ENV}"
 
-        python cicd/python/build.py --verbose --build 
+        python cicd/python/build.py --build ${{ env.GOVERBOSE }} 
 
     - name: Test
       if: success()
-      run: python cicd/python/build.py --verbose --test
+      run: python cicd/python/build.py --test ${{ env.GOVERBOSE }}
 
     - name: Mock Server Download
       run: |
@@ -739,7 +741,7 @@ jobs:
 
         export GOOS="darwin"
         export GOARCH="arm64"
-        python cicd/python/build.py --verbose --build 
+        python cicd/python/build.py --build ${{ env.GOVERBOSE }} 
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4.3.1
