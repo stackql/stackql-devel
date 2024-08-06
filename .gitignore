@@ -30,3 +30,4 @@ y.output
 *.pyc
 
 .stackql/
+stackql-bin
