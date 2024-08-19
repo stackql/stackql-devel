@@ -49,18 +49,18 @@ type planGraphBuilder interface {
 }
 
 type standardPlanGraphBuilder struct {
-	planGraphHolder        primitivegraph.PrimitiveGraphHolder
-	rootPrimitiveGenerator primitivegenerator.PrimitiveGenerator
-	transactionContext     txn_context.ITransactionContext
-	preBuiltIndirectLIFO   []primitivebuilder.Builder
+	planGraphHolder            primitivegraph.PrimitiveGraphHolder
+	rootPrimitiveGenerator     primitivegenerator.PrimitiveGenerator
+	transactionContext         txn_context.ITransactionContext
+	preBuiltIndirectCollection []primitivebuilder.Builder
 }
 
 func (pgb *standardPlanGraphBuilder) getPrebuiltIndirect() ([]primitivebuilder.Builder, bool) {
-	return pgb.preBuiltIndirectLIFO, pgb.preBuiltIndirectLIFO != nil
+	return pgb.preBuiltIndirectCollection, pgb.preBuiltIndirectCollection != nil
 }
 
 func (pgb *standardPlanGraphBuilder) setPrebuiltIndirect(builderz []primitivebuilder.Builder) {
-	pgb.preBuiltIndirectLIFO = builderz
+	pgb.preBuiltIndirectCollection = builderz
 }
 
 func (pgb *standardPlanGraphBuilder) setRootPrimitiveGenerator(
@@ -306,10 +306,10 @@ func (pgb *standardPlanGraphBuilder) handleDDL(pbi planbuilderinput.PlanBuilderI
 	bldrInput.SetParserNode(node)
 	//nolint:nestif // TODO: refactor
 	if node.SelectStatement != nil && parserutil.IsCreateMaterializedView(node) {
-		prebuiltIndirectLIFO, prebuildIndirectExists := pgb.getPrebuiltIndirect()
+		preBuiltIndirectCollection, prebuildIndirectExists := pgb.getPrebuiltIndirect()
 		var selectPrimitiveNode primitivegraph.PrimitiveNode
 		if prebuildIndirectExists {
-			for i, prebuiltIndirect := range prebuiltIndirectLIFO {
+			for i, prebuiltIndirect := range preBuiltIndirectCollection {
 				buildErr := prebuiltIndirect.Build()
 				if buildErr != nil {
 					return buildErr
@@ -402,10 +402,10 @@ func (pgb *standardPlanGraphBuilder) handleRefreshMaterializedView(pbi planbuild
 	bldrInput.SetParserNode(node)
 	//nolint:nestif // acceptable
 	if node.ImplicitSelect != nil {
-		prebuiltIndirectLIFO, prebuildIndirectExists := pgb.getPrebuiltIndirect()
+		preBuiltIndirectCollection, prebuildIndirectExists := pgb.getPrebuiltIndirect()
 		var selectPrimitiveNode primitivegraph.PrimitiveNode
 		if prebuildIndirectExists {
-			for i, prebuiltIndirect := range prebuiltIndirectLIFO {
+			for i, prebuiltIndirect := range preBuiltIndirectCollection {
 				buildErr := prebuiltIndirect.Build()
 				if buildErr != nil {
 					return buildErr
