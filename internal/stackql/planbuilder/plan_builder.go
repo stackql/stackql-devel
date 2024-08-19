@@ -387,6 +387,7 @@ func (pgb *standardPlanGraphBuilder) handleDDL(pbi planbuilderinput.PlanBuilderI
 	return nil
 }
 
+//nolint:gocognit // acceptable
 func (pgb *standardPlanGraphBuilder) handleRefreshMaterializedView(pbi planbuilderinput.PlanBuilderInput) error {
 	handlerCtx := pbi.GetHandlerCtx()
 	node, ok := pbi.GetRefreshedMaterializedView()
