@@ -419,7 +419,7 @@ jobs:
         path: build/stackql
 
   linuxarmbuild:
-    name: Linux Build
+    name: Linux arm64 Build
     runs-on: linux-arm-one
     steps:
 
