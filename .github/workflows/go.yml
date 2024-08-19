@@ -451,9 +451,15 @@ jobs:
     
     - name: Install psql
       run: |
+          sudo add-apt-repository ppa:openjdk-r/ppa
           sudo apt-get update
-          sudo apt install --yes build-essential
+          sudo apt-get install --yes build-essential
           sudo apt-get install --yes --no-install-recommends postgresql-client
+          sudo apt-get install --yes openjdk-11-jdk-headless
+          gccVersion="$(gcc --version 2>&1 | head -n 1)"
+          javaVersion="$(java -version 2>&1 | head -n 1)"
+          echo "gcc version: ${gccVersion}"
+          echo "java version: ${javaVersion}"
 
     - name: Install Python dependencies
       run: |
