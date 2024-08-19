@@ -115,6 +115,7 @@ func (pb *standardPlanBuilder) BuildPlanFromContext(handlerCtx handler.HandlerCo
 	if err != nil {
 		return createErroneousPlan(handlerCtx, qPlan, rowSort, err)
 	}
+	// TODO: get a LIFO  and push it
 	prebuiltIndirect, prebuiltIndirectExists := earlyPassScreenerAnalyzer.GetIndirectCreateTail()
 	if prebuiltIndirectExists {
 		pGBuilder.setPrebuiltIndirect(prebuiltIndirect)
