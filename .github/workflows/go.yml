@@ -420,7 +420,7 @@ jobs:
 
   linuxarmbuild:
     name: Linux arm64 Build
-    runs-on: linux-arm-one
+    runs-on: arm-ubuntu-22-04-runner-one
     steps:
 
     - name: Check out code into the Go module directory
