@@ -208,6 +208,12 @@ jobs:
     runs-on: arm-win-11-runner-one
     steps:
 
+    - name: Choco install git
+      uses: crazy-max/ghaction-chocolatey@v3.0.0
+      timeout-minutes: 40
+      with:
+        args: "install --force git.install"
+
     - name: Get rid of disruptive line endings before checkout
       run: |
         git config --global core.autocrlf false
