@@ -204,7 +204,7 @@ jobs:
         path: build/stackql.exe
 
   winarmbuild:
-    name: Windows Build
+    name: Windows arm64 Build
     runs-on: arm-win-11-runner-one
     steps:
 
@@ -232,7 +232,6 @@ jobs:
 
     - name: Cache Chocolatey packages
       id: cache-choco
-      # uses: actions/cache@v3
       uses: actions/cache@v4.0.0
       env:
         cache-name: cache-choco-packages
@@ -245,8 +244,8 @@ jobs:
     - if: ${{ steps.cache-choco.outputs.cache-hit == 'true' }}
       name: List the state of Chocolatey packages
       continue-on-error: true
-      run:  |
-           dir "C:\Users\${{ env.username }}\AppData\Local\Temp\chocolatey\"
+      run: |
+        dir "C:\Users\${{ env.username }}\AppData\Local\Temp\chocolatey\"
 
     - name: Set up mingw
       uses: egor-tensin/setup-mingw@v2.2.0
@@ -346,7 +345,7 @@ jobs:
     - name: Output from mocked functional tests
       if: always()
       run: |
-        cat ./test/robot/functional/output.xml || echo "no functional test output present"
+        cat ./test/robot/functional/output.xml -or echo "no functional test output present"
     
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release')
