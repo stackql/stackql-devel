@@ -417,6 +417,31 @@ jobs:
       with:
         name: stackql_linux_amd64
         path: build/stackql
+    
+    - name: prepare deb boilerplate
+      run: |
+        mkdir -p .debpkg/usr/bin
+        cp -p build/stackql .debpkg/usr/bin/
+    
+    - uses: jiro4989/build-deb-action@v3
+      name: build deb package
+      with:
+        package: stackql
+        package_root: .debpkg
+        maintainer: your_name
+        version: ${{ github.ref }} # refs/tags/v*.*.*
+        arch: 'amd64'
+        # depends: 'libc6 (>= 2.2.1), git'
+        desc: 'stackql treats the internet as a relational database'
+        homepage: 'https://stackql.io'
+    
+    - name: Upload deb Artifact
+      uses: actions/upload-artifact@v4.3.1
+      if: success()
+      with:
+        name: artifact-deb
+        path: |
+          ./*.deb
 
   linuxarmbuild:
     name: Linux arm64 Build
