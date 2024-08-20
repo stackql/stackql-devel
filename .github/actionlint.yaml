@@ -3,3 +3,4 @@ self-hosted-runner:
   labels:
     - ubuntu-latest-m
     - arm-ubuntu-22-04-runner-one
+    - arm-win-11-runner-one
