@@ -428,8 +428,8 @@ jobs:
       with:
         package: stackql
         package_root: .debpkg
-        maintainer: your_name
-        version: ${{ github.ref }} # refs/tags/v*.*.*
+        maintainer: stackql
+        version: ${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}}
         arch: 'amd64'
         # depends: 'libc6 (>= 2.2.1), git'
         desc: 'stackql treats the internet as a relational database'
