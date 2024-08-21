@@ -687,14 +687,14 @@ jobs:
         pkgInstalledSize: ''
         pkgOwner: '--root-owner-group'
       run: |
-        mkdir -p ${pkgRoot}/usr/bin
-        mkdir -p ${pkgRoot}/DEBIAN
-        cp -p build/stackql .debpkg/usr/bin/
+        mkdir -p "${pkgRoot}/usr/bin"
+        mkdir -p "${pkgRoot}/DEBIAN"
+        cp -p build/stackql "${pkgRoot}/usr/bin/"
         if [ -z "$pkgInstalledSize" ]; then
           pkgRootSizeBytes="$(du --bytes --summarize --exclude=DEBIAN "$pkgRoot"/ | awk '{print $1}')"
           pkgInstalledSize="$(( (pkgRootSizeBytes + 1024 - 1) / 1024 ))"
         fi
-        cat >${pkgRoot}/DEBIAN/control <<EOL
+        cat >"${pkgRoot}/DEBIAN/control" <<EOL
         Package: ${pkgName}
         Version: ${pkgVersion}
         Installed-Size: ${pkgInstalledSize}
@@ -720,8 +720,8 @@ jobs:
       run: |
         mkdir -p deb_test
         DEB_FILE="${pkgName}_${pkgVersion}_${pkgArchitecture}.deb"
-        cp ${DEB_FILE} deb_test/
-        sudo dpkg -i ./deb_test/${DEB_FILE}
+        cp "${DEB_FILE}" deb_test/
+        sudo dpkg -i "./deb_test/${DEB_FILE}"
         sudo apt-get install -f
         python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true", "CONCURRENCY_LIMIT": -1, "USE_STACKQL_PREINSTALLED": "true"  } }'
         stackqlLocation="$(which stackql 2>&1 | head -n 1)"
