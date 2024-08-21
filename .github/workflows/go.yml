@@ -435,11 +435,24 @@ jobs:
         desc: 'stackql treats the internet as a relational database'
         homepage: 'https://stackql.io'
     
+    - name: install and test deb package
+      run: |
+        mkdir -p deb_test
+        cp stackql_${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}}_amd64.deb deb_test/
+        sudo dpkg -i ./deb_test/stackql_${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}}_amd64.deb
+        sudo apt-get install -f
+        python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true", "CONCURRENCY_LIMIT": -1, "USE_STACKQL_PREINSTALLED": "true"  } }'
+    
+    - name: Output from mocked deb package functional tests
+      if: always()
+      run: |
+        cat ./test/robot/functional/output.xml
+
     - name: Upload deb Artifact
       uses: actions/upload-artifact@v4.3.1
       if: success()
       with:
-        name: artifact-deb
+        name: amd64-artifact-deb
         path: |
           ./*.deb
 
