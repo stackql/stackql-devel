@@ -456,6 +456,14 @@ jobs:
       uses: actions/upload-artifact@v4.3.1
       if: success()
       with:
+        name: amd64-source-deb
+        path: |
+          .debpkg
+
+    - name: Upload deb Artifact
+      uses: actions/upload-artifact@v4.3.1
+      if: success()
+      with:
         name: amd64-artifact-deb
         path: |
           ./*.deb
@@ -733,6 +741,14 @@ jobs:
       if: always()
       run: |
         cat ./test/robot/functional/output.xml
+      
+    - name: Upload deb Artifact
+      uses: actions/upload-artifact@v4.3.1
+      if: success()
+      with:
+        name: arm64-source-deb
+        path: |
+          .debpkg
 
     - name: Upload deb Artifact
       uses: actions/upload-artifact@v4.3.1
