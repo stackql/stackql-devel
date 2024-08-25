@@ -1,0 +1,6 @@
+Source: stackql
+Maintainer: Kieran Rimmer <generalkroll0@gmail.com>
+
+Package: stackql
+Architecture: any
+Description: the internet as a relational database

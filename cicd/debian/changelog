@@ -1,0 +1,6 @@
+stackql (0.5.724) UNRELEASED; urgency=medium
+
+  * Initial release of `stackql`.
+  * `stackql` treats the internet as a relational database.
+
+ -- StackQL team <info@stackql.io>  Sun, 24 Aug 2024 08:24:42 AEST
