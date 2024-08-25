@@ -735,7 +735,7 @@ jobs:
         pkgOwner: '--root-owner-group'
       run: |
         mkdir -p "${pkgRoot}"
-        cd "${pkgRoot}"
+        # cd "${pkgRoot}"
         # go install github.com/Debian/dh-make-golang@v0.7.0
         sudo apt-get install -y dh-make-golang
         dh-make-golang github.com/stackql/stackql
