@@ -82,7 +82,70 @@ jobs:
     - name: Upload dh-make-golang test run as artifact
       uses: actions/upload-artifact@v4.3.1
       with:
-        name: dh-make-golang_test-run_go-1.21
+        name: arm64-dh-make-golang_test-run_go-1.21
+        path: _test-run
+      
+    # - name: Upload deb Artifact
+    #   uses: actions/upload-artifact@v4.3.1
+    #   if: success()
+    #   with:
+    #     name: arm64-dh-make-golang-source-deb
+    #     path: |
+    #       /tmp/golang-github-stackql-stackql
+
+  linuxbuild:
+    name: Linux amd64 Build
+    runs-on: ubuntu-latest-m
+    steps:
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v4.1.1
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v5.0.0
+      with:
+        go-version: ^1.21
+        check-latest: true
+        cache: true
+      id: go
+
+    - name: prepare dh-make-golang boilerplate
+      env:
+        pkgCompressType: 'gzip'
+        pkgRoot: 'dh-make-golang'
+        pkgName: 'stackql'
+        pkgVersion: ${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}}
+        pkgArchitecture: 'arm64'
+        pkgMaintainer: 'stackql'
+        pkgDepends: ''
+        pkgHomepage: 'https://stackql.io'
+        pkgDescription: 'stackql treats the internet as a relational database'
+        pkgInstalledSize: ''
+        pkgOwner: '--root-owner-group'
+      run: |
+        mkdir -p "${pkgRoot}"
+        # git config user.email "generalkroll0@gmail.com"
+        # git config user.name "General Kroll"
+        sudo apt-get update
+        sudo apt-get install -y git-buildpackage pristine-tar pandoc
+        # cd "${pkgRoot}"
+        go install github.com/Debian/dh-make-golang@v0.7.0
+        # sudo apt-get install -y dh-make-golang
+        # dh-make-golang github.com/stackql/stackql
+
+
+    - name: dh-make-golang test run for "gh"
+      run: |
+        git config --global user.email "generalkroll0@gmail.com"
+        git config --global user.name "General Kroll"
+        mkdir -p _test-run
+        cd _test-run
+        dh-make-golang -type p -pristine-tar -program_package_name stackql github.com/stackql/stackql
+
+    - name: Upload dh-make-golang test run as artifact
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: amd64-dh-make-golang_test-run_go-1.21
         path: _test-run
       
     # - name: Upload deb Artifact
