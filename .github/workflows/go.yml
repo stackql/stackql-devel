@@ -68,22 +68,22 @@ jobs:
         # cd "${pkgRoot}"
         go install github.com/Debian/dh-make-golang@v0.7.0
         # sudo apt-get install -y dh-make-golang
-        dh-make-golang github.com/stackql/stackql
+        # dh-make-golang github.com/stackql/stackql
 
 
-    # - name: dh-make-golang test run for "gh"
-    #   run: |
-    #     # git config --global user.email "dh-make-golang@debian.org"
-    #     # git config --global user.name "dh-make-golang on GitHub"
-    #     mkdir -p _test-run
-    #     cd _test-run
-    #     ~/go/bin/dh-make-golang -type p -pristine-tar -program_package_name gh github.com/stackql/stackql
+    - name: dh-make-golang test run for "gh"
+      run: |
+        git config user.email "generalkroll0@gmail.com"
+        git config user.name "General Kroll"
+        mkdir -p _test-run
+        cd _test-run
+        dh-make-golang -type p -pristine-tar -program_package_name stackql github.com/stackql/stackql
 
     - name: Upload dh-make-golang test run as artifact
       uses: actions/upload-artifact@v4.3.1
       with:
         name: dh-make-golang_test-run_go-1.21
-        path: .
+        path: _test-run
       
     # - name: Upload deb Artifact
     #   uses: actions/upload-artifact@v4.3.1
