@@ -128,7 +128,7 @@ jobs:
         # git config user.name "General Kroll"
         sudo apt-get update
         sudo apt-get install -y git-buildpackage pristine-tar pandoc 
-        sudo apt-get install -t unstable sbuild-debian-developer-setup
+        # sudo apt-get install -t unstable sbuild-debian-developer-setup
         # cd "${pkgRoot}"
         go install github.com/Debian/dh-make-golang@v0.7.0
         # sudo apt-get install -y dh-make-golang
@@ -144,6 +144,7 @@ jobs:
         dh-make-golang -type p -pristine-tar -program_package_name stackql github.com/stackql/stackql
         cd stackql
         git add debian && git commit -a -m 'Initial packaging'
+        cowbuilder --create
         gbp buildpackage --git-pbuilder
 
     - name: Upload dh-make-golang test run as artifact
