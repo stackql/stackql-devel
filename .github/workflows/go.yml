@@ -144,7 +144,7 @@ jobs:
         dh-make-golang -type p -pristine-tar -program_package_name stackql github.com/stackql/stackql
         cd stackql
         git add debian && git commit -a -m 'Initial packaging'
-        cowbuilder --create
+        sudo cowbuilder create --distribution focal
         gbp buildpackage --git-pbuilder
 
     - name: Upload dh-make-golang test run as artifact
