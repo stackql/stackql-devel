@@ -141,6 +141,8 @@ jobs:
         mkdir -p _test-run
         cd _test-run
         dh-make-golang -type p -pristine-tar -program_package_name stackql github.com/stackql/stackql
+        git add debian && git commit -a -m 'Initial packaging'
+        gbp buildpackage --git-pbuilder
 
     - name: Upload dh-make-golang test run as artifact
       uses: actions/upload-artifact@v4.3.1
