@@ -141,6 +141,7 @@ jobs:
         mkdir -p _test-run
         cd _test-run
         dh-make-golang -type p -pristine-tar -program_package_name stackql github.com/stackql/stackql
+        cd stackql
         git add debian && git commit -a -m 'Initial packaging'
         gbp buildpackage --git-pbuilder
 
