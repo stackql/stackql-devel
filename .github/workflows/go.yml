@@ -187,6 +187,8 @@ jobs:
       run: |
         export PKG_ROOT="${GITHUB_WORKSPACE}/${pkgRoot}"
         mkdir -p "${PKG_ROOT}"
+        mkdir -p "${HOME}/bin"
+        export PATH="${HOME}/bin:${PATH}"
         # git config user.email "generalkroll0@gmail.com"
         # git config user.name "General Kroll"
         # sudo apt-get update
