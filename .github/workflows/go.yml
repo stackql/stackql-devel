@@ -196,7 +196,7 @@ jobs:
         git clone https://salsa.debian.org/debian/debcraft.git
         cd debcraft
         make install-local
-        debcraft https://github.com/stackql/stackql.git --build-dirs-path "${PKG_ROOT}"
+        debcraft build https://github.com/stackql/stackql.git --build-dirs-path "${PKG_ROOT}"
 
         # sudo apt-get install -t unstable sbuild-debian-developer-setup
         # cd "${pkgRoot}"
