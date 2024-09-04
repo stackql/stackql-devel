@@ -3,7 +3,6 @@ package writer //nolint:testpackage // this violates another rule: var-naming: d
 import (
 	"io"
 	"os"
-	"runtime"
 	"testing"
 
 	"github.com/stackql/stackql/internal/stackql/dto"
@@ -77,24 +76,6 @@ func TestGetDecoratedOutputWriter(t *testing.T) {
 			args{"stderr", presentation.NewPresentationDriver(dto.RuntimeCtx{})},
 			&StdStreamWriter{os.Stderr, presentation.NewPresentationDriver(dto.RuntimeCtx{})},
 		},
-	}
-	if runtime.GOOS == "windows" {
-		tests = []struct {
-			name string
-			args args
-			want io.Writer
-		}{
-			{
-				"stdout",
-				args{"stdout", presentation.NewPresentationDriver(dto.RuntimeCtx{})},
-				os.Stdout,
-			},
-			{
-				"stderr",
-				args{"stderr", presentation.NewPresentationDriver(dto.RuntimeCtx{})},
-				os.Stderr,
-			},
-		}
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
