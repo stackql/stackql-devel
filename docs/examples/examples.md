@@ -1,4 +1,36 @@
 
+# stackql-examples
+
+This repository serves as an aggregator for **working** examples of `stackql` and `stackql-deploy` in action.
+
+If you find anything here that does not work or you do't like, the please raise an issue.
+
+## Getting started is the hardest part
+
+`stackql` needs credentials in order to execute queries.  We do support a lot of
+the standard patterns.  [Our provider registry docs](https://registry.stackql.io/) have the detail, for example [aws](https://aws.stackql.io/providers/aws/#authentication).
+This stuff largely emulates the various provider CLIs.  But we do not to take too much of your precious time, setting environment variables like 
+so will get you a long way with these examples:
+
+```bash
+
+export AWS_SECRET_ACCESS_KEY='<your aws secret>'
+export AWS_ACCESS_KEY_ID='<your aws key id>'
+
+export GOOGLE_CREDENTIALS=$(cat </path/to/service/account/key.json>)
+
+export AZURE_TENANT_ID='<your azure tenant id>'
+export AZURE_CLIENT_ID='<your azure client id>'
+export AZURE_CLIENT_SECRET='<your azure secret>'
+
+```
+
+Where more is required, the examples will say so.
+
+## Let's begin
+
+
+
 
 # Examples
 

@@ -18,4 +18,4 @@ In lieu of a full implementation of [github actions best practices](https://secu
 
 ## API mocking
 
-According to [this swagger-codegen example](https://github.com/swagger-api/swagger-codegen/blob/master/bin/python-flask-petstore.sh), it is not overly difficult to generate python mocks from openapi docs.  This can then be used for credible regression testing against new provider docs and certainly the relationship of endpoints to stackql resources.  Know weakness: will not detect defective transform from source (eg: MS-graph, AWS) top aponapi.
+According to [this swagger-codegen example](https://github.com/swagger-api/swagger-codegen/blob/master/bin/python-flask-petstore.sh), it is not overly difficult to generate python mocks from openapi docs.  This can then be used for credible regression testing against new provider docs and certainly the relationship of endpoints to stackql resources.  Know weakness: will not detect defective transform from source (eg: MS-graph, AWS) to openapi.
