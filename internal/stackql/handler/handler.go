@@ -521,6 +521,7 @@ func GetHandlerCtx(
 func transformOpenapiStackqlAuthToLocal(authDTO anysdk.AuthDTO) *dto.AuthCtx {
 	rv := &dto.AuthCtx{
 		Scopes:                  authDTO.GetScopes(),
+		Subject:                 authDTO.GetSubject(),
 		Type:                    authDTO.GetType(),
 		ValuePrefix:             authDTO.GetValuePrefix(),
 		KeyID:                   authDTO.GetKeyID(),

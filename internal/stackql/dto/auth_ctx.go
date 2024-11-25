@@ -28,6 +28,7 @@ type AuthCtx struct {
 	EnvVarPassword          string         `json:"password_var" yaml:"password_var"`
 	EncodedBasicCredentials string         `json:"-" yaml:"-"`
 	Successor               *AuthCtx       `json:"successor" yaml:"successor"`
+	Subject                 string         `json:"sub" yaml:"sub"`
 	Active                  bool           `json:"-" yaml:"-"`
 	Location                string         `json:"location" yaml:"location"`
 	Name                    string         `json:"name" yaml:"name"`
