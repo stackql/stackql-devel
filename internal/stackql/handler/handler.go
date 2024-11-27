@@ -431,7 +431,8 @@ func (hc *standardHandlerContext) setConfigAtPath(path string, rhs interface{}, 
 func (hc *standardHandlerContext) setAuthContextAtPath(path string, rhs interface{}, scope string) error {
 	hc.authMapMutex.Lock()
 	defer hc.authMapMutex.Unlock()
-	if scope == "" || scope == "default" {
+	// TODO: review
+	if scope == "local" {
 		hc.authContexts = hc.authContexts.Clone()
 	}
 	searchPath, searchPathErr := composeSystemSearchPath(path)
