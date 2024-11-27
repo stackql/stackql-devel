@@ -7,6 +7,16 @@ import (
 	"strings"
 )
 
+type AuthContexts map[string]*AuthCtx
+
+func (as AuthContexts) Clone() AuthContexts {
+	rv := make(AuthContexts)
+	for k, v := range as {
+		rv[k] = v.Clone()
+	}
+	return rv
+}
+
 type AuthCtx struct {
 	Scopes                  []string       `json:"scopes,omitempty" yaml:"scopes,omitempty"`
 	SQLCfg                  *SQLBackendCfg `json:"sqlDataSource" yaml:"sqlDataSource"`
