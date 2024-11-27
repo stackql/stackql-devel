@@ -162,7 +162,12 @@ func parseServiceAccountFile(ac *dto.AuthCtx) (serviceAccount, error) {
 	return c, json.Unmarshal(b, &c)
 }
 
-func getGoogleJWTConfig(provider string, credentialsBytes []byte, scopes []string, subject string) (*jwt.Config, error) {
+func getGoogleJWTConfig(
+	provider string,
+	credentialsBytes []byte,
+	scopes []string,
+	subject string,
+) (*jwt.Config, error) {
 	switch provider {
 	case "google", "googleads", "googleanalytics",
 		"googledevelopers", "googlemybusiness", "googleworkspace",
