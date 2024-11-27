@@ -7222,8 +7222,11 @@ Busted Auth Throws Error Then Set Statement Update Auth Scenario Working
     ...    |------------------------|---------------|----------------------------------------------------------------------------------------|----------------|
     ...    |${SPACE}allow-spark-ui${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}111111111111${SPACE}|${SPACE}https://www.googleapis.com/compute/v1/projects/testing-project/global/networks/default${SPACE}|${SPACE}global${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
     ...    |------------------------|---------------|----------------------------------------------------------------------------------------|----------------|
-    ${outputErrStr} =    Catenate    SEPARATOR=\n
+    ${outputErrStrNix} =    Catenate    SEPARATOR=\n
     ...    service account credentials error: open ${NON_EXISTENT_AUTH_GOOGLE_SA_KEY_PATH}: no such file or directory
+    ${outputErrStrWin} =    Catenate    SEPARATOR=\n
+    ...    service account credentials error: open ${NON_EXISTENT_AUTH_GOOGLE_SA_KEY_PATH}: The system cannot find the file specified.
+    ${outputStr} =    Set Variable If    "${IS_WINDOWS}" == "1"    ${outputErrStrWin}    ${outputErrStrNix}
     Should Stackql Exec Inline Equal Both Streams
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
