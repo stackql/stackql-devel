@@ -186,7 +186,7 @@ _REGISTRY_DEPRECATED = RegistryCfg(
   nop_verify=True
 )
 
-_AUTH_GOOGLE_SA_KEY_PATH = os.path.join(REPOSITORY_ROOT, 'test', 'assets', 'credentials', 'dummy', 'google', 'functional-test-dummy-sa-key.json')
+_AUTH_GOOGLE_SA_KEY_PATH = get_unix_path(os.path.join(REPOSITORY_ROOT, 'test', 'assets', 'credentials', 'dummy', 'google', 'functional-test-dummy-sa-key.json'))
 
 _NON_EXISTENT_AUTH_GOOGLE_SA_KEY_PATH = get_unix_path(os.path.join(REPOSITORY_ROOT, 'test', 'assets', 'credentials', 'dummy', 'google', 'non-existent-dummy-sa-key.json'))
 
