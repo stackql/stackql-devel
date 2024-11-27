@@ -188,6 +188,8 @@ _REGISTRY_DEPRECATED = RegistryCfg(
 
 _AUTH_GOOGLE_SA_KEY_PATH = os.path.join(REPOSITORY_ROOT, 'test', 'assets', 'credentials', 'dummy', 'google', 'functional-test-dummy-sa-key.json')
 
+_NON_EXISTENT_AUTH_GOOGLE_SA_KEY_PATH = get_unix_path(os.path.join(REPOSITORY_ROOT, 'test', 'assets', 'credentials', 'dummy', 'google', 'non-existent-dummy-sa-key.json'))
+
 _AUTH_CFG={ 
   "google": { 
     "credentialsfilepath": _AUTH_GOOGLE_SA_KEY_PATH,
@@ -228,7 +230,7 @@ _AUTH_CFG={
 }
 
 _AUTH_CFG_DEFECTIVE= copy.deepcopy(_AUTH_CFG)
-_AUTH_CFG_DEFECTIVE["google"]["credentialsfilepath"] = get_unix_path(os.path.join(REPOSITORY_ROOT, 'test', 'assets', 'credentials', 'dummy', 'google', 'defective-dummy-sa-key.json'))
+_AUTH_CFG_DEFECTIVE["google"]["credentialsfilepath"] = _NON_EXISTENT_AUTH_GOOGLE_SA_KEY_PATH
 
 _AUTH_PLUS_EXTERNAL_POSTGRES = copy.deepcopy(_AUTH_CFG)
 
@@ -240,6 +242,8 @@ _AUTH_PLUS_EXTERNAL_POSTGRES["pgi"] = {
 }
 
 _AUTH_GOOGLE_SA_KEY_PATH_DOCKER = os.path.join('/opt', 'stackql', 'credentials', 'dummy', 'google', 'docker-functional-test-dummy-sa-key.json')
+
+_NON_EXISTENT_AUTH_GOOGLE_SA_KEY_PATH_DOCKER = get_unix_path(os.path.join('/opt', 'stackql', 'credentials', 'dummy', 'google', 'non-existent-dummy-sa-key.json'))
 
 _AUTH_CFG_DOCKER={ 
   "google": { 
@@ -281,7 +285,7 @@ _AUTH_CFG_DOCKER={
 }
 
 _AUTH_CFG_DEFECTIVE_DOCKER= copy.deepcopy(_AUTH_CFG_DOCKER)
-_AUTH_CFG_DEFECTIVE_DOCKER["google"]["credentialsfilepath"] = get_unix_path(os.path.join('/opt', 'stackql', 'credentials', 'dummy', 'google', 'docker-defective-dummy-sa-key.json'))
+_AUTH_CFG_DEFECTIVE_DOCKER["google"]["credentialsfilepath"] = _NON_EXISTENT_AUTH_GOOGLE_SA_KEY_PATH_DOCKER
 
 _AUTH_PLUS_EXTERNAL_POSTGRES_DOCKER = copy.deepcopy(_AUTH_CFG_DOCKER)
 
@@ -1097,6 +1101,7 @@ def get_variables(execution_env :str, sql_backend_str :str, use_stackql_preinsta
     rv['AUTH_CFG_STR']                                  = AUTH_CFG_STR_DOCKER
     rv['AUTH_CFG_DEFECTIVE_STR']                        = AUTH_CFG_DEFECTIVE_STR_DOCKER
     rv['AUTH_GOOGLE_SA_KEY_PATH']                       = _AUTH_GOOGLE_SA_KEY_PATH_DOCKER
+    rv['NON_EXISTENT_AUTH_GOOGLE_SA_KEY_PATH']          = _NON_EXISTENT_AUTH_GOOGLE_SA_KEY_PATH_DOCKER
     rv['AUTH_PLUS_EXTERNAL_POSTGRES']                   = AUTH_PLUS_EXTERNAL_POSTGRES_DOCKER
     rv['AUTH_CFG_STR_INTEGRATION']                      = AUTH_CFG_INTEGRATION_STR_DOCKER
     rv['GET_IAM_POLICY_AGG_ASC_INPUT_FILE']             = GET_IAM_POLICY_AGG_ASC_INPUT_FILE_DOCKER
@@ -1137,6 +1142,7 @@ def get_variables(execution_env :str, sql_backend_str :str, use_stackql_preinsta
     rv['AUTH_CFG_STR']                                  = AUTH_CFG_STR
     rv['AUTH_CFG_DEFECTIVE_STR']                        = AUTH_CFG_DEFECTIVE_STR
     rv['AUTH_GOOGLE_SA_KEY_PATH']                       = _AUTH_GOOGLE_SA_KEY_PATH
+    rv['NON_EXISTENT_AUTH_GOOGLE_SA_KEY_PATH']          = _NON_EXISTENT_AUTH_GOOGLE_SA_KEY_PATH
     rv['AUTH_PLUS_EXTERNAL_POSTGRES']                   = AUTH_PLUS_EXTERNAL_POSTGRES
     rv['AUTH_CFG_STR_INTEGRATION']                      = AUTH_CFG_INTEGRATION_STR
     rv['GET_IAM_POLICY_AGG_ASC_INPUT_FILE']             = GET_IAM_POLICY_AGG_ASC_INPUT_FILE
