@@ -562,6 +562,8 @@ MOCKSERVER_PORT_SUMOLOGIC = 1096
 JSON_INIT_FILE_PATH_DIGITALOCEAN = os.path.join(REPOSITORY_ROOT, 'test', 'mockserver', 'expectations', 'static-digitalocean-expectations.json')
 MOCKSERVER_PORT_DIGITALOCEAN = 1097
 
+MOCKSERVER_PORT_OAUTH_CLIENT_CREDENTIALS_TOKEN = 2091
+
 JSON_INIT_FILE_PATH_REGISTRY = os.path.join(REPOSITORY_ROOT, 'test', 'mockserver', 'expectations', 'static-registry-expectations.json')
 
 PG_SRV_PORT_MTLS = 5476
@@ -892,6 +894,7 @@ def get_variables(execution_env :str, sql_backend_str :str, use_stackql_preinsta
     'MOCKSERVER_PORT_GOOGLE':                         MOCKSERVER_PORT_GOOGLE,
     'MOCKSERVER_PORT_GOOGLEADMIN':                    MOCKSERVER_PORT_GOOGLEADMIN,
     'MOCKSERVER_PORT_STACKQL_AUTH_TESTING':           MOCKSERVER_PORT_STACKQL_AUTH_TESTING,
+    'MOCKSERVER_PORT_OAUTH_CLIENT_CREDENTIALS_TOKEN': MOCKSERVER_PORT_OAUTH_CLIENT_CREDENTIALS_TOKEN,
     'MOCKSERVER_PORT_K8S':                            MOCKSERVER_PORT_K8S,
     'MOCKSERVER_PORT_OKTA':                           MOCKSERVER_PORT_OKTA,
     'MOCKSERVER_PORT_REGISTRY':                       MOCKSERVER_PORT_REGISTRY,
