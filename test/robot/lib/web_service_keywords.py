@@ -35,6 +35,7 @@ class web_service_keywords(Process):
             'flask',
             f'--app={self._web_server_app}',
             'run',
+            '--host=0.0.0.0', # otherwise, invisible on `docker.host.internal` etc
             f'--port={port}',
             stdout=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'log', f'token-client-credentials-{port}-stdout.txt')),
             stderr=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'log', f'token-client-credentials-{port}-stderr.txt'))
