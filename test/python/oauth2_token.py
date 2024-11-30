@@ -6,11 +6,12 @@ import argparse
 def create_token(header: dict, claims: dict) -> str:
     """
     Create a token from the claims.
+
+    TODO: Implement the signature.
     """
     header_b64 = base64.urlsafe_b64encode(json.dumps(header, sort_keys=True).encode('utf-8')).decode('utf-8')
     claims_b64 = base64.urlsafe_b64encode(json.dumps(claims, sort_keys=True).encode('utf-8')).decode('utf-8')
-    signature = f'{header_b64}.{claims_b64}'
-
+    signature = f'{header_b64}.{claims_b64}' # placeholder rubbish
     return f'{header_b64}.{claims_b64}.{base64.urlsafe_b64encode(signature.encode("utf-8")).decode("utf-8")}'
 
 
