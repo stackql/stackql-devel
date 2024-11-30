@@ -231,6 +231,14 @@ _AUTH_CFG={
 
 _AUTH_CFG_DEFECTIVE= copy.deepcopy(_AUTH_CFG)
 _AUTH_CFG_DEFECTIVE["google"]["credentialsfilepath"] = _NON_EXISTENT_AUTH_GOOGLE_SA_KEY_PATH
+_AUTH_CFG_DEFECTIVE["stackql_oauth2_testing"] = {
+  "type": "oauth2",
+  "grant_type": "client_credentials",
+  "client_id": "dummy_client_id",
+  "client_secret": "dummy_client_secret",
+  "token_url": "http://localhost:2091/contrived/simple/error/token",
+  "scopes": ["scope1", "scope2"]
+}
 
 _AUTH_PLUS_EXTERNAL_POSTGRES = copy.deepcopy(_AUTH_CFG)
 
@@ -286,6 +294,14 @@ _AUTH_CFG_DOCKER={
 
 _AUTH_CFG_DEFECTIVE_DOCKER= copy.deepcopy(_AUTH_CFG_DOCKER)
 _AUTH_CFG_DEFECTIVE_DOCKER["google"]["credentialsfilepath"] = _NON_EXISTENT_AUTH_GOOGLE_SA_KEY_PATH_DOCKER
+_AUTH_CFG_DEFECTIVE_DOCKER["stackql_oauth2_testing"] = {
+  "type": "oauth2",
+  "grant_type": "client_credentials",
+  "client_id": "dummy_client_id",
+  "client_secret": "dummy_client_secret",
+  "token_url": "http://host.docker.internal:2091/contrived/simple/error/token",
+  "scopes": ["scope1", "scope2"]
+}
 
 _AUTH_PLUS_EXTERNAL_POSTGRES_DOCKER = copy.deepcopy(_AUTH_CFG_DOCKER)
 
@@ -1103,6 +1119,7 @@ def get_variables(execution_env :str, sql_backend_str :str, use_stackql_preinsta
   if execution_env == 'docker':
     rv['AUTH_CFG_STR']                                  = AUTH_CFG_STR_DOCKER
     rv['AUTH_CFG_DEFECTIVE_STR']                        = AUTH_CFG_DEFECTIVE_STR_DOCKER
+    rv['LOCAL_HOST_ALIAS']                              = 'host.docker.internal'
     rv['AUTH_GOOGLE_SA_KEY_PATH']                       = _AUTH_GOOGLE_SA_KEY_PATH_DOCKER
     rv['NON_EXISTENT_AUTH_GOOGLE_SA_KEY_PATH']          = _NON_EXISTENT_AUTH_GOOGLE_SA_KEY_PATH_DOCKER
     rv['AUTH_PLUS_EXTERNAL_POSTGRES']                   = AUTH_PLUS_EXTERNAL_POSTGRES_DOCKER
@@ -1144,6 +1161,7 @@ def get_variables(execution_env :str, sql_backend_str :str, use_stackql_preinsta
   else:
     rv['AUTH_CFG_STR']                                  = AUTH_CFG_STR
     rv['AUTH_CFG_DEFECTIVE_STR']                        = AUTH_CFG_DEFECTIVE_STR
+    rv['LOCAL_HOST_ALIAS']                              = 'localhost'
     rv['AUTH_GOOGLE_SA_KEY_PATH']                       = _AUTH_GOOGLE_SA_KEY_PATH
     rv['NON_EXISTENT_AUTH_GOOGLE_SA_KEY_PATH']          = _NON_EXISTENT_AUTH_GOOGLE_SA_KEY_PATH
     rv['AUTH_PLUS_EXTERNAL_POSTGRES']                   = AUTH_PLUS_EXTERNAL_POSTGRES
