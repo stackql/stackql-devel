@@ -49,7 +49,7 @@ class GoogleServiceAccountJWT(object):
 
     def generate_google_response_dict(self, default_scopes: List[str]=["https://www.googleapis.com/auth/cloud-platform"]) -> dict:
         return {
-            "access_token": "1/8xbJqaOZXSUZbHLl5EOtu1pxz3fmmetKx9W8CV4t79M",
+            "access_token": "some-dummy-token",
             "scope": ' '.join(default_scopes),
             "token_type": "Bearer",
             "expires_in": 3600
@@ -57,10 +57,10 @@ class GoogleServiceAccountJWT(object):
 
 # conforming to [RFC 6749](https://datatracker.ietf.org/doc/html/rfc6749#section-5.1)
 _SIMPLE_RESPONSE = {
-            "access_token": "1/8xbJqaOZXSUZbHLl5EOtu1pxz3fmmetKx9W8CV4t79M",
+            "access_token": "some-dummy-token",
             "scope": 'my-scope',
             "token_type": "Bearer",
-            "refresh_token": "1/9xbJqaOZXSUZbHLl5EOtu1pxz3fmmetKx9W8CV4t79M", # optional, per the RFC
+            "refresh_token": "some-dummy-refresh-token", # optional, per the RFC
             "expires_in": 3600
         }
 

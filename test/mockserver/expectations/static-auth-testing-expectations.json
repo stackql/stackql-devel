@@ -51,7 +51,7 @@
       "method": "GET",
       "path": "/v1/collectors/100000001",
       "headers": {
-        "Authorization": ["^Bearer\\ 1/8xbJqaOZXSUZbHLl5EOtu1pxz3fmmetKx9W8CV4t79M$" ]
+        "Authorization": ["^Bearer\\ some-dummy-token$" ]
       }
     },
     "httpResponse": {
