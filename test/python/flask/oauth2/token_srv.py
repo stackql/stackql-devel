@@ -1,5 +1,7 @@
 from flask import Flask, request
 
+from werkzeug.datastructures import ImmutableMultiDict
+
 import json
 
 import base64
@@ -53,16 +55,17 @@ class GoogleServiceAccountJWT(object):
             "expires_in": 3600
         }
 
+# conforming to [RFC 6749](https://datatracker.ietf.org/doc/html/rfc6749#section-5.1)
 _SIMPLE_RESPONSE = {
             "access_token": "1/8xbJqaOZXSUZbHLl5EOtu1pxz3fmmetKx9W8CV4t79M",
             "scope": 'my-scope',
             "token_type": "Bearer",
+            "refresh_token": "1/9xbJqaOZXSUZbHLl5EOtu1pxz3fmmetKx9W8CV4t79M", # optional, per the RFC
             "expires_in": 3600
         }
 
-@app.route("/")
-def hello_world():
-    return "<p>Hello, World!</p>"
+def _form_to_str(form: ImmutableMultiDict) -> str:
+    return json.dumps(form.to_dict(flat=False), sort_keys=True)
 
 @app.route("/google/simple/token", methods=['POST'])
 def google_simple_token():
@@ -79,4 +82,5 @@ def google_simple_error_token():
 @app.route("/contrived/simple/token", methods=['POST'])
 def contrived_simple_token():
     request_data = request.form
+    app.logger.info(f'POST /contrived/simple/token request data: {_form_to_str(request_data)}')
     return json.dumps(_SIMPLE_RESPONSE, sort_keys=True)
