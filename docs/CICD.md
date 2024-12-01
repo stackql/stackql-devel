@@ -7,6 +7,7 @@ Summary:
 - At present, PR checks, build and test are all performed through [.github/workflows/go.yml](/.github/workflows/go.yml).
 - Releasing over various channels (website, homebrew, chocolatey...) is performed manually.
 - The strategic state is to split the functions: PR checks, build and test; into separate files, and migrate to use [goreleaser](https://goreleaser.com/).
+- Should take the hint from docker to [speed up multi-platform builds using multiple runners](https://docs.docker.com/build/ci/github-actions/multi-platform/#distribute-build-across-multiple-runners).
 
 
 ## Secrets
