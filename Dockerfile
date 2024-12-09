@@ -75,7 +75,7 @@ RUN apt-get update \
     && pip3 install PyYaml robotframework psycopg2-binary "psycopg[binary]" sqlalchemy \
     && mvn \
         org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy \
-        -Dartifact=org.mock-server:mockserver-netty:5.14.0:jar:shaded \
+        -Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded \
         -DoutputDirectory=${TEST_ROOT_DIR}/test/downloads
 
 FROM utility AS certificates

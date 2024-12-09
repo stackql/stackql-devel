@@ -58,21 +58,21 @@ java  `
   '-Dfile.encoding=UTF-8' `
   "-Dmockserver.initializationJsonPath=${HOME}/stackql/test/mockserver/expectations/static-google-admin-expectations.json" `
    -jar `
-   ${HOME}/stackql/test/downloads/mockserver-netty-5.14.0-shaded.jar  `
+   ${HOME}/stackql/test/downloads/mockserver-netty-5.12.0-shaded.jar  `
    -serverPort 1098 -logLevel INFO
 
 java  `
    '-Dfile.encoding=UTF-8' `
    "-Dmockserver.initializationJsonPath=${HOME}/stackql/test/mockserver/expectations/static-aws-expectations.json" `
     -jar `
-    ${HOME}/stackql/test/downloads/mockserver-netty-5.14.0-shaded.jar  `
+    ${HOME}/stackql/test/downloads/mockserver-netty-5.12.0-shaded.jar  `
     -serverPort 1091 -logLevel INFO
 
 java  `
     '-Dfile.encoding=UTF-8' `
     "-Dmockserver.initializationJsonPath=${HOME}/stackql/test/mockserver/expectations/static-gcp-expectations.json" `
      -jar `
-     ${HOME}/stackql/test/downloads/mockserver-netty-5.14.0-shaded.jar  `
+     ${HOME}/stackql/test/downloads/mockserver-netty-5.12.0-shaded.jar  `
      -serverPort 1080 -logLevel INFO
 
 .\stackql.exe `

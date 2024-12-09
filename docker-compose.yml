@@ -106,7 +106,7 @@ services:
       - bash
       - -c
       - |
-        MOCKSERVER_JAR='/opt/test/stackql/test/downloads/mockserver-netty-5.14.0-shaded.jar'
+        MOCKSERVER_JAR='/opt/test/stackql/test/downloads/mockserver-netty-5.12.0-shaded.jar'
         JSON_INIT_FILE_DIR='/opt/test/stackql/test/mockserver/expectations'
         java    -Dfile.encoding=UTF-8 \
           -Dmockserver.initializationJsonPath=$${JSON_INIT_FILE_DIR}/static-gcp-expectations.json \
