@@ -174,7 +174,7 @@ jobs:
     - name: Output from mocked functional tests
       if: always()
       run: |
-        cat ./test/robot/functional/reports/output.xml || echo "no functional test output present"
+        cat ./test/robot/reports/output.xml || echo "no functional test output present"
     
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release')
@@ -381,7 +381,7 @@ jobs:
     - name: Output from mocked functional tests
       if: always()
       run: |
-        cat ./test/robot/functional/reports/output.xml
+        cat ./test/robot/reports/output.xml
 
     - name: Run robot mocked functional tests with aggressive concurrency
       if: success()
@@ -391,7 +391,7 @@ jobs:
     - name: Output from mocked functional tests with aggressive concurrency
       if: always()
       run: |
-        cat ./test/robot/functional/reports/output.xml
+        cat ./test/robot/reports/output.xml
     
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release')
@@ -452,7 +452,7 @@ jobs:
     - name: Output from mocked deb package functional tests
       if: always()
       run: |
-        cat ./test/robot/functional/reports/output.xml
+        cat ./test/robot/reports/output.xml
 
     - name: Upload deb Artifact
       uses: actions/upload-artifact@v4.3.1
@@ -637,7 +637,7 @@ jobs:
     - name: Output from mocked functional tests
       if: always()
       run: |
-        cat ./test/robot/functional/reports/output.xml
+        cat ./test/robot/reports/output.xml
 
     - name: Run robot mocked functional tests with aggressive concurrency
       if: success()
@@ -647,7 +647,7 @@ jobs:
     - name: Output from mocked functional tests with aggressive concurrency
       if: always()
       run: |
-        cat ./test/robot/functional/reports/output.xml
+        cat ./test/robot/reports/output.xml
     
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release')
@@ -735,7 +735,7 @@ jobs:
     - name: Output from mocked deb package functional tests
       if: always()
       run: |
-        cat ./test/robot/functional/reports/output.xml
+        cat ./test/robot/reports/output.xml
 
     - name: Upload deb Artifact
       uses: actions/upload-artifact@v4.3.1
@@ -833,7 +833,7 @@ jobs:
       name: Output from mocked functional tests
       if: always()
       run: |
-          cat ./test/robot/functional/reports/output.xml
+          cat ./test/robot/reports/output.xml
     
     - shell: wsl-bash {0}
       name: Run robot integration tests
@@ -974,7 +974,7 @@ jobs:
     - name: Output from mocked functional tests
       if: always()
       run: |
-        cat ./test/robot/functional/reports/output.xml
+        cat ./test/robot/reports/output.xml
     
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release')
@@ -1261,7 +1261,7 @@ jobs:
     - name: Output from mocked functional tests
       if: always()
       run: |
-        cat ./test/robot/functional/reports/output.xml
+        cat ./test/robot/reports/output.xml
 
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release')
