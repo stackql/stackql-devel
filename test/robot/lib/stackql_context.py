@@ -546,7 +546,7 @@ SHOW_METHODS_GITHUB_REPOS_REPOS = "show methods in github.repos.repos;"
 DESCRIBE_GITHUB_REPOS_PAGES = "describe github.repos.pages;"
 DESCRIBE_AWS_EC2_INSTANCES = "describe aws.ec2.instances;"
 DESCRIBE_AWS_EC2_DEFAULT_KMS_KEY_ID = "describe aws.ec2.ebs_default_kms_key_id;"
-MOCKSERVER_JAR = os.path.join(REPOSITORY_ROOT, 'test', 'downloads', 'mockserver-netty-5.12.0-shaded.jar')
+MOCKSERVER_JAR = os.path.join(REPOSITORY_ROOT, 'test', 'downloads', 'mockserver-netty-5.14.0-shaded.jar')
 
 JSON_INIT_FILE_PATH_GOOGLE = os.path.join(REPOSITORY_ROOT, 'test', 'mockserver', 'expectations', 'static-gcp-expectations.json')
 MOCKSERVER_PORT_GOOGLE = 1080

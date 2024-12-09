@@ -155,7 +155,7 @@ jobs:
     - name: Mock Server Download
       run: |
         mvn org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy `
-        '-Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded' `
+        '-Dartifact=org.mock-server:mockserver-netty:5.14.0:jar:shaded' `
         '-DoutputDirectory=test/downloads'
 
     - name: Create certificates for robot tests
@@ -364,7 +364,7 @@ jobs:
       run: |
         mvn \
         org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy \
-        -Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded \
+        -Dartifact=org.mock-server:mockserver-netty:5.14.0:jar:shaded \
         -DoutputDirectory=test/downloads
 
     - name: Create certificates for robot tests
@@ -620,7 +620,7 @@ jobs:
       run: |
         mvn \
         org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy \
-        -Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded \
+        -Dartifact=org.mock-server:mockserver-netty:5.14.0:jar:shaded \
         -DoutputDirectory=test/downloads
 
     - name: Create certificates for robot tests
@@ -801,7 +801,7 @@ jobs:
       run: |
           mvn \
           org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy \
-          -Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded \
+          -Dartifact=org.mock-server:mockserver-netty:5.14.0:jar:shaded \
           -DoutputDirectory=test/downloads
 
     - shell: wsl-bash {0}
@@ -954,7 +954,7 @@ jobs:
       run: |
         mvn \
         org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy \
-        -Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded \
+        -Dartifact=org.mock-server:mockserver-netty:5.14.0:jar:shaded \
         -DoutputDirectory=test/downloads
 
     - name: Create certificates for robot tests
@@ -1196,7 +1196,7 @@ jobs:
       run: |
         mvn \
         org.apache.maven.plugins:maven-dependency-plugin:3.0.2:copy \
-        -Dartifact=org.mock-server:mockserver-netty:5.12.0:jar:shaded \
+        -Dartifact=org.mock-server:mockserver-netty:5.14.0:jar:shaded \
         -DoutputDirectory=test/downloads
 
     - name: Debug info
