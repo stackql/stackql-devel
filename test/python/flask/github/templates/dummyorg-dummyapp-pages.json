@@ -1,5 +1,4 @@
 {
-    "body": {
       "url": "https://api.github.com/repos/dummyorg/dummyapp.io/pages",
       "status": "built",
       "cname": "dummyapp.io",
@@ -23,5 +22,5 @@
         "expires_at": "2022-07-17"
       },
       "https_enforced": true
-    }
+
   }
