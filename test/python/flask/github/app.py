@@ -451,7 +451,7 @@ def get_combined_org_repos(org_name):
 @app.route('/repos/<string:org>/<string:repositoryId>/collaborators', methods=['GET'])
 def get_collaborators(org, repositoryId):
     """Retrieve collaborators for a specific repository."""
-    collaborators = json.load(open(os.path.join(templates_dir, 'commaborators.json'), 'r'))
+    collaborators = json.load(open(os.path.join(templates_dir, 'collaborators.json'), 'r'))
     return jsonify(collaborators), 200
 
 
