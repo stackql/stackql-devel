@@ -62,8 +62,8 @@ class web_service_keywords(Process):
             f'--port={port}',
             f'--cert={self._tls_cert_path}',
             f'--key={self._tls_key_path}',
-            stdout=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'log', f'token-client-credentials-{port}-stdout.txt')),
-            stderr=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'log', f'token-client-credentials-{port}-stderr.txt'))
+            stdout=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'log', f'github-server-{port}-stdout.txt')),
+            stderr=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'log', f'github-server-{port}-stderr.txt'))
         )
 
     @keyword
