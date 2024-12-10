@@ -91,7 +91,7 @@ With embedded `sqlite` (default):
 ```bash
 export workspaceFolder='/path/to/repository/root'  # change this
 
-stackql --registry="{ \"url\": \"file://${workspaceFolder}/test/registry-mocked\", \"localDocRoot\": \"${workspaceFolder}/test/registry-mocked\", \"verifyConfig\": { \"nopVerify\": true } }" --tls.allowInsecure shell
+stackql --registry="{ \"url\": \"file://${workspaceFolder}/test/registry-mocked\", \"localDocRoot\": \"${workspaceFolder}/test/registry-mocked\", \"verifyConfig\": { \"nopVerify\": true } }" --auth='{"github": { "type": "basic", "credentialsenvvar": "GITHUB_SECRET_KEY" } }' --tls.allowInsecure shell
 ```
 
 With `postgres`:

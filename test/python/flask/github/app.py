@@ -1,6 +1,6 @@
 
 import logging
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, url_for
 from datetime import datetime
 import re
 import json
@@ -307,44 +307,80 @@ def get_trailing_tags():
     return render_template('tags_template.json', **context), 200, {"Content-Type": "application/json"}
 
 
-@app.route('/repos/dummyorg/dummyapp.io/branches', methods=['GET'])
-def get_branches():
-    """Retrieve repository branches dynamically from template."""
-    branches = [
-        {
-            "name": f"branch-{i}",
-            "commit": {
-                "sha": f"sha-{i}",
-                "url": f"https://api.github.com/repos/dummyorg/dummyapp.io/commits/sha-{i}"
-            },
-            "protected": False
-        }
-        for i in range(1, 4)
-    ]
-    context = {
-        "branches": branches
-    }
-    return render_template('branches_template.json', **context), 200, {"Content-Type": "application/json"}
+def generate_pagination_links(page, total_pages):
+    """Generate GitHub-style pagination links."""
+    links = []
+    if page < total_pages:
+        next_page = url_for('get_repository_branches', page=page + 1, _external=True)
+        links.append(f'<{next_page}>; rel="next"')
+        last_page = url_for('get_repository_branches', page=total_pages, _external=True)
+        links.append(f'<{last_page}>; rel="last"')
+    if page > 1:
+        prev_page = url_for('get_repository_branches', page=page - 1, _external=True)
+        links.append(f'<{prev_page}>; rel="prev"')
+        first_page = url_for('get_repository_branches', page=1, _external=True)
+        links.append(f'<{first_page}>; rel="first"')
+    return ", ".join(links)
 
+@app.route('/repos/dummyorg/dummyapp.io/branches', methods=['GET'])
+def get_dummyorg_branches():
+    """Retrieve branches for dummyorg repository with pagination."""
+    page = int(request.args.get('page', 1))
+    total_pages = 2
+    branches = []
+    if page == 1:
+        branches = [
+            {
+                "name": "bugfix/nil-check",
+                "commit": {
+                    "sha": "cfd67a0711523f731de1f3d4d088a15f7e930c90",
+                    "url": "https://api.github.com/repos/dummyorg/dummyapp.io/commits/cfd67a0711523f731de1f3d4d088a15f7e930c90"
+                },
+                "protected": False
+            },
+            {
+                "name": "bugfix/select-schema-default",
+                "commit": {
+                    "sha": "8a6406b49f72bca575321bdae4b13645a64e5072",
+                    "url": "https://api.github.com/repos/dummyorg/dummyapp.io/commits/8a6406b49f72bca575321bdae4b13645a64e5072"
+                },
+                "protected": False
+            }
+        ]
+    elif page == 2:
+        branches = [
+            {
+                "name": "feature/flow-control",
+                "commit": {
+                    "sha": "5b44c87f9f87780c6ebe9e8f455301",
+                    "url": "https://api.github.com/repos/dummyorg/dummyapp.io/commits/5b44c87f9f87780c6ebe9e8f455301"
+                },
+                "protected": True
+            },
+            {
+                "name": "feature/flow-control-rebased",
+                "commit": {
+                    "sha": "7a8d9e6f1c2d4e7b5f4c9a103b1234567890abcd",
+                    "url": "https://api.github.com/repos/dummyorg/dummyapp.io/commits/7a8d9e6f1c2d4e7b5f4c9a103b1234567890abcd"
+                },
+                "protected": False
+            }
+        ]
+    
+    context = {
+        "branches": branches,
+    }
+
+    headers = {
+        "Content-Type": "application/json",
+        "Link": generate_pagination_links(page, total_pages)
+    }
+    return render_template('branches_template.json', **context), 200, headers
 
 @app.route('/repositories/000000001/branches', methods=['GET'])
-def get_trailing_branches():
-    """Retrieve repository branches dynamically from template."""
-    branches = [
-        {
-            "name": f"branch-{i}",
-            "commit": {
-                "sha": f"sha-{i}",
-                "url": f"https://api.github.com/repos/dummyorg/dummyapp.io/commits/sha-{i}"
-            },
-            "protected": False
-        }
-        for i in range(1, 4)
-    ]
-    context = {
-        "branches": branches
-    }
-    return render_template('branches_template.json', **context), 200, {"Content-Type": "application/json"}
+def get_repository_branches():
+    """Retrieve branches for repository 000000001."""
+    return get_dummyorg_branches()
 
 @app.route('/scim/v2/organizations/dummyorg/Users', methods=['GET'])
 def get_scim_users():
