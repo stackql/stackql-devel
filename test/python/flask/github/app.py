@@ -262,63 +262,83 @@ def get_trailing_members():
 def get_tags():
     """Retrieve repository tags dynamically from template."""
     page = int(request.args.get('page', 1))
+    per_page = 100  # GitHub typically paginates at 100 items per page
+    total_tags = 600
+    total_pages = total_tags // per_page
+
+    start_index = (page - 1) * per_page + 1
+    end_index = min(page * per_page, total_tags)
+
     tags = [
         {
-            "name": f"p{page}-build-windows-no-cfg-bug-{i}",
-            "zipball_url": f"https://api.github.com/repos/dummyorg/dummyapp.io/zipball/refs/tags/p{page}-build-windows-no-cfg-bug-{i}",
-            "tarball_url": f"https://api.github.com/repos/dummyorg/dummyapp.io/tarball/refs/tags/p{page}-build-windows-no-cfg-bug-{i}",
+            "name": f"v{tag}",
+            "zipball_url": f"https://api.github.com/repos/dummyorg/dummyapp.io/zipball/v{tag}",
+            "tarball_url": f"https://api.github.com/repos/dummyorg/dummyapp.io/tarball/v{tag}",
             "commit": {
-                "sha": f"dummysha-{i}",
-                "url": f"https://api.github.com/repos/dummyorg/dummyapp.io/commits/dummysha-{i}"
+                "sha": f"sha-{tag}",
+                "url": f"https://api.github.com/repos/dummyorg/dummyapp.io/commits/sha-{tag}"
             },
-            "node_id": f"dummy-node-{i}"
-        }
-        for i in range(1, 6)
+            "node_id": f"node-{tag}"
+        } for tag in range(start_index, end_index + 1)
     ]
+
     context = {
-        "tags": tags,
-        "next_page": page + 1,
-        "prev_page": page - 1 if page > 1 else None
+        "tags": tags
     }
-    return render_template('tags_template.json', **context), 200, {"Content-Type": "application/json"}
+
+    headers = {
+        "Content-Type": "application/json",
+        "Link": generate_pagination_links(page, total_pages, 'get_tags')
+    }
+    return render_template('tags_template.json', **context), 200, headers
 
 @app.route('/repositories/000000001/tags', methods=['GET'])
 def get_trailing_tags():
     """Retrieve repository tags dynamically from template."""
     page = int(request.args.get('page', 1))
+    per_page = 100  # GitHub typically paginates at 100 items per page
+    total_tags = 600
+    total_pages = total_tags // per_page
+
+    start_index = (page - 1) * per_page + 1
+    end_index = min(page * per_page, total_tags)
+
     tags = [
         {
-            "name": f"p{page}-build-windows-no-cfg-bug-{i}",
-            "zipball_url": f"https://api.github.com/repos/dummyorg/dummyapp.io/zipball/refs/tags/p{page}-build-windows-no-cfg-bug-{i}",
-            "tarball_url": f"https://api.github.com/repos/dummyorg/dummyapp.io/tarball/refs/tags/p{page}-build-windows-no-cfg-bug-{i}",
+            "name": f"v{tag}",
+            "zipball_url": f"https://api.github.com/repos/dummyorg/dummyapp.io/zipball/v{tag}",
+            "tarball_url": f"https://api.github.com/repos/dummyorg/dummyapp.io/tarball/v{tag}",
             "commit": {
-                "sha": f"dummysha-{i}",
-                "url": f"https://api.github.com/repos/dummyorg/dummyapp.io/commits/dummysha-{i}"
+                "sha": f"sha-{tag}",
+                "url": f"https://api.github.com/repos/dummyorg/dummyapp.io/commits/sha-{tag}"
             },
-            "node_id": f"dummy-node-{i}"
-        }
-        for i in range(1, 6)
+            "node_id": f"node-{tag}"
+        } for tag in range(start_index, end_index + 1)
     ]
+
     context = {
-        "tags": tags,
-        "next_page": page + 1,
-        "prev_page": page - 1 if page > 1 else None
+        "tags": tags
     }
-    return render_template('tags_template.json', **context), 200, {"Content-Type": "application/json"}
+
+    headers = {
+        "Content-Type": "application/json",
+        "Link": generate_pagination_links(page, total_pages, 'get_trailing_tags')
+    }
+    return render_template('tags_template.json', **context), 200, headers
 
 
-def generate_pagination_links(page, total_pages):
+def generate_pagination_links(page, total_pages, endpoint):
     """Generate GitHub-style pagination links."""
     links = []
     if page < total_pages:
-        next_page = url_for('get_repository_branches', page=page + 1, _external=True)
+        next_page = url_for(endpoint, page=page + 1, _external=True)
         links.append(f'<{next_page}>; rel="next"')
-        last_page = url_for('get_repository_branches', page=total_pages, _external=True)
+        last_page = url_for(endpoint, page=total_pages, _external=True)
         links.append(f'<{last_page}>; rel="last"')
     if page > 1:
-        prev_page = url_for('get_repository_branches', page=page - 1, _external=True)
+        prev_page = url_for(endpoint, page=page - 1, _external=True)
         links.append(f'<{prev_page}>; rel="prev"')
-        first_page = url_for('get_repository_branches', page=1, _external=True)
+        first_page = url_for(endpoint, page=1, _external=True)
         links.append(f'<{first_page}>; rel="first"')
     return ", ".join(links)
 
@@ -373,7 +393,7 @@ def get_dummyorg_branches():
 
     headers = {
         "Content-Type": "application/json",
-        "Link": generate_pagination_links(page, total_pages)
+        "Link": generate_pagination_links(page, total_pages, 'get_repository_branches')
     }
     return render_template('branches_template.json', **context), 200, headers
 
