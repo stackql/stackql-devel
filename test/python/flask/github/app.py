@@ -54,12 +54,17 @@ def graphql():
 
     # Calculate users to return for the current request
     all_users = graphql_users()
+    guids = [
+        "4d8ca614-05b3-11ed-8b3b-954c779e608e",
+        "4d8ca614-05b3-11ed-8b3b-954c779e608e",
+        "2b03a0f4-05bb-11ed-9795-a2b270ddb7b3"
+    ]
     start_index = (current_page - 1) * users_per_request
     end_index = start_index + users_per_request
     edges = [
         {
             "node": {
-                "guid": f"guid-{i+1}",
+                "guid": f"{guids[i%3]}",
                 "samlIdentity": {
                     "nameId": user["nameId"],
                     "username": user["username"]
