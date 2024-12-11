@@ -214,13 +214,20 @@ def projects_testing_project_global_firewalls_some_other_firewall():
 def projects_testing_project_global_firewalls():
     return render_template('route_35_template.json'), 200, {'Content-Type': 'application/json'}
 
-@app.route('/projects/changing-project/global/firewalls', methods=['GET'])
-def projects_changing_project_global_firewalls():
-    return render_template('route_36_template.json'), 200, {'Content-Type': 'application/json'}
+
+# Initialize a counter to track the number of calls
+call_counter = {"firewalls": 0}
 
 @app.route('/projects/changing-project/global/firewalls', methods=['GET'])
-def projects_changing_project_global_firewalls_02():  # had to manually rename
-    return render_template('route_37_template.json'), 200, {'Content-Type': 'application/json'}
+def firewalls():
+    # Increment the call counter
+    call_counter["firewalls"] += 1
+
+    # Determine the response based on the call count
+    if call_counter["firewalls"] <= 2:
+        return render_template('route_36_template.json'), 200, {'Content-Type': 'application/json'}
+    else:
+        return render_template('route_37_template.json'), 200, {'Content-Type': 'application/json'}
 
 if __name__ == '__main__':
     app.run(debug=True)
