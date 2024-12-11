@@ -193,6 +193,7 @@ def get_members():
     """Retrieve organization members dynamically from template."""
     page = int(request.args.get('page', 1))
     per_page = 10
+    total_pages = 2
     members = []
     for i in range((page - 1) * per_page + 1, page * per_page + 1):
         members.append({
@@ -220,42 +221,17 @@ def get_members():
         "next_page": page + 1,
         "prev_page": page - 1 if page > 1 else None
     }
-    return render_template('members_template.json', **context), 200, {"Content-Type": "application/json"}
+    headers = {
+        "Content-Type": "application/json",
+        "Link": generate_pagination_links(page, total_pages, 'get_trailing_members')
+    }
+    return render_template('members_template.json', **context), 200, headers
 
 
 @app.route('/organizations/000000001/members', methods=['GET'])
 def get_trailing_members():
     """Retrieve organization members dynamically from template."""
-    page = int(request.args.get('page', 1))
-    per_page = 10
-    members = []
-    for i in range((page - 1) * per_page + 1, page * per_page + 1):
-        members.append({
-            "login": f"some-jimbo-{i}",
-            "id": 1,
-            "node_id": "MDQ6VXNlcjE=",
-            "avatar_url": "https://github.com/images/error/octocat_happy.gif",
-            "gravatar_id": "",
-            "url": f"https://api.github.com/users/some-jimbo-{i}",
-            "html_url": f"https://github.com/some-jimbo-{i}",
-            "followers_url": f"https://api.github.com/users/some-jimbo-{i}/followers",
-            "following_url": f"https://api.github.com/users/some-jimbo-{i}/following{{/other_user}}",
-            "gists_url": f"https://api.github.com/users/some-jimbo-{i}/gists{{/gist_id}}",
-            "starred_url": f"https://api.github.com/users/some-jimbo-{i}/starred{{/owner}}{{/repo}}",
-            "subscriptions_url": f"https://api.github.com/users/some-jimbo-{i}/subscriptions",
-            "organizations_url": f"https://api.github.com/users/some-jimbo-{i}/orgs",
-            "repos_url": f"https://api.github.com/users/some-jimbo-{i}/repos",
-            "events_url": f"https://api.github.com/users/some-jimbo-{i}/events{{/privacy}}",
-            "received_events_url": f"https://api.github.com/users/some-jimbo-{i}/received_events",
-            "type": "User",
-            "site_admin": False
-        })
-    context = {
-        "members": members,
-        "next_page": page + 1,
-        "prev_page": page - 1 if page > 1 else None
-    }
-    return render_template('members_template.json', **context), 200, {"Content-Type": "application/json"}
+    return get_members()
 
 
 @app.route('/repos/dummyorg/dummyapp.io/tags', methods=['GET'])
