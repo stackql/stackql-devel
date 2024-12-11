@@ -1,6 +1,6 @@
 
 import logging
-from flask import Flask, request, jsonify, render_template, url_for
+from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
@@ -10,39 +10,156 @@ logger = logging.getLogger(__name__)
 
 @app.before_request
 def log_request_info():
-    logger.info(f"Request: {request.method} {request.path} - Body: {request.get_json()} - Query: {request.args}")
+    logger.info(f"Request: {request.method} {request.path} - Query: {request.args}")
 
-# Placeholder for dynamically added routes
-ROUTES = {}
 
-def add_route(endpoint, methods, response):
-    @app.route(endpoint, methods=methods)
-    def dynamic_route():
-        return jsonify(response)
+@app.route('/v1/projects/testing-project-three/locations/global/keyRings/testing-three/cryptoKeys', methods=['GET'])
+def route_1():
+    return render_template('route_1_template.json')
 
-# Dynamically add routes
-add_route('/v1/projects/testing-project-three/locations/global/keyRings/testing-three/cryptoKeys', ['GET'], {'cryptoKeys': [{'name': 'projects/testing-project-three/locations/global/keyRings/testing/cryptoKeys/testing-three-demo-key', 'primary': {'name': 'projects/testing-project-three/locations/global/keyRings/testing/cryptoKeys/testing-three-demo-key/cryptoKeyVersions/6', 'state': 'ENABLED', 'createTime': '2024-05-22T14:00:00.000000000Z', 'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION', 'generateTime': '2024-05-22T14:00:00.000000000Z'}, 'purpose': 'ENCRYPT_DECRYPT', 'createTime': '2023-02-04T03:03:03.000000000Z', 'nextRotationTime': '2025-03-03T14:00:00.000000000Z', 'rotationPeriod': '7776000s', 'versionTemplate': {'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION'}, 'destroyScheduledDuration': '86400s'}, {'name': 'projects/testing-project-three/locations/global/keyRings/testing/cryptoKeys/testing-three-demo-key-three', 'primary': {'name': 'projects/testing-project-three/locations/global/keyRings/testing/cryptoKeys/testing-three-demo-key-three/cryptoKeyVersions/6', 'state': 'ENABLED', 'createTime': '2024-05-22T14:00:00.000000000Z', 'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION', 'generateTime': '2024-05-22T14:00:00.000000000Z'}, 'purpose': 'ENCRYPT_DECRYPT', 'createTime': '2023-02-04T03:03:03.000000000Z', 'nextRotationTime': '2025-03-03T14:00:00.000000000Z', 'rotationPeriod': '7776000s', 'versionTemplate': {'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION'}, 'destroyScheduledDuration': '86400s'}, {'name': 'projects/testing-project-three/locations/global/keyRings/testing/cryptoKeys/testing-three-demo-key-three', 'primary': {'name': 'projects/testing-project-three/locations/global/keyRings/testing/cryptoKeys/testing-three-demo-key-three/cryptoKeyVersions/6', 'state': 'ENABLED', 'createTime': '2024-05-22T14:00:00.000000000Z', 'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION', 'generateTime': '2024-05-22T14:00:00.000000000Z'}, 'purpose': 'ENCRYPT_DECRYPT', 'createTime': '2023-02-04T03:03:03.000000000Z', 'nextRotationTime': '2025-03-03T14:00:00.000000000Z', 'rotationPeriod': '7776000s', 'versionTemplate': {'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION'}, 'destroyScheduledDuration': '86400s'}], 'totalSize': 3})
-add_route('/v1/projects/testing-project-three/locations/australia-southeast2/keyRings/big-m-testing-three/cryptoKeys', ['GET'], {'cryptoKeys': [{'name': 'projects/testing-project-three/locations/australia-southeast2/keyRings/testing/cryptoKeys/big-m-testing-three-demo-key', 'primary': {'name': 'projects/testing-project-three/locations/australia-southeast2/keyRings/testing/cryptoKeys/big-m-testing-three-demo-key/cryptoKeyVersions/6', 'state': 'ENABLED', 'createTime': '2024-05-22T14:00:00.000000000Z', 'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION', 'generateTime': '2024-05-22T14:00:00.000000000Z'}, 'purpose': 'ENCRYPT_DECRYPT', 'createTime': '2023-02-04T03:03:03.000000000Z', 'nextRotationTime': '2025-03-03T14:00:00.000000000Z', 'rotationPeriod': '7776000s', 'versionTemplate': {'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION'}, 'destroyScheduledDuration': '86400s'}, {'name': 'projects/testing-project-three/locations/australia-southeast2/keyRings/testing/cryptoKeys/big-m-testing-three-demo-key-three', 'primary': {'name': 'projects/testing-project-three/locations/australia-southeast2/keyRings/testing/cryptoKeys/big-m-testing-three-demo-key-three/cryptoKeyVersions/6', 'state': 'ENABLED', 'createTime': '2024-05-22T14:00:00.000000000Z', 'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION', 'generateTime': '2024-05-22T14:00:00.000000000Z'}, 'purpose': 'ENCRYPT_DECRYPT', 'createTime': '2023-02-04T03:03:03.000000000Z', 'nextRotationTime': '2025-03-03T14:00:00.000000000Z', 'rotationPeriod': '7776000s', 'versionTemplate': {'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION'}, 'destroyScheduledDuration': '86400s'}, {'name': 'projects/testing-project-three/locations/australia-southeast2/keyRings/testing/cryptoKeys/big-m-testing-three-demo-key-three', 'primary': {'name': 'projects/testing-project-three/locations/australia-southeast2/keyRings/testing/cryptoKeys/big-m-testing-three-demo-key-three/cryptoKeyVersions/6', 'state': 'ENABLED', 'createTime': '2024-05-22T14:00:00.000000000Z', 'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION', 'generateTime': '2024-05-22T14:00:00.000000000Z'}, 'purpose': 'ENCRYPT_DECRYPT', 'createTime': '2023-02-04T03:03:03.000000000Z', 'nextRotationTime': '2025-03-03T14:00:00.000000000Z', 'rotationPeriod': '7776000s', 'versionTemplate': {'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION'}, 'destroyScheduledDuration': '86400s'}], 'totalSize': 3})
-add_route('/v1/projects/testing-project-three/locations/australia-southeast1/keyRings', ['GET'], {})
-add_route('/v1/projects/testing-project-three/locations/global/keyRings', ['GET'], {'keyRings': [{'name': 'projects/testing-project-three/locations/global/keyRings/testing-three', 'createTime': '2022-02-02T02:02:02.02000000Z'}], 'totalSize': 1})
-add_route('/v1/projects/testing-project-three/locations/australia-southeast2/keyRings', ['GET'], {'keyRings': [{'name': 'projects/testing-project-three/locations/australia-southeast2/keyRings/big-m-testing-three', 'createTime': '2022-02-02T02:02:02.02000000Z'}], 'totalSize': 1})
-add_route('/v1/projects/testing-project-two/locations/global/keyRings/testing-two/cryptoKeys', ['GET'], {'cryptoKeys': [{'name': 'projects/testing-project-two/locations/global/keyRings/testing/cryptoKeys/testing-two-demo-key', 'primary': {'name': 'projects/testing-project-two/locations/global/keyRings/testing/cryptoKeys/testing-two-demo-key/cryptoKeyVersions/6', 'state': 'ENABLED', 'createTime': '2024-05-22T14:00:00.000000000Z', 'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION', 'generateTime': '2024-05-22T14:00:00.000000000Z'}, 'purpose': 'ENCRYPT_DECRYPT', 'createTime': '2023-02-04T03:03:03.000000000Z', 'nextRotationTime': '2025-03-03T14:00:00.000000000Z', 'rotationPeriod': '7776000s', 'versionTemplate': {'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION'}, 'destroyScheduledDuration': '86400s'}, {'name': 'projects/testing-project-two/locations/global/keyRings/testing/cryptoKeys/testing-two-demo-key-two', 'primary': {'name': 'projects/testing-project-two/locations/global/keyRings/testing/cryptoKeys/testing-two-demo-key-two/cryptoKeyVersions/6', 'state': 'ENABLED', 'createTime': '2024-05-22T14:00:00.000000000Z', 'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION', 'generateTime': '2024-05-22T14:00:00.000000000Z'}, 'purpose': 'ENCRYPT_DECRYPT', 'createTime': '2023-02-04T03:03:03.000000000Z', 'nextRotationTime': '2025-03-03T14:00:00.000000000Z', 'rotationPeriod': '7776000s', 'versionTemplate': {'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION'}, 'destroyScheduledDuration': '86400s'}, {'name': 'projects/testing-project-two/locations/global/keyRings/testing/cryptoKeys/testing-two-demo-key-three', 'primary': {'name': 'projects/testing-project-two/locations/global/keyRings/testing/cryptoKeys/testing-two-demo-key-three/cryptoKeyVersions/6', 'state': 'ENABLED', 'createTime': '2024-05-22T14:00:00.000000000Z', 'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION', 'generateTime': '2024-05-22T14:00:00.000000000Z'}, 'purpose': 'ENCRYPT_DECRYPT', 'createTime': '2023-02-04T03:03:03.000000000Z', 'nextRotationTime': '2025-03-03T14:00:00.000000000Z', 'rotationPeriod': '7776000s', 'versionTemplate': {'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION'}, 'destroyScheduledDuration': '86400s'}], 'totalSize': 3})
-add_route('/v1/projects/testing-project-two/locations/australia-southeast2/keyRings/big-m-testing-two/cryptoKeys', ['GET'], {'cryptoKeys': [{'name': 'projects/testing-project-two/locations/australia-southeast2/keyRings/testing/cryptoKeys/big-m-testing-two-demo-key', 'primary': {'name': 'projects/testing-project-two/locations/australia-southeast2/keyRings/testing/cryptoKeys/big-m-testing-two-demo-key/cryptoKeyVersions/6', 'state': 'ENABLED', 'createTime': '2024-05-22T14:00:00.000000000Z', 'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION', 'generateTime': '2024-05-22T14:00:00.000000000Z'}, 'purpose': 'ENCRYPT_DECRYPT', 'createTime': '2023-02-04T03:03:03.000000000Z', 'nextRotationTime': '2025-03-03T14:00:00.000000000Z', 'rotationPeriod': '7776000s', 'versionTemplate': {'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION'}, 'destroyScheduledDuration': '86400s'}, {'name': 'projects/testing-project-two/locations/australia-southeast2/keyRings/testing/cryptoKeys/big-m-testing-two-demo-key-two', 'primary': {'name': 'projects/testing-project-two/locations/australia-southeast2/keyRings/testing/cryptoKeys/big-m-testing-two-demo-key-two/cryptoKeyVersions/6', 'state': 'ENABLED', 'createTime': '2024-05-22T14:00:00.000000000Z', 'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION', 'generateTime': '2024-05-22T14:00:00.000000000Z'}, 'purpose': 'ENCRYPT_DECRYPT', 'createTime': '2023-02-04T03:03:03.000000000Z', 'nextRotationTime': '2025-03-03T14:00:00.000000000Z', 'rotationPeriod': '7776000s', 'versionTemplate': {'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION'}, 'destroyScheduledDuration': '86400s'}, {'name': 'projects/testing-project-two/locations/australia-southeast2/keyRings/testing/cryptoKeys/big-m-testing-two-demo-key-three', 'primary': {'name': 'projects/testing-project-two/locations/australia-southeast2/keyRings/testing/cryptoKeys/big-m-testing-two-demo-key-three/cryptoKeyVersions/6', 'state': 'ENABLED', 'createTime': '2024-05-22T14:00:00.000000000Z', 'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION', 'generateTime': '2024-05-22T14:00:00.000000000Z'}, 'purpose': 'ENCRYPT_DECRYPT', 'createTime': '2023-02-04T03:03:03.000000000Z', 'nextRotationTime': '2025-03-03T14:00:00.000000000Z', 'rotationPeriod': '7776000s', 'versionTemplate': {'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION'}, 'destroyScheduledDuration': '86400s'}], 'totalSize': 3})
-add_route('/v1/projects/testing-project-two/locations/australia-southeast1/keyRings', ['GET'], {})
-add_route('/v1/projects/testing-project-two/locations/global/keyRings', ['GET'], {'keyRings': [{'name': 'projects/testing-project-two/locations/global/keyRings/testing-two', 'createTime': '2022-02-02T02:02:02.02000000Z'}], 'totalSize': 1})
-add_route('/v1/projects/testing-project-two/locations/australia-southeast2/keyRings', ['GET'], {'keyRings': [{'name': 'projects/testing-project-two/locations/australia-southeast2/keyRings/big-m-testing-two', 'createTime': '2022-02-02T02:02:02.02000000Z'}], 'totalSize': 1})
-add_route('/v1/projects/testing-project/locations/global/keyRings/testing/cryptoKeys', ['GET'], {'cryptoKeys': [{'name': 'projects/testing-project/locations/global/keyRings/testing/cryptoKeys/testing-demo-key', 'primary': {'name': 'projects/testing-project/locations/global/keyRings/testing/cryptoKeys/testing-demo-key/cryptoKeyVersions/6', 'state': 'ENABLED', 'createTime': '2024-05-22T14:00:00.000000000Z', 'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION', 'generateTime': '2024-05-22T14:00:00.000000000Z'}, 'purpose': 'ENCRYPT_DECRYPT', 'createTime': '2023-02-04T03:03:03.000000000Z', 'nextRotationTime': '2025-03-03T14:00:00.000000000Z', 'rotationPeriod': '7776000s', 'versionTemplate': {'protectionLevel': 'SOFTWARE', 'algorithm': 'GOOGLE_SYMMETRIC_ENCRYPTION'}, 'destroyScheduledDuration': '86400s'}], 'totalSize': 1})
-add_route('/v1/projects/testing-project/locations/australia-southeast1/keyRings', ['GET'], {})
-add_route('/v1/projects/testing-project/locations/global/keyRings', ['GET'], {'keyRings': [{'name': 'projects/testing-project/locations/global/keyRings/testing', 'createTime': '2022-02-02T02:02:02.02000000Z'}], 'totalSize': 1})
-add_route('/projects/testing-project/zones/australia-southeast1-a/instances/000000001/getIamPolicy', ['GET'], {'etag': 'ACAB'})
-add_route('/token', ['POST'], {'access_token': 'some-access-token', 'token_type': 'access_token', 'id_token': 'eyJhbGciOiJSUzI1NiIsImN0eSI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNjAzMzc2MDExLCJleHAiOjExNjI4NTY1MzY0LCJhdWQiOiJhdWQteCIsImlzcyI6Imdvb2dsZSIsInNjb3BlIjoiZ29vZ2xlYXBpcyJ9.g_MHGMGbRt0MZaOyKPA7zQNrYRDgabBJwEzUGlCHlWlidWnYSG9mo5YixHwk1AfeDsRTnxxyT9Ki1mSppamKbS_QHj-o54PMLibP6jcQV4aLxwug9cKbzIvQTndWPm41gBT4Bxfip4ZI9DZUtVZ4nv89reDdmZ_WLG_HuDw-3p4E5L_5iIJGGEnfyko8Da1LiHZg6tNGzpmMyjxUhocvUdM5iEHeppkLlGlu9Lw38UVxUCvskKy6WRCnLU7uCZxeoA-Ah8jg-Ie6IPdKm2UvqUflQbfG-Ga7LqzMxSVE_KvRD9_02mYZykjuWQiEAWqMYnBqK4TtoFfAZLTa1cFGvQ', 'expires_in': 3600})
-add_route('/v1/projects/testing-project/aggregated/usableSubnetworks', ['GET'], {'subnetworks': [{'subnetwork': 'projects/testing-project/regions/australia-southeast1/subnetworks/sn-02', 'network': 'projects/testing-project/global/networks/vpc-01', 'ipCidrRange': '10.0.1.0/24'}, {'subnetwork': 'projects/testing-project/regions/australia-southeast1/subnetworks/sn-01', 'network': 'projects/testing-project/global/networks/vpc-01', 'ipCidrRange': '10.0.0.0/24'}]})
-add_route('/v1/projects/another-project/aggregated/usableSubnetworks', ['GET'], {'subnetworks': [{'subnetwork': 'projects/another-project/regions/australia-southeast1/subnetworks/sn-02', 'network': 'projects/another-project/global/networks/vpc-01', 'ipCidrRange': '10.0.1.0/24'}, {'subnetwork': 'projects/another-project/regions/australia-southeast1/subnetworks/sn-01', 'network': 'projects/another-project/global/networks/vpc-01', 'ipCidrRange': '10.0.0.0/24'}]})
-add_route('/v1/projects/yet-another-project/aggregated/usableSubnetworks', ['GET'], {'subnetworks': [{'subnetwork': 'projects/yet-another-project/regions/australia-southeast1/subnetworks/sn-02', 'network': 'projects/yet-another-project/global/networks/vpc-01', 'ipCidrRange': '10.0.1.0/24'}, {'subnetwork': 'projects/yet-another-project/regions/australia-southeast1/subnetworks/sn-01', 'network': 'projects/yet-another-project/global/networks/vpc-01', 'ipCidrRange': '10.0.0.0/24'}]})
-add_route('/v1/projects/empty-project/aggregated/usableSubnetworks', ['GET'], {'subnetworks': []})
-add_route('/projects/testing-project/zones/australia-southeast1-a/acceleratorTypes', ['GET'], {'kind': 'compute#acceleratorTypeList', 'id': 'projects/testing-project/zones/australia-southeast1-a/acceleratorTypes', 'items': [{'kind': 'compute#acceleratorType', 'id': '10010', 'creationTimestamp': '1969-12-31T16:00:00.000-08:00', 'name': 'nvidia-tesla-p4', 'description': 'NVIDIA Tesla P4', 'zone': 'https://www.googleapis.com/compute/beta/projects/testing-project/zones/australia-southeast1-a', 'selfLink': 'https://www.googleapis.com/compute/beta/projects/testing-project/zones/australia-southeast1-a/acceleratorTypes/nvidia-tesla-p4', 'maximumCardsPerInstance': 4}, {'kind': 'compute#acceleratorType', 'id': '10012', 'creationTimestamp': '1969-12-31T16:00:00.000-08:00', 'name': 'nvidia-tesla-p4-vws', 'description': 'NVIDIA Tesla P4 Virtual Workstation', 'zone': 'https://www.googleapis.com/compute/beta/projects/testing-project/zones/australia-southeast1-a', 'selfLink': 'https://www.googleapis.com/compute/beta/projects/testing-project/zones/australia-southeast1-a/acceleratorTypes/nvidia-tesla-p4-vws', 'maximumCardsPerInstance': 4}, {'kind': 'compute#acceleratorType', 'id': '10019', 'creationTimestamp': '1969-12-31T16:00:00.000-08:00', 'name': 'nvidia-tesla-t4', 'description': 'NVIDIA Tesla T4', 'zone': 'https://www.googleapis.com/compute/beta/projects/testing-project/zones/australia-southeast1-a', 'selfLink': 'https://www.googleapis.com/compute/beta/projects/testing-project/zones/australia-southeast1-a/acceleratorTypes/nvidia-tesla-t4', 'maximumCardsPerInstance': 4}, {'kind': 'compute#acceleratorType', 'id': '10020', 'creationTimestamp': '1969-12-31T16:00:00.000-08:00', 'name': 'nvidia-tesla-t4-vws', 'description': 'NVIDIA Tesla T4 Virtual Workstation', 'zone': 'https://www.googleapis.com/compute/beta/projects/testing-project/zones/australia-southeast1-a', 'selfLink': 'https://www.googleapis.com/compute/beta/projects/testing-project/zones/australia-southeast1-a/acceleratorTypes/nvidia-tesla-t4-vws', 'maximumCardsPerInstance': 4}], 'selfLink': 'https://www.googleapis.com/compute/beta/projects/testing-project/zones/australia-southeast1-a/acceleratorTypes'})
-add_route('/projects/another-project/zones/australia-southeast1-a/acceleratorTypes', ['GET'], {'kind': 'compute#acceleratorTypeList', 'id': 'projects/another-project/zones/australia-southeast1-a/acceleratorTypes', 'items': [{'kind': 'compute#acceleratorType', 'id': '11010', 'creationTimestamp': '1969-12-31T16:00:00.000-08:00', 'name': 'nvidia-tesla-p4', 'description': 'NVIDIA Tesla P4', 'zone': 'https://www.googleapis.com/compute/beta/projects/another-project/zones/australia-southeast1-a', 'selfLink': 'https://www.googleapis.com/compute/beta/projects/another-project/zones/australia-southeast1-a/acceleratorTypes/nvidia-tesla-p4', 'maximumCardsPerInstance': 4}, {'kind': 'compute#acceleratorType', 'id': '11012', 'creationTimestamp': '1969-12-31T16:00:00.000-08:00', 'name': 'nvidia-tesla-p4-vws', 'description': 'NVIDIA Tesla P4 Virtual Workstation', 'zone': 'https://www.googleapis.com/compute/beta/projects/another-project/zones/australia-southeast1-a', 'selfLink': 'https://www.googleapis.com/compute/beta/projects/another-project/zones/australia-southeast1-a/acceleratorTypes/nvidia-tesla-p4-vws', 'maximumCardsPerInstance': 4}, {'kind': 'compute#acceleratorType', 'id': '11019', 'creationTimestamp': '1969-12-31T16:00:00.000-08:00', 'name': 'nvidia-tesla-t4', 'description': 'NVIDIA Tesla T4', 'zone': 'https://www.googleapis.com/compute/beta/projects/another-project/zones/australia-southeast1-a', 'selfLink': 'https://www.googleapis.com/compute/beta/projects/another-project/zones/australia-southeast1-a/acceleratorTypes/nvidia-tesla-t4', 'maximumCardsPerInstance': 4}, {'kind': 'compute#acceleratorType', 'id': '11020', 'creationTimestamp': '1969-12-31T16:00:00.000-08:00', 'name': 'nvidia-tesla-t4-vws', 'description': 'NVIDIA Tesla T4 Virtual Workstation', 'zone': 'https://www.googleapis.com/compute/beta/projects/another-project/zones/australia-southeast1-a', 'selfLink': 'https://www.googleapis.com/compute/beta/projects/another-project/zones/australia-southeast1-a/acceleratorTypes/nvidia-tesla-t4-vws', 'maximumCardsPerInstance': 4}], 'selfLink': 'https://www.googleapis.com/compute/beta/projects/another-project/zones/australia-southeast1-a/acceleratorTypes'})
-add_route('/v3/projects/testproject:getIamPolicy', ['POST'], {'version': 1, 'etag': 'BwXdCzeFew0=', 'bindings': [{'role': 'roles/appengine.serviceAgent', 'members': ['serviceAccount:service-1231231231230@gcp-gae-service.iam.gserviceaccount.com']}, {'role': 'roles/cloudbuild.builds.builder', 'members': ['serviceAccount:1231231231230@cloudbuild.gserviceaccount.com']}, {'role': 'roles/cloudbuild.serviceAgent', 'members': ['serviceAccount:service-1231231231230@gcp-sa-cloudbuild.iam.gserviceaccount.com']}, {'role': 'roles/containerregistry.ServiceAgent', 'members': ['serviceAccount:service-1231231231230@containerregistry.iam.gserviceaccount.com']}, {'role': 'roles/editor', 'members': ['serviceAccount:testproject@appspot.gserviceaccount.com']}, {'role': 'roles/firebaserules.system', 'members': ['serviceAccount:service-1231231231230@firebase-rules.iam.gserviceaccount.com']}, {'role': 'roles/firestore.serviceAgent', 'members': ['serviceAccount:service-1231231231230@gcp-sa-firestore.iam.gserviceaccount.com']}, {'role': 'roles/owner', 'members': ['serviceAccount:testproject-provisioner@testproject.iam.gserviceaccount.com', 'user:joeblow@testorg.io', 'user:johnsmith@testorg.io']}, {'role': 'roles/pubsub.serviceAgent', 'members': ['serviceAccount:service-1231231231230@gcp-sa-pubsub.iam.gserviceaccount.com']}]})
+@app.route('/v1/projects/testing-project-three/locations/australia-southeast2/keyRings/big-m-testing-three/cryptoKeys', methods=['GET'])
+def route_2():
+    return render_template('route_2_template.json')
+
+@app.route('/v1/projects/testing-project-three/locations/australia-southeast1/keyRings', methods=['GET'])
+def route_3():
+    return render_template('route_3_template.json')
+
+@app.route('/v1/projects/testing-project-three/locations/global/keyRings', methods=['GET'])
+def route_4():
+    return render_template('route_4_template.json')
+
+@app.route('/v1/projects/testing-project-three/locations/australia-southeast2/keyRings', methods=['GET'])
+def route_5():
+    return render_template('route_5_template.json')
+
+@app.route('/v1/projects/testing-project-two/locations/global/keyRings/testing-two/cryptoKeys', methods=['GET'])
+def route_6():
+    return render_template('route_6_template.json')
+
+@app.route('/v1/projects/testing-project-two/locations/australia-southeast2/keyRings/big-m-testing-two/cryptoKeys', methods=['GET'])
+def route_7():
+    return render_template('route_7_template.json')
+
+@app.route('/v1/projects/testing-project-two/locations/australia-southeast1/keyRings', methods=['GET'])
+def route_8():
+    return render_template('route_8_template.json')
+
+@app.route('/v1/projects/testing-project-two/locations/global/keyRings', methods=['GET'])
+def route_9():
+    return render_template('route_9_template.json')
+
+@app.route('/v1/projects/testing-project-two/locations/australia-southeast2/keyRings', methods=['GET'])
+def route_10():
+    return render_template('route_10_template.json')
+
+@app.route('/v1/projects/testing-project/locations/global/keyRings/testing/cryptoKeys', methods=['GET'])
+def route_11():
+    return render_template('route_11_template.json')
+
+@app.route('/v1/projects/testing-project/locations/australia-southeast1/keyRings', methods=['GET'])
+def route_12():
+    return render_template('route_12_template.json')
+
+@app.route('/v1/projects/testing-project/locations/global/keyRings', methods=['GET'])
+def route_13():
+    return render_template('route_13_template.json')
+
+@app.route('/projects/testing-project/zones/australia-southeast1-a/instances/000000001/getIamPolicy', methods=['GET'])
+def route_14():
+    return render_template('route_14_template.json')
+
+@app.route('/projects/testing-project/zones/australia-southeast1-a/machineTypes', methods=['GET'])
+def route_15():
+    return render_template('route_15_template.json')
+
+@app.route('/token', methods=['POST'])
+def route_16():
+    return render_template('route_16_template.json')
+
+@app.route('/v1/projects/testing-project/aggregated/usableSubnetworks', methods=['GET'])
+def route_17():
+    return render_template('route_17_template.json')
+
+@app.route('/v1/projects/another-project/aggregated/usableSubnetworks', methods=['GET'])
+def route_18():
+    return render_template('route_18_template.json')
+
+@app.route('/v1/projects/yet-another-project/aggregated/usableSubnetworks', methods=['GET'])
+def route_19():
+    return render_template('route_19_template.json')
+
+@app.route('/v1/projects/empty-project/aggregated/usableSubnetworks', methods=['GET'])
+def route_20():
+    return render_template('route_20_template.json')
+
+@app.route('/projects/testing-project/zones/australia-southeast1-a/acceleratorTypes', methods=['GET'])
+def route_21():
+    return render_template('route_21_template.json')
+
+@app.route('/projects/another-project/zones/australia-southeast1-a/acceleratorTypes', methods=['GET'])
+def route_22():
+    return render_template('route_22_template.json')
+
+@app.route('/v3/projects/testproject:getIamPolicy', methods=['POST'])
+def route_23():
+    return render_template('route_23_template.json')
+
+@app.route('/v3/organizations/123456789012:getIamPolicy', methods=['GET'])
+def route_24():
+    return render_template('route_24_template.json')
+
+@app.route('/projects/testing-project/zones/australia-southeast1-a/disks', methods=['GET'])
+def route_25():
+    return render_template('route_25_template.json')
+
+@app.route('/projects/testing-project/zones/australia-southeast1-b/disks', methods=['GET'])
+def route_26():
+    return render_template('route_26_template.json')
+
+@app.route('/projects/testing-project/global/networks', methods=['GET'])
+def route_27():
+    return render_template('route_27_template.json')
+
+@app.route('/projects/testing-project/regions/australia-southeast1/subnetworks', methods=['GET'])
+def route_28():
+    return render_template('route_28_template.json')
+
+@app.route('/projects/testing-project/zones/australia-southeast1-a/instances', methods=['GET'])
+def route_29():
+    return render_template('route_29_template.json')
+
+@app.route('/projects/testing-project/aggregated/instances', methods=['GET'])
+def route_30():
+    return render_template('route_30_template.json')
+
+@app.route('/v1/projects/testing-project/assets', methods=['GET'])
+def route_31():
+    return render_template('route_31_template.json')
+
+@app.route('/v1/projects/testing-project/assets', methods=['GET'])
+def route_32():
+    return render_template('route_32_template.json')
+
+@app.route('/projects/testing-project/global/firewalls/allow-spark-ui', methods=['PUT'])
+def route_33():
+    return render_template('route_33_template.json')
+
+@app.route('/projects/testing-project/global/firewalls/some-other-firewall', methods=['PATCH'])
+def route_34():
+    return render_template('route_34_template.json')
+
+@app.route('/projects/testing-project/global/firewalls', methods=['GET'])
+def route_35():
+    return render_template('route_35_template.json')
+
+@app.route('/projects/changing-project/global/firewalls', methods=['GET'])
+def route_36():
+    return render_template('route_36_template.json')
+
+@app.route('/projects/changing-project/global/firewalls', methods=['GET'])
+def route_37():
+    return render_template('route_37_template.json')
 
 if __name__ == '__main__':
     app.run(debug=True)
