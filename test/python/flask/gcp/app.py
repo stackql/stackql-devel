@@ -83,8 +83,54 @@ def projects_testing_project_zones_australia_southeast1_a_instances_000000001_ge
     return render_template('route_14_template.json'), 200, {'Content-Type': 'application/json'}
 
 @app.route('/projects/testing-project/zones/australia-southeast1-a/machineTypes', methods=['GET'])
-def projects_testing_project_zones_australia_southeast1_a_machineTypes():
-    return render_template('route_15_template.json'), 200, {'Content-Type': 'application/json'}
+def machine_types():
+    import math
+
+    # The full list of machine type names
+    machine_type_names = [
+        f"p{page}-c2-standard-{vcpus}"
+        for page in range(1, 21)  # Pages 1 through 20
+        for vcpus in [8, 60, 4, 30, 16]
+    ]
+
+    # Pagination parameters
+    items_per_page = 10  # Adjust as needed
+    current_page = int(request.args.get('pageToken', 1))  # Default to page 1
+    total_pages = math.ceil(len(machine_type_names) / items_per_page)
+
+    # Determine start and end indices for the current page
+    start_idx = (current_page - 1) * items_per_page
+    end_idx = start_idx + items_per_page
+
+    # Slice the list for the current page
+    page_items = machine_type_names[start_idx:end_idx]
+
+    # Prepare the response
+    response = {
+        "kind": "compute#machineTypeList",
+        "id": "projects/testing-project/zones/australia-southeast1-a/machineTypes",
+        "items": [
+            {
+                "kind": "compute#machineType",
+                "id": f"8010{page_items.index(name)}",
+                "name": name,
+                "description": f"{name} description",
+                "guestCpus": int(name.split('-')[-1]),
+                "memoryMb": int(name.split('-')[-1]) * 4096,  # Example calculation
+                "zone": "australia-southeast1-a",
+                "selfLink": f"https://www.googleapis.com/compute/v1/projects/testing-project/zones/australia-southeast1-a/machineTypes/{name}",
+            }
+            for name in page_items
+        ],
+        "selfLink": "https://www.googleapis.com/compute/v1/projects/testing-project/zones/australia-southeast1-a/machineTypes"
+    }
+
+    # Add nextPageToken if applicable
+    if current_page < total_pages:
+        response["nextPageToken"] = str(current_page + 1)
+
+    return jsonify(response)
+
 
 
 ## TODO: geet rid once all else stable
