@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, make_response
 import os
 
 app = Flask(__name__)
@@ -8,327 +8,489 @@ app.template_folder = "templates"
 
 @app.route('/', methods=['POST'])
 def route_1():
-    return render_template('template_1.json')
+    response_body = render_template('template_1.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_2():
-    return render_template('template_2.json')
+    response_body = render_template('template_2.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_3():
-    return render_template('template_3.json')
+    response_body = render_template('template_3.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 400, headers)
 
 @app.route('/', methods=['POST'])
 def route_4():
-    return render_template('template_4.json')
+    response_body = render_template('template_4.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_5():
-    return render_template('template_5.json')
+    response_body = render_template('template_5.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 400, headers)
 
 @app.route('/', methods=['POST'])
 def route_6():
-    return render_template('template_6.json')
+    response_body = render_template('template_6.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/2013-04-01/hostedzone/A00000001AAAAAAAAAAAA/rrset', methods=['GET'])
 def route_7():
-    return render_template('template_7.json')
+    response_body = render_template('template_7.json')
+    headers = {'content-type': 'text/xml'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/2013-04-01/hostedzone/some-id/rrset/', methods=['POST'])
 def route_8():
-    return render_template('template_8.json')
+    response_body = render_template('template_8.json')
+    headers = {'content-type': 'text/xml'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/2013-04-01/hostedzone/some-id/rrset/', methods=['POST'])
 def route_9():
-    return render_template('template_9.json')
+    response_body = render_template('template_9.json')
+    headers = {'content-type': 'text/xml'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_10():
-    return render_template('template_10.json')
+    response_body = render_template('template_10.json')
+    headers = {'content-type': 'text/xml'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['GET'])
 def route_11():
-    return render_template('template_11.json')
+    response_body = render_template('template_11.json')
+    headers = {'content-type': 'text/xml'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['GET'])
 def route_12():
-    return render_template('template_12.json')
+    response_body = render_template('template_12.json')
+    headers = {'content-type': 'text/xml'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['GET'])
 def route_13():
-    return render_template('template_13.json')
+    response_body = render_template('template_13.json')
+    headers = {'content-type': 'text/xml'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['GET'])
 def route_14():
-    return render_template('template_14.json')
+    response_body = render_template('template_14.json')
+    headers = {'content-type': 'text/xml'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_15():
-    return render_template('template_15.json')
+    response_body = render_template('template_15.json')
+    headers = {'content-type': 'text/xml'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_16():
-    return render_template('template_16.json')
+    response_body = render_template('template_16.json')
+    headers = {}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_17():
-    return render_template('template_17.json')
+    response_body = render_template('template_17.json')
+    headers = {'content-type': 'text/xml'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_18():
-    return render_template('template_18.json')
+    response_body = render_template('template_18.json')
+    headers = {'content-type': 'text/xml'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_19():
-    return render_template('template_19.json')
+    response_body = render_template('template_19.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_20():
-    return render_template('template_20.json')
+    response_body = render_template('template_20.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_21():
-    return render_template('template_21.json')
+    response_body = render_template('template_21.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_22():
-    return render_template('template_22.json')
+    response_body = render_template('template_22.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_23():
-    return render_template('template_23.json')
+    response_body = render_template('template_23.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_24():
-    return render_template('template_24.json')
+    response_body = render_template('template_24.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_25():
-    return render_template('template_25.json')
+    response_body = render_template('template_25.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_26():
-    return render_template('template_26.json')
+    response_body = render_template('template_26.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_27():
-    return render_template('template_27.json')
+    response_body = render_template('template_27.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_28():
-    return render_template('template_28.json')
+    response_body = render_template('template_28.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_29():
-    return render_template('template_29.json')
+    response_body = render_template('template_29.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_30():
-    return render_template('template_30.json')
+    response_body = render_template('template_30.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_31():
-    return render_template('template_31.json')
+    response_body = render_template('template_31.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_32():
-    return render_template('template_32.json')
+    response_body = render_template('template_32.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_33():
-    return render_template('template_33.json')
+    response_body = render_template('template_33.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_34():
-    return render_template('template_34.json')
+    response_body = render_template('template_34.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_35():
-    return render_template('template_35.json')
+    response_body = render_template('template_35.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_36():
-    return render_template('template_36.json')
+    response_body = render_template('template_36.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_37():
-    return render_template('template_37.json')
+    response_body = render_template('template_37.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_38():
-    return render_template('template_38.json')
+    response_body = render_template('template_38.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_39():
-    return render_template('template_39.json')
+    response_body = render_template('template_39.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_40():
-    return render_template('template_40.json')
+    response_body = render_template('template_40.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_41():
-    return render_template('template_41.json')
+    response_body = render_template('template_41.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_42():
-    return render_template('template_42.json')
+    response_body = render_template('template_42.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_43():
-    return render_template('template_43.json')
+    response_body = render_template('template_43.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_44():
-    return render_template('template_44.json')
+    response_body = render_template('template_44.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_45():
-    return render_template('template_45.json')
+    response_body = render_template('template_45.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_46():
-    return render_template('template_46.json')
+    response_body = render_template('template_46.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_47():
-    return render_template('template_47.json')
+    response_body = render_template('template_47.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_48():
-    return render_template('template_48.json')
+    response_body = render_template('template_48.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_49():
-    return render_template('template_49.json')
+    response_body = render_template('template_49.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_50():
-    return render_template('template_50.json')
+    response_body = render_template('template_50.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_51():
-    return render_template('template_51.json')
+    response_body = render_template('template_51.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_52():
-    return render_template('template_52.json')
+    response_body = render_template('template_52.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_53():
-    return render_template('template_53.json')
+    response_body = render_template('template_53.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_54():
-    return render_template('template_54.json')
+    response_body = render_template('template_54.json')
+    headers = {}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_55():
-    return render_template('template_55.json')
+    response_body = render_template('template_55.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_56():
-    return render_template('template_56.json')
+    response_body = render_template('template_56.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 501, headers)
 
 @app.route('/', methods=['POST'])
 def route_57():
-    return render_template('template_57.json')
+    response_body = render_template('template_57.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 403, headers)
 
 @app.route('/', methods=['POST'])
 def route_58():
-    return render_template('template_58.json')
+    response_body = render_template('template_58.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_59():
-    return render_template('template_59.json')
+    response_body = render_template('template_59.json')
+    headers = {'content-type': 'application/json'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_60():
-    return render_template('template_60.json')
+    response_body = render_template('template_60.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_61():
-    return render_template('template_61.json')
+    response_body = render_template('template_61.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_62():
-    return render_template('template_62.json')
+    response_body = render_template('template_62.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_63():
-    return render_template('template_63.json')
+    response_body = render_template('template_63.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_64():
-    return render_template('template_64.json')
+    response_body = render_template('template_64.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_65():
-    return render_template('template_65.json')
+    response_body = render_template('template_65.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_66():
-    return render_template('template_66.json')
+    response_body = render_template('template_66.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_67():
-    return render_template('template_67.json')
+    response_body = render_template('template_67.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_68():
-    return render_template('template_68.json')
+    response_body = render_template('template_68.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_69():
-    return render_template('template_69.json')
+    response_body = render_template('template_69.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_70():
-    return render_template('template_70.json')
+    response_body = render_template('template_70.json')
+    headers = {}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_71():
-    return render_template('template_71.json')
+    response_body = render_template('template_71.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_72():
-    return render_template('template_72.json')
+    response_body = render_template('template_72.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_73():
-    return render_template('template_73.json')
+    response_body = render_template('template_73.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_74():
-    return render_template('template_74.json')
+    response_body = render_template('template_74.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_75():
-    return render_template('template_75.json')
+    response_body = render_template('template_75.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_76():
-    return render_template('template_76.json')
+    response_body = render_template('template_76.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_77():
-    return render_template('template_77.json')
+    response_body = render_template('template_77.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_78():
-    return render_template('template_78.json')
+    response_body = render_template('template_78.json')
+    headers = {'content-type': 'application/x-amz-json-1.0'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_79():
-    return render_template('template_79.json')
+    response_body = render_template('template_79.json')
+    headers = {'content-type': 'text/xml'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_80():
-    return render_template('template_80.json')
+    response_body = render_template('template_80.json')
+    headers = {'content-type': 'text/xml'}
+    return make_response(response_body, 200, headers)
 
 @app.route('/', methods=['POST'])
 def route_81():
-    return render_template('template_81.json')
+    response_body = render_template('template_81.json')
+    headers = {'content-type': 'text/xml'}
+    return make_response(response_body, 200, headers)
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
