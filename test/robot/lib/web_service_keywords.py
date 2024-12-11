@@ -117,6 +117,27 @@ class web_service_keywords(Process):
             stdout=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'log', f'okta-server-{port}-stdout.txt')),
             stderr=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'log', f'okta-server-{port}-stderr.txt'))
         )
+    
+    @keyword
+    def create_aws_web_service(
+        self,
+        port: int,
+        host: str = '0.0.0.0'
+    ) -> None:
+        """
+        Sign the input.
+        """
+        return self.start_process(
+            'flask',
+            f'--app={self._aws_app}',
+            'run',
+            f'--host={host}', # generally, `0.0.0.0`; otherwise, invisible on `docker.host.internal` etc
+            f'--port={port}',
+            f'--cert={self._tls_cert_path}',
+            f'--key={self._tls_key_path}',
+            stdout=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'log', f'aws-server-{port}-stdout.txt')),
+            stderr=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'log', f'aws-server-{port}-stderr.txt'))
+        )
 
     @keyword
     def send_get_request(

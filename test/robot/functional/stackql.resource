@@ -33,7 +33,6 @@ Start Mock Server
 
 Start All Mock Servers
     Start Mock Server    ${JSON_INIT_FILE_PATH_GOOGLEADMIN}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_GOOGLEADMIN}
-    Start Mock Server    ${JSON_INIT_FILE_PATH_AWS}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_AWS}
     Start Mock Server    ${JSON_INIT_FILE_PATH_K8S}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_K8S}
     Start Mock Server    ${JSON_INIT_FILE_PATH_REGISTRY}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_REGISTRY}
     Start Mock Server    ${JSON_INIT_FILE_PATH_AZURE}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_AZURE}
@@ -44,6 +43,7 @@ Start All Mock Servers
     Create Github Web Service    ${MOCKSERVER_PORT_GITHUB}
     Create GCP Web Service    ${MOCKSERVER_PORT_GOOGLE}
     Create Okta Web Service    ${MOCKSERVER_PORT_OKTA}
+    Create AWS Web Service    ${MOCKSERVER_PORT_AWS}
 
 
 Prepare StackQL Environment
