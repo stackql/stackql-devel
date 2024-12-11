@@ -16,19 +16,7 @@ def log_request_info():
 
 @app.route('/v1/projects/testing-project-three/locations/global/keyRings/testing-three/cryptoKeys', methods=['GET'])
 def v1_projects_testing_project_three_locations_global_keyRings_testing_three_cryptoKeys():
-    response = {
-        "cryptoKeys": [
-            {
-                "name": "projects/testing-project-three/locations/global/keyRings/testing-three/cryptoKeys/demo-key",
-                "primary": {
-                    "state": "ENABLED",
-                    "createTime": "2024-05-22T14:00:00.000000000Z"
-                },
-                "purpose": "ENCRYPT_DECRYPT"
-            }
-        ]
-    }
-    return jsonify(response)
+    return render_template('route_1_template.json'), 200, {'Content-Type': 'application/json'}
 
 @app.route('/v1/projects/testing-project-three/locations/australia-southeast2/keyRings/big-m-testing-three/cryptoKeys', methods=['GET'])
 def v1_projects_testing_project_three_locations_australia_southeast2_keyRings_big_m_testing_three_cryptoKeys():
