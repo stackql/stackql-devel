@@ -10,12 +10,12 @@ app.template_folder = os.path.join(os.path.dirname(__file__), "templates")
 def get_users():
     """Handles paginated user responses."""
     after = int(request.args.get('after', 0))
-    end = 5
-    next_page = after + end
-    max_page = 45
-    
+    items_per_page = 10
+    next_page = after + items_per_page
+    max_items = 50  # Assuming a maximum of 100 users for demonstration
+
     users = []
-    for i in range(after + 1, after + end + 1):
+    for i in range(after + 1, min(after + items_per_page + 1, max_items + 1)):
         users.append({
             "id": str(i),
             "status": "ACTIVE",
@@ -46,42 +46,25 @@ def get_users():
         })
 
     next_link = None
-    if next_page <= max_page:
+    if next_page <= max_items:
         next_link = f'<https://{request.host}/api/v1/users?after={next_page}>; rel="next"'
 
-    response_headers = {
+    headers = {
         'Datetime': 'now',
         'Link': next_link or f'<https://{request.host}/api/v1/users?after={after}>; rel="self"'
     }
 
-    return render_template('users_template.json', users=users, headers=response_headers)
+    # response = {
+    #     "users": users,
+    #     "nextPage": next_link if next_link else None
+    # }
+
+    return jsonify(users), 200, headers
 
 @app.route('/api/v1/apps', methods=['GET'])
 def get_apps():
     """Returns app data."""
-    apps = [
-        {
-            "id": "0oa3cy8k41YM15j4H5d7",
-            "name": "saasure",
-            "label": "Okta Admin Console",
-            "status": "ACTIVE",
-            "lastUpdated": "2021-12-17T15:22:44.000Z",
-            "created": "2021-12-17T15:22:41.000Z",
-            "visibility": {
-                "autoSubmitToolbar": False,
-                "hide": {"iOS": False, "web": False},
-                "appLinks": {"admin": True}
-            },
-            "signOnMode": "OPENID_CONNECT",
-            "settings": {
-                "notifications": {"vpn": {"network": {"connection": "DISABLED"}}}
-            },
-            "_links": {
-                "users": {"href": "https://dev-79923018.okta.com/api/v1/apps/0oa3cy8k41YM15j4H5d7/users"}
-            }
-        }
-    ]
-    return render_template('apps_template.json', apps=apps)
+    return render_template('apps_template.json'), 200, {'Content-Type': 'application/json'}
 
 if __name__ == '__main__':
     app.run(debug=True)

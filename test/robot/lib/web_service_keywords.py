@@ -23,6 +23,7 @@ class web_service_keywords(Process):
         self._web_server_app: str = 'test/python/flask/oauth2/token_srv'
         self._github_app: str = 'test/python/flask/github/app'
         self._gcp_app: str = 'test/python/flask/gcp/app'
+        self._okta_app: str = 'test/python/flask/okta/app'
         self._tls_key_path: str = 'test/server/mtls/credentials/pg_server_key.pem'
         self._tls_cert_path: str = 'test/server/mtls/credentials/pg_server_cert.pem'
         super().__init__()
@@ -86,6 +87,27 @@ class web_service_keywords(Process):
             f'--key={self._tls_key_path}',
             stdout=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'log', f'gcp-server-{port}-stdout.txt')),
             stderr=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'log', f'gcp-server-{port}-stderr.txt'))
+        )
+    
+    @keyword
+    def create_okta_web_service(
+        self,
+        port: int,
+        host: str = '0.0.0.0'
+    ) -> None:
+        """
+        Sign the input.
+        """
+        return self.start_process(
+            'flask',
+            f'--app={self._okta_app}',
+            'run',
+            f'--host={host}', # generally, `0.0.0.0`; otherwise, invisible on `docker.host.internal` etc
+            f'--port={port}',
+            f'--cert={self._tls_cert_path}',
+            f'--key={self._tls_key_path}',
+            stdout=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'log', f'okta-server-{port}-stdout.txt')),
+            stderr=os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'log', f'okta-server-{port}-stderr.txt'))
         )
 
     @keyword
