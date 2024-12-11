@@ -1,0 +1,42 @@
+{
+    "httpRequest": {
+        "method": "POST",
+        "path": "/",
+        "headers": {
+            "Authorization": [
+                "^.*eu-west-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.ListResources"
+            ]
+        },
+        "body": {
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
+        }
+    },
+    "httpResponse": {
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "statusCode": 200,
+        "body": {
+            "ResourceDescriptions": [
+                {
+                    "Identifier": "00001-0001-0001-0001-00000000000007",
+                    "Properties": "{\"KeyId\":\"00001-0001-0001-0001-00000000000007\"}"
+                },
+                {
+                    "Identifier": "00001-0001-0001-0001-00000000000008",
+                    "Properties": "{\"KeyId\":\"00001-0001-0001-0001-00000000000008\"}"
+                }
+            ],
+            "TypeName": "AWS::KMS::Key"
+        }
+    }
+}

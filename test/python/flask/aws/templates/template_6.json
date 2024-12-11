@@ -1,0 +1,37 @@
+{
+    "httpRequest": {
+        "method": "POST",
+        "path": "/",
+        "headers": {
+            "Authorization": [
+                "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
+            ]
+        },
+        "body": {
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::EC2::SubnetRouteTableAssociation",
+                "Identifier": "ltbassoc-002"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
+        }
+    },
+    "httpResponse": {
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "statusCode": 200,
+        "body": {
+            "ResourceDescription": {
+                "Identifier": "ltbassoc-002",
+                "Properties": "{\"RouteTableId\":\"ltb-002a\",\"Id\":\"ltbassoc-002\",\"SubnetId\":\"subnet-0022b\"}"
+            },
+            "TypeName": "AWS::EC2::SubnetRouteTableAssociation"
+        }
+    }
+}

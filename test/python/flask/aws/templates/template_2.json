@@ -1,0 +1,37 @@
+{
+    "httpRequest": {
+        "method": "POST",
+        "path": "/",
+        "headers": {
+            "Authorization": [
+                "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
+            ]
+        },
+        "body": {
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::EC2::SubnetRouteTableAssociation",
+                "Identifier": "rtbassoc-001"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
+        }
+    },
+    "httpResponse": {
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "statusCode": 200,
+        "body": {
+            "ResourceDescription": {
+                "Identifier": "rtbassoc-001",
+                "Properties": "{\"RouteTableId\":\"rtb-001a\",\"Id\":\"rtbassoc-001\",\"SubnetId\":\"subnet-0001b\"}"
+            },
+            "TypeName": "AWS::EC2::SubnetRouteTableAssociation"
+        }
+    }
+}

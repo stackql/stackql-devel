@@ -1,0 +1,23 @@
+{
+    "httpRequest": {
+        "method": "GET",
+        "path": "/",
+        "headers": {
+            "Authorization": [
+                "^.*SignedHeaders=.*host.*x-amz-date.*$"
+            ]
+        }
+    },
+    "httpResponse": {
+        "headers": {
+            "content-type": [
+                "text/xml"
+            ]
+        },
+        "statusCode": 200,
+        "body": {
+            "type": "BINARY",
+            "base64Bytes": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPExpc3RBbGxNeUJ1Y2tldHNSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PE93bmVyPjxJRD4xMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA8L0lEPjxEaXNwbGF5TmFtZT5qb2VibG93PC9EaXNwbGF5TmFtZT48L093bmVyPjxCdWNrZXRzPgogIDxCdWNrZXQ+PE5hbWU+c3RhY2txbC10cmlhbC1idWNrZXQtMDE8L05hbWU+PENyZWF0aW9uRGF0ZT4yMDIyLTA4LTI5VDEyOjEwOjA2LjAwMFo8L0NyZWF0aW9uRGF0ZT48L0J1Y2tldD4KICA8QnVja2V0PjxOYW1lPnN0YWNrcWwtdHJpYWwtYnVja2V0LTAyPC9OYW1lPjxDcmVhdGlvbkRhdGU+MjAyMi0wOC0yOVQxMjoxMTowNi4wMDBaPC9DcmVhdGlvbkRhdGU+PC9CdWNrZXQ+CiAgPEJ1Y2tldD48TmFtZT5zdGFja3FsLXRyaWFsLWJ1Y2tldC0wMzwvTmFtZT48Q3JlYXRpb25EYXRlPjIwMjItMDgtMjlUMTI6MTI6MDYuMDAwWjwvQ3JlYXRpb25EYXRlPjwvQnVja2V0Pgo8L0J1Y2tldHM+PC9MaXN0QWxsTXlCdWNrZXRzUmVzdWx0Pg=="
+        }
+    }
+}

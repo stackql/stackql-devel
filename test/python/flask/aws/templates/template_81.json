@@ -1,0 +1,40 @@
+{
+    "httpRequest": {
+        "method": "POST",
+        "path": "/",
+        "headers": {
+            "Authorization": [
+                "^.*SignedHeaders=.*content-type;host;x-amz-date.*$"
+            ]
+        },
+        "body": {
+            "type": "PARAMETERS",
+            "parameters": {
+                "Action": [
+                    "^ModifyVolume$"
+                ],
+                "Version": [
+                    "^2016\\-11\\-15$"
+                ],
+                "Size": [
+                    "^12$"
+                ],
+                "VolumeId": [
+                    "vol-000000000000001"
+                ]
+            }
+        }
+    },
+    "httpResponse": {
+        "headers": {
+            "content-type": [
+                "text/xml"
+            ]
+        },
+        "statusCode": 200,
+        "body": {
+            "type": "BINARY",
+            "base64Bytes": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPE1vZGlmeVZvbHVtZVJlc3BvbnNlIHhtbG5zPSJodHRwOi8vZWMyLmFtYXpvbmF3cy5jb20vZG9jLzIwMTYtMTEtMTUvIj4KICAgIDxyZXF1ZXN0SWQ+MDAwMTAwMDEtMDAwMS0wMDAxLTAwMDEtMDAwMTAwMDEwMDAxPC9yZXF1ZXN0SWQ+CiAgICA8dm9sdW1lTW9kaWZpY2F0aW9uPgogICAgICAgIDxtb2RpZmljYXRpb25TdGF0ZT5tb2RpZnlpbmc8L21vZGlmaWNhdGlvblN0YXRlPgogICAgICAgIDxvcmlnaW5hbElvcHM+MTAwPC9vcmlnaW5hbElvcHM+CiAgICAgICAgPG9yaWdpbmFsTXVsdGlBdHRhY2hFbmFibGVkPmZhbHNlPC9vcmlnaW5hbE11bHRpQXR0YWNoRW5hYmxlZD4KICAgICAgICA8b3JpZ2luYWxTaXplPjExPC9vcmlnaW5hbFNpemU+CiAgICAgICAgPG9yaWdpbmFsVm9sdW1lVHlwZT5ncDI8L29yaWdpbmFsVm9sdW1lVHlwZT4KICAgICAgICA8cHJvZ3Jlc3M+MDwvcHJvZ3Jlc3M+CiAgICAgICAgPHN0YXJ0VGltZT4yMDIyLTA4LTI0VDIyOjAxOjM3LjAwMFo8L3N0YXJ0VGltZT4KICAgICAgICA8dGFyZ2V0SW9wcz4xMDA8L3RhcmdldElvcHM+CiAgICAgICAgPHRhcmdldE11bHRpQXR0YWNoRW5hYmxlZD5mYWxzZTwvdGFyZ2V0TXVsdGlBdHRhY2hFbmFibGVkPgogICAgICAgIDx0YXJnZXRTaXplPjEyPC90YXJnZXRTaXplPgogICAgICAgIDx0YXJnZXRWb2x1bWVUeXBlPmdwMjwvdGFyZ2V0Vm9sdW1lVHlwZT4KICAgICAgICA8dm9sdW1lSWQ+dm9sLTAwMDAwMDAwMDAwMDAwMTwvdm9sdW1lSWQ+CiAgICA8L3ZvbHVtZU1vZGlmaWNhdGlvbj4KPC9Nb2RpZnlWb2x1bWVSZXNwb25zZT4="
+        }
+    }
+}

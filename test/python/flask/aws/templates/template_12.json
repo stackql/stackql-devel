@@ -1,0 +1,28 @@
+{
+    "httpRequest": {
+        "method": "GET",
+        "path": "/",
+        "headers": {
+            "Authorization": [
+                "^.*ap-southeast-2.*SignedHeaders=.*host;x-amz-content-sha256;x-amz-date.*$"
+            ]
+        },
+        "queryStringParameters": {
+            "max-keys": [
+                "1000"
+            ]
+        }
+    },
+    "httpResponse": {
+        "headers": {
+            "content-type": [
+                "text/xml"
+            ]
+        },
+        "statusCode": 200,
+        "body": {
+            "type": "BINARY",
+            "base64Bytes": "PExpc3RCdWNrZXRSZXN1bHQgeG1sbnM9Imh0dHA6Ly9zMy5hbWF6b25hd3MuY29tL2RvYy8yMDA2LTAzLTAxLyI+PE5hbWU+c3RhY2txbC10cmlhbC1idWNrZXQtMDI8L05hbWU+PFByZWZpeD48L1ByZWZpeD48TWFya2VyPjwvTWFya2VyPjxNYXhLZXlzPjEwMDA8L01heEtleXM+PElzVHJ1bmNhdGVkPmZhbHNlPC9Jc1RydW5jYXRlZD48L0xpc3RCdWNrZXRSZXN1bHQ+"
+        }
+    }
+}

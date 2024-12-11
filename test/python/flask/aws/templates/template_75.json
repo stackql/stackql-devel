@@ -1,0 +1,40 @@
+{
+    "httpRequest": {
+        "method": "POST",
+        "path": "/",
+        "headers": {
+            "Authorization": [
+                "^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.CreateResource"
+            ]
+        },
+        "body": {
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::Logs::LogGroup",
+                "DesiredState": "{\"LogGroupName\": \"LogGroupResourceExample3\",\"RetentionInDays\":90}"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
+        }
+    },
+    "httpResponse": {
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "statusCode": 200,
+        "body": {
+            "ProgressEvent": {
+                "EventTime": 1660714273.8,
+                "Identifier": "LogGroupResourceExample3",
+                "Operation": "CREATE",
+                "OperationStatus": "IN_PROGRESS",
+                "RequestToken": "10000001-0000-0000-0000-000000000001",
+                "TypeName": "AWS::Logs::LogGroup"
+            }
+        }
+    }
+}

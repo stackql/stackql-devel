@@ -1,0 +1,26 @@
+{
+    "httpRequest": {
+        "method": "POST",
+        "path": "/",
+        "headers": {
+            "Authorization": [
+                "^.*SignedHeaders=.*content-type;host;x-amz-date.*$"
+            ]
+        },
+        "body": {
+            "type": "PARAMETERS",
+            "parameters": {
+                "Action": [
+                    "^ListUsers$"
+                ],
+                "Version": [
+                    "^2010\\-05\\-08$"
+                ]
+            }
+        }
+    },
+    "httpResponseTemplate": {
+        "template": "#set( $joeDate = $!request.headers['X-Amz-Date'][0] ) \n{ 'statusCode': 200, 'headers': { 'Content-Type': [ 'text/xml' ] },  'body': { 'type': 'STRING', 'string': '<ListUsersResponse xmlns=\"https://iam.amazonaws.com/doc/2010-05-08/\"> <ListUsersResult>    <Users>       <member>          <UserId>AID2MAB8DPLSRHEXAMPLE</UserId>          <Path>/division_abc/subdivision_xyz/engineering/</Path>          <UserName>Andrew</UserName>          <Arn>arn:aws:iam::123456789012:user/division_abc/subdivision_xyz/engineering/Andrew</Arn>          <CreateDate>2012-09-05T19:38:48Z</CreateDate>          <PasswordLastUsed>2014-09-08T21:47:36Z</PasswordLastUsed>       </member>       <member>          <UserId>AIDIODR4TAW7CSEXAMPLE</UserId>          <Path>/division_abc/subdivision_xyz/engineering/</Path>          <UserName>Jackie</UserName>          <Arn>arn:aws:iam::123456789012:user/division_abc/subdivision_xyz/engineering/Jackie</Arn>          <CreateDate>2014-04-09T15:43:45Z</CreateDate>          <PasswordLastUsed>$joeDate.substring(0, 4)-$joeDate.substring(4, 6)-$joeDate.substring(6, 11):$joeDate.substring(11, 13):$joeDate.substring(13)</PasswordLastUsed>       </member>    </Users>    <IsTruncated>false</IsTruncated> </ListUsersResult> <ResponseMetadata>    <RequestId>7a62c49f-347e-4fc4-9331-6e8eEXAMPLE</RequestId> </ResponseMetadata> </ListUsersResponse>' } }",
+        "templateType": "VELOCITY"
+    }
+}

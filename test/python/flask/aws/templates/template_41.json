@@ -1,0 +1,38 @@
+{
+    "httpRequest": {
+        "method": "POST",
+        "path": "/",
+        "headers": {
+            "Authorization": [
+                "^.*ap-southeast-2.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.ListResources"
+            ]
+        },
+        "body": {
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::EC2::VPC"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
+        }
+    },
+    "httpResponse": {
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "statusCode": 200,
+        "body": {
+            "ResourceDescriptions": [
+                {
+                    "Identifier": "vpc-2-0001",
+                    "Properties": "{\"VpcId\":\"vpc-2-0001\"}"
+                }
+            ],
+            "TypeName": "AWS::EC2::VPC"
+        }
+    }
+}

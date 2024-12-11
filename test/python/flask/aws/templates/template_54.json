@@ -1,0 +1,20 @@
+{
+    "httpRequest": {
+        "method": "POST",
+        "path": "/",
+        "headers": {
+            "Authorization": [
+                "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "TransferService.StopServer"
+            ]
+        },
+        "body": {
+            "ServerId": "s-0000000001"
+        }
+    },
+    "httpResponse": {
+        "statusCode": 200
+    }
+}

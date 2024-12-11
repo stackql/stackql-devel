@@ -1,0 +1,29 @@
+{
+    "httpRequest": {
+        "method": "POST",
+        "path": "/",
+        "headers": {
+            "Authorization": [
+                "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "TransferService.DeleteServer"
+            ]
+        },
+        "body": {
+            "type": "JSON",
+            "json": {
+                "ServerId": "s-0000000001"
+            },
+            "matchType": "STRICT"
+        }
+    },
+    "httpResponse": {
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "statusCode": 200
+    }
+}
