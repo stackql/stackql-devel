@@ -196,11 +196,10 @@ def projects_testing_project_aggregated_instances():
 
 @app.route('/v1/projects/testing-project/assets', methods=['GET'])
 def v1_projects_testing_project_assets():
+    next_page_token = request.args.get('pageToken')
+    if next_page_token == 'GETAROUNDPAGETWO':
+        return render_template('route_32_template.json'), 200, {'Content-Type': 'application/json'}
     return render_template('route_31_template.json'), 200, {'Content-Type': 'application/json'}
-
-@app.route('/v1/projects/testing-project/assets', methods=['GET'])
-def v1_projects_testing_project_assets_02():   # had to manually rename
-    return render_template('route_32_template.json'), 200, {'Content-Type': 'application/json'}
 
 @app.route('/projects/testing-project/global/firewalls/allow-spark-ui', methods=['PUT'])
 def projects_testing_project_global_firewalls_allow_spark_ui():
