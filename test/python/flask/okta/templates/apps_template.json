@@ -1,0 +1,114 @@
+{
+    "apps": [
+      {% for app in apps %}
+      {
+        "id": "{{ app['id'] }}",
+        "name": "{{ app['name'] }}",
+        "label": "{{ app['label'] }}",
+        "status": "{{ app['status'] }}",
+        "lastUpdated": "{{ app['lastUpdated'] }}",
+        "created": "{{ app['created'] }}",
+        "accessibility": {
+          "selfService": {{ app['accessibility']['selfService'] | tojson }},
+          "errorRedirectUrl": {{ app['accessibility']['errorRedirectUrl'] | tojson }},
+          "loginRedirectUrl": {{ app['accessibility']['loginRedirectUrl'] | tojson }}
+        },
+        "visibility": {
+          "autoSubmitToolbar": {{ app['visibility']['autoSubmitToolbar'] | tojson }},
+          "hide": {
+            "iOS": {{ app['visibility']['hide']['iOS'] | tojson }},
+            "web": {{ app['visibility']['hide']['web'] | tojson }}
+          },
+          "appLinks": {{ app['visibility']['appLinks'] | tojson }}
+        },
+        "features": {{ app['features'] | tojson }},
+        "signOnMode": "{{ app['signOnMode'] }}",
+        "credentials": {
+          "userNameTemplate": {
+            "template": "{{ app['credentials']['userNameTemplate']['template'] }}",
+            "type": "{{ app['credentials']['userNameTemplate']['type'] }}"
+          },
+          {% if app['credentials']['signing'] %}
+          "signing": {
+            "kid": "{{ app['credentials']['signing']['kid'] }}"
+          },
+          {% endif %}
+          {% if app['credentials']['oauthClient'] %}
+          "oauthClient": {
+            "autoKeyRotation": {{ app['credentials']['oauthClient']['autoKeyRotation'] | tojson }},
+            "client_id": "{{ app['credentials']['oauthClient']['client_id'] }}",
+            "token_endpoint_auth_method": "{{ app['credentials']['oauthClient']['token_endpoint_auth_method'] }}"
+          }
+          {% endif %}
+        },
+        "settings": {
+          "app": {{ app['settings']['app'] | tojson }},
+          "notifications": {
+            "vpn": {
+              "network": {
+                "connection": "{{ app['settings']['notifications']['vpn']['network']['connection'] }}"
+              },
+              "message": {{ app['settings']['notifications']['vpn']['message'] | tojson }},
+              "helpUrl": {{ app['settings']['notifications']['vpn']['helpUrl'] | tojson }}
+            }
+          },
+          {% if app['settings']['oauthClient'] %}
+          "oauthClient": {
+            "client_uri": {{ app['settings']['oauthClient']['client_uri'] | tojson }},
+            "logo_uri": {{ app['settings']['oauthClient']['logo_uri'] | tojson }},
+            "redirect_uris": {{ app['settings']['oauthClient']['redirect_uris'] | tojson }},
+            "response_types": {{ app['settings']['oauthClient']['response_types'] | tojson }},
+            "grant_types": {{ app['settings']['oauthClient']['grant_types'] | tojson }},
+            "application_type": "{{ app['settings']['oauthClient']['application_type'] }}",
+            "consent_method": "{{ app['settings']['oauthClient']['consent_method'] }}",
+            "issuer_mode": "{{ app['settings']['oauthClient']['issuer_mode'] }}",
+            "idp_initiated_login": {
+              "mode": "{{ app['settings']['oauthClient']['idp_initiated_login']['mode'] }}",
+              "default_scope": {{ app['settings']['oauthClient']['idp_initiated_login']['default_scope'] | tojson }}
+            },
+            "wildcard_redirect": "{{ app['settings']['oauthClient']['wildcard_redirect'] }}"
+          }
+          {% endif %}
+        },
+        "_links": {
+          "uploadLogo": {
+            "href": "{{ app['_links']['uploadLogo']['href'] }}",
+            "hints": {
+              "allow": {{ app['_links']['uploadLogo']['hints']['allow'] | tojson }}
+            }
+          },
+          "appLinks": [
+            {% for link in app['_links']['appLinks'] %}
+            {
+              "name": "{{ link['name'] }}",
+              "href": "{{ link['href'] }}",
+              "type": "{{ link['type'] }}"
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+          ],
+          "groups": {
+            "href": "{{ app['_links']['groups']['href'] }}"
+          },
+          "logo": [
+            {% for logo in app['_links']['logo'] %}
+            {
+              "name": "{{ logo['name'] }}",
+              "href": "{{ logo['href'] }}",
+              "type": "{{ logo['type'] }}"
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+          ],
+          "users": {
+            "href": "{{ app['_links']['users']['href'] }}"
+          },
+          {% if app['_links']['deactivate'] %}
+          "deactivate": {
+            "href": "{{ app['_links']['deactivate']['href'] }}"
+          }
+          {% endif %}
+        }
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+  

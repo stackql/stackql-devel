@@ -1,0 +1,12 @@
+{
+    "headers": {
+      "Datetime": "{{ headers['Datetime'] }}",
+      "Link": "{{ headers['Link'] }}"
+    },
+    "body": [
+      {% for user in users %}
+      {{ user|tojson }}{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+  
