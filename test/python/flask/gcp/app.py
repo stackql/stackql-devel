@@ -194,12 +194,14 @@ def projects_testing_project_zones_australia_southeast1_a_instances():
 def projects_testing_project_aggregated_instances():
     return render_template('route_30_template.json'), 200, {'Content-Type': 'application/json'}
 
+assets_counter = {'count': 0}
 @app.route('/v1/projects/testing-project/assets', methods=['GET'])
 def v1_projects_testing_project_assets():
-    next_page_token = request.args.get('pageToken')
+    next_page_token = request.args.get('pageToken', )
     if next_page_token == 'GETAROUNDPAGETWO':
-        return render_template('route_32_template.json'), 200, {'Content-Type': 'application/json'}
-    return render_template('route_31_template.json'), 200, {'Content-Type': 'application/json'}
+        return render_template('route_31_template.json'), 200, {'Content-Type': 'application/json'}
+    # Increment the call counter
+    return render_template('route_32_template.json'), 200, {'Content-Type': 'application/json'}
 
 @app.route('/projects/testing-project/global/firewalls/allow-spark-ui', methods=['PUT'])
 def projects_testing_project_global_firewalls_allow_spark_ui():
