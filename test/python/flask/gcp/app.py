@@ -120,7 +120,7 @@ def projects_another_project_zones_australia_southeast1_a_acceleratorTypes():
 def v3_projects_testproject_getIamPolicy():
     return render_template('route_23_template.json'), 200, {'Content-Type': 'application/json'}
 
-@app.route('/v3/organizations/123456789012:getIamPolicy', methods=['GET'])
+@app.route('/v3/organizations/123456789012:getIamPolicy', methods=['POST'])
 def v3_organizations_123456789012_getIamPolicy():
     return render_template('route_24_template.json'), 200, {'Content-Type': 'application/json'}
 
