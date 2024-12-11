@@ -193,7 +193,7 @@ def get_members():
     """Retrieve organization members dynamically from template."""
     page = int(request.args.get('page', 1))
     per_page = 10
-    total_pages = 2
+    total_pages = 4
     members = []
     for i in range((page - 1) * per_page + 1, page * per_page + 1):
         members.append({
