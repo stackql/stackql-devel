@@ -54,6 +54,8 @@ GetMatcherConfig.load_config_from_file(config_path)
 @app.route('/', methods=['POST'])
 def handle_post_requests():
     """Route POST requests to the correct template based on mockserver rules."""
+    matching_routes = []
+
     for route_name, cfg in GetMatcherConfig._ROOT_PATH_CFG.items():
         logger.debug(f"Evaluating route: {route_name}")
 
@@ -85,19 +87,32 @@ def handle_post_requests():
                     logger.warning(f"Skipping invalid regex for body condition key='{key}': {regex}")
                     continue
 
-                if not re.match(regex, request_body.get(key, "")):
+                if not re.match(regex, str(request_body.get(key, ""))):
                     logger.debug(f"Body mismatch: key='{key}', value='{request_body.get(key, '')}', regex='{regex}'")
                     break
             else:
                 # All conditions matched
-                logger.info(f"Match found for route: {route_name}")
-                if "template" not in cfg:
-                    logger.error(f"Missing template for route: {route_name}")
-                    return jsonify({'error': f'Missing template for route: {route_name}'}), 500
-                response = make_response(render_template(cfg["template"]))
-                response.headers.update(cfg.get("headers", {}))
-                response.status_code = cfg.get("status", 200)
-                return response
+                logger.info(f"Match found for route with body conditions: {route_name}")
+                matching_routes.append((route_name, cfg))
+                continue
+
+        else:
+            # If no body conditions, match by headers only
+            logger.debug(f"Route without body conditions matched: {route_name}")
+            matching_routes.append((route_name, cfg))
+
+    # Prioritize routes with body conditions
+    matching_routes.sort(key=lambda x: bool(x[1].get("body_conditions")), reverse=True)
+
+    if matching_routes:
+        selected_route, cfg = matching_routes[0]
+        if "template" not in cfg:
+            logger.error(f"Missing template for route: {selected_route}")
+            return jsonify({'error': f'Missing template for route: {selected_route}'}), 500
+        response = make_response(render_template(cfg["template"]))
+        response.headers.update(cfg.get("headers", {}))
+        response.status_code = cfg.get("status", 200)
+        return response
 
     logger.error("No matching configuration found for the request.")
     return jsonify({'error': 'No matching template found'}), 404
