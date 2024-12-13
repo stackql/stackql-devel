@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ModifyVolumeResponse xmlns="http://ec2.amazonaws.com/doc/2016-11-15/">
+    <requestId>00010001-0001-0001-0001-000100010001</requestId>
+    <volumeModification>
+        <modificationState>modifying</modificationState>
+        <originalIops>100</originalIops>
+        <originalMultiAttachEnabled>false</originalMultiAttachEnabled>
+        <originalSize>11</originalSize>
+        <originalVolumeType>gp2</originalVolumeType>
+        <progress>0</progress>
+        <startTime>2022-08-24T22:01:37.000Z</startTime>
+        <targetIops>100</targetIops>
+        <targetMultiAttachEnabled>false</targetMultiAttachEnabled>
+        <targetSize>12</targetSize>
+        <targetVolumeType>gp2</targetVolumeType>
+        <volumeId>vol-000000000000001</volumeId>
+    </volumeModification>
+</ModifyVolumeResponse>

@@ -1,0 +1,803 @@
+{
+    "route_1": {
+        "template": "template_1.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.ListResources"
+    },
+    "route_2": {
+        "template": "template_2.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_3": {
+        "template": "template_3.jinja.json",
+        "status": 400,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_4": {
+        "template": "template_4.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_5": {
+        "template": "template_5.jinja.json",
+        "status": 400,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_6": {
+        "template": "template_6.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_10": {
+        "template": "template_10.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "text/xml"
+            ]
+        },
+        "auth_header_regex": "^.*us-east-1.*SignedHeaders=.*host;x-amz-date.*$",
+        "amz_target_header_regex": ""
+    },
+    "route_15": {
+        "template": "template_15.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "text/xml"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date.*$",
+        "amz_target_header_regex": ""
+    },
+    "route_17": {
+        "template": "template_17.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "text/xml"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date.*$",
+        "amz_target_header_regex": ""
+    },
+    "route_18": {
+        "template": "template_18.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "text/xml"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date.*$",
+        "amz_target_header_regex": ""
+    },
+    "route_19": {
+        "template": "template_19.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.ListResources"
+    },
+    "route_20": {
+        "template": "template_20.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_21": {
+        "template": "template_21.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_22": {
+        "template": "template_22.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*us-east-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.ListResources"
+    },
+    "route_23": {
+        "template": "template_23.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*us-east-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_24": {
+        "template": "template_24.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*us-east-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_25": {
+        "template": "template_25.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*us-west-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.ListResources"
+    },
+    "route_26": {
+        "template": "template_26.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*us-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_27": {
+        "template": "template_27.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*us-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_28": {
+        "template": "template_28.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*eu-west-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.ListResources"
+    },
+    "route_29": {
+        "template": "template_29.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*eu-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_30": {
+        "template": "template_30.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*eu-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_31": {
+        "template": "template_31.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*us-west-2.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.ListResources"
+    },
+    "route_32": {
+        "template": "template_32.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*us-west-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_33": {
+        "template": "template_33.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*us-west-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_34": {
+        "template": "template_34.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*eu-west-2.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.ListResources"
+    },
+    "route_35": {
+        "template": "template_35.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*eu-west-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_36": {
+        "template": "template_36.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*eu-west-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_37": {
+        "template": "template_37.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ca-central-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.ListResources"
+    },
+    "route_38": {
+        "template": "template_38.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ca-central-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_39": {
+        "template": "template_39.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ca-central-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_40": {
+        "template": "template_40.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.ListResources"
+    },
+    "route_41": {
+        "template": "template_41.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.ListResources"
+    },
+    "route_42": {
+        "template": "template_42.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_43": {
+        "template": "template_43.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_44": {
+        "template": "template_44.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_45": {
+        "template": "template_45.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_46": {
+        "template": "template_46.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_47": {
+        "template": "template_47.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_48": {
+        "template": "template_48.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "TransferService.DeleteServer"
+    },
+    "route_49": {
+        "template": "template_49.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "TransferService.DeleteUser"
+    },
+    "route_50": {
+        "template": "template_50.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "TransferService.UpdateServer"
+    },
+    "route_51": {
+        "template": "template_51.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "TransferService.UpdateUser"
+    },
+    "route_52": {
+        "template": "template_52.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "TransferService.CreateServer"
+    },
+    "route_53": {
+        "template": "template_53.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "TransferService.CreateServer"
+    },
+    "route_54": {
+        "template": "template_54.jinja.json",
+        "status": 200,
+        "headers": {},
+        "auth_header_regex": "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "TransferService.StopServer"
+    },
+    "route_55": {
+        "template": "template_55.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "BaldrApiService.DescribeClusters"
+    },
+    "route_56": {
+        "template": "template_56.jinja.json",
+        "status": 501,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*/rubbish-region/.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "BaldrApiService.DescribeBackups"
+    },
+    "route_57": {
+        "template": "template_57.jinja.json",
+        "status": 403,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*/another-rubbish-region/.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "BaldrApiService.DescribeBackups"
+    },
+    "route_58": {
+        "template": "template_58.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "BaldrApiService.DescribeBackups"
+    },
+    "route_59": {
+        "template": "template_59.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/json"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=content-encoding;content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "Logs_20140328.GetLogEvents"
+    },
+    "route_60": {
+        "template": "template_60.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_61": {
+        "template": "template_61.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_62": {
+        "template": "template_62.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_63": {
+        "template": "template_63.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_64": {
+        "template": "template_64.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.ListResources"
+    },
+    "route_65": {
+        "template": "template_65.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.ListResources"
+    },
+    "route_66": {
+        "template": "template_66.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*us-east-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.ListResources"
+    },
+    "route_67": {
+        "template": "template_67.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*us-east-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_68": {
+        "template": "template_68.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*us-east-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_69": {
+        "template": "template_69.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*us-east-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResource"
+    },
+    "route_71": {
+        "template": "template_71.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.CreateResource"
+    },
+    "route_72": {
+        "template": "template_72.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^AWS4-HMAC-SHA256 Credential=.*/cloudcontrolapi/aws4_request.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.CreateResource"
+    },
+    "route_73": {
+        "template": "template_73.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^AWS4-HMAC-SHA256 Credential=.*/cloudcontrolapi/aws4_request.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.CreateResource"
+    },
+    "route_74": {
+        "template": "template_74.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.UpdateResource"
+    },
+    "route_75": {
+        "template": "template_75.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.CreateResource"
+    },
+    "route_76": {
+        "template": "template_76.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.DeleteResource"
+    },
+    "route_77": {
+        "template": "template_77.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.CancelResourceRequest"
+    },
+    "route_78": {
+        "template": "template_78.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "application/x-amz-json-1.0"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
+        "amz_target_header_regex": "CloudApiService.GetResourceRequestStatus"
+    },
+    "route_79": {
+        "template": "template_79.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "text/xml"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date.*$",
+        "amz_target_header_regex": ""
+    },
+    "route_80": {
+        "template": "template_80.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "text/xml"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date.*$",
+        "amz_target_header_regex": ""
+    },
+    "route_81": {
+        "template": "template_81.jinja.json",
+        "status": 200,
+        "headers": {
+            "content-type": [
+                "text/xml"
+            ]
+        },
+        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date.*$",
+        "amz_target_header_regex": ""
+    },
+    "describe_volumes_request": {
+        "template": "describe_volumes.jinja.xml",
+        "status": 200,
+        "headers": {
+            "content-type": "text/xml"
+        },
+        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date.*$",
+        "amz_target_header_regex": "^$",
+        "body_conditions": {
+            "Action": "^DescribeVolumes$",
+            "Version": "^2016\\-11\\-15$"
+        }
+    }
+}
