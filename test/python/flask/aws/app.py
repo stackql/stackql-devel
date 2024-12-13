@@ -1,22 +1,18 @@
 from flask import Flask, request, render_template, make_response, jsonify
 import os
-
 import logging
+import re
 
 app = Flask(__name__)
 app.template_folder = os.path.join(os.path.dirname(__file__), "templates")
-
-
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-
 @app.before_request
 def log_request_info():
     logger.info(f"Request: {request.method} {request.path}\n  - Query: {request.args}\n  - Headers: {request.headers}\n  - Body: {request.get_data()}\n")
-
 
 # Routes generated from mockserver configuration
 @app.route('/', methods=['POST'])
@@ -24,61 +20,61 @@ def handle_post_requests():
     """Route POST requests to the correct template based on mockserver rules."""
     # Iterate over the mockserver configuration to match the correct response
 
-    if request.headers.get('Authorization', '').startswith('^.*ap-southeast-2.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.ListResources'):
+    if re.match(r'^.*ap-southeast-2.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.ListResources'):
         return render_template('template_1.json')
-    if request.headers.get('Authorization', '').startswith('^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
+    if re.match(r'^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
         return render_template('template_2.json')
-    if request.headers.get('Authorization', '').startswith('^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
+    if re.match(r'^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
         return render_template('template_3.json')
-    if request.headers.get('Authorization', '').startswith('^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
+    if re.match(r'^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
         return render_template('template_4.json')
-    if request.headers.get('Authorization', '').startswith('^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
+    if re.match(r'^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
         return render_template('template_5.json')
-    if request.headers.get('Authorization', '').startswith('^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
+    if re.match(r'^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
         return render_template('template_6.json')
-    if request.headers.get('Authorization', '').startswith('^.*us-east-1.*SignedHeaders=.*host;x-amz-date.*$') and request.form.get('Action') == '^ListUserPolicies$' and request.form.get('Version') == '^2010\-05\-08$':
+    if re.match(r'^.*us-east-1.*SignedHeaders=.*host;x-amz-date.*$', request.headers.get('Authorization', '')) and request.form.get('Action') == '^ListUserPolicies$' and request.form.get('Version') == '^2010\-05\-08$':
         return render_template('template_10.json')
-    if request.headers.get('Authorization', '').startswith('^.*SignedHeaders=.*content-type;host;x-amz-date.*$') and request.form.get('Action') == '^DescribeVolumes$' and request.form.get('Version') == '^2016\-11\-15$':
+    if re.match(r'^.*SignedHeaders=.*content-type;host;x-amz-date.*$', request.headers.get('Authorization', '')) and request.form.get('Action') == '^DescribeVolumes$' and request.form.get('Version') == '^2016\-11\-15$':
         return render_template('template_15.json')
-    if request.headers.get('Authorization', '').startswith('^.*SignedHeaders=.*content-type;host;x-amz-date.*$') and request.form.get('Action') == '^ListUsers$' and request.form.get('Version') == '^2010\-05\-08$':
+    if re.match(r'^.*SignedHeaders=.*content-type;host;x-amz-date.*$', request.headers.get('Authorization', '')) and request.form.get('Action') == '^ListUsers$' and request.form.get('Version') == '^2010\-05\-08$':
         return render_template('template_16.json')
-    if request.headers.get('Authorization', '').startswith('^.*SignedHeaders=.*content-type;host;x-amz-date.*$') and request.form.get('Action') == '^DescribeVpnGateways$' and request.form.get('Version') == '^2016\-11\-15$':
+    if re.match(r'^.*SignedHeaders=.*content-type;host;x-amz-date.*$', request.headers.get('Authorization', '')) and request.form.get('Action') == '^DescribeVpnGateways$' and request.form.get('Version') == '^2016\-11\-15$':
         return render_template('template_17.json')
-    if request.headers.get('Authorization', '').startswith('^.*SignedHeaders=.*content-type;host;x-amz-date.*$') and request.form.get('Action') == '^DescribeInstances$' and request.form.get('Version') == '^2016\-11\-15$':
+    if re.match(r'^.*SignedHeaders=.*content-type;host;x-amz-date.*$', request.headers.get('Authorization', '')) and request.form.get('Action') == '^DescribeInstances$' and request.form.get('Version') == '^2016\-11\-15$':
         return render_template('template_18.json')
-    if request.headers.get('Authorization', '').startswith('^.*ap-southeast-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.ListResources'):
+    if re.match(r'^.*ap-southeast-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.ListResources'):
         return render_template('template_19.json')
-    if request.headers.get('Authorization', '').startswith('^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
+    if re.match(r'^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
         return render_template('template_20.json')
-    if request.headers.get('Authorization', '').startswith('^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
+    if re.match(r'^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
         return render_template('template_21.json')
-    if request.headers.get('Authorization', '').startswith('^.*us-east-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.ListResources'):
+    if re.match(r'^.*us-east-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.ListResources'):
         return render_template('template_22.json')
-    if request.headers.get('Authorization', '').startswith('^.*us-east-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
+    if re.match(r'^.*us-east-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
         return render_template('template_23.json')
-    if request.headers.get('Authorization', '').startswith('^.*us-east-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
+    if re.match(r'^.*us-east-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
         return render_template('template_24.json')
-    if request.headers.get('Authorization', '').startswith('^.*us-west-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.ListResources'):
+    if re.match(r'^.*us-west-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.ListResources'):
         return render_template('template_25.json')
-    if request.headers.get('Authorization', '').startswith('^.*us-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
+    if re.match(r'^.*us-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
         return render_template('template_26.json')
-    if request.headers.get('Authorization', '').startswith('^.*us-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
+    if re.match(r'^.*us-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
         return render_template('template_27.json')
-    if request.headers.get('Authorization', '').startswith('^.*eu-west-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.ListResources'):
+    if re.match(r'^.*eu-west-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.ListResources'):
         return render_template('template_28.json')
-    if request.headers.get('Authorization', '').startswith('^.*eu-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
+    if re.match(r'^.*eu-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
         return render_template('template_29.json')
-    if request.headers.get('Authorization', '').startswith('^.*eu-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
+    if re.match(r'^.*eu-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
         return render_template('template_30.json')
-    if request.headers.get('Authorization', '').startswith('^.*us-west-2.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.ListResources'):
+    if re.match(r'^.*us-west-2.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.ListResources'):
         return render_template('template_31.json')
-    if request.headers.get('Authorization', '').startswith('^.*us-west-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
+    if re.match(r'^.*us-west-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
         return render_template('template_32.json')
-    if request.headers.get('Authorization', '').startswith('^.*us-west-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
+    if re.match(r'^.*us-west-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
         return render_template('template_33.json')
-    if request.headers.get('Authorization', '').startswith('^.*eu-west-2.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.ListResources'):
+    if re.match(r'^.*eu-west-2.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.ListResources'):
         return render_template('template_34.json')
-    if request.headers.get('Authorization', '').startswith('^.*eu-west-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
+    if re.match(r'^.*eu-west-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$', request.headers.get('Authorization', '')) and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
         return render_template('template_35.json')
     if request.headers.get('Authorization', '').startswith('^.*eu-west-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$') and request.headers.get('X-Amz-Target', '').startswith('CloudApiService.GetResource'):
         return render_template('template_36.json')
