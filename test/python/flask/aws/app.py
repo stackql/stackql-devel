@@ -42,13 +42,27 @@ def handle_post_requests():
     """Route POST requests to the correct template based on mockserver rules."""
     # Iterate over the mockserver configuration to match the correct response
     for route_name, cfg in GetMatcherConfig._ROOT_PATH_CFG.items():
-        if re.match(cfg["auth_header_regex"], request.headers.get("Authorization", "")) and re.match(cfg["amz_target_header_regex"], request.headers.get("X-Amz-Target", "")):
-            response = make_response(render_template(cfg["template"]))
-            response.headers.update(cfg["headers"])
-            response.status_code = cfg["status"]
-            return response
+        # Match headers
+        if not re.match(cfg["auth_header_regex"], request.headers.get("Authorization", "")):
+            continue
+        if not re.match(cfg["amz_target_header_regex"], request.headers.get("X-Amz-Target", "")):
+            continue
+
+        # Match body conditions if specified
+        body_conditions = cfg.get("body_conditions", {})
+        if body_conditions:
+            request_body = request.get_json(silent=True) or {}
+            for key, regex in body_conditions.items():
+                if not re.match(regex, request_body.get(key, "")):
+                    break
+            else:
+                # All conditions matched
+                response = make_response(render_template(cfg["template"]))
+                response.headers.update(cfg["headers"])
+                response.status_code = cfg["status"]
+                return response
+
     return jsonify({'error': 'No matching template found'}), 404
-    ## END BLOCK
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
