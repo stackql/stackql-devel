@@ -2,1285 +2,1758 @@
     "POST:/:0": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.ListResources",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-2.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.ListResources"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::EC2::SubnetRouteTableAssociation"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::EC2::SubnetRouteTableAssociation"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_0.json"
+        "template": "template_0.json",
+        "status": 200
     },
     "POST:/:1": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::EC2::SubnetRouteTableAssociation",
-            "Identifier": "rtbassoc-001"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::EC2::SubnetRouteTableAssociation",
+                "Identifier": "rtbassoc-001"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_1.json"
+        "template": "template_1.json",
+        "status": 200
     },
     "POST:/:2": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 400,
         "body_conditions": {
-            "TypeName": "AWS::EC2::SubnetRouteTableAssociation",
-            "Identifier": "rtbassoc-002"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::EC2::SubnetRouteTableAssociation",
+                "Identifier": "rtbassoc-002"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_2.json"
+        "template": "template_2.json",
+        "status": 400
     },
     "POST:/:3": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::EC2::SubnetRouteTableAssociation",
-            "Identifier": "rtbassoc-003"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::EC2::SubnetRouteTableAssociation",
+                "Identifier": "rtbassoc-003"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_3.json"
+        "template": "template_3.json",
+        "status": 200
     },
     "POST:/:4": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 400,
         "body_conditions": {
-            "TypeName": "AWS::EC2::SubnetRouteTableAssociation",
-            "Identifier": "ltbassoc-001"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::EC2::SubnetRouteTableAssociation",
+                "Identifier": "ltbassoc-001"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_4.json"
+        "template": "template_4.json",
+        "status": 400
     },
     "POST:/:5": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::EC2::SubnetRouteTableAssociation",
-            "Identifier": "ltbassoc-002"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::EC2::SubnetRouteTableAssociation",
+                "Identifier": "ltbassoc-002"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_5.json"
+        "template": "template_5.json",
+        "status": 200
     },
     "GET:/2013-04-01/hostedzone/A00000001AAAAAAAAAAAA/rrset:6": {
         "method": "GET",
         "path": "/2013-04-01/hostedzone/A00000001AAAAAAAAAAAA/rrset",
-        "auth_header_regex": "^.*us-east-1.*SignedHeaders=.*host.*;x-amz-date.*$",
-        "amz_target_header_regex": null,
         "headers": {
-            "content-type": [
-                "text/xml"
+            "Authorization": [
+                "^.*us-east-1.*SignedHeaders=.*host.*;x-amz-date.*$"
             ]
         },
-        "status": 200,
-        "template": "template_7.xml"
+        "body_conditions": {},
+        "template": "template_6.json",
+        "status": 200
     },
     "POST:/2013-04-01/hostedzone/some-id/rrset/:7": {
         "method": "POST",
         "path": "/2013-04-01/hostedzone/some-id/rrset/",
-        "auth_header_regex": "^.*us-east-1.*SignedHeaders=.*host.*;x-amz-date.*$",
-        "amz_target_header_regex": null,
         "headers": {
-            "content-type": [
-                "text/xml"
+            "Authorization": [
+                "^.*us-east-1.*SignedHeaders=.*host.*;x-amz-date.*$"
             ]
         },
-        "status": 200,
-        "template": "template_8.xml"
+        "body_conditions": {
+            "type": "STRING",
+            "value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ChangeResourceRecordSetsRequest xmlns=\"https://route53.amazonaws.com/doc/2013-04-01/\"><ChangeBatch><Changes><Change><Action>CREATE</Action><ResourceRecordSet><Name>my.domain.com</Name><Type>A</Type><TTL>900</TTL><ResourceRecords><ResourceRecord><Value>10.10.10.10</Value></ResourceRecord></ResourceRecords></ResourceRecordSet></Change></Changes></ChangeBatch></ChangeResourceRecordSetsRequest>"
+        },
+        "template": "template_7.json",
+        "status": 200
     },
     "POST:/2013-04-01/hostedzone/some-id/rrset/:8": {
         "method": "POST",
         "path": "/2013-04-01/hostedzone/some-id/rrset/",
-        "auth_header_regex": "^.*us-east-1.*SignedHeaders=.*host.*;x-amz-date.*$",
-        "amz_target_header_regex": null,
         "headers": {
-            "content-type": [
-                "text/xml"
+            "Authorization": [
+                "^.*us-east-1.*SignedHeaders=.*host.*;x-amz-date.*$"
             ]
         },
-        "status": 200,
-        "template": "template_9.xml"
+        "body_conditions": {
+            "type": "STRING",
+            "value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ChangeResourceRecordSetsRequest xmlns=\"https://route53.amazonaws.com/doc/2013-04-01/\"><ChangeBatch><Changes><Change><Action>CREATE</Action><ResourceRecordSet><Name>dev-srv.my.domain.com</Name><Type>CNAME</Type><TTL>900</TTL><ResourceRecords><ResourceRecord><Value>s-1000000000000.server-bank.my.domain.com</Value></ResourceRecord></ResourceRecords></ResourceRecordSet></Change></Changes></ChangeBatch></ChangeResourceRecordSetsRequest>"
+        },
+        "template": "template_8.json",
+        "status": 200
     },
     "POST:/:9": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*us-east-1.*SignedHeaders=.*host;x-amz-date.*$",
-        "amz_target_header_regex": null,
         "headers": {
-            "content-type": [
-                "text/xml"
+            "Authorization": [
+                "^.*us-east-1.*SignedHeaders=.*host;x-amz-date.*$"
             ]
         },
-        "status": 200,
-        "template": "template_10.xml"
+        "body_conditions": {
+            "type": "PARAMETERS",
+            "parameters": {
+                "Action": [
+                    "^ListUserPolicies$"
+                ],
+                "Version": [
+                    "^2010\\-05\\-08$"
+                ]
+            }
+        },
+        "template": "template_9.json",
+        "status": 200
     },
     "GET:/:10": {
         "method": "GET",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders=.*host;x-amz-content-sha256;x-amz-date.*$",
-        "amz_target_header_regex": null,
         "headers": {
-            "content-type": [
-                "text/xml"
+            "Authorization": [
+                "^.*ap-southeast-1.*SignedHeaders=.*host;x-amz-content-sha256;x-amz-date.*$"
             ]
         },
-        "status": 200,
-        "template": "template_11.xml"
+        "body_conditions": {},
+        "template": "template_10.json",
+        "status": 200
     },
     "GET:/:11": {
         "method": "GET",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders=.*host;x-amz-content-sha256;x-amz-date.*$",
-        "amz_target_header_regex": null,
         "headers": {
-            "content-type": [
-                "text/xml"
+            "Authorization": [
+                "^.*ap-southeast-2.*SignedHeaders=.*host;x-amz-content-sha256;x-amz-date.*$"
             ]
         },
-        "status": 200,
-        "template": "template_12.xml"
+        "body_conditions": {},
+        "template": "template_11.json",
+        "status": 200
     },
     "GET:/:12": {
         "method": "GET",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=.*host;.*x-amz-date.*$",
-        "amz_target_header_regex": null,
         "headers": {
-            "content-type": [
-                "text/xml"
+            "Authorization": [
+                "^.*SignedHeaders=.*host;.*x-amz-date.*$"
             ]
         },
-        "status": 200,
-        "template": "template_13.xml"
+        "body_conditions": {},
+        "template": "template_12.json",
+        "status": 200
     },
     "GET:/:13": {
         "method": "GET",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=.*host.*x-amz-date.*$",
-        "amz_target_header_regex": null,
         "headers": {
-            "content-type": [
-                "text/xml"
+            "Authorization": [
+                "^.*SignedHeaders=.*host.*x-amz-date.*$"
             ]
         },
-        "status": 200,
-        "template": "template_14.xml"
+        "body_conditions": {},
+        "template": "template_13.json",
+        "status": 200
     },
     "POST:/:14": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date.*$",
-        "amz_target_header_regex": null,
         "headers": {
-            "content-type": [
-                "text/xml"
+            "Authorization": [
+                "^.*SignedHeaders=.*content-type;host;x-amz-date.*$"
             ]
         },
-        "status": 200,
-        "template": "template_15.xml"
+        "body_conditions": {
+            "type": "PARAMETERS",
+            "parameters": {
+                "Action": [
+                    "^DescribeVolumes$"
+                ],
+                "Version": [
+                    "^2016\\-11\\-15$"
+                ]
+            }
+        },
+        "template": "template_14.json",
+        "status": 200
     },
     "POST:/:15": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date.*$",
-        "amz_target_header_regex": null,
-        "headers": {},
-        "status": 200,
-        "template": "POST_/_15.json"
+        "headers": {
+            "Authorization": [
+                "^.*SignedHeaders=.*content-type;host;x-amz-date.*$"
+            ]
+        },
+        "body_conditions": {
+            "type": "PARAMETERS",
+            "parameters": {
+                "Action": [
+                    "^ListUsers$"
+                ],
+                "Version": [
+                    "^2010\\-05\\-08$"
+                ]
+            }
+        },
+        "template": "template_15.vm",
+        "status": 200
     },
     "POST:/:16": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date.*$",
-        "amz_target_header_regex": null,
         "headers": {
-            "content-type": [
-                "text/xml"
+            "Authorization": [
+                "^.*SignedHeaders=.*content-type;host;x-amz-date.*$"
             ]
         },
-        "status": 200,
-        "template": "template_17.xml"
+        "body_conditions": {
+            "type": "PARAMETERS",
+            "parameters": {
+                "Action": [
+                    "^DescribeVpnGateways$"
+                ],
+                "Version": [
+                    "^2016\\-11\\-15$"
+                ]
+            }
+        },
+        "template": "template_16.json",
+        "status": 200
     },
     "POST:/:17": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date.*$",
-        "amz_target_header_regex": null,
         "headers": {
-            "content-type": [
-                "text/xml"
+            "Authorization": [
+                "^.*SignedHeaders=.*content-type;host;x-amz-date.*$"
             ]
         },
-        "status": 200,
-        "template": "template_18.xml"
+        "body_conditions": {
+            "type": "PARAMETERS",
+            "parameters": {
+                "Action": [
+                    "^DescribeInstances$"
+                ],
+                "Version": [
+                    "^2016\\-11\\-15$"
+                ]
+            }
+        },
+        "template": "template_17.json",
+        "status": 200
     },
     "POST:/:18": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.ListResources",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.ListResources"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_18.json"
+        "template": "template_18.json",
+        "status": 200
     },
     "POST:/:19": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key",
-            "Identifier": "00001-0001-0001-0001-00000000000001"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key",
+                "Identifier": "00001-0001-0001-0001-00000000000001"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_19.json"
+        "template": "template_19.json",
+        "status": 200
     },
     "POST:/:20": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key",
-            "Identifier": "00001-0001-0001-0001-00000000000002"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key",
+                "Identifier": "00001-0001-0001-0001-00000000000002"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_20.json"
+        "template": "template_20.json",
+        "status": 200
     },
     "POST:/:21": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*us-east-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.ListResources",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*us-east-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.ListResources"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_21.json"
+        "template": "template_21.json",
+        "status": 200
     },
     "POST:/:22": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*us-east-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*us-east-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key",
-            "Identifier": "00001-0001-0001-0001-00000000000003"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key",
+                "Identifier": "00001-0001-0001-0001-00000000000003"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_22.json"
+        "template": "template_22.json",
+        "status": 200
     },
     "POST:/:23": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*us-east-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*us-east-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key",
-            "Identifier": "00001-0001-0001-0001-00000000000004"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key",
+                "Identifier": "00001-0001-0001-0001-00000000000004"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_23.json"
+        "template": "template_23.json",
+        "status": 200
     },
     "POST:/:24": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*us-west-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.ListResources",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*us-west-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.ListResources"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_24.json"
+        "template": "template_24.json",
+        "status": 200
     },
     "POST:/:25": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*us-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*us-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key",
-            "Identifier": "00001-0001-0001-0001-00000000000005"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key",
+                "Identifier": "00001-0001-0001-0001-00000000000005"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_25.json"
+        "template": "template_25.json",
+        "status": 200
     },
     "POST:/:26": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*us-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*us-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key",
-            "Identifier": "00001-0001-0001-0001-00000000000006"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key",
+                "Identifier": "00001-0001-0001-0001-00000000000006"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_26.json"
+        "template": "template_26.json",
+        "status": 200
     },
     "POST:/:27": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*eu-west-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.ListResources",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*eu-west-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.ListResources"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_27.json"
+        "template": "template_27.json",
+        "status": 200
     },
     "POST:/:28": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*eu-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*eu-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key",
-            "Identifier": "00001-0001-0001-0001-00000000000007"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key",
+                "Identifier": "00001-0001-0001-0001-00000000000007"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_28.json"
+        "template": "template_28.json",
+        "status": 200
     },
     "POST:/:29": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*eu-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*eu-west-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key",
-            "Identifier": "00001-0001-0001-0001-00000000000008"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key",
+                "Identifier": "00001-0001-0001-0001-00000000000008"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_29.json"
+        "template": "template_29.json",
+        "status": 200
     },
     "POST:/:30": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*us-west-2.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.ListResources",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*us-west-2.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.ListResources"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_30.json"
+        "template": "template_30.json",
+        "status": 200
     },
     "POST:/:31": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*us-west-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*us-west-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key",
-            "Identifier": "00001-0001-0001-0001-00000000000009"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key",
+                "Identifier": "00001-0001-0001-0001-00000000000009"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_31.json"
+        "template": "template_31.json",
+        "status": 200
     },
     "POST:/:32": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*us-west-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*us-west-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key",
-            "Identifier": "00001-0001-0001-0001-00000000000010"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key",
+                "Identifier": "00001-0001-0001-0001-00000000000010"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_32.json"
+        "template": "template_32.json",
+        "status": 200
     },
     "POST:/:33": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*eu-west-2.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.ListResources",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*eu-west-2.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.ListResources"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_33.json"
+        "template": "template_33.json",
+        "status": 200
     },
     "POST:/:34": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*eu-west-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*eu-west-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key",
-            "Identifier": "00001-0001-0001-0001-00000000000009"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key",
+                "Identifier": "00001-0001-0001-0001-00000000000009"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_34.json"
+        "template": "template_34.json",
+        "status": 200
     },
     "POST:/:35": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*eu-west-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*eu-west-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key",
-            "Identifier": "00001-0001-0001-0001-00000000000010"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key",
+                "Identifier": "00001-0001-0001-0001-00000000000010"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_35.json"
+        "template": "template_35.json",
+        "status": 200
     },
     "POST:/:36": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ca-central-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.ListResources",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ca-central-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.ListResources"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_36.json"
+        "template": "template_36.json",
+        "status": 200
     },
     "POST:/:37": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ca-central-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ca-central-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key",
-            "Identifier": "00001-0001-0001-0001-00000000000011"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key",
+                "Identifier": "00001-0001-0001-0001-00000000000011"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_37.json"
+        "template": "template_37.json",
+        "status": 200
     },
     "POST:/:38": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ca-central-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ca-central-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::KMS::Key",
-            "Identifier": "00001-0001-0001-0001-00000000000012"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::KMS::Key",
+                "Identifier": "00001-0001-0001-0001-00000000000012"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_38.json"
+        "template": "template_38.json",
+        "status": 200
     },
     "POST:/:39": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.ListResources",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-1.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.ListResources"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::EC2::VPC"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::EC2::VPC"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_39.json"
+        "template": "template_39.json",
+        "status": 200
     },
     "POST:/:40": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.ListResources",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-2.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.ListResources"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::EC2::VPC"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::EC2::VPC"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_40.json"
+        "template": "template_40.json",
+        "status": 200
     },
     "POST:/:41": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-2.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::EC2::VPC",
-            "Identifier": "vpc-2-0001"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::EC2::VPC",
+                "Identifier": "vpc-2-0001"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_41.json"
+        "template": "template_41.json",
+        "status": 200
     },
     "POST:/:42": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::EC2::VPC",
-            "Identifier": "vpc-0001"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::EC2::VPC",
+                "Identifier": "vpc-0001"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_42.json"
+        "template": "template_42.json",
+        "status": 200
     },
     "POST:/:43": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::EC2::VPC",
-            "Identifier": "vpc-0002"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::EC2::VPC",
+                "Identifier": "vpc-0002"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_43.json"
+        "template": "template_43.json",
+        "status": 200
     },
     "POST:/:44": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::EC2::VPC",
-            "Identifier": "vpc-0003"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::EC2::VPC",
+                "Identifier": "vpc-0003"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_44.json"
+        "template": "template_44.json",
+        "status": 200
     },
     "POST:/:45": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::EC2::VPC",
-            "Identifier": "vpc-0004"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::EC2::VPC",
+                "Identifier": "vpc-0004"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_45.json"
+        "template": "template_45.json",
+        "status": 200
     },
     "POST:/:46": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-1.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::EC2::VPC",
-            "Identifier": "vpc-0005"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::EC2::VPC",
+                "Identifier": "vpc-0005"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_46.json"
+        "template": "template_46.json",
+        "status": 200
     },
     "POST:/:47": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "TransferService.DeleteServer",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "TransferService.DeleteServer"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "ServerId": "s-0000000001"
+            "type": "JSON",
+            "json": {
+                "ServerId": "s-0000000001"
+            },
+            "matchType": "STRICT"
         },
-        "template": "POST_/_47.json"
+        "template": "template_47.json",
+        "status": 200
     },
     "POST:/:48": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "TransferService.DeleteUser",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "TransferService.DeleteUser"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "ServerId": "s-0000000001",
-            "UserName": "some-jimbo@stackql.io"
+            "type": "JSON",
+            "json": {
+                "ServerId": "s-0000000001",
+                "UserName": "some-jimbo@stackql.io"
+            },
+            "matchType": "STRICT"
         },
-        "template": "POST_/_48.json"
+        "template": "template_48.json",
+        "status": 200
     },
     "POST:/:49": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "TransferService.UpdateServer",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "TransferService.UpdateServer"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "ServerId": "s-0000000001",
-            "Protocols": "SFTP"
+            "type": "JSON",
+            "json": {
+                "ServerId": "s-0000000001",
+                "Protocols": [
+                    "SFTP"
+                ]
+            },
+            "matchType": "STRICT"
         },
-        "template": "POST_/_49.json"
+        "template": "template_49.json",
+        "status": 200
     },
     "POST:/:50": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "TransferService.UpdateUser",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "TransferService.UpdateUser"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "ServerId": "s-0000000001",
-            "UserName": "some-jimbo@stackql.io",
-            "HomeDirectory": "/"
+            "type": "JSON",
+            "json": {
+                "ServerId": "s-0000000001",
+                "UserName": "some-jimbo@stackql.io",
+                "HomeDirectory": "/"
+            },
+            "matchType": "STRICT"
         },
-        "template": "POST_/_50.json"
+        "template": "template_50.json",
+        "status": 200
     },
     "POST:/:51": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "TransferService.CreateServer",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "TransferService.CreateServer"
             ]
         },
-        "status": 200,
-        "body_conditions": {},
-        "template": "POST_/_51.json"
+        "body_conditions": {
+            "type": "JSON",
+            "json": {},
+            "matchType": "STRICT"
+        },
+        "template": "template_51.json",
+        "status": 200
     },
     "POST:/:52": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "TransferService.CreateServer",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "TransferService.CreateServer"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "Domain": "S3",
-            "EndpointType": "PUBLIC",
-            "IdentityProviderType": "SERVICE_MANAGED",
-            "LoggingRole": "arn:aws:iam::000000001:role/some-domain-role",
-            "Protocols": "SFTP",
-            "Tags": {
-                "Key": "Provisioner",
-                "Value": "stackql"
-            }
+            "type": "JSON",
+            "json": {
+                "Domain": "S3",
+                "EndpointType": "PUBLIC",
+                "IdentityProviderType": "SERVICE_MANAGED",
+                "LoggingRole": "arn:aws:iam::000000001:role/some-domain-role",
+                "Protocols": [
+                    "SFTP"
+                ],
+                "Tags": [
+                    {
+                        "Key": "Provisioner",
+                        "Value": "stackql"
+                    },
+                    {
+                        "Key": "StackName",
+                        "Value": "my-stack"
+                    },
+                    {
+                        "Key": "Environment",
+                        "Value": "uat"
+                    },
+                    {
+                        "Key": "RepoName",
+                        "Value": "https://github.com/myorg/mycodebase"
+                    },
+                    {
+                        "Key": "aws:transfer:customHostname",
+                        "Value": "sftp-uat.mydomain-subone-subtwo.com"
+                    }
+                ]
+            },
+            "matchType": "STRICT"
         },
-        "template": "POST_/_52.json"
+        "template": "template_52.json",
+        "status": 200
     },
     "POST:/:53": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "TransferService.StopServer",
-        "headers": {},
-        "status": 200,
-        "template": "POST_/_53.json"
+        "headers": {
+            "Authorization": [
+                "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "TransferService.StopServer"
+            ]
+        },
+        "body_conditions": {
+            "ServerId": "s-0000000001"
+        },
+        "template": "template_53.json",
+        "status": 200
     },
     "POST:/:54": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "BaldrApiService.DescribeClusters",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "BaldrApiService.DescribeClusters"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "Filters": {}
+            "type": "JSON",
+            "json": {
+                "Filters": {}
+            },
+            "matchType": "STRICT"
         },
-        "template": "POST_/_54.json"
+        "template": "template_54.json",
+        "status": 200
     },
     "POST:/:55": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*/rubbish-region/.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "BaldrApiService.DescribeBackups",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*/rubbish-region/.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "BaldrApiService.DescribeBackups"
             ]
         },
-        "status": 501,
         "body_conditions": {
-            "Filters": {}
+            "type": "JSON",
+            "json": {
+                "Filters": {}
+            },
+            "matchType": "STRICT"
         },
-        "template": "POST_/_55.json"
+        "template": "template_55.json",
+        "status": 501
     },
     "POST:/:56": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*/another-rubbish-region/.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "BaldrApiService.DescribeBackups",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*/another-rubbish-region/.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "BaldrApiService.DescribeBackups"
             ]
         },
-        "status": 403,
         "body_conditions": {
-            "Filters": {}
+            "type": "JSON",
+            "json": {
+                "Filters": {}
+            },
+            "matchType": "STRICT"
         },
-        "template": "POST_/_56.json"
+        "template": "template_56.json",
+        "status": 403
     },
     "POST:/:57": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "BaldrApiService.DescribeBackups",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "BaldrApiService.DescribeBackups"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "Filters": {}
+            "type": "JSON",
+            "json": {
+                "Filters": {}
+            },
+            "matchType": "STRICT"
         },
-        "template": "template_57.json"
+        "template": "template_57.json",
+        "status": 200
     },
     "POST:/:58": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=content-encoding;content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "Logs_20140328.GetLogEvents",
         "headers": {
-            "content-type": [
-                "application/json"
+            "Authorization": [
+                "^.*SignedHeaders=content-encoding;content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "Logs_20140328.GetLogEvents"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "logGroupName": "LogGroupResourceExample",
-            "logStreamName": "test-01",
-            "startTime": 1680528971190,
-            "limit": 2
+            "type": "JSON",
+            "json": {
+                "logGroupName": "LogGroupResourceExample",
+                "logStreamName": "test-01",
+                "startTime": 1680528971190,
+                "limit": 2
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_58.json"
+        "template": "template_58.json",
+        "status": 200
     },
     "POST:/:59": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::EC2::VPC",
-            "Identifier": "CloudControlExample"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::EC2::VPC",
+                "Identifier": "CloudControlExample"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_59.json"
+        "template": "template_59.json",
+        "status": 200
     },
     "POST:/:60": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::S3::Bucket",
-            "Identifier": "stackql-trial-bucket-01"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::S3::Bucket",
+                "Identifier": "stackql-trial-bucket-01"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_60.json"
+        "template": "template_60.json",
+        "status": 200
     },
     "POST:/:61": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-2.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::S3::Bucket",
-            "Identifier": "stackql-trial-bucket-01"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::S3::Bucket",
+                "Identifier": "stackql-trial-bucket-01"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_61.json"
+        "template": "template_61.json",
+        "status": 200
     },
     "POST:/:62": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::S3::Bucket",
-            "Identifier": "stackql-testing-bucket-01"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::S3::Bucket",
+                "Identifier": "stackql-testing-bucket-01"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_62.json"
+        "template": "template_62.json",
+        "status": 200
     },
     "POST:/:63": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.ListResources",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.ListResources"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::S3::Bucket"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::S3::Bucket"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_63.json"
+        "template": "template_63.json",
+        "status": 200
     },
     "POST:/:64": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*ap-southeast-2.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.ListResources",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*ap-southeast-2.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.ListResources"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::S3::Bucket"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::S3::Bucket"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_64.json"
+        "template": "template_64.json",
+        "status": 200
     },
     "POST:/:65": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*us-east-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.ListResources",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*us-east-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.ListResources"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::S3::Bucket"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::S3::Bucket"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_65.json"
+        "template": "template_65.json",
+        "status": 200
     },
     "POST:/:66": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*us-east-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*us-east-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::S3::Bucket",
-            "Identifier": "stackql-contrived-bucket-01"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::S3::Bucket",
+                "Identifier": "stackql-contrived-bucket-01"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_66.json"
+        "template": "template_66.json",
+        "status": 200
     },
     "POST:/:67": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*us-east-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*us-east-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::S3::Bucket",
-            "Identifier": "stackql-contrived-bucket-02"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::S3::Bucket",
+                "Identifier": "stackql-contrived-bucket-02"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_67.json"
+        "template": "template_67.json",
+        "status": 200
     },
     "POST:/:68": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*us-east-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*us-east-1.*SignedHeaders.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::S3::Bucket",
-            "Identifier": "stackql-contrived-bucket-03"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::S3::Bucket",
+                "Identifier": "stackql-contrived-bucket-03"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_68.json"
+        "template": "template_68.json",
+        "status": 200
     },
     "POST:/:69": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.ListResourceRequests",
-        "headers": {},
-        "status": 200,
-        "body_conditions": {
-            "ResourceRequestStatusFilter": {}
+        "headers": {
+            "Authorization": [
+                "^.*SignedHeaders=accept;content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.ListResourceRequests"
+            ]
         },
-        "template": "POST_/_69.json"
+        "body_conditions": {
+            "type": "JSON",
+            "json": {
+                "ResourceRequestStatusFilter": {}
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
+        },
+        "template": "template_69.vm",
+        "status": 200
     },
     "POST:/:70": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.CreateResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.CreateResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::Logs::LogGroup",
-            "DesiredState": "{ \"LogGroupName\": \"LogGroupResourceExampleThird\", \"RetentionInDays\":90}"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::Logs::LogGroup",
+                "DesiredState": "{ \"LogGroupName\": \"LogGroupResourceExampleThird\", \"RetentionInDays\":90}"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_70.json"
+        "template": "template_70.json",
+        "status": 200
     },
     "POST:/:71": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^AWS4-HMAC-SHA256 Credential=.*/cloudcontrolapi/aws4_request.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.CreateResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^AWS4-HMAC-SHA256 Credential=.*/cloudcontrolapi/aws4_request.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.CreateResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::S3::Bucket",
-            "DesiredState": "{\"BucketName\":\"my-bucket\"}"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::S3::Bucket",
+                "DesiredState": "{\"BucketName\":\"my-bucket\"}"
+            },
+            "matchType": "STRICT"
         },
-        "template": "POST_/_71.json"
+        "template": "template_71.json",
+        "status": 200
     },
     "POST:/:72": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^AWS4-HMAC-SHA256 Credential=.*/cloudcontrolapi/aws4_request.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.CreateResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^AWS4-HMAC-SHA256 Credential=.*/cloudcontrolapi/aws4_request.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.CreateResource"
             ]
         },
-        "status": 200,
-        "template": "POST_/_72.json"
+        "body_conditions": {
+            "type": "JSON_SCHEMA",
+            "jsonSchema": {
+                "type": "object",
+                "properties": {
+                    "TypeName": {
+                        "type": "string",
+                        "pattern": "^AWS::S3::Bucket$"
+                    },
+                    "DesiredState": {
+                        "type": "string",
+                        "pattern": "^.*somekey.*$"
+                    }
+                }
+            }
+        },
+        "template": "template_72.json",
+        "status": 200
     },
     "POST:/:73": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.UpdateResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.UpdateResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::Logs::LogGroup",
-            "Identifier": "LogGroupResourceExampleThird",
-            "PatchDocument": "[{\"op\":\"replace\",\"path\":\"/RetentionInDays\",\"value\":180}]"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::Logs::LogGroup",
+                "Identifier": "LogGroupResourceExampleThird",
+                "PatchDocument": "[{\"op\":\"replace\",\"path\":\"/RetentionInDays\",\"value\":180}]"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_73.json"
+        "template": "template_73.json",
+        "status": 200
     },
     "POST:/:74": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.CreateResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.CreateResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::Logs::LogGroup",
-            "DesiredState": "{\"LogGroupName\": \"LogGroupResourceExample3\",\"RetentionInDays\":90}"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::Logs::LogGroup",
+                "DesiredState": "{\"LogGroupName\": \"LogGroupResourceExample3\",\"RetentionInDays\":90}"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_74.json"
+        "template": "template_74.json",
+        "status": 200
     },
     "POST:/:75": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.DeleteResource",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.DeleteResource"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "TypeName": "AWS::Logs::LogGroup",
-            "Identifier": "LogGroupResourceExampleThird"
+            "type": "JSON",
+            "json": {
+                "TypeName": "AWS::Logs::LogGroup",
+                "Identifier": "LogGroupResourceExampleThird"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_75.json"
+        "template": "template_75.json",
+        "status": 200
     },
     "POST:/:76": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.CancelResourceRequest",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.CancelResourceRequest"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "RequestToken": "abc001"
+            "type": "JSON",
+            "json": {
+                "RequestToken": "abc001"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_76.json"
+        "template": "template_76.json",
+        "status": 200
     },
     "POST:/:77": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$",
-        "amz_target_header_regex": "CloudApiService.GetResourceRequestStatus",
         "headers": {
-            "content-type": [
-                "application/x-amz-json-1.0"
+            "Authorization": [
+                "^.*SignedHeaders=.*content-type;host;x-amz-date;x-amz-target.*$"
+            ],
+            "X-Amz-Target": [
+                "CloudApiService.GetResourceRequestStatus"
             ]
         },
-        "status": 200,
         "body_conditions": {
-            "RequestToken": "abc001"
+            "type": "JSON",
+            "json": {
+                "RequestToken": "abc001"
+            },
+            "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "POST_/_77.json"
+        "template": "template_77.json",
+        "status": 200
     },
     "POST:/:78": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date.*$",
-        "amz_target_header_regex": null,
         "headers": {
-            "content-type": [
-                "text/xml"
+            "Authorization": [
+                "^.*SignedHeaders=.*content-type;host;x-amz-date.*$"
             ]
         },
-        "status": 200,
-        "template": "template_79.xml"
+        "body_conditions": {
+            "type": "PARAMETERS",
+            "parameters": {
+                "Action": [
+                    "^CreateVolume$"
+                ],
+                "Version": [
+                    "^2016\\-11\\-15$"
+                ],
+                "Size": [
+                    "^10$"
+                ],
+                "TagSpecification.1.ResourceType": [
+                    "volume"
+                ],
+                "TagSpecification.1.Tag.1.Key": [
+                    "stack"
+                ],
+                "TagSpecification.1.Tag.1.Value": [
+                    "production"
+                ],
+                "TagSpecification.1.Tag.2.Key": [
+                    "name"
+                ],
+                "TagSpecification.1.Tag.2.Value": [
+                    "multi-tag-volume"
+                ]
+            }
+        },
+        "template": "template_78.json",
+        "status": 200
     },
     "POST:/:79": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date.*$",
-        "amz_target_header_regex": null,
         "headers": {
-            "content-type": [
-                "text/xml"
+            "Authorization": [
+                "^.*SignedHeaders=.*content-type;host;x-amz-date.*$"
             ]
         },
-        "status": 200,
-        "template": "POST_/_79.json"
+        "body_conditions": {
+            "type": "PARAMETERS",
+            "parameters": {
+                "Action": [
+                    "^StartInstances$"
+                ],
+                "Version": [
+                    "^2016\\-11\\-15$"
+                ],
+                "InstanceId.1": [
+                    "id-001"
+                ]
+            }
+        },
+        "template": "template_79.json",
+        "status": 200
     },
     "POST:/:80": {
         "method": "POST",
         "path": "/",
-        "auth_header_regex": "^.*SignedHeaders=.*content-type;host;x-amz-date.*$",
-        "amz_target_header_regex": null,
         "headers": {
-            "content-type": [
-                "text/xml"
+            "Authorization": [
+                "^.*SignedHeaders=.*content-type;host;x-amz-date.*$"
             ]
         },
-        "status": 200,
-        "template": "template_81.xml"
+        "body_conditions": {
+            "type": "PARAMETERS",
+            "parameters": {
+                "Action": [
+                    "^ModifyVolume$"
+                ],
+                "Version": [
+                    "^2016\\-11\\-15$"
+                ],
+                "Size": [
+                    "^12$"
+                ],
+                "VolumeId": [
+                    "vol-000000000000001"
+                ]
+            }
+        },
+        "template": "template_80.json",
+        "status": 200
     }
 }

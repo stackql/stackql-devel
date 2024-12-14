@@ -1,0 +1,5 @@
+{
+    "TypeName": "AWS::EC2::SubnetRouteTableAssociation",
+    "Identifier": "rtbassoc-001",
+    "Status": "Retrieved"
+}
