@@ -1,3 +1,40 @@
 {
-  "message": "Placeholder content for template_57.json"
+  "Backups": [ 
+    { 
+      "BackupId": "bkp-000001",
+      "BackupState": "READY",
+      "ClusterId": "cluster-abcdefg",
+      "CopyTimestamp": 1711841000.000,
+      "CreateTimestamp": 1711840000.000,
+      "DeleteTimestamp": 1711840000.000,
+      "NeverExpires": false,
+      "SourceBackup": "",
+      "SourceCluster": "cluster-abcdefg",
+      "SourceRegion": "ap-southeast-2",
+      "TagList": [ 
+          { 
+            "Key": "name",
+            "Value": "backup-01"
+          }
+      ]
+    },
+    { 
+      "BackupId": "bkp-000002",
+      "BackupState": "READY",
+      "ClusterId": "cluster-abcdefg",
+      "CopyTimestamp": 1711841000.000,
+      "CreateTimestamp": 1711840000.000,
+      "DeleteTimestamp": 1711840000.000,
+      "NeverExpires": false,
+      "SourceBackup": "bkp-000001",
+      "SourceCluster": "cluster-abcdefg",
+      "SourceRegion": "ap-southeast-2",
+      "TagList": [ 
+          { 
+            "Key": "name",
+            "Value": "backup-02"
+          }
+      ]
+    }
+]
 }

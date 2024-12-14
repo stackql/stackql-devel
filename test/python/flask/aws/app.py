@@ -31,7 +31,7 @@ class GetMatcherConfig:
                     if "base64_template" in cfg:
                         try:
                             decoded_content = base64.b64decode(cfg["base64_template"]).decode("utf-8")
-                            template_path = os.path.join(app.template_folder, cfg["template"])
+                            template_path = os.path.join(app.template_folder, cfg["template"]) 
                             with open(template_path, "w") as tpl_file:
                                 tpl_file.write(decoded_content)
                             logger.info(f"Decoded base64 template for route: {route_name}")
@@ -60,27 +60,36 @@ def handle_post_requests():
         logger.debug(f"Evaluating route: {route_name}")
 
         # Match headers
-        auth_regex = cfg.get("auth_header_regex", "") or ""
+        auth_regex = cfg.get("auth_header_regex", cfg.get('headers', {}).get('Authorization', "")) or ""
         if not isinstance(auth_regex, str):
-            logger.error(f"Invalid auth_header_regex for route {route_name}: {auth_regex}")
+            # logger.error(f"Invalid auth_header_regex for route {route_name}: {auth_regex}")
             continue
 
         if not re.match(auth_regex, request.headers.get("Authorization", "")):
-            logger.debug(f"Header mismatch: auth_regex='{auth_regex}' did not match '{request.headers.get('Authorization', '')}'")
+            logger.warning(f"Header mismatch: auth_regex='{auth_regex}' did not match '{request.headers.get('Authorization', '')}'")
             continue
 
-        amz_target_regex = cfg.get("amz_target_header_regex", "") or ""
+        amz_target_regex = cfg.get("amz_target_header_regex", cfg.get('headers', {}).get('X-Amz-Target', "")) or ""
         if not isinstance(amz_target_regex, str):
-            logger.error(f"Invalid amz_target_header_regex for route {route_name}: {amz_target_regex}")
+            # logger.error(f"Invalid amz_target_header_regex for route {route_name}: {amz_target_regex}")
             continue
 
         if not re.match(amz_target_regex, request.headers.get("X-Amz-Target", "")):
-            logger.debug(f"Header mismatch: amz_target_regex='{amz_target_regex}' did not match '{request.headers.get('X-Amz-Target', '')}'")
+            logger.warning(f"Header mismatch: amz_target_regex='{amz_target_regex}' did not match '{request.headers.get('X-Amz-Target', '')}'")
             continue
 
         # Match body conditions if specified
         body_conditions = cfg.get("body_conditions", {})
         if body_conditions:
+            logger.warning('evalu')
+            json_body = body_conditions.get('json', {})
+            request_body = request.get_json(silent=True, force=True)
+            logger.warning(f'comparing expected body = {json_body}, with request body = {request_body}')
+            if json_body:
+                matches = json.dumps(json_body, sort_keys=True) == json.dumps(request.get_json(silent=True), sort_keys=True)
+                if matches:
+                    matching_routes.append((route_name, cfg))
+                continue
             request_body = request.get_json(silent=True) or {}
             for key, regex in body_conditions.items():
                 if not isinstance(regex, str) or not regex:
@@ -109,8 +118,9 @@ def handle_post_requests():
         if "template" not in cfg:
             logger.error(f"Missing template for route: {selected_route}")
             return jsonify({'error': f'Missing template for route: {selected_route}'}), 500
+        logger.info(f"routing to template: {cfg["template"]}")
         response = make_response(render_template(cfg["template"]))
-        response.headers.update(cfg.get("headers", {}))
+        response.headers.update(cfg.get("response_headers", {}))
         response.status_code = cfg.get("status", 200)
         return response
 

@@ -1201,21 +1201,18 @@
         "method": "POST",
         "path": "/",
         "headers": {
-            "Authorization": [
-                "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$"
-            ],
-            "X-Amz-Target": [
-                "BaldrApiService.DescribeBackups"
-            ]
+            "Authorization": "^.*SignedHeaders=content-type;host;x-amz-date;x-amz-target.*$",
+            "X-Amz-Target": "BaldrApiService.DescribeBackups"
         },
         "body_conditions": {
-            "type": "JSON",
             "json": {
                 "Filters": {}
-            },
-            "matchType": "STRICT"
+            }
         },
         "template": "template_57.json",
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        },
         "status": 200
     },
     "POST:/:58": {
