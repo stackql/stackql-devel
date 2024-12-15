@@ -206,8 +206,11 @@
             ]
         },
         "body_conditions": {},
-        "template": "template_10.json",
-        "status": 200
+        "template": "template_10.xml",
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["text/xml"]
+        }
     },
     "GET:/:11": {
         "method": "GET",

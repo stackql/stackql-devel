@@ -114,6 +114,18 @@ class GetMatcherConfig:
                 if not match_found:
                     return False
         return True
+    
+    def _is_method_match(self, req: Request, cfg: dict) -> bool:
+        method = cfg.get("method", '')
+        if not method:
+            return True
+        return req.method.lower() == method.lower()
+    
+    def _is_path_match(self, req: Request, cfg: dict) -> bool:
+        path = cfg.get("path", '')
+        if not path:
+            return True
+        return req.path == path
 
     
     def match_route(self, req: Request) -> dict:
@@ -121,10 +133,20 @@ class GetMatcherConfig:
 
         for route_name, cfg in self._ROOT_PATH_CFG.items():
             logger.debug(f"Evaluating route: {route_name}")
+
+            is_method_match: bool = self._is_method_match(req, cfg)
+            if not is_method_match:
+                logger.debug(f"Method mismatch for route {route_name}")
+                continue
+
+            is_path_match: bool = self._is_path_match(req, cfg)
+            if not is_path_match:
+                logger.debug(f"Path mismatch for route {route_name}")
+                continue
             
             is_header_match: bool = self._match_request_headers(req, cfg)
             if not is_header_match:
-                logger.warning(f"Header mismatch for route {route_name}")
+                logger.debug(f"Header mismatch for route {route_name}")
                 continue
 
             is_body_match: bool = self._match_request_body(req, cfg)
@@ -148,7 +170,7 @@ config_path = os.path.join(os.path.dirname(__file__), "root_path_cfg.json")
 cfg_obj: GetMatcherConfig = GetMatcherConfig()
 
 # Routes generated from mockserver configuration
-@app.route('/', methods=['POST'])
+@app.route('/', methods=['POST', "GET"])
 def handle_post_requests():
     """Route POST requests to the correct template based on mockserver rules."""
     route_cfg: dict = cfg_obj.match_route(request)
@@ -160,12 +182,6 @@ def handle_post_requests():
     response.headers.update(route_cfg.get("response_headers", {}))
     response.status_code = route_cfg.get("status", 200)
     return response
-
-@app.route('/', methods=['GET'])
-def handle_get_requests():
-    """Handle GET requests if required by mockserver rules."""
-    logger.info("GET request received but no rules defined.")
-    return jsonify({'error': 'GET requests not supported in this configuration'}), 405
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
