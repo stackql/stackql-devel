@@ -470,7 +470,7 @@
             },
             "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "kms_keys_get_03.json",
+        "template": "kms_keys_list_02.json",
         "status": 200
     },
     "POST:/:22": {
@@ -535,8 +535,11 @@
             },
             "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "zzzz.json",
-        "status": 200
+        "template": "keys_list_03.json",
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:25": {
         "method": "POST",

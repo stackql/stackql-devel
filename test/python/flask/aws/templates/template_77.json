@@ -1,3 +1,10 @@
 {
-  "message": "Placeholder content for template_77.json"
+    "ProgressEvent": {
+        "EventTime": 1660714273.8,
+        "Identifier": "LogGroupResourceExampleThird",
+        "Operation": "DELETE",
+        "OperationStatus": "IN_PROGRESS",
+        "RequestToken": "abc001",
+        "TypeName": "AWS::Logs::LogGroup"
+    }
 }

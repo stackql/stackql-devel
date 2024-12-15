@@ -1,3 +1,16 @@
 {
-  "message": "Placeholder content for template_65.json"
+    "ResourceDescriptions": [
+        {
+            "Identifier": "stackql-contrived-bucket-01",
+            "Properties": "{\"BucketName\":\"stackql-contrived-bucket-01\"}"
+        },
+        {
+            "Identifier": "stackql-contrived-bucket-02",
+            "Properties": "{\"BucketName\":\"stackql-contrived-bucket-02\"}"
+        },
+        {
+            "Identifier": "stackql-contrived-bucket-03",
+            "Properties": "{\"BucketName\":\"stackql-contrived-bucket-03\"}"
+        }
+    ]
 }

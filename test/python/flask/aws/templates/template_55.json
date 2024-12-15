@@ -1,3 +1,8 @@
 {
-  "message": "Placeholder content for template_55.json"
+    "error": {
+        "message": "What a horrible request body, I hate it!!!",
+        "customStuff": {
+            "what": "this is some implementation specific info; might mean something to a developer"
+        }
+    }
 }

@@ -1,3 +1,13 @@
 {
-  "message": "Placeholder content for template_27.json"
+    "ResourceDescriptions": [
+        {
+            "Identifier": "00001-0001-0001-0001-00000000000007",
+            "Properties": "{\"KeyId\":\"00001-0001-0001-0001-00000000000007\"}"
+        },
+        {
+            "Identifier": "00001-0001-0001-0001-00000000000008",
+            "Properties": "{\"KeyId\":\"00001-0001-0001-0001-00000000000008\"}"
+        }
+    ],
+    "TypeName": "AWS::KMS::Key"
 }

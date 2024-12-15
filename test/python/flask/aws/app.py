@@ -64,8 +64,11 @@ class GetMatcherConfig:
                 if not self._match_json_by_key(lhs[key], value):
                     return False
             elif isinstance(value, list):
-                if not set(lhs[key]) == set(value):
-                    return False
+                for item in value:
+                    if not self._match_string(lhs[key], item):
+                        return False
+            elif isinstance(value, str):
+                return self._match_string(lhs[key], value)
             else:
                 if lhs[key] != value:
                     return False

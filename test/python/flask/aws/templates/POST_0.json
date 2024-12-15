@@ -1,4 +1,0 @@
-{
-    "TypeName": "AWS::EC2::SubnetRouteTableAssociation",
-    "Status": "Active"
-}
