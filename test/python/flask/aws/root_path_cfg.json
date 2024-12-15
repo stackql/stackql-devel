@@ -1632,7 +1632,7 @@
             },
             "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "template_69.vm",
+        "template": "template_69.jinja.json",
         "status": 200,
         "response_headers": {
             "Content-Type": ["application/json"]

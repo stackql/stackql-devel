@@ -77,7 +77,7 @@ class GetMatcherConfig:
     def _match_json_request_body(self, lhs: dict, rhs: dict, match_type: str) -> bool:
         if match_type.lower() == 'strict':
             return self._match_json_strict(lhs, rhs)
-        elif match_type.lower() == 'only_matching_keys':
+        elif match_type.lower() == 'only_matching_fields':
             return self._match_json_by_key(lhs, rhs)
         return False
     
@@ -93,7 +93,7 @@ class GetMatcherConfig:
             request_body = request.get_json(silent=True, force=True)
             logger.warning(f'comparing expected body = {json_body}, with request body = {request_body}')
             if json_body:
-                return self._match_json_request_body(request_body, json_body, body_conditions.get('match_type', 'strict'))
+                return self._match_json_request_body(request_body, json_body, body_conditions.get('matchType', 'strict'))
         form_body = body_conditions.get('parameters', {})
         if form_body:
             request_body = request.form
@@ -197,7 +197,7 @@ def handle_post_requests():
         logger.error(f"Missing template for route: {request}")
         return jsonify({'error': f'Missing template for route: {request}'}), 500
     logger.info(f"routing to template: {route_cfg["template"]}")
-    response = make_response(render_template(route_cfg["template"]))
+    response = make_response(render_template(route_cfg["template"], request=request))
     response.headers.update(route_cfg.get("response_headers", {}))
     response.status_code = route_cfg.get("status", 200)
     return response
