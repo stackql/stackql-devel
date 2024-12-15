@@ -154,7 +154,7 @@
             ]
         },
         "body_conditions": {},
-        "template": "hosted_zone_res_records_list_02.xml",
+        "template": "hosted_zone_res_records_list_01.xml",
         "status": 200,
         "response_headers": {
             "Content-Type": ["text/xml"]
@@ -172,7 +172,7 @@
             "type": "STRING",
             "value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ChangeResourceRecordSetsRequest xmlns=\"https://route53.amazonaws.com/doc/2013-04-01/\"><ChangeBatch><Changes><Change><Action>CREATE</Action><ResourceRecordSet><Name>my.domain.com</Name><Type>A</Type><TTL>900</TTL><ResourceRecords><ResourceRecord><Value>10.10.10.10</Value></ResourceRecord></ResourceRecords></ResourceRecordSet></Change></Changes></ChangeBatch></ChangeResourceRecordSetsRequest>"
         },
-        "template": "hosted_zone_res_records_list_02.xml",
+        "template": "hosted_zone_res_records_change_01.xml",
         "status": 200,
         "response_headers": {
             "Content-Type": ["text/xml"]
@@ -190,8 +190,11 @@
             "type": "STRING",
             "value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ChangeResourceRecordSetsRequest xmlns=\"https://route53.amazonaws.com/doc/2013-04-01/\"><ChangeBatch><Changes><Change><Action>CREATE</Action><ResourceRecordSet><Name>dev-srv.my.domain.com</Name><Type>CNAME</Type><TTL>900</TTL><ResourceRecords><ResourceRecord><Value>s-1000000000000.server-bank.my.domain.com</Value></ResourceRecord></ResourceRecords></ResourceRecordSet></Change></Changes></ChangeBatch></ChangeResourceRecordSetsRequest>"
         },
-        "template": "template_8.json",
-        "status": 200
+        "template": "hosted_zone_res_records_change_02.xml",
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["text/xml"]
+        }
     },
     "POST:/:9": {
         "method": "POST",
@@ -212,8 +215,11 @@
                 ]
             }
         },
-        "template": "template_9.json",
-        "status": 200
+        "template": "list_user_policies.xml",
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["text/xml"]
+        }
     },
     "GET:/:10": {
         "method": "GET",
@@ -224,7 +230,7 @@
             ]
         },
         "body_conditions": {},
-        "template": "template_10.xml",
+        "template": "list_bucket_contents_01.xml",
         "status": 200,
         "response_headers": {
             "Content-Type": ["text/xml"]
@@ -239,8 +245,11 @@
             ]
         },
         "body_conditions": {},
-        "template": "template_11.json",
-        "status": 200
+        "template": "list_bucket_contents_02.xml",
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["text/xml"]
+        }
     },
     "GET:/:12": {
         "method": "GET",
@@ -251,7 +260,7 @@
             ]
         },
         "body_conditions": {},
-        "template": "template_12.xml",
+        "template": "location_constraint_01.xml",
         "status": 200,
         "response_headers": {
             "Content-Type": ["text/xml"]
@@ -266,7 +275,7 @@
             ]
         },
         "body_conditions": {},
-        "template": "template_13.json",
+        "template": "list_buckets_01.xml",
         "status": 200
     },
     "POST:/:14": {
@@ -288,7 +297,7 @@
                 ]
             }
         },
-        "template": "aws_ec2_volumes.xml",
+        "template": "describe_volumes_01.xml",
         "status": 200,
         "response_headers": {
             "Content-Type": ["text/xml"]
@@ -313,8 +322,11 @@
                 ]
             }
         },
-        "template": "template_15.vm",
-        "status": 200
+        "template": "list_users_01.xml",
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["text/xml"]
+        }
     },
     "POST:/:16": {
         "method": "POST",
@@ -335,8 +347,11 @@
                 ]
             }
         },
-        "template": "template_16.json",
-        "status": 200
+        "template": "describe_vpn_gateways_01.xml",
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["text/xml"]
+        }
     },
     "POST:/:17": {
         "method": "POST",
@@ -357,8 +372,11 @@
                 ]
             }
         },
-        "template": "template_17.json",
-        "status": 200
+        "template": "describe_instances_01.xml",
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["text/xml"]
+        }
     },
     "POST:/:18": {
         "method": "POST",
@@ -378,8 +396,11 @@
             },
             "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "template_18.json",
-        "status": 200
+        "template": "kms_keys_list_01.json",
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:19": {
         "method": "POST",
@@ -400,8 +421,11 @@
             },
             "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "template_19.json",
-        "status": 200
+        "template": "kms_keys_get_01.json",
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:20": {
         "method": "POST",
@@ -422,8 +446,11 @@
             },
             "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "template_20.json",
-        "status": 200
+        "template": "kms_keys_get_02.json",
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:21": {
         "method": "POST",
@@ -443,7 +470,7 @@
             },
             "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "template_21.json",
+        "template": "kms_keys_get_03.json",
         "status": 200
     },
     "POST:/:22": {
@@ -465,7 +492,7 @@
             },
             "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "template_22.json",
+        "template": "kms_keys_get_03.json",
         "status": 200
     },
     "POST:/:23": {
@@ -487,7 +514,7 @@
             },
             "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "template_23.json",
+        "template": "kms_keys_get_04.json",
         "status": 200
     },
     "POST:/:24": {
@@ -508,7 +535,7 @@
             },
             "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "template_24.json",
+        "template": "zzzz.json",
         "status": 200
     },
     "POST:/:25": {
@@ -530,7 +557,7 @@
             },
             "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "template_25.json",
+        "template": "kms_keys_get_05.json",
         "status": 200
     },
     "POST:/:26": {
@@ -552,7 +579,7 @@
             },
             "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "template_26.json",
+        "template": "kms_keys_get_06.json",
         "status": 200
     },
     "POST:/:27": {
@@ -595,7 +622,7 @@
             },
             "matchType": "ONLY_MATCHING_FIELDS"
         },
-        "template": "template_28.json",
+        "template": "kms_keys_get_07.json",
         "status": 200
     },
     "POST:/:29": {
