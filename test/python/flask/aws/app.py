@@ -86,10 +86,21 @@ class GetMatcherConfig:
     
         logger.warning('evaluating body conditions')
         json_body = body_conditions.get('json', {})
-        request_body = request.get_json(silent=True, force=True)
-        logger.warning(f'comparing expected body = {json_body}, with request body = {request_body}')
         if json_body:
-            return self._match_json_request_body(request_body, json_body, body_conditions.get('match_type', 'strict'))
+            request_body = request.get_json(silent=True, force=True)
+            logger.warning(f'comparing expected body = {json_body}, with request body = {request_body}')
+            if json_body:
+                return self._match_json_request_body(request_body, json_body, body_conditions.get('match_type', 'strict'))
+        form_body = body_conditions.get('parameters', {})
+        if form_body:
+            request_body = request.form
+            logger.warning(f'comparing expected body = {form_body}, with request body = {request_body}')
+            return self._match_json_by_key(request_body, form_body)
+        string_body = body_conditions.get('type', '').lower() == 'string'
+        if string_body:
+            request_body = request.get_data(as_text=True)
+            logger.warning(f'comparing expected body = {body_conditions.get("value")}, with request body = {request_body}')
+            return self._match_string(request_body, body_conditions.get('value'))
         return False
     
     def _match_string(self, lhs: str, rhs: str) -> bool:
