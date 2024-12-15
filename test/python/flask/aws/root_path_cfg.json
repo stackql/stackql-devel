@@ -224,6 +224,9 @@
     "GET:/:10": {
         "method": "GET",
         "path": "/",
+        "queryStringParameters": { 
+          "max-keys": [ "1000" ]
+        },
         "headers": {
             "Authorization": [
                 "^.*ap-southeast-1.*SignedHeaders=.*host;x-amz-content-sha256;x-amz-date.*$"
@@ -239,6 +242,9 @@
     "GET:/:11": {
         "method": "GET",
         "path": "/",
+        "queryStringParameters": { 
+          "max-keys": [ "1000" ]
+        },
         "headers": {
             "Authorization": [
                 "^.*ap-southeast-2.*SignedHeaders=.*host;x-amz-content-sha256;x-amz-date.*$"
@@ -254,6 +260,9 @@
     "GET:/:12": {
         "method": "GET",
         "path": "/",
+        "queryStringParameters": { 
+          "location": [ "" ]
+        },
         "headers": {
             "Authorization": [
                 "^.*SignedHeaders=.*host;.*x-amz-date.*$"
@@ -276,7 +285,10 @@
         },
         "body_conditions": {},
         "template": "list_buckets_01.xml",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["text/xml"]
+        }
     },
     "POST:/:14": {
         "method": "POST",

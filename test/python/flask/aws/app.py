@@ -153,6 +153,11 @@ class GetMatcherConfig:
                 logger.debug(f"Method mismatch for route {route_name}")
                 continue
 
+            is_query_match: bool = self._match_json_by_key(req.args, cfg.get("queryStringParameters", {}))
+            if not is_query_match:
+                logger.debug(f"Query mismatch for route {route_name}")
+                continue
+
             is_path_match: bool = self._is_path_match(req, cfg)
             if not is_path_match:
                 logger.debug(f"Path mismatch for route {route_name}")
