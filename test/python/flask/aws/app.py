@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, make_response, jsonify
+from flask import Flask, request, Request, render_template, make_response, jsonify
 import os
 import logging
 import re
@@ -42,90 +42,124 @@ class GetMatcherConfig:
         except Exception as e:
             logger.error(f"Failed to load configuration: {e}")
 
+    def __init__(self):
+        config_path = os.path.join(os.path.dirname(__file__), "root_path_cfg.json")
+        self.load_config_from_file(config_path)
+
     @staticmethod
     def get_config(path_name):
         return GetMatcherConfig._ROOT_PATH_CFG.get(path_name, None)
+    
+    def _match_json_strict(self, lhs: dict, rhs: dict) -> bool:
+        matches = json.dumps(
+            lhs, sort_keys=True) == json.dumps(
+                rhs, sort_keys=True)
+        return matches
+    
+    def _match_json_by_key(self, lhs: dict, rhs: dict) -> bool:
+        for key, value in rhs.items():
+            if key not in lhs:
+                return False
+            if isinstance(value, dict):
+                if not self._match_json_by_key(lhs[key], value):
+                    return False
+            elif isinstance(value, list):
+                if not set(lhs[key]) == set(value):
+                    return False
+            else:
+                if lhs[key] != value:
+                    return False
+        return True
+    
+    def _match_json_request_body(self, lhs: dict, rhs: dict, match_type: str) -> bool:
+        if match_type.lower() == 'strict':
+            return self._match_json_strict(lhs, rhs)
+        elif match_type.lower() == 'only_matching_keys':
+            return self._match_json_by_key(lhs, rhs)
+        return False
+    
+    def _match_request_body(self, req: Request, entry: dict) -> bool:
+        body_conditions = entry.get('body_conditions', {})
+        
+        if not body_conditions:
+            return True
+    
+        logger.warning('evaluating body conditions')
+        json_body = body_conditions.get('json', {})
+        request_body = request.get_json(silent=True, force=True)
+        logger.warning(f'comparing expected body = {json_body}, with request body = {request_body}')
+        if json_body:
+            return self._match_json_request_body(request_body, json_body, body_conditions.get('match_type', 'strict'))
+        return False
+    
+    def _match_string(self, lhs: str, rhs: str) -> bool:
+        if lhs == rhs:
+            return True
+        if re.match(rhs, lhs):
+            return True
+        return False
+
+    def _match_request_headers(self, req: Request, entry: dict) -> bool:
+        for k, v in entry.get('headers', {}).items():
+            if type(v) == str:
+                if not self._match_string(req.headers.get(k), v):
+                    return False
+            elif type(v) == list:
+                ## Could make thi smore complex if needed
+                match_found = False
+                for item in v:
+                    if self._match_string(req.headers.get(k), item):
+                        match_found = True
+                        break
+                if not match_found:
+                    return False
+        return True
+
+    
+    def match_route(self, req: Request) -> dict:
+        matching_routes = []
+
+        for route_name, cfg in self._ROOT_PATH_CFG.items():
+            logger.debug(f"Evaluating route: {route_name}")
+            
+            is_header_match: bool = self._match_request_headers(req, cfg)
+            if not is_header_match:
+                logger.warning(f"Header mismatch for route {route_name}")
+                continue
+
+            is_body_match: bool = self._match_request_body(req, cfg)
+            if not is_body_match:
+                logger.warning(f"Body mismatch for route {route_name}")
+                continue
+
+            matching_routes.append((route_name, cfg))
+
+        # Prioritize routes with body conditions
+        matching_routes.sort(key=lambda x: bool(x[1].get("body_conditions")), reverse=True)
+
+        if matching_routes:
+            selected_route, cfg = matching_routes[0]
+        return cfg
+    
+
 
 # Load the configuration at startup
 config_path = os.path.join(os.path.dirname(__file__), "root_path_cfg.json")
-GetMatcherConfig.load_config_from_file(config_path)
+cfg_obj: GetMatcherConfig = GetMatcherConfig()
 
 # Routes generated from mockserver configuration
 @app.route('/', methods=['POST'])
 def handle_post_requests():
     """Route POST requests to the correct template based on mockserver rules."""
-    matching_routes = []
-
-    for route_name, cfg in GetMatcherConfig._ROOT_PATH_CFG.items():
-        logger.debug(f"Evaluating route: {route_name}")
-
-        # Match headers
-        auth_regex = cfg.get("auth_header_regex", cfg.get('headers', {}).get('Authorization', "")) or ""
-        if not isinstance(auth_regex, str):
-            # logger.error(f"Invalid auth_header_regex for route {route_name}: {auth_regex}")
-            continue
-
-        if not re.match(auth_regex, request.headers.get("Authorization", "")):
-            logger.warning(f"Header mismatch: auth_regex='{auth_regex}' did not match '{request.headers.get('Authorization', '')}'")
-            continue
-
-        amz_target_regex = cfg.get("amz_target_header_regex", cfg.get('headers', {}).get('X-Amz-Target', "")) or ""
-        if not isinstance(amz_target_regex, str):
-            # logger.error(f"Invalid amz_target_header_regex for route {route_name}: {amz_target_regex}")
-            continue
-
-        if not re.match(amz_target_regex, request.headers.get("X-Amz-Target", "")):
-            logger.warning(f"Header mismatch: amz_target_regex='{amz_target_regex}' did not match '{request.headers.get('X-Amz-Target', '')}'")
-            continue
-
-        # Match body conditions if specified
-        body_conditions = cfg.get("body_conditions", {})
-        if body_conditions:
-            logger.warning('evalu')
-            json_body = body_conditions.get('json', {})
-            request_body = request.get_json(silent=True, force=True)
-            logger.warning(f'comparing expected body = {json_body}, with request body = {request_body}')
-            if json_body:
-                matches = json.dumps(json_body, sort_keys=True) == json.dumps(request.get_json(silent=True), sort_keys=True)
-                if matches:
-                    matching_routes.append((route_name, cfg))
-                continue
-            request_body = request.get_json(silent=True) or {}
-            for key, regex in body_conditions.items():
-                if not isinstance(regex, str) or not regex:
-                    logger.warning(f"Skipping invalid regex for body condition key='{key}': {regex}")
-                    continue
-
-                if not re.match(regex, str(request_body.get(key, ""))):
-                    logger.debug(f"Body mismatch: key='{key}', value='{request_body.get(key, '')}', regex='{regex}'")
-                    break
-            else:
-                # All conditions matched
-                logger.info(f"Match found for route with body conditions: {route_name}")
-                matching_routes.append((route_name, cfg))
-                continue
-
-        else:
-            # If no body conditions, match by headers only
-            logger.debug(f"Route without body conditions matched: {route_name}")
-            matching_routes.append((route_name, cfg))
-
-    # Prioritize routes with body conditions
-    matching_routes.sort(key=lambda x: bool(x[1].get("body_conditions")), reverse=True)
-
-    if matching_routes:
-        selected_route, cfg = matching_routes[0]
-        if "template" not in cfg:
-            logger.error(f"Missing template for route: {selected_route}")
-            return jsonify({'error': f'Missing template for route: {selected_route}'}), 500
-        logger.info(f"routing to template: {cfg["template"]}")
-        response = make_response(render_template(cfg["template"]))
-        response.headers.update(cfg.get("response_headers", {}))
-        response.status_code = cfg.get("status", 200)
-        return response
-
-    logger.error("No matching configuration found for the request.")
-    return jsonify({'error': 'No matching template found'}), 404
+    route_cfg: dict = cfg_obj.match_route(request)
+    if "template" not in route_cfg:
+        logger.error(f"Missing template for route: {request}")
+        return jsonify({'error': f'Missing template for route: {request}'}), 500
+    logger.info(f"routing to template: {route_cfg["template"]}")
+    response = make_response(render_template(route_cfg["template"]))
+    response.headers.update(route_cfg.get("response_headers", {}))
+    response.status_code = route_cfg.get("status", 200)
+    return response
 
 @app.route('/', methods=['GET'])
 def handle_get_requests():

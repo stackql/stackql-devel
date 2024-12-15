@@ -139,8 +139,11 @@
             ]
         },
         "body_conditions": {},
-        "template": "template_6.json",
-        "status": 200
+        "template": "template_6.xml",
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["text/xml"]
+        }
     },
     "POST:/2013-04-01/hostedzone/some-id/rrset/:7": {
         "method": "POST",
@@ -227,8 +230,11 @@
             ]
         },
         "body_conditions": {},
-        "template": "template_12.json",
-        "status": 200
+        "template": "template_12.xml",
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["text/xml"]
+        }
     },
     "GET:/:13": {
         "method": "GET",
@@ -1205,9 +1211,11 @@
             "X-Amz-Target": "BaldrApiService.DescribeBackups"
         },
         "body_conditions": {
+            "type": "JSON",
             "json": {
                 "Filters": {}
-            }
+            },
+            "matchType": "STRICT"
         },
         "template": "template_57.json",
         "response_headers": {
