@@ -91,13 +91,13 @@ class GetMatcherConfig:
         json_body = body_conditions.get('json', {})
         if json_body:
             request_body = request.get_json(silent=True, force=True)
-            logger.warning(f'comparing expected body = {json_body}, with request body = {request_body}')
+            logger.debug(f'comparing expected body = {json_body}, with request body = {request_body}')
             if json_body:
                 return self._match_json_request_body(request_body, json_body, body_conditions.get('matchType', 'strict'))
         form_body = body_conditions.get('parameters', {})
         if form_body:
             request_body = request.form
-            logger.warning(f'comparing expected body = {form_body}, with request body = {request_body}')
+            logger.debug(f'comparing expected body = {form_body}, with request body = {request_body}')
             return self._match_json_by_key(request_body, form_body)
         string_body = body_conditions.get('type', '').lower() == 'string'
         if string_body:
@@ -190,7 +190,14 @@ cfg_obj: GetMatcherConfig = GetMatcherConfig()
 
 # Routes generated from mockserver configuration
 @app.route('/', methods=['POST', "GET"])
-def handle_post_requests():
+def handle_root_requests():
+    return generic_handler(request)
+
+@app.route('/2013-04-01/hostedzone/some-id/rrset/', methods=['POST'])
+def handle_rrset_requests():
+    return generic_handler(request)
+
+def generic_handler(request: Request):
     """Route POST requests to the correct template based on mockserver rules."""
     route_cfg: dict = cfg_obj.match_route(request)
     if "template" not in route_cfg:
