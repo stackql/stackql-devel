@@ -25,9 +25,10 @@ config:
   auth:
     client_id_env_var: 'YOUR_OAUTH2_CLIENT_ID_ENV_VAR'
     client_secret_env_var: 'YOUR_OAUTH2_CLIENT_SECRET_ENV_VAR'
+    account_id: 'contrived'
     type: "oauth2"
     grant_type: "client_credentials"
-    token_url: 'http://localhost:2091/contrived/simple/token'
+    token_url: 'http://localhost:2091/{{ .account_id }}/simple/token'
     scopes:
       - 'scope-01'
       - 'scope-02'
