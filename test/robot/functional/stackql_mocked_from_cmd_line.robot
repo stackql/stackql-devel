@@ -1637,12 +1637,12 @@ Response Body Printed by Default on Error
     ...    |----------|-------------|
     ${outputErrStr} =    Catenate    SEPARATOR=\n
     ...    http${SPACE}response${SPACE}status${SPACE}code:${SPACE}501,${SPACE}response${SPACE}body:${SPACE}{
-    ...    ${SPACE}${SPACE}"error"${SPACE}:${SPACE}{
-    ...    ${SPACE}${SPACE}${SPACE}${SPACE}"message"${SPACE}:${SPACE}"What${SPACE}a${SPACE}horrible${SPACE}request${SPACE}body,${SPACE}I${SPACE}hate${SPACE}it!!!",
-    ...    ${SPACE}${SPACE}${SPACE}${SPACE}"customStuff"${SPACE}:${SPACE}{
-    ...    ${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}"what"${SPACE}:${SPACE}"this${SPACE}is${SPACE}some${SPACE}implementation${SPACE}specific${SPACE}info;${SPACE}might${SPACE}mean${SPACE}something${SPACE}to${SPACE}a${SPACE}developer"
+    ...    ${SPACE}${SPACE}${SPACE}${SPACE}"error":${SPACE}{
+    ...    ${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}"message":${SPACE}"What${SPACE}a${SPACE}horrible${SPACE}request${SPACE}body,${SPACE}I${SPACE}hate${SPACE}it!!!",
+    ...    ${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}"customStuff":${SPACE}{
+    ...    ${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}"what":${SPACE}"this${SPACE}is${SPACE}some${SPACE}implementation${SPACE}specific${SPACE}info;${SPACE}might${SPACE}mean${SPACE}something${SPACE}to${SPACE}a${SPACE}developer"
+    ...    ${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}}
     ...    ${SPACE}${SPACE}${SPACE}${SPACE}}
-    ...    ${SPACE}${SPACE}}
     ...    }
     Should Stackql Exec Inline Equal Both Streams
     ...    ${STACKQL_EXE}
