@@ -1073,7 +1073,7 @@
             },
             "matchType": "STRICT"
         },
-        "template": "template_47.json",
+        "template": "empty-response.json",
         "status": 200,
         "response_headers": {
             "Content-Type": ["application/json"]
@@ -1098,7 +1098,7 @@
             },
             "matchType": "STRICT"
         },
-        "template": "template_48.json",
+        "template": "empty-response.json",
         "status": 200,
         "response_headers": {
             "Content-Type": ["application/json"]
