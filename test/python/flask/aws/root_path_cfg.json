@@ -1365,7 +1365,7 @@
             },
             "matchType": "STRICT"
         },
-        "template": "template_56.json",
+        "template": "empty-response.json",
         "status": 403,
         "response_headers": {
             "Content-Type": ["application/json"]
