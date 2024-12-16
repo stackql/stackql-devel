@@ -93,7 +93,10 @@
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "subnet_route_table_association_get_02.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:4": {
         "method": "POST",
@@ -483,7 +486,10 @@
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "kms_keys_list_02.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:22": {
         "method": "POST",
@@ -505,7 +511,10 @@
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "kms_keys_get_03.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:23": {
         "method": "POST",
@@ -527,7 +536,10 @@
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "kms_keys_get_04.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:24": {
         "method": "POST",
@@ -573,7 +585,10 @@
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "kms_keys_get_05.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:26": {
         "method": "POST",
@@ -595,7 +610,10 @@
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "kms_keys_get_06.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:27": {
         "method": "POST",
@@ -638,7 +656,10 @@
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "kms_keys_get_07.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:29": {
         "method": "POST",
@@ -660,7 +681,10 @@
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "template_29.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:30": {
         "method": "POST",
@@ -703,7 +727,10 @@
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "template_31.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:32": {
         "method": "POST",
@@ -725,7 +752,10 @@
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "template_32.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:33": {
         "method": "POST",
@@ -746,7 +776,10 @@
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "template_33.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:34": {
         "method": "POST",
@@ -768,7 +801,10 @@
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "template_34.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:35": {
         "method": "POST",
@@ -790,7 +826,10 @@
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "template_35.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:36": {
         "method": "POST",
@@ -811,7 +850,10 @@
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "template_36.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:37": {
         "method": "POST",
@@ -833,7 +875,10 @@
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "template_37.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:38": {
         "method": "POST",
@@ -855,7 +900,10 @@
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "template_38.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:39": {
         "method": "POST",
@@ -1246,7 +1294,10 @@
             "ServerId": "s-0000000001"
         },
         "template": "template_53.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["text/xml"]
+        }
     },
     "POST:/:54": {
         "method": "POST",
@@ -1742,7 +1793,10 @@
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "template_73.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:74": {
         "method": "POST",
@@ -1907,7 +1961,7 @@
                 ]
             }
         },
-        "template": "template_79.json",
+        "template": "empty-response.json",
         "status": 200,
         "response_headers": {
             "Content-Type": ["text/xml"]
