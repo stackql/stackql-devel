@@ -68,7 +68,8 @@ class GetMatcherConfig:
                     if not self._match_string(lhs[key], item):
                         return False
             elif isinstance(value, str):
-                return self._match_string(lhs[key], value)
+                if not self._match_string(lhs[key], value):
+                    return False
             else:
                 if lhs[key] != value:
                     return False
