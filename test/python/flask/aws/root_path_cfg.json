@@ -634,7 +634,10 @@
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "template_27.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:28": {
         "method": "POST",
@@ -705,7 +708,10 @@
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "template_30.json",
-        "status": 200
+        "status": 200,
+        "response_headers": {
+            "Content-Type": ["application/json"]
+        }
     },
     "POST:/:31": {
         "method": "POST",
