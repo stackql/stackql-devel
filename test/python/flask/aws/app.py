@@ -197,6 +197,10 @@ def handle_root_requests():
 def handle_rrset_requests(rrset_id: str):
     return generic_handler(request)
 
+@app.route('/2013-04-01/hostedzone/<rrset_id>/rrset', methods=['GET'])
+def handle_rrset_requests_unterminated(rrset_id: str):
+    return generic_handler(request)
+
 def generic_handler(request: Request):
     """Route POST requests to the correct template based on mockserver rules."""
     route_cfg: dict = cfg_obj.match_route(request)
