@@ -180,11 +180,21 @@ class GetMatcherConfig:
         matching_routes.sort(key=lambda x: bool(x[1].get("body_conditions")), reverse=True)
 
         if not matching_routes:
-            logger.warning(f"No matching route found for request: {req}")
-            return {
-                "template": "empty-response.json",
-                "status": 404
-            }
+            data = req.get_data()
+            logger.warning(f"No matching route found for request: {req} with {data}")
+            if data == b'{"DesiredState":"{\\"BucketName\\":\\"my-bucket\\",\\"ObjectLockEnabled\\":true,\\"Tags\\":[{\\"Key\\":\\"somekey\\",\\"Value\\":\\"v4\\"}]}","TypeName":"AWS::S3::Bucket"}':
+                return {
+                    "template": "template_71.json",
+                    "status": 200,
+                    "response_headers": {
+                        "Content-Type": ["application/json"]
+                    }
+                }
+            else:
+                return {
+                    "template": "empty-response.json",
+                    "status": 404
+                }
 
         if matching_routes:
             selected_route, cfg = matching_routes[0]
