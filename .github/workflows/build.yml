@@ -643,6 +643,11 @@ jobs:
       run: |
         python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true" } }'
 
+    - name: Output from aws server logs
+      if: always()
+      run: |
+        cat ./test/robot/log/*aws*
+
     - name: Output from mocked functional tests
       if: always()
       run: |
