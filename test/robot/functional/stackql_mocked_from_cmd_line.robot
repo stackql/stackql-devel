@@ -6310,8 +6310,8 @@ Error GTE 400 Response Code Does Not Stop The World As Exemplified By AWS Subnet
     ...    ${SPACE}${SPACE}${SPACE}${SPACE}"Message":${SPACE}"AWS::EC2::SubnetRouteTableAssociation${SPACE}Handler${SPACE}returned${SPACE}status${SPACE}FAILED:${SPACE}The${SPACE}RouteTableAssociation${SPACE}does${SPACE}not${SPACE}belong${SPACE}to${SPACE}a${SPACE}subnet${SPACE}(HandlerErrorCode:${SPACE}InvalidRequest,${SPACE}RequestToken:${SPACE}00000000-0000-0000-0000-00000001)"
     ...    }
     ...    http${SPACE}response${SPACE}status${SPACE}code:${SPACE}400,${SPACE}response${SPACE}body:${SPACE}{
-    ...    ${SPACE}${SPACE}${SPACE}${SPACE}"__type":${SPACE}"com.amazon.cloudapiservice#InvalidRequestException",
-    ...    ${SPACE}${SPACE}${SPACE}${SPACE}"Message":${SPACE}"AWS::EC2::SubnetRouteTableAssociation${SPACE}Handler${SPACE}returned${SPACE}status${SPACE}FAILED:${SPACE}The${SPACE}RouteTableAssociation${SPACE}does${SPACE}not${SPACE}belong${SPACE}to${SPACE}a${SPACE}subnet${SPACE}(HandlerErrorCode:${SPACE}InvalidRequest,${SPACE}RequestToken:${SPACE}00000000-0000-0000-0000-00000001)"
+    ...    ${SPACE}${SPACE}"__type":${SPACE}"com.amazon.cloudapiservice#InvalidRequestException",
+    ...    ${SPACE}${SPACE}"Message":${SPACE}"AWS::EC2::SubnetRouteTableAssociation${SPACE}Handler${SPACE}returned${SPACE}status${SPACE}FAILED:${SPACE}The${SPACE}RouteTableAssociation${SPACE}does${SPACE}not${SPACE}belong${SPACE}to${SPACE}a${SPACE}subnet${SPACE}(HandlerErrorCode:${SPACE}InvalidRequest,${SPACE}RequestToken:${SPACE}00000000-0000-0000-0000-00000001)"
     ...    }
     Should Stackql Exec Inline Equal Both Streams
     ...    ${STACKQL_EXE}
