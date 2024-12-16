@@ -193,8 +193,8 @@ cfg_obj: GetMatcherConfig = GetMatcherConfig()
 def handle_root_requests():
     return generic_handler(request)
 
-@app.route('/2013-04-01/hostedzone/some-id/rrset/', methods=['POST'])
-def handle_rrset_requests():
+@app.route('/2013-04-01/hostedzone/<rrset_id>/rrset/', methods=['POST', 'GET'])
+def handle_rrset_requests(rrset_id: str):
     return generic_handler(request)
 
 def generic_handler(request: Request):
