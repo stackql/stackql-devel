@@ -1224,10 +1224,12 @@
         },
         "body_conditions": {
             "type": "JSON",
-            "json": {},
+            "json": {
+                "Domain": "AWS"
+            },
             "matchType": "STRICT"
         },
-        "template": "template_51.json",
+        "template": "empty-response.json",
         "status": 200,
         "response_headers": {
             "Content-Type": ["application/json"]
@@ -1297,13 +1299,14 @@
             ]
         },
         "body_conditions": {
-            "ServerId": "s-0000000001"
+            "type": "JSON",
+            "json": {
+              "ServerId": "s-0000000001"
+            },
+            "matchType": "STRICT"
         },
-        "template": "template_53.json",
-        "status": 200,
-        "response_headers": {
-            "Content-Type": ["text/xml"]
-        }
+        "template": "empty-response.json",
+        "status": 200
     },
     "POST:/:54": {
         "method": "POST",
