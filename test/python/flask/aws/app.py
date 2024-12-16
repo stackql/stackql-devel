@@ -225,7 +225,7 @@ def generic_handler(request: Request):
     if "template" not in route_cfg:
         logger.error(f"Missing template for route: {request}")
         return jsonify({'error': f'Missing template for route: {request}'}), 500
-    logger.info(f"routing to template: {route_cfg["template"]}")
+    logger.info(f"routing to template: {route_cfg['template']}")
     response = make_response(render_template(route_cfg["template"], request=request))
     response.headers.update(route_cfg.get("response_headers", {}))
     response.status_code = route_cfg.get("status", 200)
