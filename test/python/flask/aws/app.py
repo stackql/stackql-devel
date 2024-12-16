@@ -179,6 +179,13 @@ class GetMatcherConfig:
         # Prioritize routes with body conditions
         matching_routes.sort(key=lambda x: bool(x[1].get("body_conditions")), reverse=True)
 
+        if not matching_routes:
+            logger.warning(f"No matching route found for request: {req}")
+            return {
+                "template": "empty-response.json",
+                "status": 404
+            }
+
         if matching_routes:
             selected_route, cfg = matching_routes[0]
         return cfg
