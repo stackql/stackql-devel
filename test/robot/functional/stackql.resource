@@ -32,18 +32,18 @@ Start Mock Server
     RETURN    ${process}
 
 Start All Mock Servers
-    Start Mock Server    ${JSON_INIT_FILE_PATH_GOOGLEADMIN}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_GOOGLEADMIN}
-    Start Mock Server    ${JSON_INIT_FILE_PATH_K8S}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_K8S}
-    Start Mock Server    ${JSON_INIT_FILE_PATH_REGISTRY}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_REGISTRY}
-    Start Mock Server    ${JSON_INIT_FILE_PATH_AZURE}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_AZURE}
-    Start Mock Server    ${JSON_INIT_FILE_PATH_SUMOLOGIC}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_SUMOLOGIC}
-    Start Mock Server    ${JSON_INIT_FILE_PATH_DIGITALOCEAN}    ${MOCKSERVER_JAR}    ${MOCKSERVER_PORT_DIGITALOCEAN}
     Create OAuth2 Client Credentials Web Service    ${MOCKSERVER_PORT_OAUTH_CLIENT_CREDENTIALS_TOKEN}
     Create Github Web Service    ${MOCKSERVER_PORT_GITHUB}
     Create GCP Web Service    ${MOCKSERVER_PORT_GOOGLE}
     Create Okta Web Service    ${MOCKSERVER_PORT_OKTA}
     Create AWS Web Service    ${MOCKSERVER_PORT_AWS}
     Create Static Auth Web Service    ${MOCKSERVER_PORT_STACKQL_AUTH_TESTING}
+    Create Google Admin Web Service    ${MOCKSERVER_PORT_GOOGLEADMIN}
+    Create K8S Web Service    ${MOCKSERVER_PORT_K8S}
+    Create Registry Web Service    ${MOCKSERVER_PORT_REGISTRY}
+    Create Azure Web Service    ${MOCKSERVER_PORT_AZURE}
+    Create Sumologic Web Service    ${MOCKSERVER_PORT_SUMOLOGIC}
+    Create Digitalocean Web Service    ${MOCKSERVER_PORT_DIGITALOCEAN}
 
 
 Prepare StackQL Environment
