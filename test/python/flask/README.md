@@ -1,10 +1,10 @@
 
 
-# `flask` HTTP(S) servers for simulated integration / regression testing
+# HTTP(S) servers for simulated integration / regression testing
 
-## Mock Server
+## Flask
 
-We have now migrated entirely to [flask](https://flask.palletsprojects.com/en/stable/), from the prior java [mockserver](https://www.mock-server.com/).  There is no disparaging of mockserver whatsoever; rather this was motivated in large part by different behaviour against versions of `java` / dependency libraries, also by the community support and knowledge base for `flask` and `jinja`.  That said, the mock defninitions to some degree are a holdover from mockserver; this should diminish over time.
+We have now migrated entirely to [flask](https://flask.palletsprojects.com/en/stable/), from the prior java [mockserver](https://www.mock-server.com/).  There is no disparaging of mockserver whatsoever; rather this was motivated in large part by different behaviour against versions of `java` / dependency libraries, also by the community support and knowledge base for `flask` and `jinja`.  That said, the mock defninitions to some degree are a holdover from `mockserver`; this should diminish over time.
 
 One pertinent fact in life with `flask` is that processes die hard; so it generally pays this before testing mocks:
 

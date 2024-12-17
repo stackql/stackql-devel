@@ -2,7 +2,7 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ]
+        "Accept": [ "application/json" ]
       },
       "method": "GET",
       "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/virtualNetworkGateways/",
@@ -24,7 +24,7 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ]
+        "Accept": [ "application/json" ]
       },
       "method": "GET",
       "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/virtualNetworkGateways/{gatewayName}/",
@@ -47,7 +47,7 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ]
+        "Accept": [ "application/json" ]
       },
       "method": "GET",
       "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/vpnGateways/{gatewayName}/",
@@ -70,7 +70,7 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ]
+        "Accept": [ "application/json" ]
       },
       "method": "GET",
       "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/vpnGateways/{gatewayName}/",
@@ -93,7 +93,7 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ]
+        "Accept": [ "application/json" ]
       },
       "method": "GET",
       "path": "/subscriptions/{subscriptionId}/providers/Microsoft.Network/vpnGateways/",
@@ -114,7 +114,7 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ]
+        "Accept": [ "application/json" ]
       },
       "method": "GET",
       "path": "/subscriptions/{subscriptionId}/providers/Microsoft.KeyVault/vaults/",
@@ -135,7 +135,7 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ]
+        "Accept": [ "application/json" ]
       },
       "method": "GET",
       "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/",
@@ -157,7 +157,7 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ]
+        "Accept": [ "application/json" ]
       },
       "method": "GET",
       "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/stackql-alt-keyvault/keys/",
@@ -179,7 +179,7 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ]
+        "Accept": [ "application/json" ]
       },
       "method": "GET",
       "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/dummy-key-01/",
@@ -201,7 +201,7 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ]
+        "Accept": [ "application/json" ]
       },
       "method": "GET",
       "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/dummy-key-02/",
@@ -223,7 +223,7 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ]
+        "Accept": [ "application/json" ]
       },
       "method": "GET",
       "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/alt-dummy-key-02/",
@@ -245,14 +245,10 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ]
+        "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/stackql-alt-keyvault/keys/alt-dummy-key-01/",
-      "pathParameters": {
-        "subscriptionId": ["000000-0000-0000-0000-000000000022"],
-        "resourceGroupName": ["[A-Za-z0-9-]+"]  
-      },
+      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/go-on-azure/providers/Microsoft.KeyVault/vaults/stackql-alt-keyvault/keys/alt-dummy-key-01/",
       "queryStringParameters" : {
         "api-version" : [ "2023-07-01" ]
       }
@@ -267,7 +263,7 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ]
+        "Accept": [ "application/json" ]
       },
       "method": "GET",
       "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/stackql-alt-keyvault/keys/alt-dummy-key-02/",
@@ -289,13 +285,10 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ]
+        "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/{subscriptionId}/providers/Microsoft.KeyVault/vaults/",
-      "pathParameters": {
-        "subscriptionId": ["000000-0000-0000-0000-000000000011"] 
-      },
+      "path": "/subscriptions/000000-0000-0000-0000-000000000011/providers/Microsoft.KeyVault/vaults/",
       "queryStringParameters" : {
         "api-version" : [ "2023-07-01" ]
       }
@@ -310,14 +303,10 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ]
+        "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/",
-      "pathParameters": {
-        "subscriptionId": ["000000-0000-0000-0000-000000000011"],
-        "resourceGroupName": ["[A-Za-z0-9-]+"]  
-      },
+      "path": "/subscriptions/000000-0000-0000-0000-000000000011/resourceGroups/go-on-azure/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/",
       "queryStringParameters" : {
         "api-version" : [ "2023-07-01" ]
       }
@@ -332,14 +321,10 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ]
+        "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/dummy-key-01/",
-      "pathParameters": {
-        "subscriptionId": ["000000-0000-0000-0000-000000000011"],
-        "resourceGroupName": ["[A-Za-z0-9-]+"]  
-      },
+      "path": "/subscriptions/000000-0000-0000-0000-000000000011/resourceGroups/go-on-azure/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/dummy-key-01/",
       "queryStringParameters" : {
         "api-version" : [ "2023-07-01" ]
       }
@@ -354,7 +339,7 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ]
+        "Accept": [ "application/json" ]
       },
       "method": "GET",
       "path": "/subscriptions/{subscriptionId}/providers/Microsoft.Compute/sshPublicKeys/",
@@ -375,7 +360,7 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ]
+        "Accept": [ "application/json" ]
       },
       "method": "GET",
       "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupId}/providers/Microsoft.Compute/virtualMachines/",
@@ -397,7 +382,7 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ]
+        "Accept": [ "application/json" ]
       },
       "method": "GET",
       "path": "/providers/Microsoft.Billing/billingAccounts/",
