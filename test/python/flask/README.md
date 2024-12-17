@@ -18,68 +18,55 @@ pgrep -f flask | xargs kill -9
 GCP mocks:
 
 ```bash
-java  -Dfile.encoding=UTF-8 -Dmockserver.initializationJsonPath=${HOME}/stackql/stackql-devel/test/mockserver/expectations/static-gcp-expectations.json -jar ${HOME}/stackql/stackql-devel/test/downloads/mockserver-netty-5.12.0-shaded.jar  -serverPort 1080 -logLevel INFO
+flask --app=${HOME}/stackql/stackql-devel/test/python/flask/gcp/app run --cert=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_cert.pem --key=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_key.pem  --port  1080
 ```
 
 Azure mocks:
 
 ```bash
-java  -Dfile.encoding=UTF-8 -Dmockserver.initializationJsonPath=${HOME}/stackql/stackql-devel/test/mockserver/expectations/static-azure-expectations.json -jar ${HOME}/stackql/stackql-devel/test/downloads/mockserver-netty-5.12.0-shaded.jar  -serverPort 1095 -logLevel INFO
+flask --app=${HOME}/stackql/stackql-devel/test/python/flask/azure/app run --cert=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_cert.pem --key=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_key.pem --port 1095
 ```
 
 Okta mocks:
 
 ```bash
-java  -Dfile.encoding=UTF-8 -Dmockserver.initializationJsonPath=${HOME}/stackql/stackql-devel/test/mockserver/expectations/static-okta-expectations.json -jar ${HOME}/stackql/stackql-devel/test/downloads/mockserver-netty-5.12.0-shaded.jar  -serverPort 1090 -logLevel INFO
+flask --app=${HOME}/stackql/stackql-devel/test/python/flask/okta/app run --cert=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_cert.pem --key=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_key.pem  --port 1090
 ```
 
 AWS mocks:
 
 ```bash
-java  -Dfile.encoding=UTF-8 -Dmockserver.initializationJsonPath=${HOME}/stackql/stackql-devel/test/mockserver/expectations/static-aws-expectations.json -jar ${HOME}/stackql/stackql-devel/test/downloads/mockserver-netty-5.12.0-shaded.jar  -serverPort 1091 -logLevel INFO
+flask --app=${HOME}/stackql/stackql-devel/test/python/flask/aws/app run --cert=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_cert.pem --key=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_key.pem  --port 1091
 ```
 
 Github mocks:
 
 ```bash
-java  -Dfile.encoding=UTF-8 -Dmockserver.initializationJsonPath=${HOME}/stackql/stackql-devel/test/mockserver/expectations/static-github-expectations.json -jar ${HOME}/stackql/stackql-devel/test/downloads/mockserver-netty-5.12.0-shaded.jar  -serverPort 1093 -logLevel INFO
+flask --app=${HOME}/stackql/stackql-devel/test/python/flask/github/app run --cert=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_cert.pem --key=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_key.pem  --port 1093
 ```
 
 Sumologic mocks:
 
 ```bash
-java  -Dfile.encoding=UTF-8 -Dmockserver.initializationJsonPath=${HOME}/stackql/stackql-devel/test/mockserver/expectations/static-sumologic-expectations.json -jar ${HOME}/stackql/stackql-devel/test/downloads/mockserver-netty-5.12.0-shaded.jar  -serverPort 1096 -logLevel INFO
+flask --app=${HOME}/stackql/stackql-devel/test/python/flask/okta/app run --cert=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_cert.pem --key=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_key.pem  --port 1096
 ```
 
 Digitalocean mocks:
 
 ```bash
-java  -Dfile.encoding=UTF-8 -Dmockserver.initializationJsonPath=${HOME}/stackql/stackql-devel/test/mockserver/expectations/static-digitalocean-expectations.json -jar ${HOME}/stackql/stackql-devel/test/downloads/mockserver-netty-5.12.0-shaded.jar  -serverPort 1097 -logLevel INFO
+flask --app=${HOME}/stackql/stackql-devel/test/python/flask/digitalocean/app run --cert=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_cert.pem --key=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_key.pem  --port 1097
 ```
 
 `googleadmin` mocks:
 
 ```bash
-java  -Dfile.encoding=UTF-8 -Dmockserver.initializationJsonPath=${HOME}/stackql/stackql-devel/test/mockserver/expectations/static-google-admin-expectations.json -jar ${HOME}/stackql/stackql-devel/test/downloads/mockserver-netty-5.12.0-shaded.jar  -serverPort 1098 -logLevel INFO
+flask --app=${HOME}/stackql/stackql-devel/test/python/flask/googleadmin/app run --cert=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_cert.pem --key=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_key.pem  --port 1098
 ```
 
 stackql auth testing mocks:
 
 ```bash
-java  -Dfile.encoding=UTF-8 -Dmockserver.initializationJsonPath=${HOME}/stackql/stackql-devel/test/mockserver/expectations/static-auth-testing-expectations.json -jar ${HOME}/stackql/stackql-devel/test/downloads/mockserver-netty-5.12.0-shaded.jar  -serverPort 1170 -logLevel INFO
-```
-
-### Expectations from local file
-
-As per [expectations/static-gcp-expectations.json](/test/server/expectations/static-gcp-expectations.json)
-
-
-Basic idea is to rewrite openapi docs and also dummy credentials file such that 
-all requests go to localhost.  We will pass in the dummy server CA to StackQL at init time.
-This will obviously only occur in testing.
-
-```
-"select ipCidrRange, sum(5) cc  from  google.container.`projects.aggregated.usableSubnetworks` where projectsId = 'testing-project' group by \"ipCidrRange\" having sum(5) >= 5 order by ipCidrRange desc;"
+flask --app=${HOME}/stackql/stackql-devel/test/python/flask/static_auth/app run --cert=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_cert.pem --key=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_key.pem  --port  1170
 ```
 
 
