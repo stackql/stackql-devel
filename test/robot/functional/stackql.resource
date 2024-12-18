@@ -19,17 +19,6 @@ Library           ${LOCAL_LIB_HOME}/CloudIntegration.py
 Library           ${LOCAL_LIB_HOME}/web_service_keywords.py
 
 *** Keywords ***
-Start Mock Server
-    [Arguments]    ${_JSON_INIT_FILE_PATH}    ${_MOCKSERVER_JAR}    ${_MOCKSERVER_PORT}
-    ${process} =    Start Process    java    \-Dfile.encoding\=UTF-8
-    ...  \-Dmockserver.initializationJsonPath\=${_JSON_INIT_FILE_PATH}
-    ...  \-Dmockserver.logLevel\=OFF
-    ...  \-Droot.logLevel\=OFF
-    ...  \-jar    ${_MOCKSERVER_JAR}
-    ...  \-serverPort    ${_MOCKSERVER_PORT}
-    ...  stderr=${CURDIR}/tmp/stdout-mockserver-${_MOCKSERVER_PORT}.txt
-    ...  stdout=${CURDIR}/tmp/stderr-mockserver-${_MOCKSERVER_PORT}.txt
-    RETURN    ${process}
 
 Start All Mock Servers
     Create OAuth2 Client Credentials Web Service    ${MOCKSERVER_PORT_OAUTH_CLIENT_CREDENTIALS_TOKEN}
