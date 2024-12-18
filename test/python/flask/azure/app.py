@@ -213,14 +213,6 @@ def keys_list_02(resourceGroupName):
     response.status_code = 200
     return response
 
-@app.route('/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/<resourceGroupName>/providers/Microsoft.KeyVault/vaults/stackql-alt-keyvault/keys/', methods=['GET'])
-def keys_list_03(resourceGroupName):
-    template_name = "keys-list-02.json"
-    response = make_response(render_template(template_name, request=request))
-    response.headers.update({"Content-Type": "application/json"})
-    response.status_code = 200
-    return response
-
 @app.route('/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/<resourceGroupName>/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/dummy-key-01/', methods=['GET'])
 def key_detail_01(resourceGroupName):
     template_name = "key-detail-01.json"
@@ -269,9 +261,25 @@ def key_detail_06(resourceGroupName):
     response.status_code = 200
     return response
 
-@app.route('/subscriptions/000000-0000-0000-0000-000000000011/resourceGroups/<resourceGroupName>/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/', methods=['GET']):
+@app.route('/subscriptions/000000-0000-0000-0000-000000000011/resourceGroups/<resourceGroupName>/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/', methods=['GET'])
 def keys_list_03(resourceGroupName):
     template_name = "keys-list-03.json"
+    response = make_response(render_template(template_name, request=request))
+    response.headers.update({"Content-Type": "application/json"})
+    response.status_code = 200
+    return response
+
+@app.route('/subscriptions/<subscriptionId>/providers/Microsoft.Compute/sshPublicKeys/', methods=['GET'])
+def ssh_public_keys_list(subscriptionId):
+    template_name = "ssh-public-keys-list-01.json"
+    response = make_response(render_template(template_name, request=request))
+    response.headers.update({"Content-Type": "application/json"})
+    response.status_code = 200
+    return response
+
+@app.route('/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupId>/providers/Microsoft.Compute/virtualMachines/', methods=['GET'])
+def virtual_machines_list(subscriptionId, resourceGroupId):
+    template_name = "virtual-machines-list-01.json"
     response = make_response(render_template(template_name, request=request))
     response.headers.update({"Content-Type": "application/json"})
     response.status_code = 200
@@ -287,8 +295,9 @@ def generic_handler(request: Request):
     route_cfg: dict = cfg_obj.match_route(request)
     template_name = route_cfg.get("httpResponse", {}).get("template", "")
     if not template_name:
-        logger.error(f"Missing template for route: {request}")
-        return jsonify({'error': f'Missing template for route: {request}'}), 500
+        rv = make_response(render_template('nil-response.json', request=request))
+        rv.status_code = 404
+        return rv
     logger.info(f"routing to template: {template_name}")
     response = make_response(render_template(template_name, request=request))
     response.headers.update(route_cfg.get("httpResponse", {}).get("headers", {}))
