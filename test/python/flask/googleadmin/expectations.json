@@ -2,7 +2,7 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ],
+        "Accept": [ "application/json" ],
         "Authorization" : [ 
           ".+" 
         ]
@@ -23,7 +23,7 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ],
+        "Accept": [ "application/json" ],
         "Authorization" : [ 
           ".+" 
         ]
@@ -48,7 +48,7 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ],
+        "Accept": [ "application/json" ],
         "Authorization" : [ 
           ".+" 
         ]
@@ -73,16 +73,13 @@
   {
     "httpRequest": {
       "headers": {
-        "accept": [ "application/json" ],
+        "Accept": [ "application/json" ],
         "Authorization" : [ 
           ".+" 
         ]
       },
       "method": "DELETE",
-      "path": "/admin/directory/v1/users/{userKey}",
-      "pathParameters": {
-        "userKey": ["10000000000000000009"]
-      }
+      "path": "/admin/directory/v1/users/10000000000000000009"
     },
     "httpResponse": {
       "template": "users-delete-01.json",

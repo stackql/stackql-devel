@@ -1,4 +1,4 @@
 {
-    "id": "server_error",
-    "message": "Unexpected server-side error"
-  }
+  "id": "server_error",
+  "message": "Unexpected server-side error"
+}

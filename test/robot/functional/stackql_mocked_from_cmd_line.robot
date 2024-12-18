@@ -2055,14 +2055,14 @@ Transaction Abort Attempted Commit Digitalocean Insert Droplet
     ...    commit;
     ${nativeOutputStr} =    Catenate    SEPARATOR=\n
     ...    http${SPACE}response${SPACE}status${SPACE}code:${SPACE}500,${SPACE}response${SPACE}body:${SPACE}{
-    ...    ${SPACE}${SPACE}"id"${SPACE}:${SPACE}"server_error",
-    ...    ${SPACE}${SPACE}"message"${SPACE}:${SPACE}"Unexpected${SPACE}server-side${SPACE}error"
+    ...    ${SPACE}${SPACE}"id":${SPACE}"server_error",
+    ...    ${SPACE}${SPACE}"message":${SPACE}"Unexpected${SPACE}server-side${SPACE}error"
     ...    }
     ...    OK
     ...    mutating statement queued
     ...    mutating statement queued
     ...    mutating statement queued
-    ...    insert over HTTP error: 500 Internal Server Error
+    ...    insert over HTTP error: 500 INTERNAL SERVER ERROR
     ...    UNDO required: Undo the insert on digitalocean.droplets.droplets
     ...    UNDO required: Undo the insert on digitalocean.droplets.droplets
     ${dockerOutputStr} =    Catenate    SEPARATOR=\n
