@@ -87,5 +87,24 @@
         "Content-Type": "application/json"
       }
     }
+  },
+  {
+    "httpRequest": {
+      "headers": {
+        "Accept": [ "application/json" ],
+        "Authorization" : [ 
+          ".+" 
+        ]
+      },
+      "method": "DELETE",
+      "path": "/admin/directory/v1/users/10000000000000000008"
+    },
+    "httpResponse": {
+      "status": 404,
+      "template": "nil-response.json",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    }
   }
 ]

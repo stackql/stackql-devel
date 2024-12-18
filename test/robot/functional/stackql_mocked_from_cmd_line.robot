@@ -2116,7 +2116,7 @@ Transaction Rollback Failure Eager Idealised Google Admin Directory User
     ...    http response status code: 404, response body is nil
     ...    OK
     ...    The operation was despatched successfully
-    ...    undo over HTTP error: 404 Not Found
+    ...    undo over HTTP error: 404 NOT FOUND
     ...    Rollback failed
     Should Stackql Exec Inline Equal Both Streams
     ...    ${STACKQL_EXE}
