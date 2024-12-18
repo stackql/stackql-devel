@@ -5,11 +5,7 @@
         "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/virtualNetworkGateways/",
-      "pathParameters": {
-        "subscriptionId": ["000000-0000-0000-0000-000000000022"],
-        "resourceGroupName": ["rg2"]
-      },
+      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/rg2/providers/Microsoft.Network/virtualNetworkGateways/",
       "queryStringParameters" : {
         "api-version" : [ "2023-11-01" ]
       }
@@ -27,12 +23,7 @@
         "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/virtualNetworkGateways/{gatewayName}/",
-      "pathParameters": {
-        "subscriptionId": ["000000-0000-0000-0000-000000000022"],
-        "resourceGroupName": ["rg2"],
-        "gatewayName": ["my-vpn-gateway"]
-      },
+      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/rg2/providers/Microsoft.Network/virtualNetworkGateways/my-vpn-gateway/",
       "queryStringParameters" : {
         "api-version" : [ "2023-11-01" ]
       }
@@ -50,12 +41,7 @@
         "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/vpnGateways/{gatewayName}/",
-      "pathParameters": {
-        "subscriptionId": ["000000-0000-0000-0000-000000000022"],
-        "resourceGroupName": ["rg2"],
-        "gatewayName": ["gateway2"]
-      },
+      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/rg2/providers/Microsoft.Network/vpnGateways/gateway2/",
       "queryStringParameters" : {
         "api-version" : [ "2023-11-01" ]
       }
@@ -73,12 +59,7 @@
         "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/vpnGateways/{gatewayName}/",
-      "pathParameters": {
-        "subscriptionId": ["000000-0000-0000-0000-000000000022"],
-        "resourceGroupName": ["rg1"],
-        "gatewayName": ["gateway1"]
-      },
+      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/rg1/providers/Microsoft.Network/vpnGateways/gateway1/",
       "queryStringParameters" : {
         "api-version" : [ "2023-11-01" ]
       }
@@ -96,10 +77,7 @@
         "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/{subscriptionId}/providers/Microsoft.Network/vpnGateways/",
-      "pathParameters": {
-        "subscriptionId": ["000000-0000-0000-0000-000000000022"] 
-      },
+      "path": "/subscriptions/000000-0000-0000-0000-000000000022/providers/Microsoft.Network/vpnGateways/",
       "queryStringParameters" : {
         "api-version" : [ "2023-11-01" ]
       }
@@ -117,10 +95,7 @@
         "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/{subscriptionId}/providers/Microsoft.KeyVault/vaults/",
-      "pathParameters": {
-        "subscriptionId": ["000000-0000-0000-0000-000000000022"] 
-      },
+      "path": "/subscriptions/000000-0000-0000-0000-000000000022/providers/Microsoft.KeyVault/vaults/",
       "queryStringParameters" : {
         "api-version" : [ "2023-07-01" ]
       }
@@ -138,11 +113,7 @@
         "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/",
-      "pathParameters": {
-        "subscriptionId": ["000000-0000-0000-0000-000000000022"],
-        "resourceGroupName": ["[A-Za-z0-9-]+"]  
-      },
+      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/rg2/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/",
       "queryStringParameters" : {
         "api-version" : [ "2023-07-01" ]
       }
@@ -160,11 +131,7 @@
         "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/stackql-alt-keyvault/keys/",
-      "pathParameters": {
-        "subscriptionId": ["000000-0000-0000-0000-000000000022"],
-        "resourceGroupName": ["[A-Za-z0-9-]+"]  
-      },
+      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/rg2/providers/Microsoft.KeyVault/vaults/stackql-alt-keyvault/keys/",
       "queryStringParameters" : {
         "api-version" : [ "2023-07-01" ]
       }
@@ -182,11 +149,7 @@
         "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/dummy-key-01/",
-      "pathParameters": {
-        "subscriptionId": ["000000-0000-0000-0000-000000000022"],
-        "resourceGroupName": ["[A-Za-z0-9-]+"]  
-      },
+      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/rg2/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/dummy-key-01/",
       "queryStringParameters" : {
         "api-version" : [ "2023-07-01" ]
       }
@@ -204,11 +167,7 @@
         "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/dummy-key-02/",
-      "pathParameters": {
-        "subscriptionId": ["000000-0000-0000-0000-000000000022"],
-        "resourceGroupName": ["[A-Za-z0-9-]+"]  
-      },
+      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/rg2/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/dummy-key-02/",
       "queryStringParameters" : {
         "api-version" : [ "2023-07-01" ]
       }
@@ -226,11 +185,7 @@
         "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/alt-dummy-key-02/",
-      "pathParameters": {
-        "subscriptionId": ["000000-0000-0000-0000-000000000022"],
-        "resourceGroupName": ["[A-Za-z0-9-]+"]  
-      },
+      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/rg2/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/alt-dummy-key-02/",
       "queryStringParameters" : {
         "api-version" : [ "2023-07-01" ]
       }
@@ -266,11 +221,7 @@
         "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.KeyVault/vaults/stackql-alt-keyvault/keys/alt-dummy-key-02/",
-      "pathParameters": {
-        "subscriptionId": ["000000-0000-0000-0000-000000000022"],
-        "resourceGroupName": ["[A-Za-z0-9-]+"]  
-      },
+      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/rg2/providers/Microsoft.KeyVault/vaults/stackql-alt-keyvault/keys/alt-dummy-key-02/",
       "queryStringParameters" : {
         "api-version" : [ "2023-07-01" ]
       }

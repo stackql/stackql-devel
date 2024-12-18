@@ -127,7 +127,9 @@ class GetMatcherConfig:
         path = cfg.get('httpRequest', {}).get("path", '')
         if not path:
             return True
-        return req.path == path
+        if req.path == path:
+            return True
+        return False
 
     
     def match_route(self, req: Request) -> dict:
