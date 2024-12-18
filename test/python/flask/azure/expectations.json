@@ -113,7 +113,7 @@
         "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/rg2/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/",
+      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/go-on-azure/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/",
       "queryStringParameters" : {
         "api-version" : [ "2023-07-01" ]
       }
@@ -131,7 +131,7 @@
         "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/rg2/providers/Microsoft.KeyVault/vaults/stackql-alt-keyvault/keys/",
+      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/go-on-azure/providers/Microsoft.KeyVault/vaults/stackql-alt-keyvault/keys/alt-dummy-key-01/",
       "queryStringParameters" : {
         "api-version" : [ "2023-07-01" ]
       }
@@ -149,7 +149,7 @@
         "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/rg2/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/dummy-key-01/",
+      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/go-on-azure/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/dummy-key-01/",
       "queryStringParameters" : {
         "api-version" : [ "2023-07-01" ]
       }
@@ -167,7 +167,7 @@
         "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/rg2/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/dummy-key-02/",
+      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/go-on-azure/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/dummy-key-02/",
       "queryStringParameters" : {
         "api-version" : [ "2023-07-01" ]
       }
@@ -185,7 +185,7 @@
         "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/rg2/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/alt-dummy-key-02/",
+      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/go-on-azure/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/alt-dummy-key-02/",
       "queryStringParameters" : {
         "api-version" : [ "2023-07-01" ]
       }
@@ -221,7 +221,7 @@
         "Accept": [ "application/json" ]
       },
       "method": "GET",
-      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/rg2/providers/Microsoft.KeyVault/vaults/stackql-alt-keyvault/keys/alt-dummy-key-02/",
+      "path": "/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/go-on-azure/providers/Microsoft.KeyVault/vaults/stackql-alt-keyvault/keys/alt-dummy-key-02/",
       "queryStringParameters" : {
         "api-version" : [ "2023-07-01" ]
       }

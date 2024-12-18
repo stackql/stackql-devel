@@ -197,6 +197,86 @@ class GetMatcherConfig:
 config_path = os.path.join(os.path.dirname(__file__), "expectations.json")
 cfg_obj: GetMatcherConfig = GetMatcherConfig()
 
+@app.route('/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/<resourceGroupName>/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/', methods=['GET'])
+def keys_list_01(resourceGroupName):
+    template_name = "keys-list-01.json"
+    response = make_response(render_template(template_name, request=request))
+    response.headers.update({"Content-Type": "application/json"})
+    response.status_code = 200
+    return response
+
+@app.route('/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/<resourceGroupName>/providers/Microsoft.KeyVault/vaults/stackql-alt-keyvault/keys/', methods=['GET'])
+def keys_list_02(resourceGroupName):
+    template_name = "keys-list-02.json"
+    response = make_response(render_template(template_name, request=request))
+    response.headers.update({"Content-Type": "application/json"})
+    response.status_code = 200
+    return response
+
+@app.route('/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/<resourceGroupName>/providers/Microsoft.KeyVault/vaults/stackql-alt-keyvault/keys/', methods=['GET'])
+def keys_list_03(resourceGroupName):
+    template_name = "keys-list-02.json"
+    response = make_response(render_template(template_name, request=request))
+    response.headers.update({"Content-Type": "application/json"})
+    response.status_code = 200
+    return response
+
+@app.route('/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/<resourceGroupName>/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/dummy-key-01/', methods=['GET'])
+def key_detail_01(resourceGroupName):
+    template_name = "key-detail-01.json"
+    response = make_response(render_template(template_name, request=request))
+    response.headers.update({"Content-Type": "application/json"})
+    response.status_code = 200
+    return response
+
+@app.route('/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/<resourceGroupName>/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/dummy-key-02/', methods=['GET'])
+def key_detail_02(resourceGroupName):
+    template_name = "key-detail-02.json"
+    response = make_response(render_template(template_name, request=request))
+    response.headers.update({"Content-Type": "application/json"})
+    response.status_code = 200
+    return response
+
+@app.route('/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/<resourceGroupName>/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/alt-dummy-key-02/', methods=['GET'])
+def key_detail_03(resourceGroupName):
+    template_name = "key-detail-03.json"
+    response = make_response(render_template(template_name, request=request))
+    response.headers.update({"Content-Type": "application/json"})
+    response.status_code = 200
+    return response
+
+@app.route('/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/<resourceGroupName>/providers/Microsoft.KeyVault/vaults/stackql-alt-keyvault/keys/alt-dummy-key-01/', methods=['GET'])
+def key_detail_04(resourceGroupName):
+    template_name = "key-detail-04.json"
+    response = make_response(render_template(template_name, request=request))
+    response.headers.update({"Content-Type": "application/json"})
+    response.status_code = 200
+    return response
+
+@app.route('/subscriptions/000000-0000-0000-0000-000000000022/resourceGroups/<resourceGroupName>/providers/Microsoft.KeyVault/vaults/stackql-alt-keyvault/keys/alt-dummy-key-02/', methods=['GET'])
+def key_detail_05(resourceGroupName):
+    template_name = "key-detail-05.json"
+    response = make_response(render_template(template_name, request=request))
+    response.headers.update({"Content-Type": "application/json"})
+    response.status_code = 200
+    return response
+
+@app.route('/subscriptions/000000-0000-0000-0000-000000000011/resourceGroups/<resourceGroupName>/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/dummy-key-01/', methods=['GET'])
+def key_detail_06(resourceGroupName):
+    template_name = "key-detail-06.json"
+    response = make_response(render_template(template_name, request=request))
+    response.headers.update({"Content-Type": "application/json"})
+    response.status_code = 200
+    return response
+
+@app.route('/subscriptions/000000-0000-0000-0000-000000000011/resourceGroups/<resourceGroupName>/providers/Microsoft.KeyVault/vaults/stackql-testing-keyvault/keys/', methods=['GET']):
+def keys_list_03(resourceGroupName):
+    template_name = "keys-list-03.json"
+    response = make_response(render_template(template_name, request=request))
+    response.headers.update({"Content-Type": "application/json"})
+    response.status_code = 200
+    return response
+
 # A catch-all route that accepts any path
 @app.route('/<path:any_path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
 def catch_all(any_path):
