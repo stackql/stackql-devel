@@ -1268,7 +1268,7 @@ jobs:
         mkdir -p cicd/vol/postgres/persist
 
     - name: Push stackql image to Docker Hub
-      if: ${{ ( success() && github.ref_type == 'branch' && github.ref_name == 'main' && github.repository == 'stackql/stackql' && github.event_name == 'push'  ) || ( success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'build-release') ) }}
+      if: ${{ env.CI_SKIP_DOCKER_PUSH != 'true' && ( success() && github.ref_type == 'branch' && github.ref_name == 'main' && github.event_name == 'push'  ) || ( success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'build-release') ) }}
       uses: docker/build-push-action@v5
       with:
         context: .
@@ -1281,5 +1281,5 @@ jobs:
           RUN_INTEGRATION_TESTS=0
         push: true
         target: app
-        tags: stackql/stackql:${{github.sha}},stackql/stackql:v${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}},stackql/stackql:latest
+        tags: ${{ github.repository }}:${{github.sha}},${{ github.repository }}:v${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}},${{ github.repository }}:latest
 
