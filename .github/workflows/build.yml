@@ -1175,7 +1175,7 @@ jobs:
           BUILDPATCHVERSION=${{env.BUILDPATCHVERSION}}
         push: false
         target: app
-        no-cache: true
+        no-cache: ${{ vars.CI_DOCKER_BUILD_NO_CACHE == 'true' && true || false }}
         load: true
         tags: stackql/stackql:${{github.sha}},stackql/stackql:v${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}},stackql/stackql:latest
 
@@ -1263,11 +1263,16 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+    - name: Hack to avoid docker buildx failures
+      run: |
+        mkdir -p cicd/vol/postgres/persist
+
     - name: Push stackql image to Docker Hub
       if: ${{ ( success() && github.ref_type == 'branch' && github.ref_name == 'main' && github.repository == 'stackql/stackql' && github.event_name == 'push'  ) || ( success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'build-release') ) }}
       uses: docker/build-push-action@v5
       with:
         context: .
+        no-cache: ${{ vars.CI_DOCKER_BUILD_NO_CACHE == 'true' && true || false }}
         platforms: linux/arm64,linux/amd64
         build-args: |
           BUILDMAJORVERSION=${{env.BUILDMAJORVERSION}}
