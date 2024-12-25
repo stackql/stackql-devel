@@ -25,6 +25,11 @@ class ASTNode(object):
     def __init__(self, node: dict):
         self.node = node
         self.children = []
+        self._local_vars = {}
+        for candidate in self._get_annotations():
+            split_list = candidate.split("=", 1)
+            if len(split_list) == 2:
+                self._local_vars[split_list[0]] = split_list[1]
         if 'children' in node:
             for child in node['children']:
                 self.children.append(ASTNode(child))
@@ -39,7 +44,7 @@ class ASTNode(object):
         return self.get_type() == 'block_code'
     
     def _get_annotations(self) -> List[str]:
-        return self.node.get('attrs').get('info', '').split(' ')
+        return self.node.get('attrs', {}).get('info', '').split(' ')
     
     def is_stackql_shell_invocation(self) -> bool:
         return self._STACKQL_SHELL_INVOCATION in self._get_annotations()
@@ -55,22 +60,38 @@ class ASTNode(object):
 
     def get_execution_language(self) -> str:
         return self.node.get('lang', '')
+    
+    def expand(self) -> str:
+        return self.get_text().replace("<", "{").replace(">", "}").format(**self._local_vars)
 
     def __str__(self):
         return json.dumps(self.node, indent=2)
     
     def __repr__(self):
         return self.__str__()
+    
+
+class MdAST(object):
+
+    def __init__(self, ast: List[ASTNode]):
+        self._ast: List[ASTNode] = ast
+
+    def get_ordered(self) -> List[ASTNode]:
+        return self._ast
+    
+    def expand(self, node: ASTNode) -> str:
+        return node.expand()
+
+
 
 class MdParser(object):
 
-    def parse_markdown_file(self, file_path: str, lang=None) -> List[ASTNode]:
+    def parse_markdown_file(self, file_path: str, lang=None) -> MdAST:
         markdown: mistune.Markdown = mistune.create_markdown(renderer='ast')
         with open(file_path, 'r') as f:
             txt = f.read()
         raw_list: List[dict] = markdown(txt)
-        return [ASTNode(node) for node in raw_list]
-
+        return MdAST([ASTNode(node) for node in raw_list])
 
 class WorkloadDTO(object):
 
@@ -119,23 +140,23 @@ class MdOrchestrator(object):
         setup_str: str = f'cd {_REPOSITORY_ROOT_PATH};\n'
         in_session_commands: List[str] = []
         teardown_str: str = f'cd {_REPOSITORY_ROOT_PATH};\n'
-        for node in ast:
+        for node in ast.get_ordered():
             if node.is_executable():
                 if node.is_setup():
                     if setup_count < self._max_setup_blocks:
-                        setup_str += f'{node.get_text()}'
+                        setup_str += ast.expand(node)
                         setup_count += 1
                     else:
                         raise KeyError(f'Maximum setup blocks exceeded: {self._max_setup_blocks}')
                 elif node.is_teardown():
                     if teardown_count < self._max_teardown_blocks:
-                        teardown_str += f'{node.get_text()}'
+                        teardown_str += ast.expand(node)
                         teardown_count += 1
                     else:
                         raise KeyError(f'Maximum teardown blocks exceeded: {self._max_teardown_blocks}')
                 elif node.is_stackql_shell_invocation():
                     if invocation_count < self._max_invocations_blocks:
-                        all_commands: str = node.get_text().split('\n\n')
+                        all_commands: str = ast.expand(node).split('\n\n')
                         in_session_commands += all_commands
                         invocation_count += 1
                     else:

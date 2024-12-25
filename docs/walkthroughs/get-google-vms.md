@@ -5,18 +5,18 @@ First, create a google service account key using the GCP Console, per [the GCP d
 
 Then, do this in bash:
 
-```bash setup stackql-shell
+```bash setup stackql-shell credentials-path=cicd/keys/testing/google-credentials.json app-root-path=./test/tmp/.get-google-vms.stackql
 
-export GOOGLE_CREDENTIALS="$(cat cicd/keys/testing/google-credentials.json)";
+export GOOGLE_CREDENTIALS="$(cat <credentials-path>)";
 
-stackql shell --approot=./test/tmp/.get-google-vms.stackql
+stackql shell --approot=<app-root-path>
 ```
 
 ## Method
 
 Do this in the `stackql` shell, replacing `<project>` with your GCP project name:
 
-```sql stackql-shell input required project=ryuki-it-sandbox-01
+```sql stackql-shell input required project=ryuki-it-sandbox-01 region=australia-southeast1-a
 
 registry pull google;
 
@@ -25,8 +25,8 @@ select
   id 
 FROM google.compute.instances 
 WHERE 
-  project = 'ryuki-it-sandbox-01' 
-  AND zone = 'australia-southeast1-a'
+  project = '<project>' 
+  AND zone = '<region>'
 ;
 
 ```
@@ -51,8 +51,8 @@ goodbye
 
 ## Cleanup
 
-```bash teardown best-effort
+```bash teardown best-effort app-root-path=./test/tmp/.get-google-vms.stackql
 
-rm -rf ./test/tmp/.get-google-vms.stackql
+rm -rf <app-root-path>
 
 ```
