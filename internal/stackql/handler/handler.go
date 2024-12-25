@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"path"
 	"strings"
 	"sync"
@@ -462,6 +463,8 @@ func getRegistry(runtimeCtx dto.RuntimeCtx) (anysdk.RegistryAPI, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Fprintf(os.Stderr, "App root path: %s\n", runtimeCtx.ApplicationFilesRootPath)
+	fmt.Fprintf(os.Stderr, "Registry LocalDocRoot: %s\n", rc.LocalDocRoot)
 	if rc.LocalDocRoot == "" {
 		if strings.HasPrefix(rc.RegistryURL, "file:") {
 			rc.LocalDocRoot = path.Clean(path.Join(strings.TrimPrefix(rc.RegistryURL, "file:"), ".."))

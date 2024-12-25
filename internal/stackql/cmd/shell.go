@@ -111,6 +111,9 @@ var shellCmd = &cobra.Command{
 	//nolint:revive // acceptable for now
 	Run: func(command *cobra.Command, args []string) {
 
+		flagErr := dependentFlagHandler(&runtimeCtx)
+		iqlerror.PrintErrorAndExitOneIfError(flagErr)
+
 		cd := presentation.NewPresentationDriver(runtimeCtx)
 
 		outfile, _ := writer.GetDecoratedOutputWriter(runtimeCtx.OutfilePath, cd)

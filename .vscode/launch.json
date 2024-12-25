@@ -153,9 +153,10 @@
         "set global \"a.b\"=1;",
         "set global \"$.auth.google.sub\"='krimmer@stackql.io';",
         "select JSON_EXTRACT(saml.samlIdentity, '$.username') as saml_username from github.scim.saml_ids saml where saml.org = 'dummyorg';",
-        "select kind, name, maximumCardsPerInstance from google.compute.acceleratorTypes where project = 'defective-response-content-project' and zone = 'australia-southeast1-a' order by name desc;"
+        "select kind, name, maximumCardsPerInstance from google.compute.acceleratorTypes where project = 'defective-response-content-project' and zone = 'australia-southeast1-a' order by name desc;",
+        "registry pull google;"
       ],
-      "default": "show providers;"
+      "default": "registry pull google;"
     },
     {
       "type": "pickString",
@@ -195,6 +196,16 @@
       "default": "-tags=sqlite_stackql",
       "options": [
         "-tags=sqlite_stackql"
+      ]
+    },
+    {
+      "type": "pickString",
+      "id": "appRoot",
+      "description": "Extra Build Flags for debug; cannot place elsewhere",
+      "default": "${workspaceFolder}",
+      "options": [
+        "${workspaceFolder}",
+        "${workspaceFolder}/test/tmp/.vscode.debug.stackql",
       ]
     },
     {
@@ -393,6 +404,7 @@
         "--dataflow.dependency.max=${input:dataflowDependencyMax}",
         "--dataflow.components.max=${input:dataflowComponentsMax}",
         "--http.log.enabled=${input:httpLogEnabled}",
+        "--approot=${input:appRoot}",
         "${input:queryString}"
       ],
     },
