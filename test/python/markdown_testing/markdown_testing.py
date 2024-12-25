@@ -21,6 +21,12 @@ class ASTNode(object):
     _BASH: str = 'bash'
     _SETUP: str = 'setup'
     _TEARDOWN: str = 'teardown'
+    _BLOCK_CODE: str = 'block_code'
+    _EXPECTATION: str = 'expectation'
+    _STDOUT: str = 'stdout'
+    _STDERR: str = 'stderr'
+    _TABLE_CONTAINNS_DATA: str = 'table-contains-data'
+    _REGEX: str = 'regex'
 
     def __init__(self, node: dict):
         self.node = node
@@ -41,7 +47,19 @@ class ASTNode(object):
         return self.node.get('raw', '').strip()
 
     def is_executable(self) -> bool:
-        return self.get_type() == 'block_code'
+        return self.get_type() == self._BLOCK_CODE
+
+    def is_expectation(self) -> bool:
+        return self.get_type() == self._BLOCK_CODE and self._EXPECTATION in self._get_annotations()
+    
+    def get_expectation_metadata(self) -> dict:
+        return self.node.get('attrs', {}).get('info', '').split(' ')
+    
+    def _has_annotation(self, annotation: str) -> List[str]:
+        return annotation in self._get_annotations()
+    
+    def has_annotation(self, annotation: str) -> bool:
+        return self._has_annotation(annotation)
     
     def _get_annotations(self) -> List[str]:
         return self.node.get('attrs', {}).get('info', '').split(' ')
@@ -81,6 +99,12 @@ class MdAST(object):
     
     def expand(self, node: ASTNode) -> str:
         return node.expand()
+    
+    def __str__(self):
+        return json.dumps([node.node for node in self._ast], indent=2)
+    
+    def __repr__(self):
+        return self.__str__()
 
 
 
@@ -92,13 +116,58 @@ class MdParser(object):
             txt = f.read()
         raw_list: List[dict] = markdown(txt)
         return MdAST([ASTNode(node) for node in raw_list])
+    
+class Expectation(object):
+
+    _STDOUT_TABLE_CONTAINS_DATA: str = 'stdout-table-contains-data'
+
+    def __init__(self, node: ASTNode):
+        self._node: ASTNode = node
+
+    def _contains_nonempty_table(self, s: str) -> bool:
+        required_run_length: int = 5
+        lines = s.split('\n')
+        print(f'lines: {lines}')
+        if len(lines) < required_run_length:
+            return False
+        run_length: int = 0
+        for line in lines:
+            if line.startswith('|'):
+                run_length += 1
+                if run_length == required_run_length:
+                    return True
+            else:
+                run_length = 0
+        return False
+
+    def passes_stdout(self, actual_stdout: bytes) -> bool:
+        actual_stdout_str: str = actual_stdout.decode(sys.getdefaultencoding())
+        if self._node.has_annotation(self._STDOUT_TABLE_CONTAINS_DATA):
+            return self._contains_nonempty_table(actual_stdout_str)
+        return True
+    
+    def passes_stderr(self, actual_stderr: bytes) -> bool:
+        return True
+    
+    def __str__(self):
+        return str(self._node)
+    
+    def __repr__(self):
+        return self.__str__()
 
 class WorkloadDTO(object):
 
-    def __init__(self, setup: str, in_session: List[str], teardown: str):
+    def __init__(
+        self,
+        setup: str,
+        in_session: List[str],
+        teardown: str,
+        expectations: List[Expectation]
+    ):
         self._setup = setup
         self._in_session = in_session
         self._teardown = teardown
+        self._expectations = expectations
 
     def get_setup(self) -> List[str]:
         return self._setup
@@ -109,8 +178,11 @@ class WorkloadDTO(object):
     def get_teardown(self) -> List[str]:
         return self._teardown
     
+    def get_expectations(self) -> List[Expectation]:
+        return self._expectations
+    
     def __str__(self):
-        return f'Setup: {self._setup}\nIn Session: {self._in_session}\nTeardown: {self._teardown}'
+        return f'Setup: {self._setup}\nIn Session: {self._in_session}\nTeardown: {self._teardown}\nExpectations: {self._expectations}'
     
     def __repr__(self):
         return self.__str__()
@@ -140,8 +212,12 @@ class MdOrchestrator(object):
         setup_str: str = f'cd {_REPOSITORY_ROOT_PATH};\n'
         in_session_commands: List[str] = []
         teardown_str: str = f'cd {_REPOSITORY_ROOT_PATH};\n'
+        expectations: List[Expectation] = []
         for node in ast.get_ordered():
-            if node.is_executable():
+            if node.is_expectation():
+                expectations.append(Expectation(node))
+                continue
+            elif node.is_executable():
                 if node.is_setup():
                     if setup_count < self._max_setup_blocks:
                         setup_str += ast.expand(node)
@@ -161,7 +237,7 @@ class MdOrchestrator(object):
                         invocation_count += 1
                     else:
                         raise KeyError(f'Maximum invocation blocks exceeded: {self._max_invocations_blocks}')
-        return WorkloadDTO(setup_str, in_session_commands, teardown_str)
+        return WorkloadDTO(setup_str, in_session_commands, teardown_str, expectations)
 
 class SimpleE2E(object):
 
@@ -194,6 +270,11 @@ if __name__ == '__main__':
     stdout_bytes, stderr_bytes = e2e.run()
     print(stdout_bytes.decode(sys.getdefaultencoding()))
     print(stderr_bytes.decode(sys.getdefaultencoding()))
+    for expectation in workload_dto.get_expectations():
+        print(f'Expectation: {expectation}')
+        print(f'Passes stdout: {expectation.passes_stdout(stdout_bytes)}')
+        print(f'Passes stderr: {expectation.passes_stderr(stderr_bytes)}')
+        print('---')
 
     
 

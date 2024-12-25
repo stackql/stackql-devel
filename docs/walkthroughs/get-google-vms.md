@@ -36,7 +36,7 @@ WHERE
 
 You will see something very much like this included in the output, presuming you have one VM (if you have zero, only the headers should appper, more VMs means more rows):
 
-```sql stackql stdout table-contains-data
+```sql stackql stdout expectation stdout-table-contains-data
 |--------------------------------------------------|---------------------|
 |                       name                       |         id          |
 |--------------------------------------------------|---------------------|
@@ -44,10 +44,14 @@ You will see something very much like this included in the output, presuming you
 |--------------------------------------------------|---------------------|
 ```
 
-<!---  STDERR_REGEX_EXACT
+<!---  EXPECTATION
 google\ provider,\ version\ 'v24.11.00274'\ successfully\ installed
 goodbye
 -->
+
+<x-expectation style="display: none;">
+<stdout-contains-nonempty-table></stdout-contains-nonempty-table>
+</x-expectation>
 
 ## Cleanup
 
