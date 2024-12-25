@@ -140,13 +140,12 @@ class Expectation(object):
                 run_length = 0
         return False
 
-    def passes_stdout(self, actual_stdout: bytes) -> bool:
-        actual_stdout_str: str = actual_stdout.decode(sys.getdefaultencoding())
+    def passes_stdout(self, actual_stdout: str) -> bool:
         if self._node.has_annotation(self._STDOUT_TABLE_CONTAINS_DATA):
-            return self._contains_nonempty_table(actual_stdout_str)
+            return self._contains_nonempty_table(actual_stdout)
         return True
     
-    def passes_stderr(self, actual_stderr: bytes) -> bool:
+    def passes_stderr(self, actual_stderr: str) -> bool:
         return True
     
     def __str__(self):
@@ -239,6 +238,14 @@ class MdOrchestrator(object):
                         raise KeyError(f'Maximum invocation blocks exceeded: {self._max_invocations_blocks}')
         return WorkloadDTO(setup_str, in_session_commands, teardown_str, expectations)
 
+class WalkthroughResult:
+
+
+  def __init__(self, stdout_str :str, stderr_str :str, rc :int) -> None:
+    self.stdout :str = stdout_str
+    self.stderr :str = stderr_str
+    self.rc = rc
+
 class SimpleE2E(object):
 
     def __init__(self, workload: WorkloadDTO):
@@ -258,23 +265,23 @@ class SimpleE2E(object):
             pr.stdin.write(f"{cmd}\n".encode(sys.getdefaultencoding()))
             pr.stdin.flush()
         stdoout_bytes, stderr_bytes = pr.communicate()
-        return (stdoout_bytes, stderr_bytes,)
+        return WalkthroughResult(stdoout_bytes.decode(sys.getdefaultencoding()) , stderr_bytes.decode(sys.getdefaultencoding()), pr.returncode)
 
-if __name__ == '__main__':
+def  main():
     md_parser = MdParser()
     orchestrator: MdOrchestrator = MdOrchestrator(md_parser)
     workload_dto: WorkloadDTO = orchestrator.orchestrate(os.path.join(_REPOSITORY_ROOT_PATH, 'docs', 'walkthroughs', 'get-google-vms.md'))
     print(f'Workload DTO: {workload_dto}')
     # print(json.dumps(parsed_file, indent=2))
     e2e: SimpleE2E = SimpleE2E(workload_dto)
-    stdout_bytes, stderr_bytes = e2e.run()
-    print(stdout_bytes.decode(sys.getdefaultencoding()))
-    print(stderr_bytes.decode(sys.getdefaultencoding()))
+    result: WalkthroughResult = e2e.run()
+    print(result.stdout)
+    print(result.stderr)
     for expectation in workload_dto.get_expectations():
         print(f'Expectation: {expectation}')
-        print(f'Passes stdout: {expectation.passes_stdout(stdout_bytes)}')
-        print(f'Passes stderr: {expectation.passes_stderr(stderr_bytes)}')
+        print(f'Passes stdout: {expectation.passes_stdout(result.stdout)}')
+        print(f'Passes stderr: {expectation.passes_stderr(result.stderr)}')
         print('---')
 
-    
-
+if __name__ == '__main__':
+    main()
