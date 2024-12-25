@@ -156,7 +156,7 @@
         "select kind, name, maximumCardsPerInstance from google.compute.acceleratorTypes where project = 'defective-response-content-project' and zone = 'australia-southeast1-a' order by name desc;",
         "registry pull google;"
       ],
-      "default": "registry pull google;"
+      "default": "show providers;"
     },
     {
       "type": "pickString",
