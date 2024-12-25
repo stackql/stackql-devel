@@ -118,8 +118,7 @@ var shellCmd = &cobra.Command{
 		outErrFile, _ := writer.GetDecoratedOutputWriter(writer.StdErrStr, cd)
 
 		var sb strings.Builder
-		fmt.Fprintln(outfile, "") // necesary hack to get 'square' presentation
-		fmt.Fprintln(outfile, getShellIntroLong())
+		fmt.Fprintln(outErrFile, getShellIntroLong())
 
 		inputBundle, err := entryutil.BuildInputBundle(runtimeCtx)
 		iqlerror.PrintErrorAndExitOneIfError(err)
