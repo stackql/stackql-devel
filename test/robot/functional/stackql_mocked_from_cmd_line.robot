@@ -2148,7 +2148,7 @@ Recently Active Logic Multi Backend
     ...    UserName,
     ...    CASE WHEN ( 
     ...      TO_TIMESTAMP(PasswordLastUsed, 'YYYY-MM-DDTHH:MI:SSZ') 
-    ...      > (now() - interval '7 days' ) )
+    ...      > (now() - interval '20 days' ) )
     ...     then 'true' else 'false' end as active 
     ...    from aws.iam.users 
     ...    WHERE region = 'us-east-1' and PasswordLastUsed is not null
