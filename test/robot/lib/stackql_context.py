@@ -189,6 +189,11 @@ _REGISTRY_DEPRECATED = RegistryCfg(
   nop_verify=True
 )
 
+def get_local_temp_path(inode_name: str, execution_env: str) -> str:
+  if execution_env == 'docker':
+    return os.path.join('/opt', 'test', 'tmp', inode_name)
+  return os.path.join(REPOSITORY_ROOT, 'test', 'tmp', inode_name)
+
 _AUTH_GOOGLE_SA_KEY_PATH = get_unix_path(os.path.join(REPOSITORY_ROOT, 'test', 'assets', 'credentials', 'dummy', 'google', 'functional-test-dummy-sa-key.json'))
 
 _NON_EXISTENT_AUTH_GOOGLE_SA_KEY_PATH = get_unix_path(os.path.join(REPOSITORY_ROOT, 'test', 'assets', 'credentials', 'dummy', 'google', 'non-existent-dummy-sa-key.json'))
@@ -1118,6 +1123,7 @@ def get_variables(execution_env :str, sql_backend_str :str, use_stackql_preinsta
     'UPDATE_GITHUB_ORG':                                                      UPDATE_GITHUB_ORG,
     'VIEW_SELECT_AWS_CLOUD_CONTROL_BUCKET_DETAIL_EXPECTED':                   VIEW_SELECT_AWS_CLOUD_CONTROL_BUCKET_DETAIL_EXPECTED,
     'VIEW_SELECT_STAR_AWS_CLOUD_CONTROL_BUCKET_DETAIL_EXPECTED':              VIEW_SELECT_STAR_AWS_CLOUD_CONTROL_BUCKET_DETAIL_EXPECTED,
+    'TEST_TMP_EXEC_APP_ROOT':                                                 get_local_temp_path('.exec_app_root.stackql', execution_env),
   }
   if execution_env == 'docker':
     rv['AUTH_CFG_STR']                                  = AUTH_CFG_STR_DOCKER
