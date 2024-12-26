@@ -15,6 +15,9 @@ Intentions:
   - Support sequential markdown code block execution, leveraging [info strings](https://spec.commonmark.org/0.30/#info-string).
 """
 
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 class ASTNode(object):
 
     _STACKQL_SHELL_INVOCATION: str = 'stackql-shell'
@@ -120,6 +123,7 @@ class MdParser(object):
 class Expectation(object):
 
     _STDOUT_TABLE_CONTAINS_DATA: str = 'stdout-table-contains-data'
+    _STDOUT_CONTAINS_ALL:        str = 'stdout-contains-all'
 
     def __init__(self, node: ASTNode):
         self._node: ASTNode = node
@@ -142,7 +146,11 @@ class Expectation(object):
 
     def passes_stdout(self, actual_stdout: str) -> bool:
         if self._node.has_annotation(self._STDOUT_TABLE_CONTAINS_DATA):
+            eprint(f'running expectation check: {self._STDOUT_TABLE_CONTAINS_DATA}')
             return self._contains_nonempty_table(actual_stdout)
+        if self._node.has_annotation(self._STDOUT_CONTAINS_ALL):
+            eprint(f'running expectation check: {self._STDOUT_CONTAINS_ALL}')
+            return self._node.get_text() in actual_stdout
         return True
     
     def passes_stderr(self, actual_stderr: str) -> bool:
@@ -240,7 +248,6 @@ class MdOrchestrator(object):
 
 class WalkthroughResult:
 
-
   def __init__(self, stdout_str :str, stderr_str :str, rc :int) -> None:
     self.stdout :str = stdout_str
     self.stderr :str = stderr_str
@@ -251,7 +258,7 @@ class SimpleRunner(object):
     def __init__(self, workload: WorkloadDTO):
         self._workload = workload
 
-    def run(self) -> Tuple[bytes, bytes]:
+    def run(self) -> WalkthroughResult:
         bash_path = shutil.which('bash')
         pr: subprocess.Popen = subprocess.Popen(
             self._workload.get_setup(),
@@ -282,13 +289,16 @@ class AllWalkthroughsRunner(object):
         md_parser = MdParser()
         self._orchestrator: MdOrchestrator = MdOrchestrator(md_parser)
 
-    def run_all(self, walkthrough_inodes: List[str], recursive=True) -> List[WalkthroughResult]:
+    def run_all(self, walkthrough_inodes: List[str], recursive=True, skip_readme=True) -> List[WalkthroughResult]:
         results: List[WalkthroughResult] = []
         for inode_path in walkthrough_inodes:
             is_dir = os.path.isdir(inode_path)
             if is_dir:
                 for root, dirs, files in os.walk(inode_path):
                     for file in files:
+                        if skip_readme and file == 'README.md':
+                            eprint(f'Skipping README.md')
+                            continue
                         file_path = os.path.join(root, file)
                         print(f'File path: {file_path}')
                         workload: WorkloadDTO = self._orchestrator.orchestrate(file_path)
@@ -302,6 +312,9 @@ class AllWalkthroughsRunner(object):
                 continue
             is_file = os.path.isfile(inode_path)
             if is_file:
+                if skip_readme and file == 'README.md':
+                    eprint(f'Skipping README.md')
+                    continue
                 file_path = inode_path
                 workload: WorkloadDTO = self._orchestrator.orchestrate(file_path)
                 e2e: SimpleRunner = SimpleRunner(workload)
@@ -311,7 +324,7 @@ class AllWalkthroughsRunner(object):
             raise FileNotFoundError(f'Path not tractable: {inode_path}')
         return results
 
-def  main():
+def main():
     runner: AllWalkthroughsRunner = AllWalkthroughsRunner()
     results: List[WalkthroughResult] = runner.run_all([os.path.join(_REPOSITORY_ROOT_PATH, 'docs', 'walkthroughs')])
     for result in results:
