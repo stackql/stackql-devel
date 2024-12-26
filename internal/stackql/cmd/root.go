@@ -142,7 +142,6 @@ func init() {
 		"",
 		fmt.Sprintf(`openapi registry context keyvals in json form, eg: '{ "url": "%s" }'.`, defaultRegistryURLString),
 	)
-	fmt.Fprintf(os.Stderr, "Init: RegistryRaw: %s\n", runtimeCtx.RegistryRaw) //nolint:forbidigo // legacy
 	rootCmd.PersistentFlags().BoolVar(&runtimeCtx.HTTPLogEnabled, dto.HTTPLogEnabledKey, false, "Display http request info in terminal")
 	rootCmd.PersistentFlags().IntVar(&runtimeCtx.HTTPMaxResults, dto.HTTPMaxResultsKey, -1, "Max results per http request, any number <=0 results in no limitation")
 	rootCmd.PersistentFlags().IntVar(&runtimeCtx.HTTPPageLimit, dto.HTTPPAgeLimitKey, 20, "Max pages of results that will be returned per resource, any number <=0 results in no limitation") //nolint:mnd // TODO: investigate
