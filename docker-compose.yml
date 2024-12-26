@@ -2,11 +2,11 @@ version: "3.9"
    
 services:
   stackqlsrv:
-    image: stackql/stackql
+    image: "${STACKQL_IMAGE_NAME:-stackql/stackql}"
     build:
       context: .
       cache_from: 
-        - stackql/stackql
+        - "${STACKQL_IMAGE_NAME:-stackql/stackql}"
         - stackql/integration
         - stackql/stackqlsrvcertificates
       args:
