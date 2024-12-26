@@ -154,7 +154,8 @@
         "set global \"$.auth.google.sub\"='krimmer@stackql.io';",
         "select JSON_EXTRACT(saml.samlIdentity, '$.username') as saml_username from github.scim.saml_ids saml where saml.org = 'dummyorg';",
         "select kind, name, maximumCardsPerInstance from google.compute.acceleratorTypes where project = 'defective-response-content-project' and zone = 'australia-southeast1-a' order by name desc;",
-        "registry pull google;"
+        "registry pull google;",
+        "create materialized view nv as select BackupId, BackupState  from aws.cloudhsm.backups where region = 'ap-southeast-2' order by BackupId;"
       ],
       "default": "show providers;"
     },
