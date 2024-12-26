@@ -127,7 +127,7 @@ class Expectation(object):
     def _contains_nonempty_table(self, s: str) -> bool:
         required_run_length: int = 5
         lines = s.split('\n')
-        print(f'lines: {lines}')
+        # print(f'lines: {lines}')
         if len(lines) < required_run_length:
             return False
         run_length: int = 0
@@ -207,7 +207,7 @@ class MdOrchestrator(object):
         teardown_count: int = 0
         invocation_count: int = 0
         ast = self._parser.parse_markdown_file(file_path)
-        print(f'AST: {ast}')
+        # print(f'AST: {ast}')
         setup_str: str = f'cd {_REPOSITORY_ROOT_PATH};\n'
         in_session_commands: List[str] = []
         teardown_str: str = f'cd {_REPOSITORY_ROOT_PATH};\n'
@@ -246,7 +246,7 @@ class WalkthroughResult:
     self.stderr :str = stderr_str
     self.rc = rc
 
-class SimpleE2E(object):
+class SimpleRunner(object):
 
     def __init__(self, workload: WorkloadDTO):
         self._workload = workload
@@ -264,24 +264,60 @@ class SimpleE2E(object):
         for cmd in self._workload.get_in_session():
             pr.stdin.write(f"{cmd}\n".encode(sys.getdefaultencoding()))
             pr.stdin.flush()
-        stdoout_bytes, stderr_bytes = pr.communicate()
-        return WalkthroughResult(stdoout_bytes.decode(sys.getdefaultencoding()) , stderr_bytes.decode(sys.getdefaultencoding()), pr.returncode)
+        stdout_bytes, stderr_bytes = pr.communicate()
+
+        stdout_str: str = stdout_bytes.decode(sys.getdefaultencoding())
+        stderr_str: str = stderr_bytes.decode(sys.getdefaultencoding())
+
+        for expectation in self._workload.get_expectations():
+            print(f'Expectation: {expectation}')
+            print(f'Passes stdout: {expectation.passes_stdout(stdout_str)}')
+            print(f'Passes stderr: {expectation.passes_stderr(stderr_str)}')
+            print('---')
+        return WalkthroughResult(stdout_str, stderr_str, pr.returncode)
+
+class AllWalkthroughsRunner(object):
+    
+    def __init__(self):
+        md_parser = MdParser()
+        self._orchestrator: MdOrchestrator = MdOrchestrator(md_parser)
+
+    def run_all(self, walkthrough_inodes: List[str], recursive=True) -> List[WalkthroughResult]:
+        results: List[WalkthroughResult] = []
+        for inode_path in walkthrough_inodes:
+            is_dir = os.path.isdir(inode_path)
+            if is_dir:
+                for root, dirs, files in os.walk(inode_path):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        print(f'File path: {file_path}')
+                        workload: WorkloadDTO = self._orchestrator.orchestrate(file_path)
+                        e2e: SimpleRunner = SimpleRunner(workload)
+                        result = e2e.run()
+                        results.append(result)
+                    if recursive:
+                        for dir in dirs:
+                            dir_path = os.path.join(root, dir)
+                            results += self.run_all([dir_path], recursive)
+                continue
+            is_file = os.path.isfile(inode_path)
+            if is_file:
+                file_path = inode_path
+                workload: WorkloadDTO = self._orchestrator.orchestrate(file_path)
+                e2e: SimpleRunner = SimpleRunner(workload)
+                result = e2e.run()
+                results.append(result)
+                continue
+            raise FileNotFoundError(f'Path not tractable: {inode_path}')
+        return results
 
 def  main():
-    md_parser = MdParser()
-    orchestrator: MdOrchestrator = MdOrchestrator(md_parser)
-    workload_dto: WorkloadDTO = orchestrator.orchestrate(os.path.join(_REPOSITORY_ROOT_PATH, 'docs', 'walkthroughs', 'get-google-vms.md'))
-    print(f'Workload DTO: {workload_dto}')
-    # print(json.dumps(parsed_file, indent=2))
-    e2e: SimpleE2E = SimpleE2E(workload_dto)
-    result: WalkthroughResult = e2e.run()
-    print(result.stdout)
-    print(result.stderr)
-    for expectation in workload_dto.get_expectations():
-        print(f'Expectation: {expectation}')
-        print(f'Passes stdout: {expectation.passes_stdout(result.stdout)}')
-        print(f'Passes stderr: {expectation.passes_stderr(result.stderr)}')
-        print('---')
+    runner: AllWalkthroughsRunner = AllWalkthroughsRunner()
+    results: List[WalkthroughResult] = runner.run_all([os.path.join(_REPOSITORY_ROOT_PATH, 'docs', 'walkthroughs')])
+    for result in results:
+        print(f'RC: {result.rc}')
+        print(f'STDOUT: {result.stdout}')
+        print(f'STDERR: {result.stderr}')
 
 if __name__ == '__main__':
     main()
