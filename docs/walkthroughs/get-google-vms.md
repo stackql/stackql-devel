@@ -5,7 +5,7 @@ First, create a google service account key using the GCP Console, per [the GCP d
 
 Then, do this in bash:
 
-```bash setup stackql-shell credentials-path=cicd/keys/testing/google-credentials.json app-root-path=./test/tmp/.get-google-vms.stackql
+```bash setup stackql-shell credentials-path=cicd/keys/testing/google-ro-credentials.json app-root-path=./test/tmp/.get-google-vms.stackql
 
 export GOOGLE_CREDENTIALS="$(cat <credentials-path>)";
 
