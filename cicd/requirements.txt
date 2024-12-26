@@ -5,5 +5,3 @@ PyYaml>=6.0.1
 requests==2.32.3
 robotframework==6.1.1
 sqlalchemy==1.4.44
-
-mistune==3.0.2
