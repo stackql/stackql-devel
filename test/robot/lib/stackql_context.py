@@ -31,8 +31,6 @@ Welcome to the interactive shell for running stackql commands.
 """
 
 def get_shell_welcome_stdout(env: str) -> str:
-  if env == 'docker':
-    return _SHELL_WELCOME_MSG
   return ''
 
 _AZURE_INTEGRATION_TESTING_SUB_ID :str = os.environ.get('AZURE_INTEGRATION_TESTING_SUB_ID', '10001000-1000-1000-1000-100010001000')
