@@ -36,7 +36,7 @@ jobs:
           sudo chmod a+rwx build/stackql
           ls -al build/stackql
           {
-            echo "$(pwd)/build/stackql"
+            echo "$(pwd)/build"
           } >> "${GITHUB_PATH}"
 
       - name: Check Stackql Version
