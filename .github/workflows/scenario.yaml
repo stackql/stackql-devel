@@ -28,6 +28,7 @@ jobs:
           name: stackql_linux_amd64
           path: build
           github-token: ${{ secrets.CI_STACKQL_PACKAGE_DOWNLOAD_TOKEN }}
+          repository: stackql/stackql
           run-id: ${{ env.runID }}
 
       - name: Stackql permissions
