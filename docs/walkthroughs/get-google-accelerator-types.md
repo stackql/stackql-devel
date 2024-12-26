@@ -14,9 +14,9 @@ stackql shell --approot=<app-root-path>
 
 ## Method
 
-Do this in the `stackql` shell, replacing `<project>` with your GCP project name:
+Do this in the `stackql` shell, replacing `<project>` with your GCP project name, and `<zone>` as desired, eg: `australia-southeast1-a`:
 
-```sql stackql-shell input required project=ryuki-it-sandbox-01 region=australia-southeast1-a
+```sql stackql-shell input required project=stackql-demo zone=australia-southeast1-a
 
 registry pull google;
 
@@ -26,7 +26,7 @@ select
 FROM google.compute.accelerator_types 
 WHERE 
   project = '<project>' 
-  AND zone = '<region>'
+  AND zone = '<zone>'
 ORDER BY
   name desc
 ;
