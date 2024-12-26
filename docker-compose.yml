@@ -2,6 +2,7 @@ version: "3.9"
    
 services:
   stackqlsrv:
+    user: "${UID}:${GID}"
     image: "${STACKQL_IMAGE_NAME:-stackql/stackql}"
     build:
       context: .
@@ -13,8 +14,6 @@ services:
         - BUILDMAJORVERSION=${BUILDMAJORVERSION:-1}
         - BUILDMINORVERSION=${BUILDMINORVERSION:-1}
         - BUILDPATCHVERSION=${BUILDPATCHVERSION:-1}
-        - UID=${UID}
-        - GID=${GID}
     command: 
       - bash
       - -c

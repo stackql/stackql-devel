@@ -1138,6 +1138,8 @@ jobs:
           echo "BUILDMAJORVERSION=$BUILDMAJORVERSION"
           echo "BUILDMINORVERSION=$BUILDMINORVERSION"
           echo "BUILDPATCHVERSION=$BUILDPATCHVERSION"
+          echo "UID=${UID}"
+          echo "GID=${GID}"
         } >> "${GITHUB_ENV}"
     
     - name: Generate rewritten registry for simulations
