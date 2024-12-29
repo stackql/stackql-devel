@@ -20,6 +20,15 @@ providerServices:
       $ref: aws/v0.1.0/services/cloud_control.yaml
     title: Cloud Control API
     version: v0.1.0
+  cloud_control_legacy:
+    description: cloud_control_legacy
+    id: cloud_control_legacy:v0.1.0
+    name: cloud_control_legacy
+    preferred: true
+    service:
+      $ref: aws/v0.1.0/services/cloud_control_legacy.yaml
+    title: Cloud Control Legacy API
+    version: v0.1.0
   cloudhsm:
     description: cloud_hsm
     id: cloud_hsm:v2.0.0
@@ -55,6 +64,14 @@ providerServices:
     service:
       $ref: aws/v0.1.0/services/ec2_nextgen.yaml
     title: EC2 NextGen
+  ec2_solid_gold:
+    description: ec2_solid_gold
+    id: ec2_solid_gold:v0.1.0
+    name: ec2_solid_gold
+    preferred: true
+    service:
+      $ref: aws/v0.1.0/services/ec2_solid_gold.yaml
+    title: EC2 SolidGold
     version: v0.1.0
   iam:
     description: iam

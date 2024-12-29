@@ -53,9 +53,21 @@ type standardPreparedStatementCtx struct {
 
 func (ps *standardPreparedStatementCtx) GetOrderedTccs() []internaldto.TxnControlCounters {
 	var rv []internaldto.TxnControlCounters
+	// absolute hack
+	// TODO: fix all the counter logic
+	keysRemaining := make(map[string]struct{})
+	for k := range ps.aliasToTccMap {
+		keysRemaining[k] = struct{}{}
+	}
 	for _, alias := range ps.aliasOrdering {
+		delete(keysRemaining, alias)
 		rv = append(rv, ps.aliasToTccMap[alias]...)
 	}
+	// if len(keysRemaining) == 1 {
+	// 	for k := range keysRemaining {
+	// 		rv = append(rv, ps.aliasToTccMap[k]...)
+	// 	}
+	// }
 	return rv
 }
 
