@@ -4102,7 +4102,7 @@ Filtered Star Resource Level View of Cloud Control Resource Returns Expected Res
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}    
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
-    ...    select * from aws.pseudo_s3.s3_bucket_listing where region \= 'ap\-southeast\-2' and BucketName \= 'stackql\-trial\-bucket\-01';
+    ...    select BucketName, DomainName from aws.pseudo_s3.s3_bucket_listing where region \= 'ap\-southeast\-2' and BucketName \= 'stackql\-trial\-bucket\-01';
     ...    ${AWS_CC_VIEW_SELECT_STAR_BUCKET_FILTERED_EXPECTED}
     ...    ${CURDIR}/tmp/Filtered-Star-Resource-Level-View-of-Cloud-Control-Resource-Returns-Expected-Result.tmp
 
@@ -4115,7 +4115,7 @@ Filtered and Parameterised Projection Resource Level View of Cloud Control Resou
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}    
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
-    ...    select BucketName, DomainName from aws.pseudo_s3.s3_bucket_listing where data__Identifier = 'stackql\-trial\-bucket\-01' and region \= 'ap\-southeast\-2' and BucketName \= 'stackql\-trial\-bucket\-01';
+    ...    select bucket_name, domain_name from aws.pseudo_s3.aws.pseudo_s3.s3_bucket_polymorphic where data__Identifier = 'stackql\-trial\-bucket\-01' and region \= 'ap\-southeast\-2' and bucket_name \= 'stackql\-trial\-bucket\-01';
     ...    ${AWS_CC_VIEW_SELECT_PROJECTION_BUCKET_COMPLEX_EXPECTED}
     ...    ${CURDIR}/tmp/Filtered-and-Parameterised-Projection-Resource-Level-View-of-Cloud-Control-Resource-Returns-Expected-Result.tmp
 
@@ -4128,7 +4128,7 @@ Filtered and Parameterised Star Resource Level View of Cloud Control Resource Re
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}    
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
-    ...    select * from aws.pseudo_s3.s3_bucket_listing where data__Identifier \= 'stackql\-trial\-bucket\-01' and region \= 'ap\-southeast\-2' and BucketName \= 'stackql\-trial\-bucket\-01';
+    ...    select * from aws.pseudo_s3.s3_bucket_polymorphic where data__Identifier \= 'stackql\-trial\-bucket\-01' and region \= 'ap\-southeast\-2' and bucket_name \= 'stackql\-trial\-bucket\-01';
     ...    ${AWS_CC_VIEW_SELECT_STAR_BUCKET_COMPLEX_EXPECTED}
     ...    ${CURDIR}/tmp/Filtered-and-Parameterised-Star-Resource-Level-View-of-Cloud-Control-Resource-Returns-Expected-Result.tmp
 
@@ -7353,3 +7353,35 @@ Alternate App Root Persists All Temp Materials in Alotted Directory
     ...    stderr=${CURDIR}/tmp/Alternate-App-Root-Persists-All-Temp-Materials-in-Alotted-Directory-stderr.tmp
     Directory Should Exist    ${TEST_TMP_EXEC_APP_ROOT_NATIVE}${/}readline
     Directory Should Exist    ${TEST_TMP_EXEC_APP_ROOT_NATIVE}${/}src
+
+View Tuple Replacement Working As Exemplified by AWS EC2 Instances List and Detail
+    ${inputStr} =    Catenate
+    ...    SELECT region, instance_id, tenancy, security_groups 
+    ...    FROM aws.ec2_nextgen.instances 
+    ...    WHERE region IN ('us-east-1', 'ap-southeast-2', 'ap-southeast-1') order by region, instance_id;
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |----------------|---------------------|---------|--------------------------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}region${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}instance_id${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}tenancy${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}security_groups${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |----------------|---------------------|---------|--------------------------|
+    ...    |${SPACE}ap-southeast-2${SPACE}|${SPACE}i-0cb58b995b19153a8${SPACE}|${SPACE}default${SPACE}|${SPACE}\["aws-stack-dev-web-sg"]${SPACE}|
+    ...    |----------------|---------------------|---------|--------------------------|
+    ...    |${SPACE}ap-southeast-2${SPACE}|${SPACE}i-0cb58b995b19153a8${SPACE}|${SPACE}default${SPACE}|${SPACE}\["aws-stack-dev-web-sg"]${SPACE}|
+    ...    |----------------|---------------------|---------|--------------------------|
+    ...    |${SPACE}ap-southeast-2${SPACE}|${SPACE}i-0cb58b995b19153a8${SPACE}|${SPACE}default${SPACE}|${SPACE}\["aws-stack-dev-web-sg"]${SPACE}|
+    ...    |----------------|---------------------|---------|--------------------------|
+    ...    |${SPACE}us-east-1${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}i-0cb58b995b19153a8${SPACE}|${SPACE}default${SPACE}|${SPACE}\["aws-stack-dev-web-sg"]${SPACE}|
+    ...    |----------------|---------------------|---------|--------------------------|
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_DEFECTIVE_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    ${EMPTY}
+    ...    stackql_approot=${TEST_TMP_EXEC_APP_ROOT}
+    ...    stdout=${CURDIR}/tmp/View-Tuple-Replacement-Working-As-Exemplified-by-AWS-EC2-Instances-List-and-Detail.tmp
+    ...    stderr=${CURDIR}/tmp/View-Tuple-Replacement-Working-As-Exemplified-by-AWS-EC2-Instances-List-and-Detail-stderr.tmp

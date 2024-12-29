@@ -548,7 +548,7 @@ components:
                 JSON_EXTRACT(Properties, '$.DualStackDomainName') as dual_stack_domain_name,
                 JSON_EXTRACT(Properties, '$.RegionalDomainName') as regional_domain_name,
                 JSON_EXTRACT(Properties, '$.WebsiteURL') as website_url
-                FROM aws.cloud_control.resources WHERE data__TypeName = 'AWS::S3::Bucket'
+                FROM aws.cloud_control.resource WHERE data__TypeName = 'AWS::S3::Bucket'
                 AND data__Identifier = '<BucketName>'
                 AND region = 'us-east-1'
                 ;
@@ -583,7 +583,7 @@ components:
                   json_extract_path_text(Properties, 'DualStackDomainName') as dual_stack_domain_name,
                   json_extract_path_text(Properties, 'RegionalDomainName') as regional_domain_name,
                   json_extract_path_text(Properties, 'WebsiteURL') as website_url
-                  FROM aws.cloud_control.resources WHERE data__TypeName = 'AWS::S3::Bucket'
+                  FROM aws.cloud_control.resource WHERE data__TypeName = 'AWS::S3::Bucket'
                   AND data__Identifier = '<BucketName>'
                   AND region = 'us-east-1'
                   ;
@@ -640,7 +640,7 @@ components:
                 JSON_EXTRACT(Properties, '$.DualStackDomainName') as dual_stack_domain_name,
                 JSON_EXTRACT(Properties, '$.RegionalDomainName') as regional_domain_name,
                 JSON_EXTRACT(Properties, '$.WebsiteURL') as website_url
-                FROM aws.cloud_control.resources WHERE data__TypeName = 'AWS::S3::Bucket'
+                FROM aws.cloud_control.resource WHERE data__TypeName = 'AWS::S3::Bucket'
                 AND data__Identifier = '<BucketName>'
                 AND region = 'us-east-1'
                 ;
@@ -675,7 +675,7 @@ components:
                   json_extract_path_text(Properties, 'DualStackDomainName') as dual_stack_domain_name,
                   json_extract_path_text(Properties, 'RegionalDomainName') as regional_domain_name,
                   json_extract_path_text(Properties, 'WebsiteURL') as website_url
-                  FROM aws.cloud_control.resources WHERE data__TypeName = 'AWS::S3::Bucket'
+                  FROM aws.cloud_control.resource WHERE data__TypeName = 'AWS::S3::Bucket'
                   AND data__Identifier = '<BucketName>'
                   AND region = 'us-east-1'
                   ;
@@ -937,7 +937,7 @@ components:
                 JSON_EXTRACT(Properties, '$.DualStackDomainName') as dual_stack_domain_name,
                 JSON_EXTRACT(Properties, '$.RegionalDomainName') as regional_domain_name,
                 JSON_EXTRACT(Properties, '$.WebsiteURL') as website_url
-                FROM aws.cloud_control.resources WHERE data__TypeName = 'AWS::S3::Bucket'
+                FROM aws.cloud_control.resource WHERE data__TypeName = 'AWS::S3::Bucket'
                 AND data__Identifier = '<BucketName>'
                 AND region = 'us-east-1'
                 ;
@@ -990,7 +990,7 @@ components:
                     json_extract_path_text(Properties, 'DualStackDomainName') as dual_stack_domain_name,
                     json_extract_path_text(Properties, 'RegionalDomainName') as regional_domain_name,
                     json_extract_path_text(Properties, 'WebsiteURL') as website_url
-                    FROM aws.cloud_control.resources WHERE data__TypeName = 'AWS::S3::Bucket'
+                    FROM aws.cloud_control.resource WHERE data__TypeName = 'AWS::S3::Bucket'
                     AND data__Identifier = '<BucketName>'
                     AND region = 'us-east-1'
                     ;
