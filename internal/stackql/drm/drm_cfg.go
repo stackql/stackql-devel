@@ -558,7 +558,7 @@ func (dc *staticDRMConfig) GenerateInsertDML(
 	}
 	priorParameters := tabAnnotated.GetParameters()
 	// TODO: fix this for dependent table where dependency has `IN` clause!!!
-	transformedParams, paramErr := util.TransformSQLRawParameters(priorParameters, false)
+	transformedParams, paramErr := util.TransformSQLRawParameters(priorParameters, true)
 	if paramErr != nil {
 		return nil, paramErr
 	}

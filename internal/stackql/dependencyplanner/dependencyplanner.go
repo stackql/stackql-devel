@@ -677,8 +677,8 @@ func (dp *standardDependencyPlanner) getStreamFromEdge(
 	staticParams := make(map[string]interface{})
 	for k, v := range params {
 		existingSourceParam, isExistingFromSource := dp.extractStaticSourceParam(e, k)
-		// isVector := dp.isVectorParam(v)
-		if _, ok := incomingCols[k]; !ok {
+		isVector := dp.isVectorParam(v)
+		if _, ok := incomingCols[k]; !ok && !isVector {
 			staticParams[k] = v
 			incomingCols[k] = struct{}{}
 		} else if isExistingFromSource && false {
