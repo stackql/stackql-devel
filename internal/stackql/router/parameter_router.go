@@ -289,7 +289,7 @@ func (sp *standardParamSplitter) splitSingleParam(
 	return rv, isSplit
 }
 
-//nolint:funlen,gocognit // inherently complex functionality
+//nolint:funlen,gocognit,nestif // inherently complex functionality
 func (pr *standardParameterRouter) GetOnConditionDataFlows() (dataflow.Collection, error) {
 	paramSplitterObj := newParamSplitter(pr.tableToAnnotationCtx, pr.dataFlowCfg)
 	isInitiallySplit, splitErr := paramSplitterObj.split()
