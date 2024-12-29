@@ -549,7 +549,7 @@ AWS Cloud Control Log Group Insert Simple
 
 AWS Cloud Control Log Group Insert Simple Rely on Annotation
     ${inputStr} =    Catenate
-    ...              INSERT INTO aws.cloud_control.resources 
+    ...              INSERT INTO aws.cloud_control.resource 
     ...              (data__TypeName, region, data__DesiredState) 
     ...              SELECT 'AWS::Logs::LogGroup', 
     ...              'ap-southeast-1', 
