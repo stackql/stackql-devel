@@ -16701,68 +16701,23 @@ components:
               JSON_EXTRACT(Properties, '$.State') as state,
               JSON_EXTRACT(Properties, '$.Affinity') as affinity,
               JSON_EXTRACT(Properties, '$.CreditSpecification') as credit_specification
-              FROM aws.cloud_control.resource WHERE data__TypeName = 'AWS::EC2::Instance'
+              FROM aws.cloud_control.resource detail WHERE data__TypeName = 'AWS::EC2::Instance'
               AND data__Identifier = '<InstanceId>'
               AND region = 'us-east-1'
             fallback:
               predicate: sqlDialect == "sqlite3"
               ddl: |-
                 SELECT
-                detail.region,
-                JSON_EXTRACT(detail.Properties, '$.Tenancy') as tenancy,
-                JSON_EXTRACT(detail.Properties, '$.SecurityGroups') as security_groups,
-                JSON_EXTRACT(detail.Properties, '$.PrivateDnsName') as private_dns_name,
-                JSON_EXTRACT(detail.Properties, '$.PrivateIpAddress') as private_ip_address,
-                JSON_EXTRACT(detail.Properties, '$.UserData') as user_data,
-                JSON_EXTRACT(detail.Properties, '$.BlockDeviceMappings') as block_device_mappings,
-                JSON_EXTRACT(detail.Properties, '$.IamInstanceProfile') as iam_instance_profile,
-                JSON_EXTRACT(detail.Properties, '$.Ipv6Addresses') as ipv6_addresses,
-                JSON_EXTRACT(detail.Properties, '$.KernelId') as kernel_id,
-                JSON_EXTRACT(detail.Properties, '$.SubnetId') as subnet_id,
-                JSON_EXTRACT(detail.Properties, '$.EbsOptimized') as ebs_optimized,
-                JSON_EXTRACT(detail.Properties, '$.PropagateTagsToVolumeOnCreation') as propagate_tags_to_volume_on_creation,
-                JSON_EXTRACT(detail.Properties, '$.ElasticGpuSpecifications') as elastic_gpu_specifications,
-                JSON_EXTRACT(detail.Properties, '$.ElasticInferenceAccelerators') as elastic_inference_accelerators,
-                JSON_EXTRACT(detail.Properties, '$.Volumes') as volumes,
-                JSON_EXTRACT(detail.Properties, '$.PrivateIp') as private_ip,
-                JSON_EXTRACT(detail.Properties, '$.Ipv6AddressCount') as ipv6_address_count,
-                JSON_EXTRACT(detail.Properties, '$.LaunchTemplate') as launch_template,
-                JSON_EXTRACT(detail.Properties, '$.EnclaveOptions') as enclave_options,
-                JSON_EXTRACT(detail.Properties, '$.NetworkInterfaces') as network_interfaces,
-                JSON_EXTRACT(detail.Properties, '$.ImageId') as image_id,
-                JSON_EXTRACT(detail.Properties, '$.InstanceType') as instance_type,
-                JSON_EXTRACT(detail.Properties, '$.Monitoring') as monitoring,
-                JSON_EXTRACT(detail.Properties, '$.Tags') as tags,
-                JSON_EXTRACT(detail.Properties, '$.AdditionalInfo') as additional_info,
-                JSON_EXTRACT(detail.Properties, '$.HibernationOptions') as hibernation_options,
-                JSON_EXTRACT(detail.Properties, '$.LicenseSpecifications') as license_specifications,
-                JSON_EXTRACT(detail.Properties, '$.InstanceId') as instance_id,
-                JSON_EXTRACT(detail.Properties, '$.PublicIp') as public_ip,
-                JSON_EXTRACT(detail.Properties, '$.InstanceInitiatedShutdownBehavior') as instance_initiated_shutdown_behavior,
-                JSON_EXTRACT(detail.Properties, '$.CpuOptions') as cpu_options,
-                JSON_EXTRACT(detail.Properties, '$.AvailabilityZone') as availability_zone,
-                JSON_EXTRACT(detail.Properties, '$.PrivateDnsNameOptions') as private_dns_name_options,
-                JSON_EXTRACT(detail.Properties, '$.HostId') as host_id,
-                JSON_EXTRACT(detail.Properties, '$.HostResourceGroupArn') as host_resource_group_arn,
-                JSON_EXTRACT(detail.Properties, '$.PublicDnsName') as public_dns_name,
-                JSON_EXTRACT(detail.Properties, '$.SecurityGroupIds') as security_group_ids,
-                JSON_EXTRACT(detail.Properties, '$.DisableApiTermination') as disable_api_termination,
-                JSON_EXTRACT(detail.Properties, '$.KeyName') as key_name,
-                JSON_EXTRACT(detail.Properties, '$.RamdiskId') as ramdisk_id,
-                JSON_EXTRACT(detail.Properties, '$.SourceDestCheck') as source_dest_check,
-                JSON_EXTRACT(detail.Properties, '$.PlacementGroupName') as placement_group_name,
-                JSON_EXTRACT(detail.Properties, '$.SsmAssociations') as ssm_associations,
-                JSON_EXTRACT(detail.Properties, '$.VpcId') as vpc_id,
-                JSON_EXTRACT(detail.Properties, '$.State') as state,
-                JSON_EXTRACT(detail.Properties, '$.Affinity') as affinity,
-                JSON_EXTRACT(detail.Properties, '$.CreditSpecification') as credit_specification
+                detail.region as region,
+                listing.Identifier as identifier,
+                JSON_EXTRACT(detail.Properties, '$.InstanceId') as instance_id
                 FROM aws.cloud_control.resources listing
-                LEFT OUTER JOIN aws.cloud_control.resource detail
+                INNER JOIN aws.cloud_control.resource detail
                 ON detail.data__Identifier = listing.Identifier
                 AND detail.region = listing.region
                 WHERE listing.data__TypeName = 'AWS::EC2::Instance'
                 AND detail.data__TypeName = 'AWS::EC2::Instance'
-                AND listing.region = 'us-east-1'
+                AND listing.region IN ('us-west-1', 'ap-southeast-1')
               fallback:
                 predicate: sqlDialect == "postgres" && requiredParams == [ data__Identifier ]
                 ddl: |-
