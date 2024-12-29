@@ -4102,7 +4102,7 @@ Filtered Star Resource Level View of Cloud Control Resource Returns Expected Res
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}    
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
-    ...    select BucketName, DomainName from aws.pseudo_s3.s3_bucket_listing where region \= 'ap\-southeast\-2' and BucketName \= 'stackql\-trial\-bucket\-01';
+    ...    select * from aws.pseudo_s3.s3_bucket_listing where region \= 'ap\-southeast\-2' and BucketName \= 'stackql\-trial\-bucket\-01';
     ...    ${AWS_CC_VIEW_SELECT_STAR_BUCKET_FILTERED_EXPECTED}
     ...    ${CURDIR}/tmp/Filtered-Star-Resource-Level-View-of-Cloud-Control-Resource-Returns-Expected-Result.tmp
 
@@ -4115,7 +4115,7 @@ Filtered and Parameterised Projection Resource Level View of Cloud Control Resou
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}    
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
-    ...    select bucket_name, domain_name from aws.pseudo_s3.aws.pseudo_s3.s3_bucket_polymorphic where data__Identifier = 'stackql\-trial\-bucket\-01' and region \= 'ap\-southeast\-2' and bucket_name \= 'stackql\-trial\-bucket\-01';
+    ...    select bucket_name, domain_name from aws.pseudo_s3.s3_bucket_polymorphic where data__Identifier = 'stackql\-trial\-bucket\-01' and region \= 'ap\-southeast\-2' and bucket_name \= 'stackql\-trial\-bucket\-01';
     ...    ${AWS_CC_VIEW_SELECT_PROJECTION_BUCKET_COMPLEX_EXPECTED}
     ...    ${CURDIR}/tmp/Filtered-and-Parameterised-Projection-Resource-Level-View-of-Cloud-Control-Resource-Returns-Expected-Result.tmp
 
