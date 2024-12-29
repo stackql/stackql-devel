@@ -7382,6 +7382,6 @@ View Tuple Replacement Working As Exemplified by AWS EC2 Instances List and Deta
     ...    ${inputStr}
     ...    ${outputStr}
     ...    ${EMPTY}
-    ...    stackql_approot=${TEST_TMP_EXEC_APP_ROOT}
     ...    stdout=${CURDIR}/tmp/View-Tuple-Replacement-Working-As-Exemplified-by-AWS-EC2-Instances-List-and-Detail.tmp
     ...    stderr=${CURDIR}/tmp/View-Tuple-Replacement-Working-As-Exemplified-by-AWS-EC2-Instances-List-and-Detail-stderr.tmp
+    ...    repeat_count=20
