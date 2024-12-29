@@ -16593,7 +16593,7 @@ components:
                 AND listing.region = 'us-east-1'
     instances:
       name: instances
-      id: aws.ec2.instances
+      id: aws.ec2_solid_gold.instances
       x-cfn-schema-name: Instance
       x-cfn-type-name: AWS::EC2::Instance
       x-identifiers:
