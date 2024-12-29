@@ -523,6 +523,28 @@ paths:
           description: Success
 components:
   x-stackQL-resources:
+    resource_raw:
+      name: resource
+      x-cfn-schema-name: ResourceDescription
+      x-example-where-clause: WHERE region = 'us-east-1' AND data__TypeName = '<TypeName>' AND data__Identifier = '<Identifier>'
+      x-type: native      
+      methods:
+        get_resource_raw:
+          operation:
+            $ref: '#/paths/~1?Action=GetResource&Version=2021-09-30/post'
+          request:
+            mediaType: application/x-amz-json-1.0
+          response:
+            mediaType: application/json
+            openAPIDocKey: '200'
+      id: aws.cloud_control.resource_raw
+      sqlVerbs:
+        delete: []
+        insert: []
+        select:
+        - $ref: '#/components/x-stackQL-resources/resource_raw/methods/get_resource_raw'
+        update: []
+      title: resource_raw
     resource:
       name: resource
       x-cfn-schema-name: ResourceDescription
@@ -732,6 +754,7 @@ components:
         ClientToken:
           type: string
         DesiredState:
+          x-stackQL-stringOnly: true
           allOf:
           - $ref: '#/components/schemas/Properties'
           - description: <p>Structured data format representing the desired state
