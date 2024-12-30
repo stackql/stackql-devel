@@ -586,18 +586,6 @@ func (dp *standardDependencyPlanner) processAcquire(
 	return anTab, dp.tcc, nil
 }
 
-func (dp *standardDependencyPlanner) getScalarParam(param interface{}) (interface{}, bool) {
-	paramMeta, isParamMeta := param.(parserutil.ParameterMetadata)
-	if isParamMeta {
-		val := paramMeta.GetVal()
-		_, valIsSQLVal := val.(*sqlparser.SQLVal)
-		if valIsSQLVal {
-			return val, true
-		}
-	}
-	return nil, false
-}
-
 func (dp *standardDependencyPlanner) isVectorParam(param interface{}) bool {
 	paramMeta, isParamMeta := param.(parserutil.ParameterMetadata)
 	if isParamMeta {
