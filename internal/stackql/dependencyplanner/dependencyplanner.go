@@ -610,19 +610,6 @@ func (dp *standardDependencyPlanner) isVectorParam(param interface{}) bool {
 	return false
 }
 
-func (dp *standardDependencyPlanner) extractStaticSourceParam(e dataflow.Edge, paramKey string) (interface{}, bool) {
-	if e.GetSource() == nil || e.
-		GetSource().GetAnnotation() == nil || e.
-		GetSource().GetAnnotation().GetParameters() == nil {
-		return nil, false
-	}
-	v, ok := e.GetSource().GetAnnotation().GetParameters()[paramKey]
-	if !ok {
-		return nil, false
-	}
-	return dp.getScalarParam(v)
-}
-
 //nolint:gocognit,nestif // live with it
 func (dp *standardDependencyPlanner) getStreamFromEdge(
 	e dataflow.Edge,
@@ -676,13 +663,10 @@ func (dp *standardDependencyPlanner) getStreamFromEdge(
 	params := toAc.GetParameters()
 	staticParams := make(map[string]interface{})
 	for k, v := range params {
-		existingSourceParam, isExistingFromSource := dp.extractStaticSourceParam(e, k)
 		isVector := dp.isVectorParam(v)
 		if _, ok := incomingCols[k]; !ok && !isVector {
 			staticParams[k] = v
 			incomingCols[k] = struct{}{}
-		} else if isExistingFromSource && false {
-			staticParams[k] = existingSourceParam
 		}
 	}
 	if len(staticParams) > 0 {
