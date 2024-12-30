@@ -7363,13 +7363,13 @@ View Tuple Replacement Working As Exemplified by AWS EC2 Instances List and Deta
     ...    |----------------|---------------------|---------|--------------------------|
     ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}region${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}instance_id${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}tenancy${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}security_groups${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
     ...    |----------------|---------------------|---------|--------------------------|
-    ...    |${SPACE}ap-southeast-2${SPACE}|${SPACE}i-0cb58b995b19153a8${SPACE}|${SPACE}default${SPACE}|${SPACE}\["aws-stack-dev-web-sg"]${SPACE}|
+    ...    |${SPACE}ap-southeast-2${SPACE}|${SPACE}i-00000000000000003${SPACE}|${SPACE}default${SPACE}|${SPACE}\["aws-stack-dev-web-sg"]${SPACE}|
     ...    |----------------|---------------------|---------|--------------------------|
-    ...    |${SPACE}ap-southeast-2${SPACE}|${SPACE}i-0cb58b995b19153a8${SPACE}|${SPACE}default${SPACE}|${SPACE}\["aws-stack-dev-web-sg"]${SPACE}|
+    ...    |${SPACE}ap-southeast-2${SPACE}|${SPACE}i-00000000000000003${SPACE}|${SPACE}default${SPACE}|${SPACE}\["aws-stack-dev-web-sg"]${SPACE}|
     ...    |----------------|---------------------|---------|--------------------------|
-    ...    |${SPACE}ap-southeast-2${SPACE}|${SPACE}i-0cb58b995b19153a8${SPACE}|${SPACE}default${SPACE}|${SPACE}\["aws-stack-dev-web-sg"]${SPACE}|
+    ...    |${SPACE}ap-southeast-2${SPACE}|${SPACE}i-00000000000000003${SPACE}|${SPACE}default${SPACE}|${SPACE}\["aws-stack-dev-web-sg"]${SPACE}|
     ...    |----------------|---------------------|---------|--------------------------|
-    ...    |${SPACE}us-east-1${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}i-0cb58b995b19153a8${SPACE}|${SPACE}default${SPACE}|${SPACE}\["aws-stack-dev-web-sg"]${SPACE}|
+    ...    |${SPACE}us-east-1${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}i-00000000000000003${SPACE}|${SPACE}default${SPACE}|${SPACE}\["aws-stack-dev-web-sg"]${SPACE}|
     ...    |----------------|---------------------|---------|--------------------------|
     Should Stackql Exec Inline Equal Both Streams
     ...    ${STACKQL_EXE}
