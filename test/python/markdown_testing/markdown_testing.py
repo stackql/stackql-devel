@@ -83,7 +83,7 @@ class ASTNode(object):
         return self.node.get('lang', '')
     
     def expand(self) -> str:
-        return self.get_text().replace("<<", "{").replace(">>", "}").format(**self._local_vars)
+        return self.get_text().replace("<", "{").replace(">", "}").format(**self._local_vars)
 
     def __str__(self):
         return json.dumps(self.node, indent=2)
