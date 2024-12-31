@@ -38,7 +38,7 @@ jobs:
             exit 1
           fi
           {
-            echo "runID=$(echo -n '${{ github.ref_name }}' | cut -d '-' -f 2)"
+            echo "runID=$runID"
             echo "artifactRepositoryFullName=$artifactRepositoryFullName"
             echo "runType=$runType"
           } >> "${GITHUB_ENV}"
