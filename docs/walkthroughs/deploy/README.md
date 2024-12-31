@@ -1,4 +1,3 @@
 
-## Infra lifecycle managment with `stackql`
-
+## Lifecycle managment with `stackql-deploy`
 
