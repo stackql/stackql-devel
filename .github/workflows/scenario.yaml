@@ -31,7 +31,7 @@ jobs:
             runType="$_defaultRunType"
           elif [ "$runType" != "${{ env.RUNTYPE_READ_ONLY }}" ] \
                  && [ "$runType" != "${{ env.RUNTYPE_READ_WRITE }}" ] \
-                 && [ "$runType" != "${{ env.RUNTYPE_DEPLOY }}" \
+                 && [ "$runType" != "${{ env.RUNTYPE_DEPLOY }}" ] \
                  && [ "$runType" != "${{ env.RUNTYPE_ALL }}" ]
           then
             echo "Invalid run type: $runType"
