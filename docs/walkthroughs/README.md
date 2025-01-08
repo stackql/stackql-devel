@@ -21,6 +21,12 @@ We are deliberately not opinionated on choice of platform, technology, vendor, g
 - [google price calciulator](https://cloud.google.com/products/calculator).
 - [aws price calculator](https://calculator.aws/#/).
 - [azure price calculator](https://azure.microsoft.com/en-au/pricing/calculator/).
+- [digitalocean price calculator](https://www.digitalocean.com/pricing/calculator).
+
+
+There are other boutique providers that are ultra-competitive on some offoerings:
+
+- [OVH Cloud](https://www.ovhcloud.com/en-au/).
 
 ## Running from CI
 
