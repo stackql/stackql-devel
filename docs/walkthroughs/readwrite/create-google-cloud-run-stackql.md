@@ -203,14 +203,15 @@ sleep 30000;  -- cover for lacking await
 insert /*+ AWAIT */ into 
 google.sqladmin.instances (
   project,
+  data__name,
   data__region,
   data__databaseVersion,
   data__edition,
   data__settings
-
 )
 select
   'stackql-dashboards',
+  'dashoboards-inst-01',
   'australia-southeast1',
   'POSTGRES_14',
   'ENTERPRISE',
@@ -220,16 +221,16 @@ select
       "authorizedNetworks": [
         {
           "value": "0.0.0.0/0"
-          
         }
-        
       ],
-      "ipv4Enabled": false
-      
+      "ipv4Enabled": false  
     },
     "tier": "db-custom-2-7680"
   }'
 ;
+
+
+
 
 ```
 

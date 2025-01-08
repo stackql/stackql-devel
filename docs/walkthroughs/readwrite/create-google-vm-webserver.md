@@ -34,9 +34,9 @@ stackql shell --approot=<<app_root_path>>
 
 Do this in the `stackql` shell, replacing `<<project>>` with your GCP project name, '<<region>>', and `<<zone>>` as desired, eg: `australia-southeast1-a`:
 
-```sql stackql-shell input required my_ephemeral_network_name=my-ephemeral-network-01 my_vm_name=my-ephemeral-vm-01 project=stackql-demo region=australia-southeast2 zone=australia-southeast2-a fw_name=ephemeral-http-01
+```sql stackql-shell input required my_ephemeral_network_name=my-ephemeral-network-01 my_vm_name=my-ephemeral-vm-01 project=stackql-demo region=australia-southeast2 zone=australia-southeast2-a fw_name=ephemeral-http-01 google_provider_version=v24.11.00274
 
-registry pull google;
+registry pull google <<google_provider_version>>;
 
 insert /*+ AWAIT */ into 
 google.compute.networks (
