@@ -52,4 +52,5 @@ select
 - Pagination does not currently work, and appears to revolve around response body `"links":{"pages":{"last":"https://api.digitalocean.com/v2/images?page=14","next":"https://api.digitalocean.com/v2/images?page=2"}}`.
 - `stackql  >>update digitalocean.projects.projects set is_default = true where project_id = 'c9027ad4-8e8a-47e8-9cb0-d9f0ae4d4b74';` -> `update statement RHS of type 'sqlparser.BoolVal' not yet supported`.
 - Debugging droplet init `cat /var/log/cloud-init-output.log`.
+- Viewing droplet startup script `cat /var/lib/cloud/instance/scripts/part-001`.
 - Apache2 service status `sudo systemctl status apache2`.

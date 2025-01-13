@@ -16,12 +16,13 @@ in order to setup, run, verify and tear down testing scenarios.  The tests *can*
 
 ## The cost of freedom
 
-We are deliberately not opinionated on choice of platform, technology, vendor, geography, etc.  That is up to you.  One thing we do know, though is that cost is always a consideration.  These pricing calculators are good reference points:
+We are deliberately not opinionated on choice of platform, technology, vendor, geography, jurisdiction, etc.  That is up to you.  One thing we do know, though, is that cost is always a consideration.  These pricing calculators are good reference points:
 
-- [google price calciulator](https://cloud.google.com/products/calculator).
+- [google price calculator](https://cloud.google.com/products/calculator).
 - [aws price calculator](https://calculator.aws/#/).
 - [azure price calculator](https://azure.microsoft.com/en-au/pricing/calculator/).
 - [digitalocean price calculator](https://www.digitalocean.com/pricing/calculator).
+- [alibaba price calculator](https://www.alibabacloud.com/en/pricing).
 
 There are other boutique providers that are ultra-competitive on some offerings:
 

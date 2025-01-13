@@ -1,6 +1,8 @@
 import mistune
 
-from typing import List, Tuple
+import logging
+
+from typing import List, TextIO, Any, Optional
 
 import subprocess, os, sys, shutil, io
 
@@ -27,10 +29,18 @@ def parse_args() -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(description='Create a token.')
     parser.add_argument('--test-root', type=str, help='The test root.', default=os.path.join(_REPOSITORY_ROOT_PATH, 'docs', 'walkthroughs'))
+    parser.add_argument('--skip-teardown', action=argparse.BooleanOptionalAction, help='Skip teardown.')
     return parser.parse_args()
 
 
 _REPOSITORY_ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..'))
+
+
+_DEFAULT_STREAM_TMP_ROOT: str = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'stream-tmp'))
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 
 def eprint(*args, **kwargs):
@@ -143,7 +153,6 @@ class MdAST(object):
         return self.__str__()
 
 
-
 class MdParser(object):
 
     def parse_markdown_file(self, file_path: str, lang=None) -> MdAST:
@@ -203,19 +212,37 @@ class WorkloadDTO(object):
         setup: str,
         in_session: List[str],
         teardown: str,
-        expectations: List[Expectation]
+        expectations: List[Expectation],
+        std_stream_files: bool = True,
+        tmp_file_root: Optional[str] = None,
+        is_skip_teardown: bool = False
     ):
         self._name = name
         self._setup = setup
         self._in_session = in_session
         self._teardown = teardown
         self._expectations = expectations
+        self._std_stream_files = std_stream_files
+        self._tmp_file_root = tmp_file_root if tmp_file_root is not None else _DEFAULT_STREAM_TMP_ROOT
+        self._is_skip_teardown = is_skip_teardown
+
+    def is_std_stream_files(self) -> bool:
+        return self._std_stream_files
+    
+    def _get_stream_file_path(self, stream_name: str, workload_stage: str) -> str:
+        return os.path.join(self._tmp_file_root, f'{self._name}_{workload_stage}_{stream_name}.tmp')
+    
+    def get_file_stream(self, stream_name: str, workload_stage: str, mode: str) -> TextIO:
+        return open(self._get_stream_file_path(stream_name, workload_stage), mode)
 
     def get_name(self) -> str:
         return self._name
 
     def get_setup(self) -> List[str]:
         return self._setup
+    
+    def is_skip_teardown(self) -> bool:
+        return self._is_skip_teardown
     
     def get_in_session(self) -> List[str]:
         return self._in_session
@@ -240,13 +267,17 @@ class MdOrchestrator(object):
         max_setup_blocks: int = 1,
         max_invocations_blocks: int = 1,
         max_teardown_blocks: int = 1,
-        setup_contains_shell_invocation: bool = True
+        setup_contains_shell_invocation: bool = True,
+        std_stream_files: bool = True,
+        is_skip_teardown: bool = False
     ):
         self._parser = parser
         self._max_setup_blocks = max_setup_blocks
         self._max_invocations_blocks = max_invocations_blocks
         self._max_teardown_blocks = max_teardown_blocks
         self._setup_contains_shell_invocation = setup_contains_shell_invocation
+        self._std_stream_files = std_stream_files
+        self._is_skip_teardown = is_skip_teardown
 
     def _get_teardown_base(self) -> str:
         return f'set -e;\ncd {_REPOSITORY_ROOT_PATH};\n'
@@ -281,7 +312,7 @@ class MdOrchestrator(object):
                         setup_str += node.expand()
                         setup_count += 1
                     else:
-                        this_dto: WorkloadDTO = WorkloadDTO(block_name, setup_str, in_session_commands, teardown_str, expectations)
+                        this_dto: WorkloadDTO = WorkloadDTO(block_name, setup_str, in_session_commands, teardown_str, expectations, is_skip_teardown=self._is_skip_teardown)
                         trailing_nodes = ordered_ast[node_idx:]
                         trailing_dtos = self._orchestrate_block(file_name, block_count + 1, trailing_nodes)
                         return [this_dto] + trailing_dtos
@@ -298,7 +329,7 @@ class MdOrchestrator(object):
                         invocation_count += 1
                     else:
                         raise KeyError(f'Maximum invocation blocks exceeded: {self._max_invocations_blocks}')
-        return [WorkloadDTO(block_name, setup_str, in_session_commands, teardown_str, expectations)]
+        return [WorkloadDTO(block_name, setup_str, in_session_commands, teardown_str, expectations, is_skip_teardown=self._is_skip_teardown)]
 
 class WalkthroughResult:
 
@@ -327,11 +358,17 @@ class SimpleRunner(object):
 
     def run(self) -> WalkthroughResult:
         bash_path = shutil.which('bash')
+        stdin           =  subprocess.PIPE
+        stdout          =  subprocess.PIPE # self._workload.get_file_stream('stdout', 'main', 'w') if self._workload.is_std_stream_files() else subprocess.PIPE
+        stderr          =  subprocess.PIPE # self._workload.get_file_stream('stderr', 'main', 'w') if self._workload.is_std_stream_files() else subprocess.PIPE
+        teardown_stdin  =  subprocess.PIPE # self._workload.get_file_stream('stdin', 'teardown', 'w') if self._workload.is_std_stream_files() else subprocess.PIPE
+        teardown_stdout =  subprocess.PIPE # self._workload.get_file_stream('stdin', 'teardown', 'w') if self._workload.is_std_stream_files() else subprocess.PIPE
+        teardown_stderr =  subprocess.PIPE # self._workload.get_file_stream('stdin', 'teardown', 'w') if self._workload.is_std_stream_files() else subprocess.PIPE
         pr: subprocess.Popen = subprocess.Popen(
             self._workload.get_setup(),
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stdin=stdin,
+            stdout=stdout,
+            stderr=stderr,
             shell=True,
             executable=bash_path
         )
@@ -384,14 +421,26 @@ class SimpleRunner(object):
             print(f'Passes stderr: {passes_stderr}')
             print('###')
 
+        if self._workload.is_skip_teardown():
+            print('Skipping teardown.')
+            return WalkthroughResult(
+                self._workload.get_name(),
+                stdout_str,
+                stderr_str,
+                pr.returncode,
+                not fails_stdout,
+                not fails_stderr,
+                0
+            )
+
 
         teardown_str: str = self._workload.get_teardown()
         
         teardown_process: subprocess.CompletedProcess = subprocess.run(
             teardown_str,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stdin=teardown_stdin,
+            stdout=teardown_stdout,
+            stderr=teardown_stderr,
             shell=True,
             executable=bash_path
         )
@@ -425,9 +474,15 @@ class SimpleRunner(object):
 
 class AllWalkthroughsRunner(object):
     
-    def __init__(self):
+    def __init__(
+        self,
+        is_skip_teardown: bool = False
+    ):
         md_parser = MdParser()
-        self._orchestrator: MdOrchestrator = MdOrchestrator(md_parser)
+        self._orchestrator: MdOrchestrator = MdOrchestrator(
+            md_parser,
+            is_skip_teardown=is_skip_teardown
+        )
 
     def run_all(self, walkthrough_inodes: List[str], recursive=True, skip_readme=True) -> List[WalkthroughResult]:
         results: List[WalkthroughResult] = []
@@ -449,10 +504,11 @@ class AllWalkthroughsRunner(object):
                 continue
             is_file = os.path.isfile(inode_path)
             if is_file:
-                if skip_readme and file == 'README.md':
+                file_path = inode_path
+                file_name = os.path.basename(file_path)
+                if skip_readme and file_name == 'README.md':
                     eprint(f'Skipping README.md')
                     continue
-                file_path = inode_path
                 workloads: List[WorkloadDTO] = self._orchestrator.orchestrate(file_path)
                 for workload in workloads:
                         e2e: SimpleRunner = SimpleRunner(workload)
@@ -471,7 +527,10 @@ def _collate_results(results: List[WalkthroughResult]) -> bool:
     print(tabulate([[result.name, result.rc, result.passes_stdout_check, result.passes_stderr_check] for result in results], headers=['Test Name', 'Return Code', 'Passes Stdout Checks', 'Passes Stderr Checks']))
     return failed == 0
 
-def run_tests(root_dir: str) -> List[WalkthroughResult]:
+def run_tests(
+    root_inode: str,
+    is_skip_teardown: bool = False
+) -> List[WalkthroughResult]:
     """
     Run all tests.
     A decent entry point for a test harness.
@@ -480,13 +539,16 @@ def run_tests(root_dir: str) -> List[WalkthroughResult]:
 
     :return: The results.
     """
-    runner: AllWalkthroughsRunner = AllWalkthroughsRunner()
-    results: List[WalkthroughResult] = runner.run_all([root_dir])
+    runner: AllWalkthroughsRunner = AllWalkthroughsRunner(is_skip_teardown=is_skip_teardown)
+    results: List[WalkthroughResult] = runner.run_all([root_inode])
     return results
 
 
-def _process_tests(root_dir: str) -> List[WalkthroughResult]:
-    results: List[WalkthroughResult] = run_tests(root_dir)
+def _process_tests(
+    root_dir: str,
+    is_skip_teardown: bool = False
+) -> List[WalkthroughResult]:
+    results: List[WalkthroughResult] = run_tests(root_dir, is_skip_teardown=is_skip_teardown)
     if _collate_results(results):
         print('All tests passed.')
         sys.exit(0)
@@ -495,7 +557,10 @@ def _process_tests(root_dir: str) -> List[WalkthroughResult]:
 
 def _main() -> None:
     args :argparse.Namespace = parse_args()
-    _process_tests(args.test_root)
+    _process_tests(
+        args.test_root,
+        is_skip_teardown=args.skip_teardown
+    )
 
 
 if __name__ == '__main__':
