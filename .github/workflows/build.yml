@@ -1186,10 +1186,16 @@ jobs:
         openssl req -x509 -keyout cicd/vol/srv/credentials/pg_client_key.pem -out  cicd/vol/srv/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
         openssl req -x509 -keyout cicd/vol/srv/credentials/pg_rubbish_key.pem -out cicd/vol/srv/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365
 
-    - name: Build image
+    - name: Build image precursors
       run: |
         docker compose -f docker-compose-credentials.yml build credentialsgen
         docker compose build mockserver
+    
+    - name: Image  env sanitize
+      run: |
+        {
+          echo "IMAGE_PLATFORM_SAN=$( sed 's/\//_/g' <<< '${{ matrix.platform }}' )"
+        } >> "${GITHUB_ENV}"
     
     - name: Build Stackql image with buildx
       uses: docker/build-push-action@v6
@@ -1205,7 +1211,7 @@ jobs:
         no-cache: ${{ vars.CI_DOCKER_BUILD_NO_CACHE == 'true' && true || false }}
         load: true
         tags: ${{ env.STACKQL_IMAGE_NAME }}:${{ github.sha }},${{ env.STACKQL_IMAGE_NAME }}:v${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}},${{ env.STACKQL_IMAGE_NAME }}
-        outputs: type=docker,dest=${{ runner.temp }}/myimage-${{ matrix.platform }}.tar
+        outputs: type=docker,dest=${{ runner.temp }}/myimage-${{ env.IMAGE_PLATFORM_SAN }}.tar
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
@@ -1306,15 +1312,21 @@ jobs:
           - linux/amd64
           - linux/arm64
     steps:
+    - name: Image  env sanitize
+      run: |
+        {
+          echo "IMAGE_PLATFORM_SAN=$( sed 's/\//_/g' <<< '${{ matrix.platform }}' )"
+        } >> "${GITHUB_ENV}"
+
     - name: Download artifact
       uses: actions/download-artifact@v4
       with:
-        name: myimage-${{ matrix.platform }}
-        path: ${{ runner.temp }}/myimage-${{ matrix.platform }}.tar
+        name: myimage-${{ env.IMAGE_PLATFORM_SAN }}
+        path: ${{ runner.temp }}/myimage-${{ env.IMAGE_PLATFORM_SAN }}.tar
 
     - name: Load image
       run: |
-        docker load --input ${{ runner.temp }}/myimage-${{ matrix.platform }}.tar
+        docker load --input ${{ runner.temp }}/myimage-${{ env.IMAGE_PLATFORM_SAN }}.tar
         docker image ls -a 
     
     - name: Login to Docker Hub
