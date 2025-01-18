@@ -1208,7 +1208,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: myimage-${{ matrix.platform }}
+        name: myimage-${{ env.IMAGE_PLATFORM_SAN }}
         path: ${{ runner.temp }}/myimage-${{ env.IMAGE_PLATFORM_SAN }}.tar
     
     - name: Load image
