@@ -1069,12 +1069,30 @@ jobs:
       with:
         name: stackql_darwin_arm64
         path: build/stackql
-
+  
+  ## Docker Build and Push Jobs
+  ## based loosely on patterns described in:
+  ##    - https://docs.docker.com/build/ci/github-actions/multi-platform/#distribute-build-across-multiple-runners
+  ##    - https://docs.docker.com/build/ci/github-actions/share-image-jobs/
   dockerbuild:
     name: Docker Build
     runs-on: ubuntu-latest-m
     timeout-minutes: ${{ vars.DEFAULT_JOB_TIMEOUT_MIN == '' && 120 || vars.DEFAULT_JOB_TIMEOUT_MIN }}
-    steps:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux/amd64
+          - linux/arm64
+
+    steps:      
+
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: |
+          ${{ env.STACKQL_IMAGE_NAME }}
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v4.1.1
@@ -1174,7 +1192,7 @@ jobs:
         docker compose build mockserver
     
     - name: Build Stackql image with buildx
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         context: .
         build-args: |
@@ -1182,10 +1200,18 @@ jobs:
           BUILDMINORVERSION=${{env.BUILDMINORVERSION}}
           BUILDPATCHVERSION=${{env.BUILDPATCHVERSION}}
         push: false
+        platforms: ${{ matrix.platform }}
         target: app
         no-cache: ${{ vars.CI_DOCKER_BUILD_NO_CACHE == 'true' && true || false }}
         load: true
-        tags: ${{ env.STACKQL_IMAGE_NAME }}:${{github.sha}},${{ env.STACKQL_IMAGE_NAME }}:v${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}},${{ env.STACKQL_IMAGE_NAME }}:latest
+        tags: ${{ env.STACKQL_IMAGE_NAME }}:${{ github.sha }},${{ env.STACKQL_IMAGE_NAME }}:v${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}},${{ env.STACKQL_IMAGE_NAME }}
+        outputs: type=docker,dest=${{ runner.temp }}/myimage-${{ matrix.platform }}.tar
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: myimage-${{ matrix.platform }}
+        path: ${{ runner.temp }}/myimage-${{ matrix.platform }}.tar
 
     - name: Debug info
       run: |
@@ -1223,13 +1249,13 @@ jobs:
         echo ""
 
     - name: Run robot mocked functional tests
-      if: success() && env.CI_IS_EXPRESS != 'true'
+      if: success() && env.CI_IS_EXPRESS != 'true' && matrix.platform == 'linux/amd64'
       timeout-minutes: ${{ vars.DEFAULT_STEP_TIMEOUT_MIN == '' && 20 || vars.DEFAULT_STEP_TIMEOUT_MIN }}
       run: |
         python cicd/python/build.py --robot-test --config='{ "variables":  { "EXECUTION_PLATFORM": "docker" } }'
 
     - name: Run POSTGRES BACKEND robot mocked functional tests
-      if: success() && env.CI_IS_EXPRESS != 'true'
+      if: success() && env.CI_IS_EXPRESS != 'true' && matrix.platform == 'linux/amd64'
       timeout-minutes: ${{ vars.DEFAULT_STEP_TIMEOUT_MIN == '' && 20 || vars.DEFAULT_STEP_TIMEOUT_MIN }}
       run: |
         echo "## Stray flask apps to be killed before robot tests ##"
@@ -1249,12 +1275,12 @@ jobs:
         python cicd/python/build.py --robot-test --config='{ "variables":  { "EXECUTION_PLATFORM": "docker", "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": true, "SQL_BACKEND": "postgres_tcp" } }'
 
     - name: Output from mocked functional tests
-      if: always() && env.CI_IS_EXPRESS != 'true'
+      if: always() && env.CI_IS_EXPRESS != 'true' && matrix.platform == 'linux/amd64'
       run: |
         cat ./test/robot/reports/output.xml
 
     - name: Run robot integration tests
-      if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release')
+      if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release') && matrix.platform == 'linux/amd64'
       env:
         AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -1266,6 +1292,31 @@ jobs:
         echo "## End ##"
         python cicd/python/build.py --robot-test-integration --config='{ "variables":  { "EXECUTION_PLATFORM": "docker" } }'
 
+    # - name: Hack to avoid docker buildx failures
+    #   run: |
+    #     sudo rm -rf cicd/vol/postgres/persist
+
+  dockerpush:
+    runs-on: ubuntu-latest
+    needs: dockerbuild
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux/amd64
+          - linux/arm64
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: myimage-${{ matrix.platform }}
+        path: ${{ runner.temp }}/myimage-${{ matrix.platform }}.tar
+
+    - name: Load image
+      run: |
+        docker load --input ${{ runner.temp }}/myimage-${{ matrix.platform }}.tar
+        docker image ls -a 
+    
     - name: Login to Docker Hub
       if: ${{ ( success() && github.ref_type == 'branch' && github.ref_name == 'main' && github.repository == 'stackql/stackql' && github.event_name == 'push'  ) || ( success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'build-release') ) }}
       uses: docker/login-action@v2
@@ -1273,17 +1324,13 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Hack to avoid docker buildx failures
-      run: |
-        sudo rm -rf cicd/vol/postgres/persist
-
     - name: Push stackql image to Docker Hub
       if: ${{ (github.repository == 'stackql/stackql' ||  github.repository == 'stackql/stackql-devel') &&  vars.CI_SKIP_DOCKER_PUSH != 'true' && ( success() && github.ref_type == 'branch' && github.ref_name == 'main' && github.event_name == 'push'  ) || ( success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'build-release') ) }}
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         context: .
         no-cache: ${{ vars.CI_DOCKER_BUILD_NO_CACHE == 'true' && true || false }}
-        platforms: linux/arm64,linux/amd64
+        platforms: ${{ matrix.platform }}
         build-args: |
           BUILDMAJORVERSION=${{env.BUILDMAJORVERSION}}
           BUILDMINORVERSION=${{env.BUILDMINORVERSION}}
