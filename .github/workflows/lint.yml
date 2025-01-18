@@ -37,4 +37,4 @@ jobs:
         uses: golangci/golangci-lint-action@v4.0.0
         with:
           version: ${{ env.GOLANGCI_LINT_VERSION }}
-          args: --timeout $${{ env.DEFAULT_STEP_TIMEOUT }}m
+          args: --timeout ${{ env.DEFAULT_STEP_TIMEOUT }}m
