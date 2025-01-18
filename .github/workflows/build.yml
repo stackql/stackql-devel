@@ -1085,14 +1085,7 @@ jobs:
           - linux/amd64
           - linux/arm64
 
-    steps:      
-
-    - name: Docker meta
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: |
-          ${{ env.STACKQL_IMAGE_NAME }}
+    steps:
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v4.1.1
@@ -1209,7 +1202,6 @@ jobs:
         platforms: ${{ matrix.platform }}
         target: app
         no-cache: ${{ vars.CI_DOCKER_BUILD_NO_CACHE == 'true' && true || false }}
-        load: true
         tags: ${{ env.STACKQL_IMAGE_NAME }}:${{ github.sha }},${{ env.STACKQL_IMAGE_NAME }}:v${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}},${{ env.STACKQL_IMAGE_NAME }}
         outputs: type=docker,dest=${{ runner.temp }}/myimage-${{ env.IMAGE_PLATFORM_SAN }}.tar
 
@@ -1217,7 +1209,12 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: myimage-${{ matrix.platform }}
-        path: ${{ runner.temp }}/myimage-${{ matrix.platform }}.tar
+        path: ${{ runner.temp }}/myimage-${{ env.IMAGE_PLATFORM_SAN }}.tar
+    
+    - name: Load image
+      run: |
+        docker load --input ${{ runner.temp }}/myimage-${{ env.IMAGE_PLATFORM_SAN }}.tar
+        docker image ls -a 
 
     - name: Debug info
       run: |
