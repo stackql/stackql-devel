@@ -1194,9 +1194,9 @@ jobs:
             ) \
             && [ "${{ vars.CI_SKIP_DOCKER_PUSH }}" != "true" ] \
             && ( \
-                [ "${{ github.ref_type }}" == "branch" ] \
-                && [ "${{ github.ref_name }}" == "main" ] \
-                && [ "${{ github.event_name }}" == push" ] \
+                [ "${{ github.ref_type }}" = "branch" ] \
+                && [ "${{ github.ref_name }}" = "main" ] \
+                && [ "${{ github.event_name }}" = push" ] \
             ) \
             || ( \
                 [ "${{ github.ref_type }}" = "tag" ] \
