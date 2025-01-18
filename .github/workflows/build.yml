@@ -1186,12 +1186,38 @@ jobs:
     
     - name: Image  env sanitize
       run: |
+        BUILD_IMAGE_REQUIRED="true"
+        PUSH_IMAGE_REQUIRED="false"
+        if  ( \
+                [ "${{ github.repository }}" = "stackql/stackql" ] \
+                || [ "${{ github.repository }}" != "stackql/stackql-devel" ] \
+            ) \
+            && [ "${{ vars.CI_SKIP_DOCKER_PUSH }}" != "true" ] \
+            && ( \
+                [ "${{ github.ref_type }}" == "branch" ] \
+                && [ "${{ github.ref_name }}" == "main" ] \
+                && [ "${{ github.event_name }}" == push" ] \
+            ) \
+            || ( \
+                [ "${{ github.ref_type }}" = "tag" ] \
+                && [ "$( grep '^build-release.*' <<< '${{ github.ref_name }}' )" !=  "" ] \
+            ); \
+        then
+          PUSH_IMAGE_REQUIRED="true"
+        fi
+        if [ "${{ matrix.platform }}" == "linux/arm64" ] && [ "${PUSH_IMAGE_REQUIRED}" = "false" ]; then
+          BUILD_IMAGE_REQUIRED="false"
+        fi
         {
           echo "IMAGE_PLATFORM_SAN=$( sed 's/\//_/g' <<< '${{ matrix.platform }}' )"
+          echo "PUSH_IMAGE_REQUIRED=${PUSH_IMAGE_REQUIRED}"
+          echo "BUILD_IMAGE_REQUIRED=${BUILD_IMAGE_REQUIRED}"
         } >> "${GITHUB_ENV}"
+        fi
     
     - name: Build Stackql image with buildx
       uses: docker/build-push-action@v6
+      if: env.BUILD_IMAGE_REQUIRED == 'true'
       with:
         context: .
         build-args: |
@@ -1207,16 +1233,19 @@ jobs:
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
+      if: env.BUILD_IMAGE_REQUIRED == 'true'
       with:
         name: myimage-${{ env.IMAGE_PLATFORM_SAN }}
-        path: ${{ runner.temp }}/myimage-${{ env.IMAGE_PLATFORM_SAN }}
+        path: ${{ runner.temp }}/myimage-${{ env.IMAGE_PLATFORM_SAN }}.tar
     
     - name: Load image
+      if: env.BUILD_IMAGE_REQUIRED == 'true'
       run: |
         docker load --input ${{ runner.temp }}/myimage-${{ env.IMAGE_PLATFORM_SAN }}.tar
         docker image ls -a 
 
     - name: Debug info
+      if: env.BUILD_IMAGE_REQUIRED == 'true'
       run: |
         echo "psql version info: $(psql --version)"
         echo ""
@@ -1252,13 +1281,13 @@ jobs:
         echo ""
 
     - name: Run robot mocked functional tests
-      if: success() && env.CI_IS_EXPRESS != 'true' && matrix.platform == 'linux/amd64'
+      if: success() && env.CI_IS_EXPRESS != 'true' && matrix.platform == 'linux/amd64' && env.BUILD_IMAGE_REQUIRED == 'true'
       timeout-minutes: ${{ vars.DEFAULT_STEP_TIMEOUT_MIN == '' && 20 || vars.DEFAULT_STEP_TIMEOUT_MIN }}
       run: |
         python cicd/python/build.py --robot-test --config='{ "variables":  { "EXECUTION_PLATFORM": "docker" } }'
 
     - name: Run POSTGRES BACKEND robot mocked functional tests
-      if: success() && env.CI_IS_EXPRESS != 'true' && matrix.platform == 'linux/amd64'
+      if: success() && env.CI_IS_EXPRESS != 'true' && matrix.platform == 'linux/amd64' && env.BUILD_IMAGE_REQUIRED == 'true'
       timeout-minutes: ${{ vars.DEFAULT_STEP_TIMEOUT_MIN == '' && 20 || vars.DEFAULT_STEP_TIMEOUT_MIN }}
       run: |
         echo "## Stray flask apps to be killed before robot tests ##"
@@ -1278,12 +1307,12 @@ jobs:
         python cicd/python/build.py --robot-test --config='{ "variables":  { "EXECUTION_PLATFORM": "docker", "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": true, "SQL_BACKEND": "postgres_tcp" } }'
 
     - name: Output from mocked functional tests
-      if: always() && env.CI_IS_EXPRESS != 'true' && matrix.platform == 'linux/amd64'
+      if: always() && env.CI_IS_EXPRESS != 'true' && matrix.platform == 'linux/amd64' && env.BUILD_IMAGE_REQUIRED == 'true'
       run: |
         cat ./test/robot/reports/output.xml
 
     - name: Run robot integration tests
-      if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release') && matrix.platform == 'linux/amd64'
+      if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release') && matrix.platform == 'linux/amd64' && env.BUILD_IMAGE_REQUIRED == 'true'
       env:
         AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
