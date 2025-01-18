@@ -11,7 +11,6 @@ import (
 	"github.com/stackql/any-sdk/pkg/logging"
 	"github.com/stackql/stackql/internal/stackql/discovery"
 	"github.com/stackql/stackql/internal/stackql/docparser"
-	google_sdk "github.com/stackql/stackql/internal/stackql/google_sdk"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/methodselect"
 	"github.com/stackql/stackql/internal/stackql/netutils"
@@ -135,17 +134,7 @@ func (gp *GenericProvider) Auth(
 }
 
 func (gp *GenericProvider) AuthRevoke(authCtx *dto.AuthCtx) error {
-	switch strings.ToLower(authCtx.Type) {
-	case dto.AuthServiceAccountStr:
-		return errors.New(constants.ServiceAccountRevokeErrStr)
-	case dto.AuthInteractiveStr:
-		err := google_sdk.RevokeGoogleAuth()
-		if err == nil {
-			gp.authUtil.DeactivateAuth(authCtx)
-		}
-		return err
-	}
-	return fmt.Errorf(`Auth revoke for Google Failed; improper auth method: "%s" specified`, authCtx.Type)
+	return gp.authUtil.AuthRevoke(authCtx)
 }
 
 func (gp *GenericProvider) GetMethodForAction(
@@ -226,7 +215,7 @@ func (gp *GenericProvider) ShowAuth(authCtx *dto.AuthCtx) (*anysdk.AuthMetadata,
 			gp.authUtil.ActivateAuth(authCtx, sa.Email, dto.AuthServiceAccountStr)
 		}
 	case dto.AuthInteractiveStr:
-		principal, sdkErr := google_sdk.GetCurrentAuthUser()
+		principal, sdkErr := gp.authUtil.GetCurrentGCloudOauthUser()
 		if sdkErr == nil {
 			principalStr := string(principal)
 			if principalStr != "" {
@@ -251,29 +240,7 @@ func (gp *GenericProvider) ShowAuth(authCtx *dto.AuthCtx) (*anysdk.AuthMetadata,
 }
 
 func (gp *GenericProvider) oAuth(authCtx *dto.AuthCtx, enforceRevokeFirst bool) (*http.Client, error) {
-	var err error
-	var tokenBytes []byte
-	tokenBytes, err = google_sdk.GetAccessToken()
-	if enforceRevokeFirst && authCtx.Type == dto.AuthInteractiveStr && err == nil {
-		return nil, fmt.Errorf(constants.OAuthInteractiveAuthErrStr) //nolint:stylecheck // happy with message
-	}
-	if err != nil {
-		err = google_sdk.OAuthToGoogle()
-		if err == nil {
-			tokenBytes, err = google_sdk.GetAccessToken()
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	gp.authUtil.ActivateAuth(authCtx, "", dto.AuthInteractiveStr)
-	client := netutils.GetHTTPClient(gp.runtimeCtx, nil)
-	tr, err := auth_util.NewTransport(tokenBytes, auth_util.AuthTypeBearer, authCtx.ValuePrefix, auth_util.LocationHeader, "", client.Transport)
-	if err != nil {
-		return nil, err
-	}
-	client.Transport = tr
-	return client, nil
+	return gp.authUtil.GCloudOAuth(gp.runtimeCtx, authCtx, enforceRevokeFirst)
 }
 
 func (gp *GenericProvider) googleKeyFileAuth(authCtx *dto.AuthCtx) (*http.Client, error) {

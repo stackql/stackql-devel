@@ -7,7 +7,6 @@ toolchain go1.22.0
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.1
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
-	github.com/getkin/kin-openapi v0.88.0
 	github.com/google/go-jsonnet v0.17.0
 	github.com/jackc/pgtype v1.10.0
 	github.com/jackc/pgx/v5 v5.0.4
@@ -20,7 +19,7 @@ require (
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.10.1
-	github.com/stackql/any-sdk v0.0.5-alpha07
+	github.com/stackql/any-sdk v0.0.5-alpha09
 	github.com/stackql/go-suffix-map v0.0.1-alpha01
 	github.com/stackql/psql-wire v0.1.1-alpha07
 	github.com/stackql/stackql-parser v0.0.14-alpha04
@@ -67,6 +66,7 @@ require (
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.1 // indirect
+	github.com/getkin/kin-openapi v0.88.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/swag v0.21.1 // indirect

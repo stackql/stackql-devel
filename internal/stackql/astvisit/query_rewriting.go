@@ -6,7 +6,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/stackql/any-sdk/anysdk"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 
@@ -137,10 +136,7 @@ func (v *standardQueryRewriteAstVisitor) getNextAlias() string {
 
 func (v *standardQueryRewriteAstVisitor) generateServerVarColumnDescriptor(
 	k string, m anysdk.OperationStore) anysdk.ColumnDescriptor {
-	sc := openapi3.NewSchema()
-	sc.Type = "string"
-	schema := anysdk.NewSchema(
-		sc,
+	schema := anysdk.NewStringSchema(
 		m.GetService(),
 		"",
 		"",
