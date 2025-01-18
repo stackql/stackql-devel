@@ -5,13 +5,14 @@ import (
 	"fmt"
 
 	"github.com/stackql/any-sdk/anysdk"
-	"github.com/stackql/stackql/internal/stackql/constants"
+	"github.com/stackql/any-sdk/pkg/auth_util"
+	"github.com/stackql/any-sdk/pkg/constants"
+	"github.com/stackql/any-sdk/pkg/dto"
+	"github.com/stackql/any-sdk/pkg/logging"
 	"github.com/stackql/stackql/internal/stackql/discovery"
 	"github.com/stackql/stackql/internal/stackql/docparser"
-	"github.com/stackql/stackql/internal/stackql/dto"
 	google_sdk "github.com/stackql/stackql/internal/stackql/google_sdk"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
-	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/methodselect"
 	"github.com/stackql/stackql/internal/stackql/netutils"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
@@ -38,6 +39,7 @@ type GenericProvider struct {
 	discoveryAdapter discovery.IDiscoveryAdapter
 	apiVersion       string
 	methodSelector   methodselect.IMethodSelector
+	authUtil         auth_util.AuthUtility
 }
 
 func (gp *GenericProvider) GetDefaultKeyForDeleteItems() string {
@@ -139,7 +141,7 @@ func (gp *GenericProvider) AuthRevoke(authCtx *dto.AuthCtx) error {
 	case dto.AuthInteractiveStr:
 		err := google_sdk.RevokeGoogleAuth()
 		if err == nil {
-			deactivateAuth(authCtx)
+			gp.authUtil.DeactivateAuth(authCtx)
 		}
 		return err
 	}
@@ -213,16 +215,15 @@ func (gp *GenericProvider) ShowAuth(authCtx *dto.AuthCtx) (*anysdk.AuthMetadata,
 	}
 	switch gp.inferAuthType(*authCtx, authCtx.Type) {
 	case dto.AuthServiceAccountStr:
-		var sa serviceAccount
-		sa, err = parseServiceAccountFile(authCtx)
-		if err == nil {
+		sa, saErr := gp.authUtil.ParseServiceAccountFile(authCtx)
+		if saErr == nil {
 			authObj = anysdk.AuthMetadata{
 				Principal: sa.Email,
 				Type:      strings.ToUpper(dto.AuthServiceAccountStr),
 				Source:    authCtx.GetCredentialsSourceDescriptorString(),
 			}
 			retVal = &authObj
-			activateAuth(authCtx, sa.Email, dto.AuthServiceAccountStr)
+			gp.authUtil.ActivateAuth(authCtx, sa.Email, dto.AuthServiceAccountStr)
 		}
 	case dto.AuthInteractiveStr:
 		principal, sdkErr := google_sdk.GetCurrentAuthUser()
@@ -235,7 +236,7 @@ func (gp *GenericProvider) ShowAuth(authCtx *dto.AuthCtx) (*anysdk.AuthMetadata,
 					Source:    "OAuth",
 				}
 				retVal = &authObj
-				activateAuth(authCtx, principalStr, dto.AuthInteractiveStr)
+				gp.authUtil.ActivateAuth(authCtx, principalStr, dto.AuthInteractiveStr)
 			} else {
 				err = errors.New(constants.NotAuthenticatedShowStr) //nolint:stylecheck // happy with message
 			}
@@ -265,9 +266,9 @@ func (gp *GenericProvider) oAuth(authCtx *dto.AuthCtx, enforceRevokeFirst bool) 
 	if err != nil {
 		return nil, err
 	}
-	activateAuth(authCtx, "", dto.AuthInteractiveStr)
+	gp.authUtil.ActivateAuth(authCtx, "", dto.AuthInteractiveStr)
 	client := netutils.GetHTTPClient(gp.runtimeCtx, nil)
-	tr, err := newTransport(tokenBytes, authTypeBearer, authCtx.ValuePrefix, locationHeader, "", client.Transport)
+	tr, err := auth_util.NewTransport(tokenBytes, auth_util.AuthTypeBearer, authCtx.ValuePrefix, auth_util.LocationHeader, "", client.Transport)
 	if err != nil {
 		return nil, err
 	}
@@ -277,32 +278,32 @@ func (gp *GenericProvider) oAuth(authCtx *dto.AuthCtx, enforceRevokeFirst bool) 
 
 func (gp *GenericProvider) googleKeyFileAuth(authCtx *dto.AuthCtx) (*http.Client, error) {
 	scopes := authCtx.Scopes
-	return googleOauthServiceAccount(gp.GetProviderString(), authCtx, scopes, gp.runtimeCtx)
+	return gp.authUtil.GoogleOauthServiceAccount(gp.GetProviderString(), authCtx, scopes, gp.runtimeCtx)
 }
 
 func (gp *GenericProvider) clientCredentialsAuth(authCtx *dto.AuthCtx) (*http.Client, error) {
 	scopes := authCtx.Scopes
-	return genericOauthClientCredentials(authCtx, scopes, gp.runtimeCtx)
+	return gp.authUtil.GenericOauthClientCredentials(authCtx, scopes, gp.runtimeCtx)
 }
 
 func (gp *GenericProvider) apiTokenFileAuth(authCtx *dto.AuthCtx, enforceBearer bool) (*http.Client, error) {
-	return apiTokenAuth(authCtx, gp.runtimeCtx, enforceBearer)
+	return gp.authUtil.ApiTokenAuth(authCtx, gp.runtimeCtx, enforceBearer)
 }
 
 func (gp *GenericProvider) awsSigningAuth(authCtx *dto.AuthCtx) (*http.Client, error) {
-	return awsSigningAuth(authCtx, gp.runtimeCtx)
+	return gp.authUtil.AwsSigningAuth(authCtx, gp.runtimeCtx)
 }
 
 func (gp *GenericProvider) basicAuth(authCtx *dto.AuthCtx) (*http.Client, error) {
-	return basicAuth(authCtx, gp.runtimeCtx)
+	return gp.authUtil.BasicAuth(authCtx, gp.runtimeCtx)
 }
 
 func (gp *GenericProvider) customAuth(authCtx *dto.AuthCtx) (*http.Client, error) {
-	return customAuth(authCtx, gp.runtimeCtx)
+	return gp.authUtil.CustomAuth(authCtx, gp.runtimeCtx)
 }
 
 func (gp *GenericProvider) azureDefaultAuth(authCtx *dto.AuthCtx) (*http.Client, error) {
-	return azureDefaultAuth(authCtx, gp.runtimeCtx)
+	return gp.authUtil.AzureDefaultAuth(authCtx, gp.runtimeCtx)
 }
 
 func (gp *GenericProvider) GetLikeableColumns(tableName string) []string {
@@ -407,7 +408,7 @@ func (gp *GenericProvider) GetResourcesRedacted(
 func (gp *GenericProvider) CheckCredentialFile(authCtx *dto.AuthCtx) error {
 	switch authCtx.Type {
 	case dto.AuthServiceAccountStr:
-		_, err := parseServiceAccountFile(authCtx)
+		_, err := gp.authUtil.ParseServiceAccountFile(authCtx)
 		return err
 	case dto.AuthAPIKeyStr:
 		_, err := authCtx.GetCredentialsBytes()
