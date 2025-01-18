@@ -1326,6 +1326,40 @@ jobs:
         docker load --input ${{ runner.temp }}/myimage-${{ env.IMAGE_PLATFORM_SAN }}.tar
         docker image ls -a 
     
+    - name: Extract Build Info and Persist
+      env:
+        BUILDCOMMITSHA: ${{github.sha}}
+        BUILDBRANCH: ${{github.ref}}
+        BUILDPLATFORM: ${{runner.os}}
+        BUILDPATCHVERSION: ${{github.run_number}}
+      run: |
+        source cicd/version.txt
+        BUILDMAJORVERSION=${MajorVersion}
+        BUILDMINORVERSION=${MinorVersion}
+        if [[ ! "$BUILDBRANCH" == "*develop" ]]; then
+          # shellcheck disable=2269
+          BUILDPATCHVERSION="${BUILDPATCHVERSION}"
+        fi
+        BUILDSHORTCOMMITSHA="$(echo "${BUILDCOMMITSHA}" | cut -c 1-7)"
+        BUILDDATE="$(date)"
+        export BUILDDATE
+        echo "BUILDMAJORVERSION: ${BUILDMAJORVERSION}"
+        echo "BUILDMINORVERSION: ${BUILDMINORVERSION}"
+        echo "BUILDPATCHVERSION: ${BUILDPATCHVERSION}"
+        echo "BUILDBRANCH: ${BUILDBRANCH}"
+        echo "BUILDCOMMITSHA: ${BUILDCOMMITSHA}"
+        echo "BUILDSHORTCOMMITSHA: ${BUILDSHORTCOMMITSHA}"
+        echo "BUILDDATE: ${BUILDDATE}"
+        echo "BUILDPLATFORM: ${BUILDPLATFORM}"
+
+        {
+          echo "BUILDMAJORVERSION=$BUILDMAJORVERSION"
+          echo "BUILDMINORVERSION=$BUILDMINORVERSION"
+          echo "BUILDPATCHVERSION=$BUILDPATCHVERSION"
+          echo "UID=${UID}"
+          echo "GID=${GID}"
+        } >> "${GITHUB_ENV}"
+    
     - name: Login to Docker Hub
       if: ${{ ( success() && github.ref_type == 'branch' && github.ref_name == 'main' && github.repository == 'stackql/stackql' && github.event_name == 'push'  ) || ( success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'build-release') ) }}
       uses: docker/login-action@v2
