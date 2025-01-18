@@ -110,7 +110,7 @@ func (v *standardQueryRewriteAstVisitor) isJSONEachCompatible(col parserutil.Col
 
 // TODO: introduce dependency on RDBMS
 func (v *standardQueryRewriteAstVisitor) getTypeFromParserType(t sqlparser.ValType) string {
-	//nolint:exhaustive,goconst // acceptable
+	//nolint:exhaustive // acceptable
 	switch t {
 	case sqlparser.StrVal:
 		return "string"
