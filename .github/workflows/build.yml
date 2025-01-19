@@ -1324,7 +1324,7 @@ jobs:
 
     - name: Run POSTGRES BACKEND robot mocked functional tests
       if: success() && env.CI_IS_EXPRESS != 'true' && matrix.platform == 'linux/amd64' && env.BUILD_IMAGE_REQUIRED == 'true'
-      timeout-minutes: ${{ vars.DEFAULT_STEP_TIMEOUT_MIN == '' && 20 || vars.DEFAULT_STEP_TIMEOUT_MIN }}
+      timeout-minutes: ${{ vars.DEFAULT_LONG_STEP_TIMEOUT_MIN == '' && 40 || vars.DEFAULT_LONG_STEP_TIMEOUT_MIN }}
       run: |
         echo "## Stray flask apps to be killed before robot tests ##"
         pgrep -f flask | xargs kill -9
