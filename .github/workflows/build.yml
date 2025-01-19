@@ -1241,6 +1241,12 @@ jobs:
       run: |
         docker compose -f docker-compose-credentials.yml build credentialsgen
         docker compose build mockserver
+      
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     
     - name: Build Stackql image with buildx
       uses: docker/build-push-action@v6
@@ -1362,23 +1368,54 @@ jobs:
     needs:
       - dockerbuild
     steps:
+    
+      - name: Image  env sanitize
+        run: |
+          PUSH_IMAGE_REQUIRED="false"
+          # shellcheck disable=SC2235
+          if  ( \
+                  [ "${{ github.repository }}" = "stackql/stackql" ] \
+                  || [ "${{ github.repository }}" != "stackql/stackql-devel" ] \
+              ) \
+              && [ "${{ vars.CI_SKIP_DOCKER_PUSH }}" != "true" ] \
+              && [ "$( grep '^build-elide.*' <<< '${{ github.ref_name }}' )" =  "" ] \
+              && ( \
+                  [ "${{ github.ref_type }}" = "branch" ] \
+                  && [ "${{ github.ref_name }}" = "main" ] \
+                  && [ "${{ github.event_name }}" = "push" ] \
+              ) \
+              || ( \
+                  [ "${{ github.ref_type }}" = "tag" ] \
+                  && [ "$( grep '^build-release.*' <<< '${{ github.ref_name }}' )" !=  "" ] \
+              ); \
+          then
+            PUSH_IMAGE_REQUIRED="true"
+          fi
+          {
+            echo "PUSH_IMAGE_REQUIRED=${PUSH_IMAGE_REQUIRED}";
+          } | tee -a "${GITHUB_ENV}"
+    
       - name: Download digests
         uses: actions/download-artifact@v4
+        if: env.PUSH_IMAGE_REQUIRED == 'true'
         with:
           path: ${{ runner.temp }}/digests
           pattern: digests-*
           merge-multiple: true
-
+      
       - name: Login to Docker Hub
         uses: docker/login-action@v3
+        if: env.PUSH_IMAGE_REQUIRED == 'true'
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set up Docker Buildx
+        if: env.PUSH_IMAGE_REQUIRED == 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Docker meta
+        if: env.PUSH_IMAGE_REQUIRED == 'true'
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -1394,6 +1431,7 @@ jobs:
             type=raw,value=${{ github.sha }}           
 
       - name: Create manifest list and push
+        if: env.PUSH_IMAGE_REQUIRED == 'true'
         working-directory: ${{ runner.temp }}/digests
         run: |
           # shellcheck disable=SC2046
@@ -1401,6 +1439,7 @@ jobs:
             $(printf '${{ env.STACKQL_IMAGE_NAME }}@sha256:%s ' *)
 
       - name: Inspect image
+        if: env.PUSH_IMAGE_REQUIRED == 'true'
         run: |
           docker buildx imagetools inspect ${{ env.STACKQL_IMAGE_NAME }}:${{ steps.meta.outputs.version }}
 
