@@ -1091,6 +1091,17 @@ jobs:
           - linux/arm64
 
     steps:
+    - name: Prepare
+      run: |
+        platform=${{ matrix.platform }}
+        echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV          
+
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: |
+          ${{ env.STACKQL_IMAGE_NAME }}
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v4.1.1
@@ -1233,6 +1244,7 @@ jobs:
     
     - name: Build Stackql image with buildx
       uses: docker/build-push-action@v6
+      id: img_build
       if: env.BUILD_IMAGE_REQUIRED == 'true'
       with:
         context: .
@@ -1240,25 +1252,24 @@ jobs:
           BUILDMAJORVERSION=${{env.BUILDMAJORVERSION}}
           BUILDMINORVERSION=${{env.BUILDMINORVERSION}}
           BUILDPATCHVERSION=${{env.BUILDPATCHVERSION}}
-        push: false
+        load: true
         platforms: ${{ matrix.platform }}
         target: app
-        no-cache: ${{ vars.CI_DOCKER_BUILD_NO_CACHE == 'true' && true || false }}
-        tags: ${{ env.STACKQL_IMAGE_NAME }}:${{ github.sha }},${{ env.STACKQL_IMAGE_NAME }}:v${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}},${{ env.STACKQL_IMAGE_NAME }}
-        outputs: type=docker,dest=${{ runner.temp }}/myimage-${{ env.IMAGE_PLATFORM_SAN }}.tar
+        labels: ${{ steps.meta.outputs.labels }}
+        outputs: type=image,"name=${{ env.STACKQL_IMAGE_NAME }}",push-by-digest=true,name-canonical=true,push=true
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      if: env.BUILD_IMAGE_REQUIRED == 'true'
-      with:
-        name: myimage-${{ env.IMAGE_PLATFORM_SAN }}
-        path: ${{ runner.temp }}/myimage-${{ env.IMAGE_PLATFORM_SAN }}.tar
-    
-    - name: Load image
-      if: env.BUILD_IMAGE_REQUIRED == 'true'
+    - name: Export digest
       run: |
-        docker load --input ${{ runner.temp }}/myimage-${{ env.IMAGE_PLATFORM_SAN }}.tar
-        docker image ls -a 
+        mkdir -p ${{ runner.temp }}/digests
+        digest="${{ steps.img_build.outputs.digest }}"
+        touch "${{ runner.temp }}/digests/${digest#sha256:}"          
+
+    - name: Upload digest
+      uses: actions/upload-artifact@v4
+      with:
+        name: digests-${{ env.PLATFORM_PAIR }}
+        path: ${{ runner.temp }}/digests/*
+        if-no-files-found: error
 
     - name: Debug info
       if: env.BUILD_IMAGE_REQUIRED == 'true'
@@ -1344,109 +1355,49 @@ jobs:
     #   run: |
     #     sudo rm -rf cicd/vol/postgres/persist
 
-  dockerpush:
+  dockermerge:
     runs-on: ubuntu-latest
-    needs: dockerbuild
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-          - linux/amd64
-          - linux/arm64
+    needs:
+      - dockerbuild
     steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
 
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v4.1.1
-    
-    - name: Image  env sanitize
-      run: |
-        BUILD_IMAGE_REQUIRED="true"
-        PUSH_IMAGE_REQUIRED="false"
-        if [ "$( grep '^build-elide.*' <<< '${{ github.ref_name }}' )" !=  "" ]; then
-          BUILD_IMAGE_REQUIRED="false"
-        fi
-        # shellcheck disable=SC2235
-        if  ( \
-                [ "${{ github.repository }}" = "stackql/stackql" ] \
-                || [ "${{ github.repository }}" != "stackql/stackql-devel" ] \
-            ) \
-            && [ "${{ vars.CI_SKIP_DOCKER_PUSH }}" != "true" ] \
-            && [ "$( grep '^build-elide.*' <<< '${{ github.ref_name }}' )" =  "" ] \
-            && ( \
-                [ "${{ github.ref_type }}" = "branch" ] \
-                && [ "${{ github.ref_name }}" = "main" ] \
-                && [ "${{ github.event_name }}" = "push" ] \
-            ) \
-            || ( \
-                [ "${{ github.ref_type }}" = "tag" ] \
-                && [ "$( grep '^build-release.*' <<< '${{ github.ref_name }}' )" !=  "" ] \
-            ); \
-        then
-          PUSH_IMAGE_REQUIRED="true"
-        fi
-        if [ "${{ matrix.platform }}" == "linux/arm64" ] && [ "${PUSH_IMAGE_REQUIRED}" = "false" ]; then
-          BUILD_IMAGE_REQUIRED="false"
-        fi
-        {
-          echo "IMAGE_PLATFORM_SAN=$( sed 's/\//_/g' <<< '${{ matrix.platform }}' )";
-          echo "PUSH_IMAGE_REQUIRED=${PUSH_IMAGE_REQUIRED}";
-          echo "BUILD_IMAGE_REQUIRED=${BUILD_IMAGE_REQUIRED}";
-        } | tee -a "${GITHUB_ENV}"
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Download artifact
-      uses: actions/download-artifact@v4
-      if: env.PUSH_IMAGE_REQUIRED == 'true'
-      with:
-        name: myimage-${{ env.IMAGE_PLATFORM_SAN }}
-        path: ${{ runner.temp }}
-    
-    - name: Extract Build Info and Persist
-      env:
-        BUILDCOMMITSHA: ${{github.sha}}
-        BUILDBRANCH: ${{github.ref}}
-        BUILDPLATFORM: ${{runner.os}}
-        BUILDPATCHVERSION: ${{github.run_number}}
-      run: |
-        source cicd/version.txt
-        BUILDMAJORVERSION=${MajorVersion}
-        BUILDMINORVERSION=${MinorVersion}
-        if [[ ! "$BUILDBRANCH" == "*develop" ]]; then
-          # shellcheck disable=2269
-          BUILDPATCHVERSION="${BUILDPATCHVERSION}"
-        fi
-        BUILDSHORTCOMMITSHA="$(echo "${BUILDCOMMITSHA}" | cut -c 1-7)"
-        BUILDDATE="$(date)"
-        export BUILDDATE
-        echo "BUILDMAJORVERSION: ${BUILDMAJORVERSION}"
-        echo "BUILDMINORVERSION: ${BUILDMINORVERSION}"
-        echo "BUILDPATCHVERSION: ${BUILDPATCHVERSION}"
-        echo "BUILDBRANCH: ${BUILDBRANCH}"
-        echo "BUILDCOMMITSHA: ${BUILDCOMMITSHA}"
-        echo "BUILDSHORTCOMMITSHA: ${BUILDSHORTCOMMITSHA}"
-        echo "BUILDDATE: ${BUILDDATE}"
-        echo "BUILDPLATFORM: ${BUILDPLATFORM}"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-        {
-          echo "BUILDMAJORVERSION=$BUILDMAJORVERSION"
-          echo "BUILDMINORVERSION=$BUILDMINORVERSION"
-          echo "BUILDPATCHVERSION=$BUILDPATCHVERSION"
-          echo "UID=${UID}"
-          echo "GID=${GID}"
-        } >> "${GITHUB_ENV}"
-    
-    - name: Login to Docker Hub
-      if: env.PUSH_IMAGE_REQUIRED == 'true'
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.STACKQL_IMAGE_NAME }}   
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}} 
+            type=raw,value=latest
+            type=raw,value=v${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}}
+            type=raw,value=${{ github.sha }}           
 
-    - name: Load image
-      if: env.PUSH_IMAGE_REQUIRED == 'true'
-      run: |
-        docker load --input ${{ runner.temp }}/myimage-${{ env.IMAGE_PLATFORM_SAN }}.tar
-        docker image ls -a 
-        docker push ${{ env.STACKQL_IMAGE_NAME }}:${{github.sha}} && \
-        docker push ${{ env.STACKQL_IMAGE_NAME }}:v${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}} && \
-        docker push ${{ env.STACKQL_IMAGE_NAME }}:latest
+      - name: Create manifest list and push
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ env.STACKQL_IMAGE_NAME }}@sha256:%s ' *)
+
+      - name: Inspect image
+        run: |
+          docker buildx imagetools inspect ${{ env.STACKQL_IMAGE_NAME }}:${{ steps.meta.outputs.version }}
 

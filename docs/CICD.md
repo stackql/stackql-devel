@@ -13,6 +13,7 @@ Summary:
         - https://docs.docker.com/build/ci/github-actions/share-image-jobs/ 
     - **NOTE**: The QEMU build for linux/arm64 is **very slow**.  On the order of 30 minutes.  This is currently unavoidable.
     - **TODO**: Migrate linux/arm64 docker build to native once GHA supports this platform as a first class citizen.
+    - ~~**DANGER**: New pattern depends entirely on [docker manifest](https://docs.docker.com/reference/cli/docker/manifest/), which is marked "experimental" by the vendor.  Per [this stackoverflow answer](https://stackoverflow.com/a/66337328), in spite of fundamental instability, this is still the best option.~~
 
 
 ## Secrets
