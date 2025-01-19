@@ -1194,13 +1194,11 @@ jobs:
                 || [ "${{ github.repository }}" != "stackql/stackql-devel" ] \
             ) \
             && [ "${{ vars.CI_SKIP_DOCKER_PUSH }}" != "true" ] \
-            # shellcheck disable=SC2235 \
             && ( \
                 [ "${{ github.ref_type }}" = "branch" ] \
                 && [ "${{ github.ref_name }}" = "main" ] \
                 && [ "${{ github.event_name }}" = "push" ] \
             ) \
-            # shellcheck disable=SC2235 \
             || ( \
                 [ "${{ github.ref_type }}" = "tag" ] \
                 && [ "$( grep '^build-release.*' <<< '${{ github.ref_name }}' )" !=  "" ] \
