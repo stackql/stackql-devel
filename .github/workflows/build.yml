@@ -1394,12 +1394,6 @@ jobs:
       with:
         name: myimage-${{ env.IMAGE_PLATFORM_SAN }}
         path: ${{ runner.temp }}
-
-    - name: Load image
-      if: env.PUSH_IMAGE_REQUIRED == 'true'
-      run: |
-        docker load --input ${{ runner.temp }}/myimage-${{ env.IMAGE_PLATFORM_SAN }}.tar
-        docker image ls -a 
     
     - name: Extract Build Info and Persist
       env:
@@ -1442,19 +1436,12 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Push stackql image to Docker Hub
+    - name: Load image
       if: env.PUSH_IMAGE_REQUIRED == 'true'
-      uses: docker/build-push-action@v6
-      with:
-        context: .
-        no-cache: ${{ vars.CI_DOCKER_BUILD_NO_CACHE == 'true' && true || false }}
-        platforms: ${{ matrix.platform }}
-        build-args: |
-          BUILDMAJORVERSION=${{env.BUILDMAJORVERSION}}
-          BUILDMINORVERSION=${{env.BUILDMINORVERSION}}
-          BUILDPATCHVERSION=${{env.BUILDPATCHVERSION}}
-          RUN_INTEGRATION_TESTS=0
-        push: true
-        target: app
-        tags: ${{ env.STACKQL_IMAGE_NAME }}:${{github.sha}},${{ env.STACKQL_IMAGE_NAME }}:v${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}},${{ env.STACKQL_IMAGE_NAME }}:latest
+      run: |
+        docker load --input ${{ runner.temp }}/myimage-${{ env.IMAGE_PLATFORM_SAN }}.tar
+        docker image ls -a 
+        docker push ${{ env.STACKQL_IMAGE_NAME }}:${{github.sha}} && \
+        docker push ${{ env.STACKQL_IMAGE_NAME }}:v${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}} && \
+        docker push ${{ env.STACKQL_IMAGE_NAME }}:latest
 
