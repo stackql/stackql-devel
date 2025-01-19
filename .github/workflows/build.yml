@@ -1185,8 +1185,8 @@ jobs:
             ca-certificates \
             openssl
 
+    # for some reason env.BUILD_IMAGE_REQUIRED == 'true' breaks python cleanup where it can't find pip cache
     - name: Install Python dependencies
-      if: env.BUILD_IMAGE_REQUIRED == 'true'
       run: |
         pip3 install -r cicd/requirements.txt
     
