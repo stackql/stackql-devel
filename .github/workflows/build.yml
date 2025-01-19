@@ -1121,6 +1121,7 @@ jobs:
                 || [ "${{ github.repository }}" != "stackql/stackql-devel" ] \
             ) \
             && [ "${{ vars.CI_SKIP_DOCKER_PUSH }}" != "true" ] \
+            && [ "$( grep '^build-elide.*' <<< '${{ github.ref_name }}' )" =  "" ] \
             && ( \
                 [ "${{ github.ref_type }}" = "branch" ] \
                 && [ "${{ github.ref_name }}" = "main" ] \
@@ -1359,6 +1360,7 @@ jobs:
                 || [ "${{ github.repository }}" != "stackql/stackql-devel" ] \
             ) \
             && [ "${{ vars.CI_SKIP_DOCKER_PUSH }}" != "true" ] \
+            && [ "$( grep '^build-elide.*' <<< '${{ github.ref_name }}' )" =  "" ] \
             && ( \
                 [ "${{ github.ref_type }}" = "branch" ] \
                 && [ "${{ github.ref_name }}" = "main" ] \
