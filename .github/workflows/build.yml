@@ -1185,7 +1185,7 @@ jobs:
             ca-certificates \
             openssl
 
-    # for some reason env.BUILD_IMAGE_REQUIRED == 'true' breaks python cleanup where it can't find pip cache
+    # for some reason skipping this with env.BUILD_IMAGE_REQUIRED == 'true' breaks python cleanup where it can't find pip cache
     - name: Install Python dependencies
       run: |
         pip3 install -r cicd/requirements.txt
@@ -1345,6 +1345,9 @@ jobs:
           - linux/amd64
           - linux/arm64
     steps:
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v4.1.1
     
     - name: Image  env sanitize
       run: |
