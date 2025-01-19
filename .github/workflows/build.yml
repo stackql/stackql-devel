@@ -1115,6 +1115,9 @@ jobs:
       run: |
         BUILD_IMAGE_REQUIRED="true"
         PUSH_IMAGE_REQUIRED="false"
+        if [ "$( grep '^build-elide.*' <<< '${{ github.ref_name }}' )" =  "" ]; then
+          BUILD_IMAGE_REQUIRED="false"
+        fi
         # shellcheck disable=SC2235
         if  ( \
                 [ "${{ github.repository }}" = "stackql/stackql" ] \
@@ -1354,6 +1357,9 @@ jobs:
       run: |
         BUILD_IMAGE_REQUIRED="true"
         PUSH_IMAGE_REQUIRED="false"
+        if [ "$( grep '^build-elide.*' <<< '${{ github.ref_name }}' )" =  "" ]; then
+          BUILD_IMAGE_REQUIRED="false"
+        fi
         # shellcheck disable=SC2235
         if  ( \
                 [ "${{ github.repository }}" = "stackql/stackql" ] \
