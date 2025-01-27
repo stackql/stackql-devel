@@ -198,9 +198,9 @@
       "type": "pickString",
       "id": "buildFlags",
       "description": "Extra Build Flags for debug; cannot place elsewhere",
-      "default": "-tags=sqlite_stackql",
+      "default": "-tags=sqlite_stackql sqlite_math_functions",
       "options": [
-        "-tags=sqlite_stackql"
+        "-tags=sqlite_stackql sqlite_math_functions"
       ]
     },
     {
