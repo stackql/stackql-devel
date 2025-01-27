@@ -26,7 +26,7 @@ on:
       - ".github/workflows/scenario.yaml"
 
 env:
-  GOTESTCMD: "go test -timeout 1200s --tags \"sqlite_stackql sqlite_math_functions\" -v ./..."
+  GOTESTCMD: "go test -timeout 1200s --tags \"sqlite_stackql\" -v ./..."
   TESTSCRIPT: "test/python/main.py"
   GOPRIVATE: github.com/stackql/*
   GH_ACCESS_TOKEN: ${{ secrets.ACTIONS_PRIVATE_PACKAGE_SECRET }}
@@ -313,7 +313,7 @@ jobs:
         baselineRefFile="cicd/ref/bench/baseline-go-bench.log"
         thresholdRefFile="cicd/ref/bench/max-threshold-go-bench.log"
         go test -run='^$' -bench . -benchtime=100x -count=6 \
-          --tags "sqlite_stackql sqlite_math_functions" --ldflags "-X stackql/internal/stackql/planbuilder.PlanCacheEnabled=false"  \
+          --tags "sqlite_stackql" --ldflags "-X stackql/internal/stackql/planbuilder.PlanCacheEnabled=false"  \
           ./... | tee ${outFile}
         # shellcheck disable=SC2181
         if [ "$?" = "0" ]; then
@@ -569,7 +569,7 @@ jobs:
         baselineRefFile="cicd/ref/bench/baseline-go-bench.log"
         thresholdRefFile="cicd/ref/bench/max-threshold-go-bench.log"
         go test -run='^$' -bench . -benchtime=100x -count=6 \
-          --tags "sqlite_stackql sqlite_math_functions" --ldflags "-X stackql/internal/stackql/planbuilder.PlanCacheEnabled=false"  \
+          --tags "sqlite_stackql" --ldflags "-X stackql/internal/stackql/planbuilder.PlanCacheEnabled=false"  \
           ./... | tee ${outFile}
         # shellcheck disable=SC2181
         if [ "$?" = "0" ]; then

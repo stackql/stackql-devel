@@ -10,9 +10,9 @@
   "editor.insertSpaces": true,
   "cmake.configureOnOpen": false,
   "go.buildFlags": [
-    "-tags=sqlite_stackql sqlite_math_functions"
+    "-tags=sqlite_stackql"
   ],
-  "go.testTags": "sqlite_stackql sqlite_math_functions",
+  "go.testTags": "sqlite_stackql",
   "todohighlight.keywordsPattern": "TODO:|FIXME:|BLOCK|END_BLOCK", //highlight `TODO:`,`FIXME:` or commented content between parentheses
   "todohighlight.exclude": [
     "**/*.json"
