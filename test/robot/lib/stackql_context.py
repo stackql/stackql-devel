@@ -959,7 +959,7 @@ def get_variables(
     'REGISTRY_ROOT_CANONICAL':                        _get_registry_canonical_no_verify(_sundry_config.get('registry_path_canonical')),
     'REGISTRY_ROOT_DEPRECATED':                       _REGISTRY_DEPRECATED,
     'REGISTRY_CANONICAL_CFG_STR':                     _get_registry_canonical_no_verify(_sundry_config.get('registry_path_canonical')),
-    'REGISTRY_NO_VERIFY_CFG_STR':                     _get_registry_no_verify(_sundry_config.get('registry_path_canonical')),
+    'REGISTRY_CANONICAL_NO_VERIFY_CFG_STR':           _get_registry_canonical_no_verify(_sundry_config.get('registry_path_canonical')),
     'REGISTRY_DEPRECATED_CFG_STR':                    _REGISTRY_DEPRECATED,
     'REGISTRY_MOCKED_CFG_STR':                        get_registry_mocked(execution_env),
     'REGISTRY_NO_VERIFY_CFG_STR':                     _get_registry_no_verify(_sundry_config.get('registry_path')),
