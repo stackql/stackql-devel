@@ -1218,12 +1218,6 @@ jobs:
       
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-
-    - name: Setup Python
-      uses: actions/setup-python@v5.0.0
-      with:
-        cache: pip
-        python-version: '3.11'
     
     - name: Git Ref Parse
       id: git_ref_parse
@@ -1302,25 +1296,6 @@ jobs:
           echo "UID=${UID}"
           echo "GID=${GID}"
         } >> "${GITHUB_ENV}"
-    
-    - name: Install psql
-      if: env.BUILD_IMAGE_REQUIRED == 'true'
-      run: |
-          sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends \
-            postgresql-client \
-            ca-certificates \
-            openssl
-
-    # for some reason skipping this with env.BUILD_IMAGE_REQUIRED == 'true' breaks python cleanup where it can't find pip cache
-    - name: Install Python dependencies
-      run: |
-        pip3 install -r cicd/requirements.txt
-    
-    - name: Generate rewritten registry for simulations
-      if: env.BUILD_IMAGE_REQUIRED == 'true'
-      run: |
-        python3 test/python/registry-rewrite.py --replacement-host=host.docker.internal
 
     - name: Pull Docker base images for cache purposes
       if: env.BUILD_IMAGE_REQUIRED == 'true'
@@ -1332,16 +1307,6 @@ jobs:
       if: env.BUILD_IMAGE_REQUIRED == 'true'
       run: |
         docker pull --platform ${{ matrix.platform }} stackql/stackql:latest || echo 'could not pull image for cache purposes'
-
-    - name: Create certificates for robot tests
-      if: env.BUILD_IMAGE_REQUIRED == 'true'
-      run: |
-        openssl req -x509 -keyout test/server/mtls/credentials/pg_server_key.pem -out test/server/mtls/credentials/pg_server_cert.pem -config test/server/mtls/openssl.cnf -days 365
-        openssl req -x509 -keyout test/server/mtls/credentials/pg_client_key.pem -out test/server/mtls/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
-        openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365 
-        openssl req -x509 -keyout cicd/vol/srv/credentials/pg_server_key.pem -out  cicd/vol/srv/credentials/pg_server_cert.pem -config test/server/mtls/openssl.cnf -days 365
-        openssl req -x509 -keyout cicd/vol/srv/credentials/pg_client_key.pem -out  cicd/vol/srv/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
-        openssl req -x509 -keyout cicd/vol/srv/credentials/pg_rubbish_key.pem -out cicd/vol/srv/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365
 
     - name: Build image precursors
       if: env.BUILD_IMAGE_REQUIRED == 'true'
@@ -1489,6 +1454,42 @@ jobs:
         echo ""
         echo "### ###"
         echo ""
+
+    - name: Install psql
+      if: env.BUILD_IMAGE_REQUIRED == 'true'
+      run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            postgresql-client \
+            ca-certificates \
+            openssl
+
+    - name: Setup Python
+      uses: actions/setup-python@v5.0.0
+      with:
+        cache: pip
+        python-version: '3.11'
+
+    # for some reason skipping this with env.BUILD_IMAGE_REQUIRED == 'true' breaks python cleanup where it can't find pip cache
+    - name: Install Python dependencies
+      run: |
+        pip3 install -r cicd/requirements.txt
+    
+    - name: Generate rewritten registry for simulations
+      if: env.BUILD_IMAGE_REQUIRED == 'true'
+      run: |
+        python3 test/python/registry-rewrite.py --replacement-host=host.docker.internal
+
+    
+    - name: Create certificates for robot tests
+      if: env.BUILD_IMAGE_REQUIRED == 'true'
+      run: |
+        openssl req -x509 -keyout test/server/mtls/credentials/pg_server_key.pem -out test/server/mtls/credentials/pg_server_cert.pem -config test/server/mtls/openssl.cnf -days 365
+        openssl req -x509 -keyout test/server/mtls/credentials/pg_client_key.pem -out test/server/mtls/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
+        openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365 
+        openssl req -x509 -keyout cicd/vol/srv/credentials/pg_server_key.pem -out  cicd/vol/srv/credentials/pg_server_cert.pem -config test/server/mtls/openssl.cnf -days 365
+        openssl req -x509 -keyout cicd/vol/srv/credentials/pg_client_key.pem -out  cicd/vol/srv/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
+        openssl req -x509 -keyout cicd/vol/srv/credentials/pg_rubbish_key.pem -out cicd/vol/srv/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365
 
     - name: Run robot mocked functional tests
       if: success() && env.CI_IS_EXPRESS != 'true' && matrix.platform == 'linux/amd64' && env.BUILD_IMAGE_REQUIRED == 'true' && matrix.db_backend == 'sqlite'
