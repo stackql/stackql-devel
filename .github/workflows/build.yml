@@ -1438,7 +1438,7 @@ jobs:
           exit 1
         fi
         digestContainsSpaces="$(echo "${THIS_STACKQL_DIGEST}" | grep ' ')" || true
-        if [ "${digestContainsSpaces}" != "" ]; then`
+        if [ "${digestContainsSpaces}" != "" ]; then
           echo "Digest '${THIS_STACKQL_DIGEST}' contains spaces, as found for platform ${platform}" >&2
           exit 1
         fi
