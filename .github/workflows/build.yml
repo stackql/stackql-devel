@@ -1549,10 +1549,8 @@ jobs:
         docker container ls --format "table {{.ID}}\t{{.Names}}\t{{.Ports}}" -a
         echo "## End ##"
         docker compose down
-        # shellcheck disable=SC2046
-        docker stop $(docker ps -a -q)
-        # shellcheck disable=SC2046
-        docker rm $(docker ps -a -q)
+        docker stop "$(docker ps -a -q)" || true
+        docker rm "$(docker ps -a -q)" || true
         echo "## Stray docker containers after clean up commands ##"
         docker container ls --format "table {{.ID}}\t{{.Names}}\t{{.Ports}}" -a
         echo "## End ##"
