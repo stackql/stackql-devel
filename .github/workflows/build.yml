@@ -519,7 +519,7 @@ jobs:
       if: success()
       run: |
         echo "## Stray flask apps to be killed before robot tests ##"
-        pgrep -f flask | xargs kill -9
+        pgrep -f flask | xargs kill -9 || true
         echo "## End ##"
         python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true", "CONCURRENCY_LIMIT": -1  } }'
 
@@ -537,7 +537,7 @@ jobs:
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: |
         echo "## Stray flask apps to be killed before robot tests ##"
-        pgrep -f flask | xargs kill -9
+        pgrep -f flask | xargs kill -9 || true
         echo "## End ##"
         python cicd/python/build.py --robot-test-integration
     
@@ -558,7 +558,7 @@ jobs:
         sudo dpkg -i ./deb_test/stackql_${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}}_amd64.deb
         sudo apt-get install -f
         echo "## Stray flask apps to be killed before robot tests ##"
-        pgrep -f flask | xargs kill -9
+        pgrep -f flask | xargs kill -9 || true
         echo "## End ##"
         python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true", "CONCURRENCY_LIMIT": -1, "USE_STACKQL_PREINSTALLED": "true"  } }'
         stackqlLocation="$(which stackql 2>&1 | head -n 1)"
@@ -743,7 +743,7 @@ jobs:
       if: success()
       run: |
         echo "## Stray flask apps to be killed before robot tests ##"
-        pgrep -f flask | xargs kill -9
+        pgrep -f flask | xargs kill -9 || true
         echo "## End ##"
         python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true", "CONCURRENCY_LIMIT": -1  } }'
 
@@ -761,7 +761,7 @@ jobs:
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: |
         echo "## Stray flask apps to be killed before robot tests ##"
-        pgrep -f flask | xargs kill -9
+        pgrep -f flask | xargs kill -9 || true
         echo "## End ##"
         python cicd/python/build.py --robot-test-integration
     
@@ -833,7 +833,7 @@ jobs:
         sudo dpkg -i "./deb_test/${DEB_FILE}"
         sudo apt-get install -f
         echo "## Stray flask apps to be killed before robot tests ##"
-        pgrep -f flask | xargs kill -9
+        pgrep -f flask | xargs kill -9 || true
         echo "## End ##"
         python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true", "CONCURRENCY_LIMIT": -1, "USE_STACKQL_PREINSTALLED": "true"  } }'
         stackqlLocation="$(which stackql 2>&1 | head -n 1)"
@@ -959,7 +959,7 @@ jobs:
             export BUILDPATCHVERSION="${BUILDPATCHVERSION}"
           fi
           echo "## Stray flask apps to be killed before robot tests ##"
-          pgrep -f flask | xargs kill -9
+          pgrep -f flask | xargs kill -9 || true
           echo "## End ##"
           python3 cicd/python/build.py --robot-test-integration --config='{ "variables":  { "IS_WSL": true } }'
 
@@ -1078,7 +1078,7 @@ jobs:
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: |
         echo "## Stray flask apps to be killed before robot tests ##"
-        pgrep -f flask | xargs kill -9
+        pgrep -f flask | xargs kill -9 || true
         echo "## End ##"
         python cicd/python/build.py --robot-test-integration
     
@@ -1543,7 +1543,7 @@ jobs:
       timeout-minutes: ${{ vars.DEFAULT_LONG_STEP_TIMEOUT_MIN == '' && 40 || vars.DEFAULT_LONG_STEP_TIMEOUT_MIN }}
       run: |
         echo "## Stray flask apps to be killed before robot tests ##"
-        pgrep -f flask | xargs kill -9
+        pgrep -f flask | xargs kill -9 || true
         echo "## End ##"
         echo "## Stray docker containers before postgres robot tests ##"
         docker container ls --format "table {{.ID}}\t{{.Names}}\t{{.Ports}}" -a
@@ -1572,7 +1572,7 @@ jobs:
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       run: |
         echo "## Stray flask apps to be killed before robot tests ##"
-        pgrep -f flask | xargs kill -9
+        pgrep -f flask | xargs kill -9 || true
         echo "## End ##"
         python cicd/python/build.py --robot-test-integration --config='{ "variables":  { "EXECUTION_PLATFORM": "docker" } }'
 
