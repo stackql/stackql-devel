@@ -360,6 +360,109 @@ jobs:
           exit 1
         fi
 
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4.3.1
+      if: success()
+      with:
+        name: stackql_linux_amd64
+        path: build/stackql
+    
+    - name: prepare deb boilerplate
+      run: |
+        mkdir -p .debpkg/usr/bin
+        cp -p build/stackql .debpkg/usr/bin/
+    
+    - uses: jiro4989/build-deb-action@v3
+      name: build deb package
+      with:
+        package: stackql
+        package_root: .debpkg
+        maintainer: stackql
+        version: ${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}}
+        arch: 'amd64'
+        # depends: 'libc6 (>= 2.2.1), git'
+        desc: 'stackql treats the internet as a relational database'
+        homepage: 'https://stackql.io'
+
+    - name: Upload deb Artifact
+      uses: actions/upload-artifact@v4.3.1
+      if: success()
+      with:
+        name: amd64-artifact-deb
+        path: |
+          ./*.deb
+
+  linuxtest:
+    name: Linux Test
+    needs:
+      - linuxbuild
+    runs-on: ubuntu-22.04
+    timeout-minutes: ${{ vars.DEFAULT_JOB_TIMEOUT_MIN == '' && 120 || vars.DEFAULT_JOB_TIMEOUT_MIN }}
+    steps:
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v4.1.1
+
+    - name: Download Artifact
+      uses: actions/download-artifact@v4.1.2
+      with:
+        name: stackql_linux_amd64
+        path: build
+
+    
+    - name: Download deb Artifact
+      uses: actions/download-artifact@v4.1.2
+      with:
+        name: amd64-artifact-deb
+        path: .
+
+    - name: Check archive presence
+      run:  |
+        ls -al .
+      
+    
+    - name: Stackql permissions
+      run:  |
+        sudo chmod a+rwx build/stackql
+        ls -al build/stackql
+        ls -al .
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v5.0.0
+      with:
+        go-version: ^1.21
+        check-latest: true
+        cache: true
+      id: go
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5.0.0
+      with:
+        cache: pip
+        python-version: '3.11' 
+    
+    - name: Git Ref Parse
+      id: git_ref_parse
+      run: |
+          {
+            echo "SOURCE_NAME=${GITHUB_REF#refs/*/}"
+            echo "SOURCE_TAG=${GITHUB_REF#refs/tags/}"
+            echo "SOURCE_TAG=${GITHUB_REF#refs/tags/}"
+          } >> "${GITHUB_STATE}"
+    
+    - name: Install psql
+      run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends postgresql-client
+
+    - name: Install Python dependencies
+      run: |
+        pip3 install -r cicd/requirements.txt
+    
+    - name: Generate rewritten registry for simulations
+      run: |
+        python3 test/python/registry-rewrite.py
+
     - name: Create certificates for robot tests
       run: |
         openssl req -x509 -keyout test/server/mtls/credentials/pg_server_key.pem -out test/server/mtls/credentials/pg_server_cert.pem -config test/server/mtls/openssl.cnf -days 365
@@ -411,30 +514,6 @@ jobs:
       run: python3 "${TESTSCRIPT}"
       env:
         TESTSCRIPT: ${{env.TESTSCRIPT}}
-
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4.3.1
-      if: success()
-      with:
-        name: stackql_linux_amd64
-        path: build/stackql
-    
-    - name: prepare deb boilerplate
-      run: |
-        mkdir -p .debpkg/usr/bin
-        cp -p build/stackql .debpkg/usr/bin/
-    
-    - uses: jiro4989/build-deb-action@v3
-      name: build deb package
-      with:
-        package: stackql
-        package_root: .debpkg
-        maintainer: stackql
-        version: ${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}}
-        arch: 'amd64'
-        # depends: 'libc6 (>= 2.2.1), git'
-        desc: 'stackql treats the internet as a relational database'
-        homepage: 'https://stackql.io'
     
     - name: install and test deb package
       run: |
@@ -454,15 +533,7 @@ jobs:
     - name: Output from mocked deb package functional tests
       if: always()
       run: |
-        cat ./test/robot/reports/output.xml
-
-    - name: Upload deb Artifact
-      uses: actions/upload-artifact@v4.3.1
-      if: success()
-      with:
-        name: amd64-artifact-deb
-        path: |
-          ./*.deb
+        cat ./test/robot/reports/output.xmls
 
   linuxarmbuild:
     name: Linux arm64 Build
