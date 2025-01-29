@@ -72,7 +72,7 @@ flask --app=${HOME}/stackql/stackql-devel/test/python/flask/static_auth/app run 
 Token server mocks:
 
 ```bash
-flask --app=${HOME}/stackql/stackql-devel/test/python/flask/static_auth/app run --cert=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_cert.pem --key=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_key.pem --host 0.0.0.0 --port  2091
+flask --app=${HOME}/stackql/stackql-devel/test/python/flask/oauth2/token_srv run --cert=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_cert.pem --key=${HOME}/stackql/stackql-devel/test/server/mtls/credentials/pg_server_key.pem --host 0.0.0.0 --port  2091
 ```
 
 

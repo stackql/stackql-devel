@@ -84,6 +84,8 @@ class web_service_keywords(Process):
             'run',
             f'--host={host}', # generally, `0.0.0.0`; otherwise, invisible on `docker.host.internal` etc
             f'--port={port}',
+            f'--cert={self._tls_cert_path}',
+            f'--key={self._tls_key_path}',
             stdout=os.path.abspath(os.path.join(self._log_root, f'token-client-credentials-{port}-stdout.txt')),
             stderr=os.path.abspath(os.path.join(self._log_root, f'token-client-credentials-{port}-stderr.txt'))
         )
@@ -322,7 +324,7 @@ class web_service_keywords(Process):
     @keyword
     def start_all_webservers(self, port_dict: Optional[dict] = None) -> None:
         _port_dict: dict = port_dict if port_dict else {}
-        
+
         self.create_digitalocean_web_service(_port_dict.get('digitalocean', self._DEFAULT_MOCKSERVER_PORT_DIGITALOCEAN))
         self.create_sumologic_web_service(_port_dict.get('sumologic', self._DEFAULT_MOCKSERVER_PORT_SUMOLOGIC))
         self.create_registry_web_service(_port_dict.get('registry', self._DEFAULT_MOCKSERVER_PORT_REGISTRY))
