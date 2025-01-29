@@ -1371,7 +1371,10 @@ jobs:
     - name: Prepare
       run: |
         platform=${{ matrix.platform }}
-        echo "PLATFORM_PAIR=${platform//\//-}" >> "${GITHUB_ENV}"  
+        echo "PLATFORM_PAIR=${platform//\//-}" >> "${GITHUB_ENV}"
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v4.1.1
     
     
     - name: Image  env sanitize
@@ -1423,7 +1426,7 @@ jobs:
         path: ${{ runner.temp }}/digests
         name: digests-${{ env.PLATFORM_PAIR }}
 
-    - name: Prepare
+    - name: Prepare digest information
       working-directory: ${{ runner.temp }}/digests
       run: |
         platform=${{ matrix.platform }}
