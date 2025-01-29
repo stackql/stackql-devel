@@ -1428,11 +1428,13 @@ jobs:
       run: |
         platform=${{ matrix.platform }}
         THIS_STACKQL_DIGEST="$(printf '%s' *)"
+        echo "THIS_STACKQL_DIGEST=${THIS_STACKQL_DIGEST}"
+        echo "platform=${platform}"
         if [ "${THIS_STACKQL_DIGEST}" = "" ]; then
           echo "No digest found for platform ${platform}" >&2
           exit 1
         fi
-        digestContainsSpaces="$(echo "${THIS_STACKQL_DIGEST}" | grep ' ')"
+        digestContainsSpaces="$(echo ${THIS_STACKQL_DIGEST} | grep ' ')" || true
         if [ "${digestContainsSpaces}" != "" ]; then
           echo "Digest '${THIS_STACKQL_DIGEST}' contains spaces, as found for platform ${platform}" >&2
           exit 1
