@@ -249,7 +249,7 @@ _AUTH_CFG_DEFECTIVE["stackql_oauth2_testing"] = {
   "grant_type": "client_credentials",
   "client_id": "dummy_client_id",
   "client_secret": "dummy_client_secret",
-  "token_url": "http://localhost:2091/contrived/simple/error/token",
+  "token_url": "https://localhost:2091/contrived/simple/error/token",
   "scopes": ["scope1", "scope2"]
 }
 
@@ -312,7 +312,7 @@ _AUTH_CFG_DEFECTIVE_DOCKER["stackql_oauth2_testing"] = {
   "grant_type": "client_credentials",
   "client_id": "dummy_client_id",
   "client_secret": "dummy_client_secret",
-  "token_url": "http://host.docker.internal:2091/contrived/simple/error/token",
+  "token_url": "https://host.docker.internal:2091/contrived/simple/error/token",
   "scopes": ["scope1", "scope2"]
 }
 
