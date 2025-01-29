@@ -450,6 +450,42 @@ jobs:
             echo "SOURCE_TAG=${GITHUB_REF#refs/tags/}"
           } >> "${GITHUB_STATE}"
     
+    - name: Generate Version Env Vars
+      env:
+        BUILDCOMMITSHA: ${{github.sha}}
+        BUILDBRANCH: ${{github.ref}}
+        BUILDPLATFORM: ${{runner.os}}
+        BUILDPATCHVERSION: ${{github.run_number}}
+        CGO_ENABLED: 1
+        CGO_LDFLAGS: '-static'
+      run: |
+        source cicd/version.txt
+        export BUILDMAJORVERSION="$MajorVersion"
+        export BUILDMINORVERSION="$MinorVersion"
+        if [[ ! "$BUILDBRANCH" == "*develop" ]]
+          then
+          # shellcheck disable=2269
+          export BUILDPATCHVERSION="${BUILDPATCHVERSION}"
+        fi
+        BUILDSHORTCOMMITSHA="$(echo "${BUILDCOMMITSHA}" | cut -c 1-7)"
+        export BUILDSHORTCOMMITSHA
+        BUILDDATE="$(date)"
+        export BUILDDATE
+        echo "BUILDMAJORVERSION: ${BUILDMAJORVERSION}"
+        echo "BUILDMINORVERSION: ${BUILDMINORVERSION}"
+        echo "BUILDPATCHVERSION: ${BUILDPATCHVERSION}"
+        echo "BUILDBRANCH: ${BUILDBRANCH}"
+        echo "BUILDCOMMITSHA: ${BUILDCOMMITSHA}"
+        echo "BUILDSHORTCOMMITSHA: ${BUILDSHORTCOMMITSHA}"
+        echo "BUILDDATE: ${BUILDDATE}"
+        echo "BUILDPLATFORM: ${BUILDPLATFORM}"
+
+        {
+          echo "BUILDMAJORVERSION=${BUILDMAJORVERSION}"
+          echo "BUILDMINORVERSION=${BUILDMINORVERSION}"
+          echo "BUILDPATCHVERSION=${BUILDPATCHVERSION}"
+        } >> "${GITHUB_ENV}"
+
     - name: Install psql
       run: |
           sudo apt-get update
@@ -533,7 +569,7 @@ jobs:
     - name: Output from mocked deb package functional tests
       if: always()
       run: |
-        cat ./test/robot/reports/output.xmls
+        cat ./test/robot/reports/output.xml
 
   linuxarmbuild:
     name: Linux arm64 Build
