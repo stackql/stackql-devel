@@ -1371,7 +1371,43 @@ jobs:
     - name: Prepare
       run: |
         platform=${{ matrix.platform }}
-        echo "PLATFORM_PAIR=${platform//\//-}" >> "${GITHUB_ENV}"          
+        echo "PLATFORM_PAIR=${platform//\//-}" >> "${GITHUB_ENV}"  
+    
+    
+    - name: Image  env sanitize
+      run: |
+        BUILD_IMAGE_REQUIRED="true"
+        PUSH_IMAGE_REQUIRED="false"
+        if [ "$( grep '^build-elide.*' <<< '${{ github.ref_name }}' )" !=  "" ]; then
+          BUILD_IMAGE_REQUIRED="false"
+        fi
+        # shellcheck disable=SC2235
+        if  ( \
+                [ "${{ github.repository }}" = "stackql/stackql" ] \
+                || [ "${{ github.repository }}" != "stackql/stackql-devel" ] \
+            ) \
+            && [ "${{ vars.CI_SKIP_DOCKER_PUSH }}" != "true" ] \
+            && [ "$( grep '^build-elide.*' <<< '${{ github.ref_name }}' )" =  "" ] \
+            && ( \
+                [ "${{ github.ref_type }}" = "branch" ] \
+                && [ "${{ github.ref_name }}" = "main" ] \
+                && [ "${{ github.event_name }}" = "push" ] \
+            ) \
+            || ( \
+                [ "${{ github.ref_type }}" = "tag" ] \
+                && [ "$( grep '^build-release.*' <<< '${{ github.ref_name }}' )" !=  "" ] \
+            ); \
+        then
+          PUSH_IMAGE_REQUIRED="true"
+        fi
+        if [ "${{ matrix.platform }}" == "linux/arm64" ] && [ "${PUSH_IMAGE_REQUIRED}" = "false" ]; then
+          BUILD_IMAGE_REQUIRED="false"
+        fi
+        {
+          echo "IMAGE_PLATFORM_SAN=$( sed 's/\//_/g' <<< '${{ matrix.platform }}' )";
+          echo "PUSH_IMAGE_REQUIRED=${PUSH_IMAGE_REQUIRED}";
+          echo "BUILD_IMAGE_REQUIRED=${BUILD_IMAGE_REQUIRED}";
+        } | tee -a "${GITHUB_ENV}"
 
     - name: Docker meta
       id: meta
