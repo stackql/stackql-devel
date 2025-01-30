@@ -504,7 +504,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends postgresql-client
           if [ "${{ matrix.registry }}" = "test/registry" ]; then
-            sudo apt-get install --yes --no-install-recommends nginx
+            sudo apt-get install -y curl gnupg2 ca-certificates lsb-release ubuntu-keyring
+            curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor \
+              | sudo tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
+            gpg --dry-run --quiet --no-keyring --import --import-options import-show /usr/share/keyrings/nginx-archive-keyring.gpg
+            echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] \
+              http://nginx.org/packages/ubuntu `lsb_release -cs` nginx" \
+                  | sudo tee /etc/apt/sources.list.d/nginx.list
+            sudo apt-get update
+            sudo apt-get install nginx
             sudo nginx -c $(pwd)/test/tcp/reverse-proxy/nginx/elegant-sni-proxy.conf
           fi
 
@@ -513,6 +521,7 @@ jobs:
         pip3 install -r cicd/requirements.txt
     
     - name: Generate rewritten registry for simulations
+      if: ${{ matrix.registry }} != 'test/registry'
       run: |
         python3 test/python/registry-rewrite.py
 
@@ -525,7 +534,16 @@ jobs:
     - name: Run robot mocked functional tests
       if: success()
       run: |
-        python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true", "SUNDRY_CONFIG": "${{ env.SUNDRY_CONFIG }}" } }'
+        if [ "${{ matrix.registry }}" = "test/registry" ]; then
+          robot \
+            --variable "SUNDRY_CONFIG:${{ env.SUNDRY_CONFIG }}" \
+            --variable SHOULD_RUN_DOCKER_EXTERNAL_TESTS:true \
+            --include tls_proxied \
+            -d test/robot/reports test/robot/functional
+            test/robot/registry-mocked
+        else
+          python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true", "SUNDRY_CONFIG": "${{ env.SUNDRY_CONFIG }}" } }'
+        fi
 
     - name: Output from mocked functional tests
       if: always()
@@ -533,7 +551,7 @@ jobs:
         cat ./test/robot/reports/output.xml
 
     - name: Run robot mocked functional tests with aggressive concurrency
-      if: success()
+      if: success() && ${{ matrix.registry }} != 'test/registry'
       run: |
         echo "## Stray flask apps to be killed before robot tests ##"
         pgrep -f flask | xargs kill -9 || true
@@ -541,12 +559,12 @@ jobs:
         python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true", "CONCURRENCY_LIMIT": -1  } }'
 
     - name: Output from mocked functional tests with aggressive concurrency
-      if: always()
+      if: always() && ${{ matrix.registry }} != 'test/registry'
       run: |
         cat ./test/robot/reports/output.xml
     
     - name: Run robot integration tests
-      if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release')
+      if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release') && ${{ matrix.registry }} != 'test/registry'
       env:
         AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -559,16 +577,17 @@ jobs:
         python cicd/python/build.py --robot-test-integration
     
     - name: Prepare Test DB
-      if: success()
+      if: success() && ${{ matrix.registry }} != 'test/registry'
       run: cp test/db/db.sqlite test/db/tmp/python-tests-tmp-db.sqlite
 
     - name: Test Script
-      if: success()
+      if: success() && ${{ matrix.registry }} != 'test/registry'
       run: python3 "${TESTSCRIPT}"
       env:
         TESTSCRIPT: ${{env.TESTSCRIPT}}
     
     - name: install and test deb package
+      if: ${{ matrix.registry }} != 'test/registry'
       run: |
         mkdir -p deb_test
         cp stackql_${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}}_amd64.deb deb_test/
@@ -584,7 +603,7 @@ jobs:
         echo "stackql version: ${stackqlVersion}"
     
     - name: Output from mocked deb package functional tests
-      if: always()
+      if: always() && ${{ matrix.registry }} != 'test/registry'
       run: |
         cat ./test/robot/reports/output.xml
 

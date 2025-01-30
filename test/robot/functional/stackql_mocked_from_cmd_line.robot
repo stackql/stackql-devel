@@ -2701,7 +2701,7 @@ Registry Pull Google Provider Implicit Latest Version
 
 
 Data Flow Sequential Join Paginated Select Github 
-    [Tags]   registry
+    [Tags]   registry    tls_proxied
     Should Horrid Query StackQL Inline Equal
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
