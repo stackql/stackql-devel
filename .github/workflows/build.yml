@@ -491,13 +491,6 @@ jobs:
           echo "BUILDPATCHVERSION=${BUILDPATCHVERSION}"
         } >> "${GITHUB_ENV}"
 
-        sundryConfig='{}'
-
-        if [ "${{ matrix.registry }}" = "test/registry" ]; then
-          sundryConfig='{"registry_path": "test/registry"}'
-        fi
-
-        echo "SUNDRY_CONFIG=${sundryConfig}" >> "${GITHUB_ENV}"
 
     - name: Install testing dependencies
       run: |
@@ -536,13 +529,13 @@ jobs:
       run: |
         if [ "${{ matrix.registry }}" = "test/registry" ]; then
           robot \
-            --variable "SUNDRY_CONFIG:${{ env.SUNDRY_CONFIG }}" \
+            --variable 'SUNDRY_CONFIG:{"registry_path": "test/registry"}' \
             --variable SHOULD_RUN_DOCKER_EXTERNAL_TESTS:true \
             --include tls_proxied \
             -d test/robot/reports test/robot/functional
             test/robot/registry-mocked
         else
-          python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true", "SUNDRY_CONFIG": "${{ env.SUNDRY_CONFIG }}" } }'
+          python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true" } }'
         fi
 
     - name: Output from mocked functional tests
