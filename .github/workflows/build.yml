@@ -490,6 +490,10 @@ jobs:
           echo "BUILDMINORVERSION=${BUILDMINORVERSION}"
           echo "BUILDPATCHVERSION=${BUILDPATCHVERSION}"
         } >> "${GITHUB_ENV}"
+        
+        if [ "${{ matrix.registry }}" = "test/registry" ]; then
+          echo '127.0.0.1   storage.googleapis.com' | sudo tee -a /etc/hosts
+        fi
 
 
     - name: Install testing dependencies

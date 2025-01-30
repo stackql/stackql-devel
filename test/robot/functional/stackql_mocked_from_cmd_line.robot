@@ -2701,7 +2701,6 @@ Registry Pull Google Provider Implicit Latest Version
 
 
 Data Flow Sequential Join Paginated Select Github 
-    [Tags]   registry    tls_proxied
     Should Horrid Query StackQL Inline Equal
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
@@ -7428,6 +7427,7 @@ View Tuple Replacement Working As Exemplified by AWS EC2 Instances List and Deta
     ...    repeat_count=20
 
 Google Buckets List With Date Logic Exemplifies Use of SQLite Math Functions
+    [Tags]   registry    tls_proxied
     Pass Execution If    "${SQL_BACKEND}" == "postgres_tcp"    This is a valid case where the test is targetted at SQLite only
     ${inputStr} =    Catenate
     ...    SELECT name, timeCreated, floor(julianday('2025-01-27')-julianday(timeCreated)) as days_since_ceiling 
