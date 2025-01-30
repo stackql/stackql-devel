@@ -518,7 +518,7 @@ jobs:
         pip3 install -r cicd/requirements.txt
     
     - name: Generate rewritten registry for simulations
-      if: ${{ matrix.registry }} != 'test/registry'
+      if: ${{ matrix.registry  != 'test/registry' }}
       run: |
         python3 test/python/registry-rewrite.py
 
@@ -536,8 +536,8 @@ jobs:
             --variable 'SUNDRY_CONFIG:{"registry_path": "test/registry"}' \
             --variable SHOULD_RUN_DOCKER_EXTERNAL_TESTS:true \
             --include tls_proxied \
-            -d test/robot/reports test/robot/functional
-            test/robot/registry-mocked
+            -d test/robot/reports \
+            test/robot/functional
         else
           python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true" } }'
         fi
@@ -548,7 +548,7 @@ jobs:
         cat ./test/robot/reports/output.xml
 
     - name: Run robot mocked functional tests with aggressive concurrency
-      if: success() && ${{ matrix.registry }} != 'test/registry'
+      if: success() && matrix.registry != 'test/registry'
       run: |
         echo "## Stray flask apps to be killed before robot tests ##"
         pgrep -f flask | xargs kill -9 || true
@@ -556,12 +556,12 @@ jobs:
         python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true", "CONCURRENCY_LIMIT": -1  } }'
 
     - name: Output from mocked functional tests with aggressive concurrency
-      if: always() && ${{ matrix.registry }} != 'test/registry'
+      if: always() && matrix.registry != 'test/registry'
       run: |
         cat ./test/robot/reports/output.xml
     
     - name: Run robot integration tests
-      if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release') && ${{ matrix.registry }} != 'test/registry'
+      if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release') && matrix.registry != 'test/registry'
       env:
         AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
@@ -574,17 +574,17 @@ jobs:
         python cicd/python/build.py --robot-test-integration
     
     - name: Prepare Test DB
-      if: success() && ${{ matrix.registry }} != 'test/registry'
+      if: success() && matrix.registry != 'test/registry'
       run: cp test/db/db.sqlite test/db/tmp/python-tests-tmp-db.sqlite
 
     - name: Test Script
-      if: success() && ${{ matrix.registry }} != 'test/registry'
+      if: success() && matrix.registry != 'test/registry'
       run: python3 "${TESTSCRIPT}"
       env:
         TESTSCRIPT: ${{env.TESTSCRIPT}}
     
     - name: install and test deb package
-      if: ${{ matrix.registry }} != 'test/registry'
+      if: matrix.registry != 'test/registry'
       run: |
         mkdir -p deb_test
         cp stackql_${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}}_amd64.deb deb_test/
@@ -600,7 +600,7 @@ jobs:
         echo "stackql version: ${stackqlVersion}"
     
     - name: Output from mocked deb package functional tests
-      if: always() && ${{ matrix.registry }} != 'test/registry'
+      if: always() && matrix.registry != 'test/registry'
       run: |
         cat ./test/robot/reports/output.xml
 
