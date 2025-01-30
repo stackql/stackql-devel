@@ -1454,7 +1454,7 @@ jobs:
 
     - name: Download digests
       uses: actions/download-artifact@v4
-      if: env.PUSH_IMAGE_REQUIRED == 'true'
+      if: env.BUILD_IMAGE_REQUIRED == 'true'
       with:
         path: ${{ runner.temp }}/digests
         name: digests-${{ env.PLATFORM_PAIR }}
