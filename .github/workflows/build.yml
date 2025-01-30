@@ -397,6 +397,11 @@ jobs:
     needs:
       - linuxbuild
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        registry:
+          - test/registry-mocked
+          - test/registry
     timeout-minutes: ${{ vars.DEFAULT_JOB_TIMEOUT_MIN == '' && 120 || vars.DEFAULT_JOB_TIMEOUT_MIN }}
     steps:
 
@@ -486,10 +491,22 @@ jobs:
           echo "BUILDPATCHVERSION=${BUILDPATCHVERSION}"
         } >> "${GITHUB_ENV}"
 
-    - name: Install psql
+        sundryConfig='{}'
+
+        if [ "${{ matrix.registry }}" = "test/registry" ]; then
+          sundryConfig='{"registry_path": "test/registry"}'
+        fi
+
+        echo "SUNDRY_CONFIG=${sundryConfig}" >> "${GITHUB_ENV}"
+
+    - name: Install testing dependencies
       run: |
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends postgresql-client
+          if [ "${{ matrix.registry }}" = "test/registry" ]; then
+            sudo apt-get install --yes --no-install-recommends nginx
+            sudo nginx -c $(pwd)/test/tcp/reverse-proxy/nginx/elegant-sni-proxy.conf
+          fi
 
     - name: Install Python dependencies
       run: |
@@ -508,7 +525,7 @@ jobs:
     - name: Run robot mocked functional tests
       if: success()
       run: |
-        python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true" } }'
+        python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true", "SUNDRY_CONFIG": "${{ env.SUNDRY_CONFIG }}" } }'
 
     - name: Output from mocked functional tests
       if: always()

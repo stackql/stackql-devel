@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 def log_request_info():
     logger.info(f"Request: {request.method} {request.path} - Query: {request.args}")
 
-@app.route('/b', methods=['GET'])
+@app.route('/storage/v1/b', methods=['GET'])
 def v1_storage_buckets_list():
     if request.args.get('project') == 'stackql-demo':
         return render_template('buckets-list.json'), 200, {'Content-Type': 'application/json'}
