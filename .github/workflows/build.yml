@@ -1287,9 +1287,6 @@ jobs:
         then
           PUSH_IMAGE_REQUIRED="true"
         fi
-        if [ "${{ matrix.platform }}" == "linux/arm64" ] && [ "${PUSH_IMAGE_REQUIRED}" = "false" ]; then
-          BUILD_IMAGE_REQUIRED="false"
-        fi
         {
           echo "IMAGE_PLATFORM_SAN=$( sed 's/\//_/g' <<< '${{ matrix.platform }}' )";
           echo "PUSH_IMAGE_REQUIRED=${PUSH_IMAGE_REQUIRED}";
