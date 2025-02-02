@@ -21,6 +21,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y jq
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4.1.1
     
       - name: Setup Python
         uses: actions/setup-python@v5.0.0
@@ -59,9 +62,6 @@ jobs:
             echo "artifactRepositoryFullName=$artifactRepositoryFullName"
             echo "runType=$runType"
           } >> "${GITHUB_ENV}"
-
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v4.1.1
 
       - name: Download Artifact
         uses: actions/download-artifact@v4.1.2
