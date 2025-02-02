@@ -144,7 +144,6 @@ class _NginxConfigGenerator(object):
             f'{" " * self._n_indent}map $ssl_preread_server_name $targetBackend {{',
             *self._generate_backends(hosts, self._n_indent * 2),
             f'{" " * self._n_indent}}}',
-            '}',
             '',
             f'{" " * self._n_indent}server {{',
             f'{" " * self._n_indent}listen 443;',
