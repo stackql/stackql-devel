@@ -51,6 +51,7 @@ _DEFAULT_AWS_REGIONS: Tuple[str] = (
 
 _DEFAULT_GCP_SERVICES: Tuple[str] = (
     'compute',
+    'storage',
 )
 
 class _LB(object):
@@ -166,23 +167,45 @@ class _NginxConfigGenerator(object):
         return self._generate_file_content(hosts)
 
 
+class _HostsFileEntriesGenerator(object):
+
+    def __init__(self, hosts: Iterable[_LB]) -> None:
+        self._hosts = hosts
+
+    def generate_entries(self) -> Iterable[str]:
+        """
+        Generate the entries.
+        """
+        return tuple(
+            f'{host.get_backend_host()}    {host.get_lb_host()}'
+            for host in self._hosts
+        )
+
+
 def _parse_args() -> argparse.Namespace:
     """
     Parse the arguments.
     """
     parser = argparse.ArgumentParser(description='Create a token.')
-    parser.add_argument('--create-token', help='Opt-in create token', action=argparse.BooleanOptionalAction)
-    parser.add_argument('--header', type=str, help='The header.')
-    parser.add_argument('--claims', type=str, help='The claims.')
+    parser.add_argument('--generate-nginx-lb', help='Opt-in nginx config generation', action=argparse.BooleanOptionalAction)
+    parser.add_argument('--generate-hosts-entries', help='Opt-in hosts files entries generation', action=argparse.BooleanOptionalAction)
+    # parser.add_argument('--header', type=str, help='The header.')
     return parser.parse_args()
 
 def main():
     args = _parse_args()
     host_gen = _HostsGenerator()
-    all_hosts = host_gen.generate_all_load_balancers()
+    all_hosts = [lb for lb in host_gen.generate_all_load_balancers()]
     nginx_cfg_gen = _NginxConfigGenerator()
-    for l in nginx_cfg_gen.generate_file_content(all_hosts):
-        print(l)
+    if args.generate_nginx_lb:
+        for l in nginx_cfg_gen.generate_file_content(all_hosts):
+            print(l)
+        return
+    if args.generate_hosts_entries:
+        hosts_gen = _HostsFileEntriesGenerator(all_hosts)
+        for l in hosts_gen.generate_entries():
+            print(l)
+        return
 
 if __name__ == '__main__':
     main()
