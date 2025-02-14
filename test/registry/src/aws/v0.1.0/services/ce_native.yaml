@@ -95,7 +95,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/CreateAnomalyMonitorRequest"
       parameters:
@@ -141,7 +141,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/CreateAnomalySubscriptionRequest"
       parameters:
@@ -187,7 +187,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/CreateCostCategoryDefinitionRequest"
       parameters:
@@ -233,7 +233,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/DeleteAnomalyMonitorRequest"
       parameters:
@@ -279,7 +279,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/DeleteAnomalySubscriptionRequest"
       parameters:
@@ -325,7 +325,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/DeleteCostCategoryDefinitionRequest"
       parameters:
@@ -371,7 +371,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/DescribeCostCategoryDefinitionRequest"
       parameters:
@@ -417,7 +417,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/GetAnomaliesRequest"
       parameters:
@@ -469,7 +469,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/GetAnomalyMonitorsRequest"
       parameters:
@@ -521,7 +521,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/GetAnomalySubscriptionsRequest"
       parameters:
@@ -649,7 +649,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/GetCostAndUsageWithResourcesRequest"
       parameters:
@@ -713,7 +713,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/GetCostCategoriesRequest"
       parameters:
@@ -759,7 +759,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/GetCostForecastRequest"
       parameters:
@@ -823,7 +823,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/GetDimensionValuesRequest"
       parameters:
@@ -875,7 +875,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/GetReservationCoverageRequest"
       parameters:
@@ -927,7 +927,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/GetReservationPurchaseRecommendationRequest"
       parameters:
@@ -979,7 +979,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/GetReservationUtilizationRequest"
       parameters:
@@ -1025,7 +1025,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/GetRightsizingRecommendationRequest"
       parameters:
@@ -1077,7 +1077,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/GetSavingsPlansCoverageRequest"
       parameters:
@@ -1135,7 +1135,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/GetSavingsPlansPurchaseRecommendationRequest"
       parameters:
@@ -1181,7 +1181,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/GetSavingsPlansUtilizationRequest"
       parameters:
@@ -1233,7 +1233,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/GetSavingsPlansUtilizationDetailsRequest"
       parameters:
@@ -1309,7 +1309,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/GetTagsRequest"
       parameters:
@@ -1361,7 +1361,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/GetUsageForecastRequest"
       parameters:
@@ -1407,7 +1407,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/ListCostAllocationTagsRequest"
       parameters:
@@ -1459,7 +1459,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/ListCostCategoryDefinitionsRequest"
       parameters:
@@ -1517,7 +1517,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/ListSavingsPlansPurchaseRecommendationGenerationRequest"
       parameters:
@@ -1563,7 +1563,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/ListTagsForResourceRequest"
       parameters:
@@ -1603,7 +1603,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/ProvideAnomalyFeedbackRequest"
       parameters:
@@ -1655,7 +1655,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/StartSavingsPlansPurchaseRecommendationGenerationRequest"
       parameters:
@@ -1707,7 +1707,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/TagResourceRequest"
       parameters:
@@ -1753,7 +1753,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/UntagResourceRequest"
       parameters:
@@ -1799,7 +1799,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/UpdateAnomalyMonitorRequest"
       parameters:
@@ -1851,7 +1851,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/UpdateAnomalySubscriptionRequest"
       parameters:
@@ -1891,7 +1891,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/UpdateCostAllocationTagsStatusRequest"
       parameters:
@@ -1943,7 +1943,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/x-amz-json-1.0:
+          application/json:
             schema:
               $ref: "#/components/schemas/UpdateCostCategoryDefinitionRequest"
       parameters:
