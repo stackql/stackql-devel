@@ -1984,6 +1984,60 @@ components:
         update: []
         replace: []
         delete: []
+    cost_and_usage_with_resources:
+      id: aws.ce_native.cost_and_usage_with_resources
+      name: cost_and_usage
+      title: Cost And Usage
+      methods:
+        get_cost_and_usage_with_resources:
+          operation:
+            $ref: '#/paths/~1?__X-Amz-Target=AWSInsightsIndexService.GetCostAndUsageWithResources/post'
+          response:
+            mediaType: application/x-amz-json-1.0
+            openAPIDocKey: '200'
+            schemaRef: '#/components/schemas/GetCostAndUsageWithResourcesResponse'
+      sqlVerbs:
+        select:
+          - $ref: '#/components/x-stackQL-resources/cost_and_usage_with_resources/methods/get_cost_and_usage_with_resources'
+        insert: []
+        update: []
+        replace: []
+        delete: []
+    anomaly_monitor:
+      id: aws.ce_native.anomaly_monitor
+      name: anomaly_monitor
+      title: Anomaly Monitor
+      methods:
+        create_anomaly_monitor:
+          operation:
+            $ref: '#/paths/~1?__X-Amz-Target=AWSInsightsIndexService.CreateAnomalyMonitor/post'
+          response:
+            mediaType: application/x-amz-json-1.0
+            openAPIDocKey: '200'
+            schemaRef: '#/components/schemas/CreateAnomalyMonitorResponse'
+        delete_anomaly_monitor:
+          operation:
+            $ref: '#/paths/~1?__X-Amz-Target=AWSInsightsIndexService.DeleteAnomalyMonitor/post'
+          response:
+            mediaType: application/x-amz-json-1.0
+            openAPIDocKey: '200'
+            schemaRef: '#/components/schemas/DeleteAnomalyMonitorResponse'
+        get_anomaly_monitors:
+          operation:
+            $ref: '#/paths/~1?__X-Amz-Target=AWSInsightsIndexService.GetAnomalyMonitors/post'
+          response:
+            mediaType: application/x-amz-json-1.0
+            openAPIDocKey: '200'
+            schemaRef: '#/components/schemas/GetAnomalyMonitorsResponse'
+      sqlVerbs:
+        select:
+          - $ref: '#/components/x-stackQL-resources/anomaly_monitor/methods/get_anomaly_monitors'
+        insert:
+          - $ref: '#/components/x-stackQL-resources/anomaly_monitor/methods/create_anomaly_monitor'
+        update: []
+        replace: []
+        delete:
+          - $ref: '#/components/x-stackQL-resources/anomaly_monitor/methods/delete_anomaly_monitor'
   parameters:
     X-Amz-Content-Sha256:
       name: X-Amz-Content-Sha256
