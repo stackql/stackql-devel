@@ -7504,7 +7504,7 @@ AWS Materialized View And Multiple Function Query on Resource Costs Exemplifies 
     ...    select json_extract(json_each.value, '$.Keys') as keys, json_extract(json_each.value, '$.Metrics.UnblendedCost.Amount') as amount, json_extract(json_each.value, '$.Metrics.UnblendedCost.Unit') as unit from e1, json_each(e1.rez) order by amount;
     ${postgresInputStr} =    Catenate
     ...    create or replace materialized view e1 as select json_extract_path_text(rd.value, 'Groups') as rez from aws.ce_native.cost_and_usage, json_array_elements_text(ResultsByTime) as rd where data__Granularity = 'MONTHLY' and data__Metrics = '["UnblendedCost"]' and data__TimePeriod = '{"Start": "2024-08-01", "End": "2024-11-30"}' and data__GroupBy = '[{"Type":"DIMENSION","Key":"SERVICE"}]' and region = 'us-east-1';
-    ...    select json_extract_path_text(rd.value, '$.Keys') as keys, json_extract_path_text(rd.value, '$.Metrics.UnblendedCost.Amount') as amount, json_extract_path_text(rd.value, '$.Metrics.UnblendedCost.Unit') as unit from e1, json_array_elements_text(e1.rez) as rd order by amount;
+    ...    select json_extract_path_text(rd.value, 'Keys') as keys, json_extract_path_text(rd.value, 'Metrics', 'UnblendedCost', 'Amount') as amount, json_extract_path_text(rd.value, 'Metrics', 'UnblendedCost', 'Unit') as unit from e1, json_array_elements_text(e1.rez) as rd order by amount;
     ${inputStr} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"     ${postgresInputStr}    ${sqliteInputStr}
     ${outputStr} =    Get File     ${REPOSITORY_ROOT}${/}test${/}assets${/}expected${/}aws${/}ce${/}ce-nested-function-materialized-view.txt
     Should Stackql Exec Inline Equal Both Streams
