@@ -13,27 +13,14 @@
         "body_conditions": {
             "type": "JSON",
             "json": {
-                "Granularity": "MONTHLY",
-                "GroupBy": [
-                    {
-                        "Key": "SERVICE",
-                        "Type": "DIMENSION"
-                    }
-                ],
-                "Metrics": [
-                    "UnblendedCost"
-                ],
-                "TimePeriod": {
-                    "End": "2024-11-30",
-                    "Start": "2024-08-01"
-                }
+                "Granularity": "MONTHLY"
             },
             "matchType": "ONLY_MATCHING_FIELDS"
         },
         "template": "cost_explorer_services_01.json",
         "status": 200,
         "response_headers": {
-            "Content-Type": ["application/x-amz-json-1.0"]
+            "Content-Type": ["application/json"]
         }
     },
     "POST:/:0": {
