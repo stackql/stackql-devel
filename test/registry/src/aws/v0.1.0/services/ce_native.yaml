@@ -1976,6 +1976,7 @@ components:
           response:
             mediaType: application/x-amz-json-1.0
             openAPIDocKey: '200'
+            objectKey: '$'
             schemaRef: '#/components/schemas/GetCostAndUsageResponse'
       sqlVerbs:
         select:

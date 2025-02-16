@@ -20,7 +20,7 @@
         "template": "cost_explorer_services_01.json",
         "status": 200,
         "response_headers": {
-            "Content-Type": ["application/json"]
+            "Content-Type": ["application/x-amz-json-1.0"]
         }
     },
     "POST:/:0": {
