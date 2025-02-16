@@ -9,22 +9,8 @@ func DefaultSelectExprsFormatter(buf *sqlparser.TrackedBuffer, node sqlparser.SQ
 	case sqlparser.ColIdent:
 		formatColIdent(node, buf)
 		return
-	case *sqlparser.AliasedTableExpr:
-		node.Format(buf)
-		return
 	case sqlparser.TableName:
 		buf.WriteString(node.GetRawVal())
-		return
-	case *sqlparser.SQLVal:
-		// switch node.Type {
-		// case sqlparser.StrVal:
-		// 	buf.Myprintf("%s", node.Val)
-		// 	return
-		// default:
-		// 	node.Format(buf)
-		// 	return
-		// }
-		node.Format(buf)
 		return
 	default:
 		node.Format(buf)
