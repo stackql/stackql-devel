@@ -7532,7 +7532,11 @@ AWS Materialized View and Cast and Multiple Function Query on Resource Costs Exe
     ${inputStr} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"     ${postgresInputStr}    ${sqliteInputStr}
     ${outputStrSQLite} =    Get File     ${REPOSITORY_ROOT}${/}test${/}assets${/}expected${/}aws${/}ce${/}ce-cast-real.txt
     ${outputStrPostgres} =    Get File     ${REPOSITORY_ROOT}${/}test${/}assets${/}expected${/}aws${/}ce${/}ce-cast-real-postgres.txt
-    ${outputStr} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"     ${outputStrPostgres}    ${outputStrSQLite}
+    ${outputStrWindows} =    Get File     ${REPOSITORY_ROOT}${/}test${/}assets${/}expected${/}aws${/}ce${/}ce-cast-real-windows.txt
+    ${outputStr} =    Set Variable If    
+    ...               "${SQL_BACKEND}" == "postgres_tcp"     ${outputStrPostgres}    
+    ...               "${IS_WINDOWS}" == "1"    ${outputStrWindows}    
+    ...               ${outputStrSQLite}
     Should Stackql Exec Inline Equal Both Streams
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
