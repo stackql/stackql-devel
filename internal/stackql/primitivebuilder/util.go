@@ -9,6 +9,17 @@ import (
 	"github.com/stackql/stackql/internal/stackql/util"
 )
 
+func shallowGenerateSuccessMessagesFromHeirarchy(isAwait bool) []string {
+	baseSuccessString := "The operation completed successfully"
+	if !isAwait {
+		baseSuccessString = "The operation was despatched successfully"
+	}
+	successMsgs := []string{
+		baseSuccessString,
+	}
+	return successMsgs
+}
+
 func generateSuccessMessagesFromHeirarchy(meta tablemetadata.ExtendedTableMetadata, isAwait bool) []string {
 	baseSuccessString := "The operation completed successfully"
 	if !isAwait {

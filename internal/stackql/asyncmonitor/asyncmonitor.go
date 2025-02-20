@@ -1,9 +1,7 @@
 package asyncmonitor
 
 import (
-	"context"
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 
@@ -11,7 +9,6 @@ import (
 	"github.com/stackql/any-sdk/pkg/logging"
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/handler"
-	"github.com/stackql/stackql/internal/stackql/httpmiddleware"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/provider"
@@ -216,6 +213,12 @@ func (gm *DefaultGoogleAsyncMonitor) getV1Monitor(
 	if comments != nil {
 		asyncPrim.noStatus = comments.IsSet("NOSTATUS")
 	}
+	provider, err := prov.GetProvider()
+	if err != nil {
+		return nil, err
+	}
+	rtCtx := gm.handlerCtx.GetRuntimeContext()
+	outErrFile := gm.handlerCtx.GetOutErrFile()
 	m := gm.op
 	if m.IsAwaitable() { //nolint:nestif // encapulation probably sufficient
 		asyncPrim.executor = func(pc primitive.IPrimitiveCtx, bd interface{}) internaldto.ExecutorOutput {
@@ -253,9 +256,9 @@ func (gm *DefaultGoogleAsyncMonitor) getV1Monitor(
 				)
 			}
 			prStr := gm.prov.GetProviderString()
-			authCtx, err := pc.GetAuthContext(prStr)
-			if err != nil {
-				return internaldto.NewExecutorOutput(nil, nil, nil, nil, err)
+			authCtx, authErr := pc.GetAuthContext(prStr)
+			if authErr != nil {
+				return internaldto.NewExecutorOutput(nil, nil, nil, nil, authErr)
 			}
 			if authCtx == nil {
 				return internaldto.NewExecutorOutput(nil, nil, nil, nil, fmt.Errorf("cannot execute monitor: no auth context"))
@@ -274,24 +277,29 @@ func (gm *DefaultGoogleAsyncMonitor) getV1Monitor(
 					),
 				)
 			}
-			req, err := getMonitorRequest(url.(string))
-			if req != nil && req.Body != nil {
-				defer req.Body.Close()
+			req, monitorReqErr := anysdk.GetMonitorRequest(url.(string))
+			if monitorReqErr != nil {
+				return internaldto.NewExecutorOutput(nil, nil, nil, nil, monitorReqErr)
 			}
-			if err != nil {
-				return internaldto.NewExecutorOutput(nil, nil, nil, nil, err)
-			}
-			response, apiErr := httpmiddleware.HTTPApiCallFromRequest(gm.handlerCtx.Clone(), gm.prov, m, req)
-			if response != nil && response.Body != nil {
-				defer response.Body.Close()
-			}
+			cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
+			anySdkResponse, apiErr := anysdk.CallFromSignature(
+				cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider, anysdk.NewAnySdkOpStoreDesignation(m), req)
+
 			if apiErr != nil {
 				return internaldto.NewExecutorOutput(nil, nil, nil, nil, apiErr)
 			}
-			target, err := m.DeprecatedProcessResponse(response)
+			httpResponse, httpResponseErr := anySdkResponse.GetHttpResponse()
+			if httpResponseErr != nil {
+				return internaldto.NewExecutorOutput(nil, nil, nil, nil, httpResponseErr)
+			}
+
+			if httpResponse != nil && httpResponse.Body != nil {
+				defer httpResponse.Body.Close()
+			}
+			target, targetErr := m.DeprecatedProcessResponse(httpResponse)
 			gm.handlerCtx.LogHTTPResponseMap(target)
-			if err != nil {
-				return internaldto.NewExecutorOutput(nil, nil, nil, nil, err)
+			if targetErr != nil {
+				return internaldto.NewExecutorOutput(nil, nil, nil, nil, targetErr)
 			}
 			return asyncPrim.executor(internaldto.NewBasicPrimitiveContext(
 				pc.GetAuthContext,
@@ -324,17 +332,4 @@ func prepareReultSet(
 		pc.GetWriter().Write([]byte(fmt.Sprintf("%s complete", operationDescriptor) + fmt.Sprintln("")))
 	}
 	return util.PrepareResultSet(payload)
-}
-
-func getMonitorRequest(urlStr string) (*http.Request, error) {
-	req, err := http.NewRequest(
-		http.MethodGet,
-		urlStr,
-		nil,
-	)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(context.Background())
-	return req, nil
 }

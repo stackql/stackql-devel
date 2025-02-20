@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/stackql/any-sdk/anysdk"
 	"github.com/stackql/any-sdk/pkg/logging"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
-	"github.com/stackql/stackql/internal/stackql/httpmiddleware"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/primitive_context"
 	"github.com/stackql/stackql/internal/stackql/primitive"
@@ -61,6 +61,17 @@ func (ss *Exec) Build() error {
 	if err != nil {
 		return err
 	}
+	provider, err := prov.GetProvider()
+	if err != nil {
+		return err
+	}
+	rtCtx := handlerCtx.GetRuntimeContext()
+	authCtx, authCtxErr := handlerCtx.GetAuthContext(provider.GetName())
+	if authCtxErr != nil {
+		return authCtxErr
+	}
+	outErrFile := handlerCtx.GetOutErrFile()
+
 	m, err := tbl.GetMethod()
 	if err != nil {
 		return err
@@ -76,15 +87,28 @@ func (ss *Exec) Build() error {
 			return internaldto.NewErroneousExecutorOutput(httpArmouryErr)
 		}
 		for i, req := range httpArmoury.GetRequestParams() {
-			response, apiErr := httpmiddleware.HTTPApiCallFromRequest(handlerCtx.Clone(), prov, m, req.GetRequest())
+			cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
+			response, apiErr := anysdk.CallFromSignature(
+				cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider,
+				anysdk.NewAnySdkOpStoreDesignation(m), req.GetArgList(),
+			)
 			if apiErr != nil {
 				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil,
 					handlerCtx.GetTypingConfig(),
 				))
 			}
+			httpResponse, httpResponseErr := response.GetHttpResponse()
+			if httpResponse != nil && httpResponse.Body != nil {
+				defer httpResponse.Body.Close()
+			}
+			if httpResponseErr != nil {
+				return util.PrepareResultSet(
+					internaldto.NewPrepareResultSetDTO(nil, nil, nil, nil, httpResponseErr, nil,
+						handlerCtx.GetTypingConfig()))
+			}
 			if isNullary {
 				//nolint:mnd // acceptable for now
-				if response.StatusCode <= 300 {
+				if httpResponse.StatusCode <= 300 {
 					continue
 				}
 				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(
@@ -92,12 +116,12 @@ func (ss *Exec) Build() error {
 					nil,
 					nil,
 					nil,
-					fmt.Errorf("HTTP request failed with status code %d", response.StatusCode),
+					fmt.Errorf("HTTP request failed with status code %d", httpResponse.StatusCode),
 					nil,
 					handlerCtx.GetTypingConfig(),
 				))
 			}
-			target, err = m.DeprecatedProcessResponse(response)
+			target, err = m.DeprecatedProcessResponse(httpResponse)
 			handlerCtx.LogHTTPResponseMap(target)
 			if err != nil {
 				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(
@@ -139,8 +163,7 @@ func (ss *Exec) Build() error {
 			ss.handlerCtx.GetTypingConfig(),
 		)
 	}
-	execPrimitive := primitive.NewHTTPRestPrimitive(
-		prov,
+	execPrimitive := primitive.NewGenericPrimitive(
 		ex,
 		nil,
 		nil,

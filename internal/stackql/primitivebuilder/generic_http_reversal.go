@@ -11,14 +11,12 @@ import (
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
-	"github.com/stackql/stackql/internal/stackql/httpmiddleware"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/builder_input"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/primitive_context"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/provider"
-	"github.com/stackql/stackql/internal/stackql/streaming/http_preparator_stream.go"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 )
 
@@ -33,7 +31,7 @@ type genericHTTPReversal struct {
 	verb              string // may be "insert" or "update"
 	inputAlias        string
 	isUndo            bool
-	reversalStream    http_preparator_stream.HttpPreparatorStream
+	reversalStream    anysdk.HttpPreparatorStream
 	prov              provider.IProvider
 }
 
@@ -96,16 +94,25 @@ func (gh *genericHTTPReversal) decorateOutput(
 	return op
 }
 
-//nolint:funlen,gocognit // TODO: fix this
+//nolint:funlen,gocognit,gocyclo,cyclop // TODO: fix this
 func (gh *genericHTTPReversal) Build() error {
 	m := gh.op
 	prov := gh.prov
+	provider, providerErr := prov.GetProvider()
+	if providerErr != nil {
+		return providerErr
+	}
 	handlerCtx := gh.handlerCtx
+	rtCtx := handlerCtx.GetRuntimeContext()
+	authCtx, authCtxErr := handlerCtx.GetAuthContext(provider.GetName())
+	if authCtxErr != nil {
+		return authCtxErr
+	}
+	outErrFile := handlerCtx.GetOutErrFile()
 	commentDirectives := gh.commentDirectives
 	isAwait := gh.isAwait
 	_, _, responseAnalysisErr := m.GetResponseBodySchemaAndMediaType()
-	actionPrimitive := primitive.NewHTTPRestPrimitive(
-		prov,
+	actionPrimitive := primitive.NewGenericPrimitive(
 		nil,
 		nil,
 		nil,
@@ -130,14 +137,24 @@ func (gh *genericHTTPReversal) Build() error {
 			for _, r := range httpArmoury.GetRequestParams() {
 				req := r
 				nullaryEx := func() internaldto.ExecutorOutput {
-					response, apiErr := httpmiddleware.HTTPApiCallFromRequest(handlerCtx.Clone(), prov, m, req.GetRequest())
+					cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
+					response, apiErr := anysdk.CallFromSignature(
+						cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider,
+						anysdk.NewAnySdkOpStoreDesignation(m), req.GetArgList())
 					if apiErr != nil {
 						return internaldto.NewErroneousExecutorOutput(apiErr)
+					}
+					httpResponse, httpResponseErr := response.GetHttpResponse()
+					if httpResponse != nil && httpResponse.Body != nil {
+						defer httpResponse.Body.Close()
+					}
+					if httpResponseErr != nil {
+						return internaldto.NewErroneousExecutorOutput(httpResponseErr)
 					}
 
 					if responseAnalysisErr == nil {
 						var resp pkg_response.Response
-						processed, processErr := m.ProcessResponse(response)
+						processed, processErr := m.ProcessResponse(httpResponse)
 						if processErr != nil {
 							return internaldto.NewErroneousExecutorOutput(processErr)
 						}
@@ -169,7 +186,7 @@ func (gh *genericHTTPReversal) Build() error {
 						}
 					}
 					if err == nil {
-						if response.StatusCode < 300 { //nolint:mnd // TODO: fix this
+						if httpResponse.StatusCode < 300 { //nolint:mnd // TODO: fix this
 							msgs := internaldto.NewBackendMessages(
 								[]string{"undo over HTTP successful"},
 							)
@@ -184,7 +201,7 @@ func (gh *genericHTTPReversal) Build() error {
 								tableName,
 							)
 						}
-						generatedErr := fmt.Errorf("undo over HTTP error: %s", response.Status)
+						generatedErr := fmt.Errorf("undo over HTTP error: %s", httpResponse.Status)
 						return internaldto.NewExecutorOutput(
 							nil,
 							target,
@@ -218,8 +235,7 @@ func (gh *genericHTTPReversal) Build() error {
 			}
 			for _, eI := range nullaryExecutors {
 				execInstance := eI
-				dependentInsertPrimitive := primitive.NewHTTPRestPrimitive(
-					prov,
+				dependentInsertPrimitive := primitive.NewGenericPrimitive(
 					nil,
 					nil,
 					nil,
