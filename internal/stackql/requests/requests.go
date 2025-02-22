@@ -1,6 +1,7 @@
 package requests
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 
@@ -61,6 +62,10 @@ func SplitHTTPParameters(
 	sqlParamMap map[int]map[string]interface{},
 	method anysdk.OperationStore,
 ) ([]anysdk.HttpParameters, error) {
+	httpMethod, httpMethodOk := method.(anysdk.StandardOperationStore)
+	if !httpMethodOk {
+		return nil, fmt.Errorf("cannot accomodate non http method")
+	}
 	var retVal []anysdk.HttpParameters
 	var rowKeys []int
 	requestSchema, _ := method.GetRequestBodySchema()
@@ -71,7 +76,7 @@ func SplitHTTPParameters(
 	sort.Ints(rowKeys)
 	for _, key := range rowKeys {
 		sqlRow := sqlParamMap[key]
-		reqMap := anysdk.NewHttpParameters(method)
+		reqMap := anysdk.NewHttpParameters(httpMethod)
 		for k, v := range sqlRow {
 			if param, ok := method.GetOperationParameter(k); ok {
 				reqMap.StoreParameter(param, v)
