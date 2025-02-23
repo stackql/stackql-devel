@@ -1,4 +1,4 @@
-package requests
+package requests //nolint:cyclop // linter overhead is worse than code itself
 
 import (
 	"fmt"
