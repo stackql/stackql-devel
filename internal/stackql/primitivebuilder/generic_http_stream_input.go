@@ -18,7 +18,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/primitive_context"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
-	"github.com/stackql/stackql/internal/stackql/streaming/http_preparator_stream.go"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 	"github.com/stackql/stackql/internal/stackql/util"
 )
@@ -36,7 +35,7 @@ type genericHTTPStreamInput struct {
 	verb              string // may be "insert" or "update"
 	inputAlias        string
 	isUndo            bool
-	reversalStream    http_preparator_stream.HttpPreparatorStream
+	reversalStream    anysdk.HttpPreparatorStream
 	reversalBuilder   Builder
 	rollbackType      constants.RollbackType
 }
@@ -74,7 +73,7 @@ func newGenericHTTPStreamInput(
 		inputAlias:        builderInput.GetInputAlias(),
 		isUndo:            builderInput.IsUndo(),
 		parserNode:        parserNode,
-		reversalStream:    http_preparator_stream.NewHttpPreparatorStream(),
+		reversalStream:    anysdk.NewHttpPreparatorStream(),
 		rollbackType:      handlerCtx.GetRollbackType(),
 	}, nil
 }

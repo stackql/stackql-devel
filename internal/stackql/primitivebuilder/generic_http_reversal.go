@@ -18,7 +18,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/provider"
-	"github.com/stackql/stackql/internal/stackql/streaming/http_preparator_stream.go"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 )
 
@@ -33,7 +32,7 @@ type genericHTTPReversal struct {
 	verb              string // may be "insert" or "update"
 	inputAlias        string
 	isUndo            bool
-	reversalStream    http_preparator_stream.HttpPreparatorStream
+	reversalStream    anysdk.HttpPreparatorStream
 	prov              provider.IProvider
 }
 
