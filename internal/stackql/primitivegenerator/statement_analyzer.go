@@ -619,7 +619,7 @@ func (pb *standardPrimitiveGenerator) AnalyzeUnaryExec(
 	if err != nil {
 		return nil, err
 	}
-	_, err = pb.buildRequestContext(handlerCtx, node, meta, anysdk.NewExecContext(execPayload, rsc), nil)
+	err = pb.buildRequestContext(node, meta, anysdk.NewExecContext(execPayload, rsc), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -935,47 +935,50 @@ func (pb *standardPrimitiveGenerator) expandTable(
 
 //nolint:unparam,revive // TODO: review
 func (pb *standardPrimitiveGenerator) buildRequestContext(
-	handlerCtx handler.HandlerContext,
 	node sqlparser.SQLNode,
 	meta tablemetadata.ExtendedTableMetadata,
 	execContext anysdk.ExecContext,
 	rowsToInsert map[int]map[int]interface{},
-) (anysdk.HTTPArmoury, error) {
+) error {
 	m, err := meta.GetMethod()
 	if err != nil {
-		return nil, err
+		return err
 	}
 	prov, err := meta.GetProvider()
 	if err != nil {
-		return nil, err
+		return err
 	}
 	svc, err := meta.GetService()
 	if err != nil {
-		return nil, err
+		return err
 	}
 	pr, prErr := prov.GetProvider()
 	if prErr != nil {
-		return nil, prErr
+		return prErr
 	}
 	paramMap, paramErr := util.ExtractSQLNodeParams(node, rowsToInsert)
 	if paramErr != nil {
-		return nil, paramErr
+		return paramErr
 	}
-	httpPreparator := anysdk.NewHTTPPreparator(
-		pr,
-		svc,
-		m,
-		paramMap,
-		nil,
-		execContext,
-		logging.GetLogger(),
+	meta.WithGetHTTPArmoury(
+		func() (anysdk.HTTPArmoury, error) {
+			httpPreparator := anysdk.NewHTTPPreparator(
+				pr,
+				svc,
+				m,
+				paramMap,
+				nil,
+				execContext,
+				logging.GetLogger(),
+			)
+			httpArmoury, httpErr := httpPreparator.BuildHTTPRequestCtx()
+			if httpErr != nil {
+				return nil, err
+			}
+			return httpArmoury, nil
+		},
 	)
-	httpArmoury, httpErr := httpPreparator.BuildHTTPRequestCtx()
-	if httpErr != nil {
-		return nil, err
-	}
-	meta.WithGetHTTPArmoury(func() (anysdk.HTTPArmoury, error) { return httpArmoury, nil })
-	return httpArmoury, err
+	return err
 }
 
 //nolint:gocognit,funlen // TODO: review
@@ -1071,7 +1074,7 @@ func (pb *standardPrimitiveGenerator) AnalyzeInsert(pbi planbuilderinput.PlanBui
 		return err
 	}
 
-	_, err = pb.buildRequestContext(handlerCtx, node, tbl, nil, insertValOnlyRows)
+	err = pb.buildRequestContext(node, tbl, nil, insertValOnlyRows)
 	if err != nil {
 		return err
 	}
@@ -1260,7 +1263,7 @@ func (pb *standardPrimitiveGenerator) analyzeDelete(
 			return fmt.Errorf("DELETE Where element = '%s' is NOT present in data returned from provider", w)
 		}
 	}
-	_, err = pb.buildRequestContext(handlerCtx, node, tbl, nil, nil)
+	err = pb.buildRequestContext(node, tbl, nil, nil)
 	if err != nil {
 		return err
 	}
