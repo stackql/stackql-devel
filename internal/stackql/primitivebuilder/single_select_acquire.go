@@ -109,45 +109,187 @@ func (ss *SingleSelectAcquire) GetTail() primitivegraph.PrimitiveNode {
 	return ss.root
 }
 
+type eliderPayload struct {
+	currentTcc  internaldto.TxnControlCounters
+	tableName   string
+	reqEncoding string
+}
+
+type standardMethodElider struct {
+	elisionFunc func(...any) bool
+}
+
+func (sme *standardMethodElider) IsElide(argz ...any) bool {
+	return sme.elisionFunc(argz)
+}
+
+func newStandardMethodElider(elisionFunc func(...any) bool) methodElider {
+	return &standardMethodElider{
+		elisionFunc: elisionFunc,
+	}
+}
+
 //nolint:lll // chaining
 func (ss *SingleSelectAcquire) elideActionIfPossible(
 	currentTcc internaldto.TxnControlCounters,
 	tableName string,
 	reqEncoding string,
-) bool {
-	olderTcc, isMatch := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(
-		tableName,
-		reqEncoding,
-		ss.drmCfg.GetControlAttributes().GetControlLatestUpdateColumnName(), ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIDColumnName())
-	if isMatch {
-		nonControlColumns := ss.insertPreparedStatementCtx.GetNonControlColumns()
-		var nonControlColumnNames []string
-		for _, c := range nonControlColumns {
-			nonControlColumnNames = append(nonControlColumnNames, c.GetName())
-		}
-		//nolint:errcheck // TODO: fix
-		ss.handlerCtx.GetGarbageCollector().Update(
+) methodElider {
+	elisionFunc := func(argz ...any) bool {
+		olderTcc, isMatch := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(
 			tableName,
-			olderTcc.Clone(),
-			currentTcc,
-		)
-		//nolint:errcheck // TODO: fix
-		ss.insertionContainer.SetTableTxnCounters(tableName, olderTcc)
-		ss.insertPreparedStatementCtx.SetGCCtrlCtrs(olderTcc)
-		r, sqlErr := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Read(
-			tableName, reqEncoding,
-			ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIDColumnName(),
-			nonControlColumnNames)
-		if sqlErr != nil {
-			internaldto.NewErroneousExecutorOutput(sqlErr)
+			reqEncoding,
+			ss.drmCfg.GetControlAttributes().GetControlLatestUpdateColumnName(), ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIDColumnName())
+		if isMatch {
+			nonControlColumns := ss.insertPreparedStatementCtx.GetNonControlColumns()
+			var nonControlColumnNames []string
+			for _, c := range nonControlColumns {
+				nonControlColumnNames = append(nonControlColumnNames, c.GetName())
+			}
+			//nolint:errcheck // TODO: fix
+			ss.handlerCtx.GetGarbageCollector().Update(
+				tableName,
+				olderTcc.Clone(),
+				currentTcc,
+			)
+			//nolint:errcheck // TODO: fix
+			ss.insertionContainer.SetTableTxnCounters(tableName, olderTcc)
+			ss.insertPreparedStatementCtx.SetGCCtrlCtrs(olderTcc)
+			r, sqlErr := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Read(
+				tableName, reqEncoding,
+				ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIDColumnName(),
+				nonControlColumnNames)
+			if sqlErr != nil {
+				internaldto.NewErroneousExecutorOutput(sqlErr)
+			}
+			ss.drmCfg.ExtractObjectFromSQLRows(r, nonControlColumns, ss.stream)
+			return true
 		}
-		ss.drmCfg.ExtractObjectFromSQLRows(r, nonControlColumns, ss.stream)
-		return true
+		return false
 	}
-	return false
+	return newStandardMethodElider(elisionFunc)
 }
 
-func (ss *SingleSelectAcquire) actionHTTP() error {
+type methodElider interface {
+	IsElide(...any) bool
+}
+
+func (ss *SingleSelectAcquire) actionHTTP(
+	elider methodElider,
+) error {
+	return nil
+}
+
+//nolint:nestif,funlen // acceptable for now
+func (ss *SingleSelectAcquire) actionInsertPreparation(
+	target interface{},
+	resErr error,
+	housekeepingDone bool,
+	tableName string,
+	paramsUsed map[string]interface{},
+	reqEncoding string,
+) error {
+	var items interface{}
+	var ok bool
+	logging.GetLogger().Infoln(fmt.Sprintf("SingleSelectAcquire.Execute() target = %v", target))
+	switch pl := target.(type) {
+	// add case for xml object,
+	case map[string]interface{}:
+		if ss.tableMeta.GetSelectItemsKey() != "" && ss.tableMeta.GetSelectItemsKey() != "/*" {
+			items, ok = pl[ss.tableMeta.GetSelectItemsKey()]
+			if !ok {
+				if resErr != nil {
+					items = []interface{}{}
+					ok = true
+				} else {
+					items = []interface{}{
+						pl,
+					}
+					ok = true
+				}
+			}
+		} else {
+			items = []interface{}{
+				pl,
+			}
+			ok = true
+		}
+	case []interface{}:
+		items = pl
+		ok = true
+	case []map[string]interface{}:
+		items = pl
+		ok = true
+	case nil:
+		return nil
+	}
+	keys := make(map[string]map[string]interface{})
+
+	//nolint:nestif // TODO: fix
+	if ok {
+		iArr, iErr := castItemsArray(items)
+		if iErr != nil {
+			return iErr
+		}
+		streamErr := ss.stream.Write(iArr)
+		if streamErr != nil {
+			return streamErr
+		}
+		if ok && len(iArr) > 0 {
+			if !housekeepingDone && ss.insertPreparedStatementCtx != nil {
+				_, execErr := ss.handlerCtx.GetSQLEngine().Exec(ss.insertPreparedStatementCtx.GetGCHousekeepingQueries())
+				tcc := ss.insertPreparedStatementCtx.GetGCCtrlCtrs()
+				tcc.SetTableName(tableName)
+				//nolint:errcheck // TODO: fix
+				ss.insertionContainer.SetTableTxnCounters(tableName, tcc)
+				housekeepingDone = true
+				if execErr != nil {
+					return execErr
+				}
+			}
+
+			for i, item := range iArr {
+				if item != nil {
+					if len(paramsUsed) > 0 {
+						for k, v := range paramsUsed {
+							if _, itemOk := item[k]; !itemOk {
+								item[k] = v
+							}
+						}
+					}
+
+					logging.GetLogger().Infoln(
+						fmt.Sprintf(
+							"running insert with query = '''%s''', control parameters: %v",
+							ss.insertPreparedStatementCtx.GetQuery(),
+							ss.insertPreparedStatementCtx.GetGCCtrlCtrs(),
+						),
+					)
+					r, rErr := ss.drmCfg.ExecuteInsertDML(
+						ss.handlerCtx.GetSQLEngine(),
+						ss.insertPreparedStatementCtx,
+						item,
+						reqEncoding,
+					)
+					logging.GetLogger().Infoln(
+						fmt.Sprintf(
+							"insert result = %v, error = %v",
+							r,
+							rErr,
+						),
+					)
+					if rErr != nil {
+						return fmt.Errorf(
+							"sql insert error: '%w' from query: %s",
+							rErr,
+							ss.insertPreparedStatementCtx.GetQuery(),
+						)
+					}
+					keys[strconv.Itoa(i)] = item
+				}
+			}
+		}
+	}
 	return nil
 }
 
@@ -214,7 +356,8 @@ func (ss *SingleSelectAcquire) Build() error {
 				return internaldto.NewErroneousExecutorOutput(paramErr)
 			}
 			reqEncoding := reqCtx.Encode()
-			elideOk := ss.elideActionIfPossible(currentTcc, tableName, reqEncoding)
+			elider := ss.elideActionIfPossible(currentTcc, tableName, reqEncoding)
+			elideOk := elider.IsElide(reqEncoding)
 			if elideOk {
 				return internaldto.NewEmptyExecutorOutput()
 			}
@@ -260,110 +403,19 @@ func (ss *SingleSelectAcquire) Build() error {
 				}
 				ss.handlerCtx.LogHTTPResponseMap(res.GetProcessedBody())
 				logging.GetLogger().Infoln(fmt.Sprintf("SingleSelectAcquire.Execute() response = %v", res))
-				var items interface{}
-				var ok bool
-				target := res.GetProcessedBody()
-				logging.GetLogger().Infoln(fmt.Sprintf("SingleSelectAcquire.Execute() target = %v", target))
-				switch pl := target.(type) {
-				// add case for xml object,
-				case map[string]interface{}:
-					if ss.tableMeta.GetSelectItemsKey() != "" && ss.tableMeta.GetSelectItemsKey() != "/*" {
-						items, ok = pl[ss.tableMeta.GetSelectItemsKey()]
-						if !ok {
-							if resErr != nil {
-								items = []interface{}{}
-								ok = true
-							} else {
-								items = []interface{}{
-									pl,
-								}
-								ok = true
-							}
-						}
-					} else {
-						items = []interface{}{
-							pl,
-						}
-						ok = true
-					}
-				case []interface{}:
-					items = pl
-					ok = true
-				case []map[string]interface{}:
-					items = pl
-					ok = true
-				case nil:
-					return internaldto.NewEmptyExecutorOutput()
+
+				insertPrepErr := ss.actionInsertPreparation(
+					res.GetProcessedBody(),
+					resErr,
+					housekeepingDone,
+					tableName,
+					paramsUsed,
+					reqEncoding,
+				)
+				if insertPrepErr != nil {
+					return internaldto.NewErroneousExecutorOutput(insertPrepErr)
 				}
-				keys := make(map[string]map[string]interface{})
 
-				//nolint:nestif // TODO: fix
-				if ok {
-					iArr, iErr := castItemsArray(items)
-					if iErr != nil {
-						return internaldto.NewErroneousExecutorOutput(iErr)
-					}
-					err = ss.stream.Write(iArr)
-					if err != nil {
-						return internaldto.NewErroneousExecutorOutput(err)
-					}
-					if ok && len(iArr) > 0 {
-						if !housekeepingDone && ss.insertPreparedStatementCtx != nil {
-							_, err = ss.handlerCtx.GetSQLEngine().Exec(ss.insertPreparedStatementCtx.GetGCHousekeepingQueries())
-							tcc := ss.insertPreparedStatementCtx.GetGCCtrlCtrs()
-							tcc.SetTableName(tableName)
-							//nolint:errcheck // TODO: fix
-							ss.insertionContainer.SetTableTxnCounters(tableName, tcc)
-							housekeepingDone = true
-						}
-						if err != nil {
-							return internaldto.NewErroneousExecutorOutput(err)
-						}
-
-						for i, item := range iArr {
-							if item != nil {
-								if err == nil {
-									for k, v := range paramsUsed {
-										if _, itemOk := item[k]; !itemOk {
-											item[k] = v
-										}
-									}
-								}
-
-								logging.GetLogger().Infoln(
-									fmt.Sprintf(
-										"running insert with query = '''%s''', control parameters: %v",
-										ss.insertPreparedStatementCtx.GetQuery(),
-										ss.insertPreparedStatementCtx.GetGCCtrlCtrs(),
-									),
-								)
-								r, rErr := ss.drmCfg.ExecuteInsertDML(
-									ss.handlerCtx.GetSQLEngine(),
-									ss.insertPreparedStatementCtx,
-									item,
-									reqEncoding,
-								)
-								logging.GetLogger().Infoln(
-									fmt.Sprintf(
-										"insert result = %v, error = %v",
-										r,
-										rErr,
-									),
-								)
-								if rErr != nil {
-									return internaldto.NewErroneousExecutorOutput(
-										fmt.Errorf(
-											"sql insert error: '%w' from query: %s",
-											rErr,
-											ss.insertPreparedStatementCtx.GetQuery(),
-										),
-									)
-								}
-								keys[strconv.Itoa(i)] = item
-							}
-						}
-					}
-				}
 				if npt == nil || nptRequest == nil {
 					break
 				}
