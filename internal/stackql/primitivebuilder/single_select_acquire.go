@@ -206,23 +206,56 @@ func newActionInsertResult(isHousekeepingDone bool, err error) ActionInsertResul
 	}
 }
 
-//nolint:nestif,funlen,gocognit // acceptable for now
-func (ss *SingleSelectAcquire) actionInsertPreparation(
+type itemsDTO struct {
+	items        interface{}
+	ok           bool
+	isNilPayload bool
+}
+
+type ItemisationResult interface {
+	GetItems() (interface{}, bool)
+	IsOk() bool
+	IsNilPayload() bool
+}
+
+func (id *itemsDTO) GetItems() (interface{}, bool) {
+	return id.items, id.items != nil
+}
+
+func (id *itemsDTO) IsOk() bool {
+	return id.ok
+}
+
+func (id *itemsDTO) IsNilPayload() bool {
+	return id.isNilPayload
+}
+
+func newItemisationResult(
+	items interface{},
+	ok bool,
+	isNilPayload bool,
+) ItemisationResult {
+	return &itemsDTO{
+		items:        items,
+		ok:           ok,
+		isNilPayload: isNilPayload,
+	}
+}
+
+//nolint:nestif // apathy
+func itemise(
 	target interface{},
 	resErr error,
-	housekeepingDone bool,
-	tableName string,
-	paramsUsed map[string]interface{},
-	reqEncoding string,
-) ActionInsertResult {
+	selectItemsKey string,
+) ItemisationResult {
 	var items interface{}
 	var ok bool
 	logging.GetLogger().Infoln(fmt.Sprintf("SingleSelectAcquire.Execute() target = %v", target))
 	switch pl := target.(type) {
 	// add case for xml object,
 	case map[string]interface{}:
-		if ss.tableMeta.GetSelectItemsKey() != "" && ss.tableMeta.GetSelectItemsKey() != "/*" {
-			items, ok = pl[ss.tableMeta.GetSelectItemsKey()]
+		if selectItemsKey != "" && selectItemsKey != "/*" {
+			items, ok = pl[selectItemsKey]
 			if !ok {
 				if resErr != nil {
 					items = []interface{}{}
@@ -247,76 +280,85 @@ func (ss *SingleSelectAcquire) actionInsertPreparation(
 		items = pl
 		ok = true
 	case nil:
-		return newActionInsertResult(housekeepingDone, nil)
+		return newItemisationResult(nil, false, true)
 	}
+	return newItemisationResult(items, ok, false)
+}
+
+//nolint:nestif,gocognit // acceptable for now
+func (ss *SingleSelectAcquire) actionInsertPreparation(
+	itemisationResult ItemisationResult,
+	housekeepingDone bool,
+	tableName string,
+	paramsUsed map[string]interface{},
+	reqEncoding string,
+) ActionInsertResult {
+	items, _ := itemisationResult.GetItems()
 	keys := make(map[string]map[string]interface{})
-
-	//nolint:nestif // TODO: fix
-	if ok {
-		iArr, iErr := castItemsArray(items)
-		if iErr != nil {
-			return newActionInsertResult(housekeepingDone, iErr)
-		}
-		streamErr := ss.stream.Write(iArr)
-		if streamErr != nil {
-			return newActionInsertResult(housekeepingDone, streamErr)
-		}
-		if ok && len(iArr) > 0 {
-			if !housekeepingDone && ss.insertPreparedStatementCtx != nil {
-				_, execErr := ss.handlerCtx.GetSQLEngine().Exec(ss.insertPreparedStatementCtx.GetGCHousekeepingQueries())
-				tcc := ss.insertPreparedStatementCtx.GetGCCtrlCtrs()
-				tcc.SetTableName(tableName)
-				//nolint:errcheck // TODO: fix
-				ss.insertionContainer.SetTableTxnCounters(tableName, tcc)
-				housekeepingDone = true
-				if execErr != nil {
-					return newActionInsertResult(housekeepingDone, execErr)
-				}
+	iArr, iErr := castItemsArray(items)
+	if iErr != nil {
+		return newActionInsertResult(housekeepingDone, iErr)
+	}
+	streamErr := ss.stream.Write(iArr)
+	if streamErr != nil {
+		return newActionInsertResult(housekeepingDone, streamErr)
+	}
+	if len(iArr) > 0 {
+		if !housekeepingDone && ss.insertPreparedStatementCtx != nil {
+			_, execErr := ss.handlerCtx.GetSQLEngine().Exec(ss.insertPreparedStatementCtx.GetGCHousekeepingQueries())
+			tcc := ss.insertPreparedStatementCtx.GetGCCtrlCtrs()
+			tcc.SetTableName(tableName)
+			//nolint:errcheck // TODO: fix
+			ss.insertionContainer.SetTableTxnCounters(tableName, tcc)
+			housekeepingDone = true
+			if execErr != nil {
+				return newActionInsertResult(housekeepingDone, execErr)
 			}
+		}
 
-			for i, item := range iArr {
-				if item != nil {
-					if len(paramsUsed) > 0 {
-						for k, v := range paramsUsed {
-							if _, itemOk := item[k]; !itemOk {
-								item[k] = v
-							}
+		for i, item := range iArr {
+			if item != nil {
+				if len(paramsUsed) > 0 {
+					for k, v := range paramsUsed {
+						if _, itemOk := item[k]; !itemOk {
+							item[k] = v
 						}
 					}
-
-					logging.GetLogger().Infoln(
-						fmt.Sprintf(
-							"running insert with query = '''%s''', control parameters: %v",
-							ss.insertPreparedStatementCtx.GetQuery(),
-							ss.insertPreparedStatementCtx.GetGCCtrlCtrs(),
-						),
-					)
-					r, rErr := ss.drmCfg.ExecuteInsertDML(
-						ss.handlerCtx.GetSQLEngine(),
-						ss.insertPreparedStatementCtx,
-						item,
-						reqEncoding,
-					)
-					logging.GetLogger().Infoln(
-						fmt.Sprintf(
-							"insert result = %v, error = %v",
-							r,
-							rErr,
-						),
-					)
-					if rErr != nil {
-						expandedErr := fmt.Errorf(
-							"sql insert error: '%w' from query: %s",
-							rErr,
-							ss.insertPreparedStatementCtx.GetQuery(),
-						)
-						return newActionInsertResult(housekeepingDone, expandedErr)
-					}
-					keys[strconv.Itoa(i)] = item
 				}
+
+				logging.GetLogger().Infoln(
+					fmt.Sprintf(
+						"running insert with query = '''%s''', control parameters: %v",
+						ss.insertPreparedStatementCtx.GetQuery(),
+						ss.insertPreparedStatementCtx.GetGCCtrlCtrs(),
+					),
+				)
+				r, rErr := ss.drmCfg.ExecuteInsertDML(
+					ss.handlerCtx.GetSQLEngine(),
+					ss.insertPreparedStatementCtx,
+					item,
+					reqEncoding,
+				)
+				logging.GetLogger().Infoln(
+					fmt.Sprintf(
+						"insert result = %v, error = %v",
+						r,
+						rErr,
+					),
+				)
+				if rErr != nil {
+					expandedErr := fmt.Errorf(
+						"sql insert error: '%w' from query: %s",
+						rErr,
+						ss.insertPreparedStatementCtx.GetQuery(),
+					)
+					return newActionInsertResult(housekeepingDone, expandedErr)
+				}
+				keys[strconv.Itoa(i)] = item
 			}
 		}
 	}
+
 	return newActionInsertResult(housekeepingDone, nil)
 }
 
@@ -431,9 +473,14 @@ func (ss *SingleSelectAcquire) Build() error {
 				ss.handlerCtx.LogHTTPResponseMap(res.GetProcessedBody())
 				logging.GetLogger().Infoln(fmt.Sprintf("SingleSelectAcquire.Execute() response = %v", res))
 
+				itemisationResult := itemise(res.GetProcessedBody(), resErr, ss.tableMeta.GetSelectItemsKey())
+
+				if itemisationResult.IsNilPayload() {
+					break
+				}
+
 				insertPrepResult := ss.actionInsertPreparation(
-					res.GetProcessedBody(),
-					resErr,
+					itemisationResult,
 					housekeepingDone,
 					tableName,
 					paramsUsed,
