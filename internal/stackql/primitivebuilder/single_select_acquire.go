@@ -2,15 +2,18 @@ package primitivebuilder
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 	"strconv"
 
+	"github.com/stackql/any-sdk/anysdk"
+	"github.com/stackql/any-sdk/pkg/dto"
 	"github.com/stackql/any-sdk/pkg/httpelement"
 	"github.com/stackql/any-sdk/pkg/logging"
 	"github.com/stackql/any-sdk/pkg/response"
 	"github.com/stackql/any-sdk/pkg/streaming"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
-	"github.com/stackql/stackql/internal/stackql/httpmiddleware"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/primitive_context"
 	"github.com/stackql/stackql/internal/stackql/primitive"
@@ -285,6 +288,143 @@ func itemise(
 	return newItemisationResult(items, ok, false)
 }
 
+func inferNextPageResponseElement(provider anysdk.Provider, method anysdk.OperationStore) sdk_internal_dto.HTTPElement {
+	st, ok := method.GetPaginationResponseTokenSemantic()
+	if ok {
+		if tp, err := sdk_internal_dto.ExtractHTTPElement(st.GetLocation()); err == nil {
+			rv := sdk_internal_dto.NewHTTPElement(
+				tp,
+				st.GetKey(),
+			)
+			transformer, tErr := st.GetTransformer()
+			if tErr == nil && transformer != nil {
+				rv.SetTransformer(transformer)
+			}
+			return rv
+		}
+	}
+	providerStr := provider.GetName()
+	switch providerStr {
+	case "github", "okta":
+		rv := sdk_internal_dto.NewHTTPElement(
+			sdk_internal_dto.Header,
+			"Link",
+		)
+		rv.SetTransformer(anysdk.DefaultLinkHeaderTransformer)
+		return rv
+	default:
+		return sdk_internal_dto.NewHTTPElement(
+			sdk_internal_dto.BodyAttribute,
+			"nextPageToken",
+		)
+	}
+}
+
+func inferNextPageRequestElement(provider anysdk.Provider, method anysdk.OperationStore) sdk_internal_dto.HTTPElement {
+	st, ok := method.GetPaginationRequestTokenSemantic()
+	if ok {
+		if tp, err := sdk_internal_dto.ExtractHTTPElement(st.GetLocation()); err == nil {
+			rv := sdk_internal_dto.NewHTTPElement(
+				tp,
+				st.GetKey(),
+			)
+			transformer, tErr := st.GetTransformer()
+			if tErr == nil && transformer != nil {
+				rv.SetTransformer(transformer)
+			}
+			return rv
+		}
+	}
+	providerStr := provider.GetName()
+	switch providerStr {
+	case "github", "okta":
+		return sdk_internal_dto.NewHTTPElement(
+			sdk_internal_dto.RequestString,
+			"",
+		)
+	default:
+		return sdk_internal_dto.NewHTTPElement(
+			sdk_internal_dto.QueryParam,
+			"pageToken",
+		)
+	}
+}
+
+type PagingState interface {
+	GetPageCount() int
+	IsFinished() bool
+	GetHTTPResponse() *http.Response
+	GetAPIError() error
+}
+
+type httpPagingState struct {
+	pageCount    int
+	isFinished   bool
+	httpResponse *http.Response
+	apiErr       error
+}
+
+func (hps *httpPagingState) GetPageCount() int {
+	return hps.pageCount
+}
+
+func (hps *httpPagingState) IsFinished() bool {
+	return hps.isFinished
+}
+
+func (hps *httpPagingState) GetHTTPResponse() *http.Response {
+	return hps.httpResponse
+}
+
+func (hps *httpPagingState) GetAPIError() error {
+	return hps.apiErr
+}
+
+func newPagingState(
+	pageCount int,
+	isFinished bool,
+	httpResponse *http.Response,
+	apiErr error,
+) PagingState {
+	return &httpPagingState{
+		pageCount:    pageCount,
+		isFinished:   isFinished,
+		httpResponse: httpResponse,
+		apiErr:       apiErr,
+	}
+}
+
+func page(
+	res response.Response,
+	method anysdk.OperationStore,
+	provider anysdk.Provider,
+	reqCtx anysdk.HTTPArmouryParameters,
+	pageCount int,
+	rtCtx dto.RuntimeCtx,
+	authCtx *dto.AuthCtx,
+	outErrFile io.Writer,
+) PagingState {
+	npt := inferNextPageResponseElement(provider, method)
+	nptRequest := inferNextPageRequestElement(provider, method)
+	if npt == nil || nptRequest == nil {
+		return newPagingState(pageCount, true, nil, nil)
+	}
+	tk := extractNextPageToken(res, npt)
+	//nolint:lll // long conditional
+	if tk == "" || tk == "<nil>" || tk == "[]" || (rtCtx.HTTPPageLimit > 0 && pageCount >= rtCtx.HTTPPageLimit) {
+		return newPagingState(pageCount, true, nil, nil)
+	}
+	pageCount++
+	req, reqErr := reqCtx.SetNextPage(method, tk, nptRequest)
+	if reqErr != nil {
+		return newPagingState(pageCount, true, nil, reqErr)
+	}
+	cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
+	response, apiErr := anysdk.HTTPApiCallFromRequest(
+		cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider, method, req)
+	return newPagingState(pageCount, false, response, apiErr)
+}
+
 //nolint:nestif,gocognit // acceptable for now
 func (ss *SingleSelectAcquire) actionInsertPreparation(
 	itemisationResult ItemisationResult,
@@ -368,6 +508,10 @@ func (ss *SingleSelectAcquire) Build() error {
 	if err != nil {
 		return err
 	}
+	provider, providerErr := prov.GetProvider()
+	if providerErr != nil {
+		return providerErr
+	}
 	m, err := ss.tableMeta.GetMethod()
 	if err != nil {
 		return err
@@ -375,6 +519,10 @@ func (ss *SingleSelectAcquire) Build() error {
 	tableName, err := ss.tableMeta.GetTableName()
 	if err != nil {
 		return err
+	}
+	authCtx, authCtxErr := ss.handlerCtx.GetAuthContext(prov.GetProviderString())
+	if authCtxErr != nil {
+		return authCtxErr
 	}
 	ex := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 		logging.GetLogger().Infof("SingleSelectAcquire.Execute() beginning execution for table %s", tableName)
@@ -431,9 +579,15 @@ func (ss *SingleSelectAcquire) Build() error {
 				return internaldto.NewEmptyExecutorOutput()
 			}
 			// TODO: fix cloning ops
-			response, apiErr := httpmiddleware.HTTPApiCallFromRequest(
-				ss.handlerCtx.Clone(),
-				prov,
+			cc := anysdk.NewAnySdkClientConfigurator(ss.handlerCtx.GetRuntimeContext(), provider.GetName())
+			response, apiErr := anysdk.HTTPApiCallFromRequest(
+				cc,
+				ss.handlerCtx.GetRuntimeContext(),
+				authCtx,
+				authCtx.Type,
+				false,
+				ss.handlerCtx.GetOutErrFile(),
+				provider,
 				m,
 				reqCtx.GetRequest().Clone(
 					reqCtx.GetRequest().Context(),
@@ -444,8 +598,7 @@ func (ss *SingleSelectAcquire) Build() error {
 				continue
 			}
 			housekeepingDone := false
-			npt := prov.InferNextPageResponseElement(ss.tableMeta.GetHeirarchyObjects())
-			nptRequest := prov.InferNextPageRequestElement(ss.tableMeta.GetHeirarchyObjects())
+			nptRequest := inferNextPageRequestElement(provider, m)
 			pageCount := 1
 			for {
 				if apiErr != nil {
@@ -492,20 +645,25 @@ func (ss *SingleSelectAcquire) Build() error {
 					return internaldto.NewErroneousExecutorOutput(insertPrepErr)
 				}
 
-				if npt == nil || nptRequest == nil {
+				pageResult := page(
+					res,
+					m,
+					provider,
+					reqCtx,
+					pageCount,
+					ss.handlerCtx.GetRuntimeContext(),
+					authCtx,
+					ss.handlerCtx.GetOutErrFile(),
+				)
+
+				if pageResult.IsFinished() {
 					break
 				}
-				tk := extractNextPageToken(res, npt)
-				//nolint:lll // long conditional
-				if tk == "" || tk == "<nil>" || tk == "[]" || (ss.handlerCtx.GetRuntimeContext().HTTPPageLimit > 0 && pageCount >= ss.handlerCtx.GetRuntimeContext().HTTPPageLimit) {
-					break
-				}
-				pageCount++
-				req, reqErr := reqCtx.SetNextPage(m, tk, nptRequest)
-				if reqErr != nil {
-					return internaldto.NewErroneousExecutorOutput(reqErr)
-				}
-				response, apiErr = httpmiddleware.HTTPApiCallFromRequest(ss.handlerCtx.Clone(), prov, m, req)
+
+				pageCount = pageResult.GetPageCount()
+
+				response = pageResult.GetHTTPResponse()
+				apiErr = pageResult.GetAPIError()
 			}
 			if reqCtx.GetRequest() != nil {
 				q := reqCtx.GetRequest().URL.Query()
