@@ -11,7 +11,6 @@ import (
 	"github.com/stackql/any-sdk/pkg/logging"
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/handler"
-	"github.com/stackql/stackql/internal/stackql/httpmiddleware"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/provider"
@@ -216,6 +215,12 @@ func (gm *DefaultGoogleAsyncMonitor) getV1Monitor(
 	if comments != nil {
 		asyncPrim.noStatus = comments.IsSet("NOSTATUS")
 	}
+	provider, err := prov.GetProvider()
+	if err != nil {
+		return nil, err
+	}
+	rtCtx := gm.handlerCtx.GetRuntimeContext()
+	outErrFile := gm.handlerCtx.GetOutErrFile()
 	m := gm.op
 	if m.IsAwaitable() { //nolint:nestif // encapulation probably sufficient
 		asyncPrim.executor = func(pc primitive.IPrimitiveCtx, bd interface{}) internaldto.ExecutorOutput {
@@ -281,7 +286,9 @@ func (gm *DefaultGoogleAsyncMonitor) getV1Monitor(
 			if err != nil {
 				return internaldto.NewExecutorOutput(nil, nil, nil, nil, err)
 			}
-			response, apiErr := httpmiddleware.HTTPApiCallFromRequest(gm.handlerCtx.Clone(), gm.prov, m, req)
+			cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
+			response, apiErr := anysdk.HTTPApiCallFromRequest(
+				cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider, m, req)
 			if response != nil && response.Body != nil {
 				defer response.Body.Close()
 			}

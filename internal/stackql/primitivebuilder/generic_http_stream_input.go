@@ -12,7 +12,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
-	"github.com/stackql/stackql/internal/stackql/httpmiddleware"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/builder_input"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/primitive_context"
@@ -141,6 +140,16 @@ func (gh *genericHTTPStreamInput) Build() error {
 	if err != nil {
 		return err
 	}
+	provider, providerErr := prov.GetProvider()
+	if providerErr != nil {
+		return providerErr
+	}
+	rtCtx := handlerCtx.GetRuntimeContext()
+	authCtx, authCtxErr := handlerCtx.GetAuthContext(provider.GetName())
+	if authCtxErr != nil {
+		return authCtxErr
+	}
+	outErrFile := handlerCtx.GetOutErrFile()
 	svc, err := tbl.GetService()
 	if err != nil {
 		return err
@@ -223,7 +232,9 @@ func (gh *genericHTTPStreamInput) Build() error {
 		for _, r := range httpArmoury.GetRequestParams() {
 			req := r
 			nullaryEx := func() internaldto.ExecutorOutput {
-				response, apiErr := httpmiddleware.HTTPApiCallFromRequest(handlerCtx.Clone(), prov, m, req.GetRequest())
+				cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
+				response, apiErr := anysdk.HTTPApiCallFromRequest(
+					cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider, m, req.GetRequest())
 				if apiErr != nil {
 					return internaldto.NewErroneousExecutorOutput(apiErr)
 				}
