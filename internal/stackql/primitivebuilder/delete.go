@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/stackql/any-sdk/anysdk"
 	"github.com/stackql/any-sdk/pkg/logging"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
-	"github.com/stackql/stackql/internal/stackql/httpmiddleware"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/primitive_context"
 	"github.com/stackql/stackql/internal/stackql/primitive"
@@ -64,6 +64,16 @@ func (ss *Delete) Build() error {
 	if err != nil {
 		return err
 	}
+	provider, err := prov.GetProvider()
+	if err != nil {
+		return err
+	}
+	rtCtx := handlerCtx.GetRuntimeContext()
+	authCtx, err := handlerCtx.GetAuthContext(provider.GetName())
+	if err != nil {
+		return err
+	}
+	outErrFile := handlerCtx.GetOutErrFile()
 	m, err := tbl.GetMethod()
 	if err != nil {
 		return err
@@ -79,7 +89,9 @@ func (ss *Delete) Build() error {
 			))
 		}
 		for _, req := range httpArmoury.GetRequestParams() {
-			response, apiErr := httpmiddleware.HTTPApiCallFromRequest(handlerCtx.Clone(), prov, m, req.GetRequest())
+			cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
+			response, apiErr := anysdk.HTTPApiCallFromRequest(
+				cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider, m, req.GetRequest())
 			if apiErr != nil {
 				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil,
 					ss.handlerCtx.GetTypingConfig(),

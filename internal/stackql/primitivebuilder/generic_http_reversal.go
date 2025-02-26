@@ -11,7 +11,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
-	"github.com/stackql/stackql/internal/stackql/httpmiddleware"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/builder_input"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/primitive_context"
@@ -99,7 +98,17 @@ func (gh *genericHTTPReversal) decorateOutput(
 func (gh *genericHTTPReversal) Build() error {
 	m := gh.op
 	prov := gh.prov
+	provider, providerErr := prov.GetProvider()
+	if providerErr != nil {
+		return providerErr
+	}
 	handlerCtx := gh.handlerCtx
+	rtCtx := handlerCtx.GetRuntimeContext()
+	authCtx, authCtxErr := handlerCtx.GetAuthContext(provider.GetName())
+	if authCtxErr != nil {
+		return authCtxErr
+	}
+	outErrFile := handlerCtx.GetOutErrFile()
 	commentDirectives := gh.commentDirectives
 	isAwait := gh.isAwait
 	_, _, responseAnalysisErr := m.GetResponseBodySchemaAndMediaType()
@@ -129,7 +138,9 @@ func (gh *genericHTTPReversal) Build() error {
 			for _, r := range httpArmoury.GetRequestParams() {
 				req := r
 				nullaryEx := func() internaldto.ExecutorOutput {
-					response, apiErr := httpmiddleware.HTTPApiCallFromRequest(handlerCtx.Clone(), prov, m, req.GetRequest())
+					cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
+					response, apiErr := anysdk.HTTPApiCallFromRequest(
+						cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider, m, req.GetRequest())
 					if apiErr != nil {
 						return internaldto.NewErroneousExecutorOutput(apiErr)
 					}
