@@ -109,18 +109,18 @@ func (ss *SingleSelectAcquire) GetTail() primitivegraph.PrimitiveNode {
 	return ss.root
 }
 
-type eliderPayload struct {
-	currentTcc  internaldto.TxnControlCounters
-	tableName   string
-	reqEncoding string
-}
+// type eliderPayload struct {
+// 	currentTcc  internaldto.TxnControlCounters
+// 	tableName   string
+// 	reqEncoding string
+// }
 
 type standardMethodElider struct {
 	elisionFunc func(...any) bool
 }
 
 func (sme *standardMethodElider) IsElide(argz ...any) bool {
-	return sme.elisionFunc(argz)
+	return sme.elisionFunc(argz...)
 }
 
 func newStandardMethodElider(elisionFunc func(...any) bool) methodElider {
@@ -135,7 +135,7 @@ func (ss *SingleSelectAcquire) elideActionIfPossible(
 	tableName string,
 	reqEncoding string,
 ) methodElider {
-	elisionFunc := func(argz ...any) bool {
+	elisionFunc := func(_ ...any) bool {
 		olderTcc, isMatch := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(
 			tableName,
 			reqEncoding,
@@ -174,13 +174,39 @@ type methodElider interface {
 	IsElide(...any) bool
 }
 
-func (ss *SingleSelectAcquire) actionHTTP(
-	elider methodElider,
-) error {
-	return nil
+// func (ss *SingleSelectAcquire) actionHTTP(
+// 	_ methodElider,
+// ) error {
+// 	return nil
+// }
+
+type actionInsertResult struct {
+	err                error
+	isHousekeepingDone bool
 }
 
-//nolint:nestif,funlen // acceptable for now
+type ActionInsertResult interface {
+	GetError() (error, bool)
+	IsHousekeepingDone() bool
+}
+
+//nolint:revive // no idea why this is a thing
+func (air *actionInsertResult) GetError() (error, bool) {
+	return air.err, air.err != nil
+}
+
+func (air *actionInsertResult) IsHousekeepingDone() bool {
+	return air.isHousekeepingDone
+}
+
+func newActionInsertResult(isHousekeepingDone bool, err error) ActionInsertResult {
+	return &actionInsertResult{
+		err:                err,
+		isHousekeepingDone: isHousekeepingDone,
+	}
+}
+
+//nolint:nestif,funlen,gocognit // acceptable for now
 func (ss *SingleSelectAcquire) actionInsertPreparation(
 	target interface{},
 	resErr error,
@@ -188,7 +214,7 @@ func (ss *SingleSelectAcquire) actionInsertPreparation(
 	tableName string,
 	paramsUsed map[string]interface{},
 	reqEncoding string,
-) error {
+) ActionInsertResult {
 	var items interface{}
 	var ok bool
 	logging.GetLogger().Infoln(fmt.Sprintf("SingleSelectAcquire.Execute() target = %v", target))
@@ -221,7 +247,7 @@ func (ss *SingleSelectAcquire) actionInsertPreparation(
 		items = pl
 		ok = true
 	case nil:
-		return nil
+		return newActionInsertResult(housekeepingDone, nil)
 	}
 	keys := make(map[string]map[string]interface{})
 
@@ -229,11 +255,11 @@ func (ss *SingleSelectAcquire) actionInsertPreparation(
 	if ok {
 		iArr, iErr := castItemsArray(items)
 		if iErr != nil {
-			return iErr
+			return newActionInsertResult(housekeepingDone, iErr)
 		}
 		streamErr := ss.stream.Write(iArr)
 		if streamErr != nil {
-			return streamErr
+			return newActionInsertResult(housekeepingDone, streamErr)
 		}
 		if ok && len(iArr) > 0 {
 			if !housekeepingDone && ss.insertPreparedStatementCtx != nil {
@@ -244,7 +270,7 @@ func (ss *SingleSelectAcquire) actionInsertPreparation(
 				ss.insertionContainer.SetTableTxnCounters(tableName, tcc)
 				housekeepingDone = true
 				if execErr != nil {
-					return execErr
+					return newActionInsertResult(housekeepingDone, execErr)
 				}
 			}
 
@@ -279,21 +305,22 @@ func (ss *SingleSelectAcquire) actionInsertPreparation(
 						),
 					)
 					if rErr != nil {
-						return fmt.Errorf(
+						expandedErr := fmt.Errorf(
 							"sql insert error: '%w' from query: %s",
 							rErr,
 							ss.insertPreparedStatementCtx.GetQuery(),
 						)
+						return newActionInsertResult(housekeepingDone, expandedErr)
 					}
 					keys[strconv.Itoa(i)] = item
 				}
 			}
 		}
 	}
-	return nil
+	return newActionInsertResult(housekeepingDone, nil)
 }
 
-//nolint:funlen,gocognit,gocyclo,cyclop,nestif,revive // TODO: investigate
+//nolint:funlen,gocognit,gocyclo,cyclop,revive // TODO: investigate
 func (ss *SingleSelectAcquire) Build() error {
 	prov, err := ss.tableMeta.GetProvider()
 	if err != nil {
@@ -404,7 +431,7 @@ func (ss *SingleSelectAcquire) Build() error {
 				ss.handlerCtx.LogHTTPResponseMap(res.GetProcessedBody())
 				logging.GetLogger().Infoln(fmt.Sprintf("SingleSelectAcquire.Execute() response = %v", res))
 
-				insertPrepErr := ss.actionInsertPreparation(
+				insertPrepResult := ss.actionInsertPreparation(
 					res.GetProcessedBody(),
 					resErr,
 					housekeepingDone,
@@ -412,7 +439,9 @@ func (ss *SingleSelectAcquire) Build() error {
 					paramsUsed,
 					reqEncoding,
 				)
-				if insertPrepErr != nil {
+				housekeepingDone = insertPrepResult.IsHousekeepingDone()
+				insertPrepErr, hasInsertPrepErr := insertPrepResult.GetError()
+				if hasInsertPrepErr {
 					return internaldto.NewErroneousExecutorOutput(insertPrepErr)
 				}
 
