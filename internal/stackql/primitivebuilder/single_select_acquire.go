@@ -109,6 +109,48 @@ func (ss *SingleSelectAcquire) GetTail() primitivegraph.PrimitiveNode {
 	return ss.root
 }
 
+//nolint:lll // chaining
+func (ss *SingleSelectAcquire) elideActionIfPossible(
+	currentTcc internaldto.TxnControlCounters,
+	tableName string,
+	reqEncoding string,
+) bool {
+	olderTcc, isMatch := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(
+		tableName,
+		reqEncoding,
+		ss.drmCfg.GetControlAttributes().GetControlLatestUpdateColumnName(), ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIDColumnName())
+	if isMatch {
+		nonControlColumns := ss.insertPreparedStatementCtx.GetNonControlColumns()
+		var nonControlColumnNames []string
+		for _, c := range nonControlColumns {
+			nonControlColumnNames = append(nonControlColumnNames, c.GetName())
+		}
+		//nolint:errcheck // TODO: fix
+		ss.handlerCtx.GetGarbageCollector().Update(
+			tableName,
+			olderTcc.Clone(),
+			currentTcc,
+		)
+		//nolint:errcheck // TODO: fix
+		ss.insertionContainer.SetTableTxnCounters(tableName, olderTcc)
+		ss.insertPreparedStatementCtx.SetGCCtrlCtrs(olderTcc)
+		r, sqlErr := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Read(
+			tableName, reqEncoding,
+			ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIDColumnName(),
+			nonControlColumnNames)
+		if sqlErr != nil {
+			internaldto.NewErroneousExecutorOutput(sqlErr)
+		}
+		ss.drmCfg.ExtractObjectFromSQLRows(r, nonControlColumns, ss.stream)
+		return true
+	}
+	return false
+}
+
+func (ss *SingleSelectAcquire) actionHTTP() error {
+	return nil
+}
+
 //nolint:funlen,gocognit,gocyclo,cyclop,nestif,revive // TODO: investigate
 func (ss *SingleSelectAcquire) Build() error {
 	prov, err := ss.tableMeta.GetProvider()
@@ -172,31 +214,8 @@ func (ss *SingleSelectAcquire) Build() error {
 				return internaldto.NewErroneousExecutorOutput(paramErr)
 			}
 			reqEncoding := reqCtx.Encode()
-			//nolint:lll // chaining
-			olderTcc, isMatch := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(tableName, reqEncoding, ss.drmCfg.GetControlAttributes().GetControlLatestUpdateColumnName(), ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIDColumnName())
-			if isMatch {
-				nonControlColumns := ss.insertPreparedStatementCtx.GetNonControlColumns()
-				var nonControlColumnNames []string
-				for _, c := range nonControlColumns {
-					nonControlColumnNames = append(nonControlColumnNames, c.GetName())
-				}
-				//nolint:errcheck // TODO: fix
-				ss.handlerCtx.GetGarbageCollector().Update(
-					tableName,
-					olderTcc.Clone(),
-					currentTcc,
-				)
-				//nolint:errcheck // TODO: fix
-				ss.insertionContainer.SetTableTxnCounters(tableName, olderTcc)
-				ss.insertPreparedStatementCtx.SetGCCtrlCtrs(olderTcc)
-				r, sqlErr := ss.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Read(
-					tableName, reqEncoding,
-					ss.drmCfg.GetControlAttributes().GetControlInsertEncodedIDColumnName(),
-					nonControlColumnNames)
-				if sqlErr != nil {
-					internaldto.NewErroneousExecutorOutput(sqlErr)
-				}
-				ss.drmCfg.ExtractObjectFromSQLRows(r, nonControlColumns, ss.stream)
+			elideOk := ss.elideActionIfPossible(currentTcc, tableName, reqEncoding)
+			if elideOk {
 				return internaldto.NewEmptyExecutorOutput()
 			}
 			// TODO: fix cloning ops
