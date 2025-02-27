@@ -933,7 +933,6 @@ func (pb *standardPrimitiveGenerator) expandTable(
 	return nil
 }
 
-//nolint:unparam,revive // TODO: review
 func (pb *standardPrimitiveGenerator) buildRequestContext(
 	node sqlparser.SQLNode,
 	meta tablemetadata.ExtendedTableMetadata,

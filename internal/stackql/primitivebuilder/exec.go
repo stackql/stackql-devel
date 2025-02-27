@@ -88,16 +88,27 @@ func (ss *Exec) Build() error {
 		}
 		for i, req := range httpArmoury.GetRequestParams() {
 			cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
-			response, apiErr := anysdk.HTTPApiCallFromRequest(
-				cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider, m, req.GetRequest())
+			response, apiErr := anysdk.CallFromSignature(
+				cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider,
+				anysdk.NewAnySdkOpStoreDesignation(m), req.GetArgList(),
+			)
 			if apiErr != nil {
 				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil,
 					handlerCtx.GetTypingConfig(),
 				))
 			}
+			httpResponse, httpResponseErr := response.GetHttpResponse()
+			if httpResponse != nil && httpResponse.Body != nil {
+				defer httpResponse.Body.Close()
+			}
+			if httpResponseErr != nil {
+				return util.PrepareResultSet(
+					internaldto.NewPrepareResultSetDTO(nil, nil, nil, nil, httpResponseErr, nil,
+						handlerCtx.GetTypingConfig()))
+			}
 			if isNullary {
 				//nolint:mnd // acceptable for now
-				if response.StatusCode <= 300 {
+				if httpResponse.StatusCode <= 300 {
 					continue
 				}
 				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(
@@ -105,12 +116,12 @@ func (ss *Exec) Build() error {
 					nil,
 					nil,
 					nil,
-					fmt.Errorf("HTTP request failed with status code %d", response.StatusCode),
+					fmt.Errorf("HTTP request failed with status code %d", httpResponse.StatusCode),
 					nil,
 					handlerCtx.GetTypingConfig(),
 				))
 			}
-			target, err = m.DeprecatedProcessResponse(response)
+			target, err = m.DeprecatedProcessResponse(httpResponse)
 			handlerCtx.LogHTTPResponseMap(target)
 			if err != nil {
 				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(

@@ -233,15 +233,23 @@ func (gh *genericHTTPStreamInput) Build() error {
 			req := r
 			nullaryEx := func() internaldto.ExecutorOutput {
 				cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
-				response, apiErr := anysdk.HTTPApiCallFromRequest(
-					cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider, m, req.GetRequest())
+				response, apiErr := anysdk.CallFromSignature(
+					cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider,
+					anysdk.NewAnySdkOpStoreDesignation(m), req.GetArgList())
 				if apiErr != nil {
 					return internaldto.NewErroneousExecutorOutput(apiErr)
+				}
+				httpResponse, httpResponseErr := response.GetHttpResponse()
+				if httpResponse != nil && httpResponse.Body != nil {
+					defer httpResponse.Body.Close()
+				}
+				if httpResponseErr != nil {
+					return internaldto.NewErroneousExecutorOutput(httpResponseErr)
 				}
 
 				if responseAnalysisErr == nil {
 					var resp pkg_response.Response
-					processed, procErr := m.ProcessResponse(response)
+					processed, procErr := m.ProcessResponse(httpResponse)
 					if err != nil {
 						return internaldto.NewErroneousExecutorOutput(procErr)
 					}
@@ -283,7 +291,7 @@ func (gh *genericHTTPStreamInput) Build() error {
 					}
 				}
 				if err == nil {
-					if response.StatusCode < 300 { //nolint:mnd // TODO: fix this
+					if httpResponse.StatusCode < 300 { //nolint:mnd // TODO: fix this
 						msgs := internaldto.NewBackendMessages(
 							generateSuccessMessagesFromHeirarchy(tbl, isAwait),
 						)
@@ -298,7 +306,7 @@ func (gh *genericHTTPStreamInput) Build() error {
 							tableName,
 						)
 					}
-					generatedErr := fmt.Errorf("insert over HTTP error: %s", response.Status)
+					generatedErr := fmt.Errorf("insert over HTTP error: %s", httpResponse.Status)
 					return internaldto.NewExecutorOutput(
 						nil,
 						target,
