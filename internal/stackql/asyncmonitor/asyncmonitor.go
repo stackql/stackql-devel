@@ -1,9 +1,7 @@
 package asyncmonitor
 
 import (
-	"context"
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 
@@ -258,9 +256,9 @@ func (gm *DefaultGoogleAsyncMonitor) getV1Monitor(
 				)
 			}
 			prStr := gm.prov.GetProviderString()
-			authCtx, err := pc.GetAuthContext(prStr)
-			if err != nil {
-				return internaldto.NewExecutorOutput(nil, nil, nil, nil, err)
+			authCtx, authErr := pc.GetAuthContext(prStr)
+			if authErr != nil {
+				return internaldto.NewExecutorOutput(nil, nil, nil, nil, authErr)
 			}
 			if authCtx == nil {
 				return internaldto.NewExecutorOutput(nil, nil, nil, nil, fmt.Errorf("cannot execute monitor: no auth context"))
@@ -279,26 +277,29 @@ func (gm *DefaultGoogleAsyncMonitor) getV1Monitor(
 					),
 				)
 			}
-			req, err := getMonitorRequest(url.(string))
-			if req != nil && req.Body != nil {
-				defer req.Body.Close()
-			}
-			if err != nil {
-				return internaldto.NewExecutorOutput(nil, nil, nil, nil, err)
+			req, monitorReqErr := anysdk.GetMonitorRequest(url.(string))
+			if monitorReqErr != nil {
+				return internaldto.NewExecutorOutput(nil, nil, nil, nil, monitorReqErr)
 			}
 			cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
-			response, apiErr := anysdk.HTTPApiCallFromRequest(
-				cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider, m, req)
-			if response != nil && response.Body != nil {
-				defer response.Body.Close()
-			}
+			anySdkResponse, apiErr := anysdk.CallFromSignature(
+				cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider, anysdk.NewAnySdkOpStoreDesignation(m), req)
+
 			if apiErr != nil {
 				return internaldto.NewExecutorOutput(nil, nil, nil, nil, apiErr)
 			}
-			target, err := m.DeprecatedProcessResponse(response)
+			httpResponse, httpResponseErr := anySdkResponse.GetHttpResponse()
+			if httpResponseErr != nil {
+				return internaldto.NewExecutorOutput(nil, nil, nil, nil, httpResponseErr)
+			}
+
+			if httpResponse != nil && httpResponse.Body != nil {
+				defer httpResponse.Body.Close()
+			}
+			target, targetErr := m.DeprecatedProcessResponse(httpResponse)
 			gm.handlerCtx.LogHTTPResponseMap(target)
-			if err != nil {
-				return internaldto.NewExecutorOutput(nil, nil, nil, nil, err)
+			if targetErr != nil {
+				return internaldto.NewExecutorOutput(nil, nil, nil, nil, targetErr)
 			}
 			return asyncPrim.executor(internaldto.NewBasicPrimitiveContext(
 				pc.GetAuthContext,
@@ -331,17 +332,4 @@ func prepareReultSet(
 		pc.GetWriter().Write([]byte(fmt.Sprintf("%s complete", operationDescriptor) + fmt.Sprintln("")))
 	}
 	return util.PrepareResultSet(payload)
-}
-
-func getMonitorRequest(urlStr string) (*http.Request, error) {
-	req, err := http.NewRequest(
-		http.MethodGet,
-		urlStr,
-		nil,
-	)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(context.Background())
-	return req, nil
 }

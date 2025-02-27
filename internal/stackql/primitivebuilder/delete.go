@@ -90,15 +90,23 @@ func (ss *Delete) Build() error {
 		}
 		for _, req := range httpArmoury.GetRequestParams() {
 			cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
-			response, apiErr := anysdk.HTTPApiCallFromRequest(
-				cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider, m, req.GetRequest())
+			response, apiErr := anysdk.CallFromSignature(
+				cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider,
+				anysdk.NewAnySdkOpStoreDesignation(m), req.GetArgList())
 			if apiErr != nil {
 				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil,
 					ss.handlerCtx.GetTypingConfig(),
 				))
 			}
-			target, err = m.DeprecatedProcessResponse(response)
-			if response.StatusCode < 300 && len(target) < 1 {
+			httpResponse, httpResponseErr := response.GetHttpResponse()
+			if httpResponse != nil && httpResponse.Body != nil {
+				defer httpResponse.Body.Close()
+			}
+			if httpResponseErr != nil {
+				return internaldto.NewErroneousExecutorOutput(httpResponseErr)
+			}
+			target, err = m.DeprecatedProcessResponse(httpResponse)
+			if httpResponse.StatusCode < 300 && len(target) < 1 {
 				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(
 					nil,
 					nil,
