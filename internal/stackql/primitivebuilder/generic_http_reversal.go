@@ -94,7 +94,7 @@ func (gh *genericHTTPReversal) decorateOutput(
 	return op
 }
 
-//nolint:funlen,gocognit // TODO: fix this
+//nolint:funlen,gocognit,gocyclo,cyclop // TODO: fix this
 func (gh *genericHTTPReversal) Build() error {
 	m := gh.op
 	prov := gh.prov
@@ -139,15 +139,23 @@ func (gh *genericHTTPReversal) Build() error {
 				req := r
 				nullaryEx := func() internaldto.ExecutorOutput {
 					cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
-					response, apiErr := anysdk.HTTPApiCallFromRequest(
-						cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider, m, req.GetRequest())
+					response, apiErr := anysdk.CallFromSignature(
+						cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider,
+						anysdk.NewAnySdkOpStoreDesignation(m), req.GetArgList())
 					if apiErr != nil {
 						return internaldto.NewErroneousExecutorOutput(apiErr)
+					}
+					httpResponse, httpResponseErr := response.GetHttpResponse()
+					if httpResponse != nil && httpResponse.Body != nil {
+						defer httpResponse.Body.Close()
+					}
+					if httpResponseErr != nil {
+						return internaldto.NewErroneousExecutorOutput(httpResponseErr)
 					}
 
 					if responseAnalysisErr == nil {
 						var resp pkg_response.Response
-						processed, processErr := m.ProcessResponse(response)
+						processed, processErr := m.ProcessResponse(httpResponse)
 						if processErr != nil {
 							return internaldto.NewErroneousExecutorOutput(processErr)
 						}
@@ -179,7 +187,7 @@ func (gh *genericHTTPReversal) Build() error {
 						}
 					}
 					if err == nil {
-						if response.StatusCode < 300 { //nolint:mnd // TODO: fix this
+						if httpResponse.StatusCode < 300 { //nolint:mnd // TODO: fix this
 							msgs := internaldto.NewBackendMessages(
 								[]string{"undo over HTTP successful"},
 							)
@@ -194,7 +202,7 @@ func (gh *genericHTTPReversal) Build() error {
 								tableName,
 							)
 						}
-						generatedErr := fmt.Errorf("undo over HTTP error: %s", response.Status)
+						generatedErr := fmt.Errorf("undo over HTTP error: %s", httpResponse.Status)
 						return internaldto.NewExecutorOutput(
 							nil,
 							target,
