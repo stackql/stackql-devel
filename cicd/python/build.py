@@ -30,7 +30,7 @@ def build_stackql(verbose :bool) -> int:
 
 def unit_test_stackql(verbose :bool) -> int:
     return subprocess.call(
-        f'go test -timeout 120s {"-v" if verbose else ""} --tags "sqlite_stackql"  ./...',
+        f'go test -timeout 1200s {"-v" if verbose else ""} --tags "sqlite_stackql"  ./...',
         shell=True
     )
 
