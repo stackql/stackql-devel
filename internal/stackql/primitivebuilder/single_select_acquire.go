@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/stackql/any-sdk/anysdk"
+	"github.com/stackql/any-sdk/pkg/client"
 	"github.com/stackql/any-sdk/pkg/dto"
 	"github.com/stackql/any-sdk/pkg/httpelement"
 	"github.com/stackql/any-sdk/pkg/logging"
@@ -353,15 +354,15 @@ func inferNextPageRequestElement(provider anysdk.Provider, method anysdk.Operati
 type PagingState interface {
 	GetPageCount() int
 	IsFinished() bool
-	GetHTTPResponse() *http.Response
+	GetHTTPResponse() (*http.Response, error)
 	GetAPIError() error
 }
 
 type httpPagingState struct {
-	pageCount    int
-	isFinished   bool
-	httpResponse *http.Response
-	apiErr       error
+	pageCount  int
+	isFinished bool
+	response   client.AnySdkResponse
+	apiErr     error
 }
 
 func (hps *httpPagingState) GetPageCount() int {
@@ -372,8 +373,11 @@ func (hps *httpPagingState) IsFinished() bool {
 	return hps.isFinished
 }
 
-func (hps *httpPagingState) GetHTTPResponse() *http.Response {
-	return hps.httpResponse
+func (hps *httpPagingState) GetHTTPResponse() (*http.Response, error) {
+	if hps.response != nil {
+		return hps.response.GetHttpResponse()
+	}
+	return nil, fmt.Errorf("nil http response in paging state")
 }
 
 func (hps *httpPagingState) GetAPIError() error {
@@ -383,14 +387,14 @@ func (hps *httpPagingState) GetAPIError() error {
 func newPagingState(
 	pageCount int,
 	isFinished bool,
-	httpResponse *http.Response,
+	response client.AnySdkResponse,
 	apiErr error,
 ) PagingState {
 	return &httpPagingState{
-		pageCount:    pageCount,
-		isFinished:   isFinished,
-		httpResponse: httpResponse,
-		apiErr:       apiErr,
+		pageCount:  pageCount,
+		isFinished: isFinished,
+		response:   response,
+		apiErr:     apiErr,
 	}
 }
 
@@ -410,7 +414,6 @@ func page(
 		return newPagingState(pageCount, true, nil, nil)
 	}
 	tk := extractNextPageToken(res, npt)
-	//nolint:lll // long conditional
 	if tk == "" || tk == "<nil>" || tk == "[]" || (rtCtx.HTTPPageLimit > 0 && pageCount >= rtCtx.HTTPPageLimit) {
 		return newPagingState(pageCount, true, nil, nil)
 	}
@@ -420,8 +423,11 @@ func page(
 		return newPagingState(pageCount, true, nil, reqErr)
 	}
 	cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
-	response, apiErr := anysdk.HTTPApiCallFromRequest(
-		cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider, method, req)
+	response, apiErr := anysdk.CallFromSignature(
+		cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider,
+		anysdk.NewAnySdkOpStoreDesignation(method),
+		anysdk.NewwHTTPAnySdkArgList(req), // TODO: abstract
+	)
 	return newPagingState(pageCount, false, response, apiErr)
 }
 
@@ -561,12 +567,12 @@ func (ss *SingleSelectAcquire) Build() error {
 		}
 		reqParams := httpArmoury.GetRequestParams()
 		logging.GetLogger().Infof("SingleSelectAcquire.Execute() req param count = %d", len(reqParams))
-		for i, rc := range reqParams {
-			var urlStringForLogging string
-			if rc.GetRequest() != nil && rc.GetRequest().URL != nil {
-				urlStringForLogging = rc.GetRequest().URL.String()
-			}
-			logging.GetLogger().Infof("SingleSelectAcquire.Execute() executing request %d: %s", i, urlStringForLogging)
+		for _, rc := range reqParams {
+			// var urlStringForLogging string
+			// if rc.GetRequest() != nil && rc.GetRequest().URL != nil {
+			// 	urlStringForLogging = rc.GetRequest().URL.String()
+			// }
+			// logging.GetLogger().Infof("SingleSelectAcquire.Execute() executing request %d: %s", i, urlStringForLogging)
 			reqCtx := rc
 			paramsUsed, paramErr := reqCtx.ToFlatMap()
 			if paramErr != nil {
@@ -580,7 +586,7 @@ func (ss *SingleSelectAcquire) Build() error {
 			}
 			// TODO: fix cloning ops
 			cc := anysdk.NewAnySdkClientConfigurator(ss.handlerCtx.GetRuntimeContext(), provider.GetName())
-			response, apiErr := anysdk.HTTPApiCallFromRequest(
+			response, apiErr := anysdk.CallFromSignature(
 				cc,
 				ss.handlerCtx.GetRuntimeContext(),
 				authCtx,
@@ -588,15 +594,22 @@ func (ss *SingleSelectAcquire) Build() error {
 				false,
 				ss.handlerCtx.GetOutErrFile(),
 				provider,
-				m,
-				reqCtx.GetRequest().Clone(
-					reqCtx.GetRequest().Context(),
-				),
+				anysdk.NewAnySdkOpStoreDesignation(m),
+				reqCtx.GetArgList(),
 			)
-			// TODO: refactor into package !!TECH_DEBT!!
-			if response != nil && response.StatusCode >= 400 {
+			if response == nil {
+				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, nil, nil, ss.rowSort, apiErr, nil,
+					ss.handlerCtx.GetTypingConfig(),
+				))
+			}
+			httpResponse, httpResponseErr := response.GetHttpResponse()
+			if httpResponse != nil && httpResponse.Body != nil {
+				defer httpResponse.Body.Close()
+			}
+			if httpResponse != nil && httpResponse.StatusCode >= 400 {
 				continue
 			}
+			// TODO: refactor into package !!TECH_DEBT!!
 			housekeepingDone := false
 			nptRequest := inferNextPageRequestElement(provider, m)
 			pageCount := 1
@@ -606,7 +619,12 @@ func (ss *SingleSelectAcquire) Build() error {
 						ss.handlerCtx.GetTypingConfig(),
 					))
 				}
-				processed, resErr := m.ProcessResponse(response)
+				if httpResponseErr != nil {
+					return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, nil, nil, ss.rowSort, httpResponseErr, nil,
+						ss.handlerCtx.GetTypingConfig(),
+					))
+				}
+				processed, resErr := m.ProcessResponse(httpResponse)
 				if resErr != nil {
 					//nolint:errcheck // TODO: fix
 					ss.handlerCtx.GetOutErrFile().Write(
@@ -655,6 +673,14 @@ func (ss *SingleSelectAcquire) Build() error {
 					authCtx,
 					ss.handlerCtx.GetOutErrFile(),
 				)
+				httpResponse, httpResponseErr = pageResult.GetHTTPResponse()
+				// if httpResponse != nil && httpResponse.Body != nil {
+				// 	defer httpResponse.Body.Close()
+				// }
+				if httpResponseErr != nil {
+					break
+					// return internaldto.NewErroneousExecutorOutput(httpResponseErr)
+				}
 
 				if pageResult.IsFinished() {
 					break
@@ -662,7 +688,6 @@ func (ss *SingleSelectAcquire) Build() error {
 
 				pageCount = pageResult.GetPageCount()
 
-				response = pageResult.GetHTTPResponse()
 				apiErr = pageResult.GetAPIError()
 			}
 			if reqCtx.GetRequest() != nil {
@@ -707,6 +732,9 @@ func extractNextPageToken(res response.Response, tokenKey sdk_internal_dto.HTTPE
 
 func extractNextPageTokenFromHeader(res response.Response, tokenKey sdk_internal_dto.HTTPElement) string {
 	r := res.GetHttpResponse()
+	// if r != nil && r.Body != nil {
+	// 	defer r.Body.Close()
+	// }
 	if r == nil {
 		return ""
 	}
