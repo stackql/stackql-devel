@@ -164,7 +164,6 @@ func (ss *Exec) Build() error {
 		)
 	}
 	execPrimitive := primitive.NewGenericPrimitive(
-		prov,
 		ex,
 		nil,
 		nil,

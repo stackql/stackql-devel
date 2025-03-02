@@ -165,7 +165,6 @@ func (ss *Delete) Build() error {
 		)
 	}
 	deletePrimitive := primitive.NewGenericPrimitive(
-		prov,
 		ex,
 		nil,
 		nil,

@@ -113,7 +113,6 @@ func (gh *genericHTTPReversal) Build() error {
 	isAwait := gh.isAwait
 	_, _, responseAnalysisErr := m.GetResponseBodySchemaAndMediaType()
 	actionPrimitive := primitive.NewGenericPrimitive(
-		prov,
 		nil,
 		nil,
 		nil,
@@ -237,7 +236,6 @@ func (gh *genericHTTPReversal) Build() error {
 			for _, eI := range nullaryExecutors {
 				execInstance := eI
 				dependentInsertPrimitive := primitive.NewGenericPrimitive(
-					prov,
 					nil,
 					nil,
 					nil,

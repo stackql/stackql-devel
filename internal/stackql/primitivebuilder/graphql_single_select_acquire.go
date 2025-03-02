@@ -200,7 +200,6 @@ func (ss *GraphQLSingleSelectAcquire) Build() error {
 		return ss.insertPreparedStatementCtx
 	}
 	insertPrim := primitive.NewGenericPrimitive(
-		prov,
 		ex,
 		prep,
 		ss.txnCtrlCtr,

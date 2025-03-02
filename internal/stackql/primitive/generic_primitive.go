@@ -6,11 +6,9 @@ import (
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/primitive_context"
-	"github.com/stackql/stackql/internal/stackql/provider"
 )
 
 type GenericPrimitive struct {
-	Provider      provider.IProvider
 	Executor      func(pc IPrimitiveCtx) internaldto.ExecutorOutput
 	Preparator    func() drm.PreparedStatementCtx
 	TxnControlCtr internaldto.TxnControlCounters
@@ -24,14 +22,12 @@ type GenericPrimitive struct {
 }
 
 func NewGenericPrimitive(
-	provider provider.IProvider,
 	executor func(pc IPrimitiveCtx) internaldto.ExecutorOutput,
 	preparator func() drm.PreparedStatementCtx,
 	txnCtrlCtr internaldto.TxnControlCounters,
 	primitiveCtx primitive_context.IPrimitiveCtx,
 ) IPrimitive {
 	return &GenericPrimitive{
-		Provider:      provider,
 		Executor:      executor,
 		Preparator:    preparator,
 		TxnControlCtr: txnCtrlCtr,
