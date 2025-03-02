@@ -79,14 +79,6 @@ func newMonoValentExecutorFactory(
 	}
 }
 
-func (mv *monoValentExecution) GetRoot() primitivegraph.PrimitiveNode {
-	return mv.root
-}
-
-func (mv *monoValentExecution) GetTail() primitivegraph.PrimitiveNode {
-	return mv.root
-}
-
 type standardMethodElider struct {
 	elisionFunc func(string, ...any) bool
 }
@@ -720,129 +712,160 @@ func agnosticate(
 	reqParams := armoury.GetRequestParams()
 	logging.GetLogger().Infof("monoValentExecution.Execute() req param count = %d", len(reqParams))
 	for _, rc := range reqParams {
-		reqCtx := rc
-		paramsUsed, paramErr := reqCtx.ToFlatMap()
-		if paramErr != nil {
-			return paramErr
-		}
-		reqEncoding := reqCtx.Encode()
-		elideOk := elider.IsElide(reqEncoding)
-		if elideOk {
-			return nil
-		}
-		// TODO: fix cloning ops
-		cc := anysdk.NewAnySdkClientConfigurator(runtimeCtx, provider.GetName())
-		response, apiErr := anysdk.CallFromSignature(
-			cc,
+		processErr := process(
+			rc,
+			elider,
+			provider,
+			method,
+			tableName,
 			runtimeCtx,
 			authCtx,
-			authCtx.Type,
-			false,
 			outErrFile,
-			provider,
-			anysdk.NewAnySdkOpStoreDesignation(method),
-			reqCtx.GetArgList(),
+			polyHandler,
+			selectItemsKey,
+			insertPreparator,
 		)
-		if response == nil {
-			if apiErr != nil {
-				return apiErr
-			}
-			return fmt.Errorf("unacceptable nil response from HTTP call")
-		}
-		httpResponse, httpResponseErr := response.GetHttpResponse()
-		if httpResponse != nil && httpResponse.Body != nil {
-			defer httpResponse.Body.Close()
-		}
-		if httpResponse != nil && httpResponse.StatusCode >= 400 {
-			continue
-		}
-		// TODO: refactor into package !!TECH_DEBT!!
-		housekeepingDone := false
-		nptRequest := inferNextPageRequestElement(provider, method)
-		pageCount := 1
-		for {
-			if apiErr != nil {
-				return apiErr
-			}
-			if httpResponseErr != nil {
-				return httpResponseErr
-			}
-			processed, resErr := method.ProcessResponse(httpResponse)
-			if resErr != nil {
-				//nolint:errcheck // TODO: fix
-				outErrFile.Write(
-					[]byte(fmt.Sprintf("error processing response: %s\n", resErr.Error())),
-				)
-				if processed == nil {
-					return resErr
-				}
-			}
-			res, respOk := processed.GetResponse()
-			if !respOk {
-				return fmt.Errorf("response is not a valid response")
-			}
-			if res.HasError() {
-				polyHandler.MessageHandler([]string{res.Error()})
-				return nil
-			}
-			polyHandler.LogHTTPResponseMap(res.GetProcessedBody())
-			logging.GetLogger().Infoln(fmt.Sprintf("monoValentExecution.Execute() response = %v", res))
-
-			itemisationResult := itemise(res.GetProcessedBody(), resErr, selectItemsKey)
-
-			if itemisationResult.IsNilPayload() {
-				break
-			}
-
-			insertPrepResult := insertPreparator.ActionInsertPreparation(
-				newHTTPActionInsertPayload(
-					itemisationResult,
-					housekeepingDone,
-					tableName,
-					paramsUsed,
-					reqEncoding,
-				),
-			)
-			housekeepingDone = insertPrepResult.IsHousekeepingDone()
-			insertPrepErr, hasInsertPrepErr := insertPrepResult.GetError()
-			if hasInsertPrepErr {
-				return insertPrepErr
-			}
-
-			pageResult := page(
-				res,
-				method,
-				provider,
-				reqCtx,
-				pageCount,
-				runtimeCtx,
-				authCtx,
-				outErrFile,
-			)
-			httpResponse, httpResponseErr = pageResult.GetHTTPResponse()
-			// if httpResponse != nil && httpResponse.Body != nil {
-			// 	defer httpResponse.Body.Close()
-			// }
-			if httpResponseErr != nil {
-				break
-				// return internaldto.NewErroneousExecutorOutput(httpResponseErr)
-			}
-
-			if pageResult.IsFinished() {
-				break
-			}
-
-			pageCount = pageResult.GetPageCount()
-
-			apiErr = pageResult.GetAPIError()
-		}
-		if reqCtx.GetRequest() != nil {
-			q := reqCtx.GetRequest().URL.Query()
-			q.Del(nptRequest.GetName())
-			reqCtx.SetRawQuery(q.Encode())
+		if processErr != nil {
+			return processErr
 		}
 	}
-	logging.GetLogger().Infof("monoValentExecution.Execute() returning empty for table %s", tableName)
+	return nil
+}
+
+func process(
+	armouryParams anysdk.HTTPArmouryParameters,
+	elider methodElider,
+	provider anysdk.Provider,
+	method anysdk.OperationStore,
+	tableName string,
+	runtimeCtx dto.RuntimeCtx,
+	authCtx *dto.AuthCtx,
+	outErrFile io.Writer,
+	polyHandler PolyHandler,
+	selectItemsKey string,
+	insertPreparator InsertPreparator,
+) error {
+	reqCtx := armouryParams
+	paramsUsed, paramErr := reqCtx.ToFlatMap()
+	if paramErr != nil {
+		return paramErr
+	}
+	reqEncoding := reqCtx.Encode()
+	elideOk := elider.IsElide(reqEncoding)
+	if elideOk {
+		return nil
+	}
+	// TODO: fix cloning ops
+	cc := anysdk.NewAnySdkClientConfigurator(runtimeCtx, provider.GetName())
+	response, apiErr := anysdk.CallFromSignature(
+		cc,
+		runtimeCtx,
+		authCtx,
+		authCtx.Type,
+		false,
+		outErrFile,
+		provider,
+		anysdk.NewAnySdkOpStoreDesignation(method),
+		reqCtx.GetArgList(),
+	)
+	if response == nil {
+		if apiErr != nil {
+			return apiErr
+		}
+		return fmt.Errorf("unacceptable nil response from HTTP call")
+	}
+	httpResponse, httpResponseErr := response.GetHttpResponse()
+	if httpResponse != nil && httpResponse.Body != nil {
+		defer httpResponse.Body.Close()
+	}
+	if httpResponse != nil && httpResponse.StatusCode >= 400 {
+		return nil
+	}
+	// TODO: refactor into package !!TECH_DEBT!!
+	housekeepingDone := false
+	nptRequest := inferNextPageRequestElement(provider, method)
+	pageCount := 1
+	for {
+		if apiErr != nil {
+			return apiErr
+		}
+		if httpResponseErr != nil {
+			return httpResponseErr
+		}
+		processed, resErr := method.ProcessResponse(httpResponse)
+		if resErr != nil {
+			//nolint:errcheck // TODO: fix
+			outErrFile.Write(
+				[]byte(fmt.Sprintf("error processing response: %s\n", resErr.Error())),
+			)
+			if processed == nil {
+				return resErr
+			}
+		}
+		res, respOk := processed.GetResponse()
+		if !respOk {
+			return fmt.Errorf("response is not a valid response")
+		}
+		if res.HasError() {
+			polyHandler.MessageHandler([]string{res.Error()})
+			return nil
+		}
+		polyHandler.LogHTTPResponseMap(res.GetProcessedBody())
+		logging.GetLogger().Infoln(fmt.Sprintf("monoValentExecution.Execute() response = %v", res))
+
+		itemisationResult := itemise(res.GetProcessedBody(), resErr, selectItemsKey)
+
+		if itemisationResult.IsNilPayload() {
+			break
+		}
+
+		insertPrepResult := insertPreparator.ActionInsertPreparation(
+			newHTTPActionInsertPayload(
+				itemisationResult,
+				housekeepingDone,
+				tableName,
+				paramsUsed,
+				reqEncoding,
+			),
+		)
+		housekeepingDone = insertPrepResult.IsHousekeepingDone()
+		insertPrepErr, hasInsertPrepErr := insertPrepResult.GetError()
+		if hasInsertPrepErr {
+			return insertPrepErr
+		}
+
+		pageResult := page(
+			res,
+			method,
+			provider,
+			reqCtx,
+			pageCount,
+			runtimeCtx,
+			authCtx,
+			outErrFile,
+		)
+		httpResponse, httpResponseErr = pageResult.GetHTTPResponse()
+		// if httpResponse != nil && httpResponse.Body != nil {
+		// 	defer httpResponse.Body.Close()
+		// }
+		if httpResponseErr != nil {
+			return nil
+			// return internaldto.NewErroneousExecutorOutput(httpResponseErr)
+		}
+
+		if pageResult.IsFinished() {
+			return nil
+		}
+
+		pageCount = pageResult.GetPageCount()
+
+		apiErr = pageResult.GetAPIError()
+	}
+	if reqCtx.GetRequest() != nil {
+		q := reqCtx.GetRequest().URL.Query()
+		q.Del(nptRequest.GetName())
+		reqCtx.SetRawQuery(q.Encode())
+	}
 	return nil
 }
 
