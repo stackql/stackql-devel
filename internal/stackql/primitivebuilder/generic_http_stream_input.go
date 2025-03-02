@@ -189,7 +189,7 @@ func (gh *genericHTTPStreamInput) Build() error {
 		// inverseBuilder :=
 	}
 	_, _, responseAnalysisErr := tbl.GetResponseSchemaAndMediaType()
-	actionPrimitive := primitive.NewHTTPRestPrimitive(
+	actionPrimitive := primitive.NewGenericPrimitive(
 		prov,
 		nil,
 		nil,
@@ -341,7 +341,7 @@ func (gh *genericHTTPStreamInput) Build() error {
 		}
 		for _, eI := range nullaryExecutors {
 			execInstance := eI
-			dependentInsertPrimitive := primitive.NewHTTPRestPrimitive(
+			dependentInsertPrimitive := primitive.NewGenericPrimitive(
 				prov,
 				nil,
 				nil,

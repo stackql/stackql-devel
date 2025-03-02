@@ -163,7 +163,7 @@ func (ss *Exec) Build() error {
 			ss.handlerCtx.GetTypingConfig(),
 		)
 	}
-	execPrimitive := primitive.NewHTTPRestPrimitive(
+	execPrimitive := primitive.NewGenericPrimitive(
 		prov,
 		ex,
 		nil,
