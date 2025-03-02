@@ -164,7 +164,7 @@ func (ss *Delete) Build() error {
 			ss.handlerCtx.GetTypingConfig(),
 		)
 	}
-	deletePrimitive := primitive.NewHTTPRestPrimitive(
+	deletePrimitive := primitive.NewGenericPrimitive(
 		prov,
 		ex,
 		nil,

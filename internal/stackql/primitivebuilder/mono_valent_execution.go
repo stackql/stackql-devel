@@ -1,0 +1,1001 @@
+package primitivebuilder
+
+import (
+	"fmt"
+	"io"
+	"net/http"
+	"strconv"
+
+	"github.com/stackql/any-sdk/anysdk"
+	"github.com/stackql/any-sdk/pkg/client"
+	"github.com/stackql/any-sdk/pkg/dto"
+	"github.com/stackql/any-sdk/pkg/httpelement"
+	"github.com/stackql/any-sdk/pkg/logging"
+	"github.com/stackql/any-sdk/pkg/response"
+	"github.com/stackql/any-sdk/pkg/streaming"
+	"github.com/stackql/stackql/internal/stackql/drm"
+	"github.com/stackql/stackql/internal/stackql/handler"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/primitive_context"
+	"github.com/stackql/stackql/internal/stackql/primitive"
+	"github.com/stackql/stackql/internal/stackql/primitivegraph"
+	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
+	"github.com/stackql/stackql/internal/stackql/tablemetadata"
+
+	sdk_internal_dto "github.com/stackql/any-sdk/pkg/internaldto"
+)
+
+// monoValentExecution implements the Builder interface
+// and represents the action of acquiring data from an endpoint
+// and then persisting that data into a table.
+// This data would then subsequently be queried by later execution phases.
+type monoValentExecution struct {
+	graphHolder                primitivegraph.PrimitiveGraphHolder
+	handlerCtx                 handler.HandlerContext
+	tableMeta                  tablemetadata.ExtendedTableMetadata
+	drmCfg                     drm.Config
+	insertPreparedStatementCtx drm.PreparedStatementCtx
+	insertionContainer         tableinsertioncontainer.TableInsertionContainer
+	txnCtrlCtr                 internaldto.TxnControlCounters
+	rowSort                    func(map[string]map[string]interface{}) []string
+	root                       primitivegraph.PrimitiveNode
+	stream                     streaming.MapStream
+	isReadOnly                 bool //nolint:unused // TODO: build out
+}
+
+func newMonoValentExecution(
+	graphHolder primitivegraph.PrimitiveGraphHolder,
+	handlerCtx handler.HandlerContext,
+	tableMeta tablemetadata.ExtendedTableMetadata,
+	insertCtx drm.PreparedStatementCtx,
+	insertionContainer tableinsertioncontainer.TableInsertionContainer,
+	rowSort func(map[string]map[string]interface{}) []string,
+	stream streaming.MapStream,
+) Builder {
+	var tcc internaldto.TxnControlCounters
+	if insertCtx != nil {
+		tcc = insertCtx.GetGCCtrlCtrs()
+	}
+	if stream == nil {
+		stream = streaming.NewNopMapStream()
+	}
+	return &monoValentExecution{
+		graphHolder:                graphHolder,
+		handlerCtx:                 handlerCtx,
+		tableMeta:                  tableMeta,
+		rowSort:                    rowSort,
+		drmCfg:                     handlerCtx.GetDrmConfig(),
+		insertPreparedStatementCtx: insertCtx,
+		insertionContainer:         insertionContainer,
+		txnCtrlCtr:                 tcc,
+		stream:                     stream,
+	}
+}
+
+func (mv *monoValentExecution) GetRoot() primitivegraph.PrimitiveNode {
+	return mv.root
+}
+
+func (mv *monoValentExecution) GetTail() primitivegraph.PrimitiveNode {
+	return mv.root
+}
+
+// type eliderPayload struct {
+// 	currentTcc  internaldto.TxnControlCounters
+// 	tableName   string
+// 	reqEncoding string
+// }
+
+type standardMethodElider struct {
+	elisionFunc func(string, ...any) bool
+}
+
+func (sme *standardMethodElider) IsElide(reqEncoding string, argz ...any) bool {
+	return sme.elisionFunc(reqEncoding, argz...)
+}
+
+func newStandardMethodElider(elisionFunc func(string, ...any) bool) methodElider {
+	return &standardMethodElider{
+		elisionFunc: elisionFunc,
+	}
+}
+
+//nolint:lll // chaining
+func (mv *monoValentExecution) elideActionIfPossible(
+	currentTcc internaldto.TxnControlCounters,
+	tableName string,
+	reqEncoding string,
+) methodElider {
+	elisionFunc := func(reqEncoding string, _ ...any) bool {
+		olderTcc, isMatch := mv.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Match(
+			tableName,
+			reqEncoding,
+			mv.drmCfg.GetControlAttributes().GetControlLatestUpdateColumnName(), mv.drmCfg.GetControlAttributes().GetControlInsertEncodedIDColumnName())
+		if isMatch {
+			nonControlColumns := mv.insertPreparedStatementCtx.GetNonControlColumns()
+			var nonControlColumnNames []string
+			for _, c := range nonControlColumns {
+				nonControlColumnNames = append(nonControlColumnNames, c.GetName())
+			}
+			//nolint:errcheck // TODO: fix
+			mv.handlerCtx.GetGarbageCollector().Update(
+				tableName,
+				olderTcc.Clone(),
+				currentTcc,
+			)
+			//nolint:errcheck // TODO: fix
+			mv.insertionContainer.SetTableTxnCounters(tableName, olderTcc)
+			mv.insertPreparedStatementCtx.SetGCCtrlCtrs(olderTcc)
+			r, sqlErr := mv.handlerCtx.GetNamespaceCollection().GetAnalyticsCacheTableNamespaceConfigurator().Read(
+				tableName, reqEncoding,
+				mv.drmCfg.GetControlAttributes().GetControlInsertEncodedIDColumnName(),
+				nonControlColumnNames)
+			if sqlErr != nil {
+				internaldto.NewErroneousExecutorOutput(sqlErr)
+			}
+			mv.drmCfg.ExtractObjectFromSQLRows(r, nonControlColumns, mv.stream)
+			return true
+		}
+		return false
+	}
+	return newStandardMethodElider(elisionFunc)
+}
+
+type methodElider interface {
+	IsElide(string, ...any) bool
+}
+
+// func (mv *monoValentExecution) actionHTTP(
+// 	_ methodElider,
+// ) error {
+// 	return nil
+// }
+
+type actionInsertResult struct {
+	err                error
+	isHousekeepingDone bool
+}
+
+type ActionInsertResult interface {
+	GetError() (error, bool)
+	IsHousekeepingDone() bool
+}
+
+//nolint:revive // no idea why this is a thing
+func (air *actionInsertResult) GetError() (error, bool) {
+	return air.err, air.err != nil
+}
+
+func (air *actionInsertResult) IsHousekeepingDone() bool {
+	return air.isHousekeepingDone
+}
+
+func newActionInsertResult(isHousekeepingDone bool, err error) ActionInsertResult {
+	return &actionInsertResult{
+		err:                err,
+		isHousekeepingDone: isHousekeepingDone,
+	}
+}
+
+type itemsDTO struct {
+	items        interface{}
+	ok           bool
+	isNilPayload bool
+}
+
+type ItemisationResult interface {
+	GetItems() (interface{}, bool)
+	IsOk() bool
+	IsNilPayload() bool
+}
+
+func (id *itemsDTO) GetItems() (interface{}, bool) {
+	return id.items, id.items != nil
+}
+
+func (id *itemsDTO) IsOk() bool {
+	return id.ok
+}
+
+func (id *itemsDTO) IsNilPayload() bool {
+	return id.isNilPayload
+}
+
+func newItemisationResult(
+	items interface{},
+	ok bool,
+	isNilPayload bool,
+) ItemisationResult {
+	return &itemsDTO{
+		items:        items,
+		ok:           ok,
+		isNilPayload: isNilPayload,
+	}
+}
+
+//nolint:nestif // apathy
+func itemise(
+	target interface{},
+	resErr error,
+	selectItemsKey string,
+) ItemisationResult {
+	var items interface{}
+	var ok bool
+	logging.GetLogger().Infoln(fmt.Sprintf("monoValentExecution.Execute() target = %v", target))
+	switch pl := target.(type) {
+	// add case for xml object,
+	case map[string]interface{}:
+		if selectItemsKey != "" && selectItemsKey != "/*" {
+			items, ok = pl[selectItemsKey]
+			if !ok {
+				if resErr != nil {
+					items = []interface{}{}
+					ok = true
+				} else {
+					items = []interface{}{
+						pl,
+					}
+					ok = true
+				}
+			}
+		} else {
+			items = []interface{}{
+				pl,
+			}
+			ok = true
+		}
+	case []interface{}:
+		items = pl
+		ok = true
+	case []map[string]interface{}:
+		items = pl
+		ok = true
+	case nil:
+		return newItemisationResult(nil, false, true)
+	}
+	return newItemisationResult(items, ok, false)
+}
+
+func inferNextPageResponseElement(provider anysdk.Provider, method anysdk.OperationStore) sdk_internal_dto.HTTPElement {
+	st, ok := method.GetPaginationResponseTokenSemantic()
+	if ok {
+		if tp, err := sdk_internal_dto.ExtractHTTPElement(st.GetLocation()); err == nil {
+			rv := sdk_internal_dto.NewHTTPElement(
+				tp,
+				st.GetKey(),
+			)
+			transformer, tErr := st.GetTransformer()
+			if tErr == nil && transformer != nil {
+				rv.SetTransformer(transformer)
+			}
+			return rv
+		}
+	}
+	providerStr := provider.GetName()
+	switch providerStr {
+	case "github", "okta":
+		rv := sdk_internal_dto.NewHTTPElement(
+			sdk_internal_dto.Header,
+			"Link",
+		)
+		rv.SetTransformer(anysdk.DefaultLinkHeaderTransformer)
+		return rv
+	default:
+		return sdk_internal_dto.NewHTTPElement(
+			sdk_internal_dto.BodyAttribute,
+			"nextPageToken",
+		)
+	}
+}
+
+func inferNextPageRequestElement(provider anysdk.Provider, method anysdk.OperationStore) sdk_internal_dto.HTTPElement {
+	st, ok := method.GetPaginationRequestTokenSemantic()
+	if ok {
+		if tp, err := sdk_internal_dto.ExtractHTTPElement(st.GetLocation()); err == nil {
+			rv := sdk_internal_dto.NewHTTPElement(
+				tp,
+				st.GetKey(),
+			)
+			transformer, tErr := st.GetTransformer()
+			if tErr == nil && transformer != nil {
+				rv.SetTransformer(transformer)
+			}
+			return rv
+		}
+	}
+	providerStr := provider.GetName()
+	switch providerStr {
+	case "github", "okta":
+		return sdk_internal_dto.NewHTTPElement(
+			sdk_internal_dto.RequestString,
+			"",
+		)
+	default:
+		return sdk_internal_dto.NewHTTPElement(
+			sdk_internal_dto.QueryParam,
+			"pageToken",
+		)
+	}
+}
+
+type PagingState interface {
+	GetPageCount() int
+	IsFinished() bool
+	GetHTTPResponse() (*http.Response, error)
+	GetAPIError() error
+}
+
+type httpPagingState struct {
+	pageCount  int
+	isFinished bool
+	response   client.AnySdkResponse
+	apiErr     error
+}
+
+func (hps *httpPagingState) GetPageCount() int {
+	return hps.pageCount
+}
+
+func (hps *httpPagingState) IsFinished() bool {
+	return hps.isFinished
+}
+
+func (hps *httpPagingState) GetHTTPResponse() (*http.Response, error) {
+	if hps.response != nil {
+		return hps.response.GetHttpResponse()
+	}
+	return nil, fmt.Errorf("nil http response in paging state")
+}
+
+func (hps *httpPagingState) GetAPIError() error {
+	return hps.apiErr
+}
+
+func newPagingState(
+	pageCount int,
+	isFinished bool,
+	response client.AnySdkResponse,
+	apiErr error,
+) PagingState {
+	return &httpPagingState{
+		pageCount:  pageCount,
+		isFinished: isFinished,
+		response:   response,
+		apiErr:     apiErr,
+	}
+}
+
+func page(
+	res response.Response,
+	method anysdk.OperationStore,
+	provider anysdk.Provider,
+	reqCtx anysdk.HTTPArmouryParameters,
+	pageCount int,
+	rtCtx dto.RuntimeCtx,
+	authCtx *dto.AuthCtx,
+	outErrFile io.Writer,
+) PagingState {
+	npt := inferNextPageResponseElement(provider, method)
+	nptRequest := inferNextPageRequestElement(provider, method)
+	if npt == nil || nptRequest == nil {
+		return newPagingState(pageCount, true, nil, nil)
+	}
+	tk := extractNextPageToken(res, npt)
+	if tk == "" || tk == "<nil>" || tk == "[]" || (rtCtx.HTTPPageLimit > 0 && pageCount >= rtCtx.HTTPPageLimit) {
+		return newPagingState(pageCount, true, nil, nil)
+	}
+	pageCount++
+	req, reqErr := reqCtx.SetNextPage(method, tk, nptRequest)
+	if reqErr != nil {
+		return newPagingState(pageCount, true, nil, reqErr)
+	}
+	cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
+	response, apiErr := anysdk.CallFromSignature(
+		cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider,
+		anysdk.NewAnySdkOpStoreDesignation(method),
+		anysdk.NewwHTTPAnySdkArgList(req), // TODO: abstract
+	)
+	return newPagingState(pageCount, false, response, apiErr)
+}
+
+type ActionInsertPayload interface {
+	GetItemisationResult() ItemisationResult
+	IsHousekeepingDone() bool
+	GetTableName() string
+	GetParamsUsed() map[string]interface{}
+	GetReqEncoding() string
+}
+
+type httpActionInsertPayload struct {
+	itemisationResult ItemisationResult
+	housekeepingDone  bool
+	tableName         string
+	paramsUsed        map[string]interface{}
+	reqEncoding       string
+}
+
+func (ap *httpActionInsertPayload) GetItemisationResult() ItemisationResult {
+	return ap.itemisationResult
+}
+
+func (ap *httpActionInsertPayload) IsHousekeepingDone() bool {
+	return ap.housekeepingDone
+}
+
+func (ap *httpActionInsertPayload) GetTableName() string {
+	return ap.tableName
+}
+
+func (ap *httpActionInsertPayload) GetParamsUsed() map[string]interface{} {
+	return ap.paramsUsed
+}
+
+func (ap *httpActionInsertPayload) GetReqEncoding() string {
+	return ap.reqEncoding
+}
+
+func newHTTPActionInsertPayload(
+	itemisationResult ItemisationResult,
+	housekeepingDone bool,
+	tableName string,
+	paramsUsed map[string]interface{},
+	reqEncoding string,
+) ActionInsertPayload {
+	return &httpActionInsertPayload{
+		itemisationResult: itemisationResult,
+		housekeepingDone:  housekeepingDone,
+		tableName:         tableName,
+		paramsUsed:        paramsUsed,
+		reqEncoding:       reqEncoding,
+	}
+}
+
+type InsertPreparator interface {
+	ActionInsertPreparation(payload ActionInsertPayload) ActionInsertResult
+}
+
+//nolint:nestif,gocognit // acceptable for now
+func (mv *monoValentExecution) ActionInsertPreparation(
+	payload ActionInsertPayload,
+) ActionInsertResult {
+	itemisationResult := payload.GetItemisationResult()
+	housekeepingDone := payload.IsHousekeepingDone()
+	tableName := payload.GetTableName()
+	paramsUsed := payload.GetParamsUsed()
+	reqEncoding := payload.GetReqEncoding()
+
+	items, _ := itemisationResult.GetItems()
+	keys := make(map[string]map[string]interface{})
+	iArr, iErr := castItemsArray(items)
+	if iErr != nil {
+		return newActionInsertResult(housekeepingDone, iErr)
+	}
+	streamErr := mv.stream.Write(iArr)
+	if streamErr != nil {
+		return newActionInsertResult(housekeepingDone, streamErr)
+	}
+	if len(iArr) > 0 {
+		if !housekeepingDone && mv.insertPreparedStatementCtx != nil {
+			_, execErr := mv.handlerCtx.GetSQLEngine().Exec(mv.insertPreparedStatementCtx.GetGCHousekeepingQueries())
+			tcc := mv.insertPreparedStatementCtx.GetGCCtrlCtrs()
+			tcc.SetTableName(tableName)
+			//nolint:errcheck // TODO: fix
+			mv.insertionContainer.SetTableTxnCounters(tableName, tcc)
+			housekeepingDone = true
+			if execErr != nil {
+				return newActionInsertResult(housekeepingDone, execErr)
+			}
+		}
+
+		for i, item := range iArr {
+			if item != nil {
+				if len(paramsUsed) > 0 {
+					for k, v := range paramsUsed {
+						if _, itemOk := item[k]; !itemOk {
+							item[k] = v
+						}
+					}
+				}
+
+				logging.GetLogger().Infoln(
+					fmt.Sprintf(
+						"running insert with query = '''%s''', control parameters: %v",
+						mv.insertPreparedStatementCtx.GetQuery(),
+						mv.insertPreparedStatementCtx.GetGCCtrlCtrs(),
+					),
+				)
+				r, rErr := mv.drmCfg.ExecuteInsertDML(
+					mv.handlerCtx.GetSQLEngine(),
+					mv.insertPreparedStatementCtx,
+					item,
+					reqEncoding,
+				)
+				logging.GetLogger().Infoln(
+					fmt.Sprintf(
+						"insert result = %v, error = %v",
+						r,
+						rErr,
+					),
+				)
+				if rErr != nil {
+					expandedErr := fmt.Errorf(
+						"sql insert error: '%w' from query: %s",
+						rErr,
+						mv.insertPreparedStatementCtx.GetQuery(),
+					)
+					return newActionInsertResult(housekeepingDone, expandedErr)
+				}
+				keys[strconv.Itoa(i)] = item
+			}
+		}
+	}
+
+	return newActionInsertResult(housekeepingDone, nil)
+}
+
+type AgnosticatePayload interface {
+	GetArmoury() (anysdk.HTTPArmoury, error)
+	GetProvider() anysdk.Provider
+	GetMethod() anysdk.OperationStore
+	GetTableName() string
+	GetAuthContext() *dto.AuthCtx
+	GetRuntimeCtx() dto.RuntimeCtx
+	GetOutErrFile() io.Writer
+	GetMaxResultsElement() sdk_internal_dto.HTTPElement
+	GetElider() methodElider
+	IsNilResponseAcceptable() bool
+	GetPolyHandler() PolyHandler
+	GetSelectItemsKey() string
+	GetInsertPreparator() InsertPreparator
+}
+
+type httpAgnosticatePayload struct {
+	tableMeta               tablemetadata.ExtendedTableMetadata
+	provider                anysdk.Provider
+	method                  anysdk.OperationStore
+	tableName               string
+	authCtx                 *dto.AuthCtx
+	rtCtx                   dto.RuntimeCtx
+	outErrFile              io.Writer
+	maxResultsElement       sdk_internal_dto.HTTPElement
+	elider                  methodElider
+	isNilResponseAcceptable bool
+	polyHandler             PolyHandler
+	selectItemsKey          string
+	insertPreparator        InsertPreparator
+}
+
+func newHTTPAgnosticatePayload(
+	tableMeta tablemetadata.ExtendedTableMetadata,
+	provider anysdk.Provider,
+	method anysdk.OperationStore,
+	tableName string,
+	authCtx *dto.AuthCtx,
+	rtCtx dto.RuntimeCtx,
+	outErrFile io.Writer,
+	maxResultsElement sdk_internal_dto.HTTPElement,
+	elider methodElider,
+	isNilResponseAcceptable bool,
+	polyHandler PolyHandler,
+	selectItemsKey string,
+	insertPreparator InsertPreparator,
+) AgnosticatePayload {
+	return &httpAgnosticatePayload{
+		tableMeta:               tableMeta,
+		provider:                provider,
+		method:                  method,
+		tableName:               tableName,
+		authCtx:                 authCtx,
+		rtCtx:                   rtCtx,
+		outErrFile:              outErrFile,
+		maxResultsElement:       maxResultsElement,
+		elider:                  elider,
+		isNilResponseAcceptable: isNilResponseAcceptable,
+		polyHandler:             polyHandler,
+		selectItemsKey:          selectItemsKey,
+		insertPreparator:        insertPreparator,
+	}
+}
+
+func (ap *httpAgnosticatePayload) GetPolyHandler() PolyHandler {
+	return ap.polyHandler
+}
+
+func (ap *httpAgnosticatePayload) GetInsertPreparator() InsertPreparator {
+	return ap.insertPreparator
+}
+
+func (ap *httpAgnosticatePayload) GetSelectItemsKey() string {
+	return ap.selectItemsKey
+}
+
+func (ap *httpAgnosticatePayload) GetArmoury() (anysdk.HTTPArmoury, error) {
+	return ap.tableMeta.GetHTTPArmoury()
+}
+
+func (ap *httpAgnosticatePayload) GetProvider() anysdk.Provider {
+	return ap.provider
+}
+
+func (ap *httpAgnosticatePayload) GetMethod() anysdk.OperationStore {
+	return ap.method
+}
+
+func (ap *httpAgnosticatePayload) GetTableName() string {
+	return ap.tableName
+}
+
+func (ap *httpAgnosticatePayload) GetAuthContext() *dto.AuthCtx {
+	return ap.authCtx
+}
+
+func (ap *httpAgnosticatePayload) GetRuntimeCtx() dto.RuntimeCtx {
+	return ap.rtCtx
+}
+
+func (ap *httpAgnosticatePayload) GetOutErrFile() io.Writer {
+	return ap.outErrFile
+}
+
+func (ap *httpAgnosticatePayload) GetMaxResultsElement() sdk_internal_dto.HTTPElement {
+	return ap.maxResultsElement
+}
+
+func (ap *httpAgnosticatePayload) GetElider() methodElider {
+	return ap.elider
+}
+
+func (ap *httpAgnosticatePayload) IsNilResponseAcceptable() bool {
+	return ap.isNilResponseAcceptable
+}
+
+type PolyHandler interface {
+	LogHTTPResponseMap(target interface{})
+	MessageHandler([]string)
+	GetMessages() []string
+}
+
+type standardPolyHandler struct {
+	handlerCtx handler.HandlerContext
+	messages   []string
+}
+
+func (sph *standardPolyHandler) LogHTTPResponseMap(target interface{}) {
+	sph.handlerCtx.LogHTTPResponseMap(target)
+}
+
+func (sph *standardPolyHandler) MessageHandler(messages []string) {
+	sph.messages = append(sph.messages, messages...)
+}
+
+func (sph *standardPolyHandler) GetMessages() []string {
+	return sph.messages
+}
+
+func newStandardPolyHandler(handlerCtx handler.HandlerContext) PolyHandler {
+	return &standardPolyHandler{
+		handlerCtx: handlerCtx,
+		messages:   []string{},
+	}
+}
+
+func agnosticate(
+	agPayload AgnosticatePayload,
+) error {
+	outErrFile := agPayload.GetOutErrFile()
+	runtimeCtx := agPayload.GetRuntimeCtx()
+	provider := agPayload.GetProvider()
+	tableName := agPayload.GetTableName()
+	authCtx := agPayload.GetAuthContext()
+	method := agPayload.GetMethod()
+	mr := agPayload.GetMaxResultsElement()
+	elider := agPayload.GetElider()
+	polyHandler := agPayload.GetPolyHandler()
+	selectItemsKey := agPayload.GetSelectItemsKey()
+	insertPreparator := agPayload.GetInsertPreparator()
+	// TODO: TCC setup
+	armoury, armouryErr := agPayload.GetArmoury()
+	if armouryErr != nil {
+		//nolint:errcheck // TODO: fix
+		outErrFile.Write([]byte(
+			fmt.Sprintf(
+				"error assembling http aspects for resource '%s': %s\n",
+				method.GetResource().GetID(),
+				armouryErr.Error(),
+			),
+		),
+		)
+		return armouryErr
+	}
+	if mr != nil {
+		// TODO: infer param position and act accordingly
+		ok := true
+		if ok && runtimeCtx.HTTPMaxResults > 0 {
+			passOverParams := armoury.GetRequestParams()
+			for i, p := range passOverParams {
+				param := p
+				// param.Context.SetQueryParam("maxResults", strconv.Itoa(mv.handlerCtx.GetRuntimeContext().HTTPMaxResults))
+				q := param.GetQuery()
+				q.Set("maxResults", strconv.Itoa(runtimeCtx.HTTPMaxResults))
+				param.SetRawQuery(q.Encode())
+				passOverParams[i] = param
+			}
+			armoury.SetRequestParams(passOverParams)
+		}
+	}
+	reqParams := armoury.GetRequestParams()
+	logging.GetLogger().Infof("monoValentExecution.Execute() req param count = %d", len(reqParams))
+	for _, rc := range reqParams {
+		reqCtx := rc
+		paramsUsed, paramErr := reqCtx.ToFlatMap()
+		if paramErr != nil {
+			return paramErr
+		}
+		reqEncoding := reqCtx.Encode()
+		elideOk := elider.IsElide(reqEncoding)
+		if elideOk {
+			return nil
+		}
+		// TODO: fix cloning ops
+		cc := anysdk.NewAnySdkClientConfigurator(runtimeCtx, provider.GetName())
+		response, apiErr := anysdk.CallFromSignature(
+			cc,
+			runtimeCtx,
+			authCtx,
+			authCtx.Type,
+			false,
+			outErrFile,
+			provider,
+			anysdk.NewAnySdkOpStoreDesignation(method),
+			reqCtx.GetArgList(),
+		)
+		if response == nil {
+			if apiErr != nil {
+				return apiErr
+			}
+			return fmt.Errorf("unacceptable nil response from HTTP call")
+		}
+		httpResponse, httpResponseErr := response.GetHttpResponse()
+		if httpResponse != nil && httpResponse.Body != nil {
+			defer httpResponse.Body.Close()
+		}
+		if httpResponse != nil && httpResponse.StatusCode >= 400 {
+			continue
+		}
+		// TODO: refactor into package !!TECH_DEBT!!
+		housekeepingDone := false
+		nptRequest := inferNextPageRequestElement(provider, method)
+		pageCount := 1
+		for {
+			if apiErr != nil {
+				return apiErr
+			}
+			if httpResponseErr != nil {
+				return httpResponseErr
+			}
+			processed, resErr := method.ProcessResponse(httpResponse)
+			if resErr != nil {
+				//nolint:errcheck // TODO: fix
+				outErrFile.Write(
+					[]byte(fmt.Sprintf("error processing response: %s\n", resErr.Error())),
+				)
+				if processed == nil {
+					return resErr
+				}
+			}
+			res, respOk := processed.GetResponse()
+			if !respOk {
+				return fmt.Errorf("response is not a valid response")
+			}
+			if res.HasError() {
+				polyHandler.MessageHandler([]string{res.Error()})
+				return nil
+			}
+			polyHandler.LogHTTPResponseMap(res.GetProcessedBody())
+			logging.GetLogger().Infoln(fmt.Sprintf("monoValentExecution.Execute() response = %v", res))
+
+			itemisationResult := itemise(res.GetProcessedBody(), resErr, selectItemsKey)
+
+			if itemisationResult.IsNilPayload() {
+				break
+			}
+
+			insertPrepResult := insertPreparator.ActionInsertPreparation(
+				newHTTPActionInsertPayload(
+					itemisationResult,
+					housekeepingDone,
+					tableName,
+					paramsUsed,
+					reqEncoding,
+				),
+			)
+			housekeepingDone = insertPrepResult.IsHousekeepingDone()
+			insertPrepErr, hasInsertPrepErr := insertPrepResult.GetError()
+			if hasInsertPrepErr {
+				return insertPrepErr
+			}
+
+			pageResult := page(
+				res,
+				method,
+				provider,
+				reqCtx,
+				pageCount,
+				runtimeCtx,
+				authCtx,
+				outErrFile,
+			)
+			httpResponse, httpResponseErr = pageResult.GetHTTPResponse()
+			// if httpResponse != nil && httpResponse.Body != nil {
+			// 	defer httpResponse.Body.Close()
+			// }
+			if httpResponseErr != nil {
+				break
+				// return internaldto.NewErroneousExecutorOutput(httpResponseErr)
+			}
+
+			if pageResult.IsFinished() {
+				break
+			}
+
+			pageCount = pageResult.GetPageCount()
+
+			apiErr = pageResult.GetAPIError()
+		}
+		if reqCtx.GetRequest() != nil {
+			q := reqCtx.GetRequest().URL.Query()
+			q.Del(nptRequest.GetName())
+			reqCtx.SetRawQuery(q.Encode())
+		}
+	}
+	logging.GetLogger().Infof("monoValentExecution.Execute() returning empty for table %s", tableName)
+	return nil
+}
+
+//nolint:funlen,gocognit,gocyclo,cyclop,revive // TODO: investigate
+func (mv *monoValentExecution) Build() error {
+	prov, err := mv.tableMeta.GetProvider()
+	if err != nil {
+		return err
+	}
+	provider, providerErr := prov.GetProvider()
+	if providerErr != nil {
+		return providerErr
+	}
+	m, err := mv.tableMeta.GetMethod()
+	if err != nil {
+		return err
+	}
+	tableName, err := mv.tableMeta.GetTableName()
+	if err != nil {
+		return err
+	}
+	authCtx, authCtxErr := mv.handlerCtx.GetAuthContext(prov.GetProviderString())
+	if authCtxErr != nil {
+		return authCtxErr
+	}
+	ex := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
+		logging.GetLogger().Infof("monoValentExecution.Execute() beginning execution for table %s", tableName)
+		currentTcc := mv.insertPreparedStatementCtx.GetGCCtrlCtrs().Clone()
+		mv.graphHolder.AddTxnControlCounters(currentTcc)
+		mr := prov.InferMaxResultsElement(m)
+		polyHandler := newStandardPolyHandler(
+			mv.handlerCtx,
+		)
+		agnosticatePayload := newHTTPAgnosticatePayload(
+			mv.tableMeta,
+			provider,
+			m,
+			tableName,
+			authCtx,
+			mv.handlerCtx.GetRuntimeContext(),
+			mv.handlerCtx.GetOutErrFile(),
+			mr,
+			mv.elideActionIfPossible(
+				currentTcc,
+				tableName,
+				"", // late binding, should remove AOT reference
+			),
+			true,
+			polyHandler,
+			mv.tableMeta.GetSelectItemsKey(),
+			mv,
+		)
+		agnosticErr := agnosticate(agnosticatePayload)
+		if agnosticErr != nil {
+			return internaldto.NewErroneousExecutorOutput(agnosticErr)
+		}
+		messages := polyHandler.GetMessages()
+		if len(messages) > 0 {
+			return internaldto.NewNopEmptyExecutorOutput(messages)
+		}
+		return internaldto.NewEmptyExecutorOutput()
+	}
+
+	prep := func() drm.PreparedStatementCtx {
+		return mv.insertPreparedStatementCtx
+	}
+	primitiveCtx := primitive_context.NewPrimitiveContext()
+	primitiveCtx.SetIsReadOnly(true)
+	insertPrim := primitive.NewGenericPrimitive(
+		prov,
+		ex,
+		prep,
+		mv.txnCtrlCtr,
+		primitiveCtx,
+	).WithDebugName(fmt.Sprintf("insert_%s_%s", tableName, mv.tableMeta.GetAlias()))
+	graphHolder := mv.graphHolder
+	insertNode := graphHolder.CreatePrimitiveNode(insertPrim)
+	mv.root = insertNode
+
+	return nil
+}
+
+func extractNextPageToken(res response.Response, tokenKey sdk_internal_dto.HTTPElement) string {
+	//nolint:exhaustive // TODO: review
+	switch tokenKey.GetType() {
+	case sdk_internal_dto.BodyAttribute:
+		return extractNextPageTokenFromBody(res, tokenKey)
+	case sdk_internal_dto.Header:
+		return extractNextPageTokenFromHeader(res, tokenKey)
+	}
+	return ""
+}
+
+func extractNextPageTokenFromHeader(res response.Response, tokenKey sdk_internal_dto.HTTPElement) string {
+	r := res.GetHttpResponse()
+	if r == nil {
+		return ""
+	}
+	header := r.Header
+	if tokenKey.IsTransformerPresent() {
+		tf, err := tokenKey.Transformer(header)
+		if err != nil {
+			return ""
+		}
+		rv, ok := tf.(string)
+		if !ok {
+			return ""
+		}
+		return rv
+	}
+	vals := header.Values(tokenKey.GetName())
+	if len(vals) == 1 {
+		return vals[0]
+	}
+	return ""
+}
+
+func extractNextPageTokenFromBody(res response.Response, tokenKey sdk_internal_dto.HTTPElement) string {
+	elem, err := httpelement.NewHTTPElement(tokenKey.GetName(), "body")
+	if err == nil {
+		rawVal, rawErr := res.ExtractElement(elem)
+		if rawErr == nil {
+			switch v := rawVal.(type) {
+			case []interface{}:
+				if len(v) == 1 {
+					return fmt.Sprintf("%v", v[0])
+				}
+			default:
+				return fmt.Sprintf("%v", v)
+			}
+		}
+	}
+	body := res.GetProcessedBody()
+	switch target := body.(type) { //nolint:gocritic // TODO: review
+	case map[string]interface{}:
+		tokenName := tokenKey.GetName()
+		nextPageToken, ok := target[tokenName]
+		if !ok || nextPageToken == "" {
+			logging.GetLogger().Infoln("breaking out")
+			return ""
+		}
+		tk, ok := nextPageToken.(string)
+		if !ok {
+			logging.GetLogger().Infoln("breaking out")
+			return ""
+		}
+		return tk
+	}
+	return ""
+}

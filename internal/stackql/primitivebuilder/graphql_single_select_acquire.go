@@ -199,7 +199,7 @@ func (ss *GraphQLSingleSelectAcquire) Build() error {
 	prep := func() drm.PreparedStatementCtx {
 		return ss.insertPreparedStatementCtx
 	}
-	insertPrim := primitive.NewHTTPRestPrimitive(
+	insertPrim := primitive.NewGenericPrimitive(
 		prov,
 		ex,
 		prep,

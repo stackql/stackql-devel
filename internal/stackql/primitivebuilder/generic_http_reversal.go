@@ -112,7 +112,7 @@ func (gh *genericHTTPReversal) Build() error {
 	commentDirectives := gh.commentDirectives
 	isAwait := gh.isAwait
 	_, _, responseAnalysisErr := m.GetResponseBodySchemaAndMediaType()
-	actionPrimitive := primitive.NewHTTPRestPrimitive(
+	actionPrimitive := primitive.NewGenericPrimitive(
 		prov,
 		nil,
 		nil,
@@ -236,7 +236,7 @@ func (gh *genericHTTPReversal) Build() error {
 			}
 			for _, eI := range nullaryExecutors {
 				execInstance := eI
-				dependentInsertPrimitive := primitive.NewHTTPRestPrimitive(
+				dependentInsertPrimitive := primitive.NewGenericPrimitive(
 					prov,
 					nil,
 					nil,
