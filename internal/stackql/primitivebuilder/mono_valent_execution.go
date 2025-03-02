@@ -712,19 +712,23 @@ func agnosticate(
 	reqParams := armoury.GetRequestParams()
 	logging.GetLogger().Infof("monoValentExecution.Execute() req param count = %d", len(reqParams))
 	for _, rc := range reqParams {
-		processErr := process(
-			rc,
-			elider,
-			provider,
-			method,
-			tableName,
-			runtimeCtx,
-			authCtx,
-			outErrFile,
-			polyHandler,
-			selectItemsKey,
-			insertPreparator,
+		rq := rc
+		processor := newProcessor(
+			newProcessorPayload(
+				rq,
+				elider,
+				provider,
+				method,
+				tableName,
+				runtimeCtx,
+				authCtx,
+				outErrFile,
+				polyHandler,
+				selectItemsKey,
+				insertPreparator,
+			),
 		)
+		processErr := processor.Process()
 		if processErr != nil {
 			return processErr
 		}
@@ -732,7 +736,21 @@ func agnosticate(
 	return nil
 }
 
-func process(
+type ProcessorPayload interface {
+	GetArmouryParams() anysdk.HTTPArmouryParameters
+	GetElider() methodElider
+	GetProvider() anysdk.Provider
+	GetMethod() anysdk.OperationStore
+	GetTableName() string
+	GetRuntimeCtx() dto.RuntimeCtx
+	GetAuthCtx() *dto.AuthCtx
+	GetOutErrFile() io.Writer
+	GetPolyHandler() PolyHandler
+	GetSelectItemsKey() string
+	GetInsertPreparator() InsertPreparator
+}
+
+func newProcessorPayload(
 	armouryParams anysdk.HTTPArmouryParameters,
 	elider methodElider,
 	provider anysdk.Provider,
@@ -744,7 +762,108 @@ func process(
 	polyHandler PolyHandler,
 	selectItemsKey string,
 	insertPreparator InsertPreparator,
-) error {
+) ProcessorPayload {
+	return &standardProcessorPayload{
+		armouryParams:    armouryParams,
+		elider:           elider,
+		provider:         provider,
+		method:           method,
+		tableName:        tableName,
+		runtimeCtx:       runtimeCtx,
+		authCtx:          authCtx,
+		outErrFile:       outErrFile,
+		polyHandler:      polyHandler,
+		selectItemsKey:   selectItemsKey,
+		insertPreparator: insertPreparator,
+	}
+}
+
+type standardProcessorPayload struct {
+	armouryParams    anysdk.HTTPArmouryParameters
+	elider           methodElider
+	provider         anysdk.Provider
+	method           anysdk.OperationStore
+	tableName        string
+	runtimeCtx       dto.RuntimeCtx
+	authCtx          *dto.AuthCtx
+	outErrFile       io.Writer
+	polyHandler      PolyHandler
+	selectItemsKey   string
+	insertPreparator InsertPreparator
+}
+
+func (pp *standardProcessorPayload) GetArmouryParams() anysdk.HTTPArmouryParameters {
+	return pp.armouryParams
+}
+
+func (pp *standardProcessorPayload) GetElider() methodElider {
+	return pp.elider
+}
+
+func (pp *standardProcessorPayload) GetProvider() anysdk.Provider {
+	return pp.provider
+}
+
+func (pp *standardProcessorPayload) GetMethod() anysdk.OperationStore {
+	return pp.method
+}
+
+func (pp *standardProcessorPayload) GetTableName() string {
+	return pp.tableName
+}
+
+func (pp *standardProcessorPayload) GetRuntimeCtx() dto.RuntimeCtx {
+	return pp.runtimeCtx
+}
+
+func (pp *standardProcessorPayload) GetAuthCtx() *dto.AuthCtx {
+	return pp.authCtx
+}
+
+func (pp *standardProcessorPayload) GetOutErrFile() io.Writer {
+	return pp.outErrFile
+}
+
+func (pp *standardProcessorPayload) GetPolyHandler() PolyHandler {
+	return pp.polyHandler
+}
+
+func (pp *standardProcessorPayload) GetSelectItemsKey() string {
+	return pp.selectItemsKey
+}
+
+func (pp *standardProcessorPayload) GetInsertPreparator() InsertPreparator {
+	return pp.insertPreparator
+}
+
+type Processor interface {
+	Process() error
+}
+
+type standardProcessor struct {
+	payload ProcessorPayload
+}
+
+func newProcessor(payload ProcessorPayload) Processor {
+	return &standardProcessor{
+		payload: payload,
+	}
+}
+
+func (sp *standardProcessor) Process() error {
+	processorPayload := sp.payload
+	armouryParams := processorPayload.GetArmouryParams()
+	elider := processorPayload.GetElider()
+	provider := processorPayload.GetProvider()
+	method := processorPayload.GetMethod()
+	tableName := processorPayload.GetTableName()
+	runtimeCtx := processorPayload.GetRuntimeCtx()
+	authCtx := processorPayload.GetAuthCtx()
+	outErrFile := processorPayload.GetOutErrFile()
+	polyHandler := processorPayload.GetPolyHandler()
+	selectItemsKey := processorPayload.GetSelectItemsKey()
+	insertPreparator := processorPayload.GetInsertPreparator()
+
 	reqCtx := armouryParams
 	paramsUsed, paramErr := reqCtx.ToFlatMap()
 	if paramErr != nil {
