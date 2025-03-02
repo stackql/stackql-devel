@@ -263,7 +263,6 @@ func (ss *polyValentExecution) Build() error {
 	primitiveCtx := primitive_context.NewPrimitiveContext()
 	primitiveCtx.SetIsReadOnly(true)
 	insertPrim := primitive.NewGenericPrimitive(
-		prov,
 		ex,
 		prep,
 		ss.txnCtrlCtr,

@@ -137,7 +137,6 @@ func (ss *sqlDataSourceSingleSelectAcquire) Build() error {
 	primitiveCtx := primitive_context.NewPrimitiveContext()
 	primitiveCtx.SetIsReadOnly(true)
 	insertPrim := primitive.NewGenericPrimitive(
-		nil,
 		ex,
 		prep,
 		ss.txnCtrlCtr,

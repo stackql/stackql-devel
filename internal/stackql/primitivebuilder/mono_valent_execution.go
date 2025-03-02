@@ -854,28 +854,57 @@ func agnosticate(
 
 //nolint:funlen,gocognit,gocyclo,cyclop,revive // TODO: investigate
 func (mv *monoValentExecution) Build() error {
-	prov, err := mv.tableMeta.GetProvider()
-	if err != nil {
-		return err
-	}
-	provider, providerErr := prov.GetProvider()
-	if providerErr != nil {
-		return providerErr
-	}
-	m, err := mv.tableMeta.GetMethod()
-	if err != nil {
-		return err
-	}
 	tableName, err := mv.tableMeta.GetTableName()
 	if err != nil {
 		return err
 	}
+	ex, err := mv.GetExecutor()
+
+	if err != nil {
+		return err
+	}
+
+	prep := func() drm.PreparedStatementCtx {
+		return mv.insertPreparedStatementCtx
+	}
+	primitiveCtx := primitive_context.NewPrimitiveContext()
+	primitiveCtx.SetIsReadOnly(true)
+	insertPrim := primitive.NewGenericPrimitive(
+		ex,
+		prep,
+		mv.txnCtrlCtr,
+		primitiveCtx,
+	).WithDebugName(fmt.Sprintf("insert_%s_%s", tableName, mv.tableMeta.GetAlias()))
+	graphHolder := mv.graphHolder
+	insertNode := graphHolder.CreatePrimitiveNode(insertPrim)
+	mv.root = insertNode
+
+	return nil
+}
+
+//nolint:funlen,gocognit,gocyclo,cyclop,revive // TODO: investigate
+func (mv *monoValentExecution) GetExecutor() (func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput, error) {
+	prov, err := mv.tableMeta.GetProvider()
+	if err != nil {
+		return nil, err
+	}
+	provider, providerErr := prov.GetProvider()
+	if providerErr != nil {
+		return nil, providerErr
+	}
+	m, err := mv.tableMeta.GetMethod()
+	if err != nil {
+		return nil, err
+	}
+	tableName, err := mv.tableMeta.GetTableName()
+	if err != nil {
+		return nil, err
+	}
 	authCtx, authCtxErr := mv.handlerCtx.GetAuthContext(prov.GetProviderString())
 	if authCtxErr != nil {
-		return authCtxErr
+		return nil, authCtxErr
 	}
 	ex := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
-		logging.GetLogger().Infof("monoValentExecution.Execute() beginning execution for table %s", tableName)
 		currentTcc := mv.insertPreparedStatementCtx.GetGCCtrlCtrs().Clone()
 		mv.graphHolder.AddTxnControlCounters(currentTcc)
 		mr := prov.InferMaxResultsElement(m)
@@ -911,24 +940,7 @@ func (mv *monoValentExecution) Build() error {
 		}
 		return internaldto.NewEmptyExecutorOutput()
 	}
-
-	prep := func() drm.PreparedStatementCtx {
-		return mv.insertPreparedStatementCtx
-	}
-	primitiveCtx := primitive_context.NewPrimitiveContext()
-	primitiveCtx.SetIsReadOnly(true)
-	insertPrim := primitive.NewGenericPrimitive(
-		prov,
-		ex,
-		prep,
-		mv.txnCtrlCtr,
-		primitiveCtx,
-	).WithDebugName(fmt.Sprintf("insert_%s_%s", tableName, mv.tableMeta.GetAlias()))
-	graphHolder := mv.graphHolder
-	insertNode := graphHolder.CreatePrimitiveNode(insertPrim)
-	mv.root = insertNode
-
-	return nil
+	return ex, nil
 }
 
 func extractNextPageToken(res response.Response, tokenKey sdk_internal_dto.HTTPElement) string {

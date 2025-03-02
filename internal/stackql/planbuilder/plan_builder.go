@@ -637,7 +637,7 @@ func (pgb *standardPlanGraphBuilder) handleDelete(pbi planbuilderinput.PlanBuild
 		}
 		return nil
 	}
-	pr := primitive.NewGenericPrimitive(nil, nil, nil, nil, primitive_context.NewPrimitiveContext())
+	pr := primitive.NewGenericPrimitive(nil, nil, nil, primitive_context.NewPrimitiveContext())
 	pgb.planGraphHolder.CreatePrimitiveNode(pr)
 	return nil
 }
@@ -926,7 +926,7 @@ func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuild
 		}
 		return nil
 	}
-	pr := primitive.NewGenericPrimitive(nil, nil, nil, nil, primitive_context.NewPrimitiveContext())
+	pr := primitive.NewGenericPrimitive(nil, nil, nil, primitive_context.NewPrimitiveContext())
 	pgb.planGraphHolder.CreatePrimitiveNode(pr)
 	return nil
 }
@@ -991,7 +991,7 @@ func (pgb *standardPlanGraphBuilder) handleUpdate(pbi planbuilderinput.PlanBuild
 		}
 		return nil
 	}
-	pr := primitive.NewGenericPrimitive(nil, nil, nil, nil, primitive_context.NewPrimitiveContext())
+	pr := primitive.NewGenericPrimitive(nil, nil, nil, primitive_context.NewPrimitiveContext())
 	pgb.planGraphHolder.CreatePrimitiveNode(pr)
 	return nil
 }
@@ -1034,7 +1034,7 @@ func (pgb *standardPlanGraphBuilder) handleExec(pbi planbuilderinput.PlanBuilder
 		}
 		return nil
 	}
-	pr := primitive.NewGenericPrimitive(nil, nil, nil, nil, primitive_context.NewPrimitiveContext())
+	pr := primitive.NewGenericPrimitive(nil, nil, nil, primitive_context.NewPrimitiveContext())
 	pgb.planGraphHolder.CreatePrimitiveNode(pr)
 	return nil
 }
