@@ -16,7 +16,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
-	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/primitive_context"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
@@ -24,6 +23,14 @@ import (
 
 	sdk_internal_dto "github.com/stackql/any-sdk/pkg/internaldto"
 )
+
+var (
+	_ MonoValentExecutorFactory = (*monoValentExecution)(nil)
+)
+
+type MonoValentExecutorFactory interface {
+	GetExecutor() (func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput, error)
+}
 
 // monoValentExecution implements the Builder interface
 // and represents the action of acquiring data from an endpoint
@@ -43,7 +50,7 @@ type monoValentExecution struct {
 	isReadOnly                 bool //nolint:unused // TODO: build out
 }
 
-func newMonoValentExecution(
+func newMonoValentExecutorFactory(
 	graphHolder primitivegraph.PrimitiveGraphHolder,
 	handlerCtx handler.HandlerContext,
 	tableMeta tablemetadata.ExtendedTableMetadata,
@@ -51,7 +58,7 @@ func newMonoValentExecution(
 	insertionContainer tableinsertioncontainer.TableInsertionContainer,
 	rowSort func(map[string]map[string]interface{}) []string,
 	stream streaming.MapStream,
-) Builder {
+) MonoValentExecutorFactory {
 	var tcc internaldto.TxnControlCounters
 	if insertCtx != nil {
 		tcc = insertCtx.GetGCCtrlCtrs()
@@ -79,12 +86,6 @@ func (mv *monoValentExecution) GetRoot() primitivegraph.PrimitiveNode {
 func (mv *monoValentExecution) GetTail() primitivegraph.PrimitiveNode {
 	return mv.root
 }
-
-// type eliderPayload struct {
-// 	currentTcc  internaldto.TxnControlCounters
-// 	tableName   string
-// 	reqEncoding string
-// }
 
 type standardMethodElider struct {
 	elisionFunc func(string, ...any) bool
@@ -144,12 +145,6 @@ func (mv *monoValentExecution) elideActionIfPossible(
 type methodElider interface {
 	IsElide(string, ...any) bool
 }
-
-// func (mv *monoValentExecution) actionHTTP(
-// 	_ methodElider,
-// ) error {
-// 	return nil
-// }
 
 type actionInsertResult struct {
 	err                error
@@ -714,7 +709,6 @@ func agnosticate(
 			passOverParams := armoury.GetRequestParams()
 			for i, p := range passOverParams {
 				param := p
-				// param.Context.SetQueryParam("maxResults", strconv.Itoa(mv.handlerCtx.GetRuntimeContext().HTTPMaxResults))
 				q := param.GetQuery()
 				q.Set("maxResults", strconv.Itoa(runtimeCtx.HTTPMaxResults))
 				param.SetRawQuery(q.Encode())
@@ -849,36 +843,6 @@ func agnosticate(
 		}
 	}
 	logging.GetLogger().Infof("monoValentExecution.Execute() returning empty for table %s", tableName)
-	return nil
-}
-
-//nolint:funlen,gocognit,gocyclo,cyclop,revive // TODO: investigate
-func (mv *monoValentExecution) Build() error {
-	tableName, err := mv.tableMeta.GetTableName()
-	if err != nil {
-		return err
-	}
-	ex, err := mv.GetExecutor()
-
-	if err != nil {
-		return err
-	}
-
-	prep := func() drm.PreparedStatementCtx {
-		return mv.insertPreparedStatementCtx
-	}
-	primitiveCtx := primitive_context.NewPrimitiveContext()
-	primitiveCtx.SetIsReadOnly(true)
-	insertPrim := primitive.NewGenericPrimitive(
-		ex,
-		prep,
-		mv.txnCtrlCtr,
-		primitiveCtx,
-	).WithDebugName(fmt.Sprintf("insert_%s_%s", tableName, mv.tableMeta.GetAlias()))
-	graphHolder := mv.graphHolder
-	insertNode := graphHolder.CreatePrimitiveNode(insertPrim)
-	mv.root = insertNode
-
 	return nil
 }
 
