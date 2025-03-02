@@ -29,7 +29,7 @@ func NewSingleSelectAcquire(
 			stream,
 		)
 	}
-	return newMonoValentExecution(
+	return newMonoValentBuilder(
 		graphHolder,
 		handlerCtx,
 		tableMeta,
