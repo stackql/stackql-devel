@@ -892,6 +892,8 @@ type ProcessorResponse interface {
 	GetSuccessMessages() []string
 	AppendReversal(rev anysdk.HTTPPreparator)
 	GetReversalStream() anysdk.HttpPreparatorStream
+	IsFailed() bool
+	GetFailedMessage() string
 }
 
 type httpProcessorResponse struct {
@@ -899,6 +901,16 @@ type httpProcessorResponse struct {
 	err             error
 	successMessages []string
 	reversalStream  anysdk.HttpPreparatorStream
+	isFailed        bool
+	failedMessage   string
+}
+
+func (hpr *httpProcessorResponse) IsFailed() bool {
+	return hpr.isFailed
+}
+
+func (hpr *httpProcessorResponse) GetFailedMessage() string {
+	return hpr.failedMessage
 }
 
 func (hpr *httpProcessorResponse) WithSuccessMessages(messages []string) ProcessorResponse {
@@ -926,11 +938,12 @@ func (hpr *httpProcessorResponse) GetSingletonBody() map[string]interface{} {
 	return hpr.body
 }
 
-func newHTTPProcessorResponse(body map[string]interface{}, reversalStream anysdk.HttpPreparatorStream, err error) ProcessorResponse {
+func newHTTPProcessorResponse(body map[string]interface{}, reversalStream anysdk.HttpPreparatorStream, isFailed bool, err error) ProcessorResponse {
 	return &httpProcessorResponse{
 		body:           body,
 		err:            err,
 		reversalStream: reversalStream,
+		isFailed:       isFailed,
 	}
 }
 
@@ -971,12 +984,12 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 	reqCtx := armouryParams
 	paramsUsed, paramErr := reqCtx.ToFlatMap()
 	if paramErr != nil {
-		return newHTTPProcessorResponse(nil, reversalStream, paramErr)
+		return newHTTPProcessorResponse(nil, reversalStream, false, paramErr)
 	}
 	reqEncoding := reqCtx.Encode()
 	elideOk := elider.IsElide(reqEncoding)
 	if elideOk {
-		return newHTTPProcessorResponse(nil, reversalStream, nil)
+		return newHTTPProcessorResponse(nil, reversalStream, false, nil)
 	}
 	// TODO: fix cloning ops
 	cc := anysdk.NewAnySdkClientConfigurator(runtimeCtx, provider.GetName())
@@ -993,19 +1006,20 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 	)
 	if response == nil {
 		if apiErr != nil {
-			return newHTTPProcessorResponse(nil, reversalStream, apiErr)
+			return newHTTPProcessorResponse(nil, reversalStream, false, apiErr)
 		}
-		return newHTTPProcessorResponse(nil, reversalStream, fmt.Errorf("unacceptable nil response from HTTP call"))
+		return newHTTPProcessorResponse(nil, reversalStream, false, fmt.Errorf("unacceptable nil response from HTTP call"))
 	}
 	if isSkipResponse {
-		return newHTTPProcessorResponse(nil, reversalStream, nil)
+		return newHTTPProcessorResponse(nil, reversalStream, false, nil)
 	}
 	httpResponse, httpResponseErr := response.GetHttpResponse()
 	if httpResponse != nil && httpResponse.Body != nil {
 		defer httpResponse.Body.Close()
 	}
-	if httpResponse != nil && httpResponse.StatusCode >= 400 {
-		return newHTTPProcessorResponse(nil, reversalStream, nil)
+	if httpResponse != nil && httpResponse.StatusCode >= 400 && isMaterialiseResponse {
+		generatedErr := fmt.Errorf("insert over HTTP error: %s", httpResponse.Status)
+		return newHTTPProcessorResponse(nil, reversalStream, true, generatedErr)
 	}
 	// TODO: refactor into package !!TECH_DEBT!!
 	housekeepingDone := false
@@ -1013,10 +1027,10 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 	pageCount := 1
 	for {
 		if apiErr != nil {
-			return newHTTPProcessorResponse(nil, reversalStream, apiErr)
+			return newHTTPProcessorResponse(nil, reversalStream, false, apiErr)
 		}
 		if httpResponseErr != nil {
-			return newHTTPProcessorResponse(nil, reversalStream, httpResponseErr)
+			return newHTTPProcessorResponse(nil, reversalStream, false, httpResponseErr)
 		}
 		processed, resErr := method.ProcessResponse(httpResponse)
 		if resErr != nil {
@@ -1025,26 +1039,26 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 				[]byte(fmt.Sprintf("error processing response: %s\n", resErr.Error())),
 			)
 			if processed == nil {
-				return newHTTPProcessorResponse(nil, reversalStream, resErr)
+				return newHTTPProcessorResponse(nil, reversalStream, false, resErr)
 			}
 		}
 		reversal, reversalExists := processed.GetReversal()
 		if reversalExists {
 			reversalAppendErr := reversalStream.Write(reversal)
 			if reversalAppendErr != nil {
-				return newHTTPProcessorResponse(nil, reversalStream, reversalAppendErr)
+				return newHTTPProcessorResponse(nil, reversalStream, false, reversalAppendErr)
 			}
 		}
 		if !reversalExists && isReverseRequired {
-			return newHTTPProcessorResponse(nil, reversalStream, resErr)
+			return newHTTPProcessorResponse(nil, reversalStream, false, resErr)
 		}
 		res, respOk := processed.GetResponse()
 		if !respOk {
-			return newHTTPProcessorResponse(nil, reversalStream, fmt.Errorf("response is not a valid response"))
+			return newHTTPProcessorResponse(nil, reversalStream, false, fmt.Errorf("response is not a valid response"))
 		}
 		if res.HasError() {
 			polyHandler.MessageHandler([]string{res.Error()})
-			return newHTTPProcessorResponse(nil, reversalStream, nil)
+			return newHTTPProcessorResponse(nil, reversalStream, false, nil)
 		}
 		polyHandler.LogHTTPResponseMap(res.GetProcessedBody())
 		logging.GetLogger().Infoln(fmt.Sprintf("monoValentExecution.Execute() response = %v", res))
@@ -1058,13 +1072,16 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 		singletonResponse, hasSingletonResponse := itemisationResult.GetSingltetonResponse()
 		if isMaterialiseResponse {
 			msgs := shallowGenerateSuccessMessagesFromHeirarchy(isAwait)
-			if hasSingletonResponse {
-				return newHTTPProcessorResponse(singletonResponse, reversalStream, nil).WithSuccessMessages(msgs)
-			}
 			if httpResponse.StatusCode < 300 {
-				return newHTTPProcessorResponse(nil, reversalStream, nil).WithSuccessMessages(msgs)
+				if hasSingletonResponse {
+					return newHTTPProcessorResponse(singletonResponse, reversalStream, false, nil).WithSuccessMessages(msgs)
+				}
+				return newHTTPProcessorResponse(nil, reversalStream, false, nil).WithSuccessMessages(msgs)
 			}
-			return newHTTPProcessorResponse(nil, reversalStream, fmt.Errorf("no singleton response as required"))
+			return newHTTPProcessorResponse(nil, reversalStream, false, nil)
+		}
+		if httpResponse.StatusCode >= 300 {
+			return newHTTPProcessorResponse(nil, reversalStream, false, nil)
 		}
 
 		insertPrepResult := insertPreparator.ActionInsertPreparation(
@@ -1079,7 +1096,7 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 		housekeepingDone = insertPrepResult.IsHousekeepingDone()
 		insertPrepErr, hasInsertPrepErr := insertPrepResult.GetError()
 		if hasInsertPrepErr {
-			return newHTTPProcessorResponse(nil, reversalStream, insertPrepErr)
+			return newHTTPProcessorResponse(nil, reversalStream, false, insertPrepErr)
 		}
 
 		pageResult := page(
@@ -1097,12 +1114,12 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 		// 	defer httpResponse.Body.Close()
 		// }
 		if httpResponseErr != nil {
-			return newHTTPProcessorResponse(nil, reversalStream, nil)
+			return newHTTPProcessorResponse(nil, reversalStream, false, nil)
 			// return internaldto.NewErroneousExecutorOutput(httpResponseErr)
 		}
 
 		if pageResult.IsFinished() {
-			return newHTTPProcessorResponse(nil, reversalStream, nil)
+			return newHTTPProcessorResponse(nil, reversalStream, false, nil)
 		}
 
 		pageCount = pageResult.GetPageCount()
@@ -1114,7 +1131,7 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 		q.Del(nptRequest.GetName())
 		reqCtx.SetRawQuery(q.Encode())
 	}
-	return newHTTPProcessorResponse(nil, reversalStream, nil)
+	return newHTTPProcessorResponse(nil, reversalStream, false, nil)
 }
 
 //nolint:funlen,gocognit,gocyclo,cyclop,revive // TODO: investigate

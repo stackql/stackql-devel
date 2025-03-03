@@ -253,9 +253,9 @@ func (gh *genericHTTPStreamInput) Build() error {
 				processorResponse := processor.Process()
 				processorErr := processorResponse.GetError()
 				singletonBody := processorResponse.GetSingletonBody()
-				reveralStrem := processorResponse.GetReversalStream()
+				reversalStrem := processorResponse.GetReversalStream()
 				for {
-					rev, isRevExistent := reveralStrem.Next()
+					rev, isRevExistent := reversalStrem.Next()
 					if !isRevExistent {
 						break
 					}
@@ -264,12 +264,18 @@ func (gh *genericHTTPStreamInput) Build() error {
 						return internaldto.NewErroneousExecutorOutput(revErr)
 					}
 				}
-				return internaldto.NewExecutorOutput(
-					nil,
-					singletonBody,
-					nil,
-					internaldto.NewBackendMessages(processorResponse.GetSuccessMessages()),
-					processorErr,
+				// if processorResponse.IsFailed() && !gh.isAwait {
+				// 	processorErr = fmt.Errorf(processorResponse.GetFailedMessage())
+				// }
+				return gh.decorateOutput(
+					internaldto.NewExecutorOutput(
+						nil,
+						singletonBody,
+						nil,
+						internaldto.NewBackendMessages(processorResponse.GetSuccessMessages()),
+						processorErr,
+					),
+					tableName,
 				)
 			}
 
