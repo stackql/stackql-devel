@@ -25,7 +25,10 @@ import (
 )
 
 var (
-	_ MonoValentExecutorFactory = (*monoValentExecution)(nil)
+	_                  MonoValentExecutorFactory = (*monoValentExecution)(nil)
+	nilElisionFunction func(string, ...any) bool = func(string, ...any) bool {
+		return false
+	}
 )
 
 type MonoValentExecutorFactory interface {
@@ -165,19 +168,25 @@ func newActionInsertResult(isHousekeepingDone bool, err error) ActionInsertResul
 }
 
 type itemsDTO struct {
-	items        interface{}
-	ok           bool
-	isNilPayload bool
+	items             interface{}
+	ok                bool
+	isNilPayload      bool
+	singletonResponse map[string]interface{}
 }
 
 type ItemisationResult interface {
 	GetItems() (interface{}, bool)
+	GetSingltetonResponse() (map[string]interface{}, bool)
 	IsOk() bool
 	IsNilPayload() bool
 }
 
 func (id *itemsDTO) GetItems() (interface{}, bool) {
 	return id.items, id.items != nil
+}
+
+func (id *itemsDTO) GetSingltetonResponse() (map[string]interface{}, bool) {
+	return id.singletonResponse, id.singletonResponse != nil
 }
 
 func (id *itemsDTO) IsOk() bool {
@@ -192,11 +201,13 @@ func newItemisationResult(
 	items interface{},
 	ok bool,
 	isNilPayload bool,
+	singletonResponse map[string]interface{},
 ) ItemisationResult {
 	return &itemsDTO{
-		items:        items,
-		ok:           ok,
-		isNilPayload: isNilPayload,
+		items:             items,
+		ok:                ok,
+		isNilPayload:      isNilPayload,
+		singletonResponse: singletonResponse,
 	}
 }
 
@@ -208,10 +219,12 @@ func itemise(
 ) ItemisationResult {
 	var items interface{}
 	var ok bool
+	var singletonResponse map[string]interface{}
 	logging.GetLogger().Infoln(fmt.Sprintf("monoValentExecution.Execute() target = %v", target))
 	switch pl := target.(type) {
 	// add case for xml object,
 	case map[string]interface{}:
+		singletonResponse = pl
 		if selectItemsKey != "" && selectItemsKey != "/*" {
 			items, ok = pl[selectItemsKey]
 			if !ok {
@@ -238,9 +251,9 @@ func itemise(
 		items = pl
 		ok = true
 	case nil:
-		return newItemisationResult(nil, false, true)
+		return newItemisationResult(nil, false, true, singletonResponse)
 	}
-	return newItemisationResult(items, ok, false)
+	return newItemisationResult(items, ok, false, singletonResponse)
 }
 
 func inferNextPageResponseElement(provider anysdk.Provider, method anysdk.OperationStore) sdk_internal_dto.HTTPElement {
@@ -726,11 +739,15 @@ func agnosticate(
 				polyHandler,
 				selectItemsKey,
 				insertPreparator,
+				false,
+				false,
+				false,
+				false,
 			),
 		)
 		processErr := processor.Process()
-		if processErr != nil {
-			return processErr
+		if processErr != nil && processErr.GetError() != nil {
+			return processErr.GetError()
 		}
 	}
 	return nil
@@ -748,6 +765,10 @@ type ProcessorPayload interface {
 	GetPolyHandler() PolyHandler
 	GetSelectItemsKey() string
 	GetInsertPreparator() InsertPreparator
+	IsSkipResponse() bool
+	IsMaterialiseResponse() bool
+	IsAwait() bool
+	IsReverseRequired() bool
 }
 
 func newProcessorPayload(
@@ -762,38 +783,66 @@ func newProcessorPayload(
 	polyHandler PolyHandler,
 	selectItemsKey string,
 	insertPreparator InsertPreparator,
+	isSkipResponse bool,
+	isMaterialiseResponse bool,
+	isAwait bool,
+	isReverseRequired bool,
 ) ProcessorPayload {
 	return &standardProcessorPayload{
-		armouryParams:    armouryParams,
-		elider:           elider,
-		provider:         provider,
-		method:           method,
-		tableName:        tableName,
-		runtimeCtx:       runtimeCtx,
-		authCtx:          authCtx,
-		outErrFile:       outErrFile,
-		polyHandler:      polyHandler,
-		selectItemsKey:   selectItemsKey,
-		insertPreparator: insertPreparator,
+		armouryParams:         armouryParams,
+		elider:                elider,
+		provider:              provider,
+		method:                method,
+		tableName:             tableName,
+		runtimeCtx:            runtimeCtx,
+		authCtx:               authCtx,
+		outErrFile:            outErrFile,
+		polyHandler:           polyHandler,
+		selectItemsKey:        selectItemsKey,
+		insertPreparator:      insertPreparator,
+		isSkipResponse:        isSkipResponse,
+		isMaterialiseResponse: isMaterialiseResponse,
+		isAwait:               isAwait,
+		isReverseRequired:     isReverseRequired,
 	}
 }
 
 type standardProcessorPayload struct {
-	armouryParams    anysdk.HTTPArmouryParameters
-	elider           methodElider
-	provider         anysdk.Provider
-	method           anysdk.OperationStore
-	tableName        string
-	runtimeCtx       dto.RuntimeCtx
-	authCtx          *dto.AuthCtx
-	outErrFile       io.Writer
-	polyHandler      PolyHandler
-	selectItemsKey   string
-	insertPreparator InsertPreparator
+	armouryParams         anysdk.HTTPArmouryParameters
+	elider                methodElider
+	provider              anysdk.Provider
+	method                anysdk.OperationStore
+	tableName             string
+	runtimeCtx            dto.RuntimeCtx
+	authCtx               *dto.AuthCtx
+	outErrFile            io.Writer
+	polyHandler           PolyHandler
+	selectItemsKey        string
+	insertPreparator      InsertPreparator
+	isSkipResponse        bool
+	isMaterialiseResponse bool
+	isAwait               bool
+	isReverseRequired     bool
 }
 
 func (pp *standardProcessorPayload) GetArmouryParams() anysdk.HTTPArmouryParameters {
 	return pp.armouryParams
+}
+
+func (pp *standardProcessorPayload) IsSkipResponse() bool {
+	return pp.isSkipResponse
+}
+
+func (pp *standardProcessorPayload) IsAwait() bool {
+	return pp.isAwait
+}
+
+func (pp *standardProcessorPayload) IsReverseRequired() bool {
+	return pp.isReverseRequired
+}
+
+func (pp *standardProcessorPayload) IsMaterialiseResponse() bool {
+	return pp.isMaterialiseResponse
 }
 
 func (pp *standardProcessorPayload) GetElider() methodElider {
@@ -836,8 +885,57 @@ func (pp *standardProcessorPayload) GetInsertPreparator() InsertPreparator {
 	return pp.insertPreparator
 }
 
+type ProcessorResponse interface {
+	GetError() error
+	GetSingletonBody() map[string]interface{}
+	WithSuccessMessages([]string) ProcessorResponse
+	GetSuccessMessages() []string
+	AppendReversal(rev anysdk.HTTPPreparator)
+	GetReversalStream() anysdk.HttpPreparatorStream
+}
+
+type httpProcessorResponse struct {
+	body            map[string]interface{}
+	err             error
+	successMessages []string
+	reversalStream  anysdk.HttpPreparatorStream
+}
+
+func (hpr *httpProcessorResponse) WithSuccessMessages(messages []string) ProcessorResponse {
+	hpr.successMessages = messages
+	return hpr
+}
+
+func (hpr *httpProcessorResponse) AppendReversal(rev anysdk.HTTPPreparator) {
+	hpr.reversalStream.Write(rev)
+}
+
+func (hpr *httpProcessorResponse) GetReversalStream() anysdk.HttpPreparatorStream {
+	return hpr.reversalStream
+}
+
+func (hpr *httpProcessorResponse) GetSuccessMessages() []string {
+	return hpr.successMessages
+}
+
+func (hpr *httpProcessorResponse) GetError() error {
+	return hpr.err
+}
+
+func (hpr *httpProcessorResponse) GetSingletonBody() map[string]interface{} {
+	return hpr.body
+}
+
+func newHTTPProcessorResponse(body map[string]interface{}, reversalStream anysdk.HttpPreparatorStream, err error) ProcessorResponse {
+	return &httpProcessorResponse{
+		body:           body,
+		err:            err,
+		reversalStream: reversalStream,
+	}
+}
+
 type Processor interface {
-	Process() error
+	Process() ProcessorResponse
 }
 
 type standardProcessor struct {
@@ -850,7 +948,7 @@ func newProcessor(payload ProcessorPayload) Processor {
 	}
 }
 
-func (sp *standardProcessor) Process() error {
+func (sp *standardProcessor) Process() ProcessorResponse {
 	processorPayload := sp.payload
 	armouryParams := processorPayload.GetArmouryParams()
 	elider := processorPayload.GetElider()
@@ -863,16 +961,22 @@ func (sp *standardProcessor) Process() error {
 	polyHandler := processorPayload.GetPolyHandler()
 	selectItemsKey := processorPayload.GetSelectItemsKey()
 	insertPreparator := processorPayload.GetInsertPreparator()
+	isSkipResponse := processorPayload.IsSkipResponse()
+	isMaterialiseResponse := processorPayload.IsMaterialiseResponse()
+	isAwait := processorPayload.IsAwait()
+	isReverseRequired := processorPayload.IsReverseRequired()
+
+	reversalStream := anysdk.NewHttpPreparatorStream()
 
 	reqCtx := armouryParams
 	paramsUsed, paramErr := reqCtx.ToFlatMap()
 	if paramErr != nil {
-		return paramErr
+		return newHTTPProcessorResponse(nil, reversalStream, paramErr)
 	}
 	reqEncoding := reqCtx.Encode()
 	elideOk := elider.IsElide(reqEncoding)
 	if elideOk {
-		return nil
+		return newHTTPProcessorResponse(nil, reversalStream, nil)
 	}
 	// TODO: fix cloning ops
 	cc := anysdk.NewAnySdkClientConfigurator(runtimeCtx, provider.GetName())
@@ -889,16 +993,19 @@ func (sp *standardProcessor) Process() error {
 	)
 	if response == nil {
 		if apiErr != nil {
-			return apiErr
+			return newHTTPProcessorResponse(nil, reversalStream, apiErr)
 		}
-		return fmt.Errorf("unacceptable nil response from HTTP call")
+		return newHTTPProcessorResponse(nil, reversalStream, fmt.Errorf("unacceptable nil response from HTTP call"))
+	}
+	if isSkipResponse {
+		return newHTTPProcessorResponse(nil, reversalStream, nil)
 	}
 	httpResponse, httpResponseErr := response.GetHttpResponse()
 	if httpResponse != nil && httpResponse.Body != nil {
 		defer httpResponse.Body.Close()
 	}
 	if httpResponse != nil && httpResponse.StatusCode >= 400 {
-		return nil
+		return newHTTPProcessorResponse(nil, reversalStream, nil)
 	}
 	// TODO: refactor into package !!TECH_DEBT!!
 	housekeepingDone := false
@@ -906,10 +1013,10 @@ func (sp *standardProcessor) Process() error {
 	pageCount := 1
 	for {
 		if apiErr != nil {
-			return apiErr
+			return newHTTPProcessorResponse(nil, reversalStream, apiErr)
 		}
 		if httpResponseErr != nil {
-			return httpResponseErr
+			return newHTTPProcessorResponse(nil, reversalStream, httpResponseErr)
 		}
 		processed, resErr := method.ProcessResponse(httpResponse)
 		if resErr != nil {
@@ -918,16 +1025,26 @@ func (sp *standardProcessor) Process() error {
 				[]byte(fmt.Sprintf("error processing response: %s\n", resErr.Error())),
 			)
 			if processed == nil {
-				return resErr
+				return newHTTPProcessorResponse(nil, reversalStream, resErr)
 			}
+		}
+		reversal, reversalExists := processed.GetReversal()
+		if reversalExists {
+			reversalAppendErr := reversalStream.Write(reversal)
+			if reversalAppendErr != nil {
+				return newHTTPProcessorResponse(nil, reversalStream, reversalAppendErr)
+			}
+		}
+		if !reversalExists && isReverseRequired {
+			return newHTTPProcessorResponse(nil, reversalStream, resErr)
 		}
 		res, respOk := processed.GetResponse()
 		if !respOk {
-			return fmt.Errorf("response is not a valid response")
+			return newHTTPProcessorResponse(nil, reversalStream, fmt.Errorf("response is not a valid response"))
 		}
 		if res.HasError() {
 			polyHandler.MessageHandler([]string{res.Error()})
-			return nil
+			return newHTTPProcessorResponse(nil, reversalStream, nil)
 		}
 		polyHandler.LogHTTPResponseMap(res.GetProcessedBody())
 		logging.GetLogger().Infoln(fmt.Sprintf("monoValentExecution.Execute() response = %v", res))
@@ -936,6 +1053,18 @@ func (sp *standardProcessor) Process() error {
 
 		if itemisationResult.IsNilPayload() {
 			break
+		}
+
+		singletonResponse, hasSingletonResponse := itemisationResult.GetSingltetonResponse()
+		if isMaterialiseResponse {
+			msgs := shallowGenerateSuccessMessagesFromHeirarchy(isAwait)
+			if hasSingletonResponse {
+				return newHTTPProcessorResponse(singletonResponse, reversalStream, nil).WithSuccessMessages(msgs)
+			}
+			if httpResponse.StatusCode < 300 {
+				return newHTTPProcessorResponse(nil, reversalStream, nil).WithSuccessMessages(msgs)
+			}
+			return newHTTPProcessorResponse(nil, reversalStream, fmt.Errorf("no singleton response as required"))
 		}
 
 		insertPrepResult := insertPreparator.ActionInsertPreparation(
@@ -950,7 +1079,7 @@ func (sp *standardProcessor) Process() error {
 		housekeepingDone = insertPrepResult.IsHousekeepingDone()
 		insertPrepErr, hasInsertPrepErr := insertPrepResult.GetError()
 		if hasInsertPrepErr {
-			return insertPrepErr
+			return newHTTPProcessorResponse(nil, reversalStream, insertPrepErr)
 		}
 
 		pageResult := page(
@@ -968,12 +1097,12 @@ func (sp *standardProcessor) Process() error {
 		// 	defer httpResponse.Body.Close()
 		// }
 		if httpResponseErr != nil {
-			return nil
+			return newHTTPProcessorResponse(nil, reversalStream, nil)
 			// return internaldto.NewErroneousExecutorOutput(httpResponseErr)
 		}
 
 		if pageResult.IsFinished() {
-			return nil
+			return newHTTPProcessorResponse(nil, reversalStream, nil)
 		}
 
 		pageCount = pageResult.GetPageCount()
@@ -985,7 +1114,7 @@ func (sp *standardProcessor) Process() error {
 		q.Del(nptRequest.GetName())
 		reqCtx.SetRawQuery(q.Encode())
 	}
-	return nil
+	return newHTTPProcessorResponse(nil, reversalStream, nil)
 }
 
 //nolint:funlen,gocognit,gocyclo,cyclop,revive // TODO: investigate
