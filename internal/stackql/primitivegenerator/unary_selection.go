@@ -175,3 +175,68 @@ func (pb *standardPrimitiveGenerator) analyzeUnarySelection(
 		cols,
 	)
 }
+
+func (pb *standardPrimitiveGenerator) analyzeUnaryAction(
+	pbi planbuilderinput.PlanBuilderInput,
+	handlerCtx handler.HandlerContext,
+	node sqlparser.SQLNode,
+	rewrittenWhere *sqlparser.Where,
+	tbl tablemetadata.ExtendedTableMetadata,
+	cols []parserutil.ColumnHandle) error {
+	_, err := tbl.GetProvider()
+	if err != nil {
+		return err
+	}
+	method, err := tbl.GetMethod()
+	if err != nil {
+		return err
+	}
+	schema, mediaType, err := tbl.GetResponseSchemaAndMediaType()
+	if err != nil {
+		return err
+	}
+	itemObjS, selectItemsKey, err := schema.GetSelectSchema(tbl.LookupSelectItemsKey(), mediaType)
+	// rscStr, _ := tbl.GetResourceStr()
+	unsuitableSchemaMsg := "analyzeUnarySelection(): schema unsuitable for select query"
+	if err != nil {
+		return fmt.Errorf(unsuitableSchemaMsg)
+	}
+	tbl.SetSelectItemsKey(selectItemsKey)
+	provStr, _ := tbl.GetProviderStr()
+	svcStr, _ := tbl.GetServiceStr()
+	// rscStr, _ := tbl.GetResourceStr()
+	if itemObjS == nil {
+		return fmt.Errorf(unsuitableSchemaMsg)
+	}
+	if len(cols) == 0 {
+		tsa := util.NewTableSchemaAnalyzer(schema, method)
+		colz, localErr := tsa.GetColumns()
+		if localErr != nil {
+			return localErr
+		}
+		for _, v := range colz {
+			cols = append(cols, parserutil.NewUnaliasedColumnHandle(v.GetName()))
+		}
+	}
+	insertTabulation := itemObjS.Tabulate(false, "")
+
+	hIDs := internaldto.NewHeirarchyIdentifiers(provStr, svcStr, itemObjS.GetName(), "")
+	viewDTO, isView := handlerCtx.GetSQLSystem().GetViewByName(hIDs.GetTableName())
+	if isView {
+		hIDs = hIDs.WithView(viewDTO)
+	}
+	selectTabulation := itemObjS.Tabulate(true, "")
+
+	return pb.assembleUnarySelectionBuilder(
+		pbi,
+		handlerCtx,
+		node,
+		rewrittenWhere,
+		hIDs,
+		schema,
+		tbl,
+		selectTabulation,
+		insertTabulation,
+		cols,
+	)
+}

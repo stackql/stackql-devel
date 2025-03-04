@@ -605,12 +605,14 @@ func (pgb *standardPlanGraphBuilder) handleDelete(pbi planbuilderinput.PlanBuild
 		if err != nil {
 			return err
 		}
+		insertCtx := primitiveGenerator.GetPrimitiveComposer().GetInsertPreparedStatementCtx()
 		isPhysicalTable := tbl.IsPhysicalTable()
 		var bldr primitivebuilder.Builder
 		if !isPhysicalTable {
 			bldr = primitivebuilder.NewDelete(
 				pgb.planGraphHolder,
 				handlerCtx,
+				insertCtx,
 				node,
 				tbl,
 				nil,

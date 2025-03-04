@@ -1,21 +1,16 @@
 package primitivebuilder
 
 import (
-	"fmt"
-	"strconv"
-
-	"github.com/stackql/any-sdk/anysdk"
-	"github.com/stackql/any-sdk/pkg/logging"
+	"github.com/stackql/any-sdk/pkg/streaming"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
-	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
-	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/primitive_context"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
-	"github.com/stackql/stackql/internal/stackql/util"
+
+	"github.com/stackql/any-sdk/anysdk"
 )
 
 type Delete struct {
@@ -27,11 +22,13 @@ type Delete struct {
 	node              sqlparser.SQLNode
 	commentDirectives sqlparser.CommentDirectives
 	isAwait           bool
+	insertCtx         drm.PreparedStatementCtx
 }
 
 func NewDelete(
 	graph primitivegraph.PrimitiveGraphHolder,
 	handlerCtx handler.HandlerContext,
+	insertCtx drm.PreparedStatementCtx,
 	node sqlparser.SQLNode,
 	tbl tablemetadata.ExtendedTableMetadata,
 	commentDirectives sqlparser.CommentDirectives,
@@ -45,6 +42,7 @@ func NewDelete(
 		node:              node,
 		commentDirectives: commentDirectives,
 		isAwait:           isAwait,
+		insertCtx:         insertCtx,
 	}
 }
 
@@ -64,105 +62,37 @@ func (ss *Delete) Build() error {
 	if err != nil {
 		return err
 	}
-	provider, err := prov.GetProvider()
-	if err != nil {
-		return err
+	method, methodErr := tbl.GetMethod()
+	if methodErr != nil {
+		return methodErr
 	}
-	rtCtx := handlerCtx.GetRuntimeContext()
-	authCtx, err := handlerCtx.GetAuthContext(provider.GetName())
-	if err != nil {
-		return err
+	svc, svcErr := tbl.GetService()
+	if svcErr != nil {
+		return svcErr
 	}
-	outErrFile := handlerCtx.GetOutErrFile()
-	m, err := tbl.GetMethod()
-	if err != nil {
-		return err
+	analysisInput := anysdk.NewMethodAnalysisInput(
+		method,
+		svc,
+		true,
+		[]anysdk.ColumnDescriptor{},
+	)
+	analyser := anysdk.NewMethodAnalyzer()
+	analysisOutput, analysisErr := analyser.Analyze(analysisInput)
+	if analysisErr != nil {
+		return analysisErr
 	}
-	tableName, _ := tbl.GetTableName()
-	ex := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
-		var target map[string]interface{}
-		keys := make(map[string]map[string]interface{})
-		httpArmoury, httpErr := tbl.GetHTTPArmoury()
-		if httpErr != nil {
-			return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, nil, nil, nil, httpErr, nil,
-				ss.handlerCtx.GetTypingConfig(),
-			))
-		}
-		for _, req := range httpArmoury.GetRequestParams() {
-			cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
-			response, apiErr := anysdk.CallFromSignature(
-				cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider,
-				anysdk.NewAnySdkOpStoreDesignation(m), req.GetArgList())
-			if apiErr != nil {
-				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil,
-					ss.handlerCtx.GetTypingConfig(),
-				))
-			}
-			httpResponse, httpResponseErr := response.GetHttpResponse()
-			if httpResponse != nil && httpResponse.Body != nil {
-				defer httpResponse.Body.Close()
-			}
-			if httpResponseErr != nil {
-				return internaldto.NewErroneousExecutorOutput(httpResponseErr)
-			}
-			target, err = m.DeprecatedProcessResponse(httpResponse)
-			if httpResponse.StatusCode < 300 && len(target) < 1 {
-				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(
-					nil,
-					nil,
-					nil,
-					nil,
-					nil,
-					internaldto.NewBackendMessages(
-						generateSuccessMessagesFromHeirarchy(tbl, ss.isAwait),
-					),
-					ss.handlerCtx.GetTypingConfig(),
-				)).WithUndoLog(
-					binlog.NewSimpleLogEntry(
-						nil,
-						[]string{
-							"Undo the delete on " + tableName,
-						},
-					),
-				)
-			}
-			handlerCtx.LogHTTPResponseMap(target)
-
-			logging.GetLogger().Infoln(fmt.Sprintf("DeleteExecutor() target = %v", target))
-			if err != nil {
-				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(
-					nil,
-					nil,
-					nil,
-					nil,
-					err,
-					nil,
-					ss.handlerCtx.GetTypingConfig(),
-				))
-			}
-			logging.GetLogger().Infoln(fmt.Sprintf("target = %v", target))
-			items, ok := target[prov.GetDefaultKeyForDeleteItems()]
-			if ok {
-				iArr, iOk := items.([]interface{})
-				if iOk && len(iArr) > 0 {
-					for i := range iArr {
-						item, itemOk := iArr[i].(map[string]interface{})
-						if itemOk {
-							keys[strconv.Itoa(i)] = item
-						}
-					}
-				}
-			}
-		}
-		return generateResultIfNeededfunc(
-			keys,
-			target,
-			internaldto.NewBackendMessages(
-				generateSuccessMessagesFromHeirarchy(tbl, ss.isAwait)),
-			err,
-			false,
-			ss.handlerCtx.GetTypingConfig(),
-		)
+	mvb := newMonoValentExecutorFactory(
+		ss.graph,
+		handlerCtx,
+		tbl,
+		ss.insertCtx,
+		nil,
+		nil,
+		streaming.NewNopMapStream(),
+	)
+	ex, exErr := mvb.GetExecutor()
+	if exErr != nil {
+		return exErr
 	}
 	deletePrimitive := primitive.NewGenericPrimitive(
 		ex,
@@ -171,7 +101,7 @@ func (ss *Delete) Build() error {
 		primitive_context.NewPrimitiveContext(),
 	)
 	if ss.isAwait {
-		deletePrimitive, err = composeAsyncMonitor(handlerCtx, deletePrimitive, prov, m, nil)
+		deletePrimitive, err = composeAsyncMonitor(handlerCtx, deletePrimitive, prov, method, nil)
 	}
 	if err != nil {
 		return err
