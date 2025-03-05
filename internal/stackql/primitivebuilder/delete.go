@@ -8,6 +8,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/primitive_context"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
+	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 
 	"github.com/stackql/any-sdk/anysdk"
@@ -77,16 +78,21 @@ func (ss *Delete) Build() error {
 		[]anysdk.ColumnDescriptor{},
 	)
 	analyser := anysdk.NewMethodAnalyzer()
-	analysisOutput, analysisErr := analyser.Analyze(analysisInput)
+	_, analysisErr := analyser.AnalyzeUnaryAction(analysisInput)
 	if analysisErr != nil {
 		return analysisErr
 	}
+	insertContainer, err := tableinsertioncontainer.NewTableInsertionContainer(
+		tbl,
+		ss.handlerCtx.GetSQLEngine(),
+		handlerCtx.GetTxnCounterMgr(),
+	)
 	mvb := newMonoValentExecutorFactory(
 		ss.graph,
 		handlerCtx,
 		tbl,
 		ss.insertCtx,
-		nil,
+		insertContainer,
 		nil,
 		streaming.NewNopMapStream(),
 	)
