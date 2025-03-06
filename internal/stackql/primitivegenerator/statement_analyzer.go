@@ -1174,15 +1174,14 @@ func (pb *standardPrimitiveGenerator) analyzeDelete(
 	if !paramMapExists {
 		return fmt.Errorf("where parameters not found; should be anlaysed a priori")
 	}
-
-	prov, err := tbl.GetProvider()
-	if err != nil {
-		return err
-	}
 	method, err := tbl.GetMethod()
 	if err != nil {
 		return err
 	}
+	svc, err := tbl.GetService()
+	if err != nil {
+		return err
+	}
 
 	if pb.PrimitiveComposer.IsAwait() && !method.IsAwaitable() {
 		return fmt.Errorf("method %s is not awaitable", method.GetName())
@@ -1190,77 +1189,16 @@ func (pb *standardPrimitiveGenerator) analyzeDelete(
 	if pb.PrimitiveComposer.IsAwait() && !method.IsAwaitable() {
 		return fmt.Errorf("method %s is not awaitable", method.GetName())
 	}
-	currentService, err := tbl.GetServiceStr()
-	if err != nil {
-		return err
-	}
-	currentResource, err := tbl.GetResourceStr()
-	if err != nil {
-		return err
-	}
-	_, err = checkResource(handlerCtx, prov, currentService, currentResource)
-	if err != nil {
-		return err
-	}
-	requestSchema, err := method.GetRequestBodySchema()
-	if err != nil {
-		logging.GetLogger().Infof("no request schema for delete: %s \n", err.Error())
-	}
-	responseSchema, _, err := method.GetResponseBodySchemaAndMediaType()
-	if err != nil {
-		logging.GetLogger().Infof("no response schema for delete: %s \n", err.Error())
-	}
-	_, err = tbl.GetService()
-	if err != nil {
-		return err
-	}
-	availableServers, availableServersDoExist := method.GetServers()
-	if availableServersDoExist {
-		for _, sv := range availableServers {
-			for k := range sv.Variables {
-				colEntry := symtab.NewSymTabEntry(
-					pb.PrimitiveComposer.GetDRMConfig().GetRelationalType("string"),
-					"",
-					"server",
-				)
-				uid := fmt.Sprintf("%s.%s", tbl.GetUniqueID(), k)
-				pb.PrimitiveComposer.SetSymbol(uid, colEntry) //nolint:errcheck // not a concern
-			}
-			break //nolint:staticcheck // TODO: review
-		}
-	}
-	if responseSchema != nil {
-		_, _, whereErr := pb.analyzeWhere(node.Where, make(map[string]interface{}))
-		if whereErr != nil {
-			return whereErr
-		}
-	}
-	colPrefix := prov.GetDefaultKeyForDeleteItems() + "[]."
-	whereNames, err := parserutil.ExtractWhereColNames(node.Where)
-	if err != nil {
-		return err
-	}
-	for _, w := range whereNames {
-		localOk := method.KeyExists(w)
-		if localOk {
-			continue
-		}
-		var foundSchemaPrefixed, foundSchema, foundRequestSchema anysdk.Schema
-		if responseSchema != nil {
-			foundSchemaPrefixed = responseSchema.FindByPath(colPrefix+w, nil)
-			foundSchema = responseSchema.FindByPath(w, nil)
-		}
-		logging.GetLogger().Infoln(fmt.Sprintf("w = '%s'", w))
-		if requestSchema != nil {
-			revertedRequestSchemaProperrtyKey, revertErr := method.RevertRequestBodyAttributeRename(w)
-			if revertErr == nil {
-				foundRequestSchema = requestSchema.FindByPath(
-					revertedRequestSchemaProperrtyKey, nil)
-			}
-		}
-		if foundSchemaPrefixed == nil && foundSchema == nil && foundRequestSchema == nil {
-			return fmt.Errorf("DELETE Where element = '%s' is NOT present in data returned from provider", w)
-		}
+	analysisInput := anysdk.NewMethodAnalysisInput(
+		method,
+		svc,
+		true,
+		[]anysdk.ColumnDescriptor{},
+	)
+	analyser := anysdk.NewMethodAnalyzer()
+	_, analysisErr := analyser.AnalyzeUnaryAction(analysisInput)
+	if analysisErr != nil {
+		return analysisErr
 	}
 	err = pb.buildRequestContext(node, tbl, nil, nil)
 	if err != nil {

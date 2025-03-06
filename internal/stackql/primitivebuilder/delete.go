@@ -10,8 +10,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
-
-	"github.com/stackql/any-sdk/anysdk"
 )
 
 type Delete struct {
@@ -66,21 +64,6 @@ func (ss *Delete) Build() error {
 	method, methodErr := tbl.GetMethod()
 	if methodErr != nil {
 		return methodErr
-	}
-	svc, svcErr := tbl.GetService()
-	if svcErr != nil {
-		return svcErr
-	}
-	analysisInput := anysdk.NewMethodAnalysisInput(
-		method,
-		svc,
-		true,
-		[]anysdk.ColumnDescriptor{},
-	)
-	analyser := anysdk.NewMethodAnalyzer()
-	_, analysisErr := analyser.AnalyzeUnaryAction(analysisInput)
-	if analysisErr != nil {
-		return analysisErr
 	}
 	insertContainer, err := tableinsertioncontainer.NewTableInsertionContainer(
 		tbl,
