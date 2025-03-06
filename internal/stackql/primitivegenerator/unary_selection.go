@@ -182,50 +182,50 @@ func (pb *standardPrimitiveGenerator) analyzeUnaryAction(
 	node sqlparser.SQLNode,
 	rewrittenWhere *sqlparser.Where,
 	tbl tablemetadata.ExtendedTableMetadata,
-	cols []parserutil.ColumnHandle) error {
-	_, err := tbl.GetProvider()
-	if err != nil {
-		return err
-	}
-	method, err := tbl.GetMethod()
-	if err != nil {
-		return err
-	}
-	schema, mediaType, err := tbl.GetResponseSchemaAndMediaType()
-	if err != nil {
-		return err
-	}
-	itemObjS, selectItemsKey, err := schema.GetSelectSchema(tbl.LookupSelectItemsKey(), mediaType)
-	// rscStr, _ := tbl.GetResourceStr()
-	unsuitableSchemaMsg := "analyzeUnarySelection(): schema unsuitable for select query"
-	if err != nil {
-		return fmt.Errorf(unsuitableSchemaMsg)
-	}
-	tbl.SetSelectItemsKey(selectItemsKey)
-	provStr, _ := tbl.GetProviderStr()
-	svcStr, _ := tbl.GetServiceStr()
-	// rscStr, _ := tbl.GetResourceStr()
-	if itemObjS == nil {
-		return fmt.Errorf(unsuitableSchemaMsg)
-	}
-	if len(cols) == 0 {
-		tsa := util.NewTableSchemaAnalyzer(schema, method)
-		colz, localErr := tsa.GetColumns()
-		if localErr != nil {
-			return localErr
-		}
-		for _, v := range colz {
-			cols = append(cols, parserutil.NewUnaliasedColumnHandle(v.GetName()))
-		}
-	}
-	insertTabulation := itemObjS.Tabulate(false, "")
+	cols []parserutil.ColumnHandle,
+	methodAnalysisOutput anysdk.MethodAnalysisOutput,
+) error {
+	insertTabulation := methodAnalysisOutput.GetInsertTabulation()
+	selectTabulation := methodAnalysisOutput.GetSelectTabulation()
+	// schema := methodAnalysisOutput.GetSchema()
 
-	hIDs := internaldto.NewHeirarchyIdentifiers(provStr, svcStr, itemObjS.GetName(), "")
-	viewDTO, isView := handlerCtx.GetSQLSystem().GetViewByName(hIDs.GetTableName())
-	if isView {
-		hIDs = hIDs.WithView(viewDTO)
+	inputTableName, err := tbl.GetInputTableName()
+	if err != nil {
+		return err
 	}
-	selectTabulation := itemObjS.Tabulate(true, "")
+	hIDs := tbl.GetHeirarchyObjects().GetHeirarchyIDs()
+
+	annotatedInsertTabulation := util.NewAnnotatedTabulation(insertTabulation, hIDs, inputTableName, "")
+
+	ctrs := pbi.GetTxnCtrlCtrs()
+	insPsc, err := pb.PrimitiveComposer.GetDRMConfig().GenerateInsertDML(annotatedInsertTabulation, method, ctrs)
+	if err != nil {
+		return err
+	}
+	pb.PrimitiveComposer.SetTxnCtrlCtrs(insPsc.GetGCCtrlCtrs())
+	selectSuffix := astvisit.GenerateModifiedSelectSuffix(
+		pbi.GetAnnotatedAST(),
+		node,
+		handlerCtx.GetSQLSystem(),
+		handlerCtx.GetASTFormatter(),
+		handlerCtx.GetNamespaceCollection(),
+	)
+	selPsc, err := pb.PrimitiveComposer.GetDRMConfig().GenerateSelectDML(
+		util.NewAnnotatedTabulation(selectTabulation, hIDs, inputTableName, tbl.GetAlias()),
+		insPsc.GetGCCtrlCtrs(),
+		selectSuffix,
+		astvisit.GenerateModifiedWhereClause(
+			pbi.GetAnnotatedAST(),
+			rewrittenWhere,
+			handlerCtx.GetSQLSystem(),
+			handlerCtx.GetASTFormatter(),
+			handlerCtx.GetNamespaceCollection()),
+	)
+
+	pb.PrimitiveComposer.SetInsertPreparedStatementCtx(insPsc)
+	pb.PrimitiveComposer.SetSelectPreparedStatementCtx(selPsc)
+	pb.PrimitiveComposer.SetColumnOrder(cols)
+	return nil
 
 	return pb.assembleUnarySelectionBuilder(
 		pbi,

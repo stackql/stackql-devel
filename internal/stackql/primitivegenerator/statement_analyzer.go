@@ -1196,11 +1196,23 @@ func (pb *standardPrimitiveGenerator) analyzeDelete(
 		[]anysdk.ColumnDescriptor{},
 	)
 	analyser := anysdk.NewMethodAnalyzer()
-	_, analysisErr := analyser.AnalyzeUnaryAction(analysisInput)
+	methodAnalysisOutput, analysisErr := analyser.AnalyzeUnaryAction(analysisInput)
 	if analysisErr != nil {
 		return analysisErr
 	}
 	err = pb.buildRequestContext(node, tbl, nil, nil)
+	if err != nil {
+		return err
+	}
+	err = pb.analyzeUnaryAction(
+		pbi,
+		handlerCtx,
+		node,
+		node.Where,
+		tbl,
+		[]parserutil.ColumnHandle{},
+		methodAnalysisOutput,
+	)
 	if err != nil {
 		return err
 	}
