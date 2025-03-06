@@ -187,6 +187,7 @@ func (pb *standardPrimitiveGenerator) analyzeUnaryAction(
 ) error {
 	insertTabulation := methodAnalysisOutput.GetInsertTabulation()
 	selectTabulation := methodAnalysisOutput.GetSelectTabulation()
+	method := methodAnalysisOutput.GetMethod()
 	// schema := methodAnalysisOutput.GetSchema()
 
 	inputTableName, err := tbl.GetInputTableName()
@@ -226,17 +227,4 @@ func (pb *standardPrimitiveGenerator) analyzeUnaryAction(
 	pb.PrimitiveComposer.SetSelectPreparedStatementCtx(selPsc)
 	pb.PrimitiveComposer.SetColumnOrder(cols)
 	return nil
-
-	return pb.assembleUnarySelectionBuilder(
-		pbi,
-		handlerCtx,
-		node,
-		rewrittenWhere,
-		hIDs,
-		schema,
-		tbl,
-		selectTabulation,
-		insertTabulation,
-		cols,
-	)
 }
