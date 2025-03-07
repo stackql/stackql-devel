@@ -681,7 +681,7 @@ func newStandardPolyHandler(handlerCtx handler.HandlerContext) PolyHandler {
 
 func agnosticate(
 	agPayload AgnosticatePayload,
-) error {
+) (ProcessorResponse, error) {
 	outErrFile := agPayload.GetOutErrFile()
 	runtimeCtx := agPayload.GetRuntimeCtx()
 	provider := agPayload.GetProvider()
@@ -705,7 +705,7 @@ func agnosticate(
 			),
 		),
 		)
-		return armouryErr
+		return nil, armouryErr
 	}
 	if mr != nil {
 		// TODO: infer param position and act accordingly
@@ -724,6 +724,7 @@ func agnosticate(
 	}
 	reqParams := armoury.GetRequestParams()
 	logging.GetLogger().Infof("monoValentExecution.Execute() req param count = %d", len(reqParams))
+	var processorResponse ProcessorResponse
 	for _, rc := range reqParams {
 		rq := rc
 		processor := newProcessor(
@@ -745,12 +746,12 @@ func agnosticate(
 				false,
 			),
 		)
-		processErr := processor.Process()
-		if processErr != nil && processErr.GetError() != nil {
-			return processErr.GetError()
+		processorResponse = processor.Process()
+		if processorResponse != nil && processorResponse.GetError() != nil {
+			return processorResponse, processorResponse.GetError()
 		}
 	}
-	return nil
+	return processorResponse, nil
 }
 
 type ProcessorPayload interface {
@@ -938,7 +939,12 @@ func (hpr *httpProcessorResponse) GetSingletonBody() map[string]interface{} {
 	return hpr.body
 }
 
-func newHTTPProcessorResponse(body map[string]interface{}, reversalStream anysdk.HttpPreparatorStream, isFailed bool, err error) ProcessorResponse {
+func newHTTPProcessorResponse(
+	body map[string]interface{},
+	reversalStream anysdk.HttpPreparatorStream,
+	isFailed bool,
+	err error,
+) ProcessorResponse {
 	return &httpProcessorResponse{
 		body:           body,
 		err:            err,
@@ -1114,6 +1120,9 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 		// 	defer httpResponse.Body.Close()
 		// }
 		if httpResponseErr != nil {
+			if hasSingletonResponse { // TODO: fix this horrid hack
+				return newHTTPProcessorResponse(singletonResponse, reversalStream, false, nil)
+			}
 			return newHTTPProcessorResponse(nil, reversalStream, false, nil)
 			// return internaldto.NewErroneousExecutorOutput(httpResponseErr)
 		}
@@ -1182,15 +1191,16 @@ func (mv *monoValentExecution) GetExecutor() (func(pc primitive.IPrimitiveCtx) i
 			mv.tableMeta.GetSelectItemsKey(),
 			mv,
 		)
-		agnosticErr := agnosticate(agnosticatePayload)
+		processorResponse, agnosticErr := agnosticate(agnosticatePayload)
 		if agnosticErr != nil {
 			return internaldto.NewErroneousExecutorOutput(agnosticErr)
 		}
 		messages := polyHandler.GetMessages()
+		var castMessages internaldto.BackendMessages
 		if len(messages) > 0 {
-			return internaldto.NewNopEmptyExecutorOutput(messages)
+			castMessages = internaldto.NewBackendMessages(messages)
 		}
-		return internaldto.NewEmptyExecutorOutput()
+		return internaldto.NewExecutorOutput(nil, processorResponse.GetSingletonBody(), nil, castMessages, err)
 	}
 	return ex, nil
 }
