@@ -187,44 +187,38 @@ func (pb *standardPrimitiveGenerator) analyzeUnaryAction(
 ) error {
 	insertTabulation := methodAnalysisOutput.GetInsertTabulation()
 	selectTabulation := methodAnalysisOutput.GetSelectTabulation()
-	method := methodAnalysisOutput.GetMethod()
+	// method := methodAnalysisOutput.GetMethod()
 	// schema := methodAnalysisOutput.GetSchema()
 
-	inputTableName, err := tbl.GetInputTableName()
+	// inputTableName, err := tbl.GetInputTableName()
+	// if err != nil {
+	// 	return err
+	// }
+	rawhIDs := tbl.GetHeirarchyObjects().GetHeirarchyIDs()
+	itemObjS, _ := methodAnalysisOutput.GetItemSchema()
+	hIDs := internaldto.NewHeirarchyIdentifiers(rawhIDs.GetProviderStr(), rawhIDs.GetServiceStr(), itemObjS.GetName(), "")
+
+	// annotatedInsertTabulation := util.NewAnnotatedTabulation(insertTabulation, hIDs, inputTableName, "")
+
+	// ctrs := pbi.GetTxnCtrlCtrs()
+	// insPsc, err := pb.PrimitiveComposer.GetDRMConfig().GenerateInsertDML(annotatedInsertTabulation, method, ctrs)
+	// if err != nil {
+	// 	return err
+	// }
+	schema, _, err := tbl.GetResponseSchemaAndMediaType()
 	if err != nil {
 		return err
 	}
-	hIDs := tbl.GetHeirarchyObjects().GetHeirarchyIDs()
-
-	annotatedInsertTabulation := util.NewAnnotatedTabulation(insertTabulation, hIDs, inputTableName, "")
-
-	ctrs := pbi.GetTxnCtrlCtrs()
-	insPsc, err := pb.PrimitiveComposer.GetDRMConfig().GenerateInsertDML(annotatedInsertTabulation, method, ctrs)
-	if err != nil {
-		return err
-	}
-	pb.PrimitiveComposer.SetTxnCtrlCtrs(insPsc.GetGCCtrlCtrs())
-	selectSuffix := astvisit.GenerateModifiedSelectSuffix(
-		pbi.GetAnnotatedAST(),
+	return pb.assembleUnarySelectionBuilder(
+		pbi,
+		handlerCtx,
 		node,
-		handlerCtx.GetSQLSystem(),
-		handlerCtx.GetASTFormatter(),
-		handlerCtx.GetNamespaceCollection(),
+		rewrittenWhere,
+		hIDs,
+		schema,
+		tbl,
+		selectTabulation,
+		insertTabulation,
+		cols,
 	)
-	selPsc, err := pb.PrimitiveComposer.GetDRMConfig().GenerateSelectDML(
-		util.NewAnnotatedTabulation(selectTabulation, hIDs, inputTableName, tbl.GetAlias()),
-		insPsc.GetGCCtrlCtrs(),
-		selectSuffix,
-		astvisit.GenerateModifiedWhereClause(
-			pbi.GetAnnotatedAST(),
-			rewrittenWhere,
-			handlerCtx.GetSQLSystem(),
-			handlerCtx.GetASTFormatter(),
-			handlerCtx.GetNamespaceCollection()),
-	)
-
-	pb.PrimitiveComposer.SetInsertPreparedStatementCtx(insPsc)
-	pb.PrimitiveComposer.SetSelectPreparedStatementCtx(selPsc)
-	pb.PrimitiveComposer.SetColumnOrder(cols)
-	return nil
 }
