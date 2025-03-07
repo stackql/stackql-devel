@@ -1200,6 +1200,9 @@ func (mv *monoValentExecution) GetExecutor() (func(pc primitive.IPrimitiveCtx) i
 		if len(messages) > 0 {
 			castMessages = internaldto.NewBackendMessages(messages)
 		}
+		if processorResponse == nil {
+			return internaldto.NewExecutorOutput(nil, nil, nil, castMessages, nil)
+		}
 		return internaldto.NewExecutorOutput(nil, processorResponse.GetSingletonBody(), nil, castMessages, err)
 	}
 	return ex, nil
