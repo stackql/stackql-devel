@@ -1073,14 +1073,14 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 			return newHTTPProcessorResponse(nil, reversalStream, false, httpResponseErr)
 		}
 		processed, resErr := method.ProcessResponse(httpResponse)
-		if isSkipResponse && isMutation && httpResponse.StatusCode < 300 {
-			//nolint:errcheck // TODO: fix
-			outErrFile.Write(
-				[]byte("The operation was despatched successfully"),
-			)
-			return newHTTPProcessorResponse(nil, reversalStream, false, nil)
-		}
 		if resErr != nil {
+			if isSkipResponse && isMutation && httpResponse.StatusCode < 300 {
+				//nolint:errcheck // TODO: fix
+				outErrFile.Write(
+					[]byte("The operation was despatched successfully"),
+				)
+				return newHTTPProcessorResponse(nil, reversalStream, false, nil)
+			}
 			//nolint:errcheck // TODO: fix
 			outErrFile.Write(
 				[]byte(fmt.Sprintf("error processing response: %s\n", resErr.Error())),
@@ -1143,6 +1143,13 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 		housekeepingDone = insertPrepResult.IsHousekeepingDone()
 		insertPrepErr, hasInsertPrepErr := insertPrepResult.GetError()
 		if hasInsertPrepErr {
+			if isSkipResponse && isMutation && httpResponse.StatusCode < 300 {
+				//nolint:errcheck // TODO: fix
+				outErrFile.Write(
+					[]byte("The operation was despatched successfully"),
+				)
+				return newHTTPProcessorResponse(nil, reversalStream, false, nil)
+			}
 			return newHTTPProcessorResponse(nil, reversalStream, false, insertPrepErr)
 		}
 
