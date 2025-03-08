@@ -27,6 +27,7 @@ func (pb *standardPrimitiveGenerator) assembleUnarySelectionBuilder(
 	selectTabulation anysdk.Tabulation,
 	insertTabulation anysdk.Tabulation,
 	cols []parserutil.ColumnHandle,
+	methodAnalysisOutput anysdk.MethodAnalysisOutput,
 ) error {
 	inputTableName, err := tbl.GetInputTableName()
 	if err != nil {
@@ -53,11 +54,11 @@ func (pb *standardPrimitiveGenerator) assembleUnarySelectionBuilder(
 		handlerCtx.GetSQLSystem(),
 		handlerCtx.GetTypingConfig(),
 	)
-	if err != nil {
+	if err != nil && !methodAnalysisOutput.IsNilResponseAllowed() {
 		return err
 	}
 	ctrs := pbi.GetTxnCtrlCtrs()
-	insPsc, err := pb.PrimitiveComposer.GetDRMConfig().GenerateInsertDML(annotatedInsertTabulation, method, ctrs)
+	insPsc, err := pb.PrimitiveComposer.GetDRMConfig().GenerateInsertDML(annotatedInsertTabulation, method, ctrs, methodAnalysisOutput.IsNilResponseAllowed())
 	if err != nil {
 		return err
 	}
@@ -117,7 +118,9 @@ func (pb *standardPrimitiveGenerator) analyzeUnarySelection(
 	node sqlparser.SQLNode,
 	rewrittenWhere *sqlparser.Where,
 	tbl tablemetadata.ExtendedTableMetadata,
-	cols []parserutil.ColumnHandle) error {
+	cols []parserutil.ColumnHandle,
+	methodAnalysisOutput anysdk.MethodAnalysisOutput,
+) error {
 	_, err := tbl.GetProvider()
 	if err != nil {
 		return err
@@ -144,7 +147,7 @@ func (pb *standardPrimitiveGenerator) analyzeUnarySelection(
 		return fmt.Errorf(unsuitableSchemaMsg)
 	}
 	if len(cols) == 0 {
-		tsa := util.NewTableSchemaAnalyzer(schema, method)
+		tsa := util.NewTableSchemaAnalyzer(schema, method, methodAnalysisOutput.IsNilResponseAllowed())
 		colz, localErr := tsa.GetColumns()
 		if localErr != nil {
 			return localErr
@@ -173,6 +176,7 @@ func (pb *standardPrimitiveGenerator) analyzeUnarySelection(
 		selectTabulation,
 		insertTabulation,
 		cols,
+		methodAnalysisOutput,
 	)
 }
 
@@ -196,7 +200,12 @@ func (pb *standardPrimitiveGenerator) analyzeUnaryAction(
 	// }
 	rawhIDs := tbl.GetHeirarchyObjects().GetHeirarchyIDs()
 	itemObjS, _ := methodAnalysisOutput.GetItemSchema()
-	hIDs := internaldto.NewHeirarchyIdentifiers(rawhIDs.GetProviderStr(), rawhIDs.GetServiceStr(), itemObjS.GetName(), "")
+	// TODO: handle nil response
+	itemSchemaName := ""
+	if itemObjS != nil {
+		itemSchemaName = itemObjS.GetName()
+	}
+	hIDs := internaldto.NewHeirarchyIdentifiers(rawhIDs.GetProviderStr(), rawhIDs.GetServiceStr(), itemSchemaName, "")
 
 	// annotatedInsertTabulation := util.NewAnnotatedTabulation(insertTabulation, hIDs, inputTableName, "")
 
@@ -206,7 +215,7 @@ func (pb *standardPrimitiveGenerator) analyzeUnaryAction(
 	// 	return err
 	// }
 	schema, _, err := tbl.GetResponseSchemaAndMediaType()
-	if err != nil {
+	if err != nil && !methodAnalysisOutput.IsNilResponseAllowed() {
 		return err
 	}
 	return pb.assembleUnarySelectionBuilder(
@@ -220,5 +229,6 @@ func (pb *standardPrimitiveGenerator) analyzeUnaryAction(
 		selectTabulation,
 		insertTabulation,
 		cols,
+		methodAnalysisOutput,
 	)
 }

@@ -407,7 +407,7 @@ func (dp *standardDependencyPlanner) processOrphan(
 	} else {
 		// Persist SQL mirror table here prior to generating insert DML
 		drmCfg := dp.handlerCtx.GetDrmConfig()
-		ddl, ddlErr := drmCfg.GenerateDDL(anTab, opStore, 0, false)
+		ddl, ddlErr := drmCfg.GenerateDDL(anTab, opStore, 0, false, false)
 		if ddlErr != nil {
 			return nil, nil, ddlErr
 		}
@@ -416,7 +416,7 @@ func (dp *standardDependencyPlanner) processOrphan(
 			return nil, nil, err
 		}
 	}
-	insPsc, err := dp.primitiveComposer.GetDRMConfig().GenerateInsertDML(anTab, opStore, tcc)
+	insPsc, err := dp.primitiveComposer.GetDRMConfig().GenerateInsertDML(anTab, opStore, tcc, false)
 	return insPsc, tcc, err
 }
 

@@ -37,5 +37,6 @@ func NewSingleSelectAcquire(
 		insertionContainer,
 		rowSort,
 		stream,
+		false,
 	)
 }

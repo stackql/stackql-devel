@@ -41,6 +41,7 @@ func newMonoValentBuilder(
 	insertionContainer tableinsertioncontainer.TableInsertionContainer,
 	rowSort func(map[string]map[string]interface{}) []string,
 	stream streaming.MapStream,
+	isSkipResponse bool,
 ) Builder {
 	var tcc internaldto.TxnControlCounters
 	if insertCtx != nil {
@@ -67,6 +68,7 @@ func newMonoValentBuilder(
 			insertionContainer,
 			rowSort,
 			stream,
+			isSkipResponse,
 		),
 	}
 }

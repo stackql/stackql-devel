@@ -51,6 +51,7 @@ type monoValentExecution struct {
 	root                       primitivegraph.PrimitiveNode
 	stream                     streaming.MapStream
 	isReadOnly                 bool //nolint:unused // TODO: build out
+	isSkipResponse             bool
 }
 
 func newMonoValentExecutorFactory(
@@ -61,6 +62,7 @@ func newMonoValentExecutorFactory(
 	insertionContainer tableinsertioncontainer.TableInsertionContainer,
 	rowSort func(map[string]map[string]interface{}) []string,
 	stream streaming.MapStream,
+	isSkipResponse bool,
 ) MonoValentExecutorFactory {
 	var tcc internaldto.TxnControlCounters
 	if insertCtx != nil {
@@ -79,6 +81,7 @@ func newMonoValentExecutorFactory(
 		insertionContainer:         insertionContainer,
 		txnCtrlCtr:                 tcc,
 		stream:                     stream,
+		isSkipResponse:             isSkipResponse,
 	}
 }
 
@@ -547,6 +550,7 @@ type AgnosticatePayload interface {
 	GetPolyHandler() PolyHandler
 	GetSelectItemsKey() string
 	GetInsertPreparator() InsertPreparator
+	IsSkipResponse() bool
 }
 
 type httpAgnosticatePayload struct {
@@ -563,6 +567,7 @@ type httpAgnosticatePayload struct {
 	polyHandler             PolyHandler
 	selectItemsKey          string
 	insertPreparator        InsertPreparator
+	isSkipResponse          bool
 }
 
 func newHTTPAgnosticatePayload(
@@ -579,6 +584,7 @@ func newHTTPAgnosticatePayload(
 	polyHandler PolyHandler,
 	selectItemsKey string,
 	insertPreparator InsertPreparator,
+	isSkipResponse bool,
 ) AgnosticatePayload {
 	return &httpAgnosticatePayload{
 		tableMeta:               tableMeta,
@@ -594,6 +600,7 @@ func newHTTPAgnosticatePayload(
 		polyHandler:             polyHandler,
 		selectItemsKey:          selectItemsKey,
 		insertPreparator:        insertPreparator,
+		isSkipResponse:          isSkipResponse,
 	}
 }
 
@@ -615,6 +622,10 @@ func (ap *httpAgnosticatePayload) GetArmoury() (anysdk.HTTPArmoury, error) {
 
 func (ap *httpAgnosticatePayload) GetProvider() anysdk.Provider {
 	return ap.provider
+}
+
+func (ap *httpAgnosticatePayload) IsSkipResponse() bool {
+	return ap.isSkipResponse
 }
 
 func (ap *httpAgnosticatePayload) GetMethod() anysdk.OperationStore {
@@ -693,6 +704,7 @@ func agnosticate(
 	polyHandler := agPayload.GetPolyHandler()
 	selectItemsKey := agPayload.GetSelectItemsKey()
 	insertPreparator := agPayload.GetInsertPreparator()
+	isSkipResponse := agPayload.IsNilResponseAcceptable()
 	// TODO: TCC setup
 	armoury, armouryErr := agPayload.GetArmoury()
 	if armouryErr != nil {
@@ -740,7 +752,7 @@ func agnosticate(
 				polyHandler,
 				selectItemsKey,
 				insertPreparator,
-				false,
+				isSkipResponse,
 				false,
 				false,
 				false,
@@ -1016,7 +1028,7 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 		}
 		return newHTTPProcessorResponse(nil, reversalStream, false, fmt.Errorf("unacceptable nil response from HTTP call"))
 	}
-	if isSkipResponse {
+	if isSkipResponse && response == nil {
 		return newHTTPProcessorResponse(nil, reversalStream, false, nil)
 	}
 	httpResponse, httpResponseErr := response.GetHttpResponse()
@@ -1040,6 +1052,13 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 		}
 		processed, resErr := method.ProcessResponse(httpResponse)
 		if resErr != nil {
+			if isSkipResponse && httpResponse.StatusCode < 300 {
+				//nolint:errcheck // TODO: fix
+				outErrFile.Write(
+					[]byte("The operation was despatched successfully"),
+				)
+				return newHTTPProcessorResponse(nil, reversalStream, false, nil)
+			}
 			//nolint:errcheck // TODO: fix
 			outErrFile.Write(
 				[]byte(fmt.Sprintf("error processing response: %s\n", resErr.Error())),
@@ -1190,6 +1209,7 @@ func (mv *monoValentExecution) GetExecutor() (func(pc primitive.IPrimitiveCtx) i
 			polyHandler,
 			mv.tableMeta.GetSelectItemsKey(),
 			mv,
+			mv.isSkipResponse,
 		)
 		processorResponse, agnosticErr := agnosticate(agnosticatePayload)
 		if agnosticErr != nil {

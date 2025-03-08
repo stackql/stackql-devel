@@ -587,6 +587,10 @@ func (pb *standardPrimitiveGenerator) AnalyzeUnaryExec(
 	if err != nil {
 		return nil, err
 	}
+	svc, err := meta.GetService()
+	if err != nil {
+		return nil, err
+	}
 	rStr, err := meta.GetResourceStr()
 	if err != nil {
 		return nil, err
@@ -629,10 +633,22 @@ func (pb *standardPrimitiveGenerator) AnalyzeUnaryExec(
 	if method.IsNullary() && !pb.PrimitiveComposer.IsAwait() {
 		return meta, nil
 	}
-	if selectNode != nil {
-		return meta, pb.analyzeUnarySelection(pbi, handlerCtx, selectNode, selectNode.Where, meta, cols)
+	// TODO: columns in and replace hadnrolled analysis
+	analysisInput := anysdk.NewMethodAnalysisInput(
+		method,
+		svc,
+		true,
+		[]anysdk.ColumnDescriptor{},
+	)
+	analyser := anysdk.NewMethodAnalyzer()
+	methodAnalysisOutput, analysisErr := analyser.AnalyzeUnaryAction(analysisInput)
+	if analysisErr != nil {
+		return meta, analysisErr
 	}
-	return meta, pb.analyzeUnarySelection(pbi, handlerCtx, node, nil, meta, cols)
+	if selectNode != nil {
+		return meta, pb.analyzeUnarySelection(pbi, handlerCtx, selectNode, selectNode.Where, meta, cols, methodAnalysisOutput)
+	}
+	return meta, pb.analyzeUnarySelection(pbi, handlerCtx, node, nil, meta, cols, methodAnalysisOutput)
 }
 
 func (pb *standardPrimitiveGenerator) AnalyzeNop(
