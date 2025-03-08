@@ -79,6 +79,7 @@ func (ss *Delete) Build() error {
 		nil,
 		streaming.NewNopMapStream(),
 		!ss.isAwait,
+		true,
 	)
 	ex, exErr := mvb.GetExecutor()
 	if exErr != nil {

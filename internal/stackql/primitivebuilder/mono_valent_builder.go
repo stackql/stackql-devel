@@ -42,6 +42,7 @@ func newMonoValentBuilder(
 	rowSort func(map[string]map[string]interface{}) []string,
 	stream streaming.MapStream,
 	isSkipResponse bool,
+	isMutation bool,
 ) Builder {
 	var tcc internaldto.TxnControlCounters
 	if insertCtx != nil {
@@ -69,6 +70,7 @@ func newMonoValentBuilder(
 			rowSort,
 			stream,
 			isSkipResponse,
+			isMutation,
 		),
 	}
 }

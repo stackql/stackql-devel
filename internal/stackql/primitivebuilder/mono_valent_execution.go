@@ -52,6 +52,7 @@ type monoValentExecution struct {
 	stream                     streaming.MapStream
 	isReadOnly                 bool //nolint:unused // TODO: build out
 	isSkipResponse             bool
+	isMutation                 bool
 }
 
 func newMonoValentExecutorFactory(
@@ -63,6 +64,7 @@ func newMonoValentExecutorFactory(
 	rowSort func(map[string]map[string]interface{}) []string,
 	stream streaming.MapStream,
 	isSkipResponse bool,
+	isMutation bool,
 ) MonoValentExecutorFactory {
 	var tcc internaldto.TxnControlCounters
 	if insertCtx != nil {
@@ -82,6 +84,7 @@ func newMonoValentExecutorFactory(
 		txnCtrlCtr:                 tcc,
 		stream:                     stream,
 		isSkipResponse:             isSkipResponse,
+		isMutation:                 isMutation,
 	}
 }
 
@@ -551,6 +554,7 @@ type AgnosticatePayload interface {
 	GetSelectItemsKey() string
 	GetInsertPreparator() InsertPreparator
 	IsSkipResponse() bool
+	IsMutation() bool
 }
 
 type httpAgnosticatePayload struct {
@@ -568,6 +572,7 @@ type httpAgnosticatePayload struct {
 	selectItemsKey          string
 	insertPreparator        InsertPreparator
 	isSkipResponse          bool
+	isMutation              bool
 }
 
 func newHTTPAgnosticatePayload(
@@ -585,6 +590,7 @@ func newHTTPAgnosticatePayload(
 	selectItemsKey string,
 	insertPreparator InsertPreparator,
 	isSkipResponse bool,
+	isMutation bool,
 ) AgnosticatePayload {
 	return &httpAgnosticatePayload{
 		tableMeta:               tableMeta,
@@ -601,6 +607,7 @@ func newHTTPAgnosticatePayload(
 		selectItemsKey:          selectItemsKey,
 		insertPreparator:        insertPreparator,
 		isSkipResponse:          isSkipResponse,
+		isMutation:              isMutation,
 	}
 }
 
@@ -622,6 +629,10 @@ func (ap *httpAgnosticatePayload) GetArmoury() (anysdk.HTTPArmoury, error) {
 
 func (ap *httpAgnosticatePayload) GetProvider() anysdk.Provider {
 	return ap.provider
+}
+
+func (ap *httpAgnosticatePayload) IsMutation() bool {
+	return ap.isMutation
 }
 
 func (ap *httpAgnosticatePayload) IsSkipResponse() bool {
@@ -705,6 +716,7 @@ func agnosticate(
 	selectItemsKey := agPayload.GetSelectItemsKey()
 	insertPreparator := agPayload.GetInsertPreparator()
 	isSkipResponse := agPayload.IsNilResponseAcceptable()
+	isMutation := agPayload.IsMutation()
 	// TODO: TCC setup
 	armoury, armouryErr := agPayload.GetArmoury()
 	if armouryErr != nil {
@@ -756,6 +768,7 @@ func agnosticate(
 				false,
 				false,
 				false,
+				isMutation,
 			),
 		)
 		processorResponse = processor.Process()
@@ -779,6 +792,7 @@ type ProcessorPayload interface {
 	GetSelectItemsKey() string
 	GetInsertPreparator() InsertPreparator
 	IsSkipResponse() bool
+	IsMutation() bool
 	IsMaterialiseResponse() bool
 	IsAwait() bool
 	IsReverseRequired() bool
@@ -800,6 +814,7 @@ func newProcessorPayload(
 	isMaterialiseResponse bool,
 	isAwait bool,
 	isReverseRequired bool,
+	isMutation bool,
 ) ProcessorPayload {
 	return &standardProcessorPayload{
 		armouryParams:         armouryParams,
@@ -817,6 +832,7 @@ func newProcessorPayload(
 		isMaterialiseResponse: isMaterialiseResponse,
 		isAwait:               isAwait,
 		isReverseRequired:     isReverseRequired,
+		isMutation:            isMutation,
 	}
 }
 
@@ -836,6 +852,7 @@ type standardProcessorPayload struct {
 	isMaterialiseResponse bool
 	isAwait               bool
 	isReverseRequired     bool
+	isMutation            bool
 }
 
 func (pp *standardProcessorPayload) GetArmouryParams() anysdk.HTTPArmouryParameters {
@@ -848,6 +865,10 @@ func (pp *standardProcessorPayload) IsSkipResponse() bool {
 
 func (pp *standardProcessorPayload) IsAwait() bool {
 	return pp.isAwait
+}
+
+func (pp *standardProcessorPayload) IsMutation() bool {
+	return pp.isMutation
 }
 
 func (pp *standardProcessorPayload) IsReverseRequired() bool {
@@ -993,6 +1014,7 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 	selectItemsKey := processorPayload.GetSelectItemsKey()
 	insertPreparator := processorPayload.GetInsertPreparator()
 	isSkipResponse := processorPayload.IsSkipResponse()
+	isMutation := processorPayload.IsMutation()
 	isMaterialiseResponse := processorPayload.IsMaterialiseResponse()
 	isAwait := processorPayload.IsAwait()
 	isReverseRequired := processorPayload.IsReverseRequired()
@@ -1052,7 +1074,7 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 		}
 		processed, resErr := method.ProcessResponse(httpResponse)
 		if resErr != nil {
-			if isSkipResponse && httpResponse.StatusCode < 300 {
+			if isSkipResponse && isMutation && httpResponse.StatusCode < 300 {
 				//nolint:errcheck // TODO: fix
 				outErrFile.Write(
 					[]byte("The operation was despatched successfully"),
@@ -1210,6 +1232,7 @@ func (mv *monoValentExecution) GetExecutor() (func(pc primitive.IPrimitiveCtx) i
 			mv.tableMeta.GetSelectItemsKey(),
 			mv,
 			mv.isSkipResponse,
+			mv.isMutation,
 		)
 		processorResponse, agnosticErr := agnosticate(agnosticatePayload)
 		if agnosticErr != nil {

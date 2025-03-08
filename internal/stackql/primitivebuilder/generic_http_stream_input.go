@@ -32,6 +32,7 @@ type genericHTTPStreamInput struct {
 	verb              string // may be "insert" or "update"
 	inputAlias        string
 	isUndo            bool
+	isMutation        bool
 	reversalStream    anysdk.HttpPreparatorStream
 	reversalBuilder   Builder
 	rollbackType      constants.RollbackType
@@ -248,6 +249,7 @@ func (gh *genericHTTPStreamInput) Build() error {
 					true,
 					isAwait,
 					gh.isUndo,
+					gh.isMutation,
 				)
 				processor := newProcessor(pp)
 				processorResponse := processor.Process()
