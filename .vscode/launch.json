@@ -163,6 +163,7 @@
         "select keyz.name as key_name, keyz.tags as key_tags, json_extract(detail.properties, '$.kty') as key_class, json_extract(detail.properties, '$.keySize') as key_size, json_extract(detail.properties, '$.keyOps') as key_ops, keyz.type as key_type from azure.key_vault.vaults vaultz inner join azure.key_vault.keys keyz on keyz.vaultName = split_part(vaultz.id, '/', -1) and keyz.subscriptionId = vaultz.subscriptionId and keyz.resourceGroupName = split_part(vaultz.id, '/', 5) inner join azure.key_vault.keys detail on detail.vaultName = split_part(vaultz.id, '/', -1) and detail.subscriptionId = '000000-0000-0000-0000-000000000022' and detail.resourceGroupName = split_part(vaultz.id, '/', 5) and detail.keyName = split_part(keyz.id, '/', -1) where vaultz.subscriptionId = '000000-0000-0000-0000-000000000022' order by key_name ;",
         "delete from aws.transfer.users where data__ServerId = 's-0000000001' and data__UserName = 'some-jimbo@stackql.io' and region = 'ap-southeast-2';",
         "select * from google.cloudkms.key_rings where projectsId = 'testing-project' and locationsId = 'australia-southeast1';",
+        "delete from aws.cloud_control.resources  where  region = 'ap-southeast-1'  and data__TypeName = 'AWS::Logs::LogGroup'  and data__Identifier = 'LogGroupResourceExampleThird' ;",
       ],
       "default": "show providers;"
     },
