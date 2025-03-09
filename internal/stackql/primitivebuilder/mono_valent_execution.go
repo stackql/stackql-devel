@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/stackql/any-sdk/anysdk"
 	"github.com/stackql/any-sdk/pkg/client"
@@ -13,6 +14,8 @@ import (
 	"github.com/stackql/any-sdk/pkg/logging"
 	"github.com/stackql/any-sdk/pkg/response"
 	"github.com/stackql/any-sdk/pkg/streaming"
+	"github.com/stackql/stackql-parser/go/vt/sqlparser"
+	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
@@ -20,6 +23,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
+	"github.com/stackql/stackql/internal/stackql/util"
 
 	sdk_internal_dto "github.com/stackql/any-sdk/pkg/internaldto"
 )
@@ -33,6 +37,16 @@ var (
 
 type MonoValentExecutorFactory interface {
 	GetExecutor() (func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput, error)
+}
+
+type MonitorMonoValentExecutorFactory interface {
+	GetMonitorExecutor(
+		provider anysdk.Provider,
+		op anysdk.OperationStore,
+		precursor primitive.IPrimitive,
+		initialCtx primitive.IPrimitiveCtx,
+		comments sqlparser.CommentDirectives,
+	) (func(pc primitive.IPrimitiveCtx, bd interface{}) internaldto.ExecutorOutput, error)
 }
 
 // monoValentExecution implements the Builder interface
@@ -1278,6 +1292,128 @@ func (mv *monoValentExecution) GetExecutor() (func(pc primitive.IPrimitiveCtx) i
 	return ex, nil
 }
 
+func GetMonitorExecutor(
+	handlerCtx handler.HandlerContext,
+	provider anysdk.Provider,
+	op anysdk.OperationStore,
+	precursor primitive.IPrimitive,
+	initialCtx primitive.IPrimitiveCtx,
+	comments sqlparser.CommentDirectives,
+) (primitive.IPrimitive, error) {
+	m := op
+	// tableName, err := mv.tableMeta.GetTableName()
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// authCtx, authCtxErr := mv.handlerCtx.GetAuthContext(prov.GetProviderString())
+	// if authCtxErr != nil {
+	// 	return nil, authCtxErr
+	// }
+	asyncPrim := asyncHTTPMonitorPrimitive{
+		handlerCtx:          handlerCtx,
+		prov:                provider,
+		op:                  op,
+		initialCtx:          initialCtx,
+		precursor:           precursor,
+		elapsedSeconds:      0,
+		pollIntervalSeconds: 10,
+		comments:            comments,
+	}
+	if comments != nil {
+		asyncPrim.noStatus = comments.IsSet("NOSTATUS")
+	}
+	rtCtx := handlerCtx.GetRuntimeContext()
+	outErrFile := handlerCtx.GetOutErrFile()
+	asyncPrim.executor = func(pc primitive.IPrimitiveCtx, bd interface{}) internaldto.ExecutorOutput {
+		body, ok := bd.(map[string]interface{})
+		if !ok {
+			return internaldto.NewExecutorOutput(
+				nil,
+				nil,
+				nil,
+				nil,
+				fmt.Errorf("cannot execute monitor: response body of type '%T' unreadable", bd),
+			)
+		}
+		if pc == nil {
+			return internaldto.NewExecutorOutput(nil, nil, nil, nil, fmt.Errorf("cannot execute monitor: nil plan primitive"))
+		}
+		if body == nil {
+			return internaldto.NewExecutorOutput(nil, nil, nil, nil, fmt.Errorf("cannot execute monitor: no body present"))
+		}
+		logging.GetLogger().Infoln(fmt.Sprintf("body = %v", body))
+
+		operationDescriptor := getOpDescriptor(body)
+		endTime, endTimeOk := body["endTime"]
+		if endTimeOk && endTime != "" {
+			return prepareResultSet(&asyncPrim, pc, body, operationDescriptor)
+		}
+		url, ok := body["selfLink"]
+		if !ok {
+			return internaldto.NewExecutorOutput(
+				nil,
+				nil,
+				nil,
+				nil,
+				fmt.Errorf("cannot execute monitor: no 'selfLink' property present"),
+			)
+		}
+		prStr := provider.GetName()
+		authCtx, authErr := pc.GetAuthContext(prStr)
+		if authErr != nil {
+			return internaldto.NewExecutorOutput(nil, nil, nil, nil, authErr)
+		}
+		if authCtx == nil {
+			return internaldto.NewExecutorOutput(nil, nil, nil, nil, fmt.Errorf("cannot execute monitor: no auth context"))
+		}
+		time.Sleep(time.Duration(asyncPrim.pollIntervalSeconds) * time.Second)
+		asyncPrim.elapsedSeconds += asyncPrim.pollIntervalSeconds
+		if !asyncPrim.noStatus {
+			//nolint:errcheck //TODO: handle error
+			pc.GetWriter().Write(
+				[]byte(
+					fmt.Sprintf(
+						"%s in progress, %d seconds elapsed",
+						operationDescriptor,
+						asyncPrim.elapsedSeconds,
+					) + fmt.Sprintln(""),
+				),
+			)
+		}
+		req, monitorReqErr := anysdk.GetMonitorRequest(url.(string))
+		if monitorReqErr != nil {
+			return internaldto.NewExecutorOutput(nil, nil, nil, nil, monitorReqErr)
+		}
+		cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
+		anySdkResponse, apiErr := anysdk.CallFromSignature(
+			cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider, anysdk.NewAnySdkOpStoreDesignation(m), req)
+
+		if apiErr != nil {
+			return internaldto.NewExecutorOutput(nil, nil, nil, nil, apiErr)
+		}
+		httpResponse, httpResponseErr := anySdkResponse.GetHttpResponse()
+		if httpResponseErr != nil {
+			return internaldto.NewExecutorOutput(nil, nil, nil, nil, httpResponseErr)
+		}
+
+		if httpResponse != nil && httpResponse.Body != nil {
+			defer httpResponse.Body.Close()
+		}
+		target, targetErr := m.DeprecatedProcessResponse(httpResponse)
+		handlerCtx.LogHTTPResponseMap(target)
+		if targetErr != nil {
+			return internaldto.NewExecutorOutput(nil, nil, nil, nil, targetErr)
+		}
+		return asyncPrim.executor(internaldto.NewBasicPrimitiveContext(
+			pc.GetAuthContext,
+			pc.GetWriter(),
+			pc.GetErrWriter(),
+		),
+			target)
+	}
+	return &asyncPrim, nil
+}
+
 func extractNextPageToken(res response.Response, tokenKey sdk_internal_dto.HTTPElement) string {
 	//nolint:exhaustive // TODO: review
 	switch tokenKey.GetType() {
@@ -1345,4 +1481,134 @@ func extractNextPageTokenFromBody(res response.Response, tokenKey sdk_internal_d
 		return tk
 	}
 	return ""
+}
+
+type asyncHTTPMonitorPrimitive struct {
+	handlerCtx          handler.HandlerContext
+	prov                anysdk.Provider
+	op                  anysdk.OperationStore
+	initialCtx          primitive.IPrimitiveCtx
+	precursor           primitive.IPrimitive
+	executor            func(pc primitive.IPrimitiveCtx, initalBody interface{}) internaldto.ExecutorOutput
+	elapsedSeconds      int
+	pollIntervalSeconds int
+	noStatus            bool
+	id                  int64
+	comments            sqlparser.CommentDirectives
+}
+
+func (pr *asyncHTTPMonitorPrimitive) SetTxnID(_ int) {
+}
+
+func (pr *asyncHTTPMonitorPrimitive) IsReadOnly() bool {
+	return false
+}
+
+func (pr *asyncHTTPMonitorPrimitive) GetRedoLog() (binlog.LogEntry, bool) {
+	return nil, false
+}
+
+func (pr *asyncHTTPMonitorPrimitive) GetUndoLog() (binlog.LogEntry, bool) {
+	return nil, false
+}
+
+func (pr *asyncHTTPMonitorPrimitive) WithDebugName(_ string) primitive.IPrimitive {
+	return pr
+}
+
+func (pr *asyncHTTPMonitorPrimitive) SetUndoLog(_ binlog.LogEntry) {
+}
+
+func (pr *asyncHTTPMonitorPrimitive) SetRedoLog(_ binlog.LogEntry) {
+}
+
+func (pr *asyncHTTPMonitorPrimitive) IncidentData(fromID int64, input internaldto.ExecutorOutput) error {
+	return pr.precursor.IncidentData(fromID, input)
+}
+
+func (pr *asyncHTTPMonitorPrimitive) SetInputAlias(alias string, id int64) error {
+	return pr.precursor.SetInputAlias(alias, id)
+}
+
+func (pr *asyncHTTPMonitorPrimitive) Optimise() error {
+	return nil
+}
+
+func (pr *asyncHTTPMonitorPrimitive) Execute(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
+	if pr.executor != nil {
+		if pc == nil {
+			pc = pr.initialCtx
+		}
+		subPr := pr.precursor.Execute(pc)
+		if subPr.GetError() != nil || pr.executor == nil {
+			return subPr
+		}
+		prStr := pr.prov.GetName()
+		// seems pointless
+		_, err := pr.initialCtx.GetAuthContext(prStr)
+		if err != nil {
+			return internaldto.NewExecutorOutput(nil, nil, nil, nil, err)
+		}
+		//
+		asyP := internaldto.NewBasicPrimitiveContext(
+			pr.initialCtx.GetAuthContext,
+			pc.GetWriter(),
+			pc.GetErrWriter(),
+		)
+		return pr.executor(asyP, subPr.GetOutputBody())
+	}
+	return internaldto.NewExecutorOutput(nil, nil, nil, nil, nil)
+}
+
+func (pr *asyncHTTPMonitorPrimitive) ID() int64 {
+	return pr.id
+}
+
+func (pr *asyncHTTPMonitorPrimitive) GetInputFromAlias(string) (internaldto.ExecutorOutput, bool) {
+	var rv internaldto.ExecutorOutput
+	return rv, false
+}
+
+func (pr *asyncHTTPMonitorPrimitive) SetExecutor(_ func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput) error {
+	return fmt.Errorf("asyncHTTPMonitorPrimitive does not support SetExecutor()")
+}
+
+func getOpDescriptor(body map[string]interface{}) string {
+	operationDescriptor := "operation"
+	if body == nil {
+		return operationDescriptor
+	}
+	//nolint:nestif,govet // TODO: refactor
+	if descriptor, ok := body["kind"]; ok {
+		if descriptorStr, ok := descriptor.(string); ok {
+			operationDescriptor = descriptorStr
+			if typeElem, ok := body["operationType"]; ok {
+				if typeStr, ok := typeElem.(string); ok {
+					operationDescriptor = fmt.Sprintf("%s: %s", descriptorStr, typeStr)
+				}
+			}
+		}
+	}
+	return operationDescriptor
+}
+
+func prepareResultSet(
+	prim *asyncHTTPMonitorPrimitive,
+	pc primitive.IPrimitiveCtx,
+	target map[string]interface{},
+	operationDescriptor string,
+) internaldto.ExecutorOutput {
+	payload := internaldto.PrepareResultSetDTO{
+		OutputBody:  target,
+		Msg:         nil,
+		RowMap:      nil,
+		ColumnOrder: nil,
+		RowSort:     nil,
+		Err:         nil,
+	}
+	if !prim.noStatus {
+		//nolint:errcheck //TODO: handle error
+		pc.GetWriter().Write([]byte(fmt.Sprintf("%s complete", operationDescriptor) + fmt.Sprintln("")))
+	}
+	return util.PrepareResultSet(payload)
 }

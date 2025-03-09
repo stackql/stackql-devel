@@ -1,12 +1,10 @@
-package asyncmonitor
+package primitivebuilder
 
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/stackql/any-sdk/anysdk"
-	"github.com/stackql/any-sdk/pkg/logging"
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
@@ -200,117 +198,22 @@ func (gm *DefaultGoogleAsyncMonitor) getV1Monitor(
 	initialCtx primitive.IPrimitiveCtx,
 	comments sqlparser.CommentDirectives,
 ) (primitive.IPrimitive, error) {
-	asyncPrim := AsyncHTTPMonitorPrimitive{
-		handlerCtx:          gm.handlerCtx,
-		prov:                prov,
-		op:                  op,
-		initialCtx:          initialCtx,
-		precursor:           precursor,
-		elapsedSeconds:      0,
-		pollIntervalSeconds: MonitorPollIntervalSeconds,
-		comments:            comments,
+	provider, providerErr := prov.GetProvider()
+	if providerErr != nil {
+		return nil, providerErr
 	}
-	if comments != nil {
-		asyncPrim.noStatus = comments.IsSet("NOSTATUS")
+	ex, ExPrepErr := GetMonitorExecutor(
+		gm.handlerCtx,
+		provider,
+		op,
+		precursor,
+		initialCtx,
+		comments,
+	)
+	if ExPrepErr != nil {
+		return nil, ExPrepErr
 	}
-	provider, err := prov.GetProvider()
-	if err != nil {
-		return nil, err
-	}
-	rtCtx := gm.handlerCtx.GetRuntimeContext()
-	outErrFile := gm.handlerCtx.GetOutErrFile()
-	m := gm.op
-	if m.IsAwaitable() { //nolint:nestif // encapulation probably sufficient
-		asyncPrim.executor = func(pc primitive.IPrimitiveCtx, bd interface{}) internaldto.ExecutorOutput {
-			body, ok := bd.(map[string]interface{})
-			if !ok {
-				return internaldto.NewExecutorOutput(
-					nil,
-					nil,
-					nil,
-					nil,
-					fmt.Errorf("cannot execute monitor: response body of type '%T' unreadable", bd),
-				)
-			}
-			if pc == nil {
-				return internaldto.NewExecutorOutput(nil, nil, nil, nil, fmt.Errorf("cannot execute monitor: nil plan primitive"))
-			}
-			if body == nil {
-				return internaldto.NewExecutorOutput(nil, nil, nil, nil, fmt.Errorf("cannot execute monitor: no body present"))
-			}
-			logging.GetLogger().Infoln(fmt.Sprintf("body = %v", body))
-
-			operationDescriptor := getOperationDescriptor(body)
-			endTime, endTimeOk := body["endTime"]
-			if endTimeOk && endTime != "" {
-				return prepareReultSet(&asyncPrim, pc, body, operationDescriptor)
-			}
-			url, ok := body["selfLink"]
-			if !ok {
-				return internaldto.NewExecutorOutput(
-					nil,
-					nil,
-					nil,
-					nil,
-					fmt.Errorf("cannot execute monitor: no 'selfLink' property present"),
-				)
-			}
-			prStr := gm.prov.GetProviderString()
-			authCtx, authErr := pc.GetAuthContext(prStr)
-			if authErr != nil {
-				return internaldto.NewExecutorOutput(nil, nil, nil, nil, authErr)
-			}
-			if authCtx == nil {
-				return internaldto.NewExecutorOutput(nil, nil, nil, nil, fmt.Errorf("cannot execute monitor: no auth context"))
-			}
-			time.Sleep(time.Duration(asyncPrim.pollIntervalSeconds) * time.Second)
-			asyncPrim.elapsedSeconds += asyncPrim.pollIntervalSeconds
-			if !asyncPrim.noStatus {
-				//nolint:errcheck //TODO: handle error
-				pc.GetWriter().Write(
-					[]byte(
-						fmt.Sprintf(
-							"%s in progress, %d seconds elapsed",
-							operationDescriptor,
-							asyncPrim.elapsedSeconds,
-						) + fmt.Sprintln(""),
-					),
-				)
-			}
-			req, monitorReqErr := anysdk.GetMonitorRequest(url.(string))
-			if monitorReqErr != nil {
-				return internaldto.NewExecutorOutput(nil, nil, nil, nil, monitorReqErr)
-			}
-			cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
-			anySdkResponse, apiErr := anysdk.CallFromSignature(
-				cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider, anysdk.NewAnySdkOpStoreDesignation(m), req)
-
-			if apiErr != nil {
-				return internaldto.NewExecutorOutput(nil, nil, nil, nil, apiErr)
-			}
-			httpResponse, httpResponseErr := anySdkResponse.GetHttpResponse()
-			if httpResponseErr != nil {
-				return internaldto.NewExecutorOutput(nil, nil, nil, nil, httpResponseErr)
-			}
-
-			if httpResponse != nil && httpResponse.Body != nil {
-				defer httpResponse.Body.Close()
-			}
-			target, targetErr := m.DeprecatedProcessResponse(httpResponse)
-			gm.handlerCtx.LogHTTPResponseMap(target)
-			if targetErr != nil {
-				return internaldto.NewExecutorOutput(nil, nil, nil, nil, targetErr)
-			}
-			return asyncPrim.executor(internaldto.NewBasicPrimitiveContext(
-				pc.GetAuthContext,
-				pc.GetWriter(),
-				pc.GetErrWriter(),
-			),
-				target)
-		}
-		return &asyncPrim, nil
-	}
-	return nil, fmt.Errorf("method %s is not awaitable", m.GetName())
+	return ex, nil
 }
 
 func prepareReultSet(
