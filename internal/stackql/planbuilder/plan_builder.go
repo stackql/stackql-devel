@@ -1022,6 +1022,7 @@ func (pgb *standardPlanGraphBuilder) handleExec(pbi planbuilderinput.PlanBuilder
 		if err != nil {
 			return err
 		}
+		tcc := pbi.GetTxnCtrlCtrs()
 		bldr := primitivebuilder.NewExec(
 			primitiveGenerator.GetPrimitiveComposer().GetGraphHolder(),
 			handlerCtx,
@@ -1029,6 +1030,7 @@ func (pgb *standardPlanGraphBuilder) handleExec(pbi planbuilderinput.PlanBuilder
 			tbl,
 			primitiveGenerator.GetPrimitiveComposer().IsAwait(),
 			primitiveGenerator.IsShowResults(),
+			tcc,
 		)
 		err = bldr.Build()
 		if err != nil {

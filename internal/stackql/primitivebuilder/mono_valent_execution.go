@@ -1191,7 +1191,7 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 	return newHTTPProcessorResponse(nil, reversalStream, false, nil)
 }
 
-//nolint:funlen,gocognit,gocyclo,cyclop,revive // TODO: investigate
+//nolint:revive // TODO: investigate
 func (mv *monoValentExecution) GetExecutor() (func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput, error) {
 	prov, err := mv.tableMeta.GetProvider()
 	if err != nil {

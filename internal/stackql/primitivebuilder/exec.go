@@ -1,11 +1,7 @@
 package primitivebuilder
 
 import (
-	"fmt"
-	"strconv"
-
 	"github.com/stackql/any-sdk/anysdk"
-	"github.com/stackql/any-sdk/pkg/logging"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
@@ -14,7 +10,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
-	"github.com/stackql/stackql/internal/stackql/util"
 )
 
 type Exec struct {
@@ -25,6 +20,7 @@ type Exec struct {
 	tbl           tablemetadata.ExtendedTableMetadata
 	isAwait       bool
 	isShowResults bool
+	tcc           internaldto.TxnControlCounters
 }
 
 func NewExec(
@@ -34,6 +30,7 @@ func NewExec(
 	tbl tablemetadata.ExtendedTableMetadata,
 	isAwait bool,
 	isShowResults bool,
+	tcc internaldto.TxnControlCounters,
 ) Builder {
 	return &Exec{
 		graph:         graph,
@@ -42,6 +39,7 @@ func NewExec(
 		tbl:           tbl,
 		isAwait:       isAwait,
 		isShowResults: isShowResults,
+		tcc:           tcc,
 	}
 }
 
@@ -76,92 +74,81 @@ func (ss *Exec) Build() error {
 	if err != nil {
 		return err
 	}
-	isNullary := m.IsNullary()
-	var target map[string]interface{}
+	svc, err := tbl.GetService()
+	if err != nil {
+		return err
+	}
+	if ss.isShowResults {
+		analysisInput := anysdk.NewMethodAnalysisInput(
+			m,
+			svc,
+			true,
+			[]anysdk.ColumnDescriptor{},
+		)
+		analyser := anysdk.NewMethodAnalyzer()
+		methodAnalysisOutput, analysisErr := analyser.AnalyzeUnaryAction(analysisInput)
+		if analysisErr != nil {
+			return analysisErr
+		}
+		methodAnalysisOutput.GetInsertTabulation()
+		deFactoSelectBuilder := NewSingleAcquireAndSelect(
+			ss.graph,
+			ss.tcc,
+			ss.handlerCtx.Clone(),
+			nil,
+			nil,
+			nil,
+			nil,
+		)
+		buildErr := deFactoSelectBuilder.Build()
+		return buildErr
+	}
+	// isNullary := m.IsNullary()
+	// var target map[string]interface{}
 	//nolint:revive // no big deal
 	ex := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
-		var columnOrder []string
-		keys := make(map[string]map[string]interface{})
+		// var columnOrder []string
+		// keys := make(map[string]map[string]interface{})
 		httpArmoury, httpArmouryErr := tbl.GetHTTPArmoury()
 		if httpArmouryErr != nil {
 			return internaldto.NewErroneousExecutorOutput(httpArmouryErr)
 		}
-		for i, req := range httpArmoury.GetRequestParams() {
-			cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
-			response, apiErr := anysdk.CallFromSignature(
-				cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider,
-				anysdk.NewAnySdkOpStoreDesignation(m), req.GetArgList(),
-			)
-			if apiErr != nil {
-				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, nil, nil, nil, apiErr, nil,
-					handlerCtx.GetTypingConfig(),
-				))
-			}
-			httpResponse, httpResponseErr := response.GetHttpResponse()
-			if httpResponse != nil && httpResponse.Body != nil {
-				defer httpResponse.Body.Close()
-			}
-			if httpResponseErr != nil {
-				return util.PrepareResultSet(
-					internaldto.NewPrepareResultSetDTO(nil, nil, nil, nil, httpResponseErr, nil,
-						handlerCtx.GetTypingConfig()))
-			}
-			if isNullary {
-				//nolint:mnd // acceptable for now
-				if httpResponse.StatusCode <= 300 {
-					continue
-				}
-				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(
-					nil,
-					nil,
-					nil,
-					nil,
-					fmt.Errorf("HTTP request failed with status code %d", httpResponse.StatusCode),
-					nil,
-					handlerCtx.GetTypingConfig(),
-				))
-			}
-			target, err = m.DeprecatedProcessResponse(httpResponse)
-			handlerCtx.LogHTTPResponseMap(target)
-			if err != nil {
-				return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(
-					nil,
-					nil,
-					nil,
-					nil,
-					err,
-					nil,
-					handlerCtx.GetTypingConfig(),
-				))
-			}
-			logging.GetLogger().Infoln(fmt.Sprintf("target = %v", target))
-			items, ok := target[tbl.LookupSelectItemsKey()]
-			if ok {
-				iArr, iOk := items.([]interface{})
-				if iOk && len(iArr) > 0 {
-					for i := range iArr {
-						item, itemOk := iArr[i].(map[string]interface{})
-						if itemOk {
-							keys[strconv.Itoa(i)] = item
-						}
-					}
-				}
-			} else {
-				keys[fmt.Sprintf("%d", i)] = target
-			}
-			// optional data return pattern to be included in grammar subsequently
-			// return util.PrepareResultSet(internaldto.NewPrepareResultSetDTO(nil, keys, columnOrder, nil, err, nil))
-			logging.GetLogger().Debugln(fmt.Sprintf("keys = %v", keys))
-			logging.GetLogger().Debugln(fmt.Sprintf("columnOrder = %v", columnOrder))
-		}
-		return generateResultIfNeededfunc(
-			keys, target,
-			internaldto.NewBackendMessages(
-				generateSuccessMessagesFromHeirarchy(tbl, ss.isAwait),
-			),
-			err, ss.isShowResults,
-			ss.handlerCtx.GetTypingConfig(),
+		polyHandler := newStandardPolyHandler(
+			handlerCtx,
 		)
+		tableName, tableNameErr := tbl.GetTableName()
+		if tableNameErr != nil {
+			return internaldto.NewErroneousExecutorOutput(tableNameErr)
+		}
+		var singletonBody map[string]interface{}
+		for _, req := range httpArmoury.GetRequestParams() {
+			pp := newProcessorPayload(
+				req,
+				newStandardMethodElider(nilElisionFunction),
+				provider,
+				m,
+				tableName,
+				rtCtx,
+				authCtx,
+				outErrFile,
+				polyHandler,
+				"",
+				nil,
+				ss.isShowResults,
+				true,
+				ss.isAwait,
+				false,
+				!ss.isShowResults,
+			)
+			processor := newProcessor(pp)
+			processorResponse := processor.Process()
+			processorErr := processorResponse.GetError()
+			if processorErr != nil {
+				return internaldto.NewErroneousExecutorOutput(processorErr)
+			}
+			singletonBody = processorResponse.GetSingletonBody()
+		}
+		return internaldto.NewExecutorOutput(nil, singletonBody, nil, nil, nil)
 	}
 	execPrimitive := primitive.NewGenericPrimitive(
 		ex,
