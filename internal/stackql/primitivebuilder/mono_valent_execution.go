@@ -1316,7 +1316,7 @@ func GetMonitorExecutor(
 		initialCtx:          initialCtx,
 		precursor:           precursor,
 		elapsedSeconds:      0,
-		pollIntervalSeconds: 10,
+		pollIntervalSeconds: MonitorPollIntervalSeconds,
 		comments:            comments,
 	}
 	if comments != nil {
