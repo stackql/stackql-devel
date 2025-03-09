@@ -121,6 +121,8 @@ func (ss *Exec) Build() error {
 			return internaldto.NewErroneousExecutorOutput(tableNameErr)
 		}
 		var singletonBody map[string]interface{}
+		var rawMessages []string
+		var readyMessages internaldto.BackendMessages
 		for _, req := range httpArmoury.GetRequestParams() {
 			pp := newProcessorPayload(
 				req,
@@ -147,8 +149,15 @@ func (ss *Exec) Build() error {
 				return internaldto.NewErroneousExecutorOutput(processorErr)
 			}
 			singletonBody = processorResponse.GetSingletonBody()
+			if len(processorResponse.GetSuccessMessages()) > 0 {
+				rawMessages = append(rawMessages, processorResponse.GetSuccessMessages()...)
+			}
+
 		}
-		return internaldto.NewExecutorOutput(nil, singletonBody, nil, nil, nil)
+		if len(rawMessages) > 0 {
+			readyMessages = internaldto.NewBackendMessages(rawMessages)
+		}
+		return internaldto.NewExecutorOutput(nil, singletonBody, nil, readyMessages, nil)
 	}
 	execPrimitive := primitive.NewGenericPrimitive(
 		ex,
