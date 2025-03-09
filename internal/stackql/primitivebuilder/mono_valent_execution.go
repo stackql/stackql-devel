@@ -769,6 +769,7 @@ func agnosticate(
 				false,
 				false,
 				isMutation,
+				"",
 			),
 		)
 		processorResponse = processor.Process()
@@ -796,6 +797,7 @@ type ProcessorPayload interface {
 	IsMaterialiseResponse() bool
 	IsAwait() bool
 	IsReverseRequired() bool
+	GetVerb() string
 }
 
 func newProcessorPayload(
@@ -815,6 +817,7 @@ func newProcessorPayload(
 	isAwait bool,
 	isReverseRequired bool,
 	isMutation bool,
+	verb string,
 ) ProcessorPayload {
 	return &standardProcessorPayload{
 		armouryParams:         armouryParams,
@@ -833,6 +836,7 @@ func newProcessorPayload(
 		isAwait:               isAwait,
 		isReverseRequired:     isReverseRequired,
 		isMutation:            isMutation,
+		verb:                  verb,
 	}
 }
 
@@ -853,6 +857,7 @@ type standardProcessorPayload struct {
 	isAwait               bool
 	isReverseRequired     bool
 	isMutation            bool
+	verb                  string
 }
 
 func (pp *standardProcessorPayload) GetArmouryParams() anysdk.HTTPArmouryParameters {
@@ -881,6 +886,13 @@ func (pp *standardProcessorPayload) IsMaterialiseResponse() bool {
 
 func (pp *standardProcessorPayload) GetElider() methodElider {
 	return pp.elider
+}
+
+func (pp *standardProcessorPayload) GetVerb() string {
+	if pp.verb == "" {
+		return "insert"
+	}
+	return pp.verb
 }
 
 func (pp *standardProcessorPayload) GetProvider() anysdk.Provider {
@@ -1018,6 +1030,7 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 	isMaterialiseResponse := processorPayload.IsMaterialiseResponse()
 	isAwait := processorPayload.IsAwait()
 	isReverseRequired := processorPayload.IsReverseRequired()
+	verb := processorPayload.GetVerb()
 
 	reversalStream := anysdk.NewHttpPreparatorStream()
 
@@ -1058,7 +1071,7 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 		defer httpResponse.Body.Close()
 	}
 	if httpResponse != nil && httpResponse.StatusCode >= 400 && isMaterialiseResponse {
-		generatedErr := fmt.Errorf("insert over HTTP error: %s", httpResponse.Status)
+		generatedErr := fmt.Errorf("%s over HTTP error: %s", verb, httpResponse.Status)
 		return newHTTPProcessorResponse(nil, reversalStream, true, generatedErr)
 	}
 	// TODO: refactor into package !!TECH_DEBT!!
@@ -1076,10 +1089,10 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 		if resErr != nil {
 			if isSkipResponse && isMutation && httpResponse.StatusCode < 300 {
 				//nolint:errcheck // TODO: fix
-				outErrFile.Write(
-					[]byte("The operation was despatched successfully"),
-				)
-				return newHTTPProcessorResponse(nil, reversalStream, false, nil)
+				// outErrFile.Write(
+				// 	[]byte("The operation was despatched successfully"),
+				// )
+				return newHTTPProcessorResponse(nil, reversalStream, false, nil).WithSuccessMessages([]string{"The operation was despatched successfully"})
 			}
 			//nolint:errcheck // TODO: fix
 			outErrFile.Write(
@@ -1145,10 +1158,10 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 		if hasInsertPrepErr {
 			if isSkipResponse && isMutation && httpResponse.StatusCode < 300 {
 				//nolint:errcheck // TODO: fix
-				outErrFile.Write(
-					[]byte("The operation was despatched successfully"),
-				)
-				return newHTTPProcessorResponse(nil, reversalStream, false, nil)
+				// outErrFile.Write(
+				// 	[]byte("The operation was despatched successfully"),
+				// )
+				return newHTTPProcessorResponse(nil, reversalStream, false, nil).WithSuccessMessages([]string{"The operation was despatched successfully"})
 			}
 			return newHTTPProcessorResponse(nil, reversalStream, false, insertPrepErr)
 		}

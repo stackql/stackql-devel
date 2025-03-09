@@ -250,6 +250,7 @@ func (gh *genericHTTPStreamInput) Build() error {
 					isAwait,
 					gh.isUndo,
 					gh.isMutation,
+					"",
 				)
 				processor := newProcessor(pp)
 				processorResponse := processor.Process()

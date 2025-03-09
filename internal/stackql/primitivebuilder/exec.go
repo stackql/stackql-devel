@@ -141,6 +141,7 @@ func (ss *Exec) Build() error {
 				ss.isAwait,
 				false,
 				!ss.isShowResults,
+				"",
 			)
 			processor := newProcessor(pp)
 			processorResponse := processor.Process()

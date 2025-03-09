@@ -154,6 +154,7 @@ func (gh *genericHTTPReversal) Build() error {
 						isAwait,
 						gh.isUndo,
 						true,
+						"undo",
 					)
 					processor := newProcessor(pp)
 					processorResponse := processor.Process()
@@ -162,12 +163,13 @@ func (gh *genericHTTPReversal) Build() error {
 					// if processorResponse.IsFailed() && !gh.isAwait {
 					// 	processorErr = fmt.Errorf(processorResponse.GetFailedMessage())
 					// }
+					msgs := internaldto.NewBackendMessages(processorResponse.GetSuccessMessages())
 					return gh.decorateOutput(
 						internaldto.NewExecutorOutput(
 							nil,
 							singletonBody,
 							nil,
-							internaldto.NewBackendMessages(processorResponse.GetSuccessMessages()),
+							msgs,
 							processorErr,
 						),
 						tableName,
