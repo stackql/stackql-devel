@@ -2,11 +2,8 @@ package primitivebuilder
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/stackql/any-sdk/anysdk"
-	"github.com/stackql/any-sdk/pkg/logging"
-	pkg_response "github.com/stackql/any-sdk/pkg/response"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/drm"
@@ -17,7 +14,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
 	"github.com/stackql/stackql/internal/stackql/provider"
-	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 )
 
 type genericHTTPReversal struct {
@@ -119,7 +115,7 @@ func (gh *genericHTTPReversal) Build() error {
 		primitive_context.NewPrimitiveContext(),
 	)
 	tableName := m.GetName()
-	target := make(map[string]interface{})
+	// target := make(map[string]interface{})
 	ex := func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 		httpPreparator, httpPreparatorExists := gh.reversalStream.Next()
 		resultSet := internaldto.NewErroneousExecutorOutput(fmt.Errorf("no executions detected"))
@@ -136,86 +132,45 @@ func (gh *genericHTTPReversal) Build() error {
 			var nullaryExecutors []func() internaldto.ExecutorOutput
 			for _, r := range httpArmoury.GetRequestParams() {
 				req := r
+				isSkipResponse := responseAnalysisErr != nil
+				polyHandler := newStandardPolyHandler(
+					handlerCtx,
+				)
 				nullaryEx := func() internaldto.ExecutorOutput {
-					cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
-					response, apiErr := anysdk.CallFromSignature(
-						cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider,
-						anysdk.NewAnySdkOpStoreDesignation(m), req.GetArgList())
-					if apiErr != nil {
-						return internaldto.NewErroneousExecutorOutput(apiErr)
-					}
-					httpResponse, httpResponseErr := response.GetHttpResponse()
-					if httpResponse != nil && httpResponse.Body != nil {
-						defer httpResponse.Body.Close()
-					}
-					if httpResponseErr != nil {
-						return internaldto.NewErroneousExecutorOutput(httpResponseErr)
-					}
-
-					if responseAnalysisErr == nil {
-						var resp pkg_response.Response
-						processed, processErr := m.ProcessResponse(httpResponse)
-						if processErr != nil {
-							return internaldto.NewErroneousExecutorOutput(processErr)
-						}
-						resp, respOk := processed.GetResponse()
-						if !respOk {
-							return internaldto.NewErroneousExecutorOutput(fmt.Errorf("response is not a valid response"))
-						}
-						processedBody := resp.GetProcessedBody()
-						switch processedBody := processedBody.(type) { //nolint:gocritic // TODO: fix this
-						case map[string]interface{}:
-							target = processedBody
-						}
-					}
-					if err != nil {
-						return internaldto.NewErroneousExecutorOutput(err)
-					}
-					logging.GetLogger().Infoln(fmt.Sprintf("target = %v", target))
-					items, ok := target[tablemetadata.LookupSelectItemsKey(m)]
-					keys := make(map[string]map[string]interface{})
-					if ok {
-						iArr, iOk := items.([]interface{})
-						if iOk && len(iArr) > 0 {
-							for i := range iArr {
-								item, itemOk := iArr[i].(map[string]interface{})
-								if itemOk {
-									keys[strconv.Itoa(i)] = item
-								}
-							}
-						}
-					}
-					if err == nil {
-						if httpResponse.StatusCode < 300 { //nolint:mnd // TODO: fix this
-							msgs := internaldto.NewBackendMessages(
-								[]string{"undo over HTTP successful"},
-							)
-							return gh.decorateOutput(
-								internaldto.NewExecutorOutput(
-									nil,
-									target,
-									nil,
-									msgs,
-									nil,
-								),
-								tableName,
-							)
-						}
-						generatedErr := fmt.Errorf("undo over HTTP error: %s", httpResponse.Status)
-						return internaldto.NewExecutorOutput(
-							nil,
-							target,
-							nil,
-							nil,
-							generatedErr,
-						)
-					}
-					return internaldto.NewExecutorOutput(
+					pp := newProcessorPayload(
+						req,
+						newStandardMethodElider(nilElisionFunction),
+						provider,
+						m,
+						tableName,
+						rtCtx,
+						authCtx,
+						outErrFile,
+						polyHandler,
+						"",
 						nil,
-						target,
-						nil,
-						nil,
-						err,
+						isSkipResponse,
+						true,
+						isAwait,
+						gh.isUndo,
+						true,
+					)
+					processor := newProcessor(pp)
+					processorResponse := processor.Process()
+					processorErr := processorResponse.GetError()
+					singletonBody := processorResponse.GetSingletonBody()
+					// if processorResponse.IsFailed() && !gh.isAwait {
+					// 	processorErr = fmt.Errorf(processorResponse.GetFailedMessage())
+					// }
+					return gh.decorateOutput(
+						internaldto.NewExecutorOutput(
+							nil,
+							singletonBody,
+							nil,
+							internaldto.NewBackendMessages(processorResponse.GetSuccessMessages()),
+							processorErr,
+						),
+						tableName,
 					)
 				}
 

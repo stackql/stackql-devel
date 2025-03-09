@@ -166,6 +166,7 @@
         "delete from aws.cloud_control.resources  where  region = 'ap-southeast-1'  and data__TypeName = 'AWS::Logs::LogGroup'  and data__Identifier = 'LogGroupResourceExampleThird' ;",
         "EXEC aws.transfer.servers.stop_server  @region = 'ap-southeast-2'  @@json='{ \"ServerId\": \"s-0000000001\" }' ;",
         "exec aws.ec2.instances.instances_Stop  @region = 'ap-southeast-2',  @InstanceId = 'id-001' ;",
+        "begin;  insert into googleadmin.directory.users(data__primaryEmail) values ('somejimbo@grubit.com'); rollback;",
       ],
       "default": "show providers;"
     },
