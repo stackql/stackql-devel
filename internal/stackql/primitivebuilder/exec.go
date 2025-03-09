@@ -134,7 +134,7 @@ func (ss *Exec) Build() error {
 				polyHandler,
 				"",
 				nil,
-				ss.isShowResults,
+				!ss.isShowResults,
 				true,
 				ss.isAwait,
 				false,

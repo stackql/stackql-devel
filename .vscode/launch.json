@@ -164,6 +164,7 @@
         "delete from aws.transfer.users where data__ServerId = 's-0000000001' and data__UserName = 'some-jimbo@stackql.io' and region = 'ap-southeast-2';",
         "select * from google.cloudkms.key_rings where projectsId = 'testing-project' and locationsId = 'australia-southeast1';",
         "delete from aws.cloud_control.resources  where  region = 'ap-southeast-1'  and data__TypeName = 'AWS::Logs::LogGroup'  and data__Identifier = 'LogGroupResourceExampleThird' ;",
+        "EXEC aws.transfer.servers.stop_server  @region = 'ap-southeast-2'  @@json='{ \"ServerId\": \"s-0000000001\" }' ;",
       ],
       "default": "show providers;"
     },
