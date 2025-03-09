@@ -1,4 +1,4 @@
-package primitivebuilder
+package execution
 
 import (
 	"fmt"
@@ -29,8 +29,12 @@ import (
 )
 
 var (
+	MonitorPollIntervalSeconds int = 10 //nolint:revive,gochecknoglobals // TODO: global vars refactor
+)
+
+var (
 	_                  MonoValentExecutorFactory = (*monoValentExecution)(nil)
-	nilElisionFunction func(string, ...any) bool = func(string, ...any) bool {
+	nilElisionFunction                           = func(string, ...any) bool {
 		return false
 	}
 )
@@ -69,7 +73,7 @@ type monoValentExecution struct {
 	isMutation                 bool
 }
 
-func newMonoValentExecutorFactory(
+func NewMonoValentExecutorFactory(
 	graphHolder primitivegraph.PrimitiveGraphHolder,
 	handlerCtx handler.HandlerContext,
 	tableMeta tablemetadata.ExtendedTableMetadata,
@@ -110,7 +114,13 @@ func (sme *standardMethodElider) IsElide(reqEncoding string, argz ...any) bool {
 	return sme.elisionFunc(reqEncoding, argz...)
 }
 
-func newStandardMethodElider(elisionFunc func(string, ...any) bool) methodElider {
+func NewNilMethodElider() methodElider {
+	return &standardMethodElider{
+		elisionFunc: nilElisionFunction,
+	}
+}
+
+func NewStandardMethodElider(elisionFunc func(string, ...any) bool) methodElider {
 	return &standardMethodElider{
 		elisionFunc: elisionFunc,
 	}
@@ -154,7 +164,7 @@ func (mv *monoValentExecution) elideActionIfPossible(
 		}
 		return false
 	}
-	return newStandardMethodElider(elisionFunc)
+	return NewStandardMethodElider(elisionFunc)
 }
 
 type methodElider interface {
@@ -708,7 +718,7 @@ func (sph *standardPolyHandler) GetMessages() []string {
 	return sph.messages
 }
 
-func newStandardPolyHandler(handlerCtx handler.HandlerContext) PolyHandler {
+func NewStandardPolyHandler(handlerCtx handler.HandlerContext) PolyHandler {
 	return &standardPolyHandler{
 		handlerCtx: handlerCtx,
 		messages:   []string{},
@@ -765,8 +775,8 @@ func agnosticate(
 	var processorResponse ProcessorResponse
 	for _, rc := range reqParams {
 		rq := rc
-		processor := newProcessor(
-			newProcessorPayload(
+		processor := NewProcessor(
+			NewProcessorPayload(
 				rq,
 				elider,
 				provider,
@@ -814,7 +824,7 @@ type ProcessorPayload interface {
 	GetVerb() string
 }
 
-func newProcessorPayload(
+func NewProcessorPayload(
 	armouryParams anysdk.HTTPArmouryParameters,
 	elider methodElider,
 	provider anysdk.Provider,
@@ -1020,7 +1030,7 @@ type standardProcessor struct {
 	payload ProcessorPayload
 }
 
-func newProcessor(payload ProcessorPayload) Processor {
+func NewProcessor(payload ProcessorPayload) Processor {
 	return &standardProcessor{
 		payload: payload,
 	}
@@ -1244,7 +1254,7 @@ func (mv *monoValentExecution) GetExecutor() (func(pc primitive.IPrimitiveCtx) i
 		currentTcc := mv.insertPreparedStatementCtx.GetGCCtrlCtrs().Clone()
 		mv.graphHolder.AddTxnControlCounters(currentTcc)
 		mr := prov.InferMaxResultsElement(m)
-		polyHandler := newStandardPolyHandler(
+		polyHandler := NewStandardPolyHandler(
 			mv.handlerCtx,
 		)
 		agnosticatePayload := newHTTPAgnosticatePayload(
@@ -1611,4 +1621,38 @@ func prepareResultSet(
 		pc.GetWriter().Write([]byte(fmt.Sprintf("%s complete", operationDescriptor) + fmt.Sprintln("")))
 	}
 	return util.PrepareResultSet(payload)
+}
+
+func castItemsArray(iArr interface{}) ([]map[string]interface{}, error) {
+	switch iArr := iArr.(type) {
+	case []map[string]interface{}:
+		return iArr, nil
+	case []interface{}:
+		var rv []map[string]interface{}
+		for i := range iArr {
+			item, ok := iArr[i].(map[string]interface{})
+			if !ok {
+				if iArr[i] != nil {
+					item = map[string]interface{}{anysdk.AnonymousColumnName: iArr[i]}
+				} else {
+					item = nil
+				}
+			}
+			rv = append(rv, item)
+		}
+		return rv, nil
+	default:
+		return nil, fmt.Errorf("cannot accept items array of type = '%T'", iArr)
+	}
+}
+
+func shallowGenerateSuccessMessagesFromHeirarchy(isAwait bool) []string {
+	baseSuccessString := "The operation completed successfully"
+	if !isAwait {
+		baseSuccessString = "The operation was despatched successfully"
+	}
+	successMsgs := []string{
+		baseSuccessString,
+	}
+	return successMsgs
 }

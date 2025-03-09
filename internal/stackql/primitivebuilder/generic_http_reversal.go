@@ -7,6 +7,7 @@ import (
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/drm"
+	"github.com/stackql/stackql/internal/stackql/execution"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/builder_input"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
@@ -133,13 +134,13 @@ func (gh *genericHTTPReversal) Build() error {
 			for _, r := range httpArmoury.GetRequestParams() {
 				req := r
 				isSkipResponse := responseAnalysisErr != nil
-				polyHandler := newStandardPolyHandler(
+				polyHandler := execution.NewStandardPolyHandler(
 					handlerCtx,
 				)
 				nullaryEx := func() internaldto.ExecutorOutput {
-					pp := newProcessorPayload(
+					pp := execution.NewProcessorPayload(
 						req,
-						newStandardMethodElider(nilElisionFunction),
+						execution.NewNilMethodElider(),
 						provider,
 						m,
 						tableName,
@@ -156,7 +157,7 @@ func (gh *genericHTTPReversal) Build() error {
 						true,
 						"undo",
 					)
-					processor := newProcessor(pp)
+					processor := execution.NewProcessor(pp)
 					processorResponse := processor.Process()
 					processorErr := processorResponse.GetError()
 					singletonBody := processorResponse.GetSingletonBody()

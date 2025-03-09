@@ -6,6 +6,7 @@ import (
 
 	"github.com/stackql/any-sdk/anysdk"
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
+	"github.com/stackql/stackql/internal/stackql/execution"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/primitive"
@@ -13,10 +14,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/util"
 
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
-)
-
-var (
-	MonitorPollIntervalSeconds int = 10 //nolint:revive,gochecknoglobals // TODO: global vars refactor
 )
 
 type IAsyncMonitor interface {
@@ -202,7 +199,7 @@ func (gm *DefaultGoogleAsyncMonitor) getV1Monitor(
 	if providerErr != nil {
 		return nil, providerErr
 	}
-	ex, ExPrepErr := GetMonitorExecutor(
+	ex, ExPrepErr := execution.GetMonitorExecutor(
 		gm.handlerCtx,
 		provider,
 		op,

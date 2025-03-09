@@ -4,6 +4,7 @@ import (
 	"github.com/stackql/any-sdk/pkg/streaming"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/drm"
+	"github.com/stackql/stackql/internal/stackql/execution"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/primitive_context"
 	"github.com/stackql/stackql/internal/stackql/primitive"
@@ -70,7 +71,7 @@ func (ss *Delete) Build() error {
 		ss.handlerCtx.GetSQLEngine(),
 		handlerCtx.GetTxnCounterMgr(),
 	)
-	mvb := newMonoValentExecutorFactory(
+	mvb := execution.NewMonoValentExecutorFactory(
 		ss.graph,
 		handlerCtx,
 		tbl,

@@ -5,6 +5,7 @@ import (
 
 	"github.com/stackql/any-sdk/pkg/streaming"
 	"github.com/stackql/stackql/internal/stackql/drm"
+	"github.com/stackql/stackql/internal/stackql/execution"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/primitive_context"
@@ -30,7 +31,7 @@ type monoValentBuilder struct {
 	root                       primitivegraph.PrimitiveNode
 	stream                     streaming.MapStream
 	isReadOnly                 bool //nolint:unused // TODO: build out
-	monoValentExecutorFactory  MonoValentExecutorFactory
+	monoValentExecutorFactory  execution.MonoValentExecutorFactory
 }
 
 func newMonoValentBuilder(
@@ -61,7 +62,7 @@ func newMonoValentBuilder(
 		insertionContainer:         insertionContainer,
 		txnCtrlCtr:                 tcc,
 		stream:                     stream,
-		monoValentExecutorFactory: newMonoValentExecutorFactory(
+		monoValentExecutorFactory: execution.NewMonoValentExecutorFactory(
 			graphHolder,
 			handlerCtx,
 			tableMeta,

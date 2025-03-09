@@ -4,6 +4,7 @@ import (
 	"github.com/stackql/any-sdk/anysdk"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/drm"
+	"github.com/stackql/stackql/internal/stackql/execution"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/primitive_context"
@@ -113,7 +114,7 @@ func (ss *Exec) Build() error {
 		if httpArmouryErr != nil {
 			return internaldto.NewErroneousExecutorOutput(httpArmouryErr)
 		}
-		polyHandler := newStandardPolyHandler(
+		polyHandler := execution.NewStandardPolyHandler(
 			handlerCtx,
 		)
 		tableName, tableNameErr := tbl.GetTableName()
@@ -124,9 +125,9 @@ func (ss *Exec) Build() error {
 		var rawMessages []string
 		var readyMessages internaldto.BackendMessages
 		for _, req := range httpArmoury.GetRequestParams() {
-			pp := newProcessorPayload(
+			pp := execution.NewProcessorPayload(
 				req,
-				newStandardMethodElider(nilElisionFunction),
+				execution.NewNilMethodElider(),
 				provider,
 				m,
 				tableName,
@@ -143,7 +144,7 @@ func (ss *Exec) Build() error {
 				!ss.isShowResults,
 				"",
 			)
-			processor := newProcessor(pp)
+			processor := execution.NewProcessor(pp)
 			processorResponse := processor.Process()
 			processorErr := processorResponse.GetError()
 			if processorErr != nil {
