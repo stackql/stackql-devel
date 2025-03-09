@@ -1263,6 +1263,13 @@ func (mv *monoValentExecution) GetExecutor() (func(pc primitive.IPrimitiveCtx) i
 		if len(messages) > 0 {
 			castMessages = internaldto.NewBackendMessages(messages)
 		}
+		if processorResponse != nil && len(processorResponse.GetSuccessMessages()) > 0 {
+			if len(messages) == 0 {
+				castMessages = internaldto.NewBackendMessages(processorResponse.GetSuccessMessages())
+			} else {
+				castMessages.AppendMessages(processorResponse.GetSuccessMessages())
+			}
+		}
 		if processorResponse == nil {
 			return internaldto.NewExecutorOutput(nil, nil, nil, castMessages, nil)
 		}
