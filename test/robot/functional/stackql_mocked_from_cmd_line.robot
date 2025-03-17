@@ -7573,3 +7573,45 @@ Contains Check AWS Materialized View and Cast and Multiple Function Query on Res
     ...    DDL Execution Completed
     ...    stdout=${CURDIR}/tmp/Contains-Check-AWS-Materialized-View-And-Cast-and-Multiple-Function-Query-on-Resource-Costs-Exemplifies-Cast-and-Multiple-Functions-on-Materialized-Views.tmp
     ...    stderr=${CURDIR}/tmp/Contains-Check-AWS-Materialized-View-And-Cast-and-Multiple-Function-Query-on-Resource-Costs-Exemplifies-Cast-and-Multiple-Functions-on-Materialized-Views-stderr.tmp  
+
+
+Local Execution Openssl RSA Show Methods
+    ${inputStr} =    Catenate
+    ...    show methods in local_openssl.keys.rsa;
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |-----------------|--------------------------------|---------|
+    ...    |${SPACE}${SPACE}${SPACE}MethodName${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}RequiredParams${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}SQLVerb${SPACE}|
+    ...    |-----------------|--------------------------------|---------|
+    ...    |${SPACE}create_key_pair${SPACE}|${SPACE}cert_out_file,${SPACE}config_file,${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}INSERT${SPACE}${SPACE}|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}key_out_file${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-----------------|--------------------------------|---------|
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    ${EMPTY}
+    ...    stdout=${CURDIR}/tmp/Local-Execution-Openssl-RSA-Show-Methods.tmp
+    ...    stderr=${CURDIR}/tmp/Local-Execution-Openssl-RSA-Show-Methods-stderr.tmp  
+
+Local Execution Openssl Create RSA Key Pair
+    ${inputStr} =    Catenate
+    ...    insert into local_openssl.keys.rsa(config_file, key_out_file, cert_out_file, days) select 'test/server/mtls/openssl.cnf', 'test/tmp/manual_key.pem', 'test/tmp/manuial_cert.pem', 90;
+    Should Stackql Exec Inline Contain Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${EMPTY}
+    ...    OK
+    ...    stdout=${CURDIR}/tmp/Local-Execution-Openssl-Create-RSA-Key-Pair.tmp
+    ...    stderr=${CURDIR}/tmp/Local-Execution-Openssl-Create-RSA-Key-Pair-stderr.tmp  
