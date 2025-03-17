@@ -225,8 +225,7 @@ resources:
             mediaType: application/json
             openAPIDocKey: '200'
       sqlVerbs:
-        select:
-          - $ref: '#/components/x-stackQL-resources/rsa/methods/create_key_pair'
+        select: []
         insert:
           - $ref: '#/components/x-stackQL-resources/rsa/methods/create_key_pair'
         update: []
