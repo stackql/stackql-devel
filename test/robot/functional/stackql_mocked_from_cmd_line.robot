@@ -7600,8 +7600,11 @@ Local Execution Openssl RSA Show Methods
     ...    stderr=${CURDIR}/tmp/Local-Execution-Openssl-RSA-Show-Methods-stderr.tmp  
 
 Local Execution Openssl Create RSA Key Pair
-    ${inputStr} =    Catenate
-    ...    insert into local_openssl.keys.rsa(config_file, key_out_file, cert_out_file, days) select 'test/server/mtls/openssl.cnf', 'test/tmp/manual_key.pem', 'test/tmp/manuial_cert.pem', 90;
+    ${inputStrNative} =    Catenate
+    ...    insert into local_openssl.keys.rsa(config_file, key_out_file, cert_out_file, days) select 'test/server/mtls/openssl.cnf', 'test/tmp/manual_key.pem', 'test/tmp/manual_cert.pem', 90;
+    ${inputStrDocker} =    Catenate
+    ...    insert into local_openssl.keys.rsa(config_file, key_out_file, cert_out_file, days) select '/opt/test/server/mtls/openssl.cnf', '/opt/test/tmp/manual_key.pem', '/opt/test/tmp/manual_cert.pem', 90;
+    ${inputStr} =    Set Variable If    "${EXECUTION_PLATFORM}" == "docker"      ${inputStrDocker}    ${inputStrNative}
     Should Stackql Exec Inline Contain Both Streams
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
