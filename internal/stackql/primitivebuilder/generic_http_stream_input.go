@@ -132,7 +132,7 @@ func (gh *genericHTTPStreamInput) getInterestingMaps(actionPrimitive primitive.I
 	return newMapsAggregatorDTO(paramMap, inputMap), nil
 }
 
-//nolint:funlen,gocognit // TODO: fix this
+//nolint:funlen,gocognit,gocyclo,cyclop // TODO: fix this
 func (gh *genericHTTPStreamInput) Build() error {
 	tbl := gh.tbl
 	handlerCtx := gh.handlerCtx
@@ -213,6 +213,7 @@ func (gh *genericHTTPStreamInput) Build() error {
 		}
 		paramMap := interestingMaps.getParameterMap()
 		params := paramMap[0]
+		//nolint:exhaustive // no big deal
 		switch protocolType {
 		case client.LocalTemplated:
 			inlines := m.GetInline()
@@ -224,11 +225,11 @@ func (gh *genericHTTPStreamInput) Build() error {
 				inlines[1:],
 				nil,
 			)
-			resp, err := executor.Execute(
+			resp, exErr := executor.Execute(
 				map[string]any{"parameters": params},
 			)
-			if err != nil {
-				return internaldto.NewErroneousExecutorOutput(err)
+			if exErr != nil {
+				return internaldto.NewErroneousExecutorOutput(exErr)
 			}
 			var backendMessages []string
 			stdOut, stdOutExists := resp.GetStdOut()
@@ -387,5 +388,4 @@ func (gh *genericHTTPStreamInput) Build() error {
 	gh.root = gh.dependencyNode
 
 	return nil
-
 }
