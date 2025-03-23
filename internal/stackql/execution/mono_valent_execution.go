@@ -1330,7 +1330,7 @@ func (mv *monoValentExecution) GetExecutor() (func(pc primitive.IPrimitiveCtx) i
 						stdoutStr = outputStr
 					}
 				}
-				var res map[string]interface{}
+				var res []map[string]interface{}
 				resErr := json.Unmarshal([]byte(stdoutStr), &res)
 				itemisationResult := itemise(res, resErr, "")
 				insertPrepResult := mv.ActionInsertPreparation(
@@ -1342,7 +1342,9 @@ func (mv *monoValentExecution) GetExecutor() (func(pc primitive.IPrimitiveCtx) i
 						"",
 					),
 				)
-				if insertPrepResult.IsHousekeepingDone() {
+				insertErr, hasErr := insertPrepResult.GetError()
+				if hasErr {
+					return internaldto.NewErroneousExecutorOutput(insertErr)
 				}
 				// fmt.Fprintf(os.Stdout, "%s", stdoutStr)
 			}
