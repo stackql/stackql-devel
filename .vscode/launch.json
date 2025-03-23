@@ -169,6 +169,7 @@
         "begin;  insert into googleadmin.directory.users(data__primaryEmail) values ('somejimbo@grubit.com'); rollback;",
         "show methods in local_openssl.keys.rsa;",
         "insert into  local_openssl.keys.rsa(config_file, key_out_file, cert_out_file, days) select '${workspaceFolder}/test/server/mtls/openssl.cnf', '${workspaceFolder}/test/tmp/manual_key.pem', '${workspaceFolder}/test/tmp/manuial_cert.pem', 90;",
+        "describe local_openssl.keys.x509;",
       ],
       "default": "show providers;"
     },

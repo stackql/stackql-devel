@@ -7618,3 +7618,33 @@ Local Execution Openssl Create RSA Key Pair
     ...    OK
     ...    stdout=${CURDIR}/tmp/Local-Execution-Openssl-Create-RSA-Key-Pair.tmp
     ...    stderr=${CURDIR}/tmp/Local-Execution-Openssl-Create-RSA-Key-Pair-stderr.tmp  
+
+Local Execution Openssl x509 Describe
+    ${inputStr} =    Catenate
+    ...    describe local_openssl.keys.x509;
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |----------------------|--------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}name${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}type${SPACE}${SPACE}|
+    ...    |----------------------|--------|
+    ...    |${SPACE}not_after${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}string${SPACE}|
+    ...    |----------------------|--------|
+    ...    |${SPACE}not_before${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}string${SPACE}|
+    ...    |----------------------|--------|
+    ...    |${SPACE}public_key_algorithm${SPACE}|${SPACE}string${SPACE}|
+    ...    |----------------------|--------|
+    ...    |${SPACE}type${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}string${SPACE}|
+    ...    |----------------------|--------|
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    ${EMPTY}
+    ...    stdout=${CURDIR}/tmp/Local-Execution-Openssl-x509-Describe.tmp
+    ...    stderr=${CURDIR}/tmp/Local-Execution-Openssl-x509-Describe-stderr.tmp  
+

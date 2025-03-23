@@ -227,6 +227,12 @@ resources:
                 {{- $notAfter := getRegexpFirstMatch $root "Not After(?:[ ]*): (.*)" -}}
                 { "type": "x509", "public_key_algorithm": "{{ $pubKeyAlgo }}", "not_before": "{{ $notBefore }}", "not_after": "{{ $notAfter }}"}
               type: 'golang_template_v0.1.0'
+      sqlVerbs:
+        insert: []
+        select:
+          - $ref: '#/components/x-stackQL-resources/x509/methods/describe_certificate'
+        update: []
+        delete: []
 
     rsa:
       id: openssl_local.keys.rsa
