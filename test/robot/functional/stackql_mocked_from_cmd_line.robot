@@ -7648,3 +7648,25 @@ Local Execution Openssl x509 Describe
     ...    stdout=${CURDIR}/tmp/Local-Execution-Openssl-x509-Describe.tmp
     ...    stderr=${CURDIR}/tmp/Local-Execution-Openssl-x509-Describe-stderr.tmp  
 
+Local Execution Openssl x509 Select
+    ${inputStr} =    Catenate
+    ...    select * from local_openssl.keys.x509 where cert_file = 'test/assets/pki/manual_cert.pem';
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |--------------------------|--------------------------|----------------------|------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}not_after${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}not_before${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}public_key_algorithm${SPACE}|${SPACE}type${SPACE}|
+    ...    |--------------------------|--------------------------|----------------------|------|
+    ...    |${SPACE}Jun${SPACE}21${SPACE}09:12:17${SPACE}2025${SPACE}GMT${SPACE}|${SPACE}Mar${SPACE}23${SPACE}09:12:17${SPACE}2025${SPACE}GMT${SPACE}|${SPACE}rsaEncryption${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}x509${SPACE}|
+    ...    |--------------------------|--------------------------|----------------------|------|
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    ${EMPTY}
+    ...    stdout=${CURDIR}/tmp/Local-Execution-Openssl-x509-Select.tmp
+    ...    stderr=${CURDIR}/tmp/Local-Execution-Openssl-x509-Select-stderr.tmp  
