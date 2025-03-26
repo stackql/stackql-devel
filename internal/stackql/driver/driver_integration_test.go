@@ -50,7 +50,7 @@ func TestSimpleSelectGoogleComputeInstanceDriver(t *testing.T) {
 		t.Fatalf("Test failed: %v", err)
 	}
 
-	handlerCtx, err := handler.GetHandlerCtx(testobjects.SimpleSelectGoogleComputeInstance, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
+	handlerCtx, err := handler.NewHandlerCtx(testobjects.SimpleSelectGoogleComputeInstance, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 	handlerCtx.SetOutfile(os.Stdout)
 	handlerCtx.SetOutErrFile(os.Stderr)
 

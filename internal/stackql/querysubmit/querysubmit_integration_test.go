@@ -44,7 +44,7 @@ func TestSimpleSelectGoogleComputeInstanceQuerySubmit(t *testing.T) {
 		t.Fatalf("Test failed: %v", err)
 	}
 
-	handlerCtx, err := handler.GetHandlerCtx(
+	handlerCtx, err := handler.NewHandlerCtx(
 		testobjects.SimpleSelectGoogleComputeInstance,
 		*runtimeCtx,
 		lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)

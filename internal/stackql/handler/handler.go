@@ -474,6 +474,8 @@ func getRegistry(runtimeCtx dto.RuntimeCtx) (anysdk.RegistryAPI, error) {
 }
 
 func (hc *standardHandlerContext) Clone() HandlerContext {
+	hc.sessionCtxMutex.Lock()
+	defer hc.sessionCtxMutex.Unlock()
 	rv := standardHandlerContext{
 		authMapMutex:        hc.authMapMutex,
 		sessionCtxMutex:     hc.sessionCtxMutex,
@@ -507,7 +509,7 @@ func (hc *standardHandlerContext) Clone() HandlerContext {
 	return &rv
 }
 
-func GetHandlerCtx(
+func NewHandlerCtx(
 	cmdString string,
 	runtimeCtx dto.RuntimeCtx,
 	lruCache *lrucache.LRUCache,

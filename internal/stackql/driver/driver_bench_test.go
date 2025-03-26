@@ -47,7 +47,7 @@ func BenchmarkSelectGoogleComputeInstanceDriver(b *testing.B) {
 	stringQuery := `select count(1) as inst_count from google.compute.instances where zone = 'australia-southeast1-b' AND /* */ project = 'testing-project';`
 
 	runtimeCtx.LogLevelStr = "fatal"
-	handlerCtx, err := handler.GetHandlerCtx(stringQuery, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
+	handlerCtx, err := handler.NewHandlerCtx(stringQuery, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 	handlerCtx.SetOutfile(io.Discard)
 	handlerCtx.SetOutErrFile(io.Discard)
 
@@ -97,7 +97,7 @@ func BenchmarkParallelProjectSelectGoogleComputeInstanceDriver(b *testing.B) {
 
 	stringQuery := `select count(1) as inst_count from google.compute.instances where zone = 'australia-southeast1-b' AND /* */ project in ('testing-project', 'testing-project-two');`
 
-	handlerCtx, err := handler.GetHandlerCtx(stringQuery, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
+	handlerCtx, err := handler.NewHandlerCtx(stringQuery, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 	handlerCtx.SetOutfile(io.Discard)
 	handlerCtx.SetOutErrFile(io.Discard)
 
@@ -307,7 +307,7 @@ func BenchmarkHighlyParallelProjectSelectGoogleComputeInstanceDriver(b *testing.
 		  )
 	  ;`
 
-	handlerCtx, err := handler.GetHandlerCtx(stringQuery, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
+	handlerCtx, err := handler.NewHandlerCtx(stringQuery, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 	handlerCtx.SetOutfile(io.Discard)
 	handlerCtx.SetOutErrFile(io.Discard)
 
@@ -517,7 +517,7 @@ func BenchmarkLoosenedHighlyParallelProjectSelectGoogleComputeInstanceDriver(b *
 		  )
 	  ;`
 
-	handlerCtx, err := handler.GetHandlerCtx(stringQuery, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
+	handlerCtx, err := handler.NewHandlerCtx(stringQuery, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 	handlerCtx.SetOutfile(io.Discard)
 	handlerCtx.SetOutErrFile(io.Discard)
 
@@ -727,7 +727,7 @@ func BenchmarkUnlimitedHighlyParallelProjectSelectGoogleComputeInstanceDriver(b 
 		  )
 	  ;`
 
-	handlerCtx, err := handler.GetHandlerCtx(stringQuery, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
+	handlerCtx, err := handler.NewHandlerCtx(stringQuery, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
 	handlerCtx.SetOutfile(io.Discard)
 	handlerCtx.SetOutErrFile(io.Discard)
 

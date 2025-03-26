@@ -126,7 +126,7 @@ var shellCmd = &cobra.Command{
 		inputBundle, err := entryutil.BuildInputBundle(runtimeCtx)
 		iqlerror.PrintErrorAndExitOneIfError(err)
 
-		handlerCtx, handlerrErr := handler.GetHandlerCtx("", runtimeCtx, queryCache, inputBundle)
+		handlerCtx, handlerrErr := handler.NewHandlerCtx("", runtimeCtx, queryCache, inputBundle)
 		if handlerrErr != nil {
 			fmt.Fprintln( //nolint:gosimple // legacy
 				outErrFile,
