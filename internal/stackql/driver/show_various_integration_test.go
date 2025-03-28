@@ -28,6 +28,7 @@ func TestSimpleShowResourcesFiltered(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Test failed: %v", err)
 		}
+		inputBundle.WithStdOut(outFile)
 		showInsertFile, err := util.GetFilePathFromRepositoryRoot(testobjects.SimpleShowResourcesFilteredFile)
 		if err != nil {
 			t.Fatalf("TestSimpleShowResourcesFiltered failed: %v", err)
@@ -42,14 +43,9 @@ func TestSimpleShowResourcesFiltered(t *testing.T) {
 		}
 
 		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, rdr, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle, true)
-		handlerCtx.SetOutfile(os.Stdout)
-		handlerCtx.SetOutErrFile(os.Stderr)
 		if err != nil {
 			t.Fatalf("Test failed: %v", err)
 		}
-
-		handlerCtx.SetOutfile(outFile)
-		handlerCtx.SetOutErrFile(os.Stderr)
 
 		dr, _ := NewStackQLDriver(handlerCtx)
 		dr.ProcessQuery(handlerCtx.GetRawQuery())
@@ -69,6 +65,7 @@ func TestSimpleShowBQDatasets(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Test failed: %v", err)
 		}
+		inputBundle.WithStdOut(outFile)
 		showInsertFile, err := util.GetFilePathFromRepositoryRoot(testobjects.SimpleShowmethodsGoogleBQDatasetsFile)
 		if err != nil {
 			t.Fatalf("TestSimpleShowResourcesFiltered failed: %v", err)
@@ -83,14 +80,9 @@ func TestSimpleShowBQDatasets(t *testing.T) {
 		}
 
 		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, rdr, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle, true)
-		handlerCtx.SetOutfile(os.Stdout)
-		handlerCtx.SetOutErrFile(os.Stderr)
 		if err != nil {
 			t.Fatalf("Test failed: %v", err)
 		}
-
-		handlerCtx.SetOutfile(outFile)
-		handlerCtx.SetOutErrFile(os.Stderr)
 
 		dr, _ := NewStackQLDriver(handlerCtx)
 		dr.ProcessQuery(handlerCtx.GetRawQuery())
@@ -110,6 +102,7 @@ func TestSimpleShowGoogleStorageBuckets(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Test failed: %v", err)
 		}
+		inputBundle.WithStdOut(outFile)
 		showInsertFile, err := util.GetFilePathFromRepositoryRoot(testobjects.SimpleShowmethodsGoogleStorageBucketsFile)
 		if err != nil {
 			t.Fatalf("TestSimpleShowResourcesFiltered failed: %v", err)
@@ -124,14 +117,9 @@ func TestSimpleShowGoogleStorageBuckets(t *testing.T) {
 		}
 
 		handlerCtx, err := entryutil.BuildHandlerContext(*runtimeCtx, rdr, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle, true)
-		handlerCtx.SetOutfile(os.Stdout)
-		handlerCtx.SetOutErrFile(os.Stderr)
 		if err != nil {
 			t.Fatalf("Test failed: %v", err)
 		}
-
-		handlerCtx.SetOutfile(outFile)
-		handlerCtx.SetOutErrFile(os.Stderr)
 
 		dr, _ := NewStackQLDriver(handlerCtx)
 		dr.ProcessQuery(handlerCtx.GetRawQuery())

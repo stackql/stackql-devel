@@ -91,7 +91,7 @@ var registryCmd = &cobra.Command{
 		iqlerror.PrintErrorAndExitOneIfError(err)
 		iqlerror.PrintErrorAndExitOneIfNil(handlerCtx, "Handler context error")
 		cr := newCommandRunner()
-		cr.RunCommand(handlerCtx, nil, nil)
+		cr.RunCommand(handlerCtx)
 
 	},
 }

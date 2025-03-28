@@ -2,7 +2,6 @@ package driver_test
 
 import (
 	"fmt"
-	"io"
 	"net/url"
 	"testing"
 
@@ -48,8 +47,6 @@ func BenchmarkSelectGoogleComputeInstanceDriver(b *testing.B) {
 
 	runtimeCtx.LogLevelStr = "fatal"
 	handlerCtx, err := handler.NewHandlerCtx(stringQuery, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
-	handlerCtx.SetOutfile(io.Discard)
-	handlerCtx.SetOutErrFile(io.Discard)
 
 	dr, _ := NewStackQLDriver(handlerCtx)
 
@@ -98,8 +95,6 @@ func BenchmarkParallelProjectSelectGoogleComputeInstanceDriver(b *testing.B) {
 	stringQuery := `select count(1) as inst_count from google.compute.instances where zone = 'australia-southeast1-b' AND /* */ project in ('testing-project', 'testing-project-two');`
 
 	handlerCtx, err := handler.NewHandlerCtx(stringQuery, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
-	handlerCtx.SetOutfile(io.Discard)
-	handlerCtx.SetOutErrFile(io.Discard)
 
 	dr, _ := NewStackQLDriver(handlerCtx)
 
@@ -308,8 +303,6 @@ func BenchmarkHighlyParallelProjectSelectGoogleComputeInstanceDriver(b *testing.
 	  ;`
 
 	handlerCtx, err := handler.NewHandlerCtx(stringQuery, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
-	handlerCtx.SetOutfile(io.Discard)
-	handlerCtx.SetOutErrFile(io.Discard)
 
 	dr, _ := NewStackQLDriver(handlerCtx)
 
@@ -518,8 +511,6 @@ func BenchmarkLoosenedHighlyParallelProjectSelectGoogleComputeInstanceDriver(b *
 	  ;`
 
 	handlerCtx, err := handler.NewHandlerCtx(stringQuery, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
-	handlerCtx.SetOutfile(io.Discard)
-	handlerCtx.SetOutErrFile(io.Discard)
 
 	dr, _ := NewStackQLDriver(handlerCtx)
 
@@ -728,8 +719,6 @@ func BenchmarkUnlimitedHighlyParallelProjectSelectGoogleComputeInstanceDriver(b 
 	  ;`
 
 	handlerCtx, err := handler.NewHandlerCtx(stringQuery, *runtimeCtx, lrucache.NewLRUCache(int64(runtimeCtx.QueryCacheSize)), inputBundle)
-	handlerCtx.SetOutfile(io.Discard)
-	handlerCtx.SetOutErrFile(io.Discard)
 
 	dr, _ := NewStackQLDriver(handlerCtx)
 

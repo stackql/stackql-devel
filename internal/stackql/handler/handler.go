@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"path"
 	"strings"
 	"sync"
@@ -28,6 +29,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
 	"github.com/stackql/stackql/internal/stackql/typing"
+	"github.com/stackql/stackql/internal/stackql/writer"
 	"github.com/stackql/stackql/pkg/txncounter"
 
 	lrucache "github.com/stackql/stackql-parser/go/cache"
@@ -74,8 +76,6 @@ type HandlerContext interface { //nolint:revive // don't mind stuttering this on
 	GetPGInternalRouter() dbmsinternal.Router
 	//
 	SetCurrentProvider(string)
-	SetOutfile(io.Writer)
-	SetOutErrFile(io.Writer)
 	SetQuery(string)
 	SetRawQuery(string)
 	//
@@ -181,9 +181,6 @@ func (hc *standardHandlerContext) SetQuery(q string) {
 func (hc *standardHandlerContext) SetTxnCounterMgr(mgr txncounter.Manager) {
 	hc.txnCounterMgr = mgr
 }
-
-func (hc *standardHandlerContext) SetOutfile(outFile io.Writer)       { hc.outfile = outFile }
-func (hc *standardHandlerContext) SetOutErrFile(outErrFile io.Writer) { hc.outErrFile = outErrFile }
 
 func (hc *standardHandlerContext) GetRawQuery() string                         { return hc.rawQuery }
 func (hc *standardHandlerContext) GetQuery() string                            { return hc.query }
@@ -509,6 +506,17 @@ func (hc *standardHandlerContext) Clone() HandlerContext {
 	return &rv
 }
 
+func getOutputFile(filename string) (*os.File, error) {
+	switch filename {
+	case "stdout":
+		return os.Stdout, nil
+	case "stderr":
+		return os.Stderr, nil
+	default:
+		return os.Create(filename)
+	}
+}
+
 func NewHandlerCtx(
 	cmdString string,
 	runtimeCtx dto.RuntimeCtx,
@@ -522,6 +530,26 @@ func NewHandlerCtx(
 	providers := make(map[string]provider.IProvider)
 	controlAttributes := inputBundle.GetControlAttributes()
 	sqlEngine := inputBundle.GetSQLEngine()
+	outWriter, isOutwriter := inputBundle.GetStdOut()
+	outErrWriter, isOutErrWriter := inputBundle.GetStdErr()
+	var fileErr error
+	if !isOutwriter {
+		outFilePath := runtimeCtx.OutfilePath
+		if outFilePath == "" {
+			outFilePath = "stdout"
+		}
+		outWriter, fileErr = getOutputFile(outFilePath)
+		if fileErr != nil {
+			return nil, fileErr
+		}
+	}
+	if !isOutErrWriter {
+		outErrPath := writer.StdErrStr
+		outErrWriter, fileErr = getOutputFile(outErrPath)
+		if fileErr != nil {
+			return nil, fileErr
+		}
+	}
 	rv := standardHandlerContext{
 		authMapMutex:        &sync.Mutex{},
 		sessionCtxMutex:     &sync.Mutex{},
@@ -548,6 +576,8 @@ func NewHandlerCtx(
 		typCfg:              inputBundle.GetTypingConfig(),
 		sessionContext:      inputBundle.GetSessionContext(),
 		exportNamespace:     runtimeCtx.ExportAlias,
+		outfile:             outWriter,
+		outErrFile:          outErrWriter,
 	}
 	drmCfg, err := drm.GetDRMConfig(inputBundle.GetSQLSystem(),
 		inputBundle.GetTypingConfig(),
