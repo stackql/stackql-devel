@@ -38,7 +38,7 @@ func BenchmarkSelectGoogleComputeInstanceDriver(b *testing.B) {
 	testhttpapi.StartServer(b, exp)
 	provider.DummyAuth = true
 
-	inputBundle, err := stackqltestutil.BuildInputBundle(*runtimeCtx)
+	inputBundle, err := stackqltestutil.BuildBenchInputBundle(*runtimeCtx)
 	if err != nil {
 		b.Fatalf("Test failed: %v", err)
 	}
@@ -87,7 +87,7 @@ func BenchmarkParallelProjectSelectGoogleComputeInstanceDriver(b *testing.B) {
 	testhttpapi.StartServer(b, exp)
 	provider.DummyAuth = true
 
-	inputBundle, err := stackqltestutil.BuildInputBundle(*runtimeCtx)
+	inputBundle, err := stackqltestutil.BuildBenchInputBundle(*runtimeCtx)
 	if err != nil {
 		b.Fatalf("Test failed: %v", err)
 	}
@@ -267,7 +267,7 @@ func BenchmarkHighlyParallelProjectSelectGoogleComputeInstanceDriver(b *testing.
 
 	// runtimeCtx.ExecutionConcurrencyLimit = -1
 
-	inputBundle, err := stackqltestutil.BuildInputBundle(*runtimeCtx)
+	inputBundle, err := stackqltestutil.BuildBenchInputBundle(*runtimeCtx)
 	if err != nil {
 		b.Fatalf("Test failed: %v", err)
 	}
@@ -475,7 +475,7 @@ func BenchmarkLoosenedHighlyParallelProjectSelectGoogleComputeInstanceDriver(b *
 
 	runtimeCtx.ExecutionConcurrencyLimit = 30
 
-	inputBundle, err := stackqltestutil.BuildInputBundle(*runtimeCtx)
+	inputBundle, err := stackqltestutil.BuildBenchInputBundle(*runtimeCtx)
 	if err != nil {
 		b.Fatalf("Test failed: %v", err)
 	}
@@ -683,7 +683,7 @@ func BenchmarkUnlimitedHighlyParallelProjectSelectGoogleComputeInstanceDriver(b 
 
 	runtimeCtx.ExecutionConcurrencyLimit = -1
 
-	inputBundle, err := stackqltestutil.BuildInputBundle(*runtimeCtx)
+	inputBundle, err := stackqltestutil.BuildBenchInputBundle(*runtimeCtx)
 	if err != nil {
 		b.Fatalf("Test failed: %v", err)
 	}
