@@ -203,6 +203,8 @@ func (hc *standardHandlerContext) GetRegistry() anysdk.RegistryAPI { return hc.r
 func (hc *standardHandlerContext) GetErrorPresentation() string    { return hc.errorPresentation }
 func (hc *standardHandlerContext) GetOutfile() io.Writer           { return hc.outfile }
 func (hc *standardHandlerContext) GetOutErrFile() io.Writer {
+	defer hc.sessionCtxMutex.Unlock()
+	hc.sessionCtxMutex.Lock()
 	return hc.outErrFile
 }
 func (hc *standardHandlerContext) SetOutErrFile(w io.Writer) {
