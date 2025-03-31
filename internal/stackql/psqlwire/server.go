@@ -38,7 +38,7 @@ func MakeWireServer(sbe sqlbackend.SQLBackendFactory, cfg dto.RuntimeCtx) (IWire
 	var err error
 	pgSrvMiscConfig := make(map[string]interface{})
 	if cfg.PGSrvRawSrvCfg != "" {
-		var err = yaml.Unmarshal([]byte(cfg.PGSrvRawSrvCfg), &pgSrvMiscConfig)
+		err = yaml.Unmarshal([]byte(cfg.PGSrvRawSrvCfg), &pgSrvMiscConfig)
 		if err != nil {
 			return nil, err
 		}
