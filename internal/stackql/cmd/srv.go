@@ -45,7 +45,7 @@ var srvCmd = &cobra.Command{
 		iqlerror.PrintErrorAndExitOneIfError(err)
 		handlerCtx, err := entryutil.BuildHandlerContext(runtimeCtx, nil, queryCache, inputBundle, false)
 		iqlerror.PrintErrorAndExitOneIfError(err)
-		sbe := driver.NewStackQLDriverFactory(handlerCtx, true)
+		sbe := driver.NewStackQLDriverFactory(handlerCtx, runtimeCtx.PGSrvIsDebugNoticesEnabled)
 		server, err := psqlwire.MakeWireServer(sbe, runtimeCtx)
 		iqlerror.PrintErrorAndExitOneIfError(err)
 		server.Serve() //nolint:errcheck // TODO: investigate
