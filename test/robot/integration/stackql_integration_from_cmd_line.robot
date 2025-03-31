@@ -82,7 +82,6 @@ Start StackQL PG Server unencrypted
                     ...  \-\-tls\.allowInsecure\=true
                     ...  \-\-pgsrv\.address\=0.0.0.0 
                     ...  \-\-pgsrv\.port\=${_SRV_PORT_UNENCRYPTED}
-                    ...  \-\-pgsrv\.debug\.enable\=true
     Sleep    15s
     [Return]    ${process}
 
