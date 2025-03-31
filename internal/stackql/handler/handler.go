@@ -79,6 +79,8 @@ type HandlerContext interface { //nolint:revive // don't mind stuttering this on
 	SetQuery(string)
 	SetRawQuery(string)
 	//
+	SetOutErrFile(io.Writer)
+	//
 	GetTxnCoordinatorCtx() txn_context.ITransactionCoordinatorContext
 
 	GetTypingConfig() typing.Config
@@ -197,10 +199,17 @@ func (hc *standardHandlerContext) GetAuthContexts() dto.AuthContexts {
 	return hc.authContexts
 }
 
-func (hc *standardHandlerContext) GetRegistry() anysdk.RegistryAPI    { return hc.registry }
-func (hc *standardHandlerContext) GetErrorPresentation() string       { return hc.errorPresentation }
-func (hc *standardHandlerContext) GetOutfile() io.Writer              { return hc.outfile }
-func (hc *standardHandlerContext) GetOutErrFile() io.Writer           { return hc.outErrFile }
+func (hc *standardHandlerContext) GetRegistry() anysdk.RegistryAPI { return hc.registry }
+func (hc *standardHandlerContext) GetErrorPresentation() string    { return hc.errorPresentation }
+func (hc *standardHandlerContext) GetOutfile() io.Writer           { return hc.outfile }
+func (hc *standardHandlerContext) GetOutErrFile() io.Writer {
+	return hc.outErrFile
+}
+func (hc *standardHandlerContext) SetOutErrFile(w io.Writer) {
+	defer hc.sessionCtxMutex.Unlock()
+	hc.sessionCtxMutex.Lock()
+	hc.outErrFile = w
+}
 func (hc *standardHandlerContext) GetLRUCache() *lrucache.LRUCache    { return hc.lRUCache }
 func (hc *standardHandlerContext) GetSQLEngine() sqlengine.SQLEngine  { return hc.sqlEngine }
 func (hc *standardHandlerContext) GetSQLSystem() sql_system.SQLSystem { return hc.sqlSystem }
