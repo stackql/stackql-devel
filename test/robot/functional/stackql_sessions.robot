@@ -426,6 +426,8 @@ PG Session Debug Behaviour Canonical
     ...    ${shellExe}     \-c    ${input}
     ...    stdout=${CURDIR}/tmp/PG-Session-Debug-Behaviour-Canonical.tmp
     ...    stderr=${CURDIR}/tmp/PG-Session-Debug-Behaviour-Canonical-stderr.tmp
+    Log    STDOUT = "${result.stdout}"
+    Log    STDERR = "${result.stderr}"
     Should Contain    ${result.stdout}    ${outputStr}    collapse_spaces=True
     Should Contain    ${result.stderr}    ${outputErrStr}    collapse_spaces=True
     [Teardown]  Run Keywords    Remove Environment Variable     PGHOST
@@ -460,6 +462,8 @@ PG Session Debug Off Behaviour Canonical
     ...    ${shellExe}     \-c    ${input}
     ...    stdout=${CURDIR}/tmp/PG-Session-Debug-Off-Behaviour-Canonical.tmp
     ...    stderr=${CURDIR}/tmp/PG-Session-Debug-Off-Behaviour-Canonical-stderr.tmp
+    Log    STDOUT = "${result.stdout}"
+    Log    STDERR = "${result.stderr}"
     Should Contain     ${result.stdout}    ${outputStr}   collapse_spaces=True
     Should Be Empty    ${result.stderr}
     [Teardown]  Run Keywords    Remove Environment Variable     PGHOST
