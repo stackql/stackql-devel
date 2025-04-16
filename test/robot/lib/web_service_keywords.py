@@ -44,9 +44,12 @@ class web_service_keywords(Process):
         log_root: Optional[str] = None,
         app_root: Optional[str] = None,
         tls_key_path: Optional[str] = None,
-        tls_cert_path: Optional[str] = None
+        tls_cert_path: Optional[str] = None,
+        cwd: Optional[str] = None,
     ):
         _app_root: str = app_root if app_root else self._DEFAULT_APP_ROOT
+
+        self._cwd = os.path.abspath(cwd) if cwd else None
 
         self._log_root: str = log_root if log_root else self._DEFAULT_LOG_ROOT
 
@@ -87,7 +90,8 @@ class web_service_keywords(Process):
             f'--cert={self._tls_cert_path}',
             f'--key={self._tls_key_path}',
             stdout=os.path.abspath(os.path.join(self._log_root, f'token-client-credentials-{port}-stdout.txt')),
-            stderr=os.path.abspath(os.path.join(self._log_root, f'token-client-credentials-{port}-stderr.txt'))
+            stderr=os.path.abspath(os.path.join(self._log_root, f'token-client-credentials-{port}-stderr.txt')),
+            cwd=self._cwd,
         )
     
     @keyword
@@ -108,7 +112,8 @@ class web_service_keywords(Process):
             f'--cert={self._tls_cert_path}',
             f'--key={self._tls_key_path}',
             stdout=os.path.abspath(os.path.join(self._log_root, f'github-server-{port}-stdout.txt')),
-            stderr=os.path.abspath(os.path.join(self._log_root, f'github-server-{port}-stderr.txt'))
+            stderr=os.path.abspath(os.path.join(self._log_root, f'github-server-{port}-stderr.txt')),
+            cwd=self._cwd,
         )
     
     @keyword
@@ -129,7 +134,8 @@ class web_service_keywords(Process):
             f'--cert={self._tls_cert_path}',
             f'--key={self._tls_key_path}',
             stdout=os.path.abspath(os.path.join(self._log_root, f'gcp-server-{port}-stdout.txt')),
-            stderr=os.path.abspath(os.path.join(self._log_root, f'gcp-server-{port}-stderr.txt'))
+            stderr=os.path.abspath(os.path.join(self._log_root, f'gcp-server-{port}-stderr.txt')),
+            cwd=self._cwd,
         )
     
     @keyword
@@ -150,7 +156,8 @@ class web_service_keywords(Process):
             f'--cert={self._tls_cert_path}',
             f'--key={self._tls_key_path}',
             stdout=os.path.abspath(os.path.join(self._log_root, f'okta-server-{port}-stdout.txt')),
-            stderr=os.path.abspath(os.path.join(self._log_root, f'okta-server-{port}-stderr.txt'))
+            stderr=os.path.abspath(os.path.join(self._log_root, f'okta-server-{port}-stderr.txt')),
+            cwd=self._cwd,
         )
     
     @keyword
@@ -171,7 +178,8 @@ class web_service_keywords(Process):
             f'--cert={self._tls_cert_path}',
             f'--key={self._tls_key_path}',
             stdout=os.path.abspath(os.path.join(self._log_root, f'aws-server-{port}-stdout.txt')),
-            stderr=os.path.abspath(os.path.join(self._log_root, f'aws-server-{port}-stderr.txt'))
+            stderr=os.path.abspath(os.path.join(self._log_root, f'aws-server-{port}-stderr.txt')),
+            cwd=self._cwd,
         )
     
     @keyword
@@ -192,7 +200,8 @@ class web_service_keywords(Process):
             f'--cert={self._tls_cert_path}',
             f'--key={self._tls_key_path}',
             stdout=os.path.abspath(os.path.join(self._log_root, f'static-auth-server-{port}-stdout.txt')),
-            stderr=os.path.abspath(os.path.join(self._log_root, f'static-auth-server-{port}-stderr.txt'))
+            stderr=os.path.abspath(os.path.join(self._log_root, f'static-auth-server-{port}-stderr.txt')),
+            cwd=self._cwd,
         )
     
     @keyword
@@ -213,7 +222,8 @@ class web_service_keywords(Process):
             f'--cert={self._tls_cert_path}',
             f'--key={self._tls_key_path}',
             stdout=os.path.abspath(os.path.join(self._log_root, f'google-admin-server-{port}-stdout.txt')),
-            stderr=os.path.abspath(os.path.join(self._log_root, f'google-admin-server-{port}-stderr.txt'))
+            stderr=os.path.abspath(os.path.join(self._log_root, f'google-admin-server-{port}-stderr.txt')),
+            cwd=self._cwd,
         )
     
     @keyword
@@ -234,7 +244,8 @@ class web_service_keywords(Process):
             f'--cert={self._tls_cert_path}',
             f'--key={self._tls_key_path}',
             stdout=os.path.abspath(os.path.join(self._log_root, f'k8s-server-{port}-stdout.txt')),
-            stderr=os.path.abspath(os.path.join(self._log_root, f'k8s-server-{port}-stderr.txt'))
+            stderr=os.path.abspath(os.path.join(self._log_root, f'k8s-server-{port}-stderr.txt')),
+            cwd=self._cwd,
         )
     
     @keyword
@@ -255,7 +266,8 @@ class web_service_keywords(Process):
             # f'--cert={self._tls_cert_path}',
             # f'--key={self._tls_key_path}',
             stdout=os.path.abspath(os.path.join(self._log_root, f'registry-server-{port}-stdout.txt')),
-            stderr=os.path.abspath(os.path.join(self._log_root, f'registry-server-{port}-stderr.txt'))
+            stderr=os.path.abspath(os.path.join(self._log_root, f'registry-server-{port}-stderr.txt')),
+            cwd=self._cwd,
         )
     
     @keyword
@@ -276,7 +288,8 @@ class web_service_keywords(Process):
             f'--cert={self._tls_cert_path}',
             f'--key={self._tls_key_path}',
             stdout=os.path.abspath(os.path.join(self._log_root, f'azure-server-{port}-stdout.txt')),
-            stderr=os.path.abspath(os.path.join(self._log_root, f'azure-server-{port}-stderr.txt'))
+            stderr=os.path.abspath(os.path.join(self._log_root, f'azure-server-{port}-stderr.txt')),
+            cwd=self._cwd,
         )
     
     @keyword
@@ -297,7 +310,8 @@ class web_service_keywords(Process):
             f'--cert={self._tls_cert_path}',
             f'--key={self._tls_key_path}',
             stdout=os.path.abspath(os.path.join(self._log_root, f'sumologic-server-{port}-stdout.txt')),
-            stderr=os.path.abspath(os.path.join(self._log_root, f'sumologic-server-{port}-stderr.txt'))
+            stderr=os.path.abspath(os.path.join(self._log_root, f'sumologic-server-{port}-stderr.txt')),
+            cwd=self._cwd,
         )
     
     @keyword
@@ -318,7 +332,8 @@ class web_service_keywords(Process):
             f'--cert={self._tls_cert_path}',
             f'--key={self._tls_key_path}',
             stdout=os.path.abspath(os.path.join(self._log_root, f'digitalocean-server-{port}-stdout.txt')),
-            stderr=os.path.abspath(os.path.join(self._log_root, f'digitalocean-server-{port}-stderr.txt'))
+            stderr=os.path.abspath(os.path.join(self._log_root, f'digitalocean-server-{port}-stderr.txt')),
+            cwd=self._cwd,
         )
     
     @keyword

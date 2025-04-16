@@ -8,6 +8,7 @@ ${SHOULD_RUN_DOCKER_EXTERNAL_TESTS}    false   # to be overridden from command l
 ${CONCURRENCY_LIMIT}                   1       # to be overridden from command line, with integer value, -1 for no limit
 ${USE_STACKQL_PREINSTALLED}            false   # to be overridden from command line, with string "true"
 ${SUNDRY_CONFIG}                       {}  # to be overridden from command line, with string value
+${CWD_FOR_EXEC}                        ${REPOSITORY_ROOT}  # works for self repository, can be overwritten when shared
 
 *** Settings ***
 Library           Process
@@ -19,7 +20,7 @@ Library           OperatingSystem
 Library           String
 Library           ${LOCAL_LIB_HOME}/StackQLInterfaces.py    ${EXECUTION_PLATFORM}    ${SQL_BACKEND}    ${CONCURRENCY_LIMIT}
 Library           ${LOCAL_LIB_HOME}/CloudIntegration.py
-Library           ${LOCAL_LIB_HOME}/web_service_keywords.py
+Library           ${LOCAL_LIB_HOME}/web_service_keywords.py    cwd=${CWD_FOR_EXEC}
 
 *** Keywords ***
 
