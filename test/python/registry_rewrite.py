@@ -250,5 +250,4 @@ def rewrite_registry():
       rewrite_provider(prov_args)
 
 if __name__ == '__main__':
-    rewrite_registry
-    ()
+    rewrite_registry()
