@@ -98,13 +98,13 @@ DB_INTERNAL_CFG_LAX :str = "{ \"tableRegex\": \"(?i)^(?:public\\\\.)?(?:pg_.*|cu
 
 _TEST_APP_CACHE_ROOT = os.path.abspath(os.path.join(REPOSITORY_ROOT, "test", ".stackql"))
 
-ROBOT_TEST_ROOT = os.path.abspath(os.path.join(__file__, '..'))
+ROBOT_TEST_ROOT = os.path.abspath(os.path.join(REPOSITORY_ROOT, 'test', 'robot'))
 
 ROBOT_PROD_REG_DIR = os.path.abspath(os.path.join(ROBOT_TEST_ROOT, 'registry', 'prod'))
 ROBOT_DEV_REG_DIR = os.path.abspath(os.path.join(ROBOT_TEST_ROOT, 'registry', 'dev'))
 ROBOT_MOCKED_REG_DIR = os.path.abspath(os.path.join(ROBOT_TEST_ROOT, 'registry', 'mocked'))
 
-ROBOT_INTEGRATION_TEST_ROOT = os.path.abspath(os.path.join(__file__, '..', 'integration'))
+ROBOT_INTEGRATION_TEST_ROOT = os.path.abspath(os.path.join(REPOSITORY_ROOT, 'test', 'robot', 'integration'))
 
 _NAMESPACES_TTL_SIMPLE = '{ "analytics": { "ttl": 86400, "regex": "^(?:stackql_analytics_)?(?P<objectName>.*)$", "template": "stackql_analytics_{{ .objectName }}" } }'
 _NAMESPACES_TTL_TRANSPARENT = '{ "analytics": { "ttl": 86400, "regex": "^(?P<objectName>.*)$", "template": "stackql_analytics_{{ .objectName }}" } }'

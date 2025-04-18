@@ -192,7 +192,7 @@ def _parse_args() -> argparse.Namespace:
     # parser.add_argument('--header', type=str, help='The header.')
     return parser.parse_args()
 
-def main():
+def generate_lb_config():
     args = _parse_args()
     host_gen = _HostsGenerator()
     all_hosts = [lb for lb in host_gen.generate_all_load_balancers()]
@@ -208,4 +208,4 @@ def main():
         return
 
 if __name__ == '__main__':
-    main()
+    generate_lb_config()

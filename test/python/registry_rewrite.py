@@ -10,11 +10,10 @@ import shutil
 import yaml
 
 CURDIR :str = os.path.dirname(os.path.realpath(__file__))
-TEST_ROOT_DIR :str = os.path.abspath(os.path.join(CURDIR, '..'))
-REPOSITORY_ROOT_DIR :str = os.path.abspath(os.path.join(CURDIR, '../..'))
+_TEST_ROOT_DIR :str = os.path.abspath(os.path.join(CURDIR, '..'))
 
-DEFAULT_SRC_DIR = os.path.join(TEST_ROOT_DIR, 'registry', 'src')
-DEFAULT_DST_DIR = os.path.join(TEST_ROOT_DIR, 'registry-mocked', 'src')
+_DEFAULT_SRC_DIR = os.path.join(_TEST_ROOT_DIR, 'registry', 'src')
+_DEFAULT_DST_DIR = os.path.join(_TEST_ROOT_DIR, 'registry-mocked', 'src')
 DEFAULT_PORT = 1070
 GOOGLE_DEFAULT_PORT = 1080
 GOOGLEADMIN_DEFAULT_PORT = 1098
@@ -34,13 +33,13 @@ parser = argparse.ArgumentParser(description='Process some test config.')
 parser.add_argument(
     '--srcdir', 
     type=str,
-    default=DEFAULT_SRC_DIR,
+    default=_DEFAULT_SRC_DIR,
     help='directory containing executable'
 )
 parser.add_argument(
     '--destdir',
     type=str,
-    default=DEFAULT_DST_DIR,
+    default=_DEFAULT_DST_DIR,
     help='directory containing config and cache'
 )
 parser.add_argument(
@@ -235,7 +234,7 @@ class ProviderCfgMapping:
     return self._provider_lookup.get(provider_name, self._provider_lookup.get("__default__")).get("port", DEFAULT_PORT)
 
 
-if __name__ == '__main__':
+def rewrite_registry():
     args = parser.parse_args()
     ppm = ProviderCfgMapping(args)
     provider_dirs = [f for f in os.scandir(args.srcdir) if f.is_dir()]
@@ -249,3 +248,7 @@ if __name__ == '__main__':
       ) 
       print(f'{prov_args.srcdir}, {prov_args.destdir}, {prov_args.port}')
       rewrite_provider(prov_args)
+
+if __name__ == '__main__':
+    rewrite_registry
+    ()

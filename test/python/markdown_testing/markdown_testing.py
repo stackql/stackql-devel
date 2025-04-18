@@ -21,7 +21,7 @@ Intentions:
 """
 
 
-def parse_args() -> argparse.Namespace:
+def _parse_args() -> argparse.Namespace:
     """
     Parse the arguments.
     """
@@ -471,7 +471,7 @@ def _collate_results(results: List[WalkthroughResult]) -> bool:
     print(tabulate([[result.name, result.rc, result.passes_stdout_check, result.passes_stderr_check] for result in results], headers=['Test Name', 'Return Code', 'Passes Stdout Checks', 'Passes Stderr Checks']))
     return failed == 0
 
-def run_tests(root_dir: str) -> List[WalkthroughResult]:
+def _run_tests(root_dir: str) -> List[WalkthroughResult]:
     """
     Run all tests.
     A decent entry point for a test harness.
@@ -486,17 +486,17 @@ def run_tests(root_dir: str) -> List[WalkthroughResult]:
 
 
 def _process_tests(root_dir: str) -> List[WalkthroughResult]:
-    results: List[WalkthroughResult] = run_tests(root_dir)
+    results: List[WalkthroughResult] = _run_tests(root_dir)
     if _collate_results(results):
         print('All tests passed.')
         sys.exit(0)
     print('Some tests failed.')
     sys.exit(1)
 
-def _main() -> None:
-    args :argparse.Namespace = parse_args()
+def md_testing() -> None:
+    args :argparse.Namespace = _parse_args()
     _process_tests(args.test_root)
 
 
 if __name__ == '__main__':
-    _main()
+    md_testing()

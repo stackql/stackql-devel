@@ -29,7 +29,7 @@ on:
 
 env:
   GOTESTCMD: "go test -timeout 1200s --tags \"sqlite_stackql\" -v ./..."
-  TESTSCRIPT: "test/python/main.py"
+  TESTSCRIPT: "test/deprecated/python/main.py"
   GOPRIVATE: github.com/stackql/*
   GH_ACCESS_TOKEN: ${{ secrets.ACTIONS_PRIVATE_PACKAGE_SECRET }}
   PLANCACHEENABLED: "false"
@@ -119,7 +119,7 @@ jobs:
     
     - name: Generate rewritten registry for simulations
       run: |
-        python3 test\python\registry-rewrite.py
+        python3 test\python\registry_rewrite.py
 
     - name: Get dependencies
       run: |
@@ -196,7 +196,7 @@ jobs:
 
     - name: Test Script
       if: success()
-      run: python.exe test/python/main.py
+      run: python.exe test/deprecated/python/main.py
 
     - name: Upload Artifact
       # uses: actions/upload-artifact@v3
@@ -256,7 +256,7 @@ jobs:
     
     - name: Generate rewritten registry for simulations
       run: |
-        python3 test/python/registry-rewrite.py
+        python3 test/python/registry_rewrite.py
       
     - name: Get dependencies
       run: |
@@ -523,7 +523,7 @@ jobs:
     - name: Generate rewritten registry for simulations
       if: ${{ matrix.registry  != 'test/registry' }}
       run: |
-        python3 test/python/registry-rewrite.py
+        python3 test/python/registry_rewrite.py
 
     - name: Create certificates for robot tests
       run: |
@@ -653,7 +653,7 @@ jobs:
     
     - name: Generate rewritten registry for simulations
       run: |
-        python3 test/python/registry-rewrite.py
+        python3 test/python/registry_rewrite.py
       
     - name: Get dependencies
       run: |
@@ -937,7 +937,7 @@ jobs:
     
     - shell: wsl-bash {0}
       name: Generate rewritten registry for simulations
-      run: python3 test/python/registry-rewrite.py
+      run: python3 test/python/registry_rewrite.py
 
     - shell: wsl-bash {0}
       name: Create certificates for robot tests
@@ -1037,7 +1037,7 @@ jobs:
     
     - name: Generate rewritten registry for simulations
       run: |
-        python3 test/python/registry-rewrite.py
+        python3 test/python/registry_rewrite.py
 
     - name: Get dependencies
       run: |
@@ -1557,7 +1557,7 @@ jobs:
     - name: Generate rewritten registry for simulations
       if: env.BUILD_IMAGE_REQUIRED == 'true'
       run: |
-        python3 test/python/registry-rewrite.py --replacement-host=host.docker.internal
+        python3 test/python/registry_rewrite.py --replacement-host=host.docker.internal
 
     
     - name: Create certificates for robot tests
