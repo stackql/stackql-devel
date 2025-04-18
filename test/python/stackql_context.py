@@ -7,7 +7,7 @@ import copy
 
 from typing import Optional
 
-from .typed_python_responses import SELECT_AWS_CLOUD_CONTROL_EVENTS_MINIMAL_EXPECTED
+from typed_python_responses import SELECT_AWS_CLOUD_CONTROL_EVENTS_MINIMAL_EXPECTED
 
 _exe_name = 'stackql'
 
