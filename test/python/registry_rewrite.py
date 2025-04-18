@@ -9,11 +9,6 @@ import urllib.parse
 import shutil
 import yaml
 
-CURDIR :str = os.path.dirname(os.path.realpath(__file__))
-_TEST_ROOT_DIR :str = os.path.abspath(os.path.join(CURDIR, '..'))
-
-_DEFAULT_SRC_DIR = os.path.join(_TEST_ROOT_DIR, 'registry', 'src')
-_DEFAULT_DST_DIR = os.path.join(_TEST_ROOT_DIR, 'registry-mocked', 'src')
 DEFAULT_PORT = 1070
 GOOGLE_DEFAULT_PORT = 1080
 GOOGLEADMIN_DEFAULT_PORT = 1098
@@ -33,13 +28,13 @@ parser = argparse.ArgumentParser(description='Process some test config.')
 parser.add_argument(
     '--srcdir', 
     type=str,
-    default=_DEFAULT_SRC_DIR,
+    required=True,
     help='directory containing executable'
 )
 parser.add_argument(
     '--destdir',
     type=str,
-    default=_DEFAULT_DST_DIR,
+    required=True,
     help='directory containing config and cache'
 )
 parser.add_argument(

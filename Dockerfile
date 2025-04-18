@@ -101,7 +101,8 @@ ADD cicd ${TEST_ROOT_DIR}/cicd
 COPY --from=certificates /opt/test/stackql ${TEST_ROOT_DIR}/
 
 RUN pip3 install PyYaml \
-    && python3 ${TEST_ROOT_DIR}/test/python/registry_rewrite.py
+    && python3 ${TEST_ROOT_DIR}/test/python/registry_rewrite.py \
+      --srcdir ${TEST_ROOT_DIR}/test/registry/src --destdir ${TEST_ROOT_DIR}/test/registry-mocked/src
 
 FROM utility AS integration
 
