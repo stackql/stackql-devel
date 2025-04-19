@@ -548,8 +548,8 @@ jobs:
         } >> "${GITHUB_ENV}"
         
         if [ "${{ matrix.registry }}" = "test/registry" ]; then
-          python3 test/python/tcp_lb.py --generate-hosts-entries | sudo tee -a /etc/hosts
-          python3 test/python/tcp_lb.py --generate-nginx-lb > test/tcp/reverse-proxy/nginx/dynamic-sni-proxy.conf
+          python3 test/python/stackql_test_tooling/tcp_lb.py --generate-hosts-entries | sudo tee -a /etc/hosts
+          python3 test/python/stackql_test_tooling/tcp_lb.py --generate-nginx-lb > test/tcp/reverse-proxy/nginx/dynamic-sni-proxy.conf
         fi
 
 
