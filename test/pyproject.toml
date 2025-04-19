@@ -3,9 +3,9 @@ name = "stackql-test-tooling"
 version = "0.1.0"
 description = "Some testing tooling for stackql"
 authors = ["General Kroll <generalkroll0@gmail.com>"]
-readme = "robot/lib/README.md"
+readme = "python/README.md"
 packages = [
-    {include = "*.py", from = "robot/lib", to = "stackql_test_tooling"},
+    {include = "*.py", from = "python", to = "stackql_test_tooling"},
     {include = "flask", from = "python", to = "stackql_test_tooling"}
 ]
 

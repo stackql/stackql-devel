@@ -9,9 +9,9 @@ ${CONCURRENCY_LIMIT}                   1       # to be overridden from command l
 ${USE_STACKQL_PREINSTALLED}            false   # to be overridden from command line, with string "true"
 ${SUNDRY_CONFIG}                       {}  # to be overridden from command line, with string value
 ${CWD_FOR_EXEC}                        ${REPOSITORY_ROOT}  # works for self repository, can be overwritten when shared
-${WEB_SERVICE_LIBRARY}                 ${LOCAL_LIB_HOME}/web_service_keywords.py
-${STACKQL_INTERFACE_LIBRARY}           ${LOCAL_LIB_HOME}/StackQLInterfaces.py
-${CLOUD_INTEGRATION_LIBRARY}           ${LOCAL_LIB_HOME}/CloudIntegration.py
+${WEB_SERVICE_LIBRARY}                 web_service_keywords
+${STACKQL_INTERFACE_LIBRARY}           StackQLInterfaces
+${CLOUD_INTEGRATION_LIBRARY}           CloudIntegration
 
 *** Settings ***
 Library           Process

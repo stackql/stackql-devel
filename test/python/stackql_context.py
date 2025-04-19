@@ -7,7 +7,9 @@ import copy
 
 from typing import Optional
 
+## cannot use relative imports due to robot usage pattern
 from typed_python_responses import SELECT_AWS_CLOUD_CONTROL_EVENTS_MINIMAL_EXPECTED
+from registry_cfg import RegistryCfg
 
 _exe_name = 'stackql'
 
@@ -15,8 +17,6 @@ IS_WINDOWS = '0'
 if os.name == 'nt':
   IS_WINDOWS = '1'
   _exe_name = _exe_name + '.exe'
-
-_DOCKER_REG_PATH :str = '/opt/stackql/registry' 
 
 _PG_SCHEMA_PHYSICAL_TABLES = "stackql_raw"
 _PG_SCHEMA_INTEL = "stackql_intel"
@@ -38,57 +38,6 @@ def get_shell_welcome_stdout(env: str) -> str:
 _AZURE_INTEGRATION_TESTING_SUB_ID :str = os.environ.get('AZURE_INTEGRATION_TESTING_SUB_ID', '10001000-1000-1000-1000-100010001000')
 
 _AZURE_VM_SIZES_ENUMERATION :str = f"SELECT * FROM azure.compute.virtual_machine_sizes WHERE location = 'Australia East' AND subscriptionId = '{_AZURE_INTEGRATION_TESTING_SUB_ID}';"
-
-_TEST_APP_CACHE_ROOT = os.path.join("test", ".stackql")
-
-class RegistryCfg:
-
-  def __init__(
-    self,
-    local_path :str,
-    remote_url :str = '', 
-    nop_verify :bool = True,
-    src_prefix :str = '',
-    is_null_registry :bool = False,
-  ) -> None:
-    self.local_path :str = local_path
-    self.remote_url :str = remote_url
-    self.nop_verify :bool = nop_verify
-    self.src_prefix :str = src_prefix
-    self.is_null_registry :bool = is_null_registry
-
-  def _get_local_path(self, execution_environment :str) -> str:
-    if self.local_path == '':
-      return ''
-    if execution_environment == "docker":
-      return _DOCKER_REG_PATH
-    return os.path.join(REPOSITORY_ROOT_UNIX, self.local_path)
-  
-  def _get_url(self, execution_environment :str) -> str:
-    if self.remote_url != '':
-      return self.remote_url
-    if execution_environment == "docker":
-      return f'file://{_DOCKER_REG_PATH}'
-    return f'file://{os.path.join(REPOSITORY_ROOT_UNIX, self.local_path)}'
-  
-  def get_config_str(self, execution_environment :str) -> str:
-    if self.is_null_registry:
-      return ''
-    cfg_dict = {
-      "url": self._get_url(execution_environment)
-    }
-    if self._get_local_path(execution_environment) != "":
-      cfg_dict["localDocRoot"] = self._get_local_path(execution_environment)
-    if self.nop_verify:
-      cfg_dict['verifyConfig'] = {
-        'nopVerify': True
-      }
-    if self.src_prefix != '':
-      cfg_dict['srcPrefix'] = self.src_prefix
-    return json.dumps(cfg_dict)
-
-  def get_source_path_for_docker(self) -> str:
-    return self.local_path
       
 
 
@@ -146,11 +95,13 @@ def get_stackql_exe(execution_env :str, is_preinstalled :bool):
 
 def get_registry_mocked(execution_env :str) -> RegistryCfg:
   return RegistryCfg(
+    REPOSITORY_ROOT_UNIX,
     "",
     remote_url=get_registry_mock_url(execution_env),
     nop_verify=True
   )
 _REGISTRY_NULL = RegistryCfg(
+  REPOSITORY_ROOT_UNIX,
   '',
   is_null_registry=True
 )
@@ -158,6 +109,7 @@ _REGISTRY_NULL = RegistryCfg(
 def _get_registry_canonical_no_verify(registry_path: Optional[str] = None) -> RegistryCfg:
   _registry_path = registry_path if registry_path else os.path.join('test', 'registry')
   return RegistryCfg(
+    REPOSITORY_ROOT_UNIX,
     get_unix_path(_registry_path),
     nop_verify=True
   )
@@ -165,29 +117,35 @@ def _get_registry_canonical_no_verify(registry_path: Optional[str] = None) -> Re
 def _get_registry_no_verify(registry_path: Optional[str] = None) -> RegistryCfg:
   _registry_path = registry_path if registry_path else os.path.join('test', 'registry-mocked')
   return RegistryCfg(
+    REPOSITORY_ROOT_UNIX,
     get_unix_path(_registry_path),
     nop_verify=True
   )
 
 _REGISTRY_EXPERIMENTAL_NO_VERIFY = RegistryCfg(
+  REPOSITORY_ROOT_UNIX,
   get_unix_path(os.path.join('test', 'registry-advanced')),
   nop_verify=True
 )
 _REGISTRY_EXPERIMENTAL_DOCKER_NO_VERIFY = RegistryCfg(
+  REPOSITORY_ROOT_UNIX,
   get_unix_path(os.path.join('test', 'registry-advanced-docker')),
   nop_verify=True
 )
 _REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY = RegistryCfg(
+  REPOSITORY_ROOT_UNIX,
   get_unix_path(os.path.join('test', 'registry')),
   src_prefix="registry-verb-matching-src",
   nop_verify=True
 )
 _REGISTRY_SQL_VERB_CONTRIVED_NO_VERIFY_DOCKER = RegistryCfg(
+  REPOSITORY_ROOT_UNIX,
   get_unix_path(os.path.join('test', 'registry')),
   src_prefix="registry-verb-matching-src-docker",
   nop_verify=True
 )
 _REGISTRY_DEPRECATED = RegistryCfg(
+  REPOSITORY_ROOT_UNIX,
   get_unix_path(os.path.join('test', 'registry-deprecated')),
   nop_verify=True
 )

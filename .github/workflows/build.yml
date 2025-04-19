@@ -39,6 +39,37 @@ env:
 
 jobs:
 
+  test_python_package_build:
+    # id: test_python_package_build
+    name: Test Python Package Build
+    runs-on: ubuntu-22.04
+    timeout-minutes: ${{ vars.DEFAULT_JOB_TIMEOUT_MIN == '' && 120 || vars.DEFAULT_JOB_TIMEOUT_MIN }}
+    steps:
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v4.1.1
+
+    - name: Setup Python
+      uses: actions/setup-python@v5.0.0
+      with:
+        cache: pip
+        python-version: '3.11' 
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+    
+    - name: Build package
+      run: |
+        cicd/util/01-build-robot-lib.sh
+        cicd/util/02-install-robot-lib.sh
+    
+    - name: Upload python package artifact
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: python-package-dist-folder
+        path: test/dist
+
+
   winbuild:
     name: Windows Build
     runs-on: windows-latest
@@ -170,6 +201,7 @@ jobs:
       env:
         PSQL_EXE: C:\Program Files\PostgreSQL\13\bin\psql
         SQLITE_EXE: C:\ProgramData\chocolatey\lib\SQLite\tools\sqlite3.exe
+        PYTHONPATH: '${{ env.PYTHONPATH }};${{ github.workspace }}\test\python'
       run: |
         python cicd/python/build.py --robot-test
 
@@ -187,6 +219,7 @@ jobs:
         AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         AZURE_INTEGRATION_TESTING_SUB_ID: ${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        PYTHONPATH: '${{ env.PYTHONPATH }};${{ github.workspace }}\test\python'
       run: | #Ideally there wiuld be forced kill of flaks here but dont know how to do that in windows
         python cicd/python/build.py --robot-test-integration
     
@@ -398,6 +431,7 @@ jobs:
     name: Linux Test
     needs:
       - linuxbuild
+      - test_python_package_build
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -447,6 +481,21 @@ jobs:
       with:
         cache: pip
         python-version: '3.11' 
+    
+    - name: Download python package dist folder
+      uses: actions/download-artifact@v4.1.2
+      with:
+        name: python-package-dist-folder
+        path: test/dist
+
+    - name: Dummy Install python testing package
+      run: |
+        echo "Inspecting python package"
+        for file in test/dist/*.whl; do
+          # pip3 install "$file"
+          ls -al "$file"
+        done
+
     
     - name: Git Ref Parse
       id: git_ref_parse
@@ -532,6 +581,8 @@ jobs:
         openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365 
 
     - name: Run robot mocked functional tests
+      env:
+        PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
       if: success()
       run: |
         if [ "${{ matrix.registry }}" = "test/registry" ]; then
@@ -551,6 +602,8 @@ jobs:
         cat ./test/robot/reports/output.xml
 
     - name: Run robot mocked functional tests with aggressive concurrency
+      env:
+        PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
       if: success() && matrix.registry != 'test/registry'
       run: |
         echo "## Stray flask apps to be killed before robot tests ##"
@@ -570,6 +623,7 @@ jobs:
         AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         AZURE_INTEGRATION_TESTING_SUB_ID: ${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
       run: |
         echo "## Stray flask apps to be killed before robot tests ##"
         pgrep -f flask | xargs kill -9 || true
@@ -588,6 +642,8 @@ jobs:
     
     - name: install and test deb package
       if: matrix.registry != 'test/registry'
+      env:
+        PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
       run: |
         mkdir -p deb_test
         cp stackql_${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}}_amd64.deb deb_test/
@@ -604,6 +660,8 @@ jobs:
     
     - name: Output from mocked deb package functional tests
       if: always() && matrix.registry != 'test/registry'
+      env:
+        PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
       run: |
         cat ./test/robot/reports/output.xml
 
@@ -766,6 +824,8 @@ jobs:
         openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365 
 
     - name: Run robot mocked functional tests
+      env:
+        PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
       if: success()
       run: |
         python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true" } }'
@@ -776,6 +836,8 @@ jobs:
         cat ./test/robot/reports/output.xml
 
     - name: Run robot mocked functional tests with aggressive concurrency
+      env:
+        PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
       if: success()
       run: |
         echo "## Stray flask apps to be killed before robot tests ##"
@@ -795,6 +857,7 @@ jobs:
         AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         AZURE_INTEGRATION_TESTING_SUB_ID: ${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
       run: |
         echo "## Stray flask apps to be killed before robot tests ##"
         pgrep -f flask | xargs kill -9 || true
@@ -862,6 +925,7 @@ jobs:
         pkgName: 'stackql'
         pkgVersion: ${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}}
         pkgArchitecture: 'arm64'
+        PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
       run: |
         mkdir -p deb_test
         DEB_FILE="${pkgName}_${pkgVersion}_${pkgArchitecture}.deb"
@@ -948,6 +1012,8 @@ jobs:
 
     - shell: wsl-bash {0}
       name: Run robot mocked functional tests
+      env:
+        PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
       run: |
           . cicd/version.txt
           export BUILDBRANCH="${{github.ref}}"
@@ -976,6 +1042,7 @@ jobs:
       if: env.AZURE_CLIENT_SECRET != ''
       env:
         AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }} 
+        PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
       run: |
           . cicd/version.txt
           export AZURE_CLIENT_ID='${{ secrets.AZURE_CLIENT_ID }}'
@@ -1096,6 +1163,8 @@ jobs:
         openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365 
 
     - name: Run robot mocked functional tests
+      env:
+        PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
       if: success()
       run: |
         python cicd/python/build.py --robot-test
@@ -1112,6 +1181,7 @@ jobs:
         AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         AZURE_INTEGRATION_TESTING_SUB_ID: ${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
       run: |
         echo "## Stray flask apps to be killed before robot tests ##"
         pgrep -f flask | xargs kill -9 || true
@@ -1571,6 +1641,8 @@ jobs:
         openssl req -x509 -keyout cicd/vol/srv/credentials/pg_rubbish_key.pem -out cicd/vol/srv/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365
 
     - name: Run robot mocked functional tests
+      env:
+        PYTHONPATH: '${{ env.PYTHONPATH }}:/opt/test/python'
       if: success() && env.CI_IS_EXPRESS != 'true' && matrix.platform == 'linux/amd64' && env.BUILD_IMAGE_REQUIRED == 'true' && matrix.db_backend == 'sqlite'
       timeout-minutes: ${{ vars.DEFAULT_STEP_TIMEOUT_MIN == '' && 20 || vars.DEFAULT_STEP_TIMEOUT_MIN }}
       run: |
@@ -1579,6 +1651,8 @@ jobs:
         python cicd/python/build.py --robot-test --config='{ "variables":  { "EXECUTION_PLATFORM": "docker" } }'
 
     - name: Run POSTGRES BACKEND robot mocked functional tests
+      env:
+        PYTHONPATH: '${{ env.PYTHONPATH }}:/opt/test/python'
       if: success() && env.CI_IS_EXPRESS != 'true' && matrix.platform == 'linux/amd64' && env.BUILD_IMAGE_REQUIRED == 'true' && matrix.db_backend == 'postgres_tcp'
       timeout-minutes: ${{ vars.DEFAULT_LONG_STEP_TIMEOUT_MIN == '' && 40 || vars.DEFAULT_LONG_STEP_TIMEOUT_MIN }}
       run: |
@@ -1610,6 +1684,7 @@ jobs:
         AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         AZURE_INTEGRATION_TESTING_SUB_ID: ${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}
         AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        PYTHONPATH: '${{ env.PYTHONPATH }}:/opt/test/python'
       run: |
         sudo rm -rf test/tmp || true
         mkdir -p test/tmp

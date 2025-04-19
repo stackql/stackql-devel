@@ -2,13 +2,11 @@ from robot.api.deco import library, keyword
 
 from robot.libraries.Process import Process
 
-import json
-
 from requests import get, post, Response
 
 import os
 
-from typing import Union, Tuple, List, Optional
+from typing import Optional
 
 @library
 class web_service_keywords(Process):
