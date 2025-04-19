@@ -155,7 +155,7 @@ jobs:
     
     - name: Generate rewritten registry for simulations
       run: |
-        python3 test\python\registry_rewrite.py --srcdir "$pwd\test\registry\src" --destdir "$pwd\test\registry-mocked\src"
+        python3 test\python\stackql_test_tooling\registry_rewrite.py --srcdir "$pwd\test\registry\src" --destdir "$pwd\test\registry-mocked\src"
 
     - name: Get dependencies
       run: |
@@ -294,7 +294,7 @@ jobs:
     
     - name: Generate rewritten registry for simulations
       run: |
-        python3 test/python/registry_rewrite.py --srcdir "$(pwd)/test/registry/src" --destdir "$(pwd)/test/registry-mocked/src"
+        python3 test/python/stackql_test_tooling/registry_rewrite.py --srcdir "$(pwd)/test/registry/src" --destdir "$(pwd)/test/registry-mocked/src"
       
     - name: Get dependencies
       run: |
@@ -577,7 +577,7 @@ jobs:
     - name: Generate rewritten registry for simulations
       if: ${{ matrix.registry  != 'test/registry' }}
       run: |
-        python3 test/python/registry_rewrite.py --srcdir "$(pwd)/test/registry/src" --destdir "$(pwd)/test/registry-mocked/src"
+        python3 test/python/stackql_test_tooling/registry_rewrite.py --srcdir "$(pwd)/test/registry/src" --destdir "$(pwd)/test/registry-mocked/src"
 
     - name: Create certificates for robot tests
       run: |
@@ -716,7 +716,7 @@ jobs:
     
     - name: Generate rewritten registry for simulations
       run: |
-        python3 test/python/registry_rewrite.py --srcdir "$(pwd)/test/registry/src" --destdir "$(pwd)/test/registry-mocked/src"
+        python3 test/python/stackql_test_tooling/registry_rewrite.py --srcdir "$(pwd)/test/registry/src" --destdir "$(pwd)/test/registry-mocked/src"
       
     - name: Get dependencies
       run: |
@@ -1006,7 +1006,7 @@ jobs:
     
     - shell: wsl-bash {0}
       name: Generate rewritten registry for simulations
-      run: python3 test/python/registry_rewrite.py --srcdir "$(pwd)/test/registry/src" --destdir "$(pwd)/test/registry-mocked/src"
+      run: python3 test/python/stackql_test_tooling/registry_rewrite.py --srcdir "$(pwd)/test/registry/src" --destdir "$(pwd)/test/registry-mocked/src"
 
     - shell: wsl-bash {0}
       name: Create certificates for robot tests
@@ -1111,7 +1111,7 @@ jobs:
     
     - name: Generate rewritten registry for simulations
       run: |
-        python3 test/python/registry_rewrite.py --srcdir "$(pwd)/test/registry/src" --destdir "$(pwd)/test/registry-mocked/src"
+        python3 test/python/stackql_test_tooling/registry_rewrite.py --srcdir "$(pwd)/test/registry/src" --destdir "$(pwd)/test/registry-mocked/src"
 
     - name: Get dependencies
       run: |
@@ -1634,7 +1634,7 @@ jobs:
     - name: Generate rewritten registry for simulations
       if: env.BUILD_IMAGE_REQUIRED == 'true'
       run: |
-        python3 test/python/registry_rewrite.py --srcdir "$(pwd)/test/registry/src" --destdir "$(pwd)/test/registry-mocked/src" --replacement-host=host.docker.internal
+        python3 test/python/stackql_test_tooling/registry_rewrite.py --srcdir "$(pwd)/test/registry/src" --destdir "$(pwd)/test/registry-mocked/src" --replacement-host=host.docker.internal
 
     
     - name: Create certificates for robot tests

@@ -186,7 +186,7 @@ Local testing of the application:
 
 1. Run `go test --tags "sqlite_stackql" ./...` tests.
 2. Build the executable [as per the root README](/README.md#build)
-3. Perform registry rewrites as needed for mocking `python3 test/python/registry_rewrite.py --srcdir "$(pwd)/test/registry/src" --destdir "$(pwd)/test/registry-mocked/src"`.
+3. Perform registry rewrites as needed for mocking `python3 test/python/stackql_test_tooling/registry_rewrite.py --srcdir "$(pwd)/test/registry/src" --destdir "$(pwd)/test/registry-mocked/src"`.
 3. Run robot tests:
     - Functional tests, mocked as needed `robot -d test/robot/functional test/robot/functional`.
     - Integration tests `robot -d test/robot/integration test/robot/integration`.  For these, you will need to set various envirnonment variables as per the github actions.
