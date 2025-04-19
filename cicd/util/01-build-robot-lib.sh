@@ -19,9 +19,8 @@ PACKAGE_ROOT="${REPOSITORY_ROOT}/test"
 
 venv_path="${REPOSITORY_ROOT}/.venv"
 
-expectedRobotLibArtifact="$(realpath ${PACKAGE_ROOT}/dist/stackql_test_tooling-0.1.0-py3-none-any.whl)"
 
-rm -f "${expectedRobotLibArtifact}" || true
+rm -f ${PACKAGE_ROOT}/dist/*.whl || true
 
 cd "${PACKAGE_ROOT}"
 
@@ -29,13 +28,17 @@ poetry install
 
 poetry build
 
-if [ ! -f "${expectedRobotLibArtifact}" ]; then
-    >&2 echo "Expected artifact not found: ${expectedRobotLibArtifact}"
+filez="$(ls ${PACKAGE_ROOT}/dist/*.whl)" || true
+
+if [ "${filez}" = "" ]; then
+    >&2 echo "No wheel files found in ${PACKAGE_ROOT}/dist. Please check the build process."
     exit 1
+else
+    echo "Wheel files found in ${PACKAGE_ROOT}/dist: ${filez}"
 fi
 
 
->&2 echo "Artifact built successfully: ${expectedRobotLibArtifact}"
+# >&2 echo "Artifact built successfully: ${expectedRobotLibArtifact}"
 
 
 
