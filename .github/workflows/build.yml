@@ -1015,10 +1015,16 @@ jobs:
           openssl req -x509 -keyout test/server/mtls/credentials/pg_client_key.pem -out test/server/mtls/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
           openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365 
 
+    # - shell: powershell {0}
+    #   name: Git Ref Parse
+    #   id: git_ref_parse
+    #   run: |
+    #       PYTHONPATH="$Env:PYTHONPATH:$(pwd)/test/python"
+
     - shell: wsl-bash {0}
       name: Run robot mocked functional tests
       # env:
-      #   PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
+      #   PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}\test\python'
       run: |
           . cicd/version.txt
           export BUILDBRANCH="${{github.ref}}"
@@ -1033,7 +1039,7 @@ jobs:
             then
             export BUILDPATCHVERSION="${BUILDPATCHVERSION}"
           fi
-          export PYTHONPATH="$PYTHONPATH:$(pwd)/test/python"
+          export PYTHONPATH="$(pwd)/test/python"
           python3 cicd/python/build.py --robot-test --config='{ "variables":  { "IS_WSL": true } }'
 
     - shell: wsl-bash {0}
@@ -1048,7 +1054,7 @@ jobs:
       if: env.AZURE_CLIENT_SECRET != ''
       env:
         AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }} 
-        # PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
+        # PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}\test\python'
       run: |
           . cicd/version.txt
           export AZURE_CLIENT_ID='${{ secrets.AZURE_CLIENT_ID }}'
@@ -1070,7 +1076,7 @@ jobs:
           echo "## Stray flask apps to be killed before robot tests ##"
           pgrep -f flask | xargs kill -9 || true
           echo "## End ##"
-          export PYTHONPATH="$PYTHONPATH:$(pwd)/test/python"
+          export PYTHONPATH="$(pwd)/test/python"
           python3 cicd/python/build.py --robot-test-integration --config='{ "variables":  { "IS_WSL": true } }'
 
   macosbuild:
