@@ -13,7 +13,7 @@ class web_service_keywords(Process):
 
     
 
-    _DEFAULT_APP_ROOT: str = 'test/python/flask'
+    _DEFAULT_APP_ROOT: str = 'test/python/stackql_test_tooling/flask'
 
     _DEFAULT_TLS_KEY_PATH: str = 'test/server/mtls/credentials/pg_server_key.pem'
 

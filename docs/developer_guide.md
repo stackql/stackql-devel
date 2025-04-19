@@ -88,7 +88,7 @@ robot --variable SHOULD_RUN_DOCKER_EXTERNAL_TESTS:true -d test/robot/functional 
 
 ### Manually Testing
 
-Please see [the mock testing doco](/test/python/flask/README.md).
+Please see [the mock testing doco](/test/python/stackql_test_tooling/flask/README.md).
 
 
 ## Debuggers

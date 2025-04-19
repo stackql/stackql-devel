@@ -135,7 +135,7 @@ COPY --from=registrymock /opt/test/stackql ${TEST_ROOT_DIR}/
 
 COPY --from=builder /work/stackql/build/stackql ${TEST_ROOT_DIR}/build/
 
-RUN  if [ "${RUN_INTEGRATION_TESTS}" = "1" ]; then robot ${TEST_ROOT_DIR}/test/robot/functional; fi
+RUN  if [ "${RUN_INTEGRATION_TESTS}" = "1" ]; then env PYTHONPATH="$PYTHONPATH:${TEST_ROOT_DIR}/test/python" robot ${TEST_ROOT_DIR}/test/robot/functional; fi
 
 FROM ubuntu:22.04 AS app
 

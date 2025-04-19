@@ -5,13 +5,13 @@ ${SQL_BACKEND}                  sqlite_embedded   # to be overridden from comman
 ${IS_WSL}                       false   # to be overridden from command line, with string "true"
 ${USE_STACKQL_PREINSTALLED}     false   # to be overridden from command line, with string "true"
 ${SUNDRY_CONFIG}                {}  # to be overridden from command line, with string value
-${STACKQL_INTERFACE_LIBRARY}    StackQLInterfaces
-${CLOUD_INTEGRATION_LIBRARY}    CloudIntegration
+${STACKQL_INTERFACE_LIBRARY}    stackql_test_tooling.StackQLInterfaces
+${CLOUD_INTEGRATION_LIBRARY}    stackql_test_tooling.CloudIntegration
 
 *** Settings ***
 Library           Process
 Library           OperatingSystem 
-Variables         ${LOCAL_LIB_HOME}/stackql_context.py    ${EXECUTION_PLATFORM}    ${SQL_BACKEND}    ${USE_STACKQL_PREINSTALLED}
+Variables         ${LOCAL_LIB_HOME}/stackql_test_tooling/stackql_context.py    ${EXECUTION_PLATFORM}    ${SQL_BACKEND}    ${USE_STACKQL_PREINSTALLED}
 ...               ${SUNDRY_CONFIG}
 Library           Process
 Library           OperatingSystem

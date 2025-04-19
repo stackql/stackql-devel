@@ -12,11 +12,11 @@ from robot.libraries.Collections import Collections
 from robot.libraries.Process import Process
 from robot.libraries.OperatingSystem import OperatingSystem 
 
-from stackql_context import RegistryCfg
-from ShellSession import ShellSession
-from psycopg_client import PsycoPGClient
-from psycopg2_client import PsycoPG2Client
-from sqlalchemy_client import SQLAlchemyClient
+from .registry_cfg import RegistryCfg
+from .ShellSession import ShellSession
+from .psycopg_client import PsycoPGClient
+from .psycopg2_client import PsycoPG2Client
+from .sqlalchemy_client import SQLAlchemyClient
 
 SQL_BACKEND_CANONICAL_SQLITE_EMBEDDED :str = 'sqlite_embedded'
 SQL_BACKEND_POSTGRES_TCP :str = 'postgres_tcp'
