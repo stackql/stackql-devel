@@ -171,6 +171,7 @@
         "insert into  local_openssl.keys.rsa(config_file, key_out_file, cert_out_file, days) select '${workspaceFolder}/test/server/mtls/openssl.cnf', '${workspaceFolder}/test/tmp/manual_key.pem', '${workspaceFolder}/test/tmp/manuial_cert.pem', 90;",
         "describe local_openssl.keys.x509;",
         "select * from local_openssl.keys.x509 where cert_file = '/Users/admin/stackql/stackql-devel/test/tmp/manual_cert.pem';",
+        "select * from aws.ec2.volumes_presented where region = 'ap-southeast-2';",
       ],
       "default": "show providers;"
     },
@@ -180,7 +181,7 @@
       "description": "Registry Configuration",
       "options": [
         "{ \"url\": \"file://${workspaceFolder}/test/registry-sandbox\", \"localDocRoot\": \"${workspaceFolder}/test/registry-sandbox\", \"verifyConfig\": { \"nopVerify\": true } }",
-        "{ \"url\": \"file://${workspaceFolder}/test/registry\", \"localDocRoot\": \"${workspaceFolder}/test/registry\", \"verifyConfig\": { \"nopVerify\": true } }",
+        "{ \"url\": \"file:///Users/admin/stackql/stackql-devel/test/registry\", \"localDocRoot\": \"/Users/admin/stackql/stackql-devel/test/registry\", \"verifyConfig\": { \"nopVerify\": true } }",
         "{ \"url\": \"file://${workspaceFolder}/test/registry-mocked\", \"localDocRoot\": \"${workspaceFolder}/test/registry-mocked\", \"verifyConfig\": { \"nopVerify\": true } }",
         "{ \"url\": \"file://${workspaceFolder}/test/registry-mocked-native\", \"localDocRoot\": \"${workspaceFolder}/test/registry-mocked-native\", \"verifyConfig\": { \"nopVerify\": true } }",
         "{ \"url\": \"file://${workspaceFolder}/test/registry-advanced\", \"localDocRoot\": \"${workspaceFolder}/test/registry-advanced\", \"verifyConfig\": { \"nopVerify\": true } }",

@@ -1155,6 +1155,10 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 		polyHandler.LogHTTPResponseMap(res.GetProcessedBody())
 		logging.GetLogger().Infoln(fmt.Sprintf("monoValentExecution.Execute() response = %v", res))
 
+		if selectItemsKey == "" {
+			selectItemsKey = method.GetSelectItemsKey()
+		}
+
 		itemisationResult := itemise(res.GetProcessedBody(), resErr, selectItemsKey)
 
 		if itemisationResult.IsNilPayload() {
