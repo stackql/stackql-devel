@@ -172,6 +172,7 @@
         "describe local_openssl.keys.x509;",
         "select * from local_openssl.keys.x509 where cert_file = '/Users/admin/stackql/stackql-devel/test/tmp/manual_cert.pem';",
         "select * from aws.ec2.volumes_presented where region = 'ap-southeast-2';",
+        "select BackupId, BackupState from aws.cloudhsm.backups where region = 'rubbish-region' order by BackupId;",
       ],
       "default": "show providers;"
     },
