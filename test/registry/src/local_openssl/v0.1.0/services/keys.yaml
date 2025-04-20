@@ -207,7 +207,7 @@ resources:
                 {{- $pubKeyAlgo := getRegexpFirstMatch $root "Public Key Algorithm: (?<anything>.*)" -}}
                 {{- $notBefore := getRegexpFirstMatch $root "Not Before: (.*)" -}}
                 {{- $notAfter := getRegexpFirstMatch $root "Not After(?:[ ]*): (.*)" -}}
-                { "type": "x509", "public_key_algorithm": "{{ $pubKeyAlgo }}", "not_before": "{{ $notBefore }}", "not_after": "{{ $notAfter }}"}
+                [{ "type": "x509", "public_key_algorithm": "{{ $pubKeyAlgo }}", "not_before": "{{ $notBefore }}", "not_after": "{{ $notAfter }}"}]
               type: 'golang_template_v0.1.0'
       sqlVerbs:
         insert: []
