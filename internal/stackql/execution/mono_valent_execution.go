@@ -1155,6 +1155,10 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 		polyHandler.LogHTTPResponseMap(res.GetProcessedBody())
 		logging.GetLogger().Infoln(fmt.Sprintf("monoValentExecution.Execute() response = %v", res))
 
+		if selectItemsKey == "" {
+			selectItemsKey = method.GetSelectItemsKey()
+		}
+
 		itemisationResult := itemise(res.GetProcessedBody(), resErr, selectItemsKey)
 
 		if itemisationResult.IsNilPayload() {
@@ -1189,12 +1193,12 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 		)
 		housekeepingDone = insertPrepResult.IsHousekeepingDone()
 		insertPrepErr, hasInsertPrepErr := insertPrepResult.GetError()
+		if isSkipResponse && isMutation && httpResponse.StatusCode < 300 {
+			return newHTTPProcessorResponse(
+				nil, reversalStream, false, nil,
+			).WithSuccessMessages([]string{"The operation was despatched successfully"})
+		}
 		if hasInsertPrepErr {
-			if isSkipResponse && isMutation && httpResponse.StatusCode < 300 {
-				return newHTTPProcessorResponse(
-					nil, reversalStream, false, nil,
-				).WithSuccessMessages([]string{"The operation was despatched successfully"})
-			}
 			return newHTTPProcessorResponse(nil, reversalStream, false, insertPrepErr)
 		}
 
