@@ -322,7 +322,7 @@
         "path": "/",
         "headers": {
             "Authorization": [
-                "^.*us-east-*.*SignedHeaders=.*content-type;host;x-amz-date.*$"
+                "^.*eu-south-*.*SignedHeaders=.*content-type;host;x-amz-date.*$"
             ]
         },
         "body_conditions": {
@@ -350,7 +350,7 @@
         "path": "/",
         "headers": {
             "Authorization": [
-                "^.*us-east-*.*SignedHeaders=.*content-type;host;x-amz-date.*$"
+                "^.*eu-south-*.*SignedHeaders=.*content-type;host;x-amz-date.*$"
             ]
         },
         "body_conditions": {
@@ -378,7 +378,7 @@
         "path": "/",
         "headers": {
             "Authorization": [
-                "^.*us-east-*.*SignedHeaders=.*content-type;host;x-amz-date.*$"
+                "^.*eu-south-*.*SignedHeaders=.*content-type;host;x-amz-date.*$"
             ]
         },
         "body_conditions": {
@@ -403,7 +403,7 @@
         "path": "/",
         "headers": {
             "Authorization": [
-                "^.*ap-southeast-*.*SignedHeaders=.*content-type;host;x-amz-date.*$"
+                "^.*SignedHeaders=.*content-type;host;x-amz-date.*$"
             ]
         },
         "body_conditions": {

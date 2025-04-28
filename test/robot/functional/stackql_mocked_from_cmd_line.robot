@@ -7775,23 +7775,23 @@ Describe Transformed XML Response Body
 
 Select Paginated Projection From Transformed XML Response Body
     ${inputStr} =    Catenate
-    ...    select volume_id, create_time, region, size from aws.ec2.volumes_presented where region = 'us-east-2' order by volume_id asc;
+    ...    select volume_id, create_time, region, size from aws.ec2.volumes_presented where region = 'eu-south-2' order by volume_id asc;
     ${outputStr} =    Catenate    SEPARATOR=\n
-    ...    |-----------------------|--------------------------|-----------|------|
-    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}volume_id${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}create_time${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}region${SPACE}${SPACE}${SPACE}|${SPACE}size${SPACE}|
-    ...    |-----------------------|--------------------------|-----------|------|
-    ...    |${SPACE}vol-20100000000000000${SPACE}|${SPACE}2022-05-02T23:09:30.171Z${SPACE}|${SPACE}us-east-2${SPACE}|${SPACE}${SPACE}${SPACE}10${SPACE}|
-    ...    |-----------------------|--------------------------|-----------|------|
-    ...    |${SPACE}vol-20200000000000000${SPACE}|${SPACE}2022-05-11T04:45:40.627Z${SPACE}|${SPACE}us-east-2${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}8${SPACE}|
-    ...    |-----------------------|--------------------------|-----------|------|
-    ...    |${SPACE}vol-20300000000000000${SPACE}|${SPACE}2022-05-02T23:09:30.171Z${SPACE}|${SPACE}us-east-2${SPACE}|${SPACE}${SPACE}${SPACE}10${SPACE}|
-    ...    |-----------------------|--------------------------|-----------|------|
-    ...    |${SPACE}vol-20400000000000000${SPACE}|${SPACE}2022-05-11T04:45:40.627Z${SPACE}|${SPACE}us-east-2${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}8${SPACE}|
-    ...    |-----------------------|--------------------------|-----------|------|
-    ...    |${SPACE}vol-20500000000000000${SPACE}|${SPACE}2022-05-02T23:09:30.171Z${SPACE}|${SPACE}us-east-2${SPACE}|${SPACE}${SPACE}${SPACE}10${SPACE}|
-    ...    |-----------------------|--------------------------|-----------|------|
-    ...    |${SPACE}vol-20600000000000000${SPACE}|${SPACE}2022-05-11T04:45:40.627Z${SPACE}|${SPACE}us-east-2${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}8${SPACE}|
-    ...    |-----------------------|--------------------------|-----------|------|
+    ...    |-----------------------|--------------------------|------------|------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}volume_id${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}create_time${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}region${SPACE}${SPACE}${SPACE}|${SPACE}size${SPACE}|
+    ...    |-----------------------|--------------------------|------------|------|
+    ...    |${SPACE}vol-20100000000000000${SPACE}|${SPACE}2022-05-02T23:09:30.171Z${SPACE}|${SPACE}eu-south-2${SPACE}|${SPACE}${SPACE}${SPACE}10${SPACE}|
+    ...    |-----------------------|--------------------------|------------|------|
+    ...    |${SPACE}vol-20200000000000000${SPACE}|${SPACE}2022-05-11T04:45:40.627Z${SPACE}|${SPACE}eu-south-2${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}8${SPACE}|
+    ...    |-----------------------|--------------------------|------------|------|
+    ...    |${SPACE}vol-20300000000000000${SPACE}|${SPACE}2022-05-02T23:09:30.171Z${SPACE}|${SPACE}eu-south-2${SPACE}|${SPACE}${SPACE}${SPACE}10${SPACE}|
+    ...    |-----------------------|--------------------------|------------|------|
+    ...    |${SPACE}vol-20400000000000000${SPACE}|${SPACE}2022-05-11T04:45:40.627Z${SPACE}|${SPACE}eu-south-2${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}8${SPACE}|
+    ...    |-----------------------|--------------------------|------------|------|
+    ...    |${SPACE}vol-20500000000000000${SPACE}|${SPACE}2022-05-02T23:09:30.171Z${SPACE}|${SPACE}eu-south-2${SPACE}|${SPACE}${SPACE}${SPACE}10${SPACE}|
+    ...    |-----------------------|--------------------------|------------|------|
+    ...    |${SPACE}vol-20600000000000000${SPACE}|${SPACE}2022-05-11T04:45:40.627Z${SPACE}|${SPACE}eu-south-2${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}8${SPACE}|
+    ...    |-----------------------|--------------------------|------------|------|
     Should Stackql Exec Inline Equal Both Streams
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
