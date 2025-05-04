@@ -7973,7 +7973,7 @@ Select Paginated Star From Transformed JSON Response Body
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${inputStr}
     ...    ${outputStr}
-    ...    ${stdErrStr}
+    ...    ${EMPTY}
     ...    stdout=${CURDIR}/tmp/Select-Paginated-Star-From-Transformed-JSON-Response-Body.tmp
     ...    stderr=${CURDIR}/tmp/Select-Paginated-Star-From-Transformed-JSON-Response-Body-stderr.tmp 
 
@@ -8003,6 +8003,6 @@ Select Paginated Projection From Transformed JSON Response Body
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${inputStr}
     ...    ${outputStr}
-    ...    ${stdErrStr}
+    ...    ${EMPTY}
     ...    stdout=${CURDIR}/tmp/Select-Paginated-Projection-From-Transformed-JSON-Response-Body.tmp
     ...    stderr=${CURDIR}/tmp/Select-Paginated-Projection-From-Transformed-JSON-Response-Body-stderr.tmp 
