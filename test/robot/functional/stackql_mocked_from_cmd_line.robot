@@ -8006,3 +8006,134 @@ Select Paginated Projection From Transformed JSON Response Body
     ...    ${EMPTY}
     ...    stdout=${CURDIR}/tmp/Select-Paginated-Projection-From-Transformed-JSON-Response-Body.tmp
     ...    stderr=${CURDIR}/tmp/Select-Paginated-Projection-From-Transformed-JSON-Response-Body-stderr.tmp 
+
+Select Join of Paginated Projection From Transformed JSON and XML Response Bodies
+    ${inputStr} =    Catenate
+    ...    select lhs.name, lhs.location, lhs.provisioning_state, rhs.volume_id, rhs.region 
+    ...    from azure.network.virtual_networks lhs inner join aws.ec2.volumes_presented rhs 
+    ...    on lhs.location = case when rhs.region = 'us-east-1' then 'westus' when rhs.region = 'ap-southeast-1' then 'australiasoutheast' else '__unknown__' end  
+    ...    where lhs.subscriptionId = 'subid' and rhs.region in ('us-east-1', 'ap-southeast-1', 'eu-south-2') 
+    ...    order by name asc, volume_id asc;
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}name${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}location${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}provisioning_state${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}volume_id${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}region${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet1${SPACE}|${SPACE}westus${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00100000000000000${SPACE}|${SPACE}us-east-1${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet1${SPACE}|${SPACE}westus${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00200000000000000${SPACE}|${SPACE}us-east-1${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet2${SPACE}|${SPACE}westus${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00100000000000000${SPACE}|${SPACE}us-east-1${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet2${SPACE}|${SPACE}westus${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00200000000000000${SPACE}|${SPACE}us-east-1${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet3${SPACE}|${SPACE}australiasoutheast${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00100000000000000${SPACE}|${SPACE}ap-southeast-1${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet3${SPACE}|${SPACE}australiasoutheast${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00200000000000000${SPACE}|${SPACE}ap-southeast-1${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet4${SPACE}|${SPACE}australiasoutheast${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00100000000000000${SPACE}|${SPACE}ap-southeast-1${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet4${SPACE}|${SPACE}australiasoutheast${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00200000000000000${SPACE}|${SPACE}ap-southeast-1${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    ${EMPTY}
+    ...    stdout=${CURDIR}/tmp/Select-Join-of-Paginated-Projection-From-Transformed-JSON-and-XML-Response-Bodies.tmp
+    ...    stderr=${CURDIR}/tmp/Select-Join-of-Paginated-Projection-From-Transformed-JSON-and-XML-Response-Bodies-stderr.tmp 
+
+Select View of Join of Paginated Projection From Transformed JSON and XML Response Bodies
+    ${inputStr} =    Catenate
+    ...    create or replace materialized view join_v_01 as 
+    ...    select lhs.name, lhs.location, lhs.provisioning_state, rhs.volume_id, rhs.region 
+    ...    from azure.network.virtual_networks lhs inner join aws.ec2.volumes_presented rhs 
+    ...    on lhs.location = case when rhs.region = 'us-east-1' then 'westus' when rhs.region = 'ap-southeast-1' then 'australiasoutheast' else '__unknown__' end  
+    ...    where lhs.subscriptionId = 'subid' and rhs.region in ('us-east-1', 'ap-southeast-1', 'eu-south-2') 
+    ...    order by name asc, volume_id asc;
+    ...    select name, location, provisioning_state, volume_id, region from join_v_01 order by name asc, volume_id asc;
+    ${stdErrStr} =    Catenate    SEPARATOR=\n
+    ...    DDL Execution Completed
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}name${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}location${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}provisioning_state${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}volume_id${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}region${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet1${SPACE}|${SPACE}westus${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00100000000000000${SPACE}|${SPACE}us-east-1${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet1${SPACE}|${SPACE}westus${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00200000000000000${SPACE}|${SPACE}us-east-1${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet2${SPACE}|${SPACE}westus${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00100000000000000${SPACE}|${SPACE}us-east-1${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet2${SPACE}|${SPACE}westus${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00200000000000000${SPACE}|${SPACE}us-east-1${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet3${SPACE}|${SPACE}australiasoutheast${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00100000000000000${SPACE}|${SPACE}ap-southeast-1${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet3${SPACE}|${SPACE}australiasoutheast${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00200000000000000${SPACE}|${SPACE}ap-southeast-1${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet4${SPACE}|${SPACE}australiasoutheast${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00100000000000000${SPACE}|${SPACE}ap-southeast-1${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet4${SPACE}|${SPACE}australiasoutheast${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00200000000000000${SPACE}|${SPACE}ap-southeast-1${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    ${stdErrStr}
+    ...    stdout=${CURDIR}/tmp/Select-View-of-Join-of-Paginated-Projection-From-Transformed-JSON-and-XML-Response-Bodies.tmp
+    ...    stderr=${CURDIR}/tmp/Select-View-of-Join-of-Paginated-Projection-From-Transformed-JSON-and-XML-Response-Bodies-stderr.tmp
+
+Select Materialized View of Join of Paginated Projection From Transformed JSON and XML Response Bodies
+    ${inputStr} =    Catenate
+    ...    create or replace materialized view join_mv_01 as 
+    ...    select lhs.name, lhs.location, lhs.provisioning_state, rhs.volume_id, rhs.region 
+    ...    from azure.network.virtual_networks lhs inner join aws.ec2.volumes_presented rhs 
+    ...    on lhs.location = case when rhs.region = 'us-east-1' then 'westus' when rhs.region = 'ap-southeast-1' then 'australiasoutheast' else '__unknown__' end  
+    ...    where lhs.subscriptionId = 'subid' and rhs.region in ('us-east-1', 'ap-southeast-1', 'eu-south-2') 
+    ...    order by name asc, volume_id asc;
+    ...    select name, location, provisioning_state, volume_id, region from join_mv_01 order by name asc, volume_id asc;
+    ${stdErrStr} =    Catenate    SEPARATOR=\n
+    ...    DDL Execution Completed
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}name${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}location${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}provisioning_state${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}volume_id${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}region${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet1${SPACE}|${SPACE}westus${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00100000000000000${SPACE}|${SPACE}us-east-1${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet1${SPACE}|${SPACE}westus${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00200000000000000${SPACE}|${SPACE}us-east-1${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet2${SPACE}|${SPACE}westus${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00100000000000000${SPACE}|${SPACE}us-east-1${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet2${SPACE}|${SPACE}westus${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00200000000000000${SPACE}|${SPACE}us-east-1${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet3${SPACE}|${SPACE}australiasoutheast${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00100000000000000${SPACE}|${SPACE}ap-southeast-1${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet3${SPACE}|${SPACE}australiasoutheast${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00200000000000000${SPACE}|${SPACE}ap-southeast-1${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet4${SPACE}|${SPACE}australiasoutheast${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00100000000000000${SPACE}|${SPACE}ap-southeast-1${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    ...    |${SPACE}vnet4${SPACE}|${SPACE}australiasoutheast${SPACE}|${SPACE}Succeeded${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}vol-00200000000000000${SPACE}|${SPACE}ap-southeast-1${SPACE}|
+    ...    |-------|--------------------|--------------------|-----------------------|----------------|
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    ${stdErrStr}
+    ...    stdout=${CURDIR}/tmp/Select-Materialized-View-of-Join-of-Paginated-Projection-From-Transformed-JSON-and-XML-Response-Bodies.tmp
+    ...    stderr=${CURDIR}/tmp/Select-Materialized-View-of-Join-of-Paginated-Projection-From-Transformed-JSON-and-XML-Response-Bodies-stderr.tmp
