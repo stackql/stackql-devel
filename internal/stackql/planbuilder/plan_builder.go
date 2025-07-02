@@ -663,7 +663,7 @@ func (pgb *standardPlanGraphBuilder) handleRegistry(pbi planbuilderinput.PlanBui
 		return err
 	}
 	pr := primitive.NewLocalPrimitive(
-		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
+		func(_ primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
 			switch at := strings.ToLower(node.ActionType); at {
 			case "pull":
 				return pgb.handleRegistryPull(reg, node, pbi)
