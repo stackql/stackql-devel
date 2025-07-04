@@ -146,10 +146,7 @@ func (v *standardParserParamAstVisitor) Visit(node sqlparser.SQLNode) error {
 		return node.Table.Accept(v)
 
 	case *sqlparser.Insert:
-		buf.AstPrintf(node, "%s %v%sinto %v%v%v %v%v",
-			node.Action,
-			node.Comments, node.Ignore,
-			node.Table, node.Partitions, node.Columns, node.Rows, node.OnDup)
+		node.Rows.Accept(v)
 
 	case *sqlparser.Update:
 		buf.AstPrintf(node, "update %v%s%v set %v%v%v%v",

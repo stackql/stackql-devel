@@ -10,6 +10,7 @@ import (
 	"github.com/stackql/any-sdk/anysdk"
 
 	"github.com/stackql/any-sdk/pkg/logging"
+	"github.com/stackql/any-sdk/pkg/streaming"
 	"github.com/stackql/stackql/internal/stackql/acid/txn_context"
 	"github.com/stackql/stackql/internal/stackql/astanalysis/routeanalysis"
 	"github.com/stackql/stackql/internal/stackql/handler"
@@ -24,6 +25,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/primitivebuilder"
 	"github.com/stackql/stackql/internal/stackql/primitivegenerator"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
+	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 	"github.com/stackql/stackql/internal/stackql/util"
 
@@ -919,9 +921,36 @@ func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuild
 		if isPhysicalTable {
 			bldrInput.SetIsTargetPhysicalTable(true)
 		}
-		bldr := primitivebuilder.NewInsertOrUpdate(
-			bldrInput,
-		)
+		var bldr primitivebuilder.Builder
+		if len(node.SelectExprs) > 0 {
+			// Two cases:
+			//   1. Synchronous.  Equivalent to select.
+			//   2. Asynchronous.  Whole other story.
+			tableMeta, tableMetaExists := bldrInput.GetTableMetadata()
+			if !tableMetaExists {
+				return fmt.Errorf("could not obtain table metadata for node '%s'", node.Action)
+			}
+			rc, rcErr := tableinsertioncontainer.NewTableInsertionContainer(
+				tableMeta,
+				handlerCtx.GetSQLEngine(),
+				handlerCtx.GetTxnCounterMgr(),
+			)
+			if rcErr != nil {
+				return rcErr
+			}
+			bldr = primitivebuilder.NewSingleSelectAcquire(
+				pgb.planGraphHolder,
+				handlerCtx,
+				rc,
+				primitiveGenerator.GetPrimitiveComposer().GetInsertPreparedStatementCtx(),
+				nil,
+				streaming.NewNopMapStream(),
+			)
+		} else {
+			bldr = primitivebuilder.NewInsertOrUpdate(
+				bldrInput,
+			)
+		}
 		err = bldr.Build()
 		if err != nil {
 			return err

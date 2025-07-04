@@ -1088,11 +1088,50 @@ func (pb *standardPrimitiveGenerator) AnalyzeInsert(pbi planbuilderinput.PlanBui
 	if err != nil {
 		return err
 	}
+	pb.parseComments(node.Comments)
 
+	if tbl.IsPhysicalTable() {
+		return nil
+	}
+	svc, err := tbl.GetService()
+	if err != nil {
+		return err
+	}
+
+	if pb.PrimitiveComposer.IsAwait() && !method.IsAwaitable() {
+		return fmt.Errorf("method %s is not awaitable", method.GetName())
+	}
+	if pb.PrimitiveComposer.IsAwait() && !method.IsAwaitable() {
+		return fmt.Errorf("method %s is not awaitable", method.GetName())
+	}
+	analysisInput := anysdk.NewMethodAnalysisInput(
+		method,
+		svc,
+		true,
+		[]anysdk.ColumnDescriptor{},
+	)
+	analyser := anysdk.NewMethodAnalyzer()
+	methodAnalysisOutput, analysisErr := analyser.AnalyzeUnaryAction(analysisInput)
+	if analysisErr != nil {
+		return analysisErr
+	}
 	err = pb.buildRequestContext(node, tbl, nil, insertValOnlyRows)
 	if err != nil {
 		return err
 	}
+	err = pb.analyzeUnaryAction(
+		pbi,
+		handlerCtx,
+		node,
+		nil,
+		tbl,
+		[]parserutil.ColumnHandle{},
+		methodAnalysisOutput,
+	)
+	if err != nil {
+		return err
+	}
+	pb.PrimitiveComposer.SetTable(node, tbl)
 	return nil
 }
 

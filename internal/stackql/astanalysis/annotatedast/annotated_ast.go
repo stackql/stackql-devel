@@ -17,6 +17,7 @@ func NewAnnotatedAst(parent AnnotatedAst, ast sqlparser.Statement) (AnnotatedAst
 		tableSQLDataSources:  make(map[string]sql_datasource.SQLDataSource),
 		selectMetadataMap:    make(map[*sqlparser.Select]selectmetadata.SelectMetadata),
 		whereParamMaps:       make(map[*sqlparser.Where]parserutil.ParameterMap),
+		insertRowsParamMap:   parserutil.NewParameterMap(),
 		insertRowsIndirect:   make(map[*sqlparser.Insert]astindirect.Indirect),
 		selectIndirectCache:  make(map[*sqlparser.Select]astindirect.Indirect),
 		execIndirectCache:    make(map[*sqlparser.Exec]astindirect.Indirect),
@@ -39,6 +40,8 @@ type AnnotatedAst interface {
 	SetSelectMetadata(*sqlparser.Select, selectmetadata.SelectMetadata)
 	SetSQLDataSource(node sqlparser.SQLNode, sqlDataSource sql_datasource.SQLDataSource)
 	SetWhereParamMapsEntry(*sqlparser.Where, parserutil.ParameterMap)
+	SetInsertRowsParamMap(parserutil.ParameterMap)
+	GetInsertRowsParamMap() parserutil.ParameterMap
 	GetWhereParamMapsEntry(*sqlparser.Where) (parserutil.ParameterMap, bool)
 	IsReadOnly() bool
 	SetInsertRowsIndirect(node *sqlparser.Insert, indirect astindirect.Indirect)
@@ -60,6 +63,7 @@ type standardAnnotatedAst struct {
 	tableSQLDataSources  map[string]sql_datasource.SQLDataSource
 	selectMetadataMap    map[*sqlparser.Select]selectmetadata.SelectMetadata
 	whereParamMaps       map[*sqlparser.Where]parserutil.ParameterMap
+	insertRowsParamMap   parserutil.ParameterMap
 	selectIndirectCache  map[*sqlparser.Select]astindirect.Indirect
 	unionIndirectCache   map[*sqlparser.Union]astindirect.Indirect
 	execIndirectCache    map[*sqlparser.Exec]astindirect.Indirect
@@ -89,6 +93,17 @@ func (aa *standardAnnotatedAst) SetExecIndirect(selNode *sqlparser.Exec, indirec
 func (aa *standardAnnotatedAst) GetSelectIndirect(selNode *sqlparser.Select) (astindirect.Indirect, bool) {
 	rv, ok := aa.selectIndirectCache[selNode]
 	return rv, ok
+}
+
+func (aa *standardAnnotatedAst) SetInsertRowsParamMap(paramMap parserutil.ParameterMap) {
+	aa.insertRowsParamMap = paramMap
+}
+
+func (aa *standardAnnotatedAst) GetInsertRowsParamMap() parserutil.ParameterMap {
+	if aa.insertRowsParamMap == nil {
+		aa.insertRowsParamMap = parserutil.NewParameterMap()
+	}
+	return aa.insertRowsParamMap
 }
 
 func (aa *standardAnnotatedAst) SetSelectIndirect(selNode *sqlparser.Select, indirect astindirect.Indirect) {
