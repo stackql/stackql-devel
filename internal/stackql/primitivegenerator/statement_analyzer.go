@@ -1097,6 +1097,14 @@ func (pb *standardPrimitiveGenerator) AnalyzeInsert(pbi planbuilderinput.PlanBui
 	if err != nil {
 		return err
 	}
+	_, isOpenapi := svc.(anysdk.OpenAPIService)
+	if !isOpenapi {
+		err = pb.buildRequestContext(node, tbl, nil, insertValOnlyRows)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 
 	if pb.PrimitiveComposer.IsAwait() && !method.IsAwaitable() {
 		return fmt.Errorf("method %s is not awaitable", method.GetName())
