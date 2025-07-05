@@ -704,14 +704,20 @@ func (pb *standardPrimitiveGenerator) analyzeExec(pbi planbuilderinput.PlanBuild
 		return indirectErr
 	}
 	annotatedAST.SetExecIndirect(node, selIndirect)
+	bldrInput := builder_input.NewBuilderInput(
+		pb.PrimitiveComposer.GetGraphHolder(),
+		handlerCtx,
+		tbl,
+	)
+	bldrInput.SetTxnCtrlCtrs(pb.PrimitiveComposer.GetTxnCtrlCtrs())
+	bldrInput.SetTableInsertionContainer(insertionContainer)
 	pb.PrimitiveComposer.SetBuilder(
 		primitivebuilder.NewSingleAcquireAndSelect(
-			pb.PrimitiveComposer.GetGraphHolder(),
-			pb.PrimitiveComposer.GetTxnCtrlCtrs(),
-			handlerCtx,
-			insertionContainer,
+			bldrInput,
 			pb.PrimitiveComposer.GetInsertPreparedStatementCtx(),
-			pb.PrimitiveComposer.GetSelectPreparedStatementCtx(), nil))
+			pb.PrimitiveComposer.GetSelectPreparedStatementCtx(),
+			nil,
+		))
 	return nil
 }
 
@@ -1127,13 +1133,20 @@ func (pb *standardPrimitiveGenerator) AnalyzeInsert(pbi planbuilderinput.PlanBui
 	if err != nil {
 		return err
 	}
+	columnHandles := []parserutil.ColumnHandle{}
+	if len(node.SelectExprs) > 0 {
+		columnHandles, err = parserutil.ExtractInsertReturningColumnNames(node, handlerCtx.GetASTFormatter())
+		if err != nil {
+			return err
+		}
+	}
 	err = pb.analyzeUnaryAction(
 		pbi,
 		handlerCtx,
 		node,
 		nil,
 		tbl,
-		[]parserutil.ColumnHandle{},
+		columnHandles,
 		methodAnalysisOutput,
 	)
 	if err != nil {

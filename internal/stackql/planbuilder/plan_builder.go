@@ -10,7 +10,6 @@ import (
 	"github.com/stackql/any-sdk/anysdk"
 
 	"github.com/stackql/any-sdk/pkg/logging"
-	"github.com/stackql/any-sdk/pkg/streaming"
 	"github.com/stackql/stackql/internal/stackql/acid/txn_context"
 	"github.com/stackql/stackql/internal/stackql/astanalysis/routeanalysis"
 	"github.com/stackql/stackql/internal/stackql/handler"
@@ -926,6 +925,7 @@ func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuild
 			// Two cases:
 			//   1. Synchronous.  Equivalent to select.
 			//   2. Asynchronous.  Whole other story.
+			//   Synchronous only for now...
 			tableMeta, tableMetaExists := bldrInput.GetTableMetadata()
 			if !tableMetaExists {
 				return fmt.Errorf("could not obtain table metadata for node '%s'", node.Action)
@@ -938,13 +938,12 @@ func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuild
 			if rcErr != nil {
 				return rcErr
 			}
-			bldr = primitivebuilder.NewSingleSelectAcquire(
-				pgb.planGraphHolder,
-				handlerCtx,
-				rc,
+			bldrInput.SetTableInsertionContainer(rc)
+			bldr = primitivebuilder.NewSingleAcquireAndSelect(
+				bldrInput,
 				primitiveGenerator.GetPrimitiveComposer().GetInsertPreparedStatementCtx(),
+				primitiveGenerator.GetPrimitiveComposer().GetSelectPreparedStatementCtx(),
 				nil,
-				streaming.NewNopMapStream(),
 			)
 		} else {
 			bldr = primitivebuilder.NewInsertOrUpdate(
