@@ -1002,7 +1002,7 @@ func (pb *standardPrimitiveGenerator) buildRequestContext(
 	return err
 }
 
-//nolint:gocognit,funlen // TODO: review
+//nolint:gocognit,funlen,gocyclo,cyclop // TODO: review
 func (pb *standardPrimitiveGenerator) AnalyzeInsert(pbi planbuilderinput.PlanBuilderInput) error {
 	handlerCtx := pbi.GetHandlerCtx()
 	annotatedAST := pbi.GetAnnotatedAST()

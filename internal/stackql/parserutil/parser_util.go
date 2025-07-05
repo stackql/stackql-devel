@@ -88,7 +88,10 @@ func ExtractSelectColumnNames(selStmt *sqlparser.Select, formatter sqlparser.Nod
 	return colNames, err
 }
 
-func ExtractInsertReturningColumnNames(insertStmt *sqlparser.Insert, formatter sqlparser.NodeFormatter) ([]ColumnHandle, error) {
+func ExtractInsertReturningColumnNames(
+	insertStmt *sqlparser.Insert,
+	formatter sqlparser.NodeFormatter,
+) ([]ColumnHandle, error) {
 	var colNames []ColumnHandle
 	var err error
 	for _, node := range insertStmt.SelectExprs {
