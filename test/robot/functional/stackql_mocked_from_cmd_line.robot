@@ -8482,23 +8482,19 @@ Select Materialized View of Join of Flattened Paginated Projection From Transfor
 
 Insert Returning Simple Projection
     [Documentation]    Insert a row into a table and return projected new object values. Totally wrong atm.
-    ${inputStr} =    Catenate
-    ...    insert into google.storage.buckets( project, data__name) select  'testing-project', 'silly-bucket' returning projectNumber, name;
+    ${inputStrSQLite} =    Catenate
+    ...    insert into google.storage.buckets( project, data__name) select  'testing-project', 'silly-bucket' returning projectNumber, name, location, json_extract(iamConfiguration, '$.publicAccessPrevention') ic;
+    ${inputStrPostgres} =    Catenate
+    ...    insert into google.storage.buckets( project, data__name) select  'testing-project', 'silly-bucket' returning projectNumber, name, location, json_extract_path_text(iamConfiguration, 'publicAccessPrevention') ic;
     # ${stdErrStr} =    Catenate    SEPARATOR=\n
     # ...    DDL Execution Completed
-    ${outputStrSQLite} =    Catenate    SEPARATOR=\n
-    ...    |-----------------|--------------|
-    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}val_0${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}val_1${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
-    ...    |-----------------|--------------|
-    ...    |${SPACE}testing-project${SPACE}|${SPACE}silly-bucket${SPACE}|
-    ...    |-----------------|--------------|
-    ${outputStrPostgres} =    Catenate    SEPARATOR=\n
-    ...    |-----------------|--------------|
-    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}val_0${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}val_1${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
-    ...    |-----------------|--------------|
-    ...    |${SPACE}testing-project${SPACE}|${SPACE}silly-bucket${SPACE}|
-    ...    |-----------------|--------------|
-    ${outputStr} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"     ${outputStrPostgres}    ${outputStrSQLite}
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |---------------|--------------|----------|-----------|
+    ...    |${SPACE}projectNumber${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}name${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}location${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}ic${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |---------------|--------------|----------|-----------|
+    ...    |${SPACE}${SPACE}100000000001${SPACE}|${SPACE}silly-bucket${SPACE}|${SPACE}US${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}inherited${SPACE}|
+    ...    |---------------|--------------|----------|-----------|
+    ${inputStr} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"     ${inputStrPostgres}    ${inputStrSQLite}
     Should Stackql Exec Inline Equal Both Streams
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
