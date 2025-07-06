@@ -1525,6 +1525,7 @@ func GetMonitorExecutor(
 		operationDescriptor := getOpDescriptor(body)
 		endTime, endTimeOk := body["endTime"]
 		prStr := provider.GetName()
+		//nolint:nestif // acceptable for now
 		if endTimeOk && endTime != "" {
 			targetLink, targetLinkOK := body["targetLink"]
 			if targetLinkOK {

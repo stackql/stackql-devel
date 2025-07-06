@@ -8506,3 +8506,30 @@ Insert Returning Simple Projection
     ...    ${EMPTY}
     ...    stdout=${CURDIR}/tmp/Insert-Returning-Simple-Projection.tmp
     ...    stderr=${CURDIR}/tmp/Insert-Returning-Simple-Projection-stderr.tmp
+
+Insert Async Returning Simple Projection
+    [Documentation]    PLACEHOLDER. Insert a row into a table and return projected new object values. For **asynchronously** created objects.
+    ${inputStrSQLite} =    Catenate
+    ...    insert into google.storage.buckets( project, data__name) select  'testing-project', 'silly-bucket' returning projectNumber, name, location, json_extract(iamConfiguration, '$.publicAccessPrevention') ic;
+    ${inputStrPostgres} =    Catenate
+    ...    insert into google.storage.buckets( project, data__name) select  'testing-project', 'silly-bucket' returning projectNumber, name, location, json_extract_path_text(iamConfiguration, 'publicAccessPrevention') ic;
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |---------------|--------------|----------|-----------|
+    ...    |${SPACE}projectNumber${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}name${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}location${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}ic${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |---------------|--------------|----------|-----------|
+    ...    |${SPACE}${SPACE}100000000001${SPACE}|${SPACE}silly-bucket${SPACE}|${SPACE}US${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}inherited${SPACE}|
+    ...    |---------------|--------------|----------|-----------|
+    ${inputStr} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"     ${inputStrPostgres}    ${inputStrSQLite}
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    ${EMPTY}
+    ...    stdout=${CURDIR}/tmp/Insert-Returning-Simple-Projection.tmp
+    ...    stderr=${CURDIR}/tmp/Insert-Returning-Simple-Projection-stderr.tmp
