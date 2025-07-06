@@ -1444,6 +1444,32 @@ func (mv *monoValentExecution) GetExecutor() (func(pc primitive.IPrimitiveCtx) i
 	return ex, nil
 }
 
+func shimProcessHTTP(
+	url string,
+	rtCtx dto.RuntimeCtx,
+	authCtx *dto.AuthCtx,
+	provider anysdk.Provider,
+	m anysdk.OperationStore,
+	outErrFile io.Writer,
+) (*http.Response, error) {
+	req, monitorReqErr := anysdk.GetMonitorRequest(url)
+	if monitorReqErr != nil {
+		return nil, monitorReqErr
+	}
+	cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName())
+	anySdkResponse, apiErr := anysdk.CallFromSignature(
+		cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider, anysdk.NewAnySdkOpStoreDesignation(m), req)
+
+	if apiErr != nil {
+		return nil, apiErr
+	}
+	httpResponse, httpResponseErr := anySdkResponse.GetHttpResponse()
+	if httpResponseErr != nil {
+		return nil, httpResponseErr
+	}
+	return httpResponse, nil
+}
+
 //nolint:funlen,gocognit // acceptable for now
 func GetMonitorExecutor(
 	handlerCtx handler.HandlerContext,
@@ -1498,8 +1524,49 @@ func GetMonitorExecutor(
 
 		operationDescriptor := getOpDescriptor(body)
 		endTime, endTimeOk := body["endTime"]
+		prStr := provider.GetName()
 		if endTimeOk && endTime != "" {
-			return prepareResultSet(&asyncPrim, pc, body, operationDescriptor)
+			targetLink, targetLinkOK := body["targetLink"]
+			if targetLinkOK {
+				authCtx, authErr := pc.GetAuthContext(prStr)
+				if authErr != nil {
+					return internaldto.NewExecutorOutput(nil, nil, nil, nil, authErr)
+				}
+				if authCtx == nil {
+					return internaldto.NewExecutorOutput(nil, nil, nil, nil, fmt.Errorf("cannot execute monitor: no auth context"))
+				}
+				targetLinkStr, targetLinkStrOk := targetLink.(string)
+				if !targetLinkStrOk {
+					return internaldto.NewExecutorOutput(
+						nil,
+						nil,
+						nil,
+						nil,
+						fmt.Errorf("cannot execute monitor: 'targetLink' is not a string"),
+					)
+				}
+				httpResponse, httpResponseErr := shimProcessHTTP(
+					targetLinkStr,
+					rtCtx,
+					authCtx,
+					provider,
+					m,
+					outErrFile,
+				)
+				if httpResponseErr != nil {
+					return internaldto.NewExecutorOutput(nil, nil, nil, nil, httpResponseErr)
+				}
+
+				if httpResponse != nil && httpResponse.Body != nil {
+					defer httpResponse.Body.Close()
+				}
+				target, targetErr := m.DeprecatedProcessResponse(httpResponse)
+				handlerCtx.LogHTTPResponseMap(target)
+				if targetErr != nil {
+					return internaldto.NewExecutorOutput(nil, nil, nil, nil, targetErr)
+				}
+				return prepareResultSet(&asyncPrim, pc, target, operationDescriptor)
+			}
 		}
 		url, ok := body["selfLink"]
 		if !ok {
@@ -1511,7 +1578,6 @@ func GetMonitorExecutor(
 				fmt.Errorf("cannot execute monitor: no 'selfLink' property present"),
 			)
 		}
-		prStr := provider.GetName()
 		authCtx, authErr := pc.GetAuthContext(prStr)
 		if authErr != nil {
 			return internaldto.NewExecutorOutput(nil, nil, nil, nil, authErr)
