@@ -38,6 +38,9 @@ func (ss *insertOrUpdate) Build() error {
 	switch node := node.(type) {
 	case *sqlparser.Insert:
 		mutableInput.SetVerb("insert")
+		if len(node.SelectExprs) > 0 {
+			mutableInput.SetIsReturning(true)
+		}
 	case *sqlparser.Update:
 		mutableInput.SetVerb("update")
 	default:

@@ -1478,6 +1478,7 @@ func GetMonitorExecutor(
 	precursor primitive.IPrimitive,
 	initialCtx primitive.IPrimitiveCtx,
 	comments sqlparser.CommentDirectives,
+	isReturning bool,
 ) (primitive.IPrimitive, error) {
 	m := op
 	// tableName, err := mv.tableMeta.GetTableName()
@@ -1528,7 +1529,7 @@ func GetMonitorExecutor(
 		//nolint:nestif // acceptable for now
 		if endTimeOk && endTime != "" {
 			targetLink, targetLinkOK := body["targetLink"]
-			if targetLinkOK {
+			if targetLinkOK && isReturning {
 				authCtx, authErr := pc.GetAuthContext(prStr)
 				if authErr != nil {
 					return internaldto.NewExecutorOutput(nil, nil, nil, nil, authErr)
@@ -1568,6 +1569,7 @@ func GetMonitorExecutor(
 				}
 				return prepareResultSet(&asyncPrim, pc, target, operationDescriptor)
 			}
+			return prepareResultSet(&asyncPrim, pc, body, operationDescriptor)
 		}
 		url, ok := body["selfLink"]
 		if !ok {

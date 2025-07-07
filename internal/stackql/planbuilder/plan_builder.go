@@ -10,7 +10,6 @@ import (
 	"github.com/stackql/any-sdk/anysdk"
 
 	"github.com/stackql/any-sdk/pkg/logging"
-	"github.com/stackql/any-sdk/pkg/streaming"
 	"github.com/stackql/stackql/internal/stackql/acid/txn_context"
 	"github.com/stackql/stackql/internal/stackql/astanalysis/routeanalysis"
 	"github.com/stackql/stackql/internal/stackql/handler"
@@ -954,13 +953,11 @@ func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuild
 			if !isAwait {
 				bldr = returningBldr
 			} else {
-				rhsBldr := primitivebuilder.NewSingleSelect(
-					pgb.planGraphHolder,
-					handlerCtx,
+				rhsBldr := primitivebuilder.NewSingleAcquireAndSelect(
+					bldrInput,
+					primitiveGenerator.GetPrimitiveComposer().GetInsertPreparedStatementCtx(),
 					primitiveGenerator.GetPrimitiveComposer().GetSelectPreparedStatementCtx(),
-					[]tableinsertioncontainer.TableInsertionContainer{rc},
 					nil,
-					streaming.NewNopMapStream(),
 				)
 				bldr = primitivebuilder.NewDependencySubDAGBuilder(
 					pgb.planGraphHolder,

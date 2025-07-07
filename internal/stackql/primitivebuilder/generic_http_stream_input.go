@@ -32,6 +32,7 @@ type genericHTTPStreamInput struct {
 	dependencyNode    primitivegraph.PrimitiveNode
 	parserNode        sqlparser.SQLNode
 	isAwait           bool
+	isReturning       bool
 	verb              string // may be "insert" or "update"
 	inputAlias        string
 	isUndo            bool
@@ -70,6 +71,7 @@ func newGenericHTTPStreamInput(
 		commentDirectives: commentDirectives,
 		dependencyNode:    dependencyNode,
 		isAwait:           builderInput.IsAwait(),
+		isReturning:       builderInput.IsReturning(),
 		verb:              builderInput.GetVerb(),
 		inputAlias:        builderInput.GetInputAlias(),
 		isUndo:            builderInput.IsUndo(),
@@ -357,7 +359,8 @@ func (gh *genericHTTPStreamInput) Build() error {
 				if err != nil {
 					return internaldto.NewErroneousExecutorOutput(err)
 				}
-				execPrim, execErr := composeAsyncMonitor(handlerCtx, dependentInsertPrimitive, prov, m, commentDirectives)
+				execPrim, execErr := composeAsyncMonitor(
+					handlerCtx, dependentInsertPrimitive, prov, m, commentDirectives, gh.isReturning)
 				if execErr != nil {
 					return internaldto.NewErroneousExecutorOutput(execErr)
 				}

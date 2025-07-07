@@ -15,8 +15,9 @@ func composeAsyncMonitor(
 	prov provider.IProvider,
 	method anysdk.OperationStore,
 	commentDirectives sqlparser.CommentDirectives,
+	isReturning bool,
 ) (primitive.IPrimitive, error) {
-	asm, err := NewAsyncMonitor(handlerCtx, prov, method)
+	asm, err := NewAsyncMonitor(handlerCtx, prov, method, isReturning)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +32,7 @@ func composeAsyncMonitor(
 		handlerCtx.GetOutfile(),
 		handlerCtx.GetOutErrFile(),
 	)
-	primitive, err := asm.GetMonitorPrimitive(prov, method, precursor, pl, commentDirectives)
+	primitive, err := asm.GetMonitorPrimitive(prov, method, precursor, pl, commentDirectives, isReturning)
 	if err != nil {
 		return nil, err
 	}

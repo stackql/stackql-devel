@@ -31,6 +31,8 @@ type BuilderInput interface {
 	GetOperationStore() (anysdk.OperationStore, bool)
 	SetOperationStore(op anysdk.OperationStore)
 	IsAwait() bool
+	IsReturning() bool
+	SetIsReturning(bool)
 	GetVerb() string
 	GetInputAlias() string
 	IsUndo() bool
@@ -64,6 +66,7 @@ type builderInput struct {
 	dependencyNode          primitivegraph.PrimitiveNode
 	commentDirectives       sqlparser.CommentDirectives
 	isAwait                 bool
+	isReturning             bool
 	verb                    string
 	inputAlias              string
 	isUndo                  bool
@@ -90,6 +93,14 @@ func NewBuilderInput(
 		commentDirectives: sqlparser.CommentDirectives{},
 		inputAlias:        "", // this default is explicit for emphasisis
 	}
+}
+
+func (bi *builderInput) IsReturning() bool {
+	return bi.isReturning
+}
+
+func (bi *builderInput) SetIsReturning(isReturning bool) {
+	bi.isReturning = isReturning
 }
 
 func (bi *builderInput) GetTableInsertionContainer() (tableinsertioncontainer.TableInsertionContainer, bool) {

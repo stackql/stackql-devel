@@ -174,7 +174,7 @@ func (ss *Exec) Build() error {
 		ss.graph.CreatePrimitiveNode(execPrimitive)
 		return nil
 	}
-	pr, err := composeAsyncMonitor(handlerCtx, execPrimitive, prov, m, nil)
+	pr, err := composeAsyncMonitor(handlerCtx, execPrimitive, prov, m, nil, false) // returning hardcoded to false for now
 	if err != nil {
 		return err
 	}

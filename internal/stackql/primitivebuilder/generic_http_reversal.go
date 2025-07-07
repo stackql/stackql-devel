@@ -25,6 +25,7 @@ type genericHTTPReversal struct {
 	op                anysdk.OperationStore
 	commentDirectives sqlparser.CommentDirectives
 	isAwait           bool
+	isReturning       bool
 	verb              string // may be "insert" or "update"
 	inputAlias        string
 	isUndo            bool
@@ -206,7 +207,8 @@ func (gh *genericHTTPReversal) Build() error {
 				if err != nil {
 					return internaldto.NewErroneousExecutorOutput(err)
 				}
-				execPrim, execErr := composeAsyncMonitor(handlerCtx, dependentInsertPrimitive, prov, m, commentDirectives)
+				execPrim, execErr := composeAsyncMonitor(
+					handlerCtx, dependentInsertPrimitive, prov, m, commentDirectives, gh.isReturning)
 				if execErr != nil {
 					return internaldto.NewErroneousExecutorOutput(execErr)
 				}

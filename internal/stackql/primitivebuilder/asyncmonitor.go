@@ -22,6 +22,7 @@ type IAsyncMonitor interface {
 		precursor primitive.IPrimitive,
 		initialCtx primitive.IPrimitiveCtx,
 		comments sqlparser.CommentDirectives,
+		isReturning bool,
 	) (primitive.IPrimitive, error)
 }
 
@@ -120,11 +121,12 @@ func NewAsyncMonitor(
 	handlerCtx handler.HandlerContext,
 	prov provider.IProvider,
 	op anysdk.OperationStore,
+	isReturning bool,
 ) (IAsyncMonitor, error) {
 	//nolint:gocritic //TODO: refactor
 	switch prov.GetProviderString() {
 	case "google":
-		return newGoogleAsyncMonitor(handlerCtx, prov, op, prov.GetVersion())
+		return newGoogleAsyncMonitor(handlerCtx, prov, op, prov.GetVersion(), isReturning)
 	}
 	return nil, fmt.Errorf(
 		"async operation monitor for provider = '%s', api version = '%s' currently not supported",
@@ -136,6 +138,7 @@ func newGoogleAsyncMonitor(
 	prov provider.IProvider,
 	op anysdk.OperationStore,
 	version string, //nolint:unparam // TODO: refactor
+	isReturning bool,
 ) (IAsyncMonitor, error) {
 	//nolint:gocritic //TODO: refactor
 	switch version {
@@ -160,11 +163,12 @@ func (gm *DefaultGoogleAsyncMonitor) GetMonitorPrimitive(
 	precursor primitive.IPrimitive,
 	initialCtx primitive.IPrimitiveCtx,
 	comments sqlparser.CommentDirectives,
+	isReturning bool,
 ) (primitive.IPrimitive, error) {
 	//nolint:gocritic,staticcheck //TODO: refactor
 	switch strings.ToLower(prov.GetVersion()) {
 	default:
-		return gm.getV1Monitor(prov, op, precursor, initialCtx, comments)
+		return gm.getV1Monitor(prov, op, precursor, initialCtx, comments, isReturning)
 	}
 }
 
@@ -174,6 +178,7 @@ func (gm *DefaultGoogleAsyncMonitor) getV1Monitor(
 	precursor primitive.IPrimitive,
 	initialCtx primitive.IPrimitiveCtx,
 	comments sqlparser.CommentDirectives,
+	isReturning bool,
 ) (primitive.IPrimitive, error) {
 	provider, providerErr := prov.GetProvider()
 	if providerErr != nil {
@@ -186,6 +191,7 @@ func (gm *DefaultGoogleAsyncMonitor) getV1Monitor(
 		precursor,
 		initialCtx,
 		comments,
+		isReturning,
 	)
 	if exPrepErr != nil {
 		return nil, exPrepErr
