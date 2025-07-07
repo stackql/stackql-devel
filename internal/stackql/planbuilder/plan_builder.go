@@ -10,6 +10,7 @@ import (
 	"github.com/stackql/any-sdk/anysdk"
 
 	"github.com/stackql/any-sdk/pkg/logging"
+	"github.com/stackql/any-sdk/pkg/streaming"
 	"github.com/stackql/stackql/internal/stackql/acid/txn_context"
 	"github.com/stackql/stackql/internal/stackql/astanalysis/routeanalysis"
 	"github.com/stackql/stackql/internal/stackql/handler"
@@ -912,7 +913,8 @@ func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuild
 		)
 		bldrInput.SetDependencyNode(selectPrimitiveNode)
 		bldrInput.SetCommentDirectives(primitiveGenerator.GetPrimitiveComposer().GetCommentDirectives())
-		bldrInput.SetIsAwait(primitiveGenerator.GetPrimitiveComposer().IsAwait())
+		isAwait := primitiveGenerator.GetPrimitiveComposer().IsAwait()
+		bldrInput.SetIsAwait(isAwait)
 		bldrInput.SetParserNode(node)
 		bldrInput.SetAnnotatedAST(pbi.GetAnnotatedAST())
 		bldrInput.SetTxnCtrlCtrs(pbi.GetTxnCtrlCtrs())
@@ -920,7 +922,10 @@ func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuild
 		if isPhysicalTable {
 			bldrInput.SetIsTargetPhysicalTable(true)
 		}
-		var bldr primitivebuilder.Builder
+		//nolint:stylecheck // not in the mood
+		var bldr primitivebuilder.Builder = primitivebuilder.NewInsertOrUpdate(
+			bldrInput,
+		)
 		if len(node.SelectExprs) > 0 {
 			// Two cases:
 			//   1. Synchronous.  Equivalent to select.
@@ -939,16 +944,30 @@ func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuild
 				return rcErr
 			}
 			bldrInput.SetTableInsertionContainer(rc)
-			bldr = primitivebuilder.NewSingleAcquireAndSelect(
+			//nolint:stylecheck // not in the mood
+			var returningBldr primitivebuilder.Builder = primitivebuilder.NewSingleAcquireAndSelect(
 				bldrInput,
 				primitiveGenerator.GetPrimitiveComposer().GetInsertPreparedStatementCtx(),
 				primitiveGenerator.GetPrimitiveComposer().GetSelectPreparedStatementCtx(),
 				nil,
 			)
-		} else {
-			bldr = primitivebuilder.NewInsertOrUpdate(
-				bldrInput,
-			)
+			if !isAwait {
+				bldr = returningBldr
+			} else {
+				rhsBldr := primitivebuilder.NewSingleSelect(
+					pgb.planGraphHolder,
+					handlerCtx,
+					primitiveGenerator.GetPrimitiveComposer().GetSelectPreparedStatementCtx(),
+					[]tableinsertioncontainer.TableInsertionContainer{rc},
+					nil,
+					streaming.NewNopMapStream(),
+				)
+				bldr = primitivebuilder.NewDependencySubDAGBuilder(
+					pgb.planGraphHolder,
+					[]primitivebuilder.Builder{bldr},
+					rhsBldr,
+				)
+			}
 		}
 		err = bldr.Build()
 		if err != nil {
