@@ -43,7 +43,7 @@ def compute_networks_insert(project_name: str):
     operation_id = '1000000000001'
     operation_name = 'operation-100000000001-10000000001-10000001-10000001'
     network_name = body['name']
-    target_link = f'https://www.googleapis.com/compute/v1/projects/{ project_name }/global/networks/{ network_name }',
+    target_link = f'https://localhost:1080/compute/v1/projects/{ project_name }/global/networks/{ network_name }'
     if not body or 'name' not in body:
         return '{"msg": "Invalid request body"}', 400, {'Content-Type': 'application/json'}
     if not project_name:
@@ -57,7 +57,7 @@ def compute_networks_insert(project_name: str):
             project_name=project_name,
             kind='compute#operation',
             operation_type='insert',
-            progress=0
+            progress=0,
         ), 200, {'Content-Type': 'application/json'}
     return '{"msg": "Disallowed"}', 401, {'Content-Type': 'application/json'}
 
@@ -66,7 +66,7 @@ def projects_testing_project_global_operation_detail(project_name: str, operatio
     if project_name == 'mutable-project' and 'operation-100000000001-10000000001-10000001-10000001':
         operation_id = '1000000000001'
         network_name = 'auto-test-01'
-        target_link = f'https://www.googleapis.com/compute/v1/projects/{ project_name }/global/networks/{ network_name }'
+        target_link = f'https://localhost:1080/compute/v1/projects/{ project_name }/global/networks/{ network_name }'
         return render_template(
             'global-operation.jinja.json',
             target_link=target_link, 
