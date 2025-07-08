@@ -11,5 +11,5 @@
   "insertTime": "2025-07-05T19:42:34.488-07:00",
   "startTime": "2025-07-05T19:42:34.491-07:00",
   {% if end_time %}"endTime": "{{ end_time }}",{% endif %}
-  "selfLink": "https://localhost:1080/compute/v1/projects/{{ project_name }}/global/operations/{{ operation_name }}"
+  "selfLink": "https://{{ host_name }}:1080/compute/v1/projects/{{ project_name }}/global/operations/{{ operation_name }}"
 }
