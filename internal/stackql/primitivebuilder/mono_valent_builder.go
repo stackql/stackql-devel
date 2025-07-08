@@ -31,7 +31,7 @@ type monoValentBuilder struct {
 	root                       primitivegraph.PrimitiveNode
 	stream                     streaming.MapStream
 	isReadOnly                 bool //nolint:unused // TODO: build out
-	isAwait                    bool
+	isAwait                    bool //nolint:unused // TODO: build out
 	monoValentExecutorFactory  execution.MonoValentExecutorFactory
 }
 

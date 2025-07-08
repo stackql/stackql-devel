@@ -141,7 +141,7 @@ func newGoogleAsyncMonitor(
 	prov provider.IProvider,
 	op anysdk.OperationStore,
 	version string, //nolint:unparam // TODO: refactor
-	isReturning bool,
+	isReturning bool, //nolint:unparam,revive // TODO: refactor
 ) (IAsyncMonitor, error) {
 	//nolint:gocritic //TODO: refactor
 	switch version {
