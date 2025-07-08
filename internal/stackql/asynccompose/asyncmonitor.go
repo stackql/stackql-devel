@@ -1,4 +1,4 @@
-package primitivebuilder
+package asynccompose
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 
 	"github.com/stackql/any-sdk/anysdk"
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
+	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/execution"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
@@ -23,6 +24,8 @@ type IAsyncMonitor interface {
 		initialCtx primitive.IPrimitiveCtx,
 		comments sqlparser.CommentDirectives,
 		isReturning bool,
+		insertCtx drm.PreparedStatementCtx,
+		drmCfg drm.Config,
 	) (primitive.IPrimitive, error)
 }
 
@@ -164,11 +167,13 @@ func (gm *DefaultGoogleAsyncMonitor) GetMonitorPrimitive(
 	initialCtx primitive.IPrimitiveCtx,
 	comments sqlparser.CommentDirectives,
 	isReturning bool,
+	insertCtx drm.PreparedStatementCtx,
+	drmCfg drm.Config,
 ) (primitive.IPrimitive, error) {
 	//nolint:gocritic,staticcheck //TODO: refactor
 	switch strings.ToLower(prov.GetVersion()) {
 	default:
-		return gm.getV1Monitor(prov, op, precursor, initialCtx, comments, isReturning)
+		return gm.getV1Monitor(prov, op, precursor, initialCtx, comments, isReturning, insertCtx, drmCfg)
 	}
 }
 
@@ -179,6 +184,8 @@ func (gm *DefaultGoogleAsyncMonitor) getV1Monitor(
 	initialCtx primitive.IPrimitiveCtx,
 	comments sqlparser.CommentDirectives,
 	isReturning bool,
+	insertCtx drm.PreparedStatementCtx,
+	drmCfg drm.Config,
 ) (primitive.IPrimitive, error) {
 	provider, providerErr := prov.GetProvider()
 	if providerErr != nil {
@@ -192,6 +199,8 @@ func (gm *DefaultGoogleAsyncMonitor) getV1Monitor(
 		initialCtx,
 		comments,
 		isReturning,
+		insertCtx,
+		drmCfg,
 	)
 	if exPrepErr != nil {
 		return nil, exPrepErr

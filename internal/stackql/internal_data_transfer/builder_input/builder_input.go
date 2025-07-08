@@ -5,6 +5,7 @@ import (
 	"github.com/stackql/any-sdk/pkg/streaming"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/astanalysis/annotatedast"
+	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
@@ -56,6 +57,8 @@ type BuilderInput interface {
 	GetTxnCtrlCtrs() (internaldto.TxnControlCounters, bool)
 	GetTableInsertionContainer() (tableinsertioncontainer.TableInsertionContainer, bool)
 	SetTableInsertionContainer(tableinsertioncontainer.TableInsertionContainer)
+	SetInsertCtx(insertCtx drm.PreparedStatementCtx)
+	GetInsertCtx() (drm.PreparedStatementCtx, bool)
 }
 
 type builderInput struct {
@@ -79,6 +82,7 @@ type builderInput struct {
 	isTargetPhysical        bool
 	txnCtrlCtrs             internaldto.TxnControlCounters
 	tableInsertionContainer tableinsertioncontainer.TableInsertionContainer
+	insertCtx               drm.PreparedStatementCtx
 }
 
 func NewBuilderInput(
@@ -93,6 +97,17 @@ func NewBuilderInput(
 		commentDirectives: sqlparser.CommentDirectives{},
 		inputAlias:        "", // this default is explicit for emphasisis
 	}
+}
+
+func (bi *builderInput) SetInsertCtx(insertCtx drm.PreparedStatementCtx) {
+	bi.insertCtx = insertCtx
+}
+
+func (bi *builderInput) GetInsertCtx() (drm.PreparedStatementCtx, bool) {
+	if bi.insertCtx == nil {
+		return nil, false
+	}
+	return bi.insertCtx, true
 }
 
 func (bi *builderInput) IsReturning() bool {
@@ -271,5 +286,7 @@ func (bi *builderInput) Clone() BuilderInput {
 		isTargetPhysical:  bi.isTargetPhysical,
 		annotatedAst:      bi.annotatedAst,
 		txnCtrlCtrs:       bi.txnCtrlCtrs,
+		isReturning:       bi.isReturning,
+		insertCtx:         bi.insertCtx,
 	}
 }

@@ -11,6 +11,7 @@ import (
 type insertOrUpdate struct {
 	bldrInput builder_input.BuilderInput
 	root      primitivegraph.PrimitiveNode
+	tail      primitivegraph.PrimitiveNode
 }
 
 func NewInsertOrUpdate(
@@ -26,7 +27,7 @@ func (ss *insertOrUpdate) GetRoot() primitivegraph.PrimitiveNode {
 }
 
 func (ss *insertOrUpdate) GetTail() primitivegraph.PrimitiveNode {
-	return ss.root
+	return ss.tail
 }
 
 func (ss *insertOrUpdate) Build() error {
@@ -85,6 +86,7 @@ func (ss *insertOrUpdate) Build() error {
 		return genericBldrErr
 	}
 	ss.root = genericBldr.GetRoot()
+	ss.tail = genericBldr.GetTail()
 
 	return nil
 }

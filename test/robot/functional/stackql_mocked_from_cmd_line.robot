@@ -8508,18 +8508,18 @@ Insert Returning Simple Projection
     ...    stderr=${CURDIR}/tmp/Insert-Returning-Simple-Projection-stderr.tmp
 
 Insert Async Returning Simple Projection
-    [Documentation]    PLACEHOLDER. Insert a row into a table and return projected new object values. For **asynchronously** created objects.
-    ${inputStrSQLite} =    Catenate
-    ...    insert into google.storage.buckets( project, data__name) select  'testing-project', 'silly-bucket' returning projectNumber, name, location, json_extract(iamConfiguration, '$.publicAccessPrevention') ic;
-    ${inputStrPostgres} =    Catenate
-    ...    insert into google.storage.buckets( project, data__name) select  'testing-project', 'silly-bucket' returning projectNumber, name, location, json_extract_path_text(iamConfiguration, 'publicAccessPrevention') ic;
+    [Documentation]    Insert a row into a table and return projected new object values. For **asynchronously** created objects.
+    ${inputStr} =    Catenate
+    ...    insert /*+ AWAIT */ into google.compute.networks(project, data__name, data__autoCreateSubnetworks) select 'mutable-project', 'auto-test-01', false returning creationTimestamp, name;
     ${outputStr} =    Catenate    SEPARATOR=\n
-    ...    |---------------|--------------|----------|-----------|
-    ...    |${SPACE}projectNumber${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}name${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}location${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}ic${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
-    ...    |---------------|--------------|----------|-----------|
-    ...    |${SPACE}${SPACE}100000000001${SPACE}|${SPACE}silly-bucket${SPACE}|${SPACE}US${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}inherited${SPACE}|
-    ...    |---------------|--------------|----------|-----------|
-    ${inputStr} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"     ${inputStrPostgres}    ${inputStrSQLite}
+    ...    |-------------------------------|--------------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}creationTimestamp${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}name${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|
+    ...    |-------------------------------|--------------|
+    ...    |${SPACE}2025-07-05T19:42:34.483-07:00${SPACE}|${SPACE}auto-test-01${SPACE}|
+    ...    |-------------------------------|--------------|
+    ${stdErrStr} =    Catenate    SEPARATOR=\n
+    ...    compute#operation: insert in progress, 10 seconds elapsed
+    ...    compute#operation: insert complete
     Should Stackql Exec Inline Equal Both Streams
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
@@ -8530,6 +8530,6 @@ Insert Async Returning Simple Projection
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${inputStr}
     ...    ${outputStr}
-    ...    ${EMPTY}
-    ...    stdout=${CURDIR}/tmp/Insert-Returning-Simple-Projection.tmp
-    ...    stderr=${CURDIR}/tmp/Insert-Returning-Simple-Projection-stderr.tmp
+    ...    ${stdErrStr}
+    ...    stdout=${CURDIR}/tmp/Insert-Async-Returning-Simple-Projection.tmp
+    ...    stderr=${CURDIR}/tmp/Insert-Async-Returning-Simple-Projection-stderr.tmp

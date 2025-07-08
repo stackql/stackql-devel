@@ -485,6 +485,7 @@ func (dp *standardDependencyPlanner) orchestrate(
 			insPsc,
 			nil,
 			outStream,
+			false,
 		)
 	}
 	dp.execSlice = append(dp.execSlice, builder)

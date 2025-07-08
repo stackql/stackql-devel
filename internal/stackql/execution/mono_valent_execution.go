@@ -1130,6 +1130,7 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 		if httpResponseErr != nil {
 			return newHTTPProcessorResponse(nil, reversalStream, false, httpResponseErr)
 		}
+		// TODO: add async monitor here
 		processed, resErr := method.ProcessResponse(httpResponse)
 		if resErr != nil {
 			if isSkipResponse && isMutation && httpResponse.StatusCode < 300 {
@@ -1479,6 +1480,8 @@ func GetMonitorExecutor(
 	initialCtx primitive.IPrimitiveCtx,
 	comments sqlparser.CommentDirectives,
 	isReturning bool,
+	insertCtx drm.PreparedStatementCtx,
+	drmCfg drm.Config,
 ) (primitive.IPrimitive, error) {
 	m := op
 	// tableName, err := mv.tableMeta.GetTableName()
@@ -1498,6 +1501,8 @@ func GetMonitorExecutor(
 		elapsedSeconds:      0,
 		pollIntervalSeconds: MonitorPollIntervalSeconds,
 		comments:            comments,
+		insertCtx:           insertCtx,
+		drmCfg:              drmCfg,
 	}
 	if comments != nil {
 		asyncPrim.noStatus = comments.IsSet("NOSTATUS")
@@ -1566,6 +1571,29 @@ func GetMonitorExecutor(
 				handlerCtx.LogHTTPResponseMap(target)
 				if targetErr != nil {
 					return internaldto.NewExecutorOutput(nil, nil, nil, nil, targetErr)
+				}
+				// TODO: insert into table here
+				if isReturning {
+					if asyncPrim.insertCtx != nil {
+						_, rErr := asyncPrim.drmCfg.ExecuteInsertDML(
+							handlerCtx.GetSQLEngine(),
+							asyncPrim.insertCtx,
+							target,
+							"", // TODO: figure out how on earth to compute this encoding
+						)
+						if rErr != nil {
+							return internaldto.NewExecutorOutput(nil, nil, nil, nil, rErr)
+						}
+					}
+					if asyncPrim.selectCtx != nil {
+						_, rErr := asyncPrim.drmCfg.QueryDML(
+							handlerCtx.GetSQLEngine(),
+							drm.NewPreparedStatementParameterized(asyncPrim.selectCtx, nil, true),
+						)
+						if rErr != nil {
+							return internaldto.NewExecutorOutput(nil, nil, nil, nil, rErr)
+						}
+					}
 				}
 				return prepareResultSet(&asyncPrim, pc, target, operationDescriptor)
 			}
@@ -1718,6 +1746,9 @@ type asyncHTTPMonitorPrimitive struct {
 	noStatus            bool
 	id                  int64
 	comments            sqlparser.CommentDirectives
+	insertCtx           drm.PreparedStatementCtx
+	selectCtx           drm.PreparedStatementCtx
+	drmCfg              drm.Config
 }
 
 func (pr *asyncHTTPMonitorPrimitive) SetTxnID(_ int) {

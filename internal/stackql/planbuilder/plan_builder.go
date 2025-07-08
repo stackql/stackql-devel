@@ -10,6 +10,7 @@ import (
 	"github.com/stackql/any-sdk/anysdk"
 
 	"github.com/stackql/any-sdk/pkg/logging"
+	"github.com/stackql/any-sdk/pkg/streaming"
 	"github.com/stackql/stackql/internal/stackql/acid/txn_context"
 	"github.com/stackql/stackql/internal/stackql/astanalysis/routeanalysis"
 	"github.com/stackql/stackql/internal/stackql/handler"
@@ -921,10 +922,7 @@ func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuild
 		if isPhysicalTable {
 			bldrInput.SetIsTargetPhysicalTable(true)
 		}
-		//nolint:stylecheck // not in the mood
-		var bldr primitivebuilder.Builder = primitivebuilder.NewInsertOrUpdate(
-			bldrInput,
-		)
+		var bldr primitivebuilder.Builder
 		if len(node.SelectExprs) > 0 {
 			// Two cases:
 			//   1. Synchronous.  Equivalent to select.
@@ -943,25 +941,57 @@ func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuild
 				return rcErr
 			}
 			bldrInput.SetTableInsertionContainer(rc)
-			//nolint:stylecheck // not in the mood
-			var returningBldr primitivebuilder.Builder = primitivebuilder.NewSingleAcquireAndSelect(
-				bldrInput,
-				primitiveGenerator.GetPrimitiveComposer().GetInsertPreparedStatementCtx(),
-				primitiveGenerator.GetPrimitiveComposer().GetSelectPreparedStatementCtx(),
-				nil,
-			)
+			bldrInput.SetIsReturning(true)
 			if !isAwait {
-				bldr = returningBldr
-			} else {
-				rhsBldr := primitivebuilder.NewSingleAcquireAndSelect(
+				bldr = primitivebuilder.NewSingleAcquireAndSelect(
 					bldrInput,
 					primitiveGenerator.GetPrimitiveComposer().GetInsertPreparedStatementCtx(),
 					primitiveGenerator.GetPrimitiveComposer().GetSelectPreparedStatementCtx(),
 					nil,
 				)
+			} else {
+				// bldr = returningBldr
+				// TODO: stuff the async output into an appropriate table
+				// rhsBldr := primitivebuilder.NewSingleSelect(
+				// 	pgb.planGraphHolder,
+				// 	handlerCtx,
+				// 	primitiveGenerator.GetPrimitiveComposer().GetSelectPreparedStatementCtx(),
+				// 	[]tableinsertioncontainer.TableInsertionContainer{rc},
+				// 	nil,
+				// 	streaming.NewNopMapStream(),
+				// )
+				bldrInput.SetIsAwait(true)
+				bldrInput.SetIsReturning(true)
+				bldrInput.SetInsertCtx(primitiveGenerator.GetPrimitiveComposer().GetInsertPreparedStatementCtx())
+				lhsBldr := primitivebuilder.NewInsertOrUpdate(
+					bldrInput,
+				)
+				newBldrInput := builder_input.NewBuilderInput(
+					pgb.planGraphHolder,
+					handlerCtx,
+					tbl,
+				)
+				newBldrInput.SetParserNode(node)
+				newBldrInput.SetAnnotatedAST(pbi.GetAnnotatedAST())
+				newBldrInput.SetTxnCtrlCtrs(pbi.GetTxnCtrlCtrs())
+				newBldrInput.SetTableInsertionContainer(rc)
+				newBldrInput.SetDependencyNode(selectPrimitiveNode)
+				newBldrInput.SetIsAwait(isAwait)
+				// rhsBldr := primitivebuilder.NewSingleAcquireAndSelect(
+				// 	newBldrInput,
+				// 	primitiveGenerator.GetPrimitiveComposer().GetInsertPreparedStatementCtx(),
+				// 	primitiveGenerator.GetPrimitiveComposer().GetSelectPreparedStatementCtx(),
+				// 	nil,
+				// )
+				rhsBldr := primitivebuilder.NewSingleSelect(
+					pgb.planGraphHolder, handlerCtx, primitiveGenerator.GetPrimitiveComposer().GetSelectPreparedStatementCtx(),
+					[]tableinsertioncontainer.TableInsertionContainer{rc},
+					nil,
+					streaming.NewNopMapStream(),
+				)
 				bldr = primitivebuilder.NewDependencySubDAGBuilder(
 					pgb.planGraphHolder,
-					[]primitivebuilder.Builder{bldr},
+					[]primitivebuilder.Builder{lhsBldr},
 					rhsBldr,
 				)
 			}
