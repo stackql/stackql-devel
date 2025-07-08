@@ -995,6 +995,10 @@ func (pgb *standardPlanGraphBuilder) handleInsert(pbi planbuilderinput.PlanBuild
 					rhsBldr,
 				)
 			}
+		} else {
+			bldr = primitivebuilder.NewInsertOrUpdate(
+				bldrInput,
+			)
 		}
 		err = bldr.Build()
 		if err != nil {

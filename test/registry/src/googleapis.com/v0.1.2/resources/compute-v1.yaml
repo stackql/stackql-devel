@@ -2130,7 +2130,8 @@ resources:
         response:
           mediaType: application/json
           openAPIDocKey: '200'
-          schema_override:
+          asyncOverrideMediaType: application/json
+          async_schema_override:
             $ref: '#/components/schemas/Network'
       list:
         operation:
