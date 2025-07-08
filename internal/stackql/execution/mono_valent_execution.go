@@ -1620,7 +1620,7 @@ func GetMonitorExecutor(
 		asyncPrim.elapsedSeconds += asyncPrim.pollIntervalSeconds
 		if !asyncPrim.noStatus {
 			//nolint:errcheck //TODO: handle error
-			pc.GetWriter().Write(
+			pc.GetErrWriter().Write(
 				[]byte(
 					fmt.Sprintf(
 						"%s in progress, %d seconds elapsed",
@@ -1862,7 +1862,7 @@ func prepareResultSet(
 	}
 	if !prim.noStatus {
 		//nolint:errcheck //TODO: handle error
-		pc.GetWriter().Write([]byte(fmt.Sprintf("%s complete", operationDescriptor) + fmt.Sprintln("")))
+		pc.GetErrWriter().Write([]byte(fmt.Sprintf("%s complete", operationDescriptor) + fmt.Sprintln("")))
 	}
 	return util.PrepareResultSet(payload)
 }
