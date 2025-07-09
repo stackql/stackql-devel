@@ -6,7 +6,7 @@ import os
 
 app = Flask(__name__)
 
-_IS_DOCKER = True is os.getenv('IS_DOCKER', 'false').lower() == 'true'
+_IS_DOCKER = True if os.getenv('IS_DOCKER', 'false').lower() == 'true' else False
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
