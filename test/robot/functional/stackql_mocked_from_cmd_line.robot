@@ -2742,8 +2742,8 @@ Registry Pull Overwrite Works in Both Directions
     ...    ${inputStr} 
     ...    ${stdOutStr}
     ...    ${stdErrStr}
-    stdout=${CURDIR}/tmp/Registry-Pull-Override-Works-in-Both-Directions.tmp
-    stderr=${CURDIR}/tmp/Registry-Pull-Override-Works-in-Both-Directions-stderr.tmp    
+    ...    stdout=${CURDIR}/tmp/Registry-Pull-Override-Works-in-Both-Directions.tmp
+    ...    stderr=${CURDIR}/tmp/Registry-Pull-Override-Works-in-Both-Directions-stderr.tmp    
 
 Registry Pull Google Provider Implicit Latest Version
     Should Stackql Exec Inline Contain Both Streams
