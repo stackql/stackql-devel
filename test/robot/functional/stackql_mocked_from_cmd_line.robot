@@ -8662,3 +8662,89 @@ Update Returning Simple Projection
     ...    ${EMPTY}
     ...    stdout=${CURDIR}/tmp/Update-Returning-Simple-Projection.tmp
     ...    stderr=${CURDIR}/tmp/Update-Returning-Simple-Projection-stderr.tmp
+
+Update Async Returning Simple Projection
+    [Documentation]    Replace an object and return projected new object values. For asynchronously replaced objects. Also tests selective delayed response return.
+    ${inputStr} =    Catenate
+    ...    update /*+ AWAIT */ google.compute.firewalls set data__disabled = 'true' 
+    ...    where project = 'mutable-project' 
+    ...    and firewall = 'updatable-firewall' 
+    ...    returning direction, description;
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |-----------|-----------------|
+    ...    |${SPACE}direction${SPACE}|${SPACE}${SPACE}${SPACE}description${SPACE}${SPACE}${SPACE}|
+    ...    |-----------|-----------------|
+    ...    |${SPACE}INGRESS${SPACE}${SPACE}${SPACE}|${SPACE}My${SPACE}test${SPACE}fw${SPACE}rule${SPACE}|
+    ...    |-----------|-----------------|
+    ${inputStr} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"     ${inputStrPostgres}    ${inputStrSQLite}
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    ${EMPTY}
+    ...    stdout=${CURDIR}/tmp/Update-Async-Returning-Simple-Projection.tmp
+    ...    stderr=${CURDIR}/tmp/Update-Async-Returning-Simple-Projection-stderr.tmp
+
+Replace Returning Simple Projection
+    [Documentation]    Replace an object and return projected new object values. For synchronously replaced objects. Also tests selective eager response return.
+    ${inputStr} =    Catenate
+    ...    replace google.compute.firewalls set data__disabled = 'true' 
+    ...    where project = 'mutable-project' 
+    ...    and firewall = 'replacable-firewall' 
+    ...    returning user, status;
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |----------------------|---------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}user${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}status${SPACE}${SPACE}|
+    ...    |----------------------|---------|
+    ...    |${SPACE}somejimbo@stackql.io${SPACE}|${SPACE}RUNNING${SPACE}|
+    ...    |----------------------|---------|
+    ${stdErrStr} =    Catenate    SEPARATOR=\n
+    ...    compute#operation: insert in progress, 10 seconds elapsed
+    ...    compute#operation: insert complete
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    ${stdErrStr}
+    ...    stdout=${CURDIR}/tmp/Replace-Returning-Simple-Projection.tmp
+    ...    stderr=${CURDIR}/tmp/Replace-Returning-Simple-Projection-stderr.tmp
+
+Replace Async Returning Simple Projection
+    [Documentation]    Replace an object and return projected new object values. For asynchronously replaced objects. Also tests selective delayed response return.
+    ${inputStr} =    Catenate
+    ...    replace /*+ AWAIT */ google.compute.firewalls set data__disabled = 'true' 
+    ...    where project = 'mutable-project' 
+    ...    and firewall = 'replacable-firewall' 
+    ...    returning direction, description;
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |-----------|-----------------|
+    ...    |${SPACE}direction${SPACE}|${SPACE}${SPACE}${SPACE}description${SPACE}${SPACE}${SPACE}|
+    ...    |-----------|-----------------|
+    ...    |${SPACE}INGRESS${SPACE}${SPACE}${SPACE}|${SPACE}My${SPACE}test${SPACE}fw${SPACE}rule${SPACE}|
+    ...    |-----------|-----------------|
+    ${inputStr} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"     ${inputStrPostgres}    ${inputStrSQLite}
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    ${EMPTY}
+    ...    stdout=${CURDIR}/tmp/Replace-Async-Returning-Simple-Projection.tmp
+    ...    stderr=${CURDIR}/tmp/Replace-Async-Returning-Simple-Projection-stderr.tmp

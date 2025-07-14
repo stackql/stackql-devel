@@ -639,6 +639,7 @@ func (pb *standardPrimitiveGenerator) AnalyzeUnaryExec(
 		svc,
 		true,
 		[]anysdk.ColumnDescriptor{},
+		false,
 	)
 	analyser := anysdk.NewMethodAnalyzer()
 	methodAnalysisOutput, analysisErr := analyser.AnalyzeUnaryAction(analysisInput)
@@ -1137,6 +1138,7 @@ func (pb *standardPrimitiveGenerator) AnalyzeInsert(pbi planbuilderinput.PlanBui
 		svc,
 		true,
 		[]anysdk.ColumnDescriptor{},
+		pb.PrimitiveComposer.IsAwait(),
 	)
 	analyser := anysdk.NewMethodAnalyzer()
 	// TODO: this ought to cater for async
@@ -1258,6 +1260,7 @@ func (pb *standardPrimitiveGenerator) AnalyzeUpdate(pbi planbuilderinput.PlanBui
 		svc,
 		true,
 		[]anysdk.ColumnDescriptor{},
+		pb.PrimitiveComposer.IsAwait(),
 	)
 	analyser := anysdk.NewMethodAnalyzer()
 	methodAnalysisOutput, analysisErr := analyser.AnalyzeUnaryAction(analysisInput)
@@ -1350,6 +1353,7 @@ func (pb *standardPrimitiveGenerator) analyzeDelete(
 		svc,
 		true,
 		[]anysdk.ColumnDescriptor{},
+		pb.PrimitiveComposer.IsAwait(),
 	)
 	analyser := anysdk.NewMethodAnalyzer()
 	methodAnalysisOutput, analysisErr := analyser.AnalyzeUnaryAction(analysisInput)

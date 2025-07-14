@@ -179,6 +179,7 @@
         "insert /*+ AWAIT */ into google.compute.networks(project, data__name, data__autoCreateSubnetworks) select 'mutable-project', 'auto-test-01', false returning creationTimestamp, name;",
         "registry pull google 'v0.1.2'; show resources in google.storage; registry pull google 'v0.1.1-alpha01'; show resources in google.storage; registry pull google 'v0.1.0'; show resources in google.storage;",
         "update google.storage.buckets set data__labels = '{ \"app_stub\": \"factory\" }' where bucket = 'demo-app-bucket1' returning labels, projectNumber;",
+        "update google.compute.firewalls set data__disabled = 'true' where project = 'mutable-project' and firewall = 'updatable-firewall' returning user;",
       ],
       "default": "show providers;"
     },
