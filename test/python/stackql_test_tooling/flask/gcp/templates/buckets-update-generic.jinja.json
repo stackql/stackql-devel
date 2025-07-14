@@ -11,7 +11,7 @@
   "etag": "CAE=",
   "timeCreated": "2025-07-03T00:03:44.250Z",
   "updated": "2025-07-03T00:03:44.250Z",
-  "lables": {{ labels }},
+  "labels": {{ labels }},
   "softDeletePolicy": {
     "retentionDurationSeconds": "604800",
     "effectiveTime": "2025-07-03T00:03:44.250Z"

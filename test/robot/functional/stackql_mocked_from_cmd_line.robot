@@ -8635,3 +8635,30 @@ Insert Async Returning Simple Projection
     ...    ${stdErrStr}
     ...    stdout=${CURDIR}/tmp/Insert-Async-Returning-Simple-Projection.tmp
     ...    stderr=${CURDIR}/tmp/Insert-Async-Returning-Simple-Projection-stderr.tmp
+
+Update Returning Simple Projection
+    [Documentation]    Update an object and return projected new object values. For synchronously updated objects.
+    ${inputStrSQLite} =    Catenate
+    ...    update google.storage.buckets set data__labels = '{ "app_stub": "factory" }' where bucket = 'demo-app-bucket1' returning labels, projectNumber;
+    ${inputStrPostgres} =    Catenate
+    ...    update google.storage.buckets set data__labels = '{ "app_stub": "factory" }' where bucket = 'demo-app-bucket1' returning labels, projectNumber;
+    ${outputStr} =    Catenate    SEPARATOR=\n
+    ...    |------------------------|---------------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}labels${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}projectNumber${SPACE}|
+    ...    |------------------------|---------------|
+    ...    |${SPACE}{"app_stub":"factory"}${SPACE}|${SPACE}${SPACE}100000000001${SPACE}|
+    ...    |------------------------|---------------|
+    ${inputStr} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"     ${inputStrPostgres}    ${inputStrSQLite}
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${outputStr}
+    ...    ${EMPTY}
+    ...    stdout=${CURDIR}/tmp/Update-Returning-Simple-Projection.tmp
+    ...    stderr=${CURDIR}/tmp/Update-Returning-Simple-Projection-stderr.tmp
