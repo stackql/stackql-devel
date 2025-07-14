@@ -8676,7 +8676,9 @@ Update Async Returning Simple Projection
     ...    |-----------|-----------------|
     ...    |${SPACE}INGRESS${SPACE}${SPACE}${SPACE}|${SPACE}My${SPACE}test${SPACE}fw${SPACE}rule${SPACE}|
     ...    |-----------|-----------------|
-    ${inputStr} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"     ${inputStrPostgres}    ${inputStrSQLite}
+    ${stdErrStr} =    Catenate    SEPARATOR=\n
+    ...    compute#operation: insert in progress, 10 seconds elapsed
+    ...    compute#operation: insert complete
     Should Stackql Exec Inline Equal Both Streams
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
@@ -8687,7 +8689,7 @@ Update Async Returning Simple Projection
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${inputStr}
     ...    ${outputStr}
-    ...    ${EMPTY}
+    ...    ${stdErrStr}
     ...    stdout=${CURDIR}/tmp/Update-Async-Returning-Simple-Projection.tmp
     ...    stderr=${CURDIR}/tmp/Update-Async-Returning-Simple-Projection-stderr.tmp
 
@@ -8704,9 +8706,6 @@ Replace Returning Simple Projection
     ...    |----------------------|---------|
     ...    |${SPACE}somejimbo@stackql.io${SPACE}|${SPACE}RUNNING${SPACE}|
     ...    |----------------------|---------|
-    ${stdErrStr} =    Catenate    SEPARATOR=\n
-    ...    compute#operation: insert in progress, 10 seconds elapsed
-    ...    compute#operation: insert complete
     Should Stackql Exec Inline Equal Both Streams
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
@@ -8717,7 +8716,7 @@ Replace Returning Simple Projection
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${inputStr}
     ...    ${outputStr}
-    ...    ${stdErrStr}
+    ...    ${EMPTY}
     ...    stdout=${CURDIR}/tmp/Replace-Returning-Simple-Projection.tmp
     ...    stderr=${CURDIR}/tmp/Replace-Returning-Simple-Projection-stderr.tmp
 
@@ -8734,7 +8733,9 @@ Replace Async Returning Simple Projection
     ...    |-----------|-----------------|
     ...    |${SPACE}INGRESS${SPACE}${SPACE}${SPACE}|${SPACE}My${SPACE}test${SPACE}fw${SPACE}rule${SPACE}|
     ...    |-----------|-----------------|
-    ${inputStr} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"     ${inputStrPostgres}    ${inputStrSQLite}
+    ${stdErrStr} =    Catenate    SEPARATOR=\n
+    ...    compute#operation: insert in progress, 10 seconds elapsed
+    ...    compute#operation: insert complete
     Should Stackql Exec Inline Equal Both Streams
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
@@ -8745,6 +8746,6 @@ Replace Async Returning Simple Projection
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${inputStr}
     ...    ${outputStr}
-    ...    ${EMPTY}
+    ...    ${stdErrStr}
     ...    stdout=${CURDIR}/tmp/Replace-Async-Returning-Simple-Projection.tmp
     ...    stderr=${CURDIR}/tmp/Replace-Async-Returning-Simple-Projection-stderr.tmp

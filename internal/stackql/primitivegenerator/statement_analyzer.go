@@ -975,7 +975,7 @@ func (pb *standardPrimitiveGenerator) buildRequestContext(
 }
 
 func (pb *standardPrimitiveGenerator) buildRequestContextFromMapArray(
-	node sqlparser.SQLNode,
+	node sqlparser.SQLNode, //nolint:revive,unparam // TODO: review
 	meta tablemetadata.ExtendedTableMetadata,
 	execContext anysdk.ExecContext,
 	paramMapArray map[int]map[string]interface{},
@@ -1173,6 +1173,7 @@ func (pb *standardPrimitiveGenerator) AnalyzeInsert(pbi planbuilderinput.PlanBui
 	return nil
 }
 
+//nolint:funlen,gocognit // TODO: refactor
 func (pb *standardPrimitiveGenerator) AnalyzeUpdate(pbi planbuilderinput.PlanBuilderInput) error {
 	handlerCtx := pbi.GetHandlerCtx()
 	node, ok := pbi.GetUpdate()
@@ -1194,19 +1195,6 @@ func (pb *standardPrimitiveGenerator) AnalyzeUpdate(pbi planbuilderinput.PlanBui
 	if isPhysicalTable {
 		return nil
 	}
-
-	// prov, err := tbl.GetProvider()
-	// if err != nil {
-	// 	return err
-	// }
-	// currentService, err := tbl.GetServiceStr()
-	// if err != nil {
-	// 	return err
-	// }
-	// currentResource, err := tbl.GetResourceStr()
-	// if err != nil {
-	// 	return err
-	// }
 
 	pb.parseComments(node.Comments)
 

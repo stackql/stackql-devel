@@ -274,10 +274,6 @@ func ExtractInsertValColumnsPlusPlaceHolders(insStmt *sqlparser.Insert) (map[int
 	return extractInsertValColumns(insStmt, false)
 }
 
-// func ExtractUpdateValColumnsPlusPlaceHolders(updateStmt *sqlparser.Update) (map[int]map[int]interface{}, int, error) {
-// 	return extractUpdateValColumnsArray(updateStmt, false)
-// }
-
 func extractInsertValColumns(
 	insStmt *sqlparser.Insert,
 	includePlaceholders bool,
