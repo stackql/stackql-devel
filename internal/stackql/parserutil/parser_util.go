@@ -90,6 +90,7 @@ func ExtractSelectColumnNames(selStmt *sqlparser.Select, formatter sqlparser.Nod
 
 func ExtractInsertReturningColumnNames(
 	insertStmt *sqlparser.Insert,
+	starColumns []string,
 	formatter sqlparser.NodeFormatter,
 ) ([]ColumnHandle, error) {
 	var colNames []ColumnHandle
@@ -103,6 +104,22 @@ func ExtractInsertReturningColumnNames(
 			}
 			colNames = append(colNames, cn)
 		case *sqlparser.StarExpr:
+			if len(starColumns) == 0 {
+				return nil, fmt.Errorf("no star columns provided for insert returning of star")
+			}
+			prefix := node.TableName.GetRawVal()
+			for _, colName := range starColumns {
+				if prefix != "" {
+					colName = prefix + "." + colName
+				}
+				colNames = append(colNames, ColumnHandle{
+					Name:  colName,
+					Alias: colName,
+				})
+			}
+		default:
+			err = fmt.Errorf("cannot use SelectExpr of type '%T' as a raw value", node)
+			return nil, err
 		}
 	}
 	return colNames, err
