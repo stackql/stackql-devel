@@ -1,6 +1,7 @@
 
 import logging
 from flask import Flask, render_template, request, jsonify
+import json
 
 import os
 
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 @app.before_request
 def log_request_info():
-    logger.info(f"Request: {request.method} {request.path} - Query: {request.args}")
+    logger.info(f"Request: {request.method} {request.path} - Query: {request.args} -- Body: {request.get_data(as_text=True)}")
 
 @app.route('/storage/v1/b', methods=['GET'])
 def v1_storage_buckets_list():
@@ -35,6 +36,12 @@ def v1_storage_buckets_insert():
     if project_name == 'testing-project':
         return render_template('buckets-insert-generic.jinja.json', bucket_name=bucket_name), 200, {'Content-Type': 'application/json'}
     return '{"msg": "Disallowed"}', 401, {'Content-Type': 'application/json'}
+
+@app.route('/storage/v1/b/<bucket_name>', methods=['PATCH'])
+def v1_storage_buckets_update(bucket_name: str):
+    body = request.get_json()
+    labels = json.dumps(body.get('labels', {}))
+    return render_template('buckets-update-generic.jinja.json', bucket_name=bucket_name, labels=labels), 200, {'Content-Type': 'application/json'}
 
 @app.route('/compute/v1/projects/testing-project/global/networks', methods=['GET'])
 def projects_testing_project_global_networks():

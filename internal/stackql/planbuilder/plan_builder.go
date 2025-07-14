@@ -1072,9 +1072,68 @@ func (pgb *standardPlanGraphBuilder) handleUpdate(pbi planbuilderinput.PlanBuild
 			bldrInput.SetTxnCtrlCtrs(pbi.GetTxnCtrlCtrs())
 			bldrInput.SetIsTargetPhysicalTable(true)
 		}
-		bldr := primitivebuilder.NewInsertOrUpdate(
-			bldrInput,
-		)
+		isAwait := primitiveGenerator.GetPrimitiveComposer().IsAwait()
+		var bldr primitivebuilder.Builder
+		if len(node.SelectExprs) > 0 {
+			// Two cases:
+			//   1. Synchronous.  Equivalent to select.
+			//   2. Asynchronous.  Whole other story.
+			tableMeta, tableMetaExists := bldrInput.GetTableMetadata()
+			if !tableMetaExists {
+				return fmt.Errorf("could not obtain table metadata for node '%s'", node.Action)
+			}
+			rc, rcErr := tableinsertioncontainer.NewTableInsertionContainer(
+				tableMeta,
+				handlerCtx.GetSQLEngine(),
+				handlerCtx.GetTxnCounterMgr(),
+			)
+			if rcErr != nil {
+				return rcErr
+			}
+			bldrInput.SetTableInsertionContainer(rc)
+			bldrInput.SetIsReturning(true)
+			if !isAwait {
+				bldr = primitivebuilder.NewSingleAcquireAndSelect(
+					bldrInput,
+					primitiveGenerator.GetPrimitiveComposer().GetInsertPreparedStatementCtx(),
+					primitiveGenerator.GetPrimitiveComposer().GetSelectPreparedStatementCtx(),
+					nil,
+				)
+			} else {
+				bldrInput.SetIsAwait(true)
+				bldrInput.SetIsReturning(true)
+				bldrInput.SetInsertCtx(primitiveGenerator.GetPrimitiveComposer().GetInsertPreparedStatementCtx())
+				lhsBldr := primitivebuilder.NewInsertOrUpdate(
+					bldrInput,
+				)
+				newBldrInput := builder_input.NewBuilderInput(
+					pgb.planGraphHolder,
+					handlerCtx,
+					tbl,
+				)
+				newBldrInput.SetParserNode(node)
+				newBldrInput.SetAnnotatedAST(pbi.GetAnnotatedAST())
+				newBldrInput.SetTxnCtrlCtrs(pbi.GetTxnCtrlCtrs())
+				newBldrInput.SetTableInsertionContainer(rc)
+				newBldrInput.SetDependencyNode(selectPrimitiveNode)
+				newBldrInput.SetIsAwait(isAwait)
+				rhsBldr := primitivebuilder.NewSingleSelect(
+					pgb.planGraphHolder, handlerCtx, primitiveGenerator.GetPrimitiveComposer().GetSelectPreparedStatementCtx(),
+					[]tableinsertioncontainer.TableInsertionContainer{rc},
+					nil,
+					streaming.NewNopMapStream(),
+				)
+				bldr = primitivebuilder.NewDependencySubDAGBuilder(
+					pgb.planGraphHolder,
+					[]primitivebuilder.Builder{lhsBldr},
+					rhsBldr,
+				)
+			}
+		} else {
+			bldr = primitivebuilder.NewInsertOrUpdate(
+				bldrInput,
+			)
+		}
 		err = bldr.Build()
 		if err != nil {
 			return err

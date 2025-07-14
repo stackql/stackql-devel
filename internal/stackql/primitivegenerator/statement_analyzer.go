@@ -961,6 +961,24 @@ func (pb *standardPrimitiveGenerator) buildRequestContext(
 	execContext anysdk.ExecContext,
 	rowsToInsert map[int]map[int]interface{},
 ) error {
+	paramMapArray, paramErr := util.ExtractSQLNodeParams(node, rowsToInsert)
+	if paramErr != nil {
+		return paramErr
+	}
+	return pb.buildRequestContextFromMapArray(
+		node,
+		meta,
+		execContext,
+		paramMapArray,
+	)
+}
+
+func (pb *standardPrimitiveGenerator) buildRequestContextFromMapArray(
+	node sqlparser.SQLNode,
+	meta tablemetadata.ExtendedTableMetadata,
+	execContext anysdk.ExecContext,
+	paramMapArray map[int]map[string]interface{},
+) error {
 	m, err := meta.GetMethod()
 	if err != nil {
 		return err
@@ -977,17 +995,13 @@ func (pb *standardPrimitiveGenerator) buildRequestContext(
 	if prErr != nil {
 		return prErr
 	}
-	paramMap, paramErr := util.ExtractSQLNodeParams(node, rowsToInsert)
-	if paramErr != nil {
-		return paramErr
-	}
 	meta.WithGetHTTPArmoury(
 		func() (anysdk.HTTPArmoury, error) {
 			httpPreparator := anysdk.NewHTTPPreparator(
 				pr,
 				svc,
 				m,
-				paramMap,
+				paramMapArray,
 				nil,
 				execContext,
 				logging.GetLogger(),
@@ -1179,18 +1193,18 @@ func (pb *standardPrimitiveGenerator) AnalyzeUpdate(pbi planbuilderinput.PlanBui
 		return nil
 	}
 
-	prov, err := tbl.GetProvider()
-	if err != nil {
-		return err
-	}
-	currentService, err := tbl.GetServiceStr()
-	if err != nil {
-		return err
-	}
-	currentResource, err := tbl.GetResourceStr()
-	if err != nil {
-		return err
-	}
+	// prov, err := tbl.GetProvider()
+	// if err != nil {
+	// 	return err
+	// }
+	// currentService, err := tbl.GetServiceStr()
+	// if err != nil {
+	// 	return err
+	// }
+	// currentResource, err := tbl.GetResourceStr()
+	// if err != nil {
+	// 	return err
+	// }
 
 	pb.parseComments(node.Comments)
 
@@ -1203,11 +1217,77 @@ func (pb *standardPrimitiveGenerator) AnalyzeUpdate(pbi planbuilderinput.PlanBui
 		return fmt.Errorf("method %s is not awaitable", method.GetName())
 	}
 
-	_, err = checkResource(handlerCtx, prov, currentService, currentResource)
+	if tbl.IsPhysicalTable() {
+		return nil
+	}
+	svc, err := tbl.GetService()
 	if err != nil {
 		return err
 	}
+	updateValOnlyRows, _, err := parserutil.ExtractUpdateValColumns(node)
+	if err != nil {
+		return err
+	}
+	firstRow := make(map[string]interface{})
+	for k, v := range updateValOnlyRows {
+		firstRow[k.GetRawVal()] = v
+	}
+	updateValOnlyRowsMap := map[int]map[string]interface{}{0: firstRow}
+	_, isOpenapi := svc.(anysdk.OpenAPIService)
+	if !isOpenapi {
+		err = pb.buildRequestContextFromMapArray(
+			node,
+			tbl,
+			nil,
+			updateValOnlyRowsMap,
+		)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 
+	if pb.PrimitiveComposer.IsAwait() && !method.IsAwaitable() {
+		return fmt.Errorf("method %s is not awaitable", method.GetName())
+	}
+	if pb.PrimitiveComposer.IsAwait() && !method.IsAwaitable() {
+		return fmt.Errorf("method %s is not awaitable", method.GetName())
+	}
+	analysisInput := anysdk.NewMethodAnalysisInput(
+		method,
+		svc,
+		true,
+		[]anysdk.ColumnDescriptor{},
+	)
+	analyser := anysdk.NewMethodAnalyzer()
+	methodAnalysisOutput, analysisErr := analyser.AnalyzeUnaryAction(analysisInput)
+	if analysisErr != nil {
+		return analysisErr
+	}
+	err = pb.buildRequestContextFromMapArray(node, tbl, nil, updateValOnlyRowsMap)
+	if err != nil {
+		return err
+	}
+	columnHandles := []parserutil.ColumnHandle{}
+	if len(node.SelectExprs) > 0 {
+		columnHandles, err = parserutil.ExtractUpdateReturningColumnNames(node, handlerCtx.GetASTFormatter())
+		if err != nil {
+			return err
+		}
+	}
+	err = pb.analyzeUnaryAction(
+		pbi,
+		handlerCtx,
+		node,
+		nil,
+		tbl,
+		columnHandles,
+		methodAnalysisOutput,
+	)
+	if err != nil {
+		return err
+	}
+	pb.PrimitiveComposer.SetTable(node, tbl)
 	return nil
 }
 

@@ -108,6 +108,26 @@ func ExtractInsertReturningColumnNames(
 	return colNames, err
 }
 
+func ExtractUpdateReturningColumnNames(
+	updateStmt *sqlparser.Update,
+	formatter sqlparser.NodeFormatter,
+) ([]ColumnHandle, error) {
+	var colNames []ColumnHandle
+	var err error
+	for _, node := range updateStmt.SelectExprs {
+		switch node := node.(type) {
+		case *sqlparser.AliasedExpr:
+			cn, cErr := inferColNameFromExpr(node.Expr, formatter, node.As.GetRawVal())
+			if cErr != nil {
+				return nil, cErr
+			}
+			colNames = append(colNames, cn)
+		case *sqlparser.StarExpr:
+		}
+	}
+	return colNames, err
+}
+
 func ExtractInsertColumnNames(insertStmt *sqlparser.Insert) ([]string, error) {
 	var colNames []string
 	var err error
@@ -254,6 +274,10 @@ func ExtractInsertValColumnsPlusPlaceHolders(insStmt *sqlparser.Insert) (map[int
 	return extractInsertValColumns(insStmt, false)
 }
 
+// func ExtractUpdateValColumnsPlusPlaceHolders(updateStmt *sqlparser.Update) (map[int]map[int]interface{}, int, error) {
+// 	return extractUpdateValColumnsArray(updateStmt, false)
+// }
+
 func extractInsertValColumns(
 	insStmt *sqlparser.Insert,
 	includePlaceholders bool,
@@ -287,6 +311,40 @@ func extractInsertValColumns(
 	}
 	return nil, nonValCount, err
 }
+
+// func extractUpdateValColumnsArray(
+// 	updateStmt *sqlparser.Update,
+// 	includePlaceholders bool,
+// ) (map[int]map[int]interface{}, int, error) {
+// 	precursor, nonVal, precursorErr := extractUpdateValColumns(updateStmt, includePlaceholders)
+// 	if precursorErr != nil {
+// 		return nil, len(nonVal), precursorErr
+// 	}
+// 	if len(nonVal) > 0 {
+// 		return nil, len(nonVal), fmt.Errorf("disallowed non val updates for colums: %v", nonVal)
+// 	}
+// 	retVal := make(map[int]map[int]interface{})
+// 	firstRow := make(map[int]interface{})
+// 	i := 0
+// 	for idx, col := range updateStmt.Exprs {
+// 		if col == nil {
+// 			if includePlaceholders {
+// 				retVal[i] = map[int]interface{}{"$placeholder": nil}
+// 			} else {
+// 				retVal[i] = nil
+// 			}
+// 		}
+// 		for k, v := range col {
+// 			if includePlaceholders {
+// 				retVal[i] = map[int]interface{}{
+// 					constants.PlaceholderKey: v,
+// 				}
+// 			}
+// 			retVal[i][k.GetRawVal()] = v
+// 		}
+// 	}
+// 	return retVal, len(nonVal), nil
+// }
 
 //nolint:gocognit,gocritic // not overly complex
 func extractUpdateValColumns(
