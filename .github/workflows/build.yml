@@ -978,7 +978,7 @@ jobs:
     
     - name: Setup WSL with dependencies
       # uses: Vampire/setup-wsl@v1
-      uses: Vampire/setup-wsl@v3.0.0
+      uses: Vampire/setup-wsl@v6.0.0
       with:
         additional-packages:
           openssl
