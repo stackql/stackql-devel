@@ -980,6 +980,7 @@ jobs:
       # uses: Vampire/setup-wsl@v1
       uses: Vampire/setup-wsl@v6.0.0
       with:
+        distribution: Ubuntu-24.04
         additional-packages:
           openssl
           postgresql
