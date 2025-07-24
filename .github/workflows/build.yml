@@ -999,7 +999,7 @@ jobs:
 
     - shell: wsl-bash -u root {0}
       name: Install Python dependencies
-      run: pip3 install -r cicd/requirements.txt
+      run: pip3 install -r --break-system-packages cicd/requirements.txt
     
     - shell: wsl-bash {0}
       name: Generate rewritten registry for simulations
