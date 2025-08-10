@@ -27,7 +27,8 @@ func (s *SQLPersistenceSystem) GetSystemName() string {
 	return s.sqlSystem.GetName()
 }
 
-func (s *SQLPersistenceSystem) HandleExternalTables(providerName string, externalTables map[string]anysdk.SQLExternalTable) error {
+func (s *SQLPersistenceSystem) HandleExternalTables(
+	providerName string, externalTables map[string]anysdk.SQLExternalTable) error {
 	for _, tbl := range externalTables {
 		err := s.sqlSystem.RegisterExternalTable(
 			providerName,
