@@ -190,7 +190,9 @@ jobs:
         echo "BUILDMINORVERSION=$env:BUILDMINORVERSION" >> $GITHUB_ENV
         echo "BUILDPATCHVERSION=$env:BUILDPATCHVERSION" >> $GITHUB_ENV
 
-        python cicd/python/build.py --verbose --build 
+        python cicd/python/build.py --verbose --build
+
+        build\stackql.exe --help
 
     - name: Test
       if: success()

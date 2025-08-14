@@ -2,9 +2,9 @@ package persistence
 
 import (
 	"github.com/stackql/any-sdk/anysdk"
+	"github.com/stackql/any-sdk/pkg/name_mangle"
 	"github.com/stackql/any-sdk/public/discovery"
 	"github.com/stackql/stackql/internal/stackql/sql_system"
-	"github.com/stackql/stackql/pkg/name_mangle"
 )
 
 var (
