@@ -91,7 +91,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5.0.0
       with:
-        go-version: '~1.21'
+        go-version: '~1.22'
         check-latest: true
         cache: true
       id: go
@@ -262,7 +262,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5.0.0
       with:
-        go-version: '~1.21'
+        go-version: '~1.22'
         check-latest: true
         cache: true
       id: go
@@ -482,7 +482,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5.0.0
       with:
-        go-version: '~1.21'
+        go-version: '~1.22'
         check-latest: true
         cache: true
       id: go
@@ -684,7 +684,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5.0.0
       with:
-        go-version: '~1.21'
+        go-version: '~1.22'
         check-latest: true
         cache: true
       id: go
@@ -1092,7 +1092,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5.0.0
       with:
-        go-version: '~1.21'
+        go-version: '~1.22'
         check-latest: true
         cache: true
       id: go
@@ -1238,7 +1238,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5.0.0
       with:
-        go-version: '~1.21'
+        go-version: '~1.22'
         check-latest: true
         cache: true
       id: go
