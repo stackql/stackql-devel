@@ -177,6 +177,8 @@ jobs:
         CGO_ENABLED: 1
         GH_ACCESS_TOKEN: ${{env.GH_ACCESS_TOKEN}}
         GOPRIVATE: ${{env.GOPRIVATE}}
+        GOOS: windows
+        GOARCH: amd64
       run: |
         git config --global url.https://$env:GH_ACCESS_TOKEN@github.com/.insteadOf https://github.com/
         $Version = convertfrom-stringdata (get-content ./cicd/version.txt -raw)
