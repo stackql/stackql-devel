@@ -91,7 +91,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5.0.0
       with:
-        go-version: ^1.21
+        go-version: '~1.21'
         check-latest: true
         cache: true
       id: go
@@ -194,6 +194,8 @@ jobs:
 
         python cicd/python/build.py --verbose --build
 
+        ls -al build\
+
         build\stackql.exe --help
 
     - name: Test
@@ -260,7 +262,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5.0.0
       with:
-        go-version: ^1.21
+        go-version: '~1.21'
         check-latest: true
         cache: true
       id: go
@@ -480,7 +482,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5.0.0
       with:
-        go-version: ^1.21
+        go-version: '~1.21'
         check-latest: true
         cache: true
       id: go
@@ -682,7 +684,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5.0.0
       with:
-        go-version: ^1.21
+        go-version: '~1.21'
         check-latest: true
         cache: true
       id: go
@@ -1090,7 +1092,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5.0.0
       with:
-        go-version: ^1.21
+        go-version: '~1.21'
         check-latest: true
         cache: true
       id: go
@@ -1236,7 +1238,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5.0.0
       with:
-        go-version: ^1.21
+        go-version: '~1.21'
         check-latest: true
         cache: true
       id: go
