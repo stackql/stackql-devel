@@ -194,8 +194,6 @@ jobs:
 
         python cicd/python/build.py --verbose --build
 
-        ls -al build\
-
         build\stackql.exe --help
 
     - name: Test
