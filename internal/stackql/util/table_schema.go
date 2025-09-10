@@ -37,8 +37,10 @@ func TrimSelectItemsKey(selectItemsKey string) string {
 	return splitSet[len(splitSet)-1]
 }
 
+// TODO: operate on namespace
 func (ta *simpleTableSchemaAnalyzer) GetColumns() ([]Column, error) {
 	var rv []Column
+	// This will be a function of method not schema
 	tableColumns := ta.s.Tabulate(false, "").GetColumns()
 	existingColumns := make(map[string]struct{})
 	for _, col := range tableColumns {
