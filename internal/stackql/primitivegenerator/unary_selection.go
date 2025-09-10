@@ -17,6 +17,7 @@ import (
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 )
 
+//nolint:funlen // apathy
 func (pb *standardPrimitiveGenerator) assembleUnarySelectionBuilder(
 	pbi planbuilderinput.PlanBuilderInput,
 	handlerCtx handler.HandlerContext,
@@ -40,14 +41,24 @@ func (pb *standardPrimitiveGenerator) assembleUnarySelectionBuilder(
 	if err != nil {
 		return err
 	}
-
+	svc, err := tbl.GetService()
+	if err != nil {
+		return err
+	}
+	resource, err := tbl.GetResource()
+	if err != nil {
+		return err
+	}
 	method, err := tbl.GetMethod()
 	if err != nil {
 		return err
 	}
-
 	_, err = docparser.OpenapiStackQLTabulationsPersistor(
-		method, []util.AnnotatedTabulation{annotatedInsertTabulation},
+		prov,
+		svc,
+		resource,
+		method,
+		[]util.AnnotatedTabulation{annotatedInsertTabulation},
 		pb.PrimitiveComposer.GetSQLEngine(),
 		prov.GetName(),
 		handlerCtx.GetNamespaceCollection(),

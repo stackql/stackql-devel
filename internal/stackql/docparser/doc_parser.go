@@ -34,6 +34,9 @@ func TranslateServiceKeyIqlToGenericProvider(serviceKey string) string {
 }
 
 func OpenapiStackQLTabulationsPersistor(
+	prov anysdk.Provider,
+	svc anysdk.Service,
+	resource anysdk.Resource,
 	m anysdk.OperationStore,
 	tabluationsAnnotated []util.AnnotatedTabulation,
 	dbEngine sqlengine.SQLEngine,
@@ -65,7 +68,7 @@ func OpenapiStackQLTabulationsPersistor(
 		return discoveryGenerationID, err
 	}
 	for _, tblt := range tabluationsAnnotated {
-		ddl, ddlErr := drmCfg.GenerateDDL(tblt, m, discoveryGenerationID, false, true)
+		ddl, ddlErr := drmCfg.GenerateDDL(tblt, prov, svc, resource, m, discoveryGenerationID, false, true)
 		if ddlErr != nil {
 			displayErr := fmt.Errorf("error generating DDL: %w", err)
 			logging.GetLogger().Infoln(displayErr.Error())

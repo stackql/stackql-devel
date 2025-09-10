@@ -408,7 +408,7 @@ func (dp *standardDependencyPlanner) processOrphan(
 	} else {
 		// Persist SQL mirror table here prior to generating insert DML
 		drmCfg := dp.handlerCtx.GetDrmConfig()
-		ddl, ddlErr := drmCfg.GenerateDDL(anTab, opStore, 0, false, false)
+		ddl, ddlErr := drmCfg.GenerateDDL(anTab, nil, nil, nil, opStore, 0, false, false)
 		if ddlErr != nil {
 			return nil, nil, ddlErr
 		}
@@ -529,6 +529,14 @@ func (dp *standardDependencyPlanner) processAcquire(
 	if err != nil {
 		return util.NewAnnotatedTabulation(nil, nil, "", ""), nil, err
 	}
+	svc, err := annotationCtx.GetTableMeta().GetService()
+	if err != nil {
+		return util.NewAnnotatedTabulation(nil, nil, "", ""), nil, err
+	}
+	resource, rscErr := annotationCtx.GetTableMeta().GetResource()
+	if rscErr != nil {
+		return util.NewAnnotatedTabulation(nil, nil, "", ""), nil, rscErr
+	}
 	m, err := annotationCtx.GetTableMeta().GetMethod()
 	if err != nil {
 		return util.NewAnnotatedTabulation(nil, nil, "", ""), nil, err
@@ -558,6 +566,9 @@ func (dp *standardDependencyPlanner) processAcquire(
 		annotationCtx.GetTableMeta().GetAlias()).WithParameters(annotationCtx.GetParameters())
 
 	discoGenID, err := docparser.OpenapiStackQLTabulationsPersistor(
+		prov,
+		svc,
+		resource,
 		m,
 		[]util.AnnotatedTabulation{anTab},
 		dp.primitiveComposer.GetSQLEngine(),

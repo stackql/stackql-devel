@@ -15,6 +15,7 @@ import (
 	"github.com/stackql/any-sdk/pkg/streaming"
 	"github.com/stackql/any-sdk/public/discovery"
 	sdk_persistence "github.com/stackql/any-sdk/public/persistence"
+	"github.com/stackql/any-sdk/public/radix_tree_address_space"
 	"github.com/stackql/any-sdk/public/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/relationaldto"
@@ -46,7 +47,7 @@ type Config interface {
 	) (map[string]map[string]interface{}, map[int]map[int]interface{})
 	GetCurrentTable(internaldto.HeirarchyIdentifiers) (internaldto.DBTable, error)
 	GetRelationalType(string) string
-	GenerateDDL(util.AnnotatedTabulation, anysdk.OperationStore, int, bool, bool) ([]string, error)
+	GenerateDDL(util.AnnotatedTabulation, anysdk.Provider, anysdk.Service, anysdk.Resource, anysdk.OperationStore, int, bool, bool) ([]string, error)
 	GetControlAttributes() sqlcontrol.ControlAttributes
 	GetGolangValue(string) interface{}
 	GetGolangSlices([]typing.ColumnMetadata) ([]interface{}, []string)
@@ -108,6 +109,7 @@ type staticDRMConfig struct {
 	typCfg                 typing.Config
 	analyzerFactoryFactory discovery.StaticAnalyzerFactoryFactory
 	persistenceSystem      sdk_persistence.PersistenceSystem
+	registryAPI            anysdk.RegistryAPI
 }
 
 func (dc *staticDRMConfig) GetSQLSystem() sql_system.SQLSystem {
@@ -412,8 +414,12 @@ func (dc *staticDRMConfig) getParserTableName(
 }
 
 func (dc *staticDRMConfig) inferColType(col util.Column) string {
-	relationalType := textStr
 	schema := col.GetSchema()
+	return dc.inferColTypeFromSchema(schema)
+}
+
+func (dc *staticDRMConfig) inferColTypeFromSchema(schema anysdk.Schema) string {
+	relationalType := textStr
 	if schema != nil && schema.GetType() != "" {
 		relationalType = dc.GetRelationalType(schema.GetType())
 	}
@@ -446,6 +452,9 @@ func (dc *staticDRMConfig) genRelationalTableFromExternalSQLTable(
 
 func (dc *staticDRMConfig) genRelationalTable(
 	tabAnn util.AnnotatedTabulation,
+	prov anysdk.Provider,
+	svc anysdk.Service,
+	resource anysdk.Resource,
 	m anysdk.OperationStore,
 	discoveryGenerationID int,
 	isNilResponseAlloed bool,
@@ -478,17 +487,45 @@ func (dc *staticDRMConfig) genRelationalTable(
 		relationalColumn := typing.NewRelationalColumn(colName, colType).WithWidth(colWidth)
 		relationalTable.PushBackColumn(relationalColumn)
 	}
+	//nolint:lll // acceptable
+	method, isOpenApiMethod := m.(anysdk.StandardOperationStore)
+	if isOpenApiMethod {
+		addressSpaceFormulator := radix_tree_address_space.NewAddressSpaceFormulator(
+			radix_tree_address_space.NewAddressSpaceGrammar(),
+			prov,
+			svc,
+			resource,
+			method,
+			method.GetProjections(),
+		)
+		addressSpaceErr := addressSpaceFormulator.Formulate()
+		if addressSpaceErr != nil {
+			return nil, addressSpaceErr
+		}
+		// TODO: use address space
+		addressSpace := addressSpaceFormulator.GetAddressSpace()
+		if addressSpace == nil {
+			return nil, fmt.Errorf("failed to obtain address space")
+		}
+	}
+	// analyzer, analyzerErr := methodAnalyzerFactory.CreateMethodAggregateStaticAnalyzer(
+	// 	path.Join(dc.registryAPI.GetLocalProviderDocPath("", ""),
+
+	// )
 	return relationalTable, nil
 }
 
 func (dc *staticDRMConfig) GenerateDDL(
 	tabAnn util.AnnotatedTabulation,
+	prov anysdk.Provider,
+	svc anysdk.Service,
+	resource anysdk.Resource,
 	m anysdk.OperationStore,
 	discoveryGenerationID int,
 	dropTable bool,
 	isNilResponseAlloed bool,
 ) ([]string, error) {
-	relationalTable, err := dc.genRelationalTable(tabAnn, m, discoveryGenerationID, isNilResponseAlloed)
+	relationalTable, err := dc.genRelationalTable(tabAnn, prov, svc, resource, m, discoveryGenerationID, isNilResponseAlloed)
 	if err != nil {
 		return nil, err
 	}
