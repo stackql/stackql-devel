@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/stackql/any-sdk/anysdk"
+	"github.com/stackql/any-sdk/pkg/client"
 	"github.com/stackql/any-sdk/pkg/constants"
 	"github.com/stackql/any-sdk/pkg/db/sqlcontrol"
 	"github.com/stackql/any-sdk/pkg/logging"
@@ -47,7 +48,7 @@ type Config interface {
 	) (map[string]map[string]interface{}, map[int]map[int]interface{})
 	GetCurrentTable(internaldto.HeirarchyIdentifiers) (internaldto.DBTable, error)
 	GetRelationalType(string) string
-	GenerateDDL(util.AnnotatedTabulation, anysdk.Provider, anysdk.Service, anysdk.Resource, anysdk.OperationStore, int, bool, bool) ([]string, error)
+	GenerateDDL(util.AnnotatedTabulation, anysdk.Provider, anysdk.Service, anysdk.Resource, anysdk.StandardOperationStore, int, bool, bool) ([]string, error)
 	GetControlAttributes() sqlcontrol.ControlAttributes
 	GetGolangValue(string) interface{}
 	GetGolangSlices([]typing.ColumnMetadata) ([]interface{}, []string)
@@ -455,7 +456,7 @@ func (dc *staticDRMConfig) genRelationalTable(
 	prov anysdk.Provider,
 	svc anysdk.Service,
 	resource anysdk.Resource,
-	m anysdk.OperationStore,
+	m anysdk.StandardOperationStore,
 	discoveryGenerationID int,
 	isNilResponseAlloed bool,
 ) (relationaldto.RelationalTable, error) {
@@ -487,16 +488,15 @@ func (dc *staticDRMConfig) genRelationalTable(
 		relationalColumn := typing.NewRelationalColumn(colName, colType).WithWidth(colWidth)
 		relationalTable.PushBackColumn(relationalColumn)
 	}
-	//nolint:lll // acceptable
-	method, isOpenApiMethod := m.(anysdk.StandardOperationStore)
-	if isOpenApiMethod {
+	protocolType, _ := prov.GetProtocolType()
+	if protocolType == client.HTTP {
 		addressSpaceFormulator := radix_tree_address_space.NewAddressSpaceFormulator(
 			radix_tree_address_space.NewAddressSpaceGrammar(),
 			prov,
 			svc,
 			resource,
-			method,
-			method.GetProjections(),
+			m,
+			m.GetProjections(),
 		)
 		addressSpaceErr := addressSpaceFormulator.Formulate()
 		if addressSpaceErr != nil {
@@ -520,7 +520,7 @@ func (dc *staticDRMConfig) GenerateDDL(
 	prov anysdk.Provider,
 	svc anysdk.Service,
 	resource anysdk.Resource,
-	m anysdk.OperationStore,
+	m anysdk.StandardOperationStore,
 	discoveryGenerationID int,
 	dropTable bool,
 	isNilResponseAlloed bool,

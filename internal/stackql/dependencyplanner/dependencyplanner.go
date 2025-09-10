@@ -399,7 +399,7 @@ func (dp *standardDependencyPlanner) processOrphan(
 		return nil, nil, err
 	}
 	_, isSQLDataSource := annotationCtx.GetTableMeta().GetSQLDataSource()
-	var opStore anysdk.OperationStore
+	var opStore anysdk.StandardOperationStore
 	if !isSQLDataSource {
 		opStore, err = annotationCtx.GetTableMeta().GetMethod()
 		if err != nil {

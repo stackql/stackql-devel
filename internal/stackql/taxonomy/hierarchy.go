@@ -242,7 +242,7 @@ func GetHeirarchyFromStatement(
 	prov, err := handlerCtx.GetProvider(hIDs.GetProviderStr())
 	retVal.SetProvider(prov)
 	viewDTO, viewExists := retVal.GetView()
-	var meth anysdk.OperationStore
+	var meth anysdk.StandardOperationStore
 	var methStr string
 	var methodErr error
 	if methodAction == "" {
@@ -297,7 +297,7 @@ func GetHeirarchyFromStatement(
 			return retVal, nil //nolint:staticcheck // TODO: fix this
 		}
 	}
-	var method anysdk.OperationStore
+	var method anysdk.StandardOperationStore
 	switch node.(type) {
 	case *sqlparser.Exec, *sqlparser.ExecSubquery:
 		method, err = rsc.FindMethod(hIDs.GetMethodStr())

@@ -37,7 +37,7 @@ func OpenapiStackQLTabulationsPersistor(
 	prov anysdk.Provider,
 	svc anysdk.Service,
 	resource anysdk.Resource,
-	m anysdk.OperationStore,
+	m anysdk.StandardOperationStore,
 	tabluationsAnnotated []util.AnnotatedTabulation,
 	dbEngine sqlengine.SQLEngine,
 	prefix string,

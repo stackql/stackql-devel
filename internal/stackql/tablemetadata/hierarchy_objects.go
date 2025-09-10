@@ -32,8 +32,8 @@ type HeirarchyObjects interface {
 	GetServiceHdl() anysdk.Service
 	GetResource() anysdk.Resource
 	GetMethodSet() anysdk.MethodSet
-	GetMethod() anysdk.OperationStore
-	SetMethod(anysdk.OperationStore)
+	GetMethod() anysdk.StandardOperationStore
+	SetMethod(anysdk.StandardOperationStore)
 	SetMethodSet(anysdk.MethodSet)
 	SetMethodStr(string)
 	SetResource(anysdk.Resource)
@@ -98,7 +98,7 @@ func (ho *standardHeirarchyObjects) GetMethodSet() anysdk.MethodSet {
 	return ho.hr.GetMethodSet()
 }
 
-func (ho *standardHeirarchyObjects) GetMethod() anysdk.OperationStore {
+func (ho *standardHeirarchyObjects) GetMethod() anysdk.StandardOperationStore {
 	return ho.hr.GetMethod()
 }
 
@@ -114,7 +114,7 @@ func (ho *standardHeirarchyObjects) SetMethodSet(mSet anysdk.MethodSet) {
 	ho.hr.SetMethodSet(mSet)
 }
 
-func (ho *standardHeirarchyObjects) SetMethod(m anysdk.OperationStore) {
+func (ho *standardHeirarchyObjects) SetMethod(m anysdk.StandardOperationStore) {
 	ho.hr.SetMethod(m)
 }
 

@@ -53,7 +53,7 @@ type IProvider interface {
 		serviceName string,
 		resourceName string,
 		iqlAction string,
-		runtimeCtx dto.RuntimeCtx) (anysdk.OperationStore, string, error)
+		runtimeCtx dto.RuntimeCtx) (anysdk.StandardOperationStore, string, error)
 
 	GetLikeableColumns(string) []string
 
@@ -62,7 +62,7 @@ type IProvider interface {
 		resourceName string,
 		iqlAction string,
 		parameters parserutil.ColumnKeyedDatastore,
-		runtimeCtx dto.RuntimeCtx) (anysdk.OperationStore, string, error)
+		runtimeCtx dto.RuntimeCtx) (anysdk.StandardOperationStore, string, error)
 
 	GetMethodSelector() methodselect.IMethodSelector
 
@@ -91,7 +91,7 @@ type IProvider interface {
 
 	GetVersion() string
 
-	InferDescribeMethod(anysdk.Resource) (anysdk.OperationStore, string, error)
+	InferDescribeMethod(anysdk.Resource) (anysdk.StandardOperationStore, string, error)
 
 	InferMaxResultsElement(anysdk.OperationStore) sdk_internal_dto.HTTPElement
 
