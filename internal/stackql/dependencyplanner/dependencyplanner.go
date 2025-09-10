@@ -324,8 +324,9 @@ func (dp *standardDependencyPlanner) Plan() error {
 		return err
 	}
 	logging.GetLogger().Debugf("rewrittenWhereStr = '%s'", rewrittenWhereStr)
-	drmCfg, err := drm.GetDRMConfig(
+	drmCfg, err := drm.GenerateDRMConfig(
 		dp.handlerCtx.GetSQLSystem(),
+		dp.handlerCtx.GetPersistenceSystem(),
 		dp.handlerCtx.GetTypingConfig(),
 		dp.handlerCtx.GetNamespaceCollection(),
 		dp.handlerCtx.GetControlAttributes())
@@ -564,6 +565,7 @@ func (dp *standardDependencyPlanner) processAcquire(
 		dp.handlerCtx.GetNamespaceCollection(),
 		dp.handlerCtx.GetControlAttributes(),
 		dp.handlerCtx.GetSQLSystem(),
+		dp.handlerCtx.GetPersistenceSystem(),
 		dp.handlerCtx.GetTypingConfig(),
 	)
 	if err != nil {

@@ -53,6 +53,7 @@ func (pb *standardPrimitiveGenerator) assembleUnarySelectionBuilder(
 		handlerCtx.GetNamespaceCollection(),
 		handlerCtx.GetControlAttributes(),
 		handlerCtx.GetSQLSystem(),
+		handlerCtx.GetPersistenceSystem(),
 		handlerCtx.GetTypingConfig(),
 	)
 	if err != nil && !methodAnalysisOutput.IsNilResponseAllowed() {

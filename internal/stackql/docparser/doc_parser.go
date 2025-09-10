@@ -6,6 +6,7 @@ import (
 	"github.com/stackql/any-sdk/anysdk"
 	"github.com/stackql/any-sdk/pkg/db/sqlcontrol"
 	"github.com/stackql/any-sdk/pkg/logging"
+	sdk_persistence "github.com/stackql/any-sdk/public/persistence"
 	"github.com/stackql/any-sdk/public/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/drm"
 	"github.com/stackql/stackql/internal/stackql/sql_system"
@@ -40,9 +41,11 @@ func OpenapiStackQLTabulationsPersistor(
 	namespaceCollection tablenamespace.Collection,
 	controlAttributes sqlcontrol.ControlAttributes,
 	sqlSystem sql_system.SQLSystem,
+	persistenceSystem sdk_persistence.PersistenceSystem,
 	typCfg typing.Config,
 ) (int, error) {
-	drmCfg, err := drm.GetDRMConfig(sqlSystem, typCfg, namespaceCollection, controlAttributes)
+	drmCfg, err := drm.GenerateDRMConfig(sqlSystem, persistenceSystem,
+		typCfg, namespaceCollection, controlAttributes)
 	if err != nil {
 		return 0, err
 	}

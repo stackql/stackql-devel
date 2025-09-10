@@ -13,6 +13,8 @@ import (
 	"github.com/stackql/any-sdk/pkg/db/sqlcontrol"
 	"github.com/stackql/any-sdk/pkg/logging"
 	"github.com/stackql/any-sdk/pkg/streaming"
+	"github.com/stackql/any-sdk/public/discovery"
+	sdk_persistence "github.com/stackql/any-sdk/public/persistence"
 	"github.com/stackql/any-sdk/public/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/relationaldto"
@@ -99,11 +101,13 @@ type Config interface {
 }
 
 type staticDRMConfig struct {
-	namespaceCollection tablenamespace.Collection
-	controlAttributes   sqlcontrol.ControlAttributes
-	sqlEngine           sqlengine.SQLEngine
-	sqlSystem           sql_system.SQLSystem
-	typCfg              typing.Config
+	namespaceCollection    tablenamespace.Collection
+	controlAttributes      sqlcontrol.ControlAttributes
+	sqlEngine              sqlengine.SQLEngine
+	sqlSystem              sql_system.SQLSystem
+	typCfg                 typing.Config
+	analyzerFactoryFactory discovery.StaticAnalyzerFactoryFactory
+	persistenceSystem      sdk_persistence.PersistenceSystem
 }
 
 func (dc *staticDRMConfig) GetSQLSystem() sql_system.SQLSystem {
@@ -446,6 +450,7 @@ func (dc *staticDRMConfig) genRelationalTable(
 	discoveryGenerationID int,
 	isNilResponseAlloed bool,
 ) (relationaldto.RelationalTable, error) {
+
 	tableName, err := dc.getTableName(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID)
 	if err != nil {
 		return nil, err
@@ -897,18 +902,21 @@ func (dc *staticDRMConfig) InsertIntoPhysicalTable(
 	)
 }
 
-func GetDRMConfig(
+func GenerateDRMConfig(
 	sqlSystem sql_system.SQLSystem,
+	persistenceSystem sdk_persistence.PersistenceSystem,
 	typCfg typing.Config,
 	namespaceCollection tablenamespace.Collection,
 	controlAttributes sqlcontrol.ControlAttributes,
 ) (Config, error) {
 	rv := &staticDRMConfig{
-		namespaceCollection: namespaceCollection,
-		controlAttributes:   controlAttributes,
-		sqlEngine:           sqlSystem.GetSQLEngine(),
-		sqlSystem:           sqlSystem,
-		typCfg:              typCfg,
+		namespaceCollection:    namespaceCollection,
+		controlAttributes:      controlAttributes,
+		sqlEngine:              sqlSystem.GetSQLEngine(),
+		sqlSystem:              sqlSystem,
+		typCfg:                 typCfg,
+		analyzerFactoryFactory: discovery.NewStandardStaticAnalyzerFactoryFactory(),
+		persistenceSystem:      persistenceSystem,
 	}
 	return rv, nil
 }

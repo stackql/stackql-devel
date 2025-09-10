@@ -8,11 +8,11 @@ import (
 	"github.com/stackql/any-sdk/pkg/constants"
 	"github.com/stackql/any-sdk/pkg/dto"
 	"github.com/stackql/any-sdk/public/discovery"
+	sdk_persistence "github.com/stackql/any-sdk/public/persistence"
 	"github.com/stackql/stackql/internal/stackql/docparser"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/methodselect"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
-	"github.com/stackql/stackql/internal/stackql/persistence"
 	"github.com/stackql/stackql/internal/stackql/sql_system"
 
 	sdk_internal_dto "github.com/stackql/any-sdk/pkg/internaldto"
@@ -106,16 +106,17 @@ type IProvider interface {
 	ShowAuth(authCtx *dto.AuthCtx) (*anysdk.AuthMetadata, error)
 }
 
-func GetProvider(
+func GenerateProvider(
 	runtimeCtx dto.RuntimeCtx,
 	providerStr,
 	providerVersion string,
 	reg anysdk.RegistryAPI,
 	sqlSystem sql_system.SQLSystem,
+	persistenceSystem sdk_persistence.PersistenceSystem,
 ) (IProvider, error) {
 	switch providerStr { //nolint:gocritic // TODO: review
 	default:
-		return newGenericProvider(runtimeCtx, providerStr, providerVersion, reg, sqlSystem)
+		return newGenericProvider(runtimeCtx, providerStr, providerVersion, reg, sqlSystem, persistenceSystem)
 	}
 }
 
@@ -134,6 +135,7 @@ func newGenericProvider(
 	versionStr string,
 	reg anysdk.RegistryAPI,
 	sqlSystem sql_system.SQLSystem,
+	persistenceSystem sdk_persistence.PersistenceSystem,
 ) (IProvider, error) {
 	methSel, err := methodselect.NewMethodSelector(providerStr, versionStr)
 	if err != nil {
@@ -145,19 +147,17 @@ func newGenericProvider(
 		return nil, err
 	}
 
-	persistor := persistence.NewSQLPersistenceSystem(sqlSystem)
-
 	da := discovery.NewBasicDiscoveryAdapter(
 		providerStr,
 		rootURL,
 		discovery.NewTTLDiscoveryStore(
-			persistor,
+			persistenceSystem,
 			reg,
 			rtCtx,
 		),
 		&rtCtx,
 		reg,
-		persistor,
+		persistenceSystem,
 	)
 
 	p, err := da.GetProvider(rtCtx.ProviderStr)
