@@ -1,7 +1,6 @@
 package util
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/stackql/any-sdk/anysdk"
@@ -42,10 +41,10 @@ func TrimSelectItemsKey(selectItemsKey string) string {
 func (ta *simpleTableSchemaAnalyzer) GetColumns() ([]Column, error) {
 	var rv []Column
 	// This will be a function of method not schema
-	addressSpace, hasAddressSpace := ta.m.GetAddressSpace()
-	if !hasAddressSpace || addressSpace == nil {
-		return nil, fmt.Errorf("no address space found for method %s", ta.m.GetName())
-	}
+	// addressSpace, hasAddressSpace := ta.m.GetAddressSpace()
+	// if !hasAddressSpace || addressSpace == nil {
+	// 	return nil, fmt.Errorf("no address space found for method %s", ta.m.GetName())
+	// }
 	tableColumns := ta.s.Tabulate(false, "").GetColumns()
 	existingColumns := make(map[string]struct{})
 	for _, col := range tableColumns {

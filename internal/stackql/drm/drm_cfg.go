@@ -450,7 +450,6 @@ func (dc *staticDRMConfig) genRelationalTable(
 	discoveryGenerationID int,
 	isNilResponseAlloed bool,
 ) (relationaldto.RelationalTable, error) {
-
 	tableName, err := dc.getTableName(tabAnn.GetHeirarchyIdentifiers(), discoveryGenerationID)
 	if err != nil {
 		return nil, err
