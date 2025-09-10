@@ -134,7 +134,7 @@ func newGenericProvider(
 	providerStr,
 	versionStr string,
 	reg anysdk.RegistryAPI,
-	sqlSystem sql_system.SQLSystem,
+	_ sql_system.SQLSystem,
 	persistenceSystem sdk_persistence.PersistenceSystem,
 ) (IProvider, error) {
 	methSel, err := methodselect.NewMethodSelector(providerStr, versionStr)
