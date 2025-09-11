@@ -77,7 +77,7 @@ func (sel *DefaultMethodSelector) getMethodByNameAndParameters(
 	resource anysdk.Resource, methodName string,
 	parameters parserutil.ColumnKeyedDatastore) (anysdk.StandardOperationStore, error) {
 	stringifiedParams := parameters.GetStringified()
-	m, remainingParams, ok := resource.GetFirstMethodMatchFromSQLVerb(methodName, stringifiedParams)
+	m, remainingParams, ok := resource.GetFirstNamespaceMethodMatchFromSQLVerb(methodName, stringifiedParams)
 	if !ok {
 		return nil, fmt.Errorf("no appropriate method = '%s' for resource = '%s'", methodName, resource.GetName())
 	}
