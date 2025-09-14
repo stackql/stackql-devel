@@ -328,7 +328,9 @@ func (hc *standardHandlerContext) GetProvider(providerName string) (provider.IPr
 	prov, ok := hc.providers[providerName]
 	//nolint:nestif // TODO: review
 	if !ok {
-		prov, err = provider.GenerateProvider(hc.runtimeContext, ds.Name, ds.Tag, hc.registry, hc.sqlSystem, hc.persistenceSystem)
+		prov, err = provider.GenerateProvider(
+			hc.runtimeContext, ds.Name, ds.Tag,
+			hc.registry, hc.sqlSystem, hc.persistenceSystem)
 		if err == nil {
 			hc.providers[providerName] = prov
 			// update auth info with provider default if auth not already present

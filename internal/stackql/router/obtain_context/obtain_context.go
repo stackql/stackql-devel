@@ -28,6 +28,7 @@ func ObtainAnnotationCtx(
 	if err != nil {
 		return nil, err
 	}
+	// TODO: emulate in address space
 	itemObjS, selectItemsKey, err := schema.GetSelectSchema(tbl.LookupSelectItemsKey(), mediaType)
 	unsuitableSchemaMsg := "schema unsuitable for select query"
 	if err != nil {

@@ -47,7 +47,9 @@ type Config interface {
 	) (map[string]map[string]interface{}, map[int]map[int]interface{})
 	GetCurrentTable(internaldto.HeirarchyIdentifiers) (internaldto.DBTable, error)
 	GetRelationalType(string) string
-	GenerateDDL(util.AnnotatedTabulation, anysdk.Provider, anysdk.Service, anysdk.Resource, anysdk.StandardOperationStore, int, bool, bool) ([]string, error)
+	GenerateDDL(util.AnnotatedTabulation, anysdk.Provider,
+		anysdk.Service, anysdk.Resource, anysdk.StandardOperationStore,
+		int, bool, bool) ([]string, error)
 	GetControlAttributes() sqlcontrol.ControlAttributes
 	GetGolangValue(string) interface{}
 	GetGolangSlices([]typing.ColumnMetadata) ([]interface{}, []string)
@@ -109,7 +111,6 @@ type staticDRMConfig struct {
 	typCfg                 typing.Config
 	analyzerFactoryFactory discovery.StaticAnalyzerFactoryFactory
 	persistenceSystem      sdk_persistence.PersistenceSystem
-	registryAPI            anysdk.RegistryAPI
 }
 
 func (dc *staticDRMConfig) GetSQLSystem() sql_system.SQLSystem {
