@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/stackql/any-sdk/anysdk"
-	"github.com/stackql/any-sdk/pkg/client"
 	"github.com/stackql/any-sdk/pkg/constants"
 	"github.com/stackql/any-sdk/pkg/db/sqlcontrol"
 	"github.com/stackql/any-sdk/pkg/logging"
@@ -474,22 +473,8 @@ func (dc *staticDRMConfig) genRelationalTable(
 		tableName,
 		tabAnn.GetInputTableName(),
 	)
-	schemaAnalyzer := util.NewTableSchemaAnalyzer(tabAnn.GetTabulation().GetSchema(), m, isNilResponseAlloed)
-	tableColumns, err := schemaAnalyzer.GetColumns()
-	if err != nil {
-		return nil, err
-	}
-	for _, col := range tableColumns {
-		colName := col.GetName()
-		colType := dc.inferColType(col)
-		// relationalType := dc.GetRelationalType(colType)
-		// TODO: add drm logic to infer / transform width as suplied by openapi doc
-		colWidth := col.GetWidth()
-		relationalColumn := typing.NewRelationalColumn(colName, colType).WithWidth(colWidth)
-		relationalTable.PushBackColumn(relationalColumn)
-	}
-	protocolType, _ := prov.GetProtocolType()
-	if protocolType == client.HTTP {
+	addressSpace, hasAddressSpace := m.GetAddressSpace()
+	if !hasAddressSpace {
 		addressSpaceFormulator := radix_tree_address_space.NewAddressSpaceFormulator(
 			radix_tree_address_space.NewAddressSpaceGrammar(),
 			prov,
@@ -503,15 +488,29 @@ func (dc *staticDRMConfig) genRelationalTable(
 			return nil, addressSpaceErr
 		}
 		// TODO: use address space
-		addressSpace := addressSpaceFormulator.GetAddressSpace()
+		addressSpace = addressSpaceFormulator.GetAddressSpace()
 		if addressSpace == nil {
 			return nil, fmt.Errorf("failed to obtain address space")
 		}
 	}
-	// analyzer, analyzerErr := methodAnalyzerFactory.CreateMethodAggregateStaticAnalyzer(
-	// 	path.Join(dc.registryAPI.GetLocalProviderDocPath("", ""),
-
-	// )
+	inferredRelation, inferredRelationErr := addressSpace.ToRelation(
+		radix_tree_address_space.NewStandardAddressSpaceExpansionConfig(
+			true, // TODO: switch this off at the appropriate time
+			isNilResponseAlloed,
+		))
+	if inferredRelationErr != nil {
+		return nil, inferredRelationErr
+	}
+	tableColumns := inferredRelation.GetColumns()
+	for _, col := range tableColumns {
+		colName := col.GetName()
+		colType := dc.inferColType(col)
+		// relationalType := dc.GetRelationalType(colType)
+		// TODO: add drm logic to infer / transform width as suplied by openapi doc
+		colWidth := col.GetWidth()
+		relationalColumn := typing.NewRelationalColumn(colName, colType).WithWidth(colWidth)
+		relationalTable.PushBackColumn(relationalColumn)
+	}
 	return relationalTable, nil
 }
 
@@ -525,7 +524,8 @@ func (dc *staticDRMConfig) GenerateDDL(
 	dropTable bool,
 	isNilResponseAlloed bool,
 ) ([]string, error) {
-	relationalTable, err := dc.genRelationalTable(tabAnn, prov, svc, resource, m, discoveryGenerationID, isNilResponseAlloed)
+	relationalTable, err := dc.genRelationalTable(
+		tabAnn, prov, svc, resource, m, discoveryGenerationID, isNilResponseAlloed)
 	if err != nil {
 		return nil, err
 	}
