@@ -183,6 +183,7 @@
         "delete from aws.transfer.servers  where  data__ServerId = 's-0000000001'  and region = 'ap-southeast-2';",
         "replace google.compute.firewalls set data__disabled = 'true'  where project = 'mutable-project'  and firewall = 'replacable-firewall'  returning *;",
         "replace /*+ AWAIT */ google.compute.firewalls set data__disabled = 'true'  where project = 'mutable-project'  and firewall = 'replacable-firewall'  returning *;",
+        "select role_name from pgi.information_schema.applicable_roles order by role_name desc;",
       ], 
       "default": "show providers;"
     },

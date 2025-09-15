@@ -398,6 +398,9 @@ func (dp *standardDependencyPlanner) processOrphan(
 	if err != nil {
 		return nil, nil, err
 	}
+
+	tableMetadata := annotationCtx.GetTableMeta()
+
 	_, isSQLDataSource := annotationCtx.GetTableMeta().GetSQLDataSource()
 	var opStore anysdk.StandardOperationStore
 	if !isSQLDataSource {
@@ -416,9 +419,19 @@ func (dp *standardDependencyPlanner) processOrphan(
 		if err != nil {
 			return nil, nil, err
 		}
-	}
 
-	tableMetadata := annotationCtx.GetTableMeta()
+		insPsc, insPscErr := dp.primitiveComposer.GetDRMConfig().GenerateInsertDML(
+			anTab,
+			nil,
+			nil,
+			nil,
+			opStore,
+			tcc,
+			false,
+			annotationCtx.IsAwait(),
+		)
+		return insPsc, tcc, insPscErr
+	}
 
 	anySdkProv, anySdkPrvErr := tableMetadata.GetProviderObject()
 	if anySdkPrvErr != nil {
