@@ -73,7 +73,12 @@ func (pb *standardPrimitiveGenerator) assembleUnarySelectionBuilder(
 	}
 	ctrs := pbi.GetTxnCtrlCtrs()
 	insPsc, err := pb.PrimitiveComposer.GetDRMConfig().GenerateInsertDML(
-		annotatedInsertTabulation, method, ctrs, methodAnalysisOutput.IsNilResponseAllowed())
+		annotatedInsertTabulation,
+		method,
+		ctrs,
+		methodAnalysisOutput.IsNilResponseAllowed(),
+		methodAnalysisOutput.IsAwait(),
+	)
 	if err != nil {
 		return err
 	}
@@ -117,6 +122,7 @@ func (pb *standardPrimitiveGenerator) assembleUnarySelectionBuilder(
 			handlerCtx.GetSQLSystem(),
 			handlerCtx.GetASTFormatter(),
 			handlerCtx.GetNamespaceCollection()),
+		methodAnalysisOutput.IsAwait(),
 	)
 	if err != nil {
 		return err
@@ -233,13 +239,6 @@ func (pb *standardPrimitiveGenerator) analyzeUnaryAction(
 	hIDs := internaldto.NewHeirarchyIdentifiers(
 		rawhIDs.GetProviderStr(), rawhIDs.GetServiceStr(), itemSchemaName, strings.ToLower(publishedMethodKey))
 
-	// annotatedInsertTabulation := util.NewAnnotatedTabulation(insertTabulation, hIDs, inputTableName, "")
-
-	// ctrs := pbi.GetTxnCtrlCtrs()
-	// insPsc, err := pb.PrimitiveComposer.GetDRMConfig().GenerateInsertDML(annotatedInsertTabulation, method, ctrs)
-	// if err != nil {
-	// 	return err
-	// }
 	schema, _, err := tbl.GetResponseSchemaAndMediaType()
 	if err != nil && !methodAnalysisOutput.IsNilResponseAllowed() {
 		return err

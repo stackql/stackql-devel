@@ -62,12 +62,14 @@ type Config interface {
 		anysdk.OperationStore,
 		internaldto.TxnControlCounters,
 		bool,
+		bool,
 	) (PreparedStatementCtx, error)
 	GenerateSelectDML(
 		util.AnnotatedTabulation,
 		internaldto.TxnControlCounters,
 		string,
 		string,
+		bool,
 	) (PreparedStatementCtx, error)
 	ExecuteInsertDML(sqlengine.SQLEngine, PreparedStatementCtx, map[string]interface{}, string) (sql.Result, error)
 	OpenapiColumnsToRelationalColumns(cols []anysdk.ColumnDescriptor) []typing.RelationalColumn
@@ -542,6 +544,7 @@ func (dc *staticDRMConfig) GenerateInsertDML(
 	method anysdk.OperationStore,
 	tcc internaldto.TxnControlCounters,
 	isNilResponseAlloed bool,
+	isAsync bool,
 ) (PreparedStatementCtx, error) {
 	var columns []typing.ColumnMetadata
 	_, isSQLDataSource := tabAnnotated.GetSQLDataSource()
@@ -636,6 +639,7 @@ func (dc *staticDRMConfig) GenerateSelectDML(
 	txnCtrlCtrs internaldto.TxnControlCounters,
 	selectSuffix,
 	rewrittenWhere string,
+	isAwait bool,
 ) (PreparedStatementCtx, error) {
 	var quotedColNames []string
 	var columns []typing.ColumnMetadata
