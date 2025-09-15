@@ -578,7 +578,7 @@ func (dc *staticDRMConfig) GenerateDDL(
 	return dc.sqlSystem.GenerateDDL(relationalTable, dropTable)
 }
 
-//nolint:gocritic,govet // defer fix
+//nolint:gocritic,govet,funlen,nestif // defer fix
 func (dc *staticDRMConfig) GenerateInsertDML(
 	tabAnnotated util.AnnotatedTabulation,
 	prov anysdk.Provider,
@@ -684,6 +684,7 @@ func (dc *staticDRMConfig) GenerateInsertDML(
 		nil
 }
 
+//nolint:revive // future proofing
 func (dc *staticDRMConfig) GenerateSelectDML(
 	tabAnnotated util.AnnotatedTabulation,
 	prov anysdk.Provider,

@@ -33,7 +33,11 @@ type standardTableRouteAstVisitor struct {
 	isAwait     bool
 }
 
-func NewTableRouteAstVisitor(handlerCtx handler.HandlerContext, router ParameterRouter, isAwait bool) TableRouteAstVisitor {
+func NewTableRouteAstVisitor(
+	handlerCtx handler.HandlerContext,
+	router ParameterRouter,
+	isAwait bool,
+) TableRouteAstVisitor {
 	return &standardTableRouteAstVisitor{
 		handlerCtx:  handlerCtx,
 		router:      router,

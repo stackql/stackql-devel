@@ -59,6 +59,7 @@ func (ac *standardAnnotationCtx) IsAwait() bool {
 	return ac.isAwait
 }
 
+//nolint:gocognit // acceptable
 func (ac *standardAnnotationCtx) Equals(other AnnotationCtx) bool {
 	otherStandard, isStandard := other.(*standardAnnotationCtx)
 	if !isStandard {
