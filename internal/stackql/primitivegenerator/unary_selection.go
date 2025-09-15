@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/stackql/any-sdk/anysdk"
+	"github.com/stackql/any-sdk/public/radix_tree_address_space"
 	"github.com/stackql/stackql/internal/stackql/astvisit"
 	"github.com/stackql/stackql/internal/stackql/docparser"
 	"github.com/stackql/stackql/internal/stackql/handler"
@@ -175,12 +176,45 @@ func (pb *standardPrimitiveGenerator) analyzeUnarySelection(
 	if itemObjS == nil {
 		return fmt.Errorf(unsuitableSchemaMsg)
 	}
+	resource, err := tbl.GetResource()
+	if err != nil {
+		return err
+	}
+	prov, err := tbl.GetProviderObject()
+	if err != nil {
+		return err
+	}
+	svc, err := tbl.GetService()
+	if err != nil {
+		return err
+	}
 	if len(cols) == 0 {
-		tsa := util.NewTableSchemaAnalyzer(schema, method, methodAnalysisOutput.IsNilResponseAllowed())
-		colz, localErr := tsa.GetColumns()
-		if localErr != nil {
-			return localErr
+		addressSpaceFormulator := radix_tree_address_space.NewAddressSpaceFormulator(
+			radix_tree_address_space.NewAddressSpaceGrammar(),
+			prov,
+			svc,
+			resource,
+			method,
+			method.GetProjections(),
+			methodAnalysisOutput.IsAwait(),
+		)
+		addressSpaceErr := addressSpaceFormulator.Formulate()
+		if addressSpaceErr != nil {
+			return addressSpaceErr
 		}
+		addressSpace := addressSpaceFormulator.GetAddressSpace()
+		if addressSpace == nil {
+			return fmt.Errorf("failed to obtain address space")
+		}
+		inferredRelation, inferredRelationErr := addressSpace.ToRelation(
+			radix_tree_address_space.NewStandardAddressSpaceExpansionConfig(
+				true, // TODO: switch this off at the appropriate time
+				false,
+			))
+		if inferredRelationErr != nil {
+			return inferredRelationErr
+		}
+		colz := inferredRelation.GetColumns()
 		for _, v := range colz {
 			cols = append(cols, parserutil.NewUnaliasedColumnHandle(v.GetName()))
 		}

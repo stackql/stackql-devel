@@ -431,7 +431,7 @@ func (dc *staticDRMConfig) getParserTableName(
 	}
 }
 
-func (dc *staticDRMConfig) inferColType(col util.Column) string {
+func (dc *staticDRMConfig) inferColType(col anysdk.Column) string {
 	schema := col.GetSchema()
 	return dc.inferColTypeFromSchema(schema)
 }
@@ -488,7 +488,6 @@ func (dc *staticDRMConfig) obtainAddressSpace(
 	if addressSpaceErr != nil {
 		return nil, addressSpaceErr
 	}
-	// TODO: use address space
 	addressSpace := addressSpaceFormulator.GetAddressSpace()
 	if addressSpace == nil {
 		return nil, fmt.Errorf("failed to obtain address space")
