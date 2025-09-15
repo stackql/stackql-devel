@@ -497,7 +497,7 @@ func (dp *standardDependencyPlanner) orchestrate(
 	return idx, err
 }
 
-//nolint:gocognit // live with it
+//nolint:gocognit,funlen // live with it
 func (dp *standardDependencyPlanner) processAcquire(
 	sqlNode sqlparser.SQLNode,
 	annotationCtx taxonomy.AnnotationCtx,
@@ -571,7 +571,7 @@ func (dp *standardDependencyPlanner) processAcquire(
 		svc,
 		resource,
 		m,
-		false, // TODO: wire up isAwait
+		annotationCtx.IsAwait(),
 		[]util.AnnotatedTabulation{anTab},
 		dp.primitiveComposer.GetSQLEngine(),
 		prov.GetName(),

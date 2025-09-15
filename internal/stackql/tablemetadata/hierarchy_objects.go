@@ -41,12 +41,14 @@ type HeirarchyObjects interface {
 	IsPGInternalObject() bool
 	SetIndirect(internaldto.RelationDTO)
 	GetIndirect() (internaldto.RelationDTO, bool)
+	IsAwait() bool
 }
 
-func NewHeirarchyObjects(hIDs internaldto.HeirarchyIdentifiers) HeirarchyObjects {
+func NewHeirarchyObjects(hIDs internaldto.HeirarchyIdentifiers, isAwait bool) HeirarchyObjects {
 	return &standardHeirarchyObjects{
 		heirarchyIDs: hIDs,
 		hr:           internaldto.NewHeirarchy(hIDs),
+		isAwait:      isAwait,
 	}
 }
 
@@ -56,6 +58,11 @@ type standardHeirarchyObjects struct {
 	prov          provider.IProvider
 	sqlDataSource sql_datasource.SQLDataSource
 	indirect      internaldto.RelationDTO
+	isAwait       bool
+}
+
+func (ho *standardHeirarchyObjects) IsAwait() bool {
+	return ho.isAwait
 }
 
 func (ho *standardHeirarchyObjects) GetIndirect() (internaldto.RelationDTO, bool) {
