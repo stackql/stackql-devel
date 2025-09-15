@@ -417,8 +417,26 @@ func (dp *standardDependencyPlanner) processOrphan(
 			return nil, nil, err
 		}
 	}
+
+	tableMetadata := annotationCtx.GetTableMeta()
+
+	anySdkProv, anySdkPrvErr := tableMetadata.GetProviderObject()
+	if anySdkPrvErr != nil {
+		return nil, nil, anySdkPrvErr
+	}
+	svc, svcErr := tableMetadata.GetService()
+	if svcErr != nil {
+		return nil, nil, svcErr
+	}
+	resource, resourceErr := tableMetadata.GetResource()
+	if resourceErr != nil {
+		return nil, nil, resourceErr
+	}
 	insPsc, err := dp.primitiveComposer.GetDRMConfig().GenerateInsertDML(
 		anTab,
+		anySdkProv,
+		svc,
+		resource,
 		opStore,
 		tcc,
 		false,

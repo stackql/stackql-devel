@@ -74,6 +74,9 @@ func (pb *standardPrimitiveGenerator) assembleUnarySelectionBuilder(
 	ctrs := pbi.GetTxnCtrlCtrs()
 	insPsc, err := pb.PrimitiveComposer.GetDRMConfig().GenerateInsertDML(
 		annotatedInsertTabulation,
+		prov,
+		svc,
+		resource,
 		method,
 		ctrs,
 		methodAnalysisOutput.IsNilResponseAllowed(),
@@ -114,6 +117,10 @@ func (pb *standardPrimitiveGenerator) assembleUnarySelectionBuilder(
 	)
 	selPsc, err := pb.PrimitiveComposer.GetDRMConfig().GenerateSelectDML(
 		util.NewAnnotatedTabulation(selectTabulation, hIDs, inputTableName, tbl.GetAlias()),
+		prov,
+		svc,
+		resource,
+		method,
 		insPsc.GetGCCtrlCtrs(),
 		selectSuffix,
 		astvisit.GenerateModifiedWhereClause(
@@ -121,7 +128,8 @@ func (pb *standardPrimitiveGenerator) assembleUnarySelectionBuilder(
 			rewrittenWhere,
 			handlerCtx.GetSQLSystem(),
 			handlerCtx.GetASTFormatter(),
-			handlerCtx.GetNamespaceCollection()),
+			handlerCtx.GetNamespaceCollection(),
+		),
 		methodAnalysisOutput.IsAwait(),
 	)
 	if err != nil {
