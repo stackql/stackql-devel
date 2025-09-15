@@ -181,6 +181,7 @@
         "select * from aws.iam.user_policies where region = 'us-east-1' and UserName = 'joe.blow' order by member asc;",
         "replace /*+ AWAIT */ google.compute.firewalls set data__disabled = 'true'  where project = 'mutable-project'  and firewall = 'replacable-firewall'  returning *;",
         "delete from aws.transfer.servers  where  data__ServerId = 's-0000000001'  and region = 'ap-southeast-2';",
+        "replace google.compute.firewalls set data__disabled = 'true'  where project = 'mutable-project'  and firewall = 'replacable-firewall'  returning *;",
       ], 
       "default": "show providers;"
     },

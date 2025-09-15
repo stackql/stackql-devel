@@ -256,6 +256,7 @@ func (sp *standardParamSplitter) assembleSplitParams(
 			rawAnnotationCtx.GetHIDs(),
 			rawAnnotationCtx.GetTableMeta().Clone(),
 			com,
+			rawAnnotationCtx.IsAwait(),
 		)
 		sp.splitAnnotationContextMap.Put(rawAnnotationCtx, splitAnnotationCtx)
 		// TODO: this has gotta replace the original and also be duplicated

@@ -58,6 +58,7 @@ func (pb *standardPrimitiveGenerator) assembleUnarySelectionBuilder(
 		svc,
 		resource,
 		method,
+		methodAnalysisOutput.IsAwait(),
 		[]util.AnnotatedTabulation{annotatedInsertTabulation},
 		pb.PrimitiveComposer.GetSQLEngine(),
 		prov.GetName(),

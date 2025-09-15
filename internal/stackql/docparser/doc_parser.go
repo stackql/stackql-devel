@@ -38,6 +38,7 @@ func OpenapiStackQLTabulationsPersistor(
 	svc anysdk.Service,
 	resource anysdk.Resource,
 	m anysdk.StandardOperationStore,
+	isAwait bool,
 	tabluationsAnnotated []util.AnnotatedTabulation,
 	dbEngine sqlengine.SQLEngine,
 	prefix string,
@@ -68,7 +69,7 @@ func OpenapiStackQLTabulationsPersistor(
 		return discoveryGenerationID, err
 	}
 	for _, tblt := range tabluationsAnnotated {
-		ddl, ddlErr := drmCfg.GenerateDDL(tblt, prov, svc, resource, m, discoveryGenerationID, false, true)
+		ddl, ddlErr := drmCfg.GenerateDDL(tblt, prov, svc, resource, m, isAwait, discoveryGenerationID, false, true)
 		if ddlErr != nil {
 			displayErr := fmt.Errorf("error generating DDL: %w", err)
 			logging.GetLogger().Infoln(displayErr.Error())

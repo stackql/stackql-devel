@@ -408,7 +408,8 @@ func (dp *standardDependencyPlanner) processOrphan(
 	} else {
 		// Persist SQL mirror table here prior to generating insert DML
 		drmCfg := dp.handlerCtx.GetDrmConfig()
-		ddl, ddlErr := drmCfg.GenerateDDL(anTab, nil, nil, nil, opStore, 0, false, false)
+		// TODO: extract isAwait somehow
+		ddl, ddlErr := drmCfg.GenerateDDL(anTab, nil, nil, nil, opStore, false, 0, false, false)
 		if ddlErr != nil {
 			return nil, nil, ddlErr
 		}
@@ -570,6 +571,7 @@ func (dp *standardDependencyPlanner) processAcquire(
 		svc,
 		resource,
 		m,
+		false, // TODO: wire up isAwait
 		[]util.AnnotatedTabulation{anTab},
 		dp.primitiveComposer.GetSQLEngine(),
 		prov.GetName(),

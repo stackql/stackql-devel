@@ -22,7 +22,7 @@ func ObtainAnnotationCtx(
 	isPGInternalObject := tbl.GetHeirarchyObjects().IsPGInternalObject()
 	if isView || isSQLDataSource || isSubquery || isPGInternalObject {
 		// TODO: upgrade this flow; nil == YUCK!!!
-		return taxonomy.NewStaticStandardAnnotationCtx(nil, tbl.GetHeirarchyObjects().GetHeirarchyIDs(), tbl, parameters), nil
+		return taxonomy.NewStaticStandardAnnotationCtx(nil, tbl.GetHeirarchyObjects().GetHeirarchyIDs(), tbl, parameters, false), nil
 	}
 	schema, mediaType, err := tbl.GetResponseSchemaAndMediaType()
 	if err != nil {
@@ -57,5 +57,5 @@ func ObtainAnnotationCtx(
 	if isView {
 		hIDs = hIDs.WithView(viewDTO)
 	}
-	return taxonomy.NewStaticStandardAnnotationCtx(itemObjS, hIDs, tbl, parameters), nil
+	return taxonomy.NewStaticStandardAnnotationCtx(itemObjS, hIDs, tbl, parameters, false), nil
 }

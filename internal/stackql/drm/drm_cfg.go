@@ -48,7 +48,7 @@ type Config interface {
 	GetCurrentTable(internaldto.HeirarchyIdentifiers) (internaldto.DBTable, error)
 	GetRelationalType(string) string
 	GenerateDDL(util.AnnotatedTabulation, anysdk.Provider,
-		anysdk.Service, anysdk.Resource, anysdk.StandardOperationStore,
+		anysdk.Service, anysdk.Resource, anysdk.StandardOperationStore, bool,
 		int, bool, bool) ([]string, error)
 	GetControlAttributes() sqlcontrol.ControlAttributes
 	GetGolangValue(string) interface{}
@@ -457,6 +457,7 @@ func (dc *staticDRMConfig) genRelationalTable(
 	svc anysdk.Service,
 	resource anysdk.Resource,
 	m anysdk.StandardOperationStore,
+	isAwait bool,
 	discoveryGenerationID int,
 	isNilResponseAlloed bool,
 ) (relationaldto.RelationalTable, error) {
@@ -483,6 +484,7 @@ func (dc *staticDRMConfig) genRelationalTable(
 			resource,
 			m,
 			m.GetProjections(),
+			isAwait,
 		)
 		addressSpaceErr := addressSpaceFormulator.Formulate()
 		if addressSpaceErr != nil {
@@ -521,12 +523,13 @@ func (dc *staticDRMConfig) GenerateDDL(
 	svc anysdk.Service,
 	resource anysdk.Resource,
 	m anysdk.StandardOperationStore,
+	isAwait bool,
 	discoveryGenerationID int,
 	dropTable bool,
 	isNilResponseAlloed bool,
 ) ([]string, error) {
 	relationalTable, err := dc.genRelationalTable(
-		tabAnn, prov, svc, resource, m, discoveryGenerationID, isNilResponseAlloed)
+		tabAnn, prov, svc, resource, m, isAwait, discoveryGenerationID, isNilResponseAlloed)
 	if err != nil {
 		return nil, err
 	}
