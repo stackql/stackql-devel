@@ -462,7 +462,8 @@ jobs:
     - name: Infer env from matrix
       if: always()
       run: |
-        prettifyMatrixRegistry="${${{ matrix.registry }}//\//-}"
+        matrixRegistry="${{ matrix.registry }}"
+        prettifyMatrixRegistry="${matrixRegistry//\//-}"
         {
           echo "MATRIX_REGISTRY=${prettifyMatrixRegistry}"
         } >> "${GITHUB_ENV}"
@@ -1372,7 +1373,7 @@ jobs:
 
     - name: Infer env from matrix
       run: |
-        platform=${{ matrix.platform }}
+        platform="${{ matrix.platform }}"
         {
           echo "PLATFORM_PAIR=${platform//\//-}"
         } >> "${GITHUB_ENV}"
@@ -1550,8 +1551,10 @@ jobs:
     - name: Infer env from matrix
       if: always()
       run: |
-        prettifyMatrixPlatform="${${{ matrix.platform }}//\//-}"
-        prettifyMatrixDBBackend="${{ matrix.db_backend }}"
+        platform="${{ matrix.platform }}"
+        dbBackend="${{ matrix.db_backend }}"
+        prettifyMatrixPlatform="${platform//\//-}"
+        prettifyMatrixDBBackend="${dbBackend//\//-}"
         {
           echo "PLATFORM_PAIR=${prettifyMatrixPlatform}"
           echo "MATRIX_DB_BACKEND=${prettifyMatrixDBBackend}"
