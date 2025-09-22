@@ -234,7 +234,14 @@ jobs:
       with:
         name: testing-windows-robot-tmp
         path: test/robot/functional/tmp
-    
+
+    - name: Upload robot testing credentials
+      if: always()
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-windows-robot-credentials
+        path: test/server/mtls/credentials
+
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release')
       env:
