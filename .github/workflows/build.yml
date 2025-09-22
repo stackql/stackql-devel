@@ -214,10 +214,19 @@ jobs:
       run: |
         python cicd/python/build.py --robot-test
 
-    - name: Output from mocked functional tests
+    - name: Upload robot testing process logs
       if: always()
-      run: |
-        cat ./test/robot/reports/output.xml || echo "no functional test output present"
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-windows-robot-process-logs
+        path: test/robot/log
+
+    - name: Upload robot testing reports
+      if: always()
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-windows-robot-reports
+        path: test/robot/reports
     
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release')
@@ -450,6 +459,14 @@ jobs:
     timeout-minutes: ${{ vars.DEFAULT_JOB_TIMEOUT_MIN == '' && 120 || vars.DEFAULT_JOB_TIMEOUT_MIN }}
     steps:
 
+    - name: Infer env from matrix
+      if: always()
+      run: |
+        prettifyMatrixRegistry="${${{ matrix.registry }}//\//-}"
+        echo {
+          "MATRIX_REGISTRY=${prettifyMatrixRegistry}"
+        } >> "${GITHUB_ENV}"
+
     - name: Check out code into the Go module directory
       uses: actions/checkout@v4.1.1
 
@@ -604,11 +621,6 @@ jobs:
           python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true" } }'
         fi
 
-    - name: Output from mocked functional tests
-      if: always()
-      run: |
-        cat ./test/robot/reports/output.xml
-
     - name: Run robot mocked functional tests with aggressive concurrency
       if: success() && matrix.registry != 'test/registry'
       run: |
@@ -617,10 +629,19 @@ jobs:
         echo "## End ##"
         python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true", "CONCURRENCY_LIMIT": -1  } }'
 
-    - name: Output from mocked functional tests with aggressive concurrency
-      if: always() && matrix.registry != 'test/registry'
-      run: |
-        cat ./test/robot/reports/output.xml
+    - name: Upload robot testing process logs
+      if: always()
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-linuxtest-${{ env.MATRIX_REGISTRY }}-robot-process-logs
+        path: test/robot/log
+
+    - name: Upload robot testing reports
+      if: always()
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-linuxtest-${{ env.MATRIX_REGISTRY }}-robot-reports
+        path: test/robot/reports
     
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release') && matrix.registry != 'test/registry'
@@ -835,11 +856,6 @@ jobs:
       run: |
         python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true" } }'
 
-    - name: Output from mocked functional tests
-      if: always()
-      run: |
-        cat ./test/robot/reports/output.xml
-
     - name: Run robot mocked functional tests with aggressive concurrency
       env:
         PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
@@ -850,10 +866,19 @@ jobs:
         echo "## End ##"
         python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true", "CONCURRENCY_LIMIT": -1  } }'
 
-    - name: Output from mocked functional tests with aggressive concurrency
+    - name: Upload robot testing process logs
       if: always()
-      run: |
-        cat ./test/robot/reports/output.xml
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-linuxarmbuild-robot-process-logs
+        path: test/robot/log
+
+    - name: Upload robot testing reports
+      if: always()
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-linuxarmbuild-robot-reports
+        path: test/robot/reports
     
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release')
@@ -945,11 +970,20 @@ jobs:
         stackqlVersion="$(stackql --version 2>&1 | head -n 1)"
         echo "stackql location: ${stackqlLocation}"
         echo "stackql version: ${stackqlVersion}"
-      
-    - name: Output from mocked deb package functional tests
+  
+    - name: Upload robot testing process logs
       if: always()
-      run: |
-        cat ./test/robot/reports/output.xml
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-linuxarmbuild-deb-robot-process-logs
+        path: test/robot/log
+
+    - name: Upload robot testing reports
+      if: always()
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-linuxarmbuild-deb-robot-reports
+        path: test/robot/reports
 
     - name: Upload deb Artifact
       uses: actions/upload-artifact@v4.3.1
@@ -1042,11 +1076,19 @@ jobs:
           source .venv/bin/activate;
           python3 cicd/python/build.py --robot-test --config='{ "variables":  { "IS_WSL": true } }'
 
-    - shell: wsl-bash {0}
-      name: Output from mocked functional tests
+    - name: Upload robot testing process logs
       if: always()
-      run: |
-          cat ./test/robot/reports/output.xml
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-wsltest-robot-process-logs
+        path: test/robot/log
+
+    - name: Upload robot testing reports
+      if: always()
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-wsltest-robot-reports
+        path: test/robot/reports
     
     - shell: wsl-bash {0}
       name: Run robot integration tests
@@ -1182,10 +1224,20 @@ jobs:
       run: |
         python cicd/python/build.py --robot-test
 
-    - name: Output from mocked functional tests
+
+    - name: Upload robot testing process logs
       if: always()
-      run: |
-        cat ./test/robot/reports/output.xml
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-macos-robot-process-logs
+        path: test/robot/log
+
+    - name: Upload robot testing reports
+      if: always()
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-macos-robot-reports
+        path: test/robot/reports
     
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release')
@@ -1317,10 +1369,13 @@ jobs:
           - linux/arm64
 
     steps:
-    - name: Prepare
+
+    - name: Infer env from matrix
       run: |
         platform=${{ matrix.platform }}
-        echo "PLATFORM_PAIR=${platform//\//-}" >> "${GITHUB_ENV}"          
+        echo {
+          "PLATFORM_PAIR=${platform//\//-}"         
+        } >> "${GITHUB_ENV}"
 
     - name: Docker meta
       id: meta
@@ -1491,10 +1546,16 @@ jobs:
           - sqlite
           - postgres_tcp
     steps:
-    - name: Prepare
+  
+    - name: Infer env from matrix
+      if: always()
       run: |
-        platform=${{ matrix.platform }}
-        echo "PLATFORM_PAIR=${platform//\//-}" >> "${GITHUB_ENV}"
+        prettifyMatrixPlatform="${${{ matrix.platform }}//\//-}"
+        prettifyMatrixDBBackend="${{ matrix.db_backend }}"
+        echo {
+          "PLATFORM_PAIR=${prettifyMatrixPlatform}"
+          "MATRIX_DB_BACKEND=${prettifyMatrixDBBackend}"
+        } > "${GITHUB_ENV}"
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v4.1.1
@@ -1688,10 +1749,19 @@ jobs:
         echo "## End ##"
         python cicd/python/build.py --robot-test --config='{ "variables":  { "EXECUTION_PLATFORM": "docker", "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": true, "SQL_BACKEND": "postgres_tcp" } }'
 
-    - name: Output from mocked functional tests
+    - name: Upload robot testing process logs
       if: always() && env.CI_IS_EXPRESS != 'true' && matrix.platform == 'linux/amd64' && env.BUILD_IMAGE_REQUIRED == 'true' 
-      run: |
-        cat ./test/robot/reports/output.xml
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-dockertest-${{ env.PLATFORM_PAIR }}-${{ env.MATRIX_DB_BACKEND }}-robot-process-logs
+        path: test/robot/log
+
+    - name: Upload robot testing reports
+      if: always() && env.CI_IS_EXPRESS != 'true' && matrix.platform == 'linux/amd64' && env.BUILD_IMAGE_REQUIRED == 'true' 
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-dockertest-${{ env.PLATFORM_PAIR }}-${{ env.MATRIX_DB_BACKEND }}-robot-reports
+        path: test/robot/reports
 
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release') && matrix.platform == 'linux/amd64' && env.BUILD_IMAGE_REQUIRED == 'true'
