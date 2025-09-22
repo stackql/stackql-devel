@@ -463,8 +463,8 @@ jobs:
       if: always()
       run: |
         prettifyMatrixRegistry="${${{ matrix.registry }}//\//-}"
-        echo {
-          "MATRIX_REGISTRY=${prettifyMatrixRegistry}"
+        {
+          echo "MATRIX_REGISTRY=${prettifyMatrixRegistry}"
         } >> "${GITHUB_ENV}"
 
     - name: Check out code into the Go module directory
@@ -1373,8 +1373,8 @@ jobs:
     - name: Infer env from matrix
       run: |
         platform=${{ matrix.platform }}
-        echo {
-          "PLATFORM_PAIR=${platform//\//-}"         
+        {
+          echo "PLATFORM_PAIR=${platform//\//-}"
         } >> "${GITHUB_ENV}"
 
     - name: Docker meta
@@ -1552,9 +1552,9 @@ jobs:
       run: |
         prettifyMatrixPlatform="${${{ matrix.platform }}//\//-}"
         prettifyMatrixDBBackend="${{ matrix.db_backend }}"
-        echo {
-          "PLATFORM_PAIR=${prettifyMatrixPlatform}"
-          "MATRIX_DB_BACKEND=${prettifyMatrixDBBackend}"
+        {
+          echo "PLATFORM_PAIR=${prettifyMatrixPlatform}"
+          echo "MATRIX_DB_BACKEND=${prettifyMatrixDBBackend}"
         } > "${GITHUB_ENV}"
 
     - name: Check out code into the Go module directory
