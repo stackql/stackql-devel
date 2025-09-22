@@ -227,6 +227,13 @@ jobs:
       with:
         name: testing-windows-robot-reports
         path: test/robot/reports
+
+    - name: Upload robot testing tmp
+      if: always()
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-windows-robot-tmp
+        path: test/robot/functional/tmp
     
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release')
@@ -643,6 +650,13 @@ jobs:
       with:
         name: testing-linuxtest-${{ env.MATRIX_REGISTRY }}-robot-reports
         path: test/robot/reports
+
+    - name: Upload robot testing tmp
+      if: always()
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-linuxtest-${{ env.MATRIX_REGISTRY }}-robot-tmp
+        path: test/robot/functional/tmp
     
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release') && matrix.registry != 'test/registry'
@@ -684,13 +698,27 @@ jobs:
         stackqlVersion="$(stackql --version 2>&1 | head -n 1)"
         echo "stackql location: ${stackqlLocation}"
         echo "stackql version: ${stackqlVersion}"
-    
-    - name: Output from mocked deb package functional tests
-      if: always() && matrix.registry != 'test/registry'
-      env:
-        PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
-      run: |
-        cat ./test/robot/reports/output.xml
+
+    - name: Upload robot testing process deb logs
+      if: matrix.registry != 'test/registry'
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-linuxtest-deb-${{ env.MATRIX_REGISTRY }}-robot-process-logs
+        path: test/robot/log
+
+    - name: Upload robot testing deb reports
+      if: matrix.registry != 'test/registry'
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-linuxtest-deb-${{ env.MATRIX_REGISTRY }}-robot-reports
+        path: test/robot/reports
+
+    - name: Upload robot testing deb tmp
+      if: matrix.registry != 'test/registry'
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-linuxtest-deb-${{ env.MATRIX_REGISTRY }}-robot-tmp
+        path: test/robot/functional/tmp
 
   linuxarmbuild:
     name: Linux arm64 Build
@@ -880,6 +908,13 @@ jobs:
       with:
         name: testing-linuxarmbuild-robot-reports
         path: test/robot/reports
+
+    - name: Upload robot testing tmp
+      if: always()
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-linuxarmbuild-robot-tmp
+        path: test/robot/functional/tmp
     
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release')
@@ -986,6 +1021,13 @@ jobs:
         name: testing-linuxarmbuild-deb-robot-reports
         path: test/robot/reports
 
+    - name: Upload robot testing tmp
+      if: always()
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-linuxarmbuild-deb-robot-tmp
+        path: test/robot/functional/tmp
+
     - name: Upload deb Artifact
       uses: actions/upload-artifact@v4.3.1
       if: success()
@@ -1090,6 +1132,13 @@ jobs:
       with:
         name: testing-wsltest-robot-reports
         path: test/robot/reports
+
+    - name: Upload robot testing tmp
+      if: always()
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-wsltest-robot-tmp
+        path: test/robot/functional/tmp
     
     - shell: wsl-bash {0}
       name: Run robot integration tests
@@ -1239,6 +1288,13 @@ jobs:
       with:
         name: testing-macos-robot-reports
         path: test/robot/reports
+
+    - name: Upload robot testing tmp
+      if: always()
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-macos-robot-tmp
+        path: test/robot/functional/tmp
     
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release')
@@ -1765,6 +1821,13 @@ jobs:
       with:
         name: testing-dockertest-${{ env.PLATFORM_PAIR }}-${{ env.MATRIX_DB_BACKEND }}-robot-reports
         path: test/robot/reports
+
+    - name: Upload robot testing tmp
+      if: always() && env.CI_IS_EXPRESS != 'true' && matrix.platform == 'linux/amd64' && env.BUILD_IMAGE_REQUIRED == 'true' 
+      uses: actions/upload-artifact@v4.3.1
+      with:
+        name: testing-dockertest-${{ env.PLATFORM_PAIR }}-${{ env.MATRIX_DB_BACKEND }}-robot-tmp
+        path: test/robot/functional/tmp
 
     - name: Run robot integration tests
       if: env.AZURE_CLIENT_SECRET != '' && startsWith(env.STATE_SOURCE_TAG, 'build-release') && matrix.platform == 'linux/amd64' && env.BUILD_IMAGE_REQUIRED == 'true'
