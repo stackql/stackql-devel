@@ -14,7 +14,7 @@ type ExampleBackend struct {
 }
 
 // NewExampleBackend creates a new example backend instance.
-func NewExampleBackend(connectionString string) *ExampleBackend {
+func NewExampleBackend(connectionString string) Backend {
 	return &ExampleBackend{
 		connectionString: connectionString,
 		connected:        false,
@@ -23,7 +23,7 @@ func NewExampleBackend(connectionString string) *ExampleBackend {
 
 // Execute implements the Backend interface.
 // This is a mock implementation that returns sample data.
-func (b *ExampleBackend) Execute(ctx context.Context, query string, params map[string]interface{}) (*QueryResult, error) {
+func (b *ExampleBackend) Execute(ctx context.Context, query string, params map[string]interface{}) (QueryResult, error) {
 	if !b.connected {
 		return nil, &BackendError{
 			Code:    "NOT_CONNECTED",
@@ -42,44 +42,35 @@ func (b *ExampleBackend) Execute(ctx context.Context, query string, params map[s
 	}
 	
 	// Mock response based on query content
-	var result *QueryResult
+	var result QueryResult
 	
 	if containsIgnoreCase(query, "select") {
-		result = &QueryResult{
-			Columns: []ColumnInfo{
-				{Name: "id", Type: "int64", Nullable: false},
-				{Name: "name", Type: "string", Nullable: true},
-				{Name: "status", Type: "string", Nullable: false},
-			},
-			Rows: [][]interface{}{
-				{1, "example-instance-1", "running"},
-				{2, "example-instance-2", "stopped"},
-				{3, "example-instance-3", "running"},
-			},
-			RowsAffected:  3,
-			ExecutionTime: time.Since(startTime).Milliseconds(),
+		columns := []ColumnInfo{
+			NewColumnInfo("id", "int64", false),
+			NewColumnInfo("name", "string", true),
+			NewColumnInfo("status", "string", false),
 		}
+		rows := [][]interface{}{
+			{1, "example-instance-1", "running"},
+			{2, "example-instance-2", "stopped"},
+			{3, "example-instance-3", "running"},
+		}
+		result = NewQueryResult(columns, rows, 3, time.Since(startTime).Milliseconds())
 	} else if containsIgnoreCase(query, "show") {
-		result = &QueryResult{
-			Columns: []ColumnInfo{
-				{Name: "resource_name", Type: "string", Nullable: false},
-				{Name: "provider", Type: "string", Nullable: false},
-			},
-			Rows: [][]interface{}{
-				{"instances", "aws"},
-				{"buckets", "aws"},
-				{"instances", "google"},
-			},
-			RowsAffected:  3,
-			ExecutionTime: time.Since(startTime).Milliseconds(),
+		columns := []ColumnInfo{
+			NewColumnInfo("resource_name", "string", false),
+			NewColumnInfo("provider", "string", false),
 		}
+		rows := [][]interface{}{
+			{"instances", "aws"},
+			{"buckets", "aws"},
+			{"instances", "google"},
+		}
+		result = NewQueryResult(columns, rows, 3, time.Since(startTime).Milliseconds())
 	} else {
-		result = &QueryResult{
-			Columns:       []ColumnInfo{{Name: "result", Type: "string", Nullable: false}},
-			Rows:          [][]interface{}{{"Query executed successfully"}},
-			RowsAffected:  1,
-			ExecutionTime: time.Since(startTime).Milliseconds(),
-		}
+		columns := []ColumnInfo{NewColumnInfo("result", "string", false)}
+		rows := [][]interface{}{{"Query executed successfully"}}
+		result = NewQueryResult(columns, rows, 1, time.Since(startTime).Milliseconds())
 	}
 	
 	return result, nil
@@ -87,7 +78,7 @@ func (b *ExampleBackend) Execute(ctx context.Context, query string, params map[s
 
 // GetSchema implements the Backend interface.
 // Returns a mock schema structure representing available providers and resources.
-func (b *ExampleBackend) GetSchema(ctx context.Context) (*Schema, error) {
+func (b *ExampleBackend) GetSchema(ctx context.Context) (SchemaProvider, error) {
 	if !b.connected {
 		return nil, &BackendError{
 			Code:    "NOT_CONNECTED",
@@ -95,65 +86,42 @@ func (b *ExampleBackend) GetSchema(ctx context.Context) (*Schema, error) {
 		}
 	}
 	
-	schema := &Schema{
-		Providers: []Provider{
-			{
-				Name:    "aws",
-				Version: "v1.0.0",
-				Services: []Service{
-					{
-						Name: "ec2",
-						Resources: []Resource{
-							{
-								Name:    "instances",
-								Methods: []string{"select", "insert", "delete"},
-								Fields: []Field{
-									{Name: "instance_id", Type: "string", Required: true, Description: "EC2 instance identifier"},
-									{Name: "instance_type", Type: "string", Required: false, Description: "EC2 instance type"},
-									{Name: "state", Type: "string", Required: false, Description: "Instance state"},
-								},
-							},
-						},
-					},
-					{
-						Name: "s3",
-						Resources: []Resource{
-							{
-								Name:    "buckets",
-								Methods: []string{"select", "insert", "delete"},
-								Fields: []Field{
-									{Name: "bucket_name", Type: "string", Required: true, Description: "S3 bucket name"},
-									{Name: "creation_date", Type: "string", Required: false, Description: "Bucket creation date"},
-									{Name: "region", Type: "string", Required: false, Description: "AWS region"},
-								},
-							},
-						},
-					},
-				},
-			},
-			{
-				Name:    "google",
-				Version: "v1.0.0",
-				Services: []Service{
-					{
-						Name: "compute",
-						Resources: []Resource{
-							{
-								Name:    "instances",
-								Methods: []string{"select", "insert", "delete"},
-								Fields: []Field{
-									{Name: "name", Type: "string", Required: true, Description: "Instance name"},
-									{Name: "machine_type", Type: "string", Required: false, Description: "Machine type"},
-									{Name: "status", Type: "string", Required: false, Description: "Instance status"},
-									{Name: "zone", Type: "string", Required: false, Description: "Compute zone"},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
+	// Build AWS EC2 instances resource
+	ec2Fields := []Field{
+		NewField("instance_id", "string", true, "EC2 instance identifier"),
+		NewField("instance_type", "string", false, "EC2 instance type"),
+		NewField("state", "string", false, "Instance state"),
 	}
+	ec2Instances := NewResource("instances", []string{"select", "insert", "delete"}, ec2Fields)
+	ec2Service := NewService("ec2", []Resource{ec2Instances})
+	
+	// Build AWS S3 buckets resource
+	s3Fields := []Field{
+		NewField("bucket_name", "string", true, "S3 bucket name"),
+		NewField("creation_date", "string", false, "Bucket creation date"),
+		NewField("region", "string", false, "AWS region"),
+	}
+	s3Buckets := NewResource("buckets", []string{"select", "insert", "delete"}, s3Fields)
+	s3Service := NewService("s3", []Resource{s3Buckets})
+	
+	// Build AWS provider
+	awsProvider := NewProvider("aws", "v1.0.0", []Service{ec2Service, s3Service})
+	
+	// Build Google Compute instances resource
+	gceFields := []Field{
+		NewField("name", "string", true, "Instance name"),
+		NewField("machine_type", "string", false, "Machine type"),
+		NewField("status", "string", false, "Instance status"),
+		NewField("zone", "string", false, "Compute zone"),
+	}
+	gceInstances := NewResource("instances", []string{"select", "insert", "delete"}, gceFields)
+	computeService := NewService("compute", []Resource{gceInstances})
+	
+	// Build Google provider
+	googleProvider := NewProvider("google", "v1.0.0", []Service{computeService})
+	
+	// Create schema
+	schema := NewSchemaProvider([]Provider{awsProvider, googleProvider})
 	
 	return schema, nil
 }
@@ -207,7 +175,7 @@ func toLower(s string) string {
 
 // NewMCPServerWithExampleBackend creates a new MCP server with an example backend.
 // This is a convenience function for testing and demonstration purposes.
-func NewMCPServerWithExampleBackend(config *Config) (*MCPServer, error) {
+func NewMCPServerWithExampleBackend(config *Config) (MCPServer, error) {
 	if config == nil {
 		config = DefaultConfig()
 	}

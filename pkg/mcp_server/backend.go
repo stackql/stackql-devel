@@ -2,7 +2,7 @@ package mcp_server
 
 import (
 	"context"
-	"database/sql/driver"
+	"database/sql/driver" //nolint:unused
 )
 
 // Backend defines the interface for executing queries from MCP clients.
@@ -11,11 +11,11 @@ import (
 type Backend interface {
 	// Execute runs a query and returns the results.
 	// The query string and parameters are provided by the MCP client.
-	Execute(ctx context.Context, query string, params map[string]interface{}) (*QueryResult, error)
+	Execute(ctx context.Context, query string, params map[string]interface{}) (QueryResult, error)
 	
 	// GetSchema returns metadata about available resources and their structure.
 	// This is used by MCP clients to understand what data is available.
-	GetSchema(ctx context.Context) (*Schema, error)
+	GetSchema(ctx context.Context) (SchemaProvider, error)
 	
 	// Ping verifies the backend connection is active.
 	Ping(ctx context.Context) error
@@ -25,84 +25,84 @@ type Backend interface {
 }
 
 // QueryResult represents the result of a query execution.
-type QueryResult struct {
-	// Columns contains metadata about each column in the result set.
-	Columns []ColumnInfo `json:"columns"`
+type QueryResult interface {
+	// GetColumns returns metadata about each column in the result set.
+	GetColumns() []ColumnInfo
 	
-	// Rows contains the actual data returned by the query.
-	Rows [][]interface{} `json:"rows"`
+	// GetRows returns the actual data returned by the query.
+	GetRows() [][]interface{}
 	
-	// RowsAffected indicates the number of rows affected by DML operations.
-	RowsAffected int64 `json:"rows_affected"`
+	// GetRowsAffected returns the number of rows affected by DML operations.
+	GetRowsAffected() int64
 	
-	// ExecutionTime is the time taken to execute the query in milliseconds.
-	ExecutionTime int64 `json:"execution_time_ms"`
+	// GetExecutionTime returns the time taken to execute the query in milliseconds.
+	GetExecutionTime() int64
 }
 
 // ColumnInfo provides metadata about a result column.
-type ColumnInfo struct {
-	// Name is the column name as returned by the query.
-	Name string `json:"name"`
+type ColumnInfo interface {
+	// GetName returns the column name as returned by the query.
+	GetName() string
 	
-	// Type is the data type of the column (e.g., "string", "int64", "float64").
-	Type string `json:"type"`
+	// GetType returns the data type of the column (e.g., "string", "int64", "float64").
+	GetType() string
 	
-	// Nullable indicates whether the column can contain null values.
-	Nullable bool `json:"nullable"`
+	// IsNullable indicates whether the column can contain null values.
+	IsNullable() bool
 }
 
-// Schema represents the metadata structure of available resources.
-type Schema struct {
-	// Providers lists all available providers (e.g., aws, google, azure).
-	Providers []Provider `json:"providers"`
+// SchemaProvider represents the metadata structure of available resources.
+type SchemaProvider interface {
+	// GetProviders returns all available providers (e.g., aws, google, azure).
+	GetProviders() []Provider
 }
 
 // Provider represents a StackQL provider with its services and resources.
-type Provider struct {
-	// Name is the provider identifier (e.g., "aws", "google").
-	Name string `json:"name"`
+type Provider interface {
+	// GetName returns the provider identifier (e.g., "aws", "google").
+	GetName() string
 	
-	// Version is the provider version.
-	Version string `json:"version"`
+	// GetVersion returns the provider version.
+	GetVersion() string
 	
-	// Services lists all services available in this provider.
-	Services []Service `json:"services"`
+	// GetServices returns all services available in this provider.
+	GetServices() []Service
 }
 
 // Service represents a service within a provider.
-type Service struct {
-	// Name is the service identifier (e.g., "ec2", "compute").
-	Name string `json:"name"`
+type Service interface {
+	// GetName returns the service identifier (e.g., "ec2", "compute").
+	GetName() string
 	
-	// Resources lists all resources available in this service.
-	Resources []Resource `json:"resources"`
+	// GetResources returns all resources available in this service.
+	GetResources() []Resource
 }
 
 // Resource represents a queryable resource.
-type Resource struct {
-	// Name is the resource identifier (e.g., "instances", "buckets").
-	Name string `json:"name"`
+type Resource interface {
+	// GetName returns the resource identifier (e.g., "instances", "buckets").
+	GetName() string
 	
-	// Methods lists the available operations for this resource.
-	Methods []string `json:"methods"`
+	// GetMethods returns the available operations for this resource.
+	GetMethods() []string
 	
-	// Fields describes the available fields in this resource.
-	Fields []Field `json:"fields"`
+	// GetFields returns the available fields in this resource.
+	GetFields() []Field
 }
 
 // Field represents a field within a resource.
-type Field struct {
-	// Name is the field identifier.
-	Name string `json:"name"`
+type Field interface {
+	// GetName returns the field identifier.
+	GetName() string
 	
-	// Type is the field data type.
-	Type string `json:"type"`
+	// GetType returns the field data type.
+	GetType() string
 	
-	// Required indicates if this field is mandatory for certain operations.
-	Required bool `json:"required"`
+	// IsRequired indicates if this field is mandatory for certain operations.
+	IsRequired() bool
 	
-	// Description provides human-readable documentation for the field.
-	Description string `json:"description,omitempty"`
+	// GetDescription returns human-readable documentation for the field.
+	GetDescription() string
 }
 
 // BackendError represents an error that occurred in the backend.
@@ -122,6 +122,140 @@ func (e *BackendError) Error() string {
 }
 
 // Ensure BackendError implements the driver.Valuer interface for database compatibility
-func (e *BackendError) Value() (driver.Value, error) {
+func (e *BackendError) Value() (driver.Value, error) { //nolint:unused
 	return e.Message, nil
+}
+
+// Private implementations of interfaces
+
+type queryResult struct {
+	Columns       []ColumnInfo `json:"columns"`
+	Rows          [][]interface{} `json:"rows"`
+	RowsAffected  int64 `json:"rows_affected"`
+	ExecutionTime int64 `json:"execution_time_ms"`
+}
+
+func (qr *queryResult) GetColumns() []ColumnInfo       { return qr.Columns }
+func (qr *queryResult) GetRows() [][]interface{}       { return qr.Rows }
+func (qr *queryResult) GetRowsAffected() int64         { return qr.RowsAffected }
+func (qr *queryResult) GetExecutionTime() int64        { return qr.ExecutionTime }
+
+type columnInfo struct {
+	Name     string `json:"name"`
+	Type     string `json:"type"`
+	Nullable bool   `json:"nullable"`
+}
+
+func (ci *columnInfo) GetName() string   { return ci.Name }
+func (ci *columnInfo) GetType() string   { return ci.Type }
+func (ci *columnInfo) IsNullable() bool  { return ci.Nullable }
+
+type schemaProvider struct {
+	Providers []Provider `json:"providers"`
+}
+
+func (sp *schemaProvider) GetProviders() []Provider { return sp.Providers }
+
+type provider struct {
+	Name     string    `json:"name"`
+	Version  string    `json:"version"`
+	Services []Service `json:"services"`
+}
+
+func (p *provider) GetName() string           { return p.Name }
+func (p *provider) GetVersion() string        { return p.Version }
+func (p *provider) GetServices() []Service    { return p.Services }
+
+type service struct {
+	Name      string     `json:"name"`
+	Resources []Resource `json:"resources"`
+}
+
+func (s *service) GetName() string            { return s.Name }
+func (s *service) GetResources() []Resource   { return s.Resources }
+
+type resource struct {
+	Name    string   `json:"name"`
+	Methods []string `json:"methods"`
+	Fields  []Field  `json:"fields"`
+}
+
+func (r *resource) GetName() string      { return r.Name }
+func (r *resource) GetMethods() []string { return r.Methods }
+func (r *resource) GetFields() []Field   { return r.Fields }
+
+type field struct {
+	Name        string `json:"name"`
+	Type        string `json:"type"`
+	Required    bool   `json:"required"`
+	Description string `json:"description,omitempty"`
+}
+
+func (f *field) GetName() string        { return f.Name }
+func (f *field) GetType() string        { return f.Type }
+func (f *field) IsRequired() bool       { return f.Required }
+func (f *field) GetDescription() string { return f.Description }
+
+// Factory functions
+
+// NewQueryResult creates a new QueryResult instance.
+func NewQueryResult(columns []ColumnInfo, rows [][]interface{}, rowsAffected, executionTime int64) QueryResult {
+	return &queryResult{
+		Columns:       columns,
+		Rows:          rows,
+		RowsAffected:  rowsAffected,
+		ExecutionTime: executionTime,
+	}
+}
+
+// NewColumnInfo creates a new ColumnInfo instance.
+func NewColumnInfo(name, colType string, nullable bool) ColumnInfo {
+	return &columnInfo{
+		Name:     name,
+		Type:     colType,
+		Nullable: nullable,
+	}
+}
+
+// NewSchemaProvider creates a new SchemaProvider instance.
+func NewSchemaProvider(providers []Provider) SchemaProvider {
+	return &schemaProvider{
+		Providers: providers,
+	}
+}
+
+// NewProvider creates a new Provider instance.
+func NewProvider(name, version string, services []Service) Provider {
+	return &provider{
+		Name:     name,
+		Version:  version,
+		Services: services,
+	}
+}
+
+// NewService creates a new Service instance.
+func NewService(name string, resources []Resource) Service {
+	return &service{
+		Name:      name,
+		Resources: resources,
+	}
+}
+
+// NewResource creates a new Resource instance.
+func NewResource(name string, methods []string, fields []Field) Resource {
+	return &resource{
+		Name:    name,
+		Methods: methods,
+		Fields:  fields,
+	}
+}
+
+// NewField creates a new Field instance.
+func NewField(name, fieldType string, required bool, description string) Field {
+	return &field{
+		Name:        name,
+		Type:        fieldType,
+		Required:    required,
+		Description: description,
+	}
 }

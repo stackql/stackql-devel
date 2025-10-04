@@ -55,7 +55,7 @@ func NewMCPServer(config *Config, backend Backend, logger *log.Logger) (*MCPServ
 }
 
 // Start starts the MCP server with all configured transports.
-func (s *MCPServer) Start(ctx context.Context) error {
+func (s *mcpServer) Start(ctx context.Context) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	
@@ -89,7 +89,7 @@ func (s *MCPServer) Start(ctx context.Context) error {
 }
 
 // Stop gracefully stops the MCP server and all transports.
-func (s *MCPServer) Stop(ctx context.Context) error {
+func (s *mcpServer) Stop(ctx context.Context) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	
@@ -121,37 +121,37 @@ func (s *MCPServer) Stop(ctx context.Context) error {
 	return nil
 }
 
-// MCPRequest represents an MCP protocol request.
-type MCPRequest struct {
+// mcpRequest represents an MCP protocol request.
+type mcpRequest struct {
 	JSONRPC string          `json:"jsonrpc"`
 	ID      interface{}     `json:"id,omitempty"`
 	Method  string          `json:"method"`
 	Params  json.RawMessage `json:"params,omitempty"`
 }
 
-// MCPResponse represents an MCP protocol response.
-type MCPResponse struct {
+// mcpResponse represents an MCP protocol response.
+type mcpResponse struct {
 	JSONRPC string          `json:"jsonrpc"`
 	ID      interface{}     `json:"id,omitempty"`
 	Result  interface{}     `json:"result,omitempty"`
-	Error   *MCPError       `json:"error,omitempty"`
+	Error   *mcpError       `json:"error,omitempty"`
 }
 
-// MCPError represents an MCP protocol error.
-type MCPError struct {
+// mcpError represents an MCP protocol error.
+type mcpError struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// handleMCPRequest processes an MCP request and returns a response.
-func (s *MCPServer) handleMCPRequest(ctx context.Context, req *MCPRequest) *MCPResponse {
+// handlemcpRequest processes an MCP request and returns a response.
+func (s *mcpServer) handlemcpRequest(ctx context.Context, req *mcpRequest) *mcpResponse {
 	// Acquire semaphore for concurrency control
 	if err := s.requestSemaphore.Acquire(ctx, 1); err != nil {
-		return &MCPResponse{
+		return &mcpResponse{
 			JSONRPC: "2.0",
 			ID:      req.ID,
-			Error: &MCPError{
+			Error: &mcpError{
 				Code:    -32603,
 				Message: "Server overloaded",
 			},
@@ -175,10 +175,10 @@ func (s *MCPServer) handleMCPRequest(ctx context.Context, req *MCPRequest) *MCPR
 	case "tools/call":
 		return s.handleToolsCall(reqCtx, req)
 	default:
-		return &MCPResponse{
+		return &mcpResponse{
 			JSONRPC: "2.0",
 			ID:      req.ID,
-			Error: &MCPError{
+			Error: &mcpError{
 				Code:    -32601,
 				Message: fmt.Sprintf("Method not found: %s", req.Method),
 			},
@@ -187,7 +187,7 @@ func (s *MCPServer) handleMCPRequest(ctx context.Context, req *MCPRequest) *MCPR
 }
 
 // handleInitialize handles the MCP initialize request.
-func (s *MCPServer) handleInitialize(ctx context.Context, req *MCPRequest) *MCPResponse {
+func (s *mcpServer) handleInitialize(ctx context.Context, req *mcpRequest) *mcpResponse {
 	initResult := map[string]interface{}{
 		"protocolVersion": "2024-11-05",
 		"serverInfo": map[string]interface{}{
@@ -202,7 +202,7 @@ func (s *MCPServer) handleInitialize(ctx context.Context, req *MCPRequest) *MCPR
 		},
 	}
 	
-	return &MCPResponse{
+	return &mcpResponse{
 		JSONRPC: "2.0",
 		ID:      req.ID,
 		Result:  initResult,
@@ -210,13 +210,13 @@ func (s *MCPServer) handleInitialize(ctx context.Context, req *MCPRequest) *MCPR
 }
 
 // handleResourcesList handles the MCP resources/list request.
-func (s *MCPServer) handleResourcesList(ctx context.Context, req *MCPRequest) *MCPResponse {
+func (s *mcpServer) handleResourcesList(ctx context.Context, req *mcpRequest) *mcpResponse {
 	schema, err := s.backend.GetSchema(ctx)
 	if err != nil {
-		return &MCPResponse{
+		return &mcpResponse{
 			JSONRPC: "2.0",
 			ID:      req.ID,
-			Error: &MCPError{
+			Error: &mcpError{
 				Code:    -32603,
 				Message: fmt.Sprintf("Failed to get schema: %v", err),
 			},
@@ -240,7 +240,7 @@ func (s *MCPServer) handleResourcesList(ctx context.Context, req *MCPRequest) *M
 		}
 	}
 	
-	return &MCPResponse{
+	return &mcpResponse{
 		JSONRPC: "2.0",
 		ID:      req.ID,
 		Result: map[string]interface{}{
@@ -250,16 +250,16 @@ func (s *MCPServer) handleResourcesList(ctx context.Context, req *MCPRequest) *M
 }
 
 // handleResourcesRead handles the MCP resources/read request.
-func (s *MCPServer) handleResourcesRead(ctx context.Context, req *MCPRequest) *MCPResponse {
+func (s *mcpServer) handleResourcesRead(ctx context.Context, req *mcpRequest) *mcpResponse {
 	var params struct {
 		URI string `json:"uri"`
 	}
 	
 	if err := json.Unmarshal(req.Params, &params); err != nil {
-		return &MCPResponse{
+		return &mcpResponse{
 			JSONRPC: "2.0",
 			ID:      req.ID,
-			Error: &MCPError{
+			Error: &mcpError{
 				Code:    -32602,
 				Message: "Invalid parameters",
 			},
@@ -274,7 +274,7 @@ func (s *MCPServer) handleResourcesRead(ctx context.Context, req *MCPRequest) *M
 		"text":        fmt.Sprintf(`{"message": "Resource data for %s would be returned here"}`, params.URI),
 	}
 	
-	return &MCPResponse{
+	return &mcpResponse{
 		JSONRPC: "2.0",
 		ID:      req.ID,
 		Result: map[string]interface{}{
@@ -284,7 +284,7 @@ func (s *MCPServer) handleResourcesRead(ctx context.Context, req *MCPRequest) *M
 }
 
 // handleToolsList handles the MCP tools/list request.
-func (s *MCPServer) handleToolsList(ctx context.Context, req *MCPRequest) *MCPResponse {
+func (s *mcpServer) handleToolsList(ctx context.Context, req *mcpRequest) *mcpResponse {
 	tools := []map[string]interface{}{
 		{
 			"name":        "stackql_query",
@@ -306,7 +306,7 @@ func (s *MCPServer) handleToolsList(ctx context.Context, req *MCPRequest) *MCPRe
 		},
 	}
 	
-	return &MCPResponse{
+	return &mcpResponse{
 		JSONRPC: "2.0",
 		ID:      req.ID,
 		Result: map[string]interface{}{
@@ -316,17 +316,17 @@ func (s *MCPServer) handleToolsList(ctx context.Context, req *MCPRequest) *MCPRe
 }
 
 // handleToolsCall handles the MCP tools/call request.
-func (s *MCPServer) handleToolsCall(ctx context.Context, req *MCPRequest) *MCPResponse {
+func (s *mcpServer) handleToolsCall(ctx context.Context, req *mcpRequest) *mcpResponse {
 	var params struct {
 		Name      string                 `json:"name"`
 		Arguments map[string]interface{} `json:"arguments"`
 	}
 	
 	if err := json.Unmarshal(req.Params, &params); err != nil {
-		return &MCPResponse{
+		return &mcpResponse{
 			JSONRPC: "2.0",
 			ID:      req.ID,
-			Error: &MCPError{
+			Error: &mcpError{
 				Code:    -32602,
 				Message: "Invalid parameters",
 			},
@@ -334,10 +334,10 @@ func (s *MCPServer) handleToolsCall(ctx context.Context, req *MCPRequest) *MCPRe
 	}
 	
 	if params.Name != "stackql_query" {
-		return &MCPResponse{
+		return &mcpResponse{
 			JSONRPC: "2.0",
 			ID:      req.ID,
-			Error: &MCPError{
+			Error: &mcpError{
 				Code:    -32601,
 				Message: fmt.Sprintf("Unknown tool: %s", params.Name),
 			},
@@ -346,10 +346,10 @@ func (s *MCPServer) handleToolsCall(ctx context.Context, req *MCPRequest) *MCPRe
 	
 	query, ok := params.Arguments["query"].(string)
 	if !ok {
-		return &MCPResponse{
+		return &mcpResponse{
 			JSONRPC: "2.0",
 			ID:      req.ID,
-			Error: &MCPError{
+			Error: &mcpError{
 				Code:    -32602,
 				Message: "Query parameter is required and must be a string",
 			},
@@ -360,17 +360,17 @@ func (s *MCPServer) handleToolsCall(ctx context.Context, req *MCPRequest) *MCPRe
 	
 	result, err := s.backend.Execute(ctx, query, queryParams)
 	if err != nil {
-		return &MCPResponse{
+		return &mcpResponse{
 			JSONRPC: "2.0",
 			ID:      req.ID,
-			Error: &MCPError{
+			Error: &mcpError{
 				Code:    -32603,
 				Message: fmt.Sprintf("Query execution failed: %v", err),
 			},
 		}
 	}
 	
-	return &MCPResponse{
+	return &mcpResponse{
 		JSONRPC: "2.0",
 		ID:      req.ID,
 		Result: map[string]interface{}{
@@ -391,14 +391,14 @@ func (s *MCPServer) handleToolsCall(ctx context.Context, req *MCPRequest) *MCPRe
 }
 
 // startStdioTransport starts the stdio transport (placeholder implementation).
-func (s *MCPServer) startStdioTransport(ctx context.Context) error {
+func (s *mcpServer) startStdioTransport(ctx context.Context) error {
 	s.logger.Printf("Stdio transport started (placeholder implementation)")
 	// In a real implementation, this would handle stdio JSON-RPC communication
 	return nil
 }
 
 // startTCPTransport starts the TCP transport.
-func (s *MCPServer) startTCPTransport(ctx context.Context) error {
+func (s *mcpServer) startTCPTransport(ctx context.Context) error {
 	addr := fmt.Sprintf("%s:%d", s.config.Transport.TCP.Address, s.config.Transport.TCP.Port)
 	
 	router := mux.NewRouter()
@@ -428,7 +428,7 @@ func (s *MCPServer) startTCPTransport(ctx context.Context) error {
 }
 
 // startWebSocketTransport starts the WebSocket transport (placeholder implementation).
-func (s *MCPServer) startWebSocketTransport(ctx context.Context) error {
+func (s *mcpServer) startWebSocketTransport(ctx context.Context) error {
 	addr := fmt.Sprintf("%s:%d", s.config.Transport.WebSocket.Address, s.config.Transport.WebSocket.Port)
 	s.logger.Printf("WebSocket transport started on %s%s (placeholder implementation)", addr, s.config.Transport.WebSocket.Path)
 	// In a real implementation, this would handle WebSocket connections
@@ -436,19 +436,19 @@ func (s *MCPServer) startWebSocketTransport(ctx context.Context) error {
 }
 
 // handleHTTPMCP handles HTTP-based MCP requests.
-func (s *MCPServer) handleHTTPMCP(w http.ResponseWriter, r *http.Request) {
+func (s *mcpServer) handleHTTPMCP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	
-	var req MCPRequest
+	var req mcpRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
 	
-	resp := s.handleMCPRequest(r.Context(), &req)
+	resp := s.handlemcpRequest(r.Context(), &req)
 	
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(resp); err != nil {

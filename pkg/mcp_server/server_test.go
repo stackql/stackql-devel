@@ -141,9 +141,12 @@ func TestMCPServerCreation(t *testing.T) {
 	if server == nil {
 		t.Fatal("Server should not be nil")
 	}
+	
+	// Test that server implements MCPServer interface
+	var _ MCPServer = server
 }
 
-func TestMCPRequestHandling(t *testing.T) {
+func TestmcpRequestHandling(t *testing.T) {
 	config := DefaultConfig()
 	backend := NewExampleBackend("test://localhost")
 	server, err := NewMCPServer(config, backend, nil)
@@ -151,17 +154,24 @@ func TestMCPRequestHandling(t *testing.T) {
 		t.Fatalf("NewMCPServer failed: %v", err)
 	}
 	
+	// Cast to concrete type for internal testing
+	mcpSrv, ok := server.(*mcpServer)
+	if !ok {
+		t.Fatal("Server should be concrete mcpServer for testing")
+	}
+	
 	ctx := context.Background()
 	
-	// Test initialize request
-	initReq := &MCPRequest{
+	// Test initialize request  
+	// Note: Internal testing uses concrete types
+	initReq := &mcpRequest{
 		JSONRPC: "2.0",
 		ID:      1,
 		Method:  "initialize",
 		Params:  json.RawMessage(`{}`),
 	}
 	
-	resp := server.handleMCPRequest(ctx, initReq)
+	resp := mcpSrv.handlemcpRequest(ctx, initReq)
 	if resp.Error != nil {
 		t.Fatalf("Initialize request failed: %v", resp.Error)
 	}
@@ -171,53 +181,53 @@ func TestMCPRequestHandling(t *testing.T) {
 	}
 	
 	// Test resources/list request
-	resourcesReq := &MCPRequest{
+	resourcesReq := &mcpRequest{
 		JSONRPC: "2.0",
 		ID:      2,
 		Method:  "resources/list",
 		Params:  json.RawMessage(`{}`),
 	}
 	
-	resp = server.handleMCPRequest(ctx, resourcesReq)
+	resp = mcpSrv.handlemcpRequest(ctx, resourcesReq)
 	if resp.Error != nil {
 		t.Fatalf("Resources/list request failed: %v", resp.Error)
 	}
 	
 	// Test tools/list request
-	toolsReq := &MCPRequest{
+	toolsReq := &mcpRequest{
 		JSONRPC: "2.0",
 		ID:      3,
 		Method:  "tools/list",
 		Params:  json.RawMessage(`{}`),
 	}
 	
-	resp = server.handleMCPRequest(ctx, toolsReq)
+	resp = mcpSrv.handlemcpRequest(ctx, toolsReq)
 	if resp.Error != nil {
 		t.Fatalf("Tools/list request failed: %v", resp.Error)
 	}
 	
 	// Test tools/call request
-	toolsCallReq := &MCPRequest{
+	toolsCallReq := &mcpRequest{
 		JSONRPC: "2.0",
 		ID:      4,
 		Method:  "tools/call",
 		Params:  json.RawMessage(`{"name": "stackql_query", "arguments": {"query": "SELECT * FROM aws.ec2.instances"}}`),
 	}
 	
-	resp = server.handleMCPRequest(ctx, toolsCallReq)
+	resp = mcpSrv.handlemcpRequest(ctx, toolsCallReq)
 	if resp.Error != nil {
 		t.Fatalf("Tools/call request failed: %v", resp.Error)
 	}
 	
 	// Test unknown method
-	unknownReq := &MCPRequest{
+	unknownReq := &mcpRequest{
 		JSONRPC: "2.0",
 		ID:      5,
 		Method:  "unknown/method",
 		Params:  json.RawMessage(`{}`),
 	}
 	
-	resp = server.handleMCPRequest(ctx, unknownReq)
+	resp = mcpSrv.handlemcpRequest(ctx, unknownReq)
 	if resp.Error == nil {
 		t.Error("Unknown method should return error")
 	}
