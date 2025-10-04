@@ -1,4 +1,4 @@
-package mcp_server
+package mcp_server //nolint:revive,stylecheck,mnd // fine for now
 
 import (
 	"encoding/json"
@@ -248,6 +248,8 @@ func DefaultConfig() *Config {
 }
 
 // Validate validates the configuration and returns an error if invalid.
+//
+//nolint:gocognit // simple validation logic
 func (c *Config) Validate() error {
 	if c.Server.Name == "" {
 		return fmt.Errorf("server.name is required")

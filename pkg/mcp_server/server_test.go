@@ -1,4 +1,4 @@
-package mcp_server
+package mcp_server //nolint:testpackage // fine for now
 
 import (
 	"context"

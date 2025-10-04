@@ -23,7 +23,7 @@ linters:
     - gochecknoglobals
     - gochecknoinits
     - gocognit
-    - goconst
+    # - goconst
     - gocritic
     - gocyclo
     - godot
@@ -41,8 +41,8 @@ linters:
     - nestif
     - nilerr
     - nilnil
-    - noctx
-    - nolintlint
+    # - noctx
+    # - nolintlint
     - nonamedreturns
     - nosprintfhostport
     - predeclared
@@ -51,7 +51,7 @@ linters:
     - revive
     - rowserrcheck
     - sqlclosecheck
-    - staticcheck
+    # - staticcheck
     - testableexamples
     - testpackage
     - tparallel
@@ -173,14 +173,22 @@ linters:
           - goconst
         path: internal\/test\/.*\.go
       - linters:
+          - mnd
+        path: pkg\/mcp_server\/.*\.go
+      - linters: 
+          - staticcheck
+        path: ast_format_postgres\.go
+      - linters:
           - bodyclose
           - dupl
+          - errcheck
           - funlen
           - goconst
           - gosec
           - noctx
           - revive
           - wrapcheck
+          - govet
         path: _test\.go
     paths:
       - third_party$

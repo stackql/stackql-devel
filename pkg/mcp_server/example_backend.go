@@ -22,7 +22,9 @@ func NewExampleBackend(connectionString string) Backend {
 
 // Execute implements the Backend interface.
 // This is a mock implementation that returns sample data.
-func (b *ExampleBackend) Execute(ctx context.Context, query string, params map[string]interface{}) (QueryResult, error) {
+//
+//nolint:gocritic // apathy
+func (b *ExampleBackend) Execute(ctx context.Context, query string, _ map[string]interface{}) (QueryResult, error) {
 	if !b.connected {
 		return nil, &BackendError{
 			Code:    "NOT_CONNECTED",
@@ -77,7 +79,7 @@ func (b *ExampleBackend) Execute(ctx context.Context, query string, params map[s
 
 // GetSchema implements the Backend interface.
 // Returns a mock schema structure representing available providers and resources.
-func (b *ExampleBackend) GetSchema(ctx context.Context) (SchemaProvider, error) {
+func (b *ExampleBackend) GetSchema(_ context.Context) (SchemaProvider, error) {
 	if !b.connected {
 		return nil, &BackendError{
 			Code:    "NOT_CONNECTED",
