@@ -12,13 +12,13 @@ import (
 type Config struct {
 	// Server contains server-specific configuration.
 	Server ServerConfig `json:"server" yaml:"server"`
-	
+
 	// Backend contains backend-specific configuration.
 	Backend BackendConfig `json:"backend" yaml:"backend"`
-	
+
 	// Transport contains transport layer configuration.
 	Transport TransportConfig `json:"transport" yaml:"transport"`
-	
+
 	// Logging contains logging configuration.
 	Logging LoggingConfig `json:"logging" yaml:"logging"`
 }
@@ -27,16 +27,16 @@ type Config struct {
 type ServerConfig struct {
 	// Name is the server name advertised to clients.
 	Name string `json:"name" yaml:"name"`
-	
+
 	// Version is the server version advertised to clients.
 	Version string `json:"version" yaml:"version"`
-	
+
 	// Description is a human-readable description of the server.
 	Description string `json:"description" yaml:"description"`
-	
+
 	// MaxConcurrentRequests limits the number of concurrent client requests.
 	MaxConcurrentRequests int `json:"max_concurrent_requests" yaml:"max_concurrent_requests"`
-	
+
 	// RequestTimeout specifies the timeout for individual requests.
 	RequestTimeout Duration `json:"request_timeout" yaml:"request_timeout"`
 }
@@ -45,20 +45,20 @@ type ServerConfig struct {
 type BackendConfig struct {
 	// Type specifies the backend type ("stackql", "tcp", "memory").
 	Type string `json:"type" yaml:"type"`
-	
+
 	// ConnectionString contains the connection details for the backend.
 	// Format depends on the backend type.
 	ConnectionString string `json:"connection_string" yaml:"connection_string"`
-	
+
 	// MaxConnections limits the number of backend connections.
 	MaxConnections int `json:"max_connections" yaml:"max_connections"`
-	
+
 	// ConnectionTimeout specifies the timeout for backend connections.
 	ConnectionTimeout Duration `json:"connection_timeout" yaml:"connection_timeout"`
-	
+
 	// QueryTimeout specifies the timeout for individual queries.
 	QueryTimeout Duration `json:"query_timeout" yaml:"query_timeout"`
-	
+
 	// RetryConfig contains retry policy configuration.
 	Retry RetryConfig `json:"retry" yaml:"retry"`
 }
@@ -67,13 +67,13 @@ type BackendConfig struct {
 type TransportConfig struct {
 	// EnabledTransports lists which transports to enable (stdio, tcp, websocket).
 	EnabledTransports []string `json:"enabled_transports" yaml:"enabled_transports"`
-	
+
 	// StdioConfig contains stdio transport configuration.
 	Stdio StdioTransportConfig `json:"stdio" yaml:"stdio"`
-	
+
 	// TCPConfig contains TCP transport configuration.
 	TCP TCPTransportConfig `json:"tcp" yaml:"tcp"`
-	
+
 	// WebSocketConfig contains WebSocket transport configuration.
 	WebSocket WebSocketTransportConfig `json:"websocket" yaml:"websocket"`
 }
@@ -88,16 +88,16 @@ type StdioTransportConfig struct {
 type TCPTransportConfig struct {
 	// Address specifies the TCP listen address.
 	Address string `json:"address" yaml:"address"`
-	
+
 	// Port specifies the TCP listen port.
 	Port int `json:"port" yaml:"port"`
-	
+
 	// MaxConnections limits the number of concurrent TCP connections.
 	MaxConnections int `json:"max_connections" yaml:"max_connections"`
-	
+
 	// ReadTimeout specifies the timeout for read operations.
 	ReadTimeout Duration `json:"read_timeout" yaml:"read_timeout"`
-	
+
 	// WriteTimeout specifies the timeout for write operations.
 	WriteTimeout Duration `json:"write_timeout" yaml:"write_timeout"`
 }
@@ -106,16 +106,16 @@ type TCPTransportConfig struct {
 type WebSocketTransportConfig struct {
 	// Address specifies the WebSocket listen address.
 	Address string `json:"address" yaml:"address"`
-	
+
 	// Port specifies the WebSocket listen port.
 	Port int `json:"port" yaml:"port"`
-	
+
 	// Path specifies the WebSocket endpoint path.
 	Path string `json:"path" yaml:"path"`
-	
+
 	// MaxConnections limits the number of concurrent WebSocket connections.
 	MaxConnections int `json:"max_connections" yaml:"max_connections"`
-	
+
 	// MaxMessageSize limits the size of WebSocket messages.
 	MaxMessageSize int64 `json:"max_message_size" yaml:"max_message_size"`
 }
@@ -124,16 +124,16 @@ type WebSocketTransportConfig struct {
 type RetryConfig struct {
 	// Enabled determines whether retries are enabled.
 	Enabled bool `json:"enabled" yaml:"enabled"`
-	
+
 	// MaxAttempts specifies the maximum number of retry attempts.
 	MaxAttempts int `json:"max_attempts" yaml:"max_attempts"`
-	
+
 	// InitialDelay specifies the initial delay between retries.
 	InitialDelay Duration `json:"initial_delay" yaml:"initial_delay"`
-	
+
 	// MaxDelay specifies the maximum delay between retries.
 	MaxDelay Duration `json:"max_delay" yaml:"max_delay"`
-	
+
 	// Multiplier specifies the backoff multiplier.
 	Multiplier float64 `json:"multiplier" yaml:"multiplier"`
 }
@@ -142,13 +142,13 @@ type RetryConfig struct {
 type LoggingConfig struct {
 	// Level specifies the log level (debug, info, warn, error).
 	Level string `json:"level" yaml:"level"`
-	
+
 	// Format specifies the log format (text, json).
 	Format string `json:"format" yaml:"format"`
-	
+
 	// Output specifies the log output (stdout, stderr, file path).
 	Output string `json:"output" yaml:"output"`
-	
+
 	// EnableRequestLogging enables detailed request/response logging.
 	EnableRequestLogging bool `json:"enable_request_logging" yaml:"enable_request_logging"`
 }
@@ -267,7 +267,7 @@ func (c *Config) Validate() error {
 	if len(c.Transport.EnabledTransports) == 0 {
 		return fmt.Errorf("at least one transport must be enabled")
 	}
-	
+
 	// Validate enabled transports
 	validTransports := map[string]bool{
 		"stdio":     true,
@@ -279,7 +279,7 @@ func (c *Config) Validate() error {
 			return fmt.Errorf("invalid transport: %s", transport)
 		}
 	}
-	
+
 	// Validate TCP config if TCP transport is enabled
 	for _, transport := range c.Transport.EnabledTransports {
 		if transport == "tcp" {
@@ -293,7 +293,7 @@ func (c *Config) Validate() error {
 			}
 		}
 	}
-	
+
 	// Validate logging config
 	validLevels := map[string]bool{
 		"debug": true,
@@ -304,7 +304,7 @@ func (c *Config) Validate() error {
 	if !validLevels[c.Logging.Level] {
 		return fmt.Errorf("invalid logging level: %s", c.Logging.Level)
 	}
-	
+
 	return nil
 }
 

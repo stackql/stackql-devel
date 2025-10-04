@@ -2,7 +2,6 @@ package mcp_server
 
 import (
 	"context"
-	"fmt"
 	"time"
 )
 
@@ -30,9 +29,9 @@ func (b *ExampleBackend) Execute(ctx context.Context, query string, params map[s
 			Message: "Backend is not connected",
 		}
 	}
-	
+
 	startTime := time.Now()
-	
+
 	// Simulate query processing delay
 	select {
 	case <-ctx.Done():
@@ -40,10 +39,10 @@ func (b *ExampleBackend) Execute(ctx context.Context, query string, params map[s
 	case <-time.After(50 * time.Millisecond):
 		// Continue processing
 	}
-	
+
 	// Mock response based on query content
 	var result QueryResult
-	
+
 	if containsIgnoreCase(query, "select") {
 		columns := []ColumnInfo{
 			NewColumnInfo("id", "int64", false),
@@ -72,7 +71,7 @@ func (b *ExampleBackend) Execute(ctx context.Context, query string, params map[s
 		rows := [][]interface{}{{"Query executed successfully"}}
 		result = NewQueryResult(columns, rows, 1, time.Since(startTime).Milliseconds())
 	}
-	
+
 	return result, nil
 }
 
@@ -85,7 +84,7 @@ func (b *ExampleBackend) GetSchema(ctx context.Context) (SchemaProvider, error) 
 			Message: "Backend is not connected",
 		}
 	}
-	
+
 	// Build AWS EC2 instances resource
 	ec2Fields := []Field{
 		NewField("instance_id", "string", true, "EC2 instance identifier"),
@@ -94,7 +93,7 @@ func (b *ExampleBackend) GetSchema(ctx context.Context) (SchemaProvider, error) 
 	}
 	ec2Instances := NewResource("instances", []string{"select", "insert", "delete"}, ec2Fields)
 	ec2Service := NewService("ec2", []Resource{ec2Instances})
-	
+
 	// Build AWS S3 buckets resource
 	s3Fields := []Field{
 		NewField("bucket_name", "string", true, "S3 bucket name"),
@@ -103,10 +102,10 @@ func (b *ExampleBackend) GetSchema(ctx context.Context) (SchemaProvider, error) 
 	}
 	s3Buckets := NewResource("buckets", []string{"select", "insert", "delete"}, s3Fields)
 	s3Service := NewService("s3", []Resource{s3Buckets})
-	
+
 	// Build AWS provider
 	awsProvider := NewProvider("aws", "v1.0.0", []Service{ec2Service, s3Service})
-	
+
 	// Build Google Compute instances resource
 	gceFields := []Field{
 		NewField("name", "string", true, "Instance name"),
@@ -116,13 +115,13 @@ func (b *ExampleBackend) GetSchema(ctx context.Context) (SchemaProvider, error) 
 	}
 	gceInstances := NewResource("instances", []string{"select", "insert", "delete"}, gceFields)
 	computeService := NewService("compute", []Resource{gceInstances})
-	
+
 	// Build Google provider
 	googleProvider := NewProvider("google", "v1.0.0", []Service{computeService})
-	
+
 	// Create schema
 	schema := NewSchemaProvider([]Provider{awsProvider, googleProvider})
-	
+
 	return schema, nil
 }
 
@@ -132,7 +131,7 @@ func (b *ExampleBackend) Ping(ctx context.Context) error {
 		// Simulate connection establishment
 		b.connected = true
 	}
-	
+
 	// Simulate a ping operation
 	select {
 	case <-ctx.Done():
@@ -179,8 +178,8 @@ func NewMCPServerWithExampleBackend(config *Config) (MCPServer, error) {
 	if config == nil {
 		config = DefaultConfig()
 	}
-	
+
 	backend := NewExampleBackend(config.Backend.ConnectionString)
-	
+
 	return NewMCPServer(config, backend, nil)
 }
