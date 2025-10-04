@@ -1,4 +1,4 @@
-package mcp_server
+package mcp_server //nolint:revive // fine for now
 
 import (
 	"context"
