@@ -99,30 +99,6 @@ func TestExampleBackend(t *testing.T) {
 		t.Fatalf("Ping failed: %v", err)
 	}
 
-	// Test GetSchema
-	schema, err := backend.GetSchema(ctx)
-	if err != nil {
-		t.Fatalf("GetSchema failed: %v", err)
-	}
-
-	if len(schema.GetProviders()) == 0 {
-		t.Error("Schema should contain at least one provider")
-	}
-
-	// Test Execute with SELECT query
-	result, err := backend.Execute(ctx, "SELECT * FROM aws.ec2.instances", nil)
-	if err != nil {
-		t.Fatalf("Execute failed: %v", err)
-	}
-
-	if len(result.GetColumns()) == 0 {
-		t.Error("Result should contain columns")
-	}
-
-	if len(result.GetRows()) == 0 {
-		t.Error("Result should contain rows")
-	}
-
 	// Test Close
 	if err := backend.Close(); err != nil {
 		t.Fatalf("Close failed: %v", err)

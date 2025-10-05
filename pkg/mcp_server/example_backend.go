@@ -12,6 +12,84 @@ type ExampleBackend struct {
 	connected        bool
 }
 
+// Stub all Backend interface methods below
+
+func (b *ExampleBackend) ServerInfo(ctx context.Context) (map[string]interface{}, error) {
+	return map[string]interface{}{"info": "stub"}, nil
+}
+
+func (b *ExampleBackend) DBIdentity(ctx context.Context) (map[string]interface{}, error) {
+	return map[string]interface{}{"identity": "stub"}, nil
+}
+
+func (b *ExampleBackend) Query(ctx context.Context, sql string, parameters []interface{}, rowLimit int, format string) (string, error) {
+	return "stub", nil
+}
+
+func (b *ExampleBackend) QueryJSON(ctx context.Context, sql string, parameters []interface{}, rowLimit int) ([]map[string]interface{}, error) {
+	return []map[string]interface{}{}, nil
+}
+
+func (b *ExampleBackend) RunQuery(ctx context.Context, input QueryInput) (string, error) {
+	return "stub", nil
+}
+
+func (b *ExampleBackend) RunQueryJSON(ctx context.Context, input QueryJSONInput) ([]map[string]interface{}, error) {
+	return []map[string]interface{}{}, nil
+}
+
+func (b *ExampleBackend) ListTableResources(ctx context.Context, schema string) ([]string, error) {
+	return []string{}, nil
+}
+
+func (b *ExampleBackend) ReadTableResource(ctx context.Context, schema string, table string, rowLimit int) ([]map[string]interface{}, error) {
+	return []map[string]interface{}{}, nil
+}
+
+func (b *ExampleBackend) PromptWriteSafeSelectTool(ctx context.Context) (string, error) {
+	return "stub", nil
+}
+
+func (b *ExampleBackend) PromptExplainPlanTipsTool(ctx context.Context) (string, error) {
+	return "stub", nil
+}
+
+func (b *ExampleBackend) ListSchemasJSON(ctx context.Context, input ListSchemasInput) ([]map[string]interface{}, error) {
+	return []map[string]interface{}{}, nil
+}
+
+func (b *ExampleBackend) ListSchemasJSONPage(ctx context.Context, input ListSchemasPageInput) (map[string]interface{}, error) {
+	return map[string]interface{}{}, nil
+}
+
+func (b *ExampleBackend) ListTablesJSON(ctx context.Context, input ListTablesInput) ([]map[string]interface{}, error) {
+	return []map[string]interface{}{}, nil
+}
+
+func (b *ExampleBackend) ListTablesJSONPage(ctx context.Context, input ListTablesPageInput) (map[string]interface{}, error) {
+	return map[string]interface{}{}, nil
+}
+
+func (b *ExampleBackend) ListSchemas(ctx context.Context) (string, error) {
+	return "stub", nil
+}
+
+func (b *ExampleBackend) ListTables(ctx context.Context, dbSchema string) (string, error) {
+	return "stub", nil
+}
+
+func (b *ExampleBackend) DescribeTable(ctx context.Context, tableName string, dbSchema string) (string, error) {
+	return "stub", nil
+}
+
+func (b *ExampleBackend) GetForeignKeys(ctx context.Context, tableName string, dbSchema string) (string, error) {
+	return "stub", nil
+}
+
+func (b *ExampleBackend) FindRelationships(ctx context.Context, tableName string, dbSchema string) (string, error) {
+	return "stub", nil
+}
+
 // NewExampleBackend creates a new example backend instance.
 func NewExampleBackend(connectionString string) Backend {
 	return &ExampleBackend{
