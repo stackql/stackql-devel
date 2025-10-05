@@ -197,6 +197,7 @@ func init() {
 	rootCmd.AddCommand(shellCmd)
 	rootCmd.AddCommand(registryCmd)
 	rootCmd.AddCommand(srvCmd)
+	rootCmd.AddCommand(mcpSrvCmd)
 }
 
 func mergeConfigFromFile(runtimeCtx *dto.RuntimeCtx, flagSet pflag.FlagSet) {

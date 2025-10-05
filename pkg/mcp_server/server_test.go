@@ -25,10 +25,6 @@ func TestDefaultConfig(t *testing.T) {
 	if config.Server.Version == "" {
 		t.Error("Server version should not be empty")
 	}
-
-	if len(config.Transport.EnabledTransports) == 0 {
-		t.Error("At least one transport should be enabled by default")
-	}
 }
 
 func TestConfigValidation(t *testing.T) {
@@ -54,9 +50,6 @@ func TestConfigValidation(t *testing.T) {
 					Type:           "stackql",
 					MaxConnections: 10,
 				},
-				Transport: TransportConfig{
-					EnabledTransports: []string{"stdio"},
-				},
 			},
 			wantError: true,
 		},
@@ -71,9 +64,6 @@ func TestConfigValidation(t *testing.T) {
 				Backend: BackendConfig{
 					Type:           "stackql",
 					MaxConnections: 10,
-				},
-				Transport: TransportConfig{
-					EnabledTransports: []string{"invalid"},
 				},
 			},
 			wantError: true,
@@ -173,66 +163,3 @@ func TestNewMCPServerWithExampleBackend(t *testing.T) {
 		t.Fatal("Server should not be nil")
 	}
 }
-
-// func TestConfigLoading(t *testing.T) {
-// 	// Test JSON config loading
-// 	jsonConfig := `{
-// 		"server": {
-// 			"name": "Test Server",
-// 			"version": "1.0.0",
-// 			"max_concurrent_requests": 50,
-// 			"request_timeout": "15s"
-// 		},
-// 		"backend": {
-// 			"type": "stackql",
-// 			"max_connections": 5
-// 		},
-// 		"transport": {
-// 			"enabled_transports": ["stdio"]
-// 		},
-// 		"logging": {
-// 			"level": "debug"
-// 		}
-// 	}`
-
-// 	config, err := LoadFromJSON([]byte(jsonConfig))
-// 	if err != nil {
-// 		t.Fatalf("LoadFromJSON failed: %v", err)
-// 	}
-
-// 	if config.Server.Name != "Test Server" {
-// 		t.Errorf("Expected server name 'Test Server', got '%s'", config.Server.Name)
-// 	}
-
-// 	if config.Server.MaxConcurrentRequests != 50 {
-// 		t.Errorf("Expected max concurrent requests 50, got %d", config.Server.MaxConcurrentRequests)
-// 	}
-
-// 	// Test YAML config loading
-// 	yamlConfig := `
-// server:
-//   name: "YAML Test Server"
-//   version: "2.0.0"
-//   max_concurrent_requests: 75
-// backend:
-//   type: "stackql"
-//   max_connections: 8
-// transport:
-//   enabled_transports: ["tcp"]
-// logging:
-//   level: "warn"
-// `
-
-// 	config, err = LoadFromYAML([]byte(yamlConfig))
-// 	if err != nil {
-// 		t.Fatalf("LoadFromYAML failed: %v", err)
-// 	}
-
-// 	if config.Server.Name != "YAML Test Server" {
-// 		t.Errorf("Expected server name 'YAML Test Server', got '%s'", config.Server.Name)
-// 	}
-
-// 	if config.Server.MaxConcurrentRequests != 75 {
-// 		t.Errorf("Expected max concurrent requests 75, got %d", config.Server.MaxConcurrentRequests)
-// 	}
-// }

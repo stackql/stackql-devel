@@ -15,18 +15,18 @@ type Config struct {
 
 	// Backend contains backend-specific configuration.
 	Backend BackendConfig `json:"backend" yaml:"backend"`
-
-	// Transport contains transport layer configuration.
-	Transport TransportConfig `json:"transport" yaml:"transport"`
-
-	// Logging contains logging configuration.
-	Logging LoggingConfig `json:"logging" yaml:"logging"`
 }
 
 // ServerConfig contains configuration for the MCP server itself.
 type ServerConfig struct {
 	// Name is the server name advertised to clients.
 	Name string `json:"name" yaml:"name"`
+
+	// Transport specifies the transport configuration for the server.
+	Transport string `json:"transport" yaml:"transport"`
+
+	// URL is the server URL advertised to clients.
+	URL string `json:"url" yaml:"url"`
 
 	// Version is the server version advertised to clients.
 	Version string `json:"version" yaml:"version"`
@@ -58,99 +58,6 @@ type BackendConfig struct {
 
 	// QueryTimeout specifies the timeout for individual queries.
 	QueryTimeout Duration `json:"query_timeout" yaml:"query_timeout"`
-
-	// RetryConfig contains retry policy configuration.
-	Retry RetryConfig `json:"retry" yaml:"retry"`
-}
-
-// TransportConfig contains configuration for MCP transport layers.
-type TransportConfig struct {
-	// EnabledTransports lists which transports to enable (stdio, tcp, websocket).
-	EnabledTransports []string `json:"enabled_transports" yaml:"enabled_transports"`
-
-	// StdioConfig contains stdio transport configuration.
-	Stdio StdioTransportConfig `json:"stdio" yaml:"stdio"`
-
-	// TCPConfig contains TCP transport configuration.
-	TCP TCPTransportConfig `json:"tcp" yaml:"tcp"`
-
-	// WebSocketConfig contains WebSocket transport configuration.
-	WebSocket WebSocketTransportConfig `json:"websocket" yaml:"websocket"`
-}
-
-// StdioTransportConfig contains configuration for stdio transport.
-type StdioTransportConfig struct {
-	// BufferSize specifies the buffer size for stdio operations.
-	BufferSize int `json:"buffer_size" yaml:"buffer_size"`
-}
-
-// TCPTransportConfig contains configuration for TCP transport.
-type TCPTransportConfig struct {
-	// Address specifies the TCP listen address.
-	Address string `json:"address" yaml:"address"`
-
-	// Port specifies the TCP listen port.
-	Port int `json:"port" yaml:"port"`
-
-	// MaxConnections limits the number of concurrent TCP connections.
-	MaxConnections int `json:"max_connections" yaml:"max_connections"`
-
-	// ReadTimeout specifies the timeout for read operations.
-	ReadTimeout Duration `json:"read_timeout" yaml:"read_timeout"`
-
-	// WriteTimeout specifies the timeout for write operations.
-	WriteTimeout Duration `json:"write_timeout" yaml:"write_timeout"`
-}
-
-// WebSocketTransportConfig contains configuration for WebSocket transport.
-type WebSocketTransportConfig struct {
-	// Address specifies the WebSocket listen address.
-	Address string `json:"address" yaml:"address"`
-
-	// Port specifies the WebSocket listen port.
-	Port int `json:"port" yaml:"port"`
-
-	// Path specifies the WebSocket endpoint path.
-	Path string `json:"path" yaml:"path"`
-
-	// MaxConnections limits the number of concurrent WebSocket connections.
-	MaxConnections int `json:"max_connections" yaml:"max_connections"`
-
-	// MaxMessageSize limits the size of WebSocket messages.
-	MaxMessageSize int64 `json:"max_message_size" yaml:"max_message_size"`
-}
-
-// RetryConfig contains retry policy configuration.
-type RetryConfig struct {
-	// Enabled determines whether retries are enabled.
-	Enabled bool `json:"enabled" yaml:"enabled"`
-
-	// MaxAttempts specifies the maximum number of retry attempts.
-	MaxAttempts int `json:"max_attempts" yaml:"max_attempts"`
-
-	// InitialDelay specifies the initial delay between retries.
-	InitialDelay Duration `json:"initial_delay" yaml:"initial_delay"`
-
-	// MaxDelay specifies the maximum delay between retries.
-	MaxDelay Duration `json:"max_delay" yaml:"max_delay"`
-
-	// Multiplier specifies the backoff multiplier.
-	Multiplier float64 `json:"multiplier" yaml:"multiplier"`
-}
-
-// LoggingConfig contains logging configuration.
-type LoggingConfig struct {
-	// Level specifies the log level (debug, info, warn, error).
-	Level string `json:"level" yaml:"level"`
-
-	// Format specifies the log format (text, json).
-	Format string `json:"format" yaml:"format"`
-
-	// Output specifies the log output (stdout, stderr, file path).
-	Output string `json:"output" yaml:"output"`
-
-	// EnableRequestLogging enables detailed request/response logging.
-	EnableRequestLogging bool `json:"enable_request_logging" yaml:"enable_request_logging"`
 }
 
 // Duration is a wrapper around time.Duration that can be marshaled to/from JSON and YAML.
@@ -195,13 +102,15 @@ func (d *Duration) UnmarshalYAML(unmarshal func(interface{}) error) error {
 }
 
 // DefaultConfig returns a configuration with sensible defaults.
-func DefaultConfig() *Config {
+func defaultConfig() *Config {
 	return &Config{
 		Server: ServerConfig{
 			Name:                  "StackQL MCP Server",
-			Version:               "1.0.0",
+			Version:               "0.1.0",
 			Description:           "Model Context Protocol server for StackQL",
 			MaxConcurrentRequests: 100,
+			Transport:             serverTransportStdIO,
+			URL:                   DefaultHTTPServerURL,
 			RequestTimeout:        Duration(30 * time.Second),
 		},
 		Backend: BackendConfig{
@@ -210,41 +119,26 @@ func DefaultConfig() *Config {
 			MaxConnections:    10,
 			ConnectionTimeout: Duration(10 * time.Second),
 			QueryTimeout:      Duration(30 * time.Second),
-			Retry: RetryConfig{
-				Enabled:      true,
-				MaxAttempts:  3,
-				InitialDelay: Duration(100 * time.Millisecond),
-				MaxDelay:     Duration(5 * time.Second),
-				Multiplier:   2.0,
-			},
-		},
-		Transport: TransportConfig{
-			EnabledTransports: []string{"stdio"},
-			Stdio: StdioTransportConfig{
-				BufferSize: 4096,
-			},
-			TCP: TCPTransportConfig{
-				Address:        "localhost",
-				Port:           8080,
-				MaxConnections: 100,
-				ReadTimeout:    Duration(30 * time.Second),
-				WriteTimeout:   Duration(30 * time.Second),
-			},
-			WebSocket: WebSocketTransportConfig{
-				Address:        "localhost",
-				Port:           8081,
-				Path:           "/mcp",
-				MaxConnections: 100,
-				MaxMessageSize: 1024 * 1024, // 1MB
-			},
-		},
-		Logging: LoggingConfig{
-			Level:                "info",
-			Format:               "text",
-			Output:               "stdout",
-			EnableRequestLogging: false,
 		},
 	}
+}
+
+// DefaultConfig returns a configuration with sensible defaults.
+func DefaultConfig() *Config {
+	rv := defaultConfig()
+	return rv
+}
+
+func DefaultHTTPConfig() *Config {
+	rv := defaultConfig()
+	rv.Server.Transport = serverTransportHTTP
+	return rv
+}
+
+func DefaultSSEConfig() *Config {
+	rv := defaultConfig()
+	rv.Server.Transport = serverTransportSSE
+	return rv
 }
 
 // Validate validates the configuration and returns an error if invalid.
@@ -265,46 +159,6 @@ func (c *Config) Validate() error {
 	}
 	if c.Backend.MaxConnections <= 0 {
 		return fmt.Errorf("backend.max_connections must be greater than 0")
-	}
-	if len(c.Transport.EnabledTransports) == 0 {
-		return fmt.Errorf("at least one transport must be enabled")
-	}
-
-	// Validate enabled transports
-	validTransports := map[string]bool{
-		"stdio":     true,
-		"tcp":       true,
-		"websocket": true,
-	}
-	for _, transport := range c.Transport.EnabledTransports {
-		if !validTransports[transport] {
-			return fmt.Errorf("invalid transport: %s", transport)
-		}
-	}
-
-	// Validate TCP config if TCP transport is enabled
-	for _, transport := range c.Transport.EnabledTransports {
-		if transport == "tcp" {
-			if c.Transport.TCP.Port <= 0 || c.Transport.TCP.Port > 65535 {
-				return fmt.Errorf("tcp.port must be between 1 and 65535")
-			}
-		}
-		if transport == "websocket" {
-			if c.Transport.WebSocket.Port <= 0 || c.Transport.WebSocket.Port > 65535 {
-				return fmt.Errorf("websocket.port must be between 1 and 65535")
-			}
-		}
-	}
-
-	// Validate logging config
-	validLevels := map[string]bool{
-		"debug": true,
-		"info":  true,
-		"warn":  true,
-		"error": true,
-	}
-	if !validLevels[c.Logging.Level] {
-		return fmt.Errorf("invalid logging level: %s", c.Logging.Level)
 	}
 
 	return nil
