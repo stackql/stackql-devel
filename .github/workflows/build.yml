@@ -354,7 +354,6 @@ jobs:
         BUILDPLATFORM: ${{runner.os}}
         BUILDPATCHVERSION: ${{github.run_number}}
         CGO_ENABLED: 1
-        CGO_LDFLAGS: '-static'
       run: |
         python cicd/python/build.py --verbose --build-mcp-client
       
@@ -783,7 +782,6 @@ jobs:
         BUILDPLATFORM: ${{runner.os}}
         BUILDPATCHVERSION: ${{github.run_number}}
         CGO_ENABLED: 1
-        CGO_LDFLAGS: '-static'
       run: |
         python cicd/python/build.py --verbose --build-mcp-client
       
