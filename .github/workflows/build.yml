@@ -1459,7 +1459,7 @@ jobs:
     - name: Pull Docker base images for cache purposes
       if: env.BUILD_IMAGE_REQUIRED == 'true'
       run: |
-        docker pull --platform ${{ matrix.platform }} golang:1.18.4-bullseye || echo 'could not pull image for cache purposes'
+        docker pull --platform ${{ matrix.platform }} golang:1.23-bullseye || echo 'could not pull image for cache purposes'
         docker pull --platform ${{ matrix.platform }} ubuntu:22.04 || echo 'could not pull image for cache purposes'
 
     - name: Pull Docker image for cache purposes
