@@ -7,7 +7,8 @@ MCP HTTP Server List Tools
     ${serverProcess}=    Start Process    ${REPOSITORY_ROOT}${/}build${/}stackql
     ...                                   \-\-mcp.server.type\=http 
     ...                                   \-\-mcp.config\='{"server": {"transport": "http", "address": "127.0.0.1:9912"}}'
-    ${result}=    Run Process          ${REPOSITORY_ROOT}${/}build${/}stackql_mcp_client   
+    ${result}=    Run Process          ${REPOSITORY_ROOT}${/}build${/}stackql_mcp_client
+    ...                  exec
     ...                  \-\-client\-type\=http 
     ...                  \-\-url\=http://127.0.0.1:9912
     ...                  stdout=${CURDIR}/tmp/MCP-HTTP-Server-List-Tools.txt
