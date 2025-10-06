@@ -27,6 +27,7 @@ import (
 	"github.com/stackql/stackql/pkg/mcp_server"
 )
 
+//nolint:gochecknoglobals // cobra pattern
 var (
 	mcpServerType string // overwritten by flag
 	mcpConfig     string // overwritten by flag

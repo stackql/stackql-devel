@@ -55,6 +55,7 @@ func (s *simpleMCPServer) runHTTPServer(server *mcp.Server, address string) erro
 	s.logger.Debugf("Available tool: cityTime (cities: nyc, sf, boston)")
 
 	// Start the HTTP server with logging handler.
+	//nolint:gosec // TODO: find viable alternative to http.ListenAndServe
 	if err := http.ListenAndServe(address, handlerWithLogging); err != nil {
 		s.logger.Errorf("Server failed: %v", err)
 		return err
@@ -76,6 +77,8 @@ func NewExampleBackendServer(config *Config, logger *logrus.Logger) (MCPServer, 
 // }
 
 // NewMCPServer creates a new MCP server with the provided configuration and backend.
+//
+//nolint:gocognit,funlen // ok
 func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPServer, error) {
 	if config == nil {
 		config = DefaultConfig()

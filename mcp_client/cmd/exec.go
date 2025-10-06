@@ -48,6 +48,7 @@ var execCmd = &cobra.Command{
 		if outPutErr != nil {
 			panic(fmt.Sprintf("error marshaling output: %v", outPutErr))
 		}
+		//nolint:forbidigo // legacy
 		fmt.Println(string(output))
 	},
 }

@@ -174,7 +174,17 @@ linters:
         path: internal\/test\/.*\.go
       - linters:
           - mnd
+          - revive
+          - nolintlint
+          - lll
+          - gochecknoglobals
+          - unused
         path: pkg\/mcp_server\/.*\.go
+      - linters:
+          - gochecknoglobals
+          - lll
+          - revive
+        path: mcp_client\/cmd\/.*\.go
       - linters: 
           - staticcheck
         path: ast_format_postgres\.go

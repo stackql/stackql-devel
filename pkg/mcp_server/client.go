@@ -93,14 +93,14 @@ func (c *httpMCPClient) InspectTools() ([]map[string]any, error) {
 	c.logger.Println("Getting time for each city...")
 	for _, city := range cities {
 		// Call the tool.
-		result, err := session.CallTool(ctx, &mcp.CallToolParams{
+		result, resultErr := session.CallTool(ctx, &mcp.CallToolParams{
 			Name: "cityTime",
 			Arguments: map[string]any{
 				"city": city,
 			},
 		})
-		if err != nil {
-			c.logger.Infof("Failed to get time for %s: %v\n", city, err)
+		if resultErr != nil {
+			c.logger.Infof("Failed to get time for %s: %v\n", city, resultErr)
 			continue
 		}
 
