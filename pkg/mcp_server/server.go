@@ -2,6 +2,7 @@ package mcp_server //nolint:revive // fine for now
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -146,48 +147,49 @@ func NewMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			return nil, rv, nil
 		},
 	)
-	// mcp.AddTool(
-	// 	server,
-	// 	&mcp.Tool{
-	// 		Name:        "query",
-	// 		Description: "execute a SQL query",
-	// 		// Input and output schemas can be defined here if needed.
-	// 	},
-	// 	func(ctx context.Context, req *mcp.CallToolRequest, args queryInput) (*mcp.CallToolResult, any, error) {
-	// 		rv, rvErr := backend.RunQuery(ctx, args)
-	// 		if rvErr != nil {
-	// 			return nil, nil, rvErr
-	// 		}
-	// 		return &mcp.CallToolResult{
-	// 			Content: []mcp.Content{
-	// 				&mcp.TextContent{Text: rv},
-	// 			},
-	// 		}, nil, nil
-	// 	},
-	// )
-	// mcp.AddTool(
-	// 	server,
-	// 	&mcp.Tool{
-	// 		Name:        "query_json",
-	// 		Description: "execute a SQL query and return a JSON array of rows",
-	// 		// Input and output schemas can be defined here if needed.
-	// 	},
-	// 	func(ctx context.Context, req *mcp.CallToolRequest, args queryJSONInput) (*mcp.CallToolResult, any, error) {
-	// 		arr, err := backend.RunQueryJSON(ctx, args)
-	// 		if err != nil {
-	// 			return nil, nil, err
-	// 		}
-	// 		bytesArr, marshalErr := json.Marshal(arr)
-	// 		if marshalErr != nil {
-	// 			return nil, nil, fmt.Errorf("failed to marshal query result to JSON: %w", marshalErr)
-	// 		}
-	// 		return &mcp.CallToolResult{
-	// 			Content: []mcp.Content{
-	// 				&mcp.TextContent{Text: string(bytesArr)},
-	// 			},
-	// 		}, nil, nil
-	// 	},
-	// )
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "query_v2",
+			Description: "Execute a SQL query.  Please adhere to the expected parameters.  Returns a textual response",
+			// Input and output schemas can be defined here if needed.
+		},
+		func(ctx context.Context, req *mcp.CallToolRequest, arg queryInput) (*mcp.CallToolResult, any, error) {
+			logger.Warnf("Received query: %s", arg.SQL)
+			rv, rvErr := backend.RunQuery(ctx, arg)
+			if rvErr != nil {
+				return nil, nil, rvErr
+			}
+			return &mcp.CallToolResult{
+				Content: []mcp.Content{
+					&mcp.TextContent{Text: rv},
+				},
+			}, nil, nil
+		},
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "query_json_v2",
+			Description: "Execute a SQL query and return a JSON array of rows, as text.",
+			// Input and output schemas can be defined here if needed.
+		},
+		func(ctx context.Context, req *mcp.CallToolRequest, args queryJSONInput) (*mcp.CallToolResult, any, error) {
+			arr, err := backend.RunQueryJSON(ctx, args)
+			if err != nil {
+				return nil, nil, err
+			}
+			bytesArr, marshalErr := json.Marshal(arr)
+			if marshalErr != nil {
+				return nil, nil, fmt.Errorf("failed to marshal query result to JSON: %w", marshalErr)
+			}
+			return &mcp.CallToolResult{
+				Content: []mcp.Content{
+					&mcp.TextContent{Text: string(bytesArr)},
+				},
+			}, nil, nil
+		},
+	)
 
 	return &simpleMCPServer{
 		config:           config,

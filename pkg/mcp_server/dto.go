@@ -94,16 +94,14 @@ type serverInfoOutput struct {
 }
 
 type queryInput struct {
-	SQL        string   `json:"sql" yaml:"sql"`
-	Parameters []string `json:"parameters,omitempty" yaml:"parameters,omitempty"`
-	RowLimit   int      `json:"row_limit" yaml:"row_limit"`
-	Format     string   `json:"format" yaml:"format"`
+	SQL      string `json:"sql" yaml:"sql"`
+	RowLimit int    `json:"row_limit" yaml:"row_limit"`
+	Format   string `json:"format" yaml:"format"`
 }
 
 type queryJSONInput struct {
-	SQL        string   `json:"sql" yaml:"sql"`
-	Parameters []string `json:"parameters,omitempty" yaml:"parameters,omitempty"`
-	RowLimit   int      `json:"row_limit" yaml:"row_limit"`
+	SQL      string `json:"sql" yaml:"sql"`
+	RowLimit int    `json:"row_limit" yaml:"row_limit"`
 }
 
 type listSchemasInput struct {

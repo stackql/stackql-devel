@@ -64,7 +64,8 @@ Refer to this section whenever you encounter issues with resource keys containin
 
 ## Typed Tools & Resources
 - Preferred tools: `run_query(QueryInput)` and `run_query_json(QueryJSONInput)` with validated inputs (via Pydantic) and `row_limit` safeguards.
-- Legacy tools `query`/`query_json` remain for backward compatibility.
+- Legacy tools `query_v2`/`query_json` remain for backward compatibility.  These return a json object with a property for rows.
+    - Note the `query_v2` requires input of the form `{ "tool": "query", "input": {   "sql": "SELECT 1;",   "row_limit": 1 } }`
 - Table resources: `table://{schema}/{table}` (best-effort registration), with fallback tools `list_table_resources` and `read_table_resource`.
 - Prompts available as MCP prompts and tools: `write_safe_select`, `explain_plan_tips`.
 
