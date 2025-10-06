@@ -135,6 +135,8 @@ COPY --from=registrymock /opt/test/stackql ${TEST_ROOT_DIR}/
 
 COPY --from=builder /work/stackql/build/stackql ${TEST_ROOT_DIR}/build/
 
+COPY --from=builder /work/stackql/build/stackql_mcp_client ${TEST_ROOT_DIR}/build/
+
 RUN  if [ "${RUN_INTEGRATION_TESTS}" = "1" ]; then env PYTHONPATH="$PYTHONPATH:${TEST_ROOT_DIR}/test/python" robot ${TEST_ROOT_DIR}/test/robot/functional; fi
 
 FROM ubuntu:22.04 AS app
@@ -160,6 +162,8 @@ RUN mkdir -p ${APP_DIR} ${STACKQL_CFG_ROOT}/keys ${STACKQL_CFG_ROOT}/srv/credent
 ENV PATH="${APP_DIR}:${PATH}"
 
 COPY --from=integration ${TEST_ROOT_DIR}/build/stackql ${APP_DIR}/
+
+COPY --from=integration ${TEST_ROOT_DIR}/build/stackql_mcp_client ${APP_DIR}/
 
 RUN apt-get update \
     && apt-get install -y ca-certificates openssl netcat-traditional jq dnsutils \

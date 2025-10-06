@@ -12,6 +12,7 @@ from typed_python_responses import SELECT_AWS_CLOUD_CONTROL_EVENTS_MINIMAL_EXPEC
 from registry_cfg import RegistryCfg
 
 _exe_name = 'stackql'
+_mcp_client_exe_name = 'stackql_mcp_client'
 
 IS_WINDOWS = '0'
 if os.name == 'nt':
@@ -143,10 +144,16 @@ def get_variables(
   REPOSITORY_ROOT_UNIX = get_unix_path(repository_root)
 
   def get_stackql_exe(execution_env :str, is_preinstalled :bool):
-    _default_stackqk_exe = ' '.join(get_unix_path(os.path.join(repository_root, 'build', _exe_name)).splitlines())
+    _default_stackql_exe = ' '.join(get_unix_path(os.path.join(repository_root, 'build', _exe_name)).splitlines())
     if is_preinstalled:
       return 'stackql'
-    return _default_stackqk_exe
+    return _default_stackql_exe
+
+  def get_stackql_mcp_client_exe(execution_env :str, is_preinstalled :bool):
+    _default_stackql_mcp_client_exe = ' '.join(get_unix_path(os.path.join(repository_root, 'build', _mcp_client_exe_name)).splitlines())
+    if is_preinstalled:
+      return _mcp_client_exe_name
+    return _default_stackql_mcp_client_exe
 
   def get_registry_mocked(execution_env :str) -> RegistryCfg:
     return RegistryCfg(
@@ -941,6 +948,7 @@ def get_variables(
     'SQL_CLIENT_EXPORT_BACKEND':                      get_export_sql_backend(execution_env, sql_backend_str),
     'SQL_CLIENT_EXPORT_CONNECTION_ARG':               get_export_sql_connection_arg(execution_env, sql_backend_str),
     'STACKQL_EXE':                                    get_stackql_exe(execution_env, must_use_stackql_preinstalled),
+    'STACKQL_MCP_CLIENT_EXE':                         get_stackql_mcp_client_exe(execution_env, must_use_stackql_preinstalled),
     'SUMOLOGIC_SECRET_STR':                           SUMOLOGIC_SECRET_STR,
     ## queries and expectations
     'AWS_CC_VIEW_SELECT_PROJECTION_BUCKET_COMPLEX_EXPECTED':                  AWS_CC_VIEW_SELECT_PROJECTION_BUCKET_COMPLEX_EXPECTED,

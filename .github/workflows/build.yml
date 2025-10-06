@@ -260,7 +260,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5.0.0
       with:
-        go-version: '~1.23'
+        go-version: '~1.24'
         check-latest: true
         cache: true
       id: go
@@ -480,7 +480,7 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v5.0.0
       with:
-        go-version: '~1.23'
+        go-version: '~1.24'
         check-latest: true
         cache: true
       id: go
