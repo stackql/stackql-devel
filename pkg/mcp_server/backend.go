@@ -202,10 +202,12 @@ type Backend interface {
 	// Close gracefully shuts down the backend connection.
 	Close() error
 	// Server and environment info
-	ServerInfo(ctx context.Context) (map[string]interface{}, error)
+	ServerInfo(ctx context.Context, args any) (serverInfoOutput, error)
 
 	// Current DB identity details
-	DBIdentity(ctx context.Context) (map[string]interface{}, error)
+	DBIdentity(ctx context.Context, args any) (map[string]any, error)
+
+	Greet(ctx context.Context, args greetInput) (string, error)
 
 	// Execute a SQL query (legacy signature)
 	Query(ctx context.Context, sql string, parameters []interface{}, rowLimit int, format string) (string, error)
@@ -214,10 +216,10 @@ type Backend interface {
 	QueryJSON(ctx context.Context, sql string, parameters []interface{}, rowLimit int) ([]map[string]interface{}, error)
 
 	// Execute a SQL query with typed input (preferred)
-	RunQuery(ctx context.Context, input QueryInput) (string, error)
+	RunQuery(ctx context.Context, args queryInput) (string, error)
 
 	// Execute a SQL query and return JSON rows with typed input (preferred)
-	RunQueryJSON(ctx context.Context, input QueryJSONInput) ([]map[string]interface{}, error)
+	RunQueryJSON(ctx context.Context, input queryJSONInput) ([]map[string]interface{}, error)
 
 	// List resource URIs for tables in a schema
 	ListTableResources(ctx context.Context, schema string) ([]string, error)
@@ -231,32 +233,30 @@ type Backend interface {
 	// Prompt: tips for reading EXPLAIN ANALYZE output
 	PromptExplainPlanTipsTool(ctx context.Context) (string, error)
 
-	// List schemas with filters and return JSON rows
-	ListSchemasJSON(ctx context.Context, input ListSchemasInput) ([]map[string]interface{}, error)
-
-	// List schemas with pagination and filters
-	ListSchemasJSONPage(ctx context.Context, input ListSchemasPageInput) (map[string]interface{}, error)
-
 	// List tables in a schema with optional filters and return JSON rows
-	ListTablesJSON(ctx context.Context, input ListTablesInput) ([]map[string]interface{}, error)
+	ListTablesJSON(ctx context.Context, input listTablesInput) ([]map[string]interface{}, error)
 
 	// List tables with pagination and filters
-	ListTablesJSONPage(ctx context.Context, input ListTablesPageInput) (map[string]interface{}, error)
+	ListTablesJSONPage(ctx context.Context, input listTablesPageInput) (map[string]interface{}, error)
 
 	// List all schemas in the database
-	ListSchemas(ctx context.Context) (string, error)
+	ListProviders(ctx context.Context) (string, error)
+
+	ListServices(ctx context.Context, hI hierarchyInput) (string, error)
+
+	ListResources(ctx context.Context, hI hierarchyInput) (string, error)
 
 	// List all tables in a specific schema
-	ListTables(ctx context.Context, dbSchema string) (string, error)
+	ListTables(ctx context.Context, hI hierarchyInput) (string, error)
 
 	// Get detailed information about a table
-	DescribeTable(ctx context.Context, tableName string, dbSchema string) (string, error)
+	DescribeTable(ctx context.Context, hI hierarchyInput) (string, error)
 
 	// Get foreign key information for a table
-	GetForeignKeys(ctx context.Context, tableName string, dbSchema string) (string, error)
+	GetForeignKeys(ctx context.Context, hI hierarchyInput) (string, error)
 
 	// Find both explicit and implied relationships for a table
-	FindRelationships(ctx context.Context, tableName string, dbSchema string) (string, error)
+	FindRelationships(ctx context.Context, hI hierarchyInput) (string, error)
 }
 
 // QueryResult represents the result of a query execution.

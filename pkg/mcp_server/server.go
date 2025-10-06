@@ -100,19 +100,94 @@ func NewMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 		&mcp.Implementation{Name: "greeter", Version: "v0.1.0"},
 		nil,
 	)
-	type args struct {
-		Name string `json:"name" jsonschema:"the person to greet"`
-	}
-	mcp.AddTool(server, &mcp.Tool{
-		Name:        "greet",
-		Description: "say hi",
-	}, func(ctx context.Context, req *mcp.CallToolRequest, args args) (*mcp.CallToolResult, any, error) {
-		return &mcp.CallToolResult{
-			Content: []mcp.Content{
-				&mcp.TextContent{Text: "Hi " + args.Name},
-			},
-		}, nil, nil
-	})
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "greet",
+			Description: "Say hi.  A simple livenesss check",
+		},
+		func(ctx context.Context, req *mcp.CallToolRequest, args greetInput) (*mcp.CallToolResult, any, error) {
+			greeting, greetingErr := backend.Greet(ctx, args)
+			if greetingErr != nil {
+				return nil, nil, greetingErr
+			}
+			return &mcp.CallToolResult{
+				Content: []mcp.Content{
+					&mcp.TextContent{Text: greeting},
+				},
+			}, nil, nil
+		},
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "server_info",
+			Description: "Get server information",
+		},
+		func(ctx context.Context, req *mcp.CallToolRequest, args greetInput) (*mcp.CallToolResult, serverInfoOutput, error) {
+			rv, rvErr := backend.ServerInfo(ctx, args)
+			if rvErr != nil {
+				return nil, serverInfoOutput{}, rvErr
+			}
+			return nil, rv, nil
+		},
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "db_identity",
+			Description: "get current database identity",
+		},
+		func(ctx context.Context, req *mcp.CallToolRequest, args greetInput) (*mcp.CallToolResult, map[string]any, error) {
+			rv, rvErr := backend.DBIdentity(ctx, args)
+			if rvErr != nil {
+				return nil, nil, rvErr
+			}
+			return nil, rv, nil
+		},
+	)
+	// mcp.AddTool(
+	// 	server,
+	// 	&mcp.Tool{
+	// 		Name:        "query",
+	// 		Description: "execute a SQL query",
+	// 		// Input and output schemas can be defined here if needed.
+	// 	},
+	// 	func(ctx context.Context, req *mcp.CallToolRequest, args queryInput) (*mcp.CallToolResult, any, error) {
+	// 		rv, rvErr := backend.RunQuery(ctx, args)
+	// 		if rvErr != nil {
+	// 			return nil, nil, rvErr
+	// 		}
+	// 		return &mcp.CallToolResult{
+	// 			Content: []mcp.Content{
+	// 				&mcp.TextContent{Text: rv},
+	// 			},
+	// 		}, nil, nil
+	// 	},
+	// )
+	// mcp.AddTool(
+	// 	server,
+	// 	&mcp.Tool{
+	// 		Name:        "query_json",
+	// 		Description: "execute a SQL query and return a JSON array of rows",
+	// 		// Input and output schemas can be defined here if needed.
+	// 	},
+	// 	func(ctx context.Context, req *mcp.CallToolRequest, args queryJSONInput) (*mcp.CallToolResult, any, error) {
+	// 		arr, err := backend.RunQueryJSON(ctx, args)
+	// 		if err != nil {
+	// 			return nil, nil, err
+	// 		}
+	// 		bytesArr, marshalErr := json.Marshal(arr)
+	// 		if marshalErr != nil {
+	// 			return nil, nil, fmt.Errorf("failed to marshal query result to JSON: %w", marshalErr)
+	// 		}
+	// 		return &mcp.CallToolResult{
+	// 			Content: []mcp.Content{
+	// 				&mcp.TextContent{Text: string(bytesArr)},
+	// 			},
+	// 		}, nil, nil
+	// 	},
+	// )
 
 	return &simpleMCPServer{
 		config:           config,

@@ -76,20 +76,37 @@ class ListTablesPageInput(BaseModel):
 
 */
 
-type QueryInput struct {
-	SQL        string        `json:"sql" yaml:"sql"`
-	Parameters []interface{} `json:"parameters,omitempty" yaml:"parameters,omitempty"`
-	RowLimit   int           `json:"row_limit" yaml:"row_limit"`
-	Format     string        `json:"format" yaml:"format"`
+type greetInput struct {
+	Name string `json:"name" jsonschema:"the person to greet"`
 }
 
-type QueryJSONInput struct {
-	SQL        string        `json:"sql" yaml:"sql"`
-	Parameters []interface{} `json:"parameters,omitempty" yaml:"parameters,omitempty"`
-	RowLimit   int           `json:"row_limit" yaml:"row_limit"`
+type hierarchyInput struct {
+	Provider string `json:"provider" yaml:"provider"`
+	Service  string `json:"service" yaml:"service"`
+	Resource string `json:"resource" yaml:"resource"`
+	Method   string `json:"method" yaml:"method"`
 }
 
-type ListSchemasInput struct {
+type serverInfoOutput struct {
+	Name       string `json:"name" jsonschema:"server name"`
+	Info       string `json:"info" jsonschema:"server info"`
+	IsReadOnly bool   `json:"read_only" jsonschema:"is the database read-only"`
+}
+
+type queryInput struct {
+	SQL        string   `json:"sql" yaml:"sql"`
+	Parameters []string `json:"parameters,omitempty" yaml:"parameters,omitempty"`
+	RowLimit   int      `json:"row_limit" yaml:"row_limit"`
+	Format     string   `json:"format" yaml:"format"`
+}
+
+type queryJSONInput struct {
+	SQL        string   `json:"sql" yaml:"sql"`
+	Parameters []string `json:"parameters,omitempty" yaml:"parameters,omitempty"`
+	RowLimit   int      `json:"row_limit" yaml:"row_limit"`
+}
+
+type listSchemasInput struct {
 	IncludeSystem bool    `json:"include_system" yaml:"include_system"`
 	IncludeTemp   bool    `json:"include_temp" yaml:"include_temp"`
 	RequireUsage  bool    `json:"require_usage" yaml:"require_usage"`
@@ -98,7 +115,7 @@ type ListSchemasInput struct {
 	CaseSensitive bool    `json:"case_sensitive" yaml:"case_sensitive"`
 }
 
-type ListSchemasPageInput struct {
+type listSchemasPageInput struct {
 	IncludeSystem bool    `json:"include_system" yaml:"include_system"`
 	IncludeTemp   bool    `json:"include_temp" yaml:"include_temp"`
 	RequireUsage  bool    `json:"require_usage" yaml:"require_usage"`
@@ -108,19 +125,19 @@ type ListSchemasPageInput struct {
 	CaseSensitive bool    `json:"case_sensitive" yaml:"case_sensitive"`
 }
 
-type ListTablesInput struct {
-	DBSchema      *string  `json:"db_schema,omitempty" yaml:"db_schema,omitempty"`
-	NameLike      *string  `json:"name_like,omitempty" yaml:"name_like,omitempty"`
-	CaseSensitive bool     `json:"case_sensitive" yaml:"case_sensitive"`
-	TableTypes    []string `json:"table_types,omitempty" yaml:"table_types,omitempty"`
-	RowLimit      int      `json:"row_limit" yaml:"row_limit"`
+type listTablesInput struct {
+	Hierarchy     *hierarchyInput `json:"hierarchy,omitempty" yaml:"hierarchy,omitempty"`
+	NameLike      *string         `json:"name_like,omitempty" yaml:"name_like,omitempty"`
+	CaseSensitive bool            `json:"case_sensitive" yaml:"case_sensitive"`
+	TableTypes    []string        `json:"table_types,omitempty" yaml:"table_types,omitempty"`
+	RowLimit      int             `json:"row_limit" yaml:"row_limit"`
 }
 
-type ListTablesPageInput struct {
-	DBSchema      *string  `json:"db_schema,omitempty" yaml:"db_schema,omitempty"`
-	NameLike      *string  `json:"name_like,omitempty" yaml:"name_like,omitempty"`
-	CaseSensitive bool     `json:"case_sensitive" yaml:"case_sensitive"`
-	TableTypes    []string `json:"table_types,omitempty" yaml:"table_types,omitempty"`
-	PageSize      int      `json:"page_size" yaml:"page_size"`
-	Cursor        *string  `json:"cursor,omitempty" yaml:"cursor,omitempty"`
+type listTablesPageInput struct {
+	Hierarchy     *hierarchyInput `json:"hierarchy,omitempty" yaml:"hierarchy,omitempty"`
+	NameLike      *string         `json:"name_like,omitempty" yaml:"name_like,omitempty"`
+	CaseSensitive bool            `json:"case_sensitive" yaml:"case_sensitive"`
+	TableTypes    []string        `json:"table_types,omitempty" yaml:"table_types,omitempty"`
+	PageSize      int             `json:"page_size" yaml:"page_size"`
+	Cursor        *string         `json:"cursor,omitempty" yaml:"cursor,omitempty"`
 }
