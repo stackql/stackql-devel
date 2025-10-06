@@ -5,8 +5,10 @@ Resource          ${CURDIR}/stackql.resource
 MCP HTTP Server List Tools 
     Pass Execution If    "${EXECUTION_PLATFORM}" == "docker"    Skipping MCP test in docker
     ${serverProcess}=    Start Process    ${REPOSITORY_ROOT}${/}build${/}stackql
+    ...                                   mcp
     ...                                   \-\-mcp.server.type\=http 
     ...                                   \-\-mcp.config\='{"server": {"transport": "http", "address": "127.0.0.1:9912"}}'
+    Sleep         5s
     ${result}=    Run Process          ${REPOSITORY_ROOT}${/}build${/}stackql_mcp_client
     ...                  exec
     ...                  \-\-client\-type\=http 
