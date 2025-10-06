@@ -12,6 +12,8 @@ ADD pkg ${SRC_DIR}/pkg
 
 ADD stackql ${SRC_DIR}/stackql
 
+ADD mcp_client ${SRC_DIR}/mcp_client
+
 ADD test ${SRC_DIR}/test
 
 COPY go.mod go.sum ${SRC_DIR}/
