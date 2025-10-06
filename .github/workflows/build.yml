@@ -346,6 +346,16 @@ jobs:
           echo "BUILDPATCHVERSION=${BUILDPATCHVERSION}"
         } >> "${GITHUB_ENV}"
         python cicd/python/build.py --verbose --build
+    
+    - name: Build MCP client
+      env:
+        BUILDCOMMITSHA: ${{github.sha}}
+        BUILDBRANCH: ${{github.ref}}
+        BUILDPLATFORM: ${{runner.os}}
+        BUILDPATCHVERSION: ${{github.run_number}}
+        CGO_ENABLED: 1
+        CGO_LDFLAGS: '-static'
+      run: |
         python cicd/python/build.py --verbose --build-mcp-client
       
     - name: Test
@@ -765,6 +775,16 @@ jobs:
           echo "BUILDPATCHVERSION=${BUILDPATCHVERSION}"
         } >> "${GITHUB_ENV}"
         python cicd/python/build.py --verbose --build
+    
+    - name: Build MCP client
+      env:
+        BUILDCOMMITSHA: ${{github.sha}}
+        BUILDBRANCH: ${{github.ref}}
+        BUILDPLATFORM: ${{runner.os}}
+        BUILDPATCHVERSION: ${{github.run_number}}
+        CGO_ENABLED: 1
+        CGO_LDFLAGS: '-static'
+      run: |
         python cicd/python/build.py --verbose --build-mcp-client
       
     - name: Test
