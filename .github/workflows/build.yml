@@ -719,7 +719,7 @@ jobs:
         cache: pip
         python-version: '3.12' 
     
-    - name: Git Ref Parse
+    - name: Git Ref Parse 
       id: git_ref_parse
       run: |
           {
