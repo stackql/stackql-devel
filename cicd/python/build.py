@@ -14,7 +14,7 @@ def build_stackql(verbose :bool) -> int:
     os.environ['BUILDMINORVERSION'] = os.environ.get('BUILDMINORVERSION', '1')
     os.environ['BUILDPATCHVERSION'] = os.environ.get('BUILDPATCHVERSION', '1')
     os.environ['CGO_ENABLED'] = os.environ.get('CGO_ENABLED', '1')
-    rv = subprocess.call(
+    return subprocess.call(
         f'go build {"-x -v" if verbose else ""} --tags "sqlite_stackql" -ldflags "-X github.com/stackql/stackql/internal/stackql/cmd.BuildMajorVersion={os.environ.get("BUILDMAJORVERSION")} '
         f'-X github.com/stackql/stackql/internal/stackql/cmd.BuildMinorVersion={os.environ.get("BUILDMINORVERSION")} '
         f'-X github.com/stackql/stackql/internal/stackql/cmd.BuildPatchVersion={os.environ.get("BUILDPATCHVERSION")} '
@@ -26,8 +26,12 @@ def build_stackql(verbose :bool) -> int:
         '-o build/ ./stackql',
         shell=True
     )
-    if rv != 0:
-        return rv
+
+def build_stackql_mcp_client(verbose :bool) -> int:
+    os.environ['BUILDMAJORVERSION'] = os.environ.get('BUILDMAJORVERSION', '1')
+    os.environ['BUILDMINORVERSION'] = os.environ.get('BUILDMINORVERSION', '1')
+    os.environ['BUILDPATCHVERSION'] = os.environ.get('BUILDPATCHVERSION', '1')
+    os.environ['CGO_ENABLED'] = os.environ.get('CGO_ENABLED', '1')
     return subprocess.call(
         'go build '
         f'{"-x -v" if verbose else ""} '
@@ -73,6 +77,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--verbose', action='store_true')
     parser.add_argument('--build', action='store_true')
+    parser.add_argument('--build-mcp-client', action='store_true')
     parser.add_argument('--test', action='store_true')
     parser.add_argument('--robot-test', action='store_true')
     parser.add_argument('--robot-test-integration', action='store_true')
@@ -81,6 +86,10 @@ def main():
     ret_code = 0
     if args.build:
         ret_code = build_stackql(args.verbose)
+        if ret_code != 0:
+            exit(ret_code)
+    if args.build_mcp_client:
+        ret_code = build_stackql_mcp_client(args.verbose)
         if ret_code != 0:
             exit(ret_code)
     if args.test:

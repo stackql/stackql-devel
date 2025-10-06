@@ -193,6 +193,7 @@ jobs:
         echo "BUILDPATCHVERSION=$env:BUILDPATCHVERSION" >> $GITHUB_ENV
 
         python cicd/python/build.py --verbose --build
+        python cicd/python/build.py --verbose --build-mcp-client
 
         build\stackql.exe --help
 
@@ -345,6 +346,7 @@ jobs:
           echo "BUILDPATCHVERSION=${BUILDPATCHVERSION}"
         } >> "${GITHUB_ENV}"
         python cicd/python/build.py --verbose --build
+        python cicd/python/build.py --verbose --build-mcp-client
       
     - name: Test
       if: success()
@@ -763,6 +765,7 @@ jobs:
           echo "BUILDPATCHVERSION=${BUILDPATCHVERSION}"
         } >> "${GITHUB_ENV}"
         python cicd/python/build.py --verbose --build
+        python cicd/python/build.py --verbose --build-mcp-client
       
     - name: Test
       if: success()
@@ -1164,6 +1167,7 @@ jobs:
         } >> "${GITHUB_ENV}"
 
         python cicd/python/build.py --verbose --build 
+        python cicd/python/build.py --verbose --build-mcp-client
 
     - name: Test
       if: success()
@@ -1288,6 +1292,7 @@ jobs:
         export GOOS="darwin"
         export GOARCH="arm64"
         python cicd/python/build.py --verbose --build 
+        python cicd/python/build.py --verbose --build-mcp-client
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4.3.1
