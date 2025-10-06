@@ -674,6 +674,7 @@ jobs:
       if: matrix.registry != 'test/registry'
       env:
         PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
+        IS_DEB_TEST: 'true'
       run: |
         mkdir -p deb_test
         cp stackql_${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}}_amd64.deb deb_test/
@@ -1014,6 +1015,13 @@ jobs:
       uses: actions/download-artifact@v4.1.2
       with:
         name: stackql_linux_amd64
+        path: build
+
+    - name: Download MCP Client Artifact
+      # uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4.1.2
+      with:
+        name: stackql_mcp_client_linux_amd64
         path: build
     
     - name: Setup WSL with dependencies
