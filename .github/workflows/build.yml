@@ -674,7 +674,7 @@ jobs:
       if: matrix.registry != 'test/registry'
       env:
         PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
-        IS_DEB_TEST: 'true'
+        IS_SKIP_MCP_TEST: 'true'
       run: |
         mkdir -p deb_test
         cp stackql_${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}}_amd64.deb deb_test/
@@ -967,7 +967,7 @@ jobs:
         pkgVersion: ${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}}
         pkgArchitecture: 'arm64'
         PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
-        IS_DEB_TEST: 'true'
+        IS_SKIP_MCP_TEST: 'true'
       run: |
         mkdir -p deb_test
         DEB_FILE="${pkgName}_${pkgVersion}_${pkgArchitecture}.deb"
@@ -1705,6 +1705,7 @@ jobs:
     - name: Run robot mocked functional tests
       env:
         PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
+        IS_SKIP_MCP_TEST: 'true'
       if: success() && env.CI_IS_EXPRESS != 'true' && matrix.platform == 'linux/amd64' && env.BUILD_IMAGE_REQUIRED == 'true' && matrix.db_backend == 'sqlite'
       timeout-minutes: ${{ vars.DEFAULT_STEP_TIMEOUT_MIN == '' && 20 || vars.DEFAULT_STEP_TIMEOUT_MIN }}
       run: |
@@ -1715,6 +1716,7 @@ jobs:
     - name: Run POSTGRES BACKEND robot mocked functional tests
       env:
         PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
+        IS_SKIP_MCP_TEST: 'true'
       if: success() && env.CI_IS_EXPRESS != 'true' && matrix.platform == 'linux/amd64' && env.BUILD_IMAGE_REQUIRED == 'true' && matrix.db_backend == 'postgres_tcp'
       timeout-minutes: ${{ vars.DEFAULT_LONG_STEP_TIMEOUT_MIN == '' && 40 || vars.DEFAULT_LONG_STEP_TIMEOUT_MIN }}
       run: |
