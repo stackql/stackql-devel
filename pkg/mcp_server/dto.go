@@ -85,6 +85,7 @@ type hierarchyInput struct {
 	Service  string `json:"service" yaml:"service"`
 	Resource string `json:"resource" yaml:"resource"`
 	Method   string `json:"method" yaml:"method"`
+	RowLimit int    `json:"row_limit" yaml:"row_limit"`
 }
 
 type serverInfoOutput struct {

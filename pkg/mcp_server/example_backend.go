@@ -55,11 +55,11 @@ func (b *ExampleBackend) RunQueryJSON(ctx context.Context, input queryJSONInput)
 	return []map[string]interface{}{}, nil
 }
 
-func (b *ExampleBackend) ListTableResources(ctx context.Context, schema string) ([]string, error) {
+func (b *ExampleBackend) ListTableResources(ctx context.Context, hI hierarchyInput) ([]string, error) {
 	return []string{}, nil
 }
 
-func (b *ExampleBackend) ReadTableResource(ctx context.Context, schema string, table string, rowLimit int) ([]map[string]interface{}, error) {
+func (b *ExampleBackend) ReadTableResource(ctx context.Context, hI hierarchyInput) ([]map[string]interface{}, error) {
 	return []map[string]interface{}{}, nil
 }
 

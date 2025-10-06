@@ -33,10 +33,10 @@ type Backend interface {
 	RunQueryJSON(ctx context.Context, input queryJSONInput) ([]map[string]interface{}, error)
 
 	// List resource URIs for tables in a schema
-	ListTableResources(ctx context.Context, schema string) ([]string, error)
+	ListTableResources(ctx context.Context, hI hierarchyInput) ([]string, error)
 
 	// Read rows from a table resource
-	ReadTableResource(ctx context.Context, schema string, table string, rowLimit int) ([]map[string]interface{}, error)
+	ReadTableResource(ctx context.Context, hI hierarchyInput) ([]map[string]interface{}, error)
 
 	// Prompt: guidelines for writing safe SELECT queries
 	PromptWriteSafeSelectTool(ctx context.Context) (string, error)
