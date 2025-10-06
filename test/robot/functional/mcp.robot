@@ -3,7 +3,7 @@ Resource          ${CURDIR}/stackql.resource
 
 *** Test Cases *** 
 MCP HTTP Server List Tools
-    Pass Execution If    "%{IS_DEB_TEST}" == "true"    Debian testing does not have the MCP client available
+    Pass Execution If    "%{IS_DEB_TEST=false}" == "true"    Debian testing does not have the MCP client available
     ${serverProcess}=    Start Process    ${STACKQL_EXE}
     ...                                   mcp
     ...                                   \-\-mcp.server.type\=http 
@@ -18,5 +18,5 @@ MCP HTTP Server List Tools
     ...                  stderr=${CURDIR}/tmp/MCP-HTTP-Server-List-Tools-stderr.txt
     Should Contain       ${result.stdout}       Get server information
     Should Be Equal As Integers    ${result.rc}    0
-    [Teardown]    Terminate Process    ${serverProcess}   kill=True
+    Terminate Process    ${serverProcess}   kill=True 
 
