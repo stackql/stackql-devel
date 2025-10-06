@@ -421,6 +421,13 @@ jobs:
       with:
         name: stackql_linux_amd64
         path: build/stackql
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4.3.1
+      if: success()
+      with:
+        name: stackql_mcp_client_linux_amd64
+        path: build/stackql_mcp_client
     
     - name: prepare deb boilerplate
       run: |
@@ -470,6 +477,11 @@ jobs:
         name: stackql_linux_amd64
         path: build
 
+    - name: Download Artifact
+      uses: actions/download-artifact@v4.1.2
+      with:
+        name: stackql_mcp_client_linux_amd64
+        path: build
     
     - name: Download deb Artifact
       uses: actions/download-artifact@v4.1.2
@@ -485,7 +497,9 @@ jobs:
     - name: Stackql permissions
       run:  |
         sudo chmod a+rwx build/stackql
+        sudo chmod a+rwx build/stackql_mcp_client
         ls -al build/stackql
+        ls -al build/stackql_mcp_client
         ls -al .
 
     - name: Set up Go 1.x
@@ -952,6 +966,7 @@ jobs:
         pkgVersion: ${{env.BUILDMAJORVERSION}}.${{env.BUILDMINORVERSION}}.${{env.BUILDPATCHVERSION}}
         pkgArchitecture: 'arm64'
         PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
+        IS_DEB_TEST: 'true'
       run: |
         mkdir -p deb_test
         DEB_FILE="${pkgName}_${pkgVersion}_${pkgArchitecture}.deb"

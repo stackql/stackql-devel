@@ -3,6 +3,7 @@ Resource          ${CURDIR}/stackql.resource
 
 *** Test Cases *** 
 MCP HTTP Server List Tools
+    Pass Execution If    "%{IS_DEB_TEST}" == "true"    Debian testing does not have the MCP client available
     ${serverProcess}=    Start Process    ${STACKQL_EXE}
     ...                                   mcp
     ...                                   \-\-mcp.server.type\=http 
