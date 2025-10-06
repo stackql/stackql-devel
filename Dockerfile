@@ -56,6 +56,10 @@ RUN   cd ${SRC_DIR} \
         --tags "sqlite_stackql" \
         -o ${BUILD_DIR}/stackql ./stackql
 
+RUN   cd ${SRC_DIR} \
+      && go build \
+        -o ${BUILD_DIR}/stackql_mcp_client ./mcp_client/cmd
+
 FROM python:3.11-bullseye AS utility
 
 ARG TEST_ROOT_DIR=/opt/test/stackql
