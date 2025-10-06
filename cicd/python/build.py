@@ -14,7 +14,7 @@ def build_stackql(verbose :bool) -> int:
     os.environ['BUILDMINORVERSION'] = os.environ.get('BUILDMINORVERSION', '1')
     os.environ['BUILDPATCHVERSION'] = os.environ.get('BUILDPATCHVERSION', '1')
     os.environ['CGO_ENABLED'] = os.environ.get('CGO_ENABLED', '1')
-    return subprocess.call(
+    rv = subprocess.call(
         f'go build {"-x -v" if verbose else ""} --tags "sqlite_stackql" -ldflags "-X github.com/stackql/stackql/internal/stackql/cmd.BuildMajorVersion={os.environ.get("BUILDMAJORVERSION")} '
         f'-X github.com/stackql/stackql/internal/stackql/cmd.BuildMinorVersion={os.environ.get("BUILDMINORVERSION")} '
         f'-X github.com/stackql/stackql/internal/stackql/cmd.BuildPatchVersion={os.environ.get("BUILDPATCHVERSION")} '
@@ -26,6 +26,14 @@ def build_stackql(verbose :bool) -> int:
         '-o build/ ./stackql',
         shell=True
     )
+    if rv != 0:
+        return rv
+    return subprocess.call(
+        'go build '
+        f'{"-x -v" if verbose else ""} '
+        '-o build/stackql_mcp_client ./mcp_client/cmd',
+        shell=True
+    )
 
 
 def unit_test_stackql(verbose :bool) -> int:
@@ -34,7 +42,7 @@ def unit_test_stackql(verbose :bool) -> int:
         shell=True
     )
 
-def sanitise_val(val :any) -> str:
+def sanitise_val(val) -> str:
     if isinstance(val, bool):
         return str(val).lower()
     return str(val)

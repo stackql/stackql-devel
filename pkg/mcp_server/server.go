@@ -15,10 +15,10 @@ import (
 )
 
 const (
-	serverTransportStdIO = "stdio"
-	serverTransportHTTP  = "http"
-	serverTransportSSE   = "sse"
-	DefaultHTTPServerURL = "http://127.0.0.1:9876"
+	serverTransportStdIO     = "stdio"
+	serverTransportHTTP      = "http"
+	serverTransportSSE       = "sse"
+	DefaultHTTPServerAddress = "127.0.0.1:9876"
 )
 
 type MCPServer interface {
@@ -43,7 +43,7 @@ type simpleMCPServer struct {
 	servers []io.Closer // Track all running servers for cleanup
 }
 
-func (s *simpleMCPServer) runHTTPServer(server *mcp.Server, url string) error {
+func (s *simpleMCPServer) runHTTPServer(server *mcp.Server, address string) error {
 	// Create the streamable HTTP handler.
 	handler := mcp.NewStreamableHTTPHandler(func(req *http.Request) *mcp.Server {
 		return server
@@ -51,11 +51,11 @@ func (s *simpleMCPServer) runHTTPServer(server *mcp.Server, url string) error {
 
 	handlerWithLogging := loggingHandler(handler, s.logger)
 
-	s.logger.Debugf("MCP server listening on %s", url)
+	s.logger.Debugf("MCP server listening on %s", address)
 	s.logger.Debugf("Available tool: cityTime (cities: nyc, sf, boston)")
 
 	// Start the HTTP server with logging handler.
-	if err := http.ListenAndServe(url, handlerWithLogging); err != nil {
+	if err := http.ListenAndServe(address, handlerWithLogging); err != nil {
 		s.logger.Errorf("Server failed: %v", err)
 		return err
 	}
@@ -64,17 +64,19 @@ func (s *simpleMCPServer) runHTTPServer(server *mcp.Server, url string) error {
 
 func NewExampleBackendServer(config *Config, logger *logrus.Logger) (MCPServer, error) {
 	backend := NewExampleBackend("example-connection-string")
-	return NewMCPServer(config, backend, logger)
+	return newMCPServer(config, backend, logger)
 }
 
-func NewExampleHTTPBackendServer(logger *logrus.Logger) (MCPServer, error) {
-	backend := NewExampleBackend("example-connection-string")
-	config := DefaultHTTPConfig()
-	return NewMCPServer(config, backend, logger)
-}
+// func NewExampleHTTPBackendServer(config *Config, logger *logrus.Logger) (MCPServer, error) {
+// 	backend := NewExampleBackend("example-connection-string")
+// 	if config == nil {
+// 		config = DefaultHTTPConfig()
+// 	}
+// 	return NewMCPServer(config, backend, logger)
+// }
 
 // NewMCPServer creates a new MCP server with the provided configuration and backend.
-func NewMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPServer, error) {
+func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPServer, error) {
 	if config == nil {
 		config = DefaultConfig()
 	}
@@ -86,6 +88,7 @@ func NewMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 	}
 	if logger == nil {
 		logger = logrus.New()
+		logger.SetLevel(logrus.InfoLevel)
 		// logger.SetOutput(io.Discard)
 	}
 
@@ -97,7 +100,7 @@ func NewMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 		server,
 		&mcp.Tool{
 			Name:        "greet",
-			Description: "Say hi.  A simple livenesss check",
+			Description: "Say hi.  A simple liveness check.",
 		},
 		func(ctx context.Context, req *mcp.CallToolRequest, args greetInput) (*mcp.CallToolResult, any, error) {
 			greeting, greetingErr := backend.Greet(ctx, args)
@@ -447,9 +450,9 @@ func (s *simpleMCPServer) Start(ctx context.Context) error {
 
 // Synchronous server run.
 func (s *simpleMCPServer) run(ctx context.Context) error {
-	switch s.config.Server.Transport {
+	switch s.config.GetServerTransport() {
 	case serverTransportHTTP:
-		return s.runHTTPServer(s.server, s.config.Server.URL)
+		return s.runHTTPServer(s.server, s.config.GetServerAddress())
 	case serverTransportSSE:
 		return fmt.Errorf("SSE transport not yet implemented")
 	case serverTransportStdIO:

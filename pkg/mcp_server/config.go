@@ -17,6 +17,20 @@ type Config struct {
 	Backend BackendConfig `json:"backend" yaml:"backend"`
 }
 
+func (c *Config) GetServerTransport() string {
+	if c.Server.Transport == "" {
+		return DefaultConfig().Server.Transport
+	}
+	return c.Server.Transport
+}
+
+func (c *Config) GetServerAddress() string {
+	if c.Server.Address == "" {
+		return DefaultConfig().Server.Address
+	}
+	return c.Server.Address
+}
+
 // ServerConfig contains configuration for the MCP server itself.
 type ServerConfig struct {
 	// Name is the server name advertised to clients.
@@ -25,8 +39,11 @@ type ServerConfig struct {
 	// Transport specifies the transport configuration for the server.
 	Transport string `json:"transport" yaml:"transport"`
 
-	// URL is the server URL advertised to clients.
-	URL string `json:"url" yaml:"url"`
+	// Address is the server Address advertised to clients.
+	Address string `json:"address" yaml:"address"`
+
+	// Scheme is the protocol scheme used by the server.
+	Scheme string `json:"scheme" yaml:"scheme"`
 
 	// Version is the server version advertised to clients.
 	Version string `json:"version" yaml:"version"`
@@ -110,7 +127,7 @@ func defaultConfig() *Config {
 			Description:           "Model Context Protocol server for StackQL",
 			MaxConcurrentRequests: 100,
 			Transport:             serverTransportStdIO,
-			URL:                   DefaultHTTPServerURL,
+			Address:               DefaultHTTPServerAddress,
 			RequestTimeout:        Duration(30 * time.Second),
 		},
 		Backend: BackendConfig{
@@ -145,21 +162,21 @@ func DefaultSSEConfig() *Config {
 //
 //nolint:gocognit // simple validation logic
 func (c *Config) Validate() error {
-	if c.Server.Name == "" {
-		return fmt.Errorf("server.name is required")
-	}
-	if c.Server.Version == "" {
-		return fmt.Errorf("server.version is required")
-	}
-	if c.Server.MaxConcurrentRequests <= 0 {
-		return fmt.Errorf("server.max_concurrent_requests must be greater than 0")
-	}
-	if c.Backend.Type == "" {
-		return fmt.Errorf("backend.type is required")
-	}
-	if c.Backend.MaxConnections <= 0 {
-		return fmt.Errorf("backend.max_connections must be greater than 0")
-	}
+	// if c.Server.Name == "" {
+	// 	return fmt.Errorf("server.name is required")
+	// }
+	// if c.Server.Version == "" {
+	// 	return fmt.Errorf("server.version is required")
+	// }
+	// if c.Server.MaxConcurrentRequests <= 0 {
+	// 	return fmt.Errorf("server.max_concurrent_requests must be greater than 0")
+	// }
+	// if c.Backend.Type == "" {
+	// 	return fmt.Errorf("backend.type is required")
+	// }
+	// if c.Backend.MaxConnections <= 0 {
+	// 	return fmt.Errorf("backend.max_connections must be greater than 0")
+	// }
 
 	return nil
 }

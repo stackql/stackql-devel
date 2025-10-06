@@ -380,6 +380,16 @@
         "true",
         "false"
       ]
+    },
+    {
+      "type": "pickString",
+      "id": "mcpServerType",
+      "description": "MCP server type",
+      "default": "stdio",
+      "options": [
+        "http",
+        "stdio"
+      ]
     }
   ],
   "configurations": [
@@ -465,6 +475,19 @@
         "--dbInternal=${input:dbInternalString}",
         "--export.alias=${input:exportAliasString}",
         "--pgsrv.debug.enable=${input:serverDebugPublish}",
+        "--mcp.server.type=${input:mcpServerType}",
+      ],
+    },
+    {
+      "name": "run MCP client",
+      "type": "go",
+      "request": "launch",
+      "envFile": "${workspaceFolder}/.vscode/.env",
+      "mode": "debug",
+      "program": "${workspaceFolder}/mcp_client/cmd",
+      "args": [
+        "exec",
+        "--client-type=http",
       ],
     },
     {

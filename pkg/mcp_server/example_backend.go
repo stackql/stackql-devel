@@ -146,5 +146,5 @@ func NewMCPServerWithExampleBackend(config *Config) (MCPServer, error) {
 
 	backend := NewExampleBackend(config.Backend.ConnectionString)
 
-	return NewMCPServer(config, backend, nil)
+	return newMCPServer(config, backend, nil)
 }

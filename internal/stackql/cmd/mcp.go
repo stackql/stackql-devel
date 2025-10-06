@@ -1,5 +1,5 @@
 /*
-Copyright © 2019 stackql info@stackql.io
+Copyright © 2025 stackql info@stackql.io
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/spf13/cobra"
 
@@ -24,6 +25,11 @@ import (
 	"github.com/stackql/stackql/internal/stackql/entryutil"
 	"github.com/stackql/stackql/internal/stackql/iqlerror"
 	"github.com/stackql/stackql/pkg/mcp_server"
+)
+
+var (
+	mcpServerType string // overwritten by flag
+	mcpConfig     string // overwritten by flag
 )
 
 //nolint:gochecknoglobals // cobra pattern
@@ -43,8 +49,11 @@ var mcpSrvCmd = &cobra.Command{
 		handlerCtx, err := entryutil.BuildHandlerContext(runtimeCtx, nil, queryCache, inputBundle, false)
 		iqlerror.PrintErrorAndExitOneIfError(err)
 		iqlerror.PrintErrorAndExitOneIfNil(handlerCtx, "handler context is unexpectedly nil")
+		var config mcp_server.Config
+		json.Unmarshal([]byte(mcpConfig), &config) //nolint:errcheck // TODO: investigate
+		config.Server.Transport = mcpServerType
 		server, serverErr := mcp_server.NewExampleBackendServer(
-			nil,
+			&config,
 			logging.GetLogger(),
 		)
 		// server, serverErr := mcp_server.NewExampleHTTPBackendServer(

@@ -18,8 +18,6 @@ package main
 import (
 	"fmt"
 	"os"
-
-	"github.com/stackql/stackql/internal/stackql/cmd"
 )
 
 func main() {
@@ -30,5 +28,5 @@ func main() {
 }
 
 func execute() error {
-	return cmd.Execute()
+	return Execute()
 }
