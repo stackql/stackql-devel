@@ -79,6 +79,8 @@ func init() {
 
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 	rootCmd.AddCommand(execCmd)
+	execCmd.PersistentFlags().StringVar(&actionName, "exec.action", "list_tools", "MCP server action name")
+	execCmd.PersistentFlags().StringVar(&actionArgs, "exec.args", "{}", "MCP server action arguments as JSON string")
 }
 
 // initConfig reads in config file and ENV variables if set.

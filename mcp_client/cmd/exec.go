@@ -23,6 +23,16 @@ import (
 	"github.com/stackql/stackql/pkg/mcp_server"
 )
 
+var (
+	actionName string // overwritten by flag
+	actionArgs string // overwritten by flag
+)
+
+const (
+	listToolsAction     = "list_tools"
+	listProvidersAction = "list_providers"
+)
+
 // execCmd represents the exec command.
 //
 //nolint:gochecknoglobals // cobra pattern
@@ -40,15 +50,31 @@ var execCmd = &cobra.Command{
 		if setupErr != nil {
 			panic(fmt.Sprintf("error setting up mcp client: %v", setupErr))
 		}
-		rv, rvErr := client.InspectTools()
-		if rvErr != nil {
-			panic(fmt.Sprintf("error inspecting tools: %v", rvErr))
-		}
-		output, outPutErr := json.MarshalIndent(rv, "", "  ")
-		if outPutErr != nil {
-			panic(fmt.Sprintf("error marshaling output: %v", outPutErr))
+		var outputString string
+		switch actionName {
+		case listToolsAction:
+			rv, rvErr := client.InspectTools()
+			if rvErr != nil {
+				panic(fmt.Sprintf("error inspecting tools: %v", rvErr))
+			}
+			output, outPutErr := json.MarshalIndent(rv, "", "  ")
+			if outPutErr != nil {
+				panic(fmt.Sprintf("error marshaling output: %v", outPutErr))
+			}
+			outputString = string(output)
+		default:
+			var args map[string]any
+			jsonErr := json.Unmarshal([]byte(actionArgs), &args)
+			if jsonErr != nil {
+				panic(fmt.Sprintf("error unmarshaling action args: %v", jsonErr))
+			}
+			rv, rvErr := client.CallToolText(actionName, args)
+			if rvErr != nil {
+				panic(fmt.Sprintf("error calling tool %s: %v", actionName, rvErr))
+			}
+			outputString = rv
 		}
 		//nolint:forbidigo // legacy
-		fmt.Println(string(output))
+		fmt.Println(outputString)
 	},
 }

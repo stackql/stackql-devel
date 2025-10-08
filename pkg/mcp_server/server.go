@@ -127,7 +127,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			Name:        "server_info",
 			Description: "Get server information",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args GreetInput) (*mcp.CallToolResult, ServerInfoOutput, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args any) (*mcp.CallToolResult, ServerInfoOutput, error) {
 			rv, rvErr := backend.ServerInfo(ctx, args)
 			if rvErr != nil {
 				return nil, ServerInfoOutput{}, rvErr
@@ -141,7 +141,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			Name:        "db_identity",
 			Description: "get current database identity",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args GreetInput) (*mcp.CallToolResult, map[string]any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args any) (*mcp.CallToolResult, map[string]any, error) {
 			rv, rvErr := backend.DBIdentity(ctx, args)
 			if rvErr != nil {
 				return nil, nil, rvErr

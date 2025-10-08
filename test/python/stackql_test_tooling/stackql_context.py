@@ -941,6 +941,7 @@ def get_variables(
     'REGISTRY_DEPRECATED_CFG_STR':                    _REGISTRY_DEPRECATED,
     'REGISTRY_MOCKED_CFG_STR':                        get_registry_mocked(execution_env),
     'REGISTRY_NO_VERIFY_CFG_STR':                     _get_registry_no_verify(_sundry_config.get('registry_path')),
+    'REGISTRY_NO_VERIFY_CFG_JSON_STR':                _get_registry_no_verify(_sundry_config.get('registry_path')).get_config_str(execution_environment=execution_env),
     'REGISTRY_NULL':                                  _REGISTRY_NULL,
     'REPOSITORY_ROOT':                                repository_root,
     'SQL_BACKEND_CFG_STR_ANALYTICS':                  get_analytics_sql_backend(execution_env, sql_backend_str),

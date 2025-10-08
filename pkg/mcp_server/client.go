@@ -18,6 +18,7 @@ const (
 
 type MCPClient interface {
 	InspectTools() ([]map[string]any, error)
+	CallToolText(toolName string, args map[string]any) (string, error)
 }
 
 func NewMCPClient(clientType string, baseURL string, logger *logrus.Logger) (MCPClient, error) {
@@ -49,7 +50,7 @@ type httpMCPClient struct {
 	logger     *logrus.Logger
 }
 
-func (c *httpMCPClient) InspectTools() ([]map[string]any, error) {
+func (c *httpMCPClient) connect() (*mcp.ClientSession, error) {
 	url := c.baseURL
 	ctx := context.Background()
 
@@ -63,17 +64,26 @@ func (c *httpMCPClient) InspectTools() ([]map[string]any, error) {
 	}, nil)
 
 	// Connect to the server.
-	session, err := client.Connect(ctx, &mcp.StreamableClientTransport{Endpoint: url}, nil)
+	return client.Connect(ctx, &mcp.StreamableClientTransport{Endpoint: url}, nil)
+}
+
+func (c *httpMCPClient) connectOrDie() *mcp.ClientSession {
+	session, err := c.connect()
 	if err != nil {
 		c.logger.Fatalf("Failed to connect: %v", err)
 	}
+	return session
+}
+
+func (c *httpMCPClient) InspectTools() ([]map[string]any, error) {
+	session := c.connectOrDie()
 	defer session.Close()
 
 	c.logger.Infof("Connected to server (session ID: %s)", session.ID())
 
 	// First, list available tools.
 	c.logger.Infof("Listing available tools...")
-	toolsResult, err := session.ListTools(ctx, nil)
+	toolsResult, err := session.ListTools(context.Background(), nil)
 	if err != nil {
 		c.logger.Fatalf("Failed to list tools: %v", err)
 	}
@@ -87,33 +97,42 @@ func (c *httpMCPClient) InspectTools() ([]map[string]any, error) {
 		rv = append(rv, toolInfo)
 	}
 
-	// Call the cityTime tool for each city.
-	cities := []string{"nyc", "sf", "boston"}
+	c.logger.Infof("Client completed successfully")
+	return rv, nil
+}
 
-	c.logger.Println("Getting time for each city...")
-	for _, city := range cities {
-		// Call the tool.
-		result, resultErr := session.CallTool(ctx, &mcp.CallToolParams{
-			Name: "cityTime",
-			Arguments: map[string]any{
-				"city": city,
-			},
-		})
-		if resultErr != nil {
-			c.logger.Infof("Failed to get time for %s: %v\n", city, resultErr)
-			continue
-		}
+func (c *httpMCPClient) callTool(toolName string, args map[string]any) (*mcp.CallToolResult, error) {
+	session := c.connectOrDie()
+	defer session.Close()
 
-		// Print the result.
-		for _, content := range result.Content {
-			if textContent, ok := content.(*mcp.TextContent); ok {
-				c.logger.Infof("  %s", textContent.Text)
-			}
-		}
+	c.logger.Infof("Connected to server (session ID: %s)", session.ID())
+
+	c.logger.Infof("Calling tool %s...", toolName)
+	result, err := session.CallTool(context.Background(), &mcp.CallToolParams{
+		Name:      toolName,
+		Arguments: args,
+	})
+	if err != nil {
+		c.logger.Errorf("Failed to call tool %s: %v\n", toolName, err)
+		return result, err
 	}
 
 	c.logger.Infof("Client completed successfully")
-	return rv, nil
+	return result, nil
+}
+
+func (c *httpMCPClient) CallToolText(toolName string, args map[string]any) (string, error) {
+	toolCall, toolCallErr := c.callTool(toolName, args)
+	if toolCallErr != nil {
+		return "", toolCallErr
+	}
+	var result string
+	for _, content := range toolCall.Content {
+		if textContent, ok := content.(*mcp.TextContent); ok {
+			result += textContent.Text + "\n"
+		}
+	}
+	return result, nil
 }
 
 type stdioMCPClient struct {
@@ -133,4 +152,9 @@ func newStdioMCPClient(logger *logrus.Logger) (MCPClient, error) {
 func (c *stdioMCPClient) InspectTools() ([]map[string]any, error) {
 	c.logger.Infof("stdio MCP client not implemented yet")
 	return nil, nil
+}
+
+func (c *stdioMCPClient) CallToolText(toolName string, args map[string]any) (string, error) {
+	c.logger.Infof("stdio MCP client not implemented yet")
+	return "", nil
 }
