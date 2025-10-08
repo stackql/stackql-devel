@@ -181,6 +181,17 @@ linters:
           - unused
         path: pkg\/mcp_server\/.*\.go
       - linters:
+          - mnd
+          - revive
+          - nolintlint
+          - lll
+          - gochecknoglobals
+          - unused
+          - errorlint
+          - godot
+          - unparam
+        path: internal\/stackql\/mcpbackend\/.*\.go
+      - linters:
           - gochecknoglobals
           - lll
           - revive
