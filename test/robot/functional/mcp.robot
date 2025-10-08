@@ -14,6 +14,7 @@ Start MCP HTTP Server
     ...                                   ${REGISTRY_NO_VERIFY_CFG_JSON_STR}
     ...                                   \-\-auth
     ...                                   ${AUTH_CFG_STR}
+    ...                                   \-\-tls.allowInsecure
     Sleep         5s
 
 *** Settings ***
