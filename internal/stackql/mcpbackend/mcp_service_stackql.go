@@ -363,6 +363,7 @@ func (b *stackqlMCPService) extractQueryResults(query string, rowLimit int) ([]m
 		sqlRowStream := resp.GetSQLResult()
 		if sqlRowStream == nil {
 			ok = false
+			break
 		}
 		for {
 			row, err := sqlRowStream.Read()

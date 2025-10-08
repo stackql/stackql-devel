@@ -81,12 +81,12 @@ type GreetInput struct {
 }
 
 type HierarchyInput struct {
-	Provider string `json:"provider" yaml:"provider"`
-	Service  string `json:"service" yaml:"service"`
-	Resource string `json:"resource" yaml:"resource"`
-	Method   string `json:"method" yaml:"method"`
-	RowLimit int    `json:"row_limit" yaml:"row_limit"`
-	Format   string `json:"format" yaml:"format"`
+	Provider string `json:"provider,omitempty" yaml:"provider,omitempty"`
+	Service  string `json:"service,omitempty" yaml:"service,omitempty"`
+	Resource string `json:"resource,omitempty" yaml:"resource,omitempty"`
+	Method   string `json:"method,omitempty" yaml:"method,omitempty"`
+	RowLimit int    `json:"row_limit,omitempty" yaml:"row_limit,omitempty"`
+	Format   string `json:"format,omitempty" yaml:"format,omitempty"`
 	// Parameters map[string]any `json:"parameters,omitempty" yaml:"parameters,omitempty"`
 }
 
@@ -98,25 +98,25 @@ type ServerInfoOutput struct {
 
 type QueryInput struct {
 	SQL      string `json:"sql" yaml:"sql"`
-	RowLimit int    `json:"row_limit" yaml:"row_limit"`
-	Format   string `json:"format" yaml:"format"`
+	RowLimit int    `json:"row_limit,omitempty" yaml:"row_limit,omitempty"`
+	Format   string `json:"format,omitempty" yaml:"format,omitempty"`
 	// Parameters map[string]any `json:"parameters,omitempty" yaml:"parameters,omitempty"`
 }
 
 type QueryJSONInput struct {
 	SQL      string `json:"sql" yaml:"sql"`
-	RowLimit int    `json:"row_limit" yaml:"row_limit"`
+	RowLimit int    `json:"row_limit,omitempty" yaml:"row_limit,omitempty"`
 	// Parameters map[string]any `json:"parameters,omitempty" yaml:"parameters,omitempty"`
 }
 
 type ListSchemasInput struct {
-	IncludeSystem bool    `json:"include_system" yaml:"include_system"`
-	IncludeTemp   bool    `json:"include_temp" yaml:"include_temp"`
-	RequireUsage  bool    `json:"require_usage" yaml:"require_usage"`
-	RowLimit      int     `json:"row_limit" yaml:"row_limit"`
+	IncludeSystem bool    `json:"include_system,omitempty" yaml:"include_system,omitempty"`
+	IncludeTemp   bool    `json:"include_temp,omitempty" yaml:"include_temp,omitempty"`
+	RequireUsage  bool    `json:"require_usage,omitempty" yaml:"require_usage,omitempty"`
+	RowLimit      int     `json:"row_limit,omitempty" yaml:"row_limit,omitempty"`
 	NameLike      *string `json:"name_like,omitempty" yaml:"name_like,omitempty"`
-	CaseSensitive bool    `json:"case_sensitive" yaml:"case_sensitive"`
-	Format        string  `json:"format" yaml:"format"`
+	CaseSensitive bool    `json:"case_sensitive,omitempty" yaml:"case_sensitive,omitempty"`
+	Format        string  `json:"format,omitempty" yaml:"format,omitempty"`
 }
 
 type ListSchemasPageInput struct {
@@ -133,18 +133,18 @@ type ListSchemasPageInput struct {
 type ListTablesInput struct {
 	Hierarchy     *HierarchyInput `json:"hierarchy,omitempty" yaml:"hierarchy,omitempty"`
 	NameLike      *string         `json:"name_like,omitempty" yaml:"name_like,omitempty"`
-	CaseSensitive bool            `json:"case_sensitive" yaml:"case_sensitive"`
+	CaseSensitive bool            `json:"case_sensitive,omitempty" yaml:"case_sensitive,omitempty"`
 	TableTypes    []string        `json:"table_types,omitempty" yaml:"table_types,omitempty"`
-	RowLimit      int             `json:"row_limit" yaml:"row_limit"`
-	Format        string          `json:"format" yaml:"format"`
+	RowLimit      int             `json:"row_limit,omitempty" yaml:"row_limit,omitempty"`
+	Format        string          `json:"format,omitempty" yaml:"format,omitempty"`
 }
 
 type ListTablesPageInput struct {
 	Hierarchy     *HierarchyInput `json:"hierarchy,omitempty" yaml:"hierarchy,omitempty"`
 	NameLike      *string         `json:"name_like,omitempty" yaml:"name_like,omitempty"`
-	CaseSensitive bool            `json:"case_sensitive" yaml:"case_sensitive"`
+	CaseSensitive bool            `json:"case_sensitive,omitempty" yaml:"case_sensitive,omitempty"`
 	TableTypes    []string        `json:"table_types,omitempty" yaml:"table_types,omitempty"`
-	PageSize      int             `json:"page_size" yaml:"page_size"`
+	PageSize      int             `json:"page_size,omitempty" yaml:"page_size,omitempty"`
 	Cursor        *string         `json:"cursor,omitempty" yaml:"cursor,omitempty"`
-	Format        string          `json:"format" yaml:"format"`
+	Format        string          `json:"format,omitempty" yaml:"format,omitempty"`
 }

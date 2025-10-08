@@ -375,6 +375,25 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 	mcp.AddTool(
 		server,
 		&mcp.Tool{
+			Name:        "list_methods",
+			Description: "List methods for a resource.",
+		},
+		func(ctx context.Context, req *mcp.CallToolRequest, args HierarchyInput) (*mcp.CallToolResult, any, error) {
+			result, err := backend.ListMethods(ctx, args)
+			if err != nil {
+				return nil, nil, err
+			}
+			return &mcp.CallToolResult{
+				Content: []mcp.Content{
+					&mcp.TextContent{Text: result},
+				},
+			}, result, nil
+		},
+	)
+
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
 			Name:        "describe_table",
 			Description: "Get detailed information about a table.",
 		},

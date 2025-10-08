@@ -12,6 +12,8 @@ Start MCP HTTP Server
     ...                                   {"server": {"transport": "http", "address": "127.0.0.1:9912"} }
     ...                                   \-\-registry
     ...                                   ${REGISTRY_NO_VERIFY_CFG_JSON_STR}
+    ...                                   \-\-auth
+    ...                                   ${AUTH_CFG_STR}
     Sleep         5s
 
 *** Settings ***
@@ -58,5 +60,62 @@ MCP HTTP Server List Providers Tool
     ...                  stdout=${CURDIR}${/}tmp${/}MCP-HTTP-Server-List-Providers.txt
     ...                  stderr=${CURDIR}${/}tmp${/}MCP-HTTP-Server-List-Providers-stderr.txt
     Should Contain       ${result.stdout}       local_openssl
+    Should Be Equal As Integers    ${result.rc}    0
+
+
+MCP HTTP Server List Services Tool
+    Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
+    Sleep         5s
+    ${result}=    Run Process          ${STACKQL_MCP_CLIENT_EXE}
+    ...                  exec
+    ...                  \-\-client\-type\=http 
+    ...                  \-\-url\=http://127.0.0.1:9912
+    ...                  \-\-exec.action      list_services
+    ...                  \-\-exec.args        {"provider": "google"}
+    ...                  stdout=${CURDIR}${/}tmp${/}MCP-HTTP-Server-List-Services.txt
+    ...                  stderr=${CURDIR}${/}tmp${/}MCP-HTTP-Server-List-Services-stderr.txt
+    Should Contain       ${result.stdout}       YouTube Analytics API
+    Should Be Equal As Integers    ${result.rc}    0
+
+MCP HTTP Server List Resources Tool
+    Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
+    Sleep         5s
+    ${result}=    Run Process          ${STACKQL_MCP_CLIENT_EXE}
+    ...                  exec
+    ...                  \-\-client\-type\=http 
+    ...                  \-\-url\=http://127.0.0.1:9912
+    ...                  \-\-exec.action      list_resources
+    ...                  \-\-exec.args        {"provider": "google", "service": "cloudresourcemanager"}
+    ...                  stdout=${CURDIR}${/}tmp${/}MCP-HTTP-Server-List-Resources.txt
+    ...                  stderr=${CURDIR}${/}tmp${/}MCP-HTTP-Server-List-Resources-stderr.txt
+    Should Contain       ${result.stdout}       projects
+    Should Be Equal As Integers    ${result.rc}    0
+
+MCP HTTP Server List Methods Tool
+    Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
+    Sleep         5s
+    ${result}=    Run Process          ${STACKQL_MCP_CLIENT_EXE}
+    ...                  exec
+    ...                  \-\-client\-type\=http 
+    ...                  \-\-url\=http://127.0.0.1:9912
+    ...                  \-\-exec.action      list_methods
+    ...                  \-\-exec.args        {"provider": "google", "service": "compute", "resource": "instances"}
+    ...                  stdout=${CURDIR}${/}tmp${/}MCP-HTTP-Server-List-Methods.txt
+    ...                  stderr=${CURDIR}${/}tmp${/}MCP-HTTP-Server-List-Methods-stderr.txt
+    Should Contain       ${result.stdout}       getScreenshot
+    Should Be Equal As Integers    ${result.rc}    0
+
+MCP HTTP Server Query Tool
+    Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
+    Sleep         5s
+    ${result}=    Run Process          ${STACKQL_MCP_CLIENT_EXE}
+    ...                  exec
+    ...                  \-\-client\-type\=http 
+    ...                  \-\-url\=http://127.0.0.1:9912
+    ...                  \-\-exec.action      query_v2
+    ...                  \-\-exec.args        {"sql": "SELECT assetType, count(*) as asset_count FROM google.cloudasset.assets WHERE parentType \= 'projects' and parent \= 'testing-project' GROUP BY assetType order by count(*) desc, assetType desc;"}
+    ...                  stdout=${CURDIR}${/}tmp${/}MCP-HTTP-Server-Query-Tool.txt
+    ...                  stderr=${CURDIR}${/}tmp${/}MCP-HTTP-Server-Query-Tool-stderr.txt
+    Should Contain       ${result.stdout}       cloudkms.googleapis.com
     Should Be Equal As Integers    ${result.rc}    0
 
