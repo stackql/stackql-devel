@@ -56,6 +56,8 @@ type ServerConfig struct {
 
 	// RequestTimeout specifies the timeout for individual requests.
 	RequestTimeout Duration `json:"request_timeout" yaml:"request_timeout"`
+
+	IsReadOnly *bool `json:"read_only,omitempty" yaml:"read_only,omitempty"`
 }
 
 // BackendConfig contains configuration for the backend connection.

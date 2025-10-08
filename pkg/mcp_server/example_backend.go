@@ -6,8 +6,11 @@ import (
 )
 
 const (
-	ExplainerForeignKeyStackql = "At present, foreign keys are not meaningfully supported in stackql."
-	ExplainerFindRelationships = "At present, relationship finding is not meaningfully supported in stackql."
+	ExplainerForeignKeyStackql         = "At present, foreign keys are not meaningfully supported in stackql."
+	ExplainerFindRelationships         = "At present, relationship finding is not meaningfully supported in stackql."
+	ExplainerPromptWriteSafeSelectTool = `In order to ascertain the best safe select query, the correct query form is:
+	>   SHOW methods IN <provider>.<service>.<resource>;
+	From the output, one can infer the best access method for the SQL "select" verb and the **required** WHERE clause attributes.`
 )
 
 // ExampleBackend is a simple implementation of the Backend interface for demonstration purposes.
@@ -19,12 +22,12 @@ type ExampleBackend struct {
 
 // Stub all Backend interface methods below
 
-func (b *ExampleBackend) Greet(ctx context.Context, args greetInput) (string, error) {
+func (b *ExampleBackend) Greet(ctx context.Context, args GreetInput) (string, error) {
 	return "Hi " + args.Name, nil
 }
 
-func (b *ExampleBackend) ServerInfo(ctx context.Context, _ any) (serverInfoOutput, error) {
-	return serverInfoOutput{
+func (b *ExampleBackend) ServerInfo(ctx context.Context, _ any) (ServerInfoOutput, error) {
+	return ServerInfoOutput{
 		Name:       "Stackql explorer",
 		Info:       "This is an example server.",
 		IsReadOnly: false,
@@ -39,59 +42,55 @@ func (b *ExampleBackend) DBIdentity(ctx context.Context, _ any) (map[string]any,
 	}, nil
 }
 
-func (b *ExampleBackend) Query(ctx context.Context, sql string, parameters []interface{}, rowLimit int, format string) (string, error) {
+func (b *ExampleBackend) RunQuery(ctx context.Context, args QueryInput) (string, error) {
 	return "stub", nil
 }
 
-func (b *ExampleBackend) QueryJSON(ctx context.Context, sql string, parameters []interface{}, rowLimit int) ([]map[string]interface{}, error) {
+func (b *ExampleBackend) RunQueryJSON(ctx context.Context, input QueryJSONInput) ([]map[string]interface{}, error) {
 	return []map[string]interface{}{}, nil
 }
 
-func (b *ExampleBackend) RunQuery(ctx context.Context, args queryInput) (string, error) {
-	return "stub", nil
-}
+// func (b *ExampleBackend) ListTableResources(ctx context.Context, hI HierarchyInput) ([]string, error) {
+// 	return []string{}, nil
+// }
 
-func (b *ExampleBackend) RunQueryJSON(ctx context.Context, input queryJSONInput) ([]map[string]interface{}, error) {
+func (b *ExampleBackend) ReadTableResource(ctx context.Context, hI HierarchyInput) ([]map[string]interface{}, error) {
 	return []map[string]interface{}{}, nil
 }
 
-func (b *ExampleBackend) ListTableResources(ctx context.Context, hI hierarchyInput) ([]string, error) {
-	return []string{}, nil
+func (b *ExampleBackend) PromptWriteSafeSelectTool(ctx context.Context, args HierarchyInput) (string, error) {
+	return ExplainerPromptWriteSafeSelectTool, nil
 }
 
-func (b *ExampleBackend) ReadTableResource(ctx context.Context, hI hierarchyInput) ([]map[string]interface{}, error) {
+// func (b *ExampleBackend) PromptExplainPlanTipsTool(ctx context.Context) (string, error) {
+// 	return "stub", nil
+// }
+
+func (b *ExampleBackend) ListTablesJSON(ctx context.Context, input ListTablesInput) ([]map[string]interface{}, error) {
 	return []map[string]interface{}{}, nil
 }
 
-func (b *ExampleBackend) PromptWriteSafeSelectTool(ctx context.Context) (string, error) {
-	return "stub", nil
-}
-
-func (b *ExampleBackend) PromptExplainPlanTipsTool(ctx context.Context) (string, error) {
-	return "stub", nil
-}
-
-func (b *ExampleBackend) ListTablesJSON(ctx context.Context, input listTablesInput) ([]map[string]interface{}, error) {
-	return []map[string]interface{}{}, nil
-}
-
-func (b *ExampleBackend) ListTablesJSONPage(ctx context.Context, input listTablesPageInput) (map[string]interface{}, error) {
+func (b *ExampleBackend) ListTablesJSONPage(ctx context.Context, input ListTablesPageInput) (map[string]interface{}, error) {
 	return map[string]interface{}{}, nil
 }
 
-func (b *ExampleBackend) ListTables(ctx context.Context, hI hierarchyInput) (string, error) {
+func (b *ExampleBackend) ListTables(ctx context.Context, hI HierarchyInput) (string, error) {
 	return "stub", nil
 }
 
-func (b *ExampleBackend) DescribeTable(ctx context.Context, hI hierarchyInput) (string, error) {
+func (b *ExampleBackend) ListMethods(ctx context.Context, hI HierarchyInput) (string, error) {
 	return "stub", nil
 }
 
-func (b *ExampleBackend) GetForeignKeys(ctx context.Context, hI hierarchyInput) (string, error) {
+func (b *ExampleBackend) DescribeTable(ctx context.Context, hI HierarchyInput) (string, error) {
+	return "stub", nil
+}
+
+func (b *ExampleBackend) GetForeignKeys(ctx context.Context, hI HierarchyInput) (string, error) {
 	return ExplainerForeignKeyStackql, nil
 }
 
-func (b *ExampleBackend) FindRelationships(ctx context.Context, hI hierarchyInput) (string, error) {
+func (b *ExampleBackend) FindRelationships(ctx context.Context, hI HierarchyInput) (string, error) {
 	return ExplainerFindRelationships, nil
 }
 
@@ -99,11 +98,11 @@ func (b *ExampleBackend) ListProviders(ctx context.Context) (string, error) {
 	return "stub", nil
 }
 
-func (b *ExampleBackend) ListServices(ctx context.Context, hI hierarchyInput) (string, error) {
+func (b *ExampleBackend) ListServices(ctx context.Context, hI HierarchyInput) (string, error) {
 	return "stub", nil
 }
 
-func (b *ExampleBackend) ListResources(ctx context.Context, hI hierarchyInput) (string, error) {
+func (b *ExampleBackend) ListResources(ctx context.Context, hI HierarchyInput) (string, error) {
 	return "stub", nil
 }
 

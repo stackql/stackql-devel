@@ -22,8 +22,10 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/stackql/any-sdk/pkg/logging"
+	"github.com/stackql/stackql/internal/stackql/acid/tsm_physio"
 	"github.com/stackql/stackql/internal/stackql/entryutil"
 	"github.com/stackql/stackql/internal/stackql/iqlerror"
+	"github.com/stackql/stackql/internal/stackql/mcpbackend"
 	"github.com/stackql/stackql/pkg/mcp_server"
 )
 
@@ -53,7 +55,25 @@ var mcpSrvCmd = &cobra.Command{
 		var config mcp_server.Config
 		json.Unmarshal([]byte(mcpConfig), &config) //nolint:errcheck // TODO: investigate
 		config.Server.Transport = mcpServerType
-		server, serverErr := mcp_server.NewExampleBackendServer(
+		var isReadOnly bool
+		if config.Server.IsReadOnly != nil {
+			isReadOnly = *config.Server.IsReadOnly
+		}
+		orchestrator, orchestratorErr := tsm_physio.NewOrchestrator(handlerCtx)
+		iqlerror.PrintErrorAndExitOneIfError(orchestratorErr)
+		iqlerror.PrintErrorAndExitOneIfNil(orchestrator, "orchestrator is unexpectedly nil")
+		// handlerCtx.SetTSMOrchestrator(orchestrator)
+		backend, backendErr := mcpbackend.NewStackqlMCPBackendService(
+			isReadOnly,
+			orchestrator,
+			handlerCtx,
+			logging.GetLogger(),
+		)
+		iqlerror.PrintErrorAndExitOneIfError(backendErr)
+		iqlerror.PrintErrorAndExitOneIfNil(backend, "mcp backend is unexpectedly nil")
+
+		server, serverErr := mcp_server.NewAgnosticBackendServer(
+			backend,
 			&config,
 			logging.GetLogger(),
 		)
