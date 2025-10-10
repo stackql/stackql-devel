@@ -31,7 +31,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/mcpbackend"
 	"github.com/stackql/stackql/pkg/mcp_server"
 
-	"github.com/jackc/pgx/v5"
 	_ "github.com/jackc/pgx/v5" //nolint:revive // canonical driver pattern
 )
 
@@ -76,10 +75,8 @@ func runMCPServer(handlerCtx handler.HandlerContext) {
 	var backend mcp_server.Backend
 	var backendErr error
 	if mcpServerType == "reverse_proxy" {
+		config.Server.Transport = "http"
 		dsn := config.GetBackendConnectionString()
-		conn, connErr := pgx.Connect(context.Background(), dsn)
-		iqlerror.PrintErrorAndExitOneIfError(connErr)
-		defer conn.Close(context.Background()) //nolint:errcheck // TODO: investigate
 		// conn
 		var cfg dto.SQLBackendCfg
 		cfg.DSN = dsn
