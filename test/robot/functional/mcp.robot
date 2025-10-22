@@ -51,6 +51,8 @@ Start MCP Servers
     ...                                   \-\-tls.allowInsecure
     ...                                   \-\-pgsrv.port
     ...                                   5446
+    ...                                   stdout=${CURDIR}${/}tmp${/}Stackql-MCP-Server-HTTPS.txt
+    ...                                   stderr=${CURDIR}${/}tmp${/}Stackql-MCP-Server-HTTPS-stderr.txt
     Sleep         5s
 
 *** Settings ***
@@ -226,7 +228,7 @@ Concurrent psql and Reverse Proxy MCP HTTPS Server Query Tool
     Should Contain       ${mcp_client_result.stdout}       cloudkms.googleapis.com
     Should Be Equal As Integers    ${mcp_client_result.rc}    0
     ${posixInput} =     Catenate
-    ...    "${PSQL_EXE}"    -d     postgres://stackql:stackql@127.0.0.1:5445   -c
+    ...    "${PSQL_EXE}"    -d     postgres://stackql:stackql@127.0.0.1:5446   -c
     ...    "SELECT assetType, count(*) as asset_count FROM google.cloudasset.assets WHERE parentType = 'projects' and parent = 'testing-project' GROUP BY assetType order by count(*) desc, assetType desc;"
     ${windowsInput} =     Catenate
     ...    &    ${posixInput}
