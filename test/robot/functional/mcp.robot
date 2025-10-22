@@ -220,7 +220,7 @@ Concurrent psql and Reverse Proxy MCP HTTPS Server Query Tool
     ...                  exec
     ...                  \-\-client\-type\=http 
     ...                  \-\-url\=https://127.0.0.1:9004
-    ...                  \-\-client\-cfg      { "ca_file": "test/server/mtls/credentials/pg_server_cert.pem" }
+    ...                  \-\-client\-cfg      { "apply_tls_globally": true, "insecure_skip_verify": true, "ca_file": "test/server/mtls/credentials/pg_server_cert.pem", "promote_leaf_to_ca": true }
     ...                  \-\-exec.action      query_v2
     ...                  \-\-exec.args        {"sql": "SELECT assetType, count(*) as asset_count FROM google.cloudasset.assets WHERE parentType \= 'projects' and parent \= 'testing-project' GROUP BY assetType order by count(*) desc, assetType desc;"}
     ...                  stdout=${CURDIR}${/}tmp${/}Concurrent-psql-and-Reverse-Proxy-MCP-HTTPS-Server-Query-Tool.txt
