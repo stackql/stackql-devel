@@ -4,8 +4,11 @@ package mcp_server //nolint:revive // fine for now
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/sirupsen/logrus"
@@ -21,10 +24,10 @@ type MCPClient interface {
 	CallToolText(toolName string, args map[string]any) (string, error)
 }
 
-func NewMCPClient(clientType string, baseURL string, logger *logrus.Logger) (MCPClient, error) {
+func NewMCPClient(clientType string, baseURL string, clientCfgMap map[string]any, logger *logrus.Logger) (MCPClient, error) {
 	switch clientType {
 	case MCPClientTypeHTTP:
-		return newHTTPMCPClient(baseURL, logger)
+		return newHTTPMCPClient(baseURL, clientCfgMap, logger)
 	case MCPClientTypeSTDIO:
 		return newStdioMCPClient(logger)
 	default:
@@ -32,15 +35,49 @@ func NewMCPClient(clientType string, baseURL string, logger *logrus.Logger) (MCP
 	}
 }
 
-func newHTTPMCPClient(baseURL string, logger *logrus.Logger) (MCPClient, error) {
+func getHTTPClient(clientCfgMap map[string]any) (*http.Client, error) {
+	if clientCfgMap != nil && clientCfgMap["ca_file"] != nil {
+		caFile, isString := clientCfgMap["ca_file"].(string)
+		if !isString {
+			return nil, fmt.Errorf("ca_file must be a string")
+		}
+		caCert, err := os.ReadFile(caFile)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read CA file: %w", err)
+		}
+		caCertPool := x509.NewCertPool()
+		caCertPool.AppendCertsFromPEM(caCert)
+
+		// Create a TLS configuration
+		tlsConfig := &tls.Config{
+			RootCAs:    caCertPool,       // Trust custom CA certificates
+			MinVersion: tls.VersionTLS12, // Enforce minimum TLS version
+			// InsecureSkipVerify: false,            // Set to true to skip server certificate verification (NOT recommended for production)
+		}
+
+		// Create a custom HTTP transport
+		tr := &http.Transport{
+			TLSClientConfig: tlsConfig,
+		}
+		return &http.Client{Transport: tr}, nil
+	}
+	return http.DefaultClient, nil
+}
+
+func newHTTPMCPClient(baseURL string, clientCfgMap map[string]any, logger *logrus.Logger) (MCPClient, error) {
 	if logger == nil {
 		logger = logrus.New()
 		logger.SetLevel(logrus.InfoLevel)
 	}
+	httpClient, httpClientErr := getHTTPClient(clientCfgMap)
+	if httpClientErr != nil {
+		return nil, fmt.Errorf("error creating HTTP client: %w", httpClientErr)
+	}
 	return &httpMCPClient{
 		baseURL:    baseURL,
-		httpClient: http.DefaultClient,
+		httpClient: httpClient,
 		logger:     logger,
+		clientCfg:  clientCfgMap,
 	}, nil
 }
 
@@ -48,6 +85,7 @@ type httpMCPClient struct {
 	baseURL    string
 	httpClient *http.Client
 	logger     *logrus.Logger
+	clientCfg  map[string]any
 }
 
 func (c *httpMCPClient) connect() (*mcp.ClientSession, error) {
