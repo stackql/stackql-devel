@@ -284,7 +284,7 @@ MCP HTTPS Server JSON DTO Verification
     Dictionary Should Contain Key    ${meta_srvinfo_obj}    is_read_only
 
     # query_v2 format=json
-    ${query_json}=    Run Process    ${STACKQL_MCP_CLIENT_EXE}    exec    \-\-client\-type\=http    \-\-url\=https://127.0.0.1:9004    \-\-client\-cfg    { "apply_tls_globally": true, "insecure_skip_verify": true, "ca_file": "test/server/mtls/credentials/pg_server_cert.pem", "promote_leaf_to_ca": true }    \-\-exec.action    query_v2    \-\-exec.args    {"sql":"SELECT assetType, count(*) as asset_count FROM google.cloudasset.assets WHERE parentType = 'projects' and parent = 'testing-project' GROUP BY assetType order by count(*) desc, assetType desc;","format":"json"}
+    ${query_json}=    Run Process    ${STACKQL_MCP_CLIENT_EXE}    exec    \-\-client\-type\=http    \-\-url\=https://127.0.0.1:9004    \-\-client\-cfg    { "apply_tls_globally": true, "insecure_skip_verify": true, "ca_file": "test/server/mtls/credentials/pg_server_cert.pem", "promote_leaf_to_ca": true }    \-\-exec.action    query_v2    \-\-exec.args    {"sql":"SELECT assetType, count(*) as asset_count FROM google.cloudasset.assets WHERE parentType \= 'projects' and parent \= 'testing-project' GROUP BY assetType order by count(*) desc, assetType desc;","format":"json"}
     Should Be Equal As Integers    ${query_json.rc}    0
     ${query_obj}=    Parse MCP JSON Output    ${query_json.stdout}
     Should Be Equal    ${query_obj["format"]}    json
