@@ -58,13 +58,8 @@ Start MCP Servers
 
 Parse MCP JSON Output
     [Arguments]    ${stdout}
-    ${raw}=    Set Variable    ${stdout}
-    ${start}=    Evaluate    r'''${raw}'''.find('{')
-    ${end}=      Evaluate    r'''${raw}'''.rfind('}')
-    Run Keyword If    ${start} == -1 or ${end} == -1    Fail    Could not locate JSON braces in output
-    ${fragment}=    Evaluate    r'''${raw}'''[${start}:${end}+1]
-    ${parsed}=    Evaluate    json.loads(r'''${fragment}''')    json
-    [Return]    ${parsed}
+    ${parsed}=    Evaluate    __import__('json').loads(args[0])    ${stdout}
+    RETURN    ${parsed}
 
 *** Settings ***
 Suite Setup     Start MCP Servers
