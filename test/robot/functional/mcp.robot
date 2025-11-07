@@ -58,15 +58,12 @@ Start MCP Servers
 
 Parse MCP JSON Output
     [Arguments]    ${stdout}
-    ${lines}=    Split To Lines    ${stdout}
-    ${json_lines}=    Create List
-    FOR    ${l}    IN    @{lines}
-        ${trim}=    Strip String    ${l}
-        Run Keyword If    "${trim}" != "" and "${trim}"[0]=="{" and "${trim}"[-1]=="}"    Append To List    ${json_lines}    ${trim}
-    END
-    Should Not Be Empty    ${json_lines}
-    ${last}=    Set Variable    ${json_lines}[-1]
-    ${parsed}=    Evaluate    __import__("json").loads(r'''${last}''')
+    ${raw}=    Set Variable    ${stdout}
+    ${start}=    Evaluate    r'''${raw}'''.find('{')
+    ${end}=      Evaluate    r'''${raw}'''.rfind('}')
+    Run Keyword If    ${start} == -1 or ${end} == -1    Fail    Could not locate JSON braces in output
+    ${fragment}=    Evaluate    r'''${raw}'''[${start}:${end}+1]
+    ${parsed}=    Evaluate    json.loads(r'''${fragment}''')    json
     [Return]    ${parsed}
 
 *** Settings ***
