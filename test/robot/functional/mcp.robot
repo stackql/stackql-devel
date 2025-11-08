@@ -57,11 +57,9 @@ Start MCP Servers
     Sleep         5s
 
 Parse MCP JSON Output
-    [Arguments]    ${stdout}
+    [Arguments]    ${input}
     ${parsed}=    Evaluate
-    ...    import json
-    ...    json.loads(args[0])
-    ...    ${stdout}
+    ...    json.loads('''${input}''')    json
     RETURN    ${parsed}
 
 *** Settings ***
@@ -258,12 +256,15 @@ MCP HTTPS Server JSON DTO Verification
     Should Be Equal As Integers    ${greet.rc}    0
     Should Contain    ${greet.stdout}    Hi JSON TEST
 
-    # ${srvinfo}=    Run Process    ${STACKQL_MCP_CLIENT_EXE}    exec    \-\-client\-type\=http    \-\-url\=https://127.0.0.1:9004    \-\-client\-cfg    { "apply_tls_globally": true, "insecure_skip_verify": true, "ca_file": "test/server/mtls/credentials/pg_server_cert.pem", "promote_leaf_to_ca": true }    \-\-exec.action    server_info
-    # Should Be Equal As Integers    ${srvinfo.rc}    0
-    # ${srvinfo_obj}=    Parse MCP JSON Output    ${srvinfo.stdout}
-    # Dictionary Should Contain Key    ${srvinfo_obj}    name
-    # Dictionary Should Contain Key    ${srvinfo_obj}    info
-    # Dictionary Should Contain Key    ${srvinfo_obj}    is_read_only
+    ${srvinfo}=    Run Process    ${STACKQL_MCP_CLIENT_EXE}    exec    \-\-client\-type\=http    \-\-url\=https://127.0.0.1:9004    \-\-client\-cfg    { "apply_tls_globally": true, "insecure_skip_verify": true, "ca_file": "test/server/mtls/credentials/pg_server_cert.pem", "promote_leaf_to_ca": true }    \-\-exec.action    server_info
+    ...                  stdout=${CURDIR}${/}tmp${/}MCP-Get-Server-Info-Json.txt
+    ...                  stderr=${CURDIR}${/}tmp${/}MCP-Get-Server-Info-Json-stderr.txt
+    Should Be Equal As Integers    ${srvinfo.rc}    0
+    Log    response = ${srvinfo.stdout}
+    ${srvinfo_obj}=    Parse MCP JSON Output    ${srvinfo.stdout}
+    Dictionary Should Contain Key    ${srvinfo_obj}    name
+    Dictionary Should Contain Key    ${srvinfo_obj}    info
+    Dictionary Should Contain Key    ${srvinfo_obj}    read_only
 
     # ${dbident}=    Run Process    ${STACKQL_MCP_CLIENT_EXE}    exec    \-\-client\-type\=http    \-\-url\=https://127.0.0.1:9004    \-\-client\-cfg    { "apply_tls_globally": true, "insecure_skip_verify": true, "ca_file": "test/server/mtls/credentials/pg_server_cert.pem", "promote_leaf_to_ca": true }    \-\-exec.action    db_identity
     # Should Be Equal As Integers    ${dbident.rc}    0
