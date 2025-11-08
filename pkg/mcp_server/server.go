@@ -166,6 +166,26 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 		server,
 		&mcp.Tool{
 			Name:        "query_v2",
+			Description: "Execute a SQL query.  Please adhere to the expected parameters.  Returns a textual response",
+			// Input and output schemas can be defined here if needed.
+		},
+		func(ctx context.Context, req *mcp.CallToolRequest, arg dto.QueryInput) (*mcp.CallToolResult, any, error) {
+			logger.Warnf("Received query: %s", arg.SQL)
+			rv, rvErr := backend.RunQuery(ctx, arg)
+			if rvErr != nil {
+				return nil, nil, rvErr
+			}
+			return &mcp.CallToolResult{
+				Content: []mcp.Content{
+					&mcp.TextContent{Text: rv},
+				},
+			}, nil, nil
+		},
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "query_v3",
 			Description: "Execute a SQL query.  Returns a DTO with rows or raw text.",
 		},
 		func(ctx context.Context, req *mcp.CallToolRequest, arg dto.QueryInput) (*mcp.CallToolResult, any, error) {
@@ -595,7 +615,6 @@ func registerNamespacedTools(server *mcp.Server, backend Backend, logger *logrus
 		},
 	)
 
-	// query.exec_text
 	mcp.AddTool(
 		server,
 		&mcp.Tool{
@@ -603,7 +622,7 @@ func registerNamespacedTools(server *mcp.Server, backend Backend, logger *logrus
 			Description: "Namespaced: Execute SQL returning textual result.",
 		},
 		func(ctx context.Context, req *mcp.CallToolRequest, arg dto.QueryInput) (*mcp.CallToolResult, any, error) {
-			logger.Debugf("query.exec_text SQL: %s", arg.SQL)
+			logger.Infof("query.exec_text SQL: %s", arg.SQL)
 			rawText, err := backend.RunQuery(ctx, arg)
 			if err != nil {
 				return nil, nil, err
