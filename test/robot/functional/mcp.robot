@@ -249,6 +249,7 @@ Concurrent psql and Reverse Proxy MCP HTTPS Server Query Tool
     Should Be Equal As Integers    ${psql_client_result.rc}    0
 
 MCP HTTPS Server JSON DTO Greet
+    # Future proofing: simple liveness placeholder; may evolve to richer health DTO.
     ${greet}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -266,6 +267,7 @@ MCP HTTPS Server JSON DTO Greet
     Should Contain    ${greet.stdout}    Hi JSON TEST
 
 MCP HTTPS Server JSON DTO Server Info
+    # Future proofing: DTO shape may expand; key set is provisional.
     ${srvinfo}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -284,6 +286,7 @@ MCP HTTPS Server JSON DTO Server Info
     Dictionary Should Contain Key    ${srvinfo_obj}    is_read_only
 
 MCP HTTPS Server JSON DTO DB Identity
+    # Future proofing: identity semantics may broaden (multi-tenant, session).
     ${dbident}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -300,6 +303,7 @@ MCP HTTPS Server JSON DTO DB Identity
     Dictionary Should Contain Key    ${dbident_obj}    identity
 
 MCP HTTPS Server JSON DTO Query V2 JSON
+    # Future proofing: query result DTO may add paging, metadata, stats.
     ${query_json}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -321,6 +325,7 @@ MCP HTTPS Server JSON DTO Query V2 JSON
     Should Be True    ${row_count} > 0
 
 MCP HTTPS Server Query Exec Text
+    # Future proofing: raw text format reserved; may gain structured hints later.
     ${ns_query_text}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -338,6 +343,7 @@ MCP HTTPS Server Query Exec Text
     Should Contain     ${ns_query_text.stdout}   foo
 
 MCP HTTPS Server JSON DTO Query Exec JSON
+    [Documentation]      Future proofing: JSON exec endpoint may add schema/column typing.
     ${ns_query_json}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -358,6 +364,7 @@ MCP HTTPS Server JSON DTO Query Exec JSON
     Should Be True    ${ns_row_count} >= 0
 
 MCP HTTPS Server JSON DTO Meta Get Foreign Keys
+    [Documentation]     Future proofing: foreign key discovery not yet implemented; placeholder.
     ${meta_fk}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -376,6 +383,7 @@ MCP HTTPS Server JSON DTO Meta Get Foreign Keys
     Dictionary Should Contain Key    ${meta_fk_obj}    text
 
 MCP HTTPS Server JSON DTO Meta Find Relationships
+    # Future proofing: relationship graph inference pending; placeholder output.
     ${meta_rels}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
