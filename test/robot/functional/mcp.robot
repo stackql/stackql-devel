@@ -322,23 +322,21 @@ MCP HTTPS Server JSON DTO Verification
     Should Be True    ${row_count} > 0
 
     # query.exec_text
-    # ${ns_query_text}=    Run Process
-    # ...    ${STACKQL_MCP_CLIENT_EXE}
-    # ...    exec
-    # ...    \-\-client\-type\=http
-    # ...    \-\-url\=https://127.0.0.1:9004
-    # ...    \-\-client\-cfg
-    # ...    { "apply_tls_globally": true, "insecure_skip_verify": true, "ca_file": "test/server/mtls/credentials/pg_server_cert.pem", "promote_leaf_to_ca": true }
-    # ...    \-\-exec.action
-    # ...    query.exec_text
-    # ...    \-\-exec.args
-    # ...    {"sql":"SELECT 1","format":"text"}
-    # ...    stdout=${CURDIR}${/}tmp${/}MCP-HTTPS-query-exec-text.txt
-    # ...    stderr=${CURDIR}${/}tmp${/}MCP-HTTPS-query-exec-text-stderr.txt
-    # Should Be Equal As Integers    ${ns_query_text.rc}    0
-    # ${ns_query_text_obj}=    Parse MCP JSON Output    ${ns_query_text.stdout}
-    # Should Be Equal    ${ns_query_text_obj["format"]}    text
-    # Dictionary Should Contain Key    ${ns_query_text_obj}    raw
+    ${ns_query_text}=    Run Process
+    ...    ${STACKQL_MCP_CLIENT_EXE}
+    ...    exec
+    ...    \-\-client\-type\=http
+    ...    \-\-url\=https://127.0.0.1:9004
+    ...    \-\-client\-cfg
+    ...    { "apply_tls_globally": true, "insecure_skip_verify": true, "ca_file": "test/server/mtls/credentials/pg_server_cert.pem", "promote_leaf_to_ca": true }
+    ...    \-\-exec.action
+    ...    query.exec_text
+    ...    \-\-exec.args
+    ...    {"sql":"SELECT 1 as foo"}
+    ...    stdout=${CURDIR}${/}tmp${/}MCP-HTTPS-query-exec-text.txt
+    ...    stderr=${CURDIR}${/}tmp${/}MCP-HTTPS-query-exec-text-stderr.txt
+    Should Be Equal As Integers    ${ns_query_text.rc}    0
+    Should Contain     ${ns_query_text.stdout}   foo
 
     # query.exec_json
     ${ns_query_json}=    Run Process
