@@ -54,7 +54,7 @@ func (s *simpleMCPServer) runHTTPServer(server *mcp.Server, config *Config) erro
 	handlerWithLogging := loggingHandler(handler, s.logger)
 
 	s.logger.Debugf("MCP server listening on %s", address)
-	s.logger.Debugf("Available tool: cityTime (cities: nyc, sf, boston)")
+	// s.logger.Debugf("Available tool: cityTime (cities: nyc, sf, boston)")
 
 	// Start the HTTP server with logging handler.
 	//nolint:gosec // TODO: find viable alternative to http.ListenAndServe
@@ -203,61 +203,6 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(bytesOut)}}}, out, nil
 		},
 	)
-
-	mcp.AddTool(
-		server,
-		&mcp.Tool{
-			Name:        "prompt_write_safe_select_tool",
-			Description: "Prompt: guidelines for writing safe SELECT queries.",
-		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args dto.HierarchyInput) (*mcp.CallToolResult, any, error) {
-			result, err := backend.PromptWriteSafeSelectTool(ctx, args)
-			if err != nil {
-				return nil, nil, err
-			}
-			out := dto.SimpleTextDTO{Text: result}
-			bytesOut, _ := json.Marshal(out)
-			return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(bytesOut)}}}, out, nil
-		},
-	)
-
-	// mcp.AddTool(
-	// 	server,
-	// 	&mcp.Tool{
-	// 		Name:        "list_table_resources",
-	// 		Description: "List resource URIs for tables in a schema.",
-	// 	},
-	// 	func(ctx context.Context, req *mcp.CallToolRequest, args HierarchyInput) (*mcp.CallToolResult, any, error) {
-	// 		result, err := backend.ListTableResources(ctx, args)
-	// 		if err != nil {
-	// 			return nil, nil, err
-	// 		}
-	// 		return &mcp.CallToolResult{
-	// 			Content: []mcp.Content{
-	// 				&mcp.TextContent{Text: fmt.Sprintf("%v", result)},
-	// 			},
-	// 		}, result, nil
-	// 	},
-	// )
-
-	// mcp.AddTool(
-	// 	server,
-	// 	&mcp.Tool{
-	// 		Name:        "read_table_resource",
-	// 		Description: "Read rows from a table resource.",
-	// 	},
-	// 	func(ctx context.Context, req *mcp.CallToolRequest, args HierarchyInput) (*mcp.CallToolResult, any, error) {
-	// 		result, err := backend.ReadTableResource(ctx, args)
-	// 		if err != nil {
-	// 			return nil, nil, err
-	// 		}
-	// 		return &mcp.CallToolResult{
-	// 			Content: []mcp.Content{
-	// 				&mcp.TextContent{Text: fmt.Sprintf("%v", result)},
-	// 			},
-	// 		}, result, nil
-	// 	},
-	// )
 
 	mcp.AddTool(
 		server,
@@ -669,7 +614,6 @@ func registerNamespacedTools(server *mcp.Server, backend Backend, logger *logrus
 		},
 	)
 
-	// query.exec_json
 	mcp.AddTool(
 		server,
 		&mcp.Tool{
@@ -681,13 +625,13 @@ func registerNamespacedTools(server *mcp.Server, backend Backend, logger *logrus
 			if err != nil {
 				return nil, nil, err
 			}
-			dto := dto.QueryResultDTO{
+			dtObj := dto.QueryResultDTO{
 				Rows:     rows,
 				RowCount: len(rows),
 				Format:   "json",
 			}
-			bytesOut, _ := json.Marshal(dto)
-			return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(bytesOut)}}}, dto, nil
+			bytesOut, _ := json.Marshal(dtObj)
+			return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(bytesOut)}}}, dtObj, nil
 		},
 	)
 

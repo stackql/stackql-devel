@@ -249,7 +249,7 @@ Concurrent psql and Reverse Proxy MCP HTTPS Server Query Tool
     Should Be Equal As Integers    ${psql_client_result.rc}    0
 
 MCP HTTPS Server JSON DTO Greet
-    # Future proofing: simple liveness placeholder; may evolve to richer health DTO.
+    Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
     ${greet}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -267,7 +267,7 @@ MCP HTTPS Server JSON DTO Greet
     Should Contain    ${greet.stdout}    Hi JSON TEST
 
 MCP HTTPS Server JSON DTO Server Info
-    # Future proofing: DTO shape may expand; key set is provisional.
+    Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
     ${srvinfo}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -286,7 +286,7 @@ MCP HTTPS Server JSON DTO Server Info
     Dictionary Should Contain Key    ${srvinfo_obj}    is_read_only
 
 MCP HTTPS Server JSON DTO DB Identity
-    # Future proofing: identity semantics may broaden (multi-tenant, session).
+    Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
     ${dbident}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -303,7 +303,7 @@ MCP HTTPS Server JSON DTO DB Identity
     Dictionary Should Contain Key    ${dbident_obj}    identity
 
 MCP HTTPS Server JSON DTO Query V2 JSON
-    # Future proofing: query result DTO may add paging, metadata, stats.
+    Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
     ${query_json}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -325,6 +325,7 @@ MCP HTTPS Server JSON DTO Query V2 JSON
     Should Be True    ${row_count} > 0
 
 MCP HTTPS Server Query Exec Text
+    Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
     # Future proofing: raw text format reserved; may gain structured hints later.
     ${ns_query_text}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
@@ -343,6 +344,7 @@ MCP HTTPS Server Query Exec Text
     Should Contain     ${ns_query_text.stdout}   foo
 
 MCP HTTPS Server JSON DTO Query Exec JSON
+    Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
     ${ns_query_json}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -353,7 +355,7 @@ MCP HTTPS Server JSON DTO Query Exec JSON
     ...    \-\-exec.action
     ...    query.exec_json
     ...    \-\-exec.args
-    ...    {"sql":"SELECT 1","row_limit":5}
+    ...    {"sql":"SELECT 1 as foo","row_limit":5}
     ...    stdout=${CURDIR}${/}tmp${/}MCP-HTTPS-query-exec-json.txt
     ...    stderr=${CURDIR}${/}tmp${/}MCP-HTTPS-query-exec-json-stderr.txt
     Should Be Equal As Integers    ${ns_query_json.rc}    0
@@ -364,6 +366,7 @@ MCP HTTPS Server JSON DTO Query Exec JSON
 
 MCP HTTPS Server JSON DTO Meta Get Foreign Keys
     [Documentation]     Future proofing: foreign key discovery not yet implemented; placeholder.
+    Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
     ${meta_fk}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -383,6 +386,7 @@ MCP HTTPS Server JSON DTO Meta Get Foreign Keys
 
 MCP HTTPS Server JSON DTO Meta Find Relationships
     [Documentation]     Future proofing: relationship graph inference pending; placeholder output.
+    Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
     ${meta_rels}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
