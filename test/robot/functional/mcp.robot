@@ -343,7 +343,6 @@ MCP HTTPS Server Query Exec Text
     Should Contain     ${ns_query_text.stdout}   foo
 
 MCP HTTPS Server JSON DTO Query Exec JSON
-    [Documentation]      Future proofing: JSON exec endpoint may add schema/column typing.
     ${ns_query_json}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -383,7 +382,7 @@ MCP HTTPS Server JSON DTO Meta Get Foreign Keys
     Dictionary Should Contain Key    ${meta_fk_obj}    text
 
 MCP HTTPS Server JSON DTO Meta Find Relationships
-    # Future proofing: relationship graph inference pending; placeholder output.
+    [Documentation]     Future proofing: relationship graph inference pending; placeholder output.
     ${meta_rels}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
