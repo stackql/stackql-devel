@@ -58,7 +58,7 @@ Start MCP Servers
 
 Parse MCP JSON Output
     [Arguments]    ${stdout}
-    ${parsed}=    Evaluate    __import__('json').loads(args[0])    ${stdout}
+    ${parsed}=    Evaluate    json.loads(r'''${stdout}''')    json
     RETURN    ${parsed}
 
 *** Settings ***
