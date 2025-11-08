@@ -539,6 +539,8 @@ func (s *simpleMCPServer) Stop() error {
 }
 
 // registerNamespacedTools adds meta.* and query.* tools (namespaced variants).
+//
+//nolint:gocognit,funlen // ok for now
 func registerNamespacedTools(server *mcp.Server, backend Backend, logger *logrus.Logger) {
 	// meta.server_info
 	mcp.AddTool(
