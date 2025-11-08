@@ -248,8 +248,7 @@ Concurrent psql and Reverse Proxy MCP HTTPS Server Query Tool
     Should Contain       ${psql_client_result.stdout}       cloudkms.googleapis.com
     Should Be Equal As Integers    ${psql_client_result.rc}    0
 
-MCP HTTPS Server JSON DTO Verification
-    # greet (plain text response)
+MCP HTTPS Server JSON DTO Greet
     ${greet}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -266,7 +265,7 @@ MCP HTTPS Server JSON DTO Verification
     Should Be Equal As Integers    ${greet.rc}    0
     Should Contain    ${greet.stdout}    Hi JSON TEST
 
-    # server_info
+MCP HTTPS Server JSON DTO Server Info
     ${srvinfo}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -284,7 +283,7 @@ MCP HTTPS Server JSON DTO Verification
     Dictionary Should Contain Key    ${srvinfo_obj}    info
     Dictionary Should Contain Key    ${srvinfo_obj}    is_read_only
 
-    # db_identity
+MCP HTTPS Server JSON DTO DB Identity
     ${dbident}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -300,7 +299,7 @@ MCP HTTPS Server JSON DTO Verification
     ${dbident_obj}=    Parse MCP JSON Output    ${dbident.stdout}
     Dictionary Should Contain Key    ${dbident_obj}    identity
 
-    # query_v2 format=json
+MCP HTTPS Server JSON DTO Query V2 JSON
     ${query_json}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -321,7 +320,7 @@ MCP HTTPS Server JSON DTO Verification
     ${row_count}=    Get From Dictionary    ${query_obj}    row_count
     Should Be True    ${row_count} > 0
 
-    # query.exec_text
+MCP HTTPS Server Query Exec Text
     ${ns_query_text}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -338,7 +337,7 @@ MCP HTTPS Server JSON DTO Verification
     Should Be Equal As Integers    ${ns_query_text.rc}    0
     Should Contain     ${ns_query_text.stdout}   foo
 
-    # query.exec_json
+MCP HTTPS Server JSON DTO Query Exec JSON
     ${ns_query_json}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -358,7 +357,7 @@ MCP HTTPS Server JSON DTO Verification
     ${ns_row_count}=    Get From Dictionary    ${ns_query_json_obj}    row_count
     Should Be True    ${ns_row_count} >= 0
 
-    # meta.get_foreign_keys
+MCP HTTPS Server JSON DTO Meta Get Foreign Keys
     ${meta_fk}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
@@ -376,7 +375,7 @@ MCP HTTPS Server JSON DTO Verification
     ${meta_fk_obj}=    Parse MCP JSON Output    ${meta_fk.stdout}
     Dictionary Should Contain Key    ${meta_fk_obj}    text
 
-    # meta.find_relationships
+MCP HTTPS Server JSON DTO Meta Find Relationships
     ${meta_rels}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
