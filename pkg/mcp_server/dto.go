@@ -93,7 +93,7 @@ type HierarchyInput struct {
 type ServerInfoOutput struct {
 	Name       string `json:"name" jsonschema:"server name"`
 	Info       string `json:"info" jsonschema:"server info"`
-	IsReadOnly bool   `json:"read_only" jsonschema:"is the database read-only"`
+	IsReadOnly bool   `json:"is_read_only" jsonschema:"is the database read-only"`
 }
 
 type QueryInput struct {
