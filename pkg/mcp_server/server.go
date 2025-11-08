@@ -120,7 +120,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			Name:        "greet",
 			Description: "Say hi.  A simple liveness check.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args GreetInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.GreetInput) (*mcp.CallToolResult, any, error) {
 			greeting, greetingErr := backend.Greet(ctx, args)
 			if greetingErr != nil {
 				return nil, nil, greetingErr
@@ -168,7 +168,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			Name:        "query_v2",
 			Description: "Execute a SQL query.  Returns a DTO with rows or raw text.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, arg QueryInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, arg dto.QueryInput) (*mcp.CallToolResult, any, error) {
 			logger.Warnf("Received query: %s", arg.SQL)
 			raw, rvErr := backend.RunQuery(ctx, arg)
 			if rvErr != nil {
@@ -193,7 +193,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			Name:        "query_json_v2",
 			Description: "Execute a SQL query and return a JSON array of rows, as text plus DTO.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args QueryJSONInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.QueryJSONInput) (*mcp.CallToolResult, any, error) {
 			arr, err := backend.RunQueryJSON(ctx, args)
 			if err != nil {
 				return nil, nil, err
@@ -210,7 +210,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			Name:        "prompt_write_safe_select_tool",
 			Description: "Prompt: guidelines for writing safe SELECT queries.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args HierarchyInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.HierarchyInput) (*mcp.CallToolResult, any, error) {
 			result, err := backend.PromptWriteSafeSelectTool(ctx, args)
 			if err != nil {
 				return nil, nil, err
@@ -265,7 +265,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			Name:        "prompt_write_safe_select_tool",
 			Description: "Prompt: guidelines for writing safe SELECT queries.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args HierarchyInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.HierarchyInput) (*mcp.CallToolResult, any, error) {
 			result, err := backend.PromptWriteSafeSelectTool(ctx, args)
 			if err != nil {
 				return nil, nil, err
@@ -301,7 +301,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			Name:        "list_tables_json",
 			Description: "List tables in a schema and return JSON rows.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args ListTablesInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.ListTablesInput) (*mcp.CallToolResult, any, error) {
 			result, err := backend.ListTablesJSON(ctx, args)
 			if err != nil {
 				return nil, nil, err
@@ -324,7 +324,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			Name:        "list_tables_json_page",
 			Description: "List tables with pagination and filters, returns JSON.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args ListTablesPageInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.ListTablesPageInput) (*mcp.CallToolResult, any, error) {
 			result, err := backend.ListTablesJSONPage(ctx, args)
 			if err != nil {
 				return nil, nil, err
@@ -364,7 +364,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			Name:        "list_services",
 			Description: "List services for a provider.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args HierarchyInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.HierarchyInput) (*mcp.CallToolResult, any, error) {
 			result, err := backend.ListServices(ctx, args)
 			if err != nil {
 				return nil, nil, err
@@ -381,7 +381,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			Name:        "list_resources",
 			Description: "List resources for a service.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args HierarchyInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.HierarchyInput) (*mcp.CallToolResult, any, error) {
 			result, err := backend.ListResources(ctx, args)
 			if err != nil {
 				return nil, nil, err
@@ -398,7 +398,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			Name:        "list_methods",
 			Description: "List methods for a resource.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args HierarchyInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.HierarchyInput) (*mcp.CallToolResult, any, error) {
 			result, err := backend.ListMethods(ctx, args)
 			if err != nil {
 				return nil, nil, err
@@ -415,7 +415,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			Name:        "describe_table",
 			Description: "Get detailed information about a table.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args HierarchyInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.HierarchyInput) (*mcp.CallToolResult, any, error) {
 			result, err := backend.DescribeTable(ctx, args)
 			if err != nil {
 				return nil, nil, err
@@ -432,7 +432,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			Name:        "get_foreign_keys",
 			Description: "Get foreign key information for a table.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args HierarchyInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.HierarchyInput) (*mcp.CallToolResult, any, error) {
 			result, err := backend.GetForeignKeys(ctx, args)
 			if err != nil {
 				return nil, nil, err
@@ -449,7 +449,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			Name:        "find_relationships",
 			Description: "Find explicit and implied relationships for a table.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args HierarchyInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.HierarchyInput) (*mcp.CallToolResult, any, error) {
 			result, err := backend.FindRelationships(ctx, args)
 			if err != nil {
 				return nil, nil, err
@@ -601,7 +601,7 @@ func registerNamespacedTools(server *mcp.Server, backend Backend, logger *logrus
 			Name:        "meta.list_services",
 			Description: "Namespaced: List services for a provider.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args HierarchyInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.HierarchyInput) (*mcp.CallToolResult, any, error) {
 			result, err := backend.ListServices(ctx, args)
 			if err != nil {
 				return nil, nil, err
@@ -619,7 +619,7 @@ func registerNamespacedTools(server *mcp.Server, backend Backend, logger *logrus
 			Name:        "meta.list_resources",
 			Description: "Namespaced: List resources for a service.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args HierarchyInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.HierarchyInput) (*mcp.CallToolResult, any, error) {
 			result, err := backend.ListResources(ctx, args)
 			if err != nil {
 				return nil, nil, err
@@ -637,7 +637,7 @@ func registerNamespacedTools(server *mcp.Server, backend Backend, logger *logrus
 			Name:        "meta.list_methods",
 			Description: "Namespaced: List methods for a resource.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args HierarchyInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.HierarchyInput) (*mcp.CallToolResult, any, error) {
 			result, err := backend.ListMethods(ctx, args)
 			if err != nil {
 				return nil, nil, err
@@ -655,7 +655,7 @@ func registerNamespacedTools(server *mcp.Server, backend Backend, logger *logrus
 			Name:        "query.exec_text",
 			Description: "Namespaced: Execute SQL returning textual result.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, arg QueryInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, arg dto.QueryInput) (*mcp.CallToolResult, any, error) {
 			logger.Debugf("query.exec_text SQL: %s", arg.SQL)
 			rawText, err := backend.RunQuery(ctx, arg)
 			if err != nil {
@@ -674,7 +674,7 @@ func registerNamespacedTools(server *mcp.Server, backend Backend, logger *logrus
 			Name:        "query.exec_json",
 			Description: "Namespaced: Execute SQL returning JSON array as text.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, arg QueryJSONInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, arg dto.QueryJSONInput) (*mcp.CallToolResult, any, error) {
 			rows, err := backend.RunQueryJSON(ctx, arg)
 			if err != nil {
 				return nil, nil, err
@@ -696,7 +696,7 @@ func registerNamespacedTools(server *mcp.Server, backend Backend, logger *logrus
 			Name:        "meta.describe_table",
 			Description: "Namespaced: Describe a table.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args HierarchyInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.HierarchyInput) (*mcp.CallToolResult, any, error) {
 			result, err := backend.DescribeTable(ctx, args)
 			if err != nil {
 				return nil, nil, err
@@ -714,7 +714,7 @@ func registerNamespacedTools(server *mcp.Server, backend Backend, logger *logrus
 			Name:        "meta.get_foreign_keys",
 			Description: "Namespaced: Get foreign keys for a table.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args HierarchyInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.HierarchyInput) (*mcp.CallToolResult, any, error) {
 			result, err := backend.GetForeignKeys(ctx, args)
 			if err != nil {
 				return nil, nil, err
@@ -732,7 +732,7 @@ func registerNamespacedTools(server *mcp.Server, backend Backend, logger *logrus
 			Name:        "meta.find_relationships",
 			Description: "Namespaced: Find relationships for a table.",
 		},
-		func(ctx context.Context, req *mcp.CallToolRequest, args HierarchyInput) (*mcp.CallToolResult, any, error) {
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.HierarchyInput) (*mcp.CallToolResult, any, error) {
 			result, err := backend.FindRelationships(ctx, args)
 			if err != nil {
 				return nil, nil, err
