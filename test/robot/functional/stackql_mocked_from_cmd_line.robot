@@ -9024,8 +9024,8 @@ Explain Select Repeatably Generates Messages
     ...    explain select * from aws.ec2.instances where region = 'ap-southeast-2';
     ...    explain select 1 as foo;
     ...    explain select 1 as foo;
-    ...    explain select * from google.compute.instances;
-    ...    explain select * from google.compute.instances;
+    ...    explain select * from google.storage.buckets;
+    ...    explain select * from google.storage.buckets;
     ...    explain select * from google.compute.instances where project = 'stackql-demo';
     ...    explain select * from google.compute.instances where project = 'stackql-demo';
     ${outputErrStr} =    Catenate    SEPARATOR=\n
