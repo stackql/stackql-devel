@@ -315,8 +315,8 @@ MCP HTTPS Server JSON DTO Query V3 JSON
     ...    query_v3
     ...    \-\-exec.args
     ...    {"sql":"show providers;","format":"json"}
-    ...    stdout=${CURDIR}${/}tmp${/}MCP-HTTPS-query-v2-json.txt
-    ...    stderr=${CURDIR}${/}tmp${/}MCP-HTTPS-query-v2-json-stderr.txt
+    ...    stdout=${CURDIR}${/}tmp${/}MCP-HTTPS-query-v3-json.txt
+    ...    stderr=${CURDIR}${/}tmp${/}MCP-HTTPS-query-v3-json-stderr.txt
     Should Be Equal As Integers    ${query_json.rc}    0
     ${query_obj}=    Parse MCP JSON Output    ${query_json.stdout}
     Should Be Equal    ${query_obj["format"]}    json
@@ -402,3 +402,44 @@ MCP HTTPS Server JSON DTO Meta Find Relationships
     Should Be Equal As Integers    ${meta_rels.rc}    0
     ${meta_rels_obj}=    Parse MCP JSON Output    ${meta_rels.stdout}
     Dictionary Should Contain Key    ${meta_rels_obj}    text
+
+MCP HTTPS Server Validate Canonical
+    Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
+    # Future proofing: raw text format reserved; may gain structured hints later.
+    ${ns_query_text}=    Run Process
+    ...    ${STACKQL_MCP_CLIENT_EXE}
+    ...    exec
+    ...    \-\-client\-type\=http
+    ...    \-\-url\=https://127.0.0.1:9004
+    ...    \-\-client\-cfg
+    ...    { "apply_tls_globally": true, "insecure_skip_verify": true, "ca_file": "test/server/mtls/credentials/pg_server_cert.pem", "promote_leaf_to_ca": true }
+    ...    \-\-exec.action
+    ...    validate_query_json_v2
+    ...    \-\-exec.args
+    ...    {"sql":"select * from google.storage.buckets where project = 'stackql-demo';"}
+    ...    stdout=${CURDIR}${/}tmp${/}MCP-HTTPS-validate-canonical.txt
+    ...    stderr=${CURDIR}${/}tmp${/}MCP-HTTPS-validate-canonical-stderr.txt
+    ${meta_rels_obj}=    Parse MCP JSON Output    ${meta_rels.stdout}
+    Dictionary Should Contain Key    ${meta_rels_obj}    rows
+    Length Should Be    ${meta_rels_obj[rows]}    1
+
+MCP HTTPS Server Query Canonical
+    Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
+    # Future proofing: raw text format reserved; may gain structured hints later.
+    ${ns_query_text}=    Run Process
+    ...    ${STACKQL_MCP_CLIENT_EXE}
+    ...    exec
+    ...    \-\-client\-type\=http
+    ...    \-\-url\=https://127.0.0.1:9004
+    ...    \-\-client\-cfg
+    ...    { "apply_tls_globally": true, "insecure_skip_verify": true, "ca_file": "test/server/mtls/credentials/pg_server_cert.pem", "promote_leaf_to_ca": true }
+    ...    \-\-exec.action
+    ...    query_json_v2
+    ...    \-\-exec.args
+    ...    {"sql":"select * from google.storage.buckets where project = 'stackql-demo';"}
+    ...    stdout=${CURDIR}${/}tmp${/}MCP-HTTPS-Query-canonical.txt
+    ...    stderr=${CURDIR}${/}tmp${/}MCP-HTTPS-Query-canonical-stderr.txt
+    ${meta_rels_obj}=    Parse MCP JSON Output    ${meta_rels.stdout}
+    Dictionary Should Contain Key    ${meta_rels_obj}    rows
+    Length Should Be    ${meta_rels_obj[rows]}    7
+
