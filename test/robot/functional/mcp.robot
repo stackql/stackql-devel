@@ -546,3 +546,21 @@ MCP HTTPS Server Query Canonical
     Dictionary Should Contain Key    ${meta_rels_obj}    rows
     Length Should Be    ${meta_rels_obj[rows]}    7
 
+MCP HTTPS Server Exec Query Canonical
+    Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
+    # Future proofing: raw text format reserved; may gain structured hints later.
+    ${ns_query_text}=    Run Process
+    ...    ${STACKQL_MCP_CLIENT_EXE}
+    ...    exec
+    ...    \-\-client\-type\=http
+    ...    \-\-url\=https://127.0.0.1:9004
+    ...    \-\-client\-cfg
+    ...    { "apply_tls_globally": true, "insecure_skip_verify": true, "ca_file": "test/server/mtls/credentials/pg_server_cert.pem", "promote_leaf_to_ca": true }
+    ...    \-\-exec.action
+    ...    exec_query_json_v2
+    ...    \-\-exec.args
+    ...    {"sql":"delete from google.compute.firewalls where project = 'mutable-project' and firewall = 'deletable-firewall';"}
+    ...    stdout=${CURDIR}${/}tmp${/}MCP-HTTPS-Exec-Query-canonical.txt
+    ...    stderr=${CURDIR}${/}tmp${/}MCP-HTTPS-Exec-Query-canonical-stderr.txt
+    ${meta_rels_obj}=    Parse MCP JSON Output    ${meta_rels.stdout}
+    Dictionary Should Contain Key    ${meta_rels_obj}    timestamp
