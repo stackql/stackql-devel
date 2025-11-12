@@ -25,6 +25,12 @@ type Backend interface {
 	// Execute a SQL query with typed input (preferred)
 	RunQuery(ctx context.Context, args dto.QueryInput) (string, error)
 
+	// Execute a SQL query that does not return rows
+	ExecQuery(ctx context.Context, query string) (map[string]any, error)
+
+	// Execute a SQL query that does not return rows
+	ValidateQuery(ctx context.Context, query string) (map[string]any, error)
+
 	// Execute a SQL query and return JSON rows with typed input (preferred)
 	RunQueryJSON(ctx context.Context, input dto.QueryJSONInput) ([]map[string]interface{}, error)
 

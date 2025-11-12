@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/stackql/stackql/internal/stackql/handler"
@@ -77,6 +78,33 @@ func (b *stackqlMCPReverseProxyService) DBIdentity(ctx context.Context, args any
 
 func (b *stackqlMCPReverseProxyService) Greet(ctx context.Context, args dto.GreetInput) (string, error) {
 	return "Hi " + args.Name, nil
+}
+
+func (b *stackqlMCPReverseProxyService) ExecQuery(ctx context.Context, query string) (map[string]any, error) {
+	return b.execQuery(ctx, query)
+}
+
+func (b *stackqlMCPReverseProxyService) ValidateQuery(ctx context.Context, query string) (map[string]any, error) {
+	return map[string]any{}, nil
+}
+
+func (b *stackqlMCPReverseProxyService) execQuery(ctx context.Context, query string) (map[string]any, error) {
+	r, sqlErr := b.db.Exec(query)
+	if sqlErr != nil {
+		return nil, sqlErr
+	}
+	rowsAffected, rowsAffectedErr := r.RowsAffected()
+	lastInsertId, lastInsertIdErr := r.LastInsertId()
+	rv := map[string]any{}
+	if rowsAffectedErr == nil {
+		rv["rows_affected"] = rowsAffected
+	}
+	if lastInsertIdErr == nil {
+		rv["last_insert_id"] = lastInsertId
+	}
+	oneLinerOutput := time.Now().Format("2006-01-02T15:04:05-07:00 MST")
+	rv["timestamp"] = oneLinerOutput
+	return rv, nil
 }
 
 //nolint:gocognit,funlen // acceptable

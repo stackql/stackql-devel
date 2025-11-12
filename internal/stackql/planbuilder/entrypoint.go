@@ -163,6 +163,13 @@ func (pb *standardPlanBuilder) BuildPlanFromContext(handlerCtx handler.HandlerCo
 		}
 	}
 
+	switch statement.(type) {
+	case *sqlparser.Explain:
+		// explain plans are never cacheable and always readonly
+		qPlan.SetCacheable(false)
+		qPlan.SetReadOnly(true)
+	}
+
 	if pGBuilder.getPlanGraphHolder().ContainsIndirect() {
 		qPlan.SetCacheable(false)
 	}

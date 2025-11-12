@@ -15,6 +15,7 @@ import (
 
 type PlanBuilderInput interface {
 	Clone() PlanBuilderInput
+	GetChildren() []PlanBuilderInput
 	Refocus(sqlparser.SQLNode) PlanBuilderInput
 	GetAliasedTables() parserutil.TableAliasMap
 	GetAnnotatedAST() annotatedast.AnnotatedAst
@@ -46,6 +47,7 @@ type PlanBuilderInput interface {
 	GetUpdate() (*sqlparser.Update, bool)
 	GetUse() (*sqlparser.Use, bool)
 	GetSet() (*sqlparser.Set, bool)
+	GetExplain() (*sqlparser.Explain, bool)
 	IsTccSetAheadOfTime() bool
 	SetIsTccSetAheadOfTime(bool)
 	SetPrepStmtOffset(int)
@@ -61,6 +63,7 @@ type PlanBuilderInput interface {
 	IsReadOnly() bool
 	Next() (PlanBuilderInput, bool)
 	WithNext(PlanBuilderInput)
+	WithChildren([]PlanBuilderInput) PlanBuilderInput
 	SetTxnCtrlCtrs(tcc internaldto.TxnControlCounters)
 }
 
@@ -85,6 +88,7 @@ type StandardPlanBuilderInput struct {
 	isCreateMaterializedView bool
 	rawQuery                 string
 	next                     PlanBuilderInput
+	children                 []PlanBuilderInput
 }
 
 func NewPlanBuilderInput(
@@ -148,6 +152,15 @@ func (pbi *StandardPlanBuilderInput) Next() (PlanBuilderInput, bool) {
 
 func (pbi *StandardPlanBuilderInput) WithNext(next PlanBuilderInput) {
 	pbi.next = next
+}
+
+func (pbi *StandardPlanBuilderInput) GetChildren() []PlanBuilderInput {
+	return pbi.children
+}
+
+func (pbi *StandardPlanBuilderInput) WithChildren(children []PlanBuilderInput) PlanBuilderInput {
+	pbi.children = children
+	return pbi
 }
 
 func (pbi *StandardPlanBuilderInput) Clone() PlanBuilderInput {
@@ -387,6 +400,11 @@ func (pbi *StandardPlanBuilderInput) GetUse() (*sqlparser.Use, bool) {
 
 func (pbi *StandardPlanBuilderInput) GetSet() (*sqlparser.Set, bool) {
 	rv, ok := pbi.stmt.(*sqlparser.Set)
+	return rv, ok
+}
+
+func (pbi *StandardPlanBuilderInput) GetExplain() (*sqlparser.Explain, bool) {
+	rv, ok := pbi.stmt.(*sqlparser.Explain)
 	return rv, ok
 }
 

@@ -9013,4 +9013,50 @@ Delete Await Returning Generates Error
     ...    ${EMPTY}
     ...    ${outputErrStr}
     ...    stdout=${CURDIR}/tmp/Delete-Await-Returning-Generates-Error.tmp
-    ...    stderr=${CURDIR}/tmp/Delete-Await-Returning-Generates-Error-stderr.tmp
+    ...    stderr=${CURDIR}/tmp/Delete-Await-Returning-Generates-Error-stderr.tmp 
+
+Explain Select Repeatably Generates Messages
+    [Documentation]    This is fairly crude but useful in particular for MCP functions.
+    ${inputStr} =    Catenate
+    ...    explain select * from google.compute.instances where project = 'stackql-demo';
+    ...    explain select * from google.compute.instances where project = 'stackql-demo';
+    ...    explain select * from aws.ec2.instances where region = 'ap-southeast-2';
+    ...    explain select * from aws.ec2.instances where region = 'ap-southeast-2';
+    ...    explain select 1 as foo;
+    ...    explain select 1 as foo;
+    ...    explain select * from google.compute.instances;
+    ...    explain select * from google.compute.instances;
+    ...    explain select * from google.compute.instances where project = 'stackql-demo';
+    ...    explain select * from google.compute.instances where project = 'stackql-demo';
+    ${outputErrStr} =    Catenate    SEPARATOR=\n
+    ...    Execution plan generated successfully
+    ...    OK
+    ...    Execution plan generated successfully
+    ...    OK
+    ...    Execution plan generated successfully
+    ...    OK
+    ...    Execution plan generated successfully
+    ...    OK
+    ...    Execution plan generated successfully
+    ...    OK
+    ...    Execution plan generated successfully
+    ...    OK
+    ...    cannot find matching operation, possible causes include missing required parameters or an unsupported method for the resource, to find required parameters for supported methods run SHOW METHODS IN google.storage.buckets: no appropriate method = 'select' for resource = 'buckets'
+    ...    cannot find matching operation, possible causes include missing required parameters or an unsupported method for the resource, to find required parameters for supported methods run SHOW METHODS IN google.storage.buckets: no appropriate method = 'select' for resource = 'buckets'
+    ...    Execution plan generated successfully
+    ...    OK
+    ...    Execution plan generated successfully
+    ...    OK
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${EMPTY}
+    ...    ${outputErrStr}
+    ...    stdout=${CURDIR}/tmp/Explain-Select-Repeatably-Generates-Messages.tmp
+    ...    stderr=${CURDIR}/tmp/Explain-Select-Repeatably-Generates-Messages-stderr.tmp

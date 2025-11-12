@@ -185,6 +185,9 @@
         "replace /*+ AWAIT */ google.compute.firewalls set data__disabled = 'true'  where project = 'mutable-project'  and firewall = 'replacable-firewall'  returning *;",
         "select role_name from pgi.information_schema.applicable_roles order by role_name desc;",
         "SELECT * FROM datadog.organization.users;",
+        "explain select 1 as foo;",
+        "explain select name from google.compute.networks where project = 'stackql-demo';",
+        "explain select * from aws.ec2.instances where region = 'ap-southeast-2';",
       ], 
       "default": "show providers;"
     },

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/stackql/stackql/internal/stackql/acid/tsm_physio"
@@ -317,6 +318,30 @@ func (b *stackqlMCPService) runPreprocessedQueryJSON(ctx context.Context, query 
 		return nil, fmt.Errorf("failed to extract query results")
 	}
 	return results, nil
+}
+
+func (b *stackqlMCPService) ExecQuery(ctx context.Context, query string) (map[string]any, error) {
+	return b.execQuery(ctx, query)
+}
+
+func (b *stackqlMCPService) ValidateQuery(ctx context.Context, query string) (map[string]any, error) {
+	return map[string]any{}, nil
+}
+
+func (b *stackqlMCPService) execQuery(ctx context.Context, query string) (map[string]any, error) {
+	rv := map[string]any{}
+	r, ok := b.applyQuery(query)
+	if !ok {
+		return rv, fmt.Errorf("failed to extract query results")
+	}
+	messages := []string{}
+	for _, resp := range r {
+		messages = append(messages, resp.GetMessages()...)
+	}
+	rv["messages"] = messages
+	oneLinerOutput := time.Now().Format("2006-01-02T15:04:05-07:00 MST")
+	rv["timestamp"] = oneLinerOutput
+	return rv, nil
 }
 
 // func (b *stackqlMCPService) ListTableResources(ctx context.Context, hI mcp_server.HierarchyInput) ([]string, error) {

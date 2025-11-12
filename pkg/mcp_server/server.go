@@ -223,6 +223,36 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(bytesOut)}}}, out, nil
 		},
 	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "exec_query_json_v2",
+			Description: "Execute a SQL query and return an optional JSON object, describing the effect(s).",
+		},
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.QueryJSONInput) (*mcp.CallToolResult, any, error) {
+			res, err := backend.ExecQuery(ctx, args.SQL)
+			if err != nil {
+				return nil, nil, err
+			}
+			bytesOut, _ := json.Marshal(res)
+			return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(bytesOut)}}}, res, nil
+		},
+	)
+	mcp.AddTool(
+		server,
+		&mcp.Tool{
+			Name:        "query_validate_json_v2",
+			Description: "Run an ahead of time (AOT) check for query tractability.",
+		},
+		func(ctx context.Context, req *mcp.CallToolRequest, args dto.QueryJSONInput) (*mcp.CallToolResult, any, error) {
+			res, err := backend.ExecQuery(ctx, args.SQL)
+			if err != nil {
+				return nil, nil, err
+			}
+			bytesOut, _ := json.Marshal(res)
+			return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(bytesOut)}}}, res, nil
+		},
+	)
 
 	mcp.AddTool(
 		server,
