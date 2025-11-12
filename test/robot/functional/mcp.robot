@@ -519,7 +519,7 @@ MCP HTTPS Server Validate Canonical
     ...    \-\-exec.action
     ...    validate_query_json_v2
     ...    \-\-exec.args
-    ...    {"sql":"select * from google.storage.buckets where project = 'stackql-demo';"}
+    ...    {"sql":"select * from google.storage.buckets where project \= 'stackql\-demo';"}
     ...    stdout=${CURDIR}${/}tmp${/}MCP-HTTPS-validate-canonical.txt
     ...    stderr=${CURDIR}${/}tmp${/}MCP-HTTPS-validate-canonical-stderr.txt
     ${meta_rels_obj}=    Parse MCP JSON Output    ${meta_rels.stdout}
@@ -539,7 +539,7 @@ MCP HTTPS Server Query Canonical
     ...    \-\-exec.action
     ...    query_json_v2
     ...    \-\-exec.args
-    ...    {"sql":"select * from google.storage.buckets where project \= 'stackql\-demo';"}
+    ...    {"sql":"select name, id from google.storage.buckets where project \= 'stackql\-demo';"}
     ...    stdout=${CURDIR}${/}tmp${/}MCP-HTTPS-Query-canonical.txt
     ...    stderr=${CURDIR}${/}tmp${/}MCP-HTTPS-Query-canonical-stderr.txt
     ${meta_rels_obj}=    Parse MCP JSON Output    ${meta_rels.stdout}
