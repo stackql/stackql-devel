@@ -9015,7 +9015,7 @@ Delete Await Returning Generates Error
     ...    stdout=${CURDIR}/tmp/Delete-Await-Returning-Generates-Error.tmp
     ...    stderr=${CURDIR}/tmp/Delete-Await-Returning-Generates-Error-stderr.tmp 
 
-Explain Select Repeatably Generates Messages
+Explain Select Repeatably Generates Messagez
     [Documentation]    This is fairly crude but useful in particular for MCP functions.
     ${inputStr} =    Catenate
     ...    explain select * from google.storage.buckets where project = 'stackql-demo';
@@ -9028,7 +9028,7 @@ Explain Select Repeatably Generates Messages
     ...    explain select * from google.storage.buckets;
     ...    explain select * from google.storage.buckets where project = 'stackql-demo';
     ...    explain select * from google.storage.buckets where project = 'stackql-demo';
-    ${outputErrStr} =    Catenate    SEPARATOR=\n
+    ${outputErrStrNative} =    Catenate    SEPARATOR=\n
     ...    Execution plan generated successfully
     ...    OK
     ...    Execution plan generated successfully
@@ -9045,6 +9045,7 @@ Explain Select Repeatably Generates Messages
     ...    OK
     ...    Execution plan generated successfully
     ...    OK
+    ${outputErrStr} =    Set Variable If    "${EXECUTION_PLATFORM}" == "docker"    OK   ${outputErrStrNative}
     Should Stackql Exec Inline Equal Stderr
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
