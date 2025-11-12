@@ -190,6 +190,15 @@
     },
     {
       "type": "pickString",
+      "id": "mcpSrvCfgStr",
+      "description": "MCP Server Configuration",
+      "options": [
+        "{\"server\": {\"transport\": \"http\", \"address\": \"127.0.0.1:9992\"} }"
+      ],
+      "default": "{\"server\": {\"transport\": \"http\", \"address\": \"127.0.0.1:9992\"} }"
+    },
+    {
+      "type": "pickString",
       "id": "registryString",
       "description": "Registry Configuration",
       "options": [
@@ -385,7 +394,7 @@
       "type": "pickString",
       "id": "mcpServerType",
       "description": "MCP server type",
-      "default": "stdio",
+      "default": "http",
       "options": [
         "http",
         "stdio"
@@ -464,6 +473,8 @@
       "program": "${workspaceFolder}/stackql",
       "args": [
         "mcp",
+        "--mcp.server.type=${input:mcpServerType}",
+        "--mcp.config=${input:mcpSrvCfgStr}",
         "--pgsrv.port=6555",
         "--tls.allowInsecure",
         "--auth=${input:authString}",
@@ -475,7 +486,6 @@
         "--dbInternal=${input:dbInternalString}",
         "--export.alias=${input:exportAliasString}",
         "--pgsrv.debug.enable=${input:serverDebugPublish}",
-        "--mcp.server.type=${input:mcpServerType}",
       ],
     },
     {
