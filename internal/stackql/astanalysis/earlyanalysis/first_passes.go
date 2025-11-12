@@ -219,6 +219,7 @@ func (sp *standardInitialPasses) initialPasses(
 		return err
 	}
 	ast := result.AST
+	//nolint:gocritic // prefer switch
 	switch node := ast.(type) {
 	case *sqlparser.Explain:
 		ast = node.Statement

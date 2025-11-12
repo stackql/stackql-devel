@@ -891,6 +891,7 @@ func (pb *standardPrimitiveGenerator) analyzeSchemaVsMap(
 func (pb *standardPrimitiveGenerator) AnalyzePGInternal(
 	pbi planbuilderinput.PlanBuilderInput) error {
 	handlerCtx := pbi.GetHandlerCtx()
+	//nolint:gocritic // prefer switch for now
 	switch pbi.GetStatement().(type) {
 	case *sqlparser.Explain:
 		return pb.AnalyzeExplain(pbi, pbi.GetMessages(), nil)
