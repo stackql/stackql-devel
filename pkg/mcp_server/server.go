@@ -230,8 +230,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			Description: "Explain a SQL query and return a JSON object expressing success, or else an error.",
 		},
 		func(ctx context.Context, req *mcp.CallToolRequest, args dto.QueryJSONInput) (*mcp.CallToolResult, any, error) {
-			args.SQL = fmt.Sprintf("EXPLAIN %s", args.SQL)
-			arr, err := backend.RunQueryJSON(ctx, args)
+			arr, err := backend.ValidateQuery(ctx, args.SQL)
 			if err != nil {
 				return nil, nil, err
 			}

@@ -84,8 +84,13 @@ func (b *stackqlMCPReverseProxyService) ExecQuery(ctx context.Context, query str
 	return b.execQuery(ctx, query)
 }
 
-func (b *stackqlMCPReverseProxyService) ValidateQuery(ctx context.Context, query string) (map[string]any, error) {
-	return map[string]any{}, nil
+func (b *stackqlMCPReverseProxyService) ValidateQuery(ctx context.Context, query string) ([]map[string]any, error) {
+	explainQuery := fmt.Sprintf("EXPLAIN %s", query)
+	rows, err := b.query(ctx, explainQuery, unlimitedRowLimit)
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
 }
 
 func (b *stackqlMCPReverseProxyService) execQuery(ctx context.Context, query string) (map[string]any, error) {

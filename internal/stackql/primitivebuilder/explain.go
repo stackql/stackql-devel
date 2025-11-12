@@ -54,11 +54,12 @@ func (nb *ExplainBuilder) Build() error {
 			}
 			oneLinerOutput := time.Now().Format("2006-01-02T15:04:05-07:00 MST")
 			resultMap := map[string]any{
-				"query":     nb.handlerCtx.GetRawQuery(),
+				"query":     nb.handlerCtx.GetQuery(),
 				"timestamp": oneLinerOutput,
+				"result":    "OK",
 				"valid":     true,
 			}
-			columns := []string{"query", "timestamp", "valid"}
+			columns := []string{"query", "result", "timestamp", "valid"}
 			return util.PrepareResultSet(
 				internaldto.NewPrepareResultSetPlusRawDTO(
 					nil,

@@ -52,8 +52,8 @@ func (b *ExampleBackend) RunQueryJSON(ctx context.Context, input dto.QueryJSONIn
 	return []map[string]interface{}{}, nil
 }
 
-func (b *ExampleBackend) ValidateQuery(ctx context.Context, query string) (map[string]any, error) {
-	return map[string]any{}, nil
+func (b *ExampleBackend) ValidateQuery(ctx context.Context, query string) ([]map[string]any, error) {
+	return []map[string]any{}, nil
 }
 
 // func (b *ExampleBackend) ListTableResources(ctx context.Context, hI dto.HierarchyInput) ([]string, error) {

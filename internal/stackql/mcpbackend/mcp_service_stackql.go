@@ -324,8 +324,13 @@ func (b *stackqlMCPService) ExecQuery(ctx context.Context, query string) (map[st
 	return b.execQuery(ctx, query)
 }
 
-func (b *stackqlMCPService) ValidateQuery(ctx context.Context, query string) (map[string]any, error) {
-	return map[string]any{}, nil
+func (b *stackqlMCPService) ValidateQuery(ctx context.Context, query string) ([]map[string]any, error) {
+	explainQuery := fmt.Sprintf("EXPLAIN %s", query)
+	rows, err := b.runPreprocessedQueryJSON(ctx, explainQuery, unlimitedRowLimit)
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
 }
 
 func (b *stackqlMCPService) execQuery(ctx context.Context, query string) (map[string]any, error) {
