@@ -44,6 +44,8 @@ Then, assuming you have a `stackql` MCP server serving streamable HTTP on port `
 
 ./build/stackql_mcp_client exec --client-type=http  --url=http://127.0.0.1:9992 --exec.action      list_methods --exec.args '{"provider": "google", "service": "compute", "resource": "networks"}'
 
+./build/stackql_mcp_client exec --client-type=http  --url=http://127.0.0.1:9992 --exec.action      meta.describe_table --exec.args '{"provider": "google", "service": "compute", "resource": "networks"}'
+
 ./build/stackql_mcp_client exec --client-type=http  --url=http://127.0.0.1:9992 --exec.action validate_query_json_v2      --exec.args '{"sql": "select name from google.compute.networks where project = '"'"'stackql-demo'"'"';"}'
 
 ./build/stackql_mcp_client exec --client-type=http  --url=http://127.0.0.1:9992 --exec.action query_json_v2      --exec.args '{"sql": "select name from google.compute.networks where project = '"'"'stackql-demo'"'"';"}'

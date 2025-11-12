@@ -148,7 +148,7 @@ func (s *simpleStackqlInterrogator) GetShowMethods(hI dto.HierarchyInput) (strin
 
 func (s *simpleStackqlInterrogator) GetDescribeTable(hI dto.HierarchyInput) (string, error) {
 	sb := strings.Builder{}
-	sb.WriteString("DESCRIBE TABLE")
+	sb.WriteString("DESCRIBE ")
 	if hI.Provider == "" || hI.Service == "" || hI.Resource == "" {
 		return "", fmt.Errorf("provider, service and / or resource not specified")
 	}
