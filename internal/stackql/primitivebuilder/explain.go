@@ -1,6 +1,8 @@
 package primitivebuilder
 
 import (
+	"time"
+
 	"github.com/stackql/any-sdk/public/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
@@ -50,11 +52,18 @@ func (nb *ExplainBuilder) Build() error {
 			if nb.instructionErr != nil {
 				return internaldto.NewErroneousExecutorOutput(nb.instructionErr)
 			}
+			oneLinerOutput := time.Now().Format("2006-01-02T15:04:05-07:00 MST")
+			resultMap := map[string]any{
+				"query":     nb.handlerCtx.GetRawQuery(),
+				"timestamp": oneLinerOutput,
+				"valid":     true,
+			}
+			columns := []string{"query", "timestamp", "valid"}
 			return util.PrepareResultSet(
 				internaldto.NewPrepareResultSetPlusRawDTO(
 					nil,
-					nil,
-					nil,
+					map[string]map[string]any{"0": resultMap},
+					columns,
 					nil,
 					nil,
 					internaldto.NewBackendMessages(nb.messages), nil,
