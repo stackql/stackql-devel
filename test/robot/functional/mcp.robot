@@ -407,7 +407,7 @@ MCP HTTPS Server JSON DTO Meta Find Relationships
 MCP HTTPS List Providers Canonical
     Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
     # Future proofing: raw text format reserved; may gain structured hints later.
-    ${ns_query_text}=    Run Process
+    ${meta_rels}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
     ...    \-\-client\-type\=http
@@ -427,7 +427,7 @@ MCP HTTPS List Providers Canonical
 MCP HTTPS List Services Canonical
     Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
     # Future proofing: raw text format reserved; may gain structured hints later.
-    ${ns_query_text}=    Run Process
+    ${meta_rels}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
     ...    \-\-client\-type\=http
@@ -447,7 +447,7 @@ MCP HTTPS List Services Canonical
 MCP HTTPS List Resources Canonical
     Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
     # Future proofing: raw text format reserved; may gain structured hints later.
-    ${ns_query_text}=    Run Process
+    ${meta_rels}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
     ...    \-\-client\-type\=http
@@ -468,7 +468,7 @@ MCP HTTPS List Resources Canonical
 MCP HTTPS List Methods Canonical
     Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
     # Future proofing: raw text format reserved; may gain structured hints later.
-    ${ns_query_text}=    Run Process
+    ${meta_rels}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
     ...    \-\-client\-type\=http
@@ -489,7 +489,7 @@ MCP HTTPS List Methods Canonical
 MCP HTTPS Describe Table Canonical
     Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
     # Future proofing: raw text format reserved; may gain structured hints later.
-    ${ns_query_text}=    Run Process
+    ${meta_rels}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
     ...    \-\-client\-type\=http
@@ -509,7 +509,7 @@ MCP HTTPS Describe Table Canonical
 MCP HTTPS Server Validate Canonical
     Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
     # Future proofing: raw text format reserved; may gain structured hints later.
-    ${ns_query_text}=    Run Process
+    ${meta_rels}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
     ...    \-\-client\-type\=http
@@ -529,7 +529,7 @@ MCP HTTPS Server Validate Canonical
 MCP HTTPS Server Query Canonical
     Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
     # Future proofing: raw text format reserved; may gain structured hints later.
-    ${ns_query_text}=    Run Process
+    ${meta_rels}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
     ...    \-\-client\-type\=http
@@ -539,7 +539,7 @@ MCP HTTPS Server Query Canonical
     ...    \-\-exec.action
     ...    query_json_v2
     ...    \-\-exec.args
-    ...    {"sql":"select * from google.storage.buckets where project = 'stackql-demo';"}
+    ...    {"sql":"select * from google.storage.buckets where project \= 'stackql\-demo';"}
     ...    stdout=${CURDIR}${/}tmp${/}MCP-HTTPS-Query-canonical.txt
     ...    stderr=${CURDIR}${/}tmp${/}MCP-HTTPS-Query-canonical-stderr.txt
     ${meta_rels_obj}=    Parse MCP JSON Output    ${meta_rels.stdout}
@@ -549,7 +549,7 @@ MCP HTTPS Server Query Canonical
 MCP HTTPS Server Exec Query Canonical
     Pass Execution If    "%{IS_SKIP_MCP_TEST=false}" == "true"    Some platforms do not have the MCP client available
     # Future proofing: raw text format reserved; may gain structured hints later.
-    ${ns_query_text}=    Run Process
+    ${meta_rels}=    Run Process
     ...    ${STACKQL_MCP_CLIENT_EXE}
     ...    exec
     ...    \-\-client\-type\=http
@@ -559,7 +559,7 @@ MCP HTTPS Server Exec Query Canonical
     ...    \-\-exec.action
     ...    exec_query_json_v2
     ...    \-\-exec.args
-    ...    {"sql":"delete from google.compute.firewalls where project = 'mutable-project' and firewall = 'deletable-firewall';"}
+    ...    {"sql":"delete from google.compute.firewalls where project \= 'mutable\-project' and firewall \= 'deletable\-firewall';"}
     ...    stdout=${CURDIR}${/}tmp${/}MCP-HTTPS-Exec-Query-canonical.txt
     ...    stderr=${CURDIR}${/}tmp${/}MCP-HTTPS-Exec-Query-canonical-stderr.txt
     ${meta_rels_obj}=    Parse MCP JSON Output    ${meta_rels.stdout}
