@@ -1,6 +1,12 @@
 
 ## Running the MCP server
 
+If necessary, rebuild stackql with:
+
+```bash
+python cicd/python/build.py --build
+```
+
 **Note**: before starting an MCP server, remember to export all appropriate auth env vars.
 
 We have a nice debug config for running an MCP server with `vscode`, please see [the `vscode` debug launch config](/.vscode/launch.json) for that.  Otherwise, you can run with stackql (assuming locally built into `./build/stackql`):
