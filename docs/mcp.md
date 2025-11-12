@@ -1,10 +1,14 @@
 
 ## Running the MCP server
 
+**Note**: before starting an MCP server, remember to export all appropriate auth env vars.
+
+We have a nice debug config for running an MCP server with `vscode`, please see [the `vscode` debug launch config](/.vscode/launch.json) for that.  Otherwise, you can run with stackql (assuming locally built into `./build/stackql`):
+
 
 ```bash
 
-
+./build/stackql mcp --mcp.server.type=http --mcp.config '{"server": {"transport": "http", "address": "127.0.0.1:9992"} }'
 
 
 ```
@@ -25,6 +29,15 @@ Then, assuming you have a `stackql` MCP server serving streamable HTTP on port `
 
 ```bash
 
+./build/stackql_mcp_client exec --client-type=http  --url=http://127.0.0.1:9992 --exec.action      list_providers
+
 ./build/stackql_mcp_client exec --client-type=http  --url=http://127.0.0.1:9992 --exec.action      list_services --exec.args '{"provider": "google"}'
+
+./build/stackql_mcp_client exec --client-type=http  --url=http://127.0.0.1:9992 --exec.action      list_resources --exec.args '{"provider": "google", "service": "compute"}'
+
+
+./build/stackql_mcp_client exec --client-type=http  --url=http://127.0.0.1:9992 --exec.action      list_methods --exec.args '{"provider": "google", "service": "compute", "resource": "networks"}'
+
+./build/stackql_mcp_client exec --client-type=http  --url=http://127.0.0.1:9992 --exec.action query_json_v2      --exec.args '{"sql": "select name from google.compute.networks where project = '"'"'stackql-demo'"'"';"}'
 
 ```

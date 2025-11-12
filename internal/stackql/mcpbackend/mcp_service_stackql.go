@@ -308,7 +308,11 @@ func (b *stackqlMCPService) RunQueryJSON(ctx context.Context, input dto.QueryJSO
 	if q == "" {
 		return nil, fmt.Errorf("no SQL provided")
 	}
-	results, ok := b.extractQueryResults(q, input.RowLimit)
+	return b.runPreprocessedQueryJSON(ctx, q, input.RowLimit)
+}
+
+func (b *stackqlMCPService) runPreprocessedQueryJSON(ctx context.Context, query string, rowLimit int) ([]map[string]interface{}, error) {
+	results, ok := b.extractQueryResults(query, rowLimit)
 	if !ok {
 		return nil, fmt.Errorf("failed to extract query results")
 	}
@@ -355,17 +359,16 @@ func (b *stackqlMCPService) ListTablesJSONPage(ctx context.Context, input dto.Li
 	return map[string]interface{}{}, nil
 }
 
-func (b *stackqlMCPService) ListTables(ctx context.Context, hI dto.HierarchyInput) (string, error) {
+func (b *stackqlMCPService) ListTables(ctx context.Context, hI dto.HierarchyInput) ([]map[string]interface{}, error) {
 	return b.ListResources(ctx, hI)
 }
 
-func (b *stackqlMCPService) ListMethods(ctx context.Context, hI dto.HierarchyInput) (string, error) {
+func (b *stackqlMCPService) ListMethods(ctx context.Context, hI dto.HierarchyInput) ([]map[string]interface{}, error) {
 	q, qErr := b.interrogator.GetShowMethods(hI)
 	if qErr != nil {
-		return "", qErr
+		return nil, qErr
 	}
-	rv := b.renderQueryResults(q, hI.Format, hI.RowLimit)
-	return rv, nil
+	return b.runPreprocessedQueryJSON(ctx, q, unlimitedRowLimit)
 }
 
 func (b *stackqlMCPService) getUpdatedHandlerCtx(query string) (handler.HandlerContext, error) {
@@ -451,46 +454,42 @@ func (b *stackqlMCPService) renderQueryResults(query string, format string, rowL
 	}
 }
 
-func (b *stackqlMCPService) DescribeTable(ctx context.Context, hI dto.HierarchyInput) (string, error) {
+func (b *stackqlMCPService) DescribeTable(ctx context.Context, hI dto.HierarchyInput) ([]map[string]interface{}, error) {
 	q, qErr := b.interrogator.GetDescribeTable(hI)
 	if qErr != nil {
-		return "", qErr
+		return nil, qErr
 	}
-	rv := b.renderQueryResults(q, hI.Format, hI.RowLimit)
-	return rv, nil
+	return b.runPreprocessedQueryJSON(ctx, q, unlimitedRowLimit)
 }
 
-func (b *stackqlMCPService) GetForeignKeys(ctx context.Context, hI dto.HierarchyInput) (string, error) {
-	return b.interrogator.GetForeignKeys(hI)
+func (b *stackqlMCPService) GetForeignKeys(ctx context.Context, hI dto.HierarchyInput) ([]map[string]interface{}, error) {
+	return nil, fmt.Errorf("GetForeignKeys not implemented")
 }
 
 func (b *stackqlMCPService) FindRelationships(ctx context.Context, hI dto.HierarchyInput) (string, error) {
 	return b.interrogator.FindRelationships(hI)
 }
 
-func (b *stackqlMCPService) ListProviders(ctx context.Context) (string, error) {
+func (b *stackqlMCPService) ListProviders(ctx context.Context) ([]map[string]interface{}, error) {
 	q, qErr := b.interrogator.GetShowProviders(dto.HierarchyInput{}, "")
 	if qErr != nil {
-		return "", qErr
+		return nil, qErr
 	}
-	rv := b.renderQueryResults(q, "", unlimitedRowLimit)
-	return rv, nil
+	return b.runPreprocessedQueryJSON(ctx, q, unlimitedRowLimit)
 }
 
-func (b *stackqlMCPService) ListServices(ctx context.Context, hI dto.HierarchyInput) (string, error) {
+func (b *stackqlMCPService) ListServices(ctx context.Context, hI dto.HierarchyInput) ([]map[string]interface{}, error) {
 	q, qErr := b.interrogator.GetShowServices(hI, "")
 	if qErr != nil {
-		return "", qErr
+		return nil, qErr
 	}
-	rv := b.renderQueryResults(q, hI.Format, hI.RowLimit)
-	return rv, nil
+	return b.runPreprocessedQueryJSON(ctx, q, unlimitedRowLimit)
 }
 
-func (b *stackqlMCPService) ListResources(ctx context.Context, hI dto.HierarchyInput) (string, error) {
+func (b *stackqlMCPService) ListResources(ctx context.Context, hI dto.HierarchyInput) ([]map[string]interface{}, error) {
 	q, qErr := b.interrogator.GetShowResources(hI, "")
 	if qErr != nil {
-		return "", qErr
+		return nil, qErr
 	}
-	rv := b.renderQueryResults(q, hI.Format, hI.RowLimit)
-	return rv, nil
+	return b.runPreprocessedQueryJSON(ctx, q, unlimitedRowLimit)
 }

@@ -111,7 +111,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 	}
 
 	server := mcp.NewServer(
-		&mcp.Implementation{Name: "stackql", Version: "v0.1.0"},
+		&mcp.Implementation{Name: "stackql", Version: "v0.1.1"},
 		nil,
 	)
 	mcp.AddTool(
@@ -317,7 +317,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			if err != nil {
 				return nil, nil, err
 			}
-			out := dto.SimpleTextDTO{Text: result}
+			out := dto.QueryResultDTO{Rows: result, RowCount: len(result), Format: "json"}
 			bytesOut, _ := json.Marshal(out)
 			return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(bytesOut)}}}, out, nil
 		},
@@ -334,7 +334,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			if err != nil {
 				return nil, nil, err
 			}
-			out := dto.SimpleTextDTO{Text: result}
+			out := dto.QueryResultDTO{Rows: result, RowCount: len(result), Format: "json"}
 			bytesOut, _ := json.Marshal(out)
 			return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(bytesOut)}}}, out, nil
 		},
@@ -351,7 +351,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			if err != nil {
 				return nil, nil, err
 			}
-			out := dto.SimpleTextDTO{Text: result}
+			out := dto.QueryResultDTO{Rows: result, RowCount: len(result), Format: "json"}
 			bytesOut, _ := json.Marshal(out)
 			return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(bytesOut)}}}, out, nil
 		},
@@ -368,7 +368,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			if err != nil {
 				return nil, nil, err
 			}
-			out := dto.SimpleTextDTO{Text: result}
+			out := dto.QueryResultDTO{Rows: result, RowCount: len(result), Format: "json"}
 			bytesOut, _ := json.Marshal(out)
 			return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(bytesOut)}}}, out, nil
 		},
@@ -385,7 +385,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			if err != nil {
 				return nil, nil, err
 			}
-			out := dto.SimpleTextDTO{Text: result}
+			out := dto.QueryResultDTO{Rows: result, RowCount: len(result), Format: "json"}
 			bytesOut, _ := json.Marshal(out)
 			return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(bytesOut)}}}, out, nil
 		},
@@ -402,7 +402,7 @@ func newMCPServer(config *Config, backend Backend, logger *logrus.Logger) (MCPSe
 			if err != nil {
 				return nil, nil, err
 			}
-			out := dto.SimpleTextDTO{Text: result}
+			out := dto.QueryResultDTO{Rows: result, RowCount: len(result), Format: "json"}
 			bytesOut, _ := json.Marshal(out)
 			return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(bytesOut)}}}, out, nil
 		},
@@ -555,7 +555,7 @@ func registerNamespacedTools(server *mcp.Server, backend Backend, logger *logrus
 			if err != nil {
 				return nil, nil, err
 			}
-			out := dto.SimpleTextDTO{Text: result}
+			out := dto.QueryResultDTO{Rows: result, RowCount: len(result), Format: "json"}
 			bytesOut, _ := json.Marshal(out)
 			return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(bytesOut)}}}, out, nil
 		},
@@ -573,7 +573,7 @@ func registerNamespacedTools(server *mcp.Server, backend Backend, logger *logrus
 			if err != nil {
 				return nil, nil, err
 			}
-			out := dto.SimpleTextDTO{Text: result}
+			out := dto.QueryResultDTO{Rows: result, RowCount: len(result), Format: "json"}
 			bytesOut, _ := json.Marshal(out)
 			return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(bytesOut)}}}, out, nil
 		},
@@ -591,7 +591,7 @@ func registerNamespacedTools(server *mcp.Server, backend Backend, logger *logrus
 			if err != nil {
 				return nil, nil, err
 			}
-			out := dto.SimpleTextDTO{Text: result}
+			out := dto.QueryResultDTO{Rows: result, RowCount: len(result), Format: "json"}
 			bytesOut, _ := json.Marshal(out)
 			return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(bytesOut)}}}, out, nil
 		},
@@ -609,7 +609,7 @@ func registerNamespacedTools(server *mcp.Server, backend Backend, logger *logrus
 			if err != nil {
 				return nil, nil, err
 			}
-			out := dto.SimpleTextDTO{Text: result}
+			out := dto.QueryResultDTO{Rows: result, RowCount: len(result), Format: "json"}
 			bytesOut, _ := json.Marshal(out)
 			return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(bytesOut)}}}, out, nil
 		},
@@ -666,7 +666,7 @@ func registerNamespacedTools(server *mcp.Server, backend Backend, logger *logrus
 			if err != nil {
 				return nil, nil, err
 			}
-			out := dto.SimpleTextDTO{Text: result}
+			out := dto.QueryResultDTO{Rows: result, RowCount: len(result), Format: "json"}
 			bytesOut, _ := json.Marshal(out)
 			return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(bytesOut)}}}, out, nil
 		},
@@ -684,7 +684,7 @@ func registerNamespacedTools(server *mcp.Server, backend Backend, logger *logrus
 			if err != nil {
 				return nil, nil, err
 			}
-			out := dto.SimpleTextDTO{Text: result}
+			out := dto.QueryResultDTO{Rows: result, RowCount: len(result), Format: "json"}
 			bytesOut, _ := json.Marshal(out)
 			return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: string(bytesOut)}}}, out, nil
 		},
