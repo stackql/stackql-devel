@@ -823,6 +823,7 @@ func (v *standardInternallyRoutableTypingAstVisitor) Visit(node sqlparser.SQLNod
 		node.Distinct = newNode.Distinct
 		node.Exprs = newNode.Exprs
 		node.Name = newNode.Name
+		node.Over = newNode.Over // Preserve window function OVER clause
 		if node.Distinct {
 		}
 		if !node.Qualifier.IsEmpty() {
