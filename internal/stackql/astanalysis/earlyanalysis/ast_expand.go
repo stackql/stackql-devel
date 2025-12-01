@@ -190,22 +190,19 @@ func (v *indirectExpandAstVisitor) processCTEReference(
 	if !isCTE {
 		return false
 	}
-	// Use the CTE name as the effective alias if no explicit alias is set
-	effectiveAlias := node.As.GetRawVal()
-	if effectiveAlias == "" {
-		effectiveAlias = tableName
+	// Modify the original node to replace the TableName with the CTE subquery
+	// This is critical: downstream code (GetHIDs) checks node.Expr type to identify subqueries
+	node.Expr = cteSubquery
+	// Set the alias to the CTE name if no explicit alias was provided
+	if node.As.IsEmpty() {
+		node.As = sqlparser.NewTableIdent(tableName)
 	}
-	// Create a synthetic AliasedTableExpr with the CTE subquery
-	syntheticExpr := &sqlparser.AliasedTableExpr{
-		Expr: cteSubquery,
-		As:   sqlparser.NewTableIdent(effectiveAlias),
-	}
-	sq := internaldto.NewSubqueryDTO(syntheticExpr, cteSubquery)
+	sq := internaldto.NewSubqueryDTO(node, cteSubquery)
 	indirect, err := astindirect.NewSubqueryIndirect(sq)
 	if err != nil {
 		return true //nolint:nilerr //TODO: investigate
 	}
-	_ = v.processIndirect(syntheticExpr, indirect) //nolint:errcheck // errors handled via indirect pattern
+	_ = v.processIndirect(node, indirect) //nolint:errcheck // errors handled via indirect pattern
 	return true
 }
 
