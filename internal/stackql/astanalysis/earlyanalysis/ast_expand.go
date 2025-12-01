@@ -180,6 +180,38 @@ func (v *indirectExpandAstVisitor) IsReadOnly() bool {
 	return v.selectCount > 0 && v.mutateCount == 0
 }
 
+// processCTEReference handles CTE references by converting them to subquery indirects.
+// Returns true if the table name was a CTE reference and was processed, false otherwise.
+func (v *indirectExpandAstVisitor) processCTEReference(
+	node *sqlparser.AliasedTableExpr,
+	tableName string,
+) (bool, error) {
+	cteSubquery, isCTE := v.cteRegistry[tableName]
+	if !isCTE {
+		return false, nil
+	}
+	// Use the CTE name as the effective alias if no explicit alias is set
+	effectiveAlias := node.As.GetRawVal()
+	if effectiveAlias == "" {
+		effectiveAlias = tableName
+	}
+	// Create a synthetic AliasedTableExpr with the CTE subquery
+	syntheticExpr := &sqlparser.AliasedTableExpr{
+		Expr: cteSubquery,
+		As:   sqlparser.NewTableIdent(effectiveAlias),
+	}
+	sq := internaldto.NewSubqueryDTO(syntheticExpr, cteSubquery)
+	indirect, err := astindirect.NewSubqueryIndirect(sq)
+	if err != nil {
+		return true, nil //nolint:nilerr //TODO: investigate
+	}
+	err = v.processIndirect(syntheticExpr, indirect)
+	if err != nil {
+		return true, nil //nolint:nilerr //TODO: investigate
+	}
+	return true, nil
+}
+
 func (v *indirectExpandAstVisitor) ContainsAnalyticsCacheMaterial() bool {
 	return v.containsAnalyticsCacheMaterial
 }
@@ -797,28 +829,11 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 				return nil
 			case sqlparser.TableName:
 				// Check if this table name is a CTE reference
-				tableName := n.GetRawVal()
-				if cteSubquery, isCTE := v.cteRegistry[tableName]; isCTE {
-					// Process CTE reference as a subquery
-					// Use the CTE name as the effective alias if no explicit alias is set
-					effectiveAlias := node.As.GetRawVal()
-					if effectiveAlias == "" {
-						effectiveAlias = tableName
-					}
-					// Create a synthetic AliasedTableExpr with the CTE subquery
-					syntheticExpr := &sqlparser.AliasedTableExpr{
-						Expr: cteSubquery,
-						As:   sqlparser.NewTableIdent(effectiveAlias),
-					}
-					sq := internaldto.NewSubqueryDTO(syntheticExpr, cteSubquery)
-					indirect, err := astindirect.NewSubqueryIndirect(sq)
-					if err != nil {
-						return nil //nolint:nilerr //TODO: investigate
-					}
-					err = v.processIndirect(syntheticExpr, indirect)
-					if err != nil {
-						return nil //nolint:nilerr //TODO: investigate
-					}
+				processed, err := v.processCTEReference(node, n.GetRawVal())
+				if err != nil {
+					return err
+				}
+				if processed {
 					return nil
 				}
 			}
