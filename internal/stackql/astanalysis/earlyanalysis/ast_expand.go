@@ -49,6 +49,7 @@ type indirectExpandAstVisitor struct {
 	selectCount                    int
 	mutateCount                    int
 	createBuilder                  []primitivebuilder.Builder
+	cteRegistry                    map[string]*sqlparser.Subquery // CTE name -> subquery definition
 }
 
 func newIndirectExpandAstVisitor(
@@ -75,6 +76,7 @@ func newIndirectExpandAstVisitor(
 		tcc:                 tcc,
 		whereParams:         whereParams,
 		indirectionDepth:    indirectionDepth,
+		cteRegistry:         make(map[string]*sqlparser.Subquery),
 	}
 	return rv, nil
 }
@@ -213,6 +215,14 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 		}
 		addIf(node.StraightJoinHint, sqlparser.StraightJoinHint)
 		addIf(node.SQLCalcFoundRows, sqlparser.SQLCalcFoundRowsStr)
+
+		// Extract CTEs from WITH clause and store in registry
+		if node.With != nil {
+			for _, cte := range node.With.CTEs {
+				cteName := cte.Name.GetRawVal()
+				v.cteRegistry[cteName] = cte.Subquery
+			}
+		}
 
 		if node.Comments != nil {
 			node.Comments.Accept(v) //nolint:errcheck // future proof
@@ -785,6 +795,32 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 					return nil //nolint:nilerr //TODO: investigate
 				}
 				return nil
+			case sqlparser.TableName:
+				// Check if this table name is a CTE reference
+				tableName := n.GetRawVal()
+				if cteSubquery, isCTE := v.cteRegistry[tableName]; isCTE {
+					// Process CTE reference as a subquery
+					// Use the CTE name as the effective alias if no explicit alias is set
+					effectiveAlias := node.As.GetRawVal()
+					if effectiveAlias == "" {
+						effectiveAlias = tableName
+					}
+					// Create a synthetic AliasedTableExpr with the CTE subquery
+					syntheticExpr := &sqlparser.AliasedTableExpr{
+						Expr: cteSubquery,
+						As:   sqlparser.NewTableIdent(effectiveAlias),
+					}
+					sq := internaldto.NewSubqueryDTO(syntheticExpr, cteSubquery)
+					indirect, err := astindirect.NewSubqueryIndirect(sq)
+					if err != nil {
+						return nil //nolint:nilerr //TODO: investigate
+					}
+					err = v.processIndirect(syntheticExpr, indirect)
+					if err != nil {
+						return nil //nolint:nilerr //TODO: investigate
+					}
+					return nil
+				}
 			}
 			err := node.Expr.Accept(v)
 			if err != nil {

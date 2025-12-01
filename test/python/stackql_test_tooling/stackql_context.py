@@ -644,6 +644,15 @@ def get_variables(
   SELECT_MACHINE_TYPES_DESC = "select name from google.compute.machineTypes where project = 'testing-project' and zone = 'australia-southeast1-a' order by name desc;"
   SELECT_GOOGLE_COMPUTE_INSTANCE_IAM_POLICY = "SELECT etag FROM google.compute.instances_iam_policies WHERE project = 'testing-project' AND zone = 'australia-southeast1-a' AND resource = '000000001';"
 
+  # Window function tests using accelerator types
+  SELECT_ACCELERATOR_TYPES_ROW_NUMBER = "SELECT name, ROW_NUMBER() OVER (ORDER BY name ASC) as row_number FROM google.compute.acceleratorTypes WHERE project = 'testing-project' AND zone = 'australia-southeast1-a' ORDER BY name ASC;"
+  SELECT_ACCELERATOR_TYPES_SUM_OVER = "SELECT name, SUM(maximumCardsPerInstance) OVER () as total_sum FROM google.compute.acceleratorTypes WHERE project = 'testing-project' AND zone = 'australia-southeast1-a' ORDER BY name ASC;"
+  SELECT_ACCELERATOR_TYPES_RUNNING_SUM = "SELECT name, SUM(maximumCardsPerInstance) OVER (ORDER BY name ASC) as running_sum FROM google.compute.acceleratorTypes WHERE project = 'testing-project' AND zone = 'australia-southeast1-a' ORDER BY name ASC;"
+  SELECT_ACCELERATOR_TYPES_RANK = "SELECT name, RANK() OVER (ORDER BY maximumCardsPerInstance) as rank FROM google.compute.acceleratorTypes WHERE project = 'testing-project' AND zone = 'australia-southeast1-a' ORDER BY name ASC;"
+
+  # CTE (Common Table Expression) tests using accelerator types
+  SELECT_ACCELERATOR_TYPES_SIMPLE_CTE = "WITH accel_types AS (SELECT name, maximumCardsPerInstance FROM google.compute.acceleratorTypes WHERE project = 'testing-project' AND zone = 'australia-southeast1-a') SELECT name, maximumCardsPerInstance FROM accel_types ORDER BY name ASC;"
+
   SELECT_AWS_CLOUD_CONTROL_EVENTS_MINIMAL = "SELECT DISTINCT EventTime, Identifier from aws.cloud_control.resource_requests where data__ResourceRequestStatusFilter='{}' and region = 'ap-southeast-1' order by Identifier, EventTime;"
 
   SELECT_AZURE_COMPUTE_PUBLIC_KEYS = "select id, location from azure.compute.ssh_public_keys where subscriptionId = '10001000-1000-1000-1000-100010001000' ORDER BY id ASC;"
@@ -764,6 +773,15 @@ def get_variables(
   SELECT_CONTRIVED_GCP_GITHUB_JSON_DEPENDENT_JOIN_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'joins', 'inner', 'gcp-github-labelled-instances-commits.txt'))
 
   SELECT_ACCELERATOR_TYPES_DESC_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'simple-select', 'compute-accelerator-type', 'select-zone-list-desc.txt'))
+
+  # Window function test expected results
+  SELECT_ACCELERATOR_TYPES_ROW_NUMBER_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'simple-select', 'compute-accelerator-type', 'window-functions', 'row-number-by-name.txt'))
+  SELECT_ACCELERATOR_TYPES_SUM_OVER_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'simple-select', 'compute-accelerator-type', 'window-functions', 'sum-over-all.txt'))
+  SELECT_ACCELERATOR_TYPES_RUNNING_SUM_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'simple-select', 'compute-accelerator-type', 'window-functions', 'running-sum-by-name.txt'))
+  SELECT_ACCELERATOR_TYPES_RANK_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'simple-select', 'compute-accelerator-type', 'window-functions', 'rank-by-cards.txt'))
+
+  # CTE test expected results
+  SELECT_ACCELERATOR_TYPES_SIMPLE_CTE_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'simple-select', 'compute-accelerator-type', 'cte', 'simple-cte.txt'))
 
   SELECT_MACHINE_TYPES_DESC_EXPECTED = get_output_from_local_file(os.path.join('test', 'assets', 'expected', 'google', 'compute', 'instance-type-list-names-paginated-desc.txt'))
 
@@ -987,6 +1005,16 @@ def get_variables(
     'SELECT_ACCELERATOR_TYPES_DESC':                                          SELECT_ACCELERATOR_TYPES_DESC,
     'SELECT_ACCELERATOR_TYPES_DESC_EXPECTED':                                 SELECT_ACCELERATOR_TYPES_DESC_EXPECTED,
     'SELECT_ACCELERATOR_TYPES_DESC_SEQUENCE':                                 [ SELECT_ACCELERATOR_TYPES_DESC, SELECT_ACCELERATOR_TYPES_DESC_FROM_INTEL_VIEWS, SELECT_ACCELERATOR_TYPES_DESC_FROM_INTEL_VIEWS_SUBQUERY ],
+    'SELECT_ACCELERATOR_TYPES_RANK':                                          SELECT_ACCELERATOR_TYPES_RANK,
+    'SELECT_ACCELERATOR_TYPES_RANK_EXPECTED':                                 SELECT_ACCELERATOR_TYPES_RANK_EXPECTED,
+    'SELECT_ACCELERATOR_TYPES_ROW_NUMBER':                                    SELECT_ACCELERATOR_TYPES_ROW_NUMBER,
+    'SELECT_ACCELERATOR_TYPES_ROW_NUMBER_EXPECTED':                           SELECT_ACCELERATOR_TYPES_ROW_NUMBER_EXPECTED,
+    'SELECT_ACCELERATOR_TYPES_RUNNING_SUM':                                   SELECT_ACCELERATOR_TYPES_RUNNING_SUM,
+    'SELECT_ACCELERATOR_TYPES_RUNNING_SUM_EXPECTED':                          SELECT_ACCELERATOR_TYPES_RUNNING_SUM_EXPECTED,
+    'SELECT_ACCELERATOR_TYPES_SUM_OVER':                                      SELECT_ACCELERATOR_TYPES_SUM_OVER,
+    'SELECT_ACCELERATOR_TYPES_SUM_OVER_EXPECTED':                             SELECT_ACCELERATOR_TYPES_SUM_OVER_EXPECTED,
+    'SELECT_ACCELERATOR_TYPES_SIMPLE_CTE':                                    SELECT_ACCELERATOR_TYPES_SIMPLE_CTE,
+    'SELECT_ACCELERATOR_TYPES_SIMPLE_CTE_EXPECTED':                           SELECT_ACCELERATOR_TYPES_SIMPLE_CTE_EXPECTED,
     'SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS_EXPECTED':      SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS_EXPECTED,
     'SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS_SIMPLE':        SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS_SIMPLE,
     'SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS_TRANSPARENT':   SELECT_ANALYTICS_CACHE_GITHUB_REPOSITORIES_COLLABORATORS_TRANSPARENT,

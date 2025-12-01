@@ -104,6 +104,66 @@ Google AcceleratorTypes SQL verb pre changeover
     ...    ${SELECT_ACCELERATOR_TYPES_DESC}
     ...    ${SELECT_ACCELERATOR_TYPES_DESC_EXPECTED}
 
+Window Function ROW_NUMBER Over AcceleratorTypes
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${SELECT_ACCELERATOR_TYPES_ROW_NUMBER}
+    ...    ${SELECT_ACCELERATOR_TYPES_ROW_NUMBER_EXPECTED}
+
+Window Function SUM OVER All AcceleratorTypes
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${SELECT_ACCELERATOR_TYPES_SUM_OVER}
+    ...    ${SELECT_ACCELERATOR_TYPES_SUM_OVER_EXPECTED}
+
+Window Function Running SUM Over AcceleratorTypes
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${SELECT_ACCELERATOR_TYPES_RUNNING_SUM}
+    ...    ${SELECT_ACCELERATOR_TYPES_RUNNING_SUM_EXPECTED}
+
+Window Function RANK Over AcceleratorTypes
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${SELECT_ACCELERATOR_TYPES_RANK}
+    ...    ${SELECT_ACCELERATOR_TYPES_RANK_EXPECTED}
+
+CTE Simple Select Over AcceleratorTypes
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${SELECT_ACCELERATOR_TYPES_SIMPLE_CTE}
+    ...    ${SELECT_ACCELERATOR_TYPES_SIMPLE_CTE_EXPECTED}
+
 Google Machine Types Select Paginated
     Should Horrid Query StackQL Inline Equal
     ...    ${STACKQL_EXE}
