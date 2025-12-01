@@ -638,6 +638,11 @@ func inferColNameFromExpr(
 			retVal.IsAggregateExpr = true
 			retVal.Type = aggCol.getReturnType()
 		}
+		// Window functions (with OVER clause) are computed expressions
+		// that don't need to be resolved from underlying tables/CTEs
+		if expr.Over != nil {
+			retVal.IsAggregateExpr = true
+		}
 		if len(funcNameLowered) >= 4 && funcNameLowered[0:4] == "json" {
 			decoratedColumn := strings.ReplaceAll(retVal.Name, `\"`, `"`)
 			retVal.DecoratedColumn = getDecoratedColRendition(decoratedColumn, alias)
