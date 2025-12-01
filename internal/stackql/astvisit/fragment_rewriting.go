@@ -905,6 +905,9 @@ func (v *standardFragmentRewriteAstVisitor) Visit(node sqlparser.SQLNode) error 
 			buf.WriteString(funcName)
 		}
 		buf.AstPrintf(node, "(%s%v)", distinct, node.Exprs)
+		if node.Over != nil {
+			buf.AstPrintf(node, " %v", node.Over)
+		}
 		v.rewrittenQuery = buf.String()
 
 	case *sqlparser.GroupConcatExpr:
