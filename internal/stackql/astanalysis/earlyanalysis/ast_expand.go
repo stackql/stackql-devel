@@ -185,10 +185,10 @@ func (v *indirectExpandAstVisitor) IsReadOnly() bool {
 func (v *indirectExpandAstVisitor) processCTEReference(
 	node *sqlparser.AliasedTableExpr,
 	tableName string,
-) (bool, error) {
+) bool {
 	cteSubquery, isCTE := v.cteRegistry[tableName]
 	if !isCTE {
-		return false, nil
+		return false
 	}
 	// Use the CTE name as the effective alias if no explicit alias is set
 	effectiveAlias := node.As.GetRawVal()
@@ -203,13 +203,50 @@ func (v *indirectExpandAstVisitor) processCTEReference(
 	sq := internaldto.NewSubqueryDTO(syntheticExpr, cteSubquery)
 	indirect, err := astindirect.NewSubqueryIndirect(sq)
 	if err != nil {
-		return true, nil //nolint:nilerr //TODO: investigate
+		return true //nolint:nilerr //TODO: investigate
 	}
-	err = v.processIndirect(syntheticExpr, indirect)
-	if err != nil {
-		return true, nil //nolint:nilerr //TODO: investigate
+	_ = v.processIndirect(syntheticExpr, indirect) //nolint:errcheck // errors handled via indirect pattern
+	return true
+}
+
+// visitAliasedTableExpr handles visiting an AliasedTableExpr node, including
+// subqueries, CTE references, and regular table expressions.
+func (v *indirectExpandAstVisitor) visitAliasedTableExpr(node *sqlparser.AliasedTableExpr) error {
+	if node.Expr != nil {
+		switch n := node.Expr.(type) { //nolint:gocritic // switch preferred for type assertions
+		case *sqlparser.Subquery:
+			sq := internaldto.NewSubqueryDTO(node, n)
+			indirect, err := astindirect.NewSubqueryIndirect(sq)
+			if err != nil {
+				return nil //nolint:nilerr //TODO: investigate
+			}
+			_ = v.processIndirect(node, indirect) //nolint:errcheck // errors handled via indirect pattern
+			return nil
+		case sqlparser.TableName:
+			if v.processCTEReference(node, n.GetRawVal()) {
+				return nil
+			}
+		}
+		if err := node.Expr.Accept(v); err != nil {
+			return err
+		}
 	}
-	return true, nil
+	if node.Partitions != nil {
+		if err := node.Partitions.Accept(v); err != nil {
+			return err
+		}
+	}
+	if !node.As.IsEmpty() {
+		if err := node.As.Accept(v); err != nil {
+			return err
+		}
+	}
+	if node.Hints != nil {
+		if err := node.Hints.Accept(v); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (v *indirectExpandAstVisitor) ContainsAnalyticsCacheMaterial() bool {
@@ -813,52 +850,8 @@ func (v *indirectExpandAstVisitor) Visit(node sqlparser.SQLNode) error {
 		}
 
 	case *sqlparser.AliasedTableExpr:
-		if node.Expr != nil {
-			//nolint:gocritic // deferring cosmetics on visitors
-			switch n := node.Expr.(type) {
-			case *sqlparser.Subquery:
-				sq := internaldto.NewSubqueryDTO(node, n)
-				indirect, err := astindirect.NewSubqueryIndirect(sq)
-				if err != nil {
-					return nil //nolint:nilerr //TODO: investigate
-				}
-				err = v.processIndirect(node, indirect)
-				if err != nil {
-					return nil //nolint:nilerr //TODO: investigate
-				}
-				return nil
-			case sqlparser.TableName:
-				// Check if this table name is a CTE reference
-				processed, err := v.processCTEReference(node, n.GetRawVal())
-				if err != nil {
-					return err
-				}
-				if processed {
-					return nil
-				}
-			}
-			err := node.Expr.Accept(v)
-			if err != nil {
-				return err
-			}
-		}
-		if node.Partitions != nil {
-			err := node.Partitions.Accept(v)
-			if err != nil {
-				return err
-			}
-		}
-		if !node.As.IsEmpty() {
-			err := node.As.Accept(v)
-			if err != nil {
-				return err
-			}
-		}
-		if node.Hints != nil {
-			err := node.Hints.Accept(v)
-			if err != nil {
-				return err
-			}
+		if err := v.visitAliasedTableExpr(node); err != nil {
+			return err
 		}
 
 	case sqlparser.TableNames:
