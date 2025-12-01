@@ -947,6 +947,7 @@ func (v *standardQueryRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 		node.Distinct = newNode.Distinct
 		node.Exprs = newNode.Exprs
 		node.Name = newNode.Name
+		node.Over = newNode.Over // Preserve window function OVER clause
 		if node.Distinct {
 		}
 		if !node.Qualifier.IsEmpty() {

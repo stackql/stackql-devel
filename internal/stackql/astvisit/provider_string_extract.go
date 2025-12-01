@@ -886,6 +886,7 @@ func (v *standardProviderStringAstVisitor) Visit(node sqlparser.SQLNode) error {
 		node.Distinct = newNode.Distinct
 		node.Exprs = newNode.Exprs
 		node.Name = newNode.Name
+		node.Over = newNode.Over // Preserve window function OVER clause
 		var distinct string
 		if node.Distinct {
 			distinct = "distinct "

@@ -1987,7 +1987,13 @@ func (node *WindowSpec) Format(buf *TrackedBuffer) {
 		if needsSpace {
 			buf.WriteString(" ")
 		}
-		buf.astPrintf(node, "order by %v", node.OrderBy)
+		// Don't use %v for OrderBy as OrderBy.Format adds its own "order by" prefix
+		buf.WriteString("order by ")
+		prefix := ""
+		for _, n := range node.OrderBy {
+			buf.astPrintf(node, "%s%v", prefix, n)
+			prefix = ", "
+		}
 		needsSpace = true
 	}
 	if node.Frame != nil {
