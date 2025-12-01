@@ -676,7 +676,8 @@ func inferColNameFromExpr(
 					exprsDecorated = append(exprsDecorated, rv.DecoratedColumn)
 				}
 			}
-			decoratedColumn := fmt.Sprintf("%s(%s)", funcNameLowered, strings.Join(exprsDecorated, ", "))
+			// Use astformat.String to include OVER clause for window functions
+			decoratedColumn := astformat.String(expr, formatter)
 			if retVal.Name != constants.SQLFuncJSONExtractPostgres {
 				retVal.DecoratedColumn = getDecoratedColRendition(decoratedColumn, alias)
 			}
