@@ -678,6 +678,10 @@ func inferColNameFromExpr(
 							rv.DecoratedColumn = fmt.Sprintf(`%s%s`, rv.DecoratedColumn, constants.PostgresJSONCastSuffix)
 						}
 					}
+					// Propagate aggregate status from arguments
+					if rv.IsAggregateExpr {
+						retVal.IsAggregateExpr = true
+					}
 					exprsDecorated = append(exprsDecorated, rv.DecoratedColumn)
 				}
 			}
@@ -798,6 +802,23 @@ func inferColNameFromExpr(
 				retVal.DecoratedColumn = strings.ReplaceAll(retVal.DecoratedColumn, `\"`, `"`)
 				return retVal, nil
 			}
+		}
+	case *sqlparser.BinaryExpr:
+		// Binary expressions (arithmetic, etc.) are computed expressions
+		decoratedColumn := astformat.String(expr, formatter)
+		retVal.DecoratedColumn = getDecoratedColRendition(decoratedColumn, alias)
+		// Check if either operand contains aggregate/window functions
+		lhsRetval, _ := inferColNameFromExpr(expr.Left, formatter, "")
+		rhsRetval, _ := inferColNameFromExpr(expr.Right, formatter, "")
+		// If either side is an aggregate expression, the whole binary expr is computed
+		if lhsRetval.IsAggregateExpr || rhsRetval.IsAggregateExpr {
+			retVal.IsAggregateExpr = true
+		}
+		// Try to get a name from either operand for reference
+		if lhsRetval.Name != "" {
+			retVal.Name = lhsRetval.Name
+		} else if rhsRetval.Name != "" {
+			retVal.Name = rhsRetval.Name
 		}
 	default:
 		decoratedColumn := astformat.String(expr, formatter)
