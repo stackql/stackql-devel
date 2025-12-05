@@ -376,7 +376,7 @@ MCP HTTPS Server JSON DTO Meta Get Foreign Keys
     ...    \-\-client\-cfg
     ...    { "apply_tls_globally": true, "insecure_skip_verify": true, "ca_file": "test/server/mtls/credentials/pg_server_cert.pem", "promote_leaf_to_ca": true }
     ...    \-\-exec.action
-    ...    meta.get_foreign_keys
+    ...    get_foreign_keys
     ...    \-\-exec.args
     ...    {"provider":"google","service":"cloudresourcemanager","resource":"projects"}
     ...    stdout=${CURDIR}${/}tmp${/}MCP-HTTPS-meta-get-foreign-keys.txt
@@ -395,7 +395,7 @@ MCP HTTPS Server JSON DTO Meta Find Relationships
     ...    \-\-client\-cfg
     ...    { "apply_tls_globally": true, "insecure_skip_verify": true, "ca_file": "test/server/mtls/credentials/pg_server_cert.pem", "promote_leaf_to_ca": true }
     ...    \-\-exec.action
-    ...    meta.find_relationships
+    ...    find_relationships
     ...    \-\-exec.args
     ...    {"provider":"google","service":"cloudresourcemanager","resource":"projects"}
     ...    stdout=${CURDIR}${/}tmp${/}MCP-HTTPS-meta-find-relationships.txt
