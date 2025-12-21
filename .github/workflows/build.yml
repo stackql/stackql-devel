@@ -761,6 +761,16 @@ jobs:
           rv="$?"
           echo "**some** traffic light robot integration tests failed code = $rv"
         fi
+
+    - name: Output from traffic lights integration tests
+      if: always()
+      run: |
+        cat ./test/robot/reports-integration-traffic-lights/output.xml
+
+    - name: Output from traffic lights tmp dir
+      if: always()
+      run: |
+        cat ./test/robot/integration-traffic-lights/tmp/*
     
     - name: Prepare Test DB
       if: success() && matrix.registry != 'test/registry'
