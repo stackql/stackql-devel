@@ -1178,6 +1178,12 @@ paths:
         required: true
         schema:
           $ref: '#/components/schemas/BucketName'
+      - name: x-amz-content-sha256
+        in: header
+        required: false
+        schema:
+          type: string
+          default: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
       - name: delimiter
         in: query
         required: false
@@ -15744,9 +15750,6 @@ components:
       properties:
         Buckets:
           type: array
-          xml:
-            wrapped: true
-            name: Buckets
           items:
             allOf:
               - $ref: "#/components/schemas/Bucket"
@@ -23116,6 +23119,7 @@ components:
           response:
             mediaType: text/xml
             openAPIDocKey: '200'
+            objectKey: /*/Contents
         put_object:
           operation:
             $ref: '#/paths/~1{Bucket}~1{Key+}?x-id=PutObject/put'
