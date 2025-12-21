@@ -4833,6 +4833,12 @@ paths:
         required: true
         schema:
           $ref: '#/components/schemas/BucketName'
+      - name: x-amz-content-sha256
+        in: header
+        required: false
+        schema:
+          type: string
+          default: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
       - name: x-amz-expected-bucket-owner
         in: header
         required: false
@@ -6515,10 +6521,9 @@ paths:
       parameters:
       - name: region
         in: query
-        # required: true
+        required: true
         schema:
           type: string
-          default: us-east-1
       - name: x-amz-content-sha256
         in: header
         required: false
