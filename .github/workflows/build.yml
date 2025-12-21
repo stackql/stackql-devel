@@ -743,7 +743,7 @@ jobs:
         python cicd/python/build.py --robot-test-integration
     
     - name: Run traffic light robot integration tests
-      if: (startsWith(env.STATE_SOURCE_TAG, 'build-traffic-lights') || (github.repository == 'stackql/stackql' && github.event_name == 'push' && github.ref == 'refs/heads/main')) && matrix.registry == 'test/registry'
+      if: (startsWith(github.ref_name, 'build-traffic-lights') && github.ref_type == 'tag') || (github.repository == 'stackql/stackql' && github.event_name == 'push' && github.ref == 'refs/heads/main')) && matrix.registry == 'test/registry'
       env:
         AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
