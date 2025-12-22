@@ -680,9 +680,13 @@ jobs:
             sudo nginx -c "$(pwd)/test/tcp/reverse-proxy/nginx/dynamic-sni-proxy.conf"
           fi
 
-    - name: Install AWS CLI
-      uses: unconventionaldotdev/setup-awscli@main 
-    
+    - id: install-aws-cli
+      uses: unfor19/install-aws-cli-action@v1
+      with:
+        version: 2                         # default
+        verbose: false                     # default
+        arch: amd64                        # allowed values: amd64, x86, x64, arm, arm64
+        
     - name: Run traffic light robot integration tests
       if: ((startsWith(github.ref_name, 'build-traffic-lights') && github.ref_type == 'tag') || (github.repository == 'stackql/stackql' && github.event_name == 'push' && github.ref == 'refs/heads/main')) && matrix.registry == 'test/registry'
       env:
