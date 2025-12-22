@@ -690,6 +690,12 @@ jobs:
         version: 2                         # default
         verbose: false                     # default
         arch: amd64                        # allowed values: amd64, x86, x64, arm, arm64
+
+    - name: Create certificates for robot tests
+      run: |
+        openssl req -x509 -keyout test/server/mtls/credentials/pg_server_key.pem -out test/server/mtls/credentials/pg_server_cert.pem -config test/server/mtls/openssl.cnf -days 365
+        openssl req -x509 -keyout test/server/mtls/credentials/pg_client_key.pem -out test/server/mtls/credentials/pg_client_cert.pem -config test/server/mtls/openssl.cnf -days 365
+        openssl req -x509 -keyout test/server/mtls/credentials/pg_rubbish_key.pem -out test/server/mtls/credentials/pg_rubbish_cert.pem -config test/server/mtls/openssl.cnf -days 365 
         
     - name: Run traffic light robot integration tests
       if: ((startsWith(github.ref_name, 'build-traffic-lights') && github.ref_type == 'tag') || (github.repository == 'stackql/stackql' && github.event_name == 'push' && github.ref == 'refs/heads/main')) && matrix.registry == 'test/registry'
@@ -725,7 +731,7 @@ jobs:
     - name: Output from traffic lights tmp dir
       if: env.TRAFFIC_LIGHTS_COMPLETED == 'true'
       run: |
-        cat ./test/robot/integration-traffic-lights/tmp/*
+        cat ./test/robot/integration-traffic-lights/tmp/* || true
     
     - name: Generate rewritten registry for simulations
       if: ${{ matrix.registry  != 'test/registry' }}
