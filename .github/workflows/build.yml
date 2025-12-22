@@ -762,14 +762,17 @@ jobs:
           rv="$?"
           echo "**some** traffic light robot integration tests failed code = $rv"
         fi
+        {
+          echo "TRAFFIC_LIGHTS_COMPLETED=true"
+        } >> "$GITHUB_ENV"
 
     - name: Output from traffic lights integration tests
-      if: always()
+      if: env.TRAFFIC_LIGHTS_COMPLETED == 'true'
       run: |
         cat ./test/robot/reports-integration-traffic-lights/output.xml
 
     - name: Output from traffic lights tmp dir
-      if: always()
+      if: env.TRAFFIC_LIGHTS_COMPLETED == 'true'
       run: |
         cat ./test/robot/integration-traffic-lights/tmp/*
     
