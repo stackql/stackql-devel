@@ -679,6 +679,40 @@ jobs:
             sudo apt-get install nginx
             sudo nginx -c "$(pwd)/test/tcp/reverse-proxy/nginx/dynamic-sni-proxy.conf"
           fi
+    
+    - name: Run traffic light robot integration tests
+      if: ((startsWith(github.ref_name, 'build-traffic-lights') && github.ref_type == 'tag') || (github.repository == 'stackql/stackql' && github.event_name == 'push' && github.ref == 'refs/heads/main')) && matrix.registry == 'test/registry'
+      env:
+        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        AZURE_INTEGRATION_TESTING_SUB_ID: ${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}
+        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        GODEBUG: http2client=0
+      run: |
+        echo "## Stray flask apps to be killed before robot tests ##"
+        pgrep -f flask | xargs kill -9 || true
+        echo "## End ##"
+        if python cicd/python/build.py --robot-test-traffic-lights-integration; then
+          echo "Traffic light robot integration tests **all** passed"
+        else
+          rv="$?"
+          echo "**some** traffic light robot integration tests failed code = $rv"
+        fi
+        {
+          echo "TRAFFIC_LIGHTS_COMPLETED=true"
+        } >> "$GITHUB_ENV"
+
+    - name: Output from traffic lights integration tests
+      if: env.TRAFFIC_LIGHTS_COMPLETED == 'true'
+      run: |
+        cat ./test/robot/reports-integration-traffic-lights/output.xml
+
+    - name: Output from traffic lights tmp dir
+      if: env.TRAFFIC_LIGHTS_COMPLETED == 'true'
+      run: |
+        cat ./test/robot/integration-traffic-lights/tmp/*
 
     - name: Install Python dependencies
       run: |
@@ -741,40 +775,6 @@ jobs:
         pgrep -f flask | xargs kill -9 || true
         echo "## End ##"
         python cicd/python/build.py --robot-test-integration
-    
-    - name: Run traffic light robot integration tests
-      if: ((startsWith(github.ref_name, 'build-traffic-lights') && github.ref_type == 'tag') || (github.repository == 'stackql/stackql' && github.event_name == 'push' && github.ref == 'refs/heads/main')) && matrix.registry == 'test/registry'
-      env:
-        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        AZURE_INTEGRATION_TESTING_SUB_ID: ${{ secrets.AZURE_INTEGRATION_TESTING_SUB_ID }}
-        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        GODEBUG: http2client=0
-      run: |
-        echo "## Stray flask apps to be killed before robot tests ##"
-        pgrep -f flask | xargs kill -9 || true
-        echo "## End ##"
-        if python cicd/python/build.py --robot-test-traffic-lights-integration; then
-          echo "Traffic light robot integration tests **all** passed"
-        else
-          rv="$?"
-          echo "**some** traffic light robot integration tests failed code = $rv"
-        fi
-        {
-          echo "TRAFFIC_LIGHTS_COMPLETED=true"
-        } >> "$GITHUB_ENV"
-
-    - name: Output from traffic lights integration tests
-      if: env.TRAFFIC_LIGHTS_COMPLETED == 'true'
-      run: |
-        cat ./test/robot/reports-integration-traffic-lights/output.xml
-
-    - name: Output from traffic lights tmp dir
-      if: env.TRAFFIC_LIGHTS_COMPLETED == 'true'
-      run: |
-        cat ./test/robot/integration-traffic-lights/tmp/*
     
     - name: Prepare Test DB
       if: success() && matrix.registry != 'test/registry'
