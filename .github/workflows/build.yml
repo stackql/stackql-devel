@@ -679,6 +679,9 @@ jobs:
             sudo apt-get install nginx
             sudo nginx -c "$(pwd)/test/tcp/reverse-proxy/nginx/dynamic-sni-proxy.conf"
           fi
+
+    - name: Install AWS CLI
+      uses: unconventionaldotdev/setup-awscli@main 
     
     - name: Run traffic light robot integration tests
       if: ((startsWith(github.ref_name, 'build-traffic-lights') && github.ref_type == 'tag') || (github.repository == 'stackql/stackql' && github.event_name == 'push' && github.ref == 'refs/heads/main')) && matrix.registry == 'test/registry'
@@ -691,6 +694,13 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         GODEBUG: netdns=go
       run: |
+        cliResult="$(aws s3 ls s3://stackql-trial-bucket-02 --region ap-southeast-2)" # 'stackql-trial-bucket-02' and region = 'ap-southeast-2'
+        echo "AWS CLI S3 List Result: $cliResult"
+        if [[ "$cliResult" == *"stackql-trial-bucket-02"* ]]; then
+          echo "AWS CLI is working correctly."
+        else
+          echo "AWS CLI is not working correctly."
+        fi
         echo "## Stray flask apps to be killed before robot tests ##"
         pgrep -f flask | xargs kill -9 || true
         echo "## End ##"
