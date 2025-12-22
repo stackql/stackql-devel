@@ -714,19 +714,19 @@ jobs:
           echo "TRAFFIC_LIGHTS_COMPLETED=true"
         } >> "$GITHUB_ENV"
 
+    - name: Install Python dependencies
+      run: |
+        pip3 install -r cicd/requirements.txt
+
     - name: Output from traffic lights integration tests
       if: env.TRAFFIC_LIGHTS_COMPLETED == 'true'
       run: |
-        cat ./test/robot/reports-integration-traffic-lights/output.xml
+        cat ./test/robot/reports-integration-traffic-lights/output.xml || true
 
     - name: Output from traffic lights tmp dir
       if: env.TRAFFIC_LIGHTS_COMPLETED == 'true'
       run: |
         cat ./test/robot/integration-traffic-lights/tmp/*
-
-    - name: Install Python dependencies
-      run: |
-        pip3 install -r cicd/requirements.txt
     
     - name: Generate rewritten registry for simulations
       if: ${{ matrix.registry  != 'test/registry' }}
