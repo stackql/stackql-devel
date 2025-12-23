@@ -929,6 +929,7 @@ func (pb *standardPrimitiveGenerator) AnalyzePGInternal(
 	return fmt.Errorf("cannot execute PG internal")
 }
 
+//nolint:funlen,gocognit // TODO: refactor
 func (pb *standardPrimitiveGenerator) expandTable(
 	tbl tablemetadata.ExtendedTableMetadata) error {
 	if viewIndirect, isView := tbl.GetIndirect(); isView {
