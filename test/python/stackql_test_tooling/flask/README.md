@@ -15,7 +15,7 @@ pgrep -f flask | xargs kill -9
 
 ### To Run
 
-In order to get the environmental variables required, you can go to the repository root ans then `source cicd/scripts/context.sh`, or set manually; hopefully self-explanatory.
+In order to get the environmental variables required, you can go to the repository root and then `source cicd/scripts/context.sh`, or set manually; hopefully self-explanatory.
 
 GCP mocks:
 

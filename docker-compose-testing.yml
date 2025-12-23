@@ -1,0 +1,55 @@
+
+   
+services:
+  credentialsgen:
+    restart: "no"
+    image: stackql/testlib
+    build:
+      context: .
+      dockerfile: testLib.Dockerfile
+      # cache_from: 
+      #   - stackql/testlib
+    volumes:
+      - ./test/server/mtls/credentials:/opt/stackql/srv/credentials:rw
+    command: 
+      - bash
+      - -c
+      - |
+        openssl req -x509 -keyout /opt/stackql/srv/credentials/pg_server_key.pem -out /opt/stackql/srv/credentials/pg_server_cert.pem  -config /opt/test/stackql/test/server/mtls/openssl.cnf -days 365 \
+        && openssl req -x509 -keyout /opt/stackql/srv/credentials/pg_client_key.pem -out  /opt/stackql/srv/credentials/pg_client_cert.pem  -config /opt/test/stackql/test/server/mtls/openssl.cnf -days 365 \
+        && openssl req -x509 -keyout /opt/stackql/srv/credentials/pg_rubbish_key.pem -out /opt/stackql/srv/credentials/pg_rubbish_cert.pem -config /opt/test/stackql/test/server/mtls/openssl.cnf -days 365
+  google_mockserver:
+    networks:
+      testing-network:
+        aliases:
+          - googleapis.com
+    image: stackql/testlib
+    hostname: google_mock_server
+    build:
+      context: .
+      dockerfile: testLib.Dockerfile
+      # cache_from: 
+      #   - stackql/testlib
+    volumes:
+      - ./test/server/mtls/credentials:/opt/testlib/test/server/mtls/credentials:ro
+    ports:
+      - "1093:1093/tcp"
+    depends_on:
+      - credentialsgen
+    command: 
+      - bash
+      - -c
+      - |
+        flask \
+        --app=/opt/testlib/test/python/stackql_test_tooling/flask/github/app \
+        run \
+        --cert=/opt/testlib/test/server/mtls/credentials/pg_server_cert.pem \
+        --key=/opt/testlib/test/server/mtls/credentials/pg_server_key.pem \
+        --host 0.0.0.0 \
+        --port  \
+        1093
+
+networks:
+  testing-network:
+    driver: bridge
+
