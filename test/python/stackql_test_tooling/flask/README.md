@@ -50,7 +50,7 @@ flask --app=${REPOSITORY_ROOT}/test/python/stackql_test_tooling/flask/github/app
 Sumologic mocks:
 
 ```bash
-flask --app=${REPOSITORY_ROOT}/test/python/stackql_test_tooling/flask/okta/app run --cert=${REPOSITORY_ROOT}/test/server/mtls/credentials/pg_server_cert.pem --key=${REPOSITORY_ROOT}/test/server/mtls/credentials/pg_server_key.pem --host 0.0.0.0 --port 1096
+flask --app=${REPOSITORY_ROOT}/test/python/stackql_test_tooling/flask/sumologic/app run --cert=${REPOSITORY_ROOT}/test/server/mtls/credentials/pg_server_cert.pem --key=${REPOSITORY_ROOT}/test/server/mtls/credentials/pg_server_key.pem --host 0.0.0.0 --port 1096
 ```
 
 Digitalocean mocks:
@@ -63,6 +63,12 @@ flask --app=${REPOSITORY_ROOT}/test/python/stackql_test_tooling/flask/digitaloce
 
 ```bash
 flask --app=${REPOSITORY_ROOT}/test/python/stackql_test_tooling/flask/googleadmin/app run --cert=${REPOSITORY_ROOT}/test/server/mtls/credentials/pg_server_cert.pem --key=${REPOSITORY_ROOT}/test/server/mtls/credentials/pg_server_key.pem --host 0.0.0.0 --port 1098
+```
+
+`k8s` mocks:
+
+```bash
+flask --app=${REPOSITORY_ROOT}/test/python/stackql_test_tooling/flask/k8s/app run --cert=${REPOSITORY_ROOT}/test/server/mtls/credentials/pg_server_cert.pem --key=${REPOSITORY_ROOT}/test/server/mtls/credentials/pg_server_key.pem --host 0.0.0.0 --port 1092
 ```
 
 stackql auth testing mocks:
