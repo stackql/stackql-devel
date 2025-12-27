@@ -45788,7 +45788,7 @@ components:
               type: 'golang_template_mxj_v0.1.0'
       sqlVerbs:
         select:
-          - $ref: '#/components/x-stackQL-resources/volumes/methods/describeVolumes'
+          - $ref: '#/components/x-stackQL-resources/volumes_presented/methods/describeVolumes'
         insert: []
         update: []
         delete: []
@@ -45851,7 +45851,7 @@ components:
               type: 'golang_template_mxj_v0.1.999'
       sqlVerbs:
         select:
-          - $ref: '#/components/x-stackQL-resources/volumes/methods/describeVolumes'
+          - $ref: '#/components/x-stackQL-resources/volumes_poorly_presented/methods/describeVolumes'
         insert: []
         update: []
         delete: []

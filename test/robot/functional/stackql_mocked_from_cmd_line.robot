@@ -646,6 +646,26 @@ AWS S3 Bucket ABAC Update Exemplifies Transformed Request Body and nil Response 
     ...    stdout=${CURDIR}/tmp/AWS-S3-Bucket-ABAC-Update-Exemplifies-Transformed-Request-Body-and-nil-Response-Body.tmp
     ...    stderr=${CURDIR}/tmp/AWS-S3-Bucket-ABAC-Update-Exemplifies-Transformed-Request-Body-and-nil-Response-Body-stderr.tmp
 
+Obsolete AWS S3 Bucket ABAC Update Exemplifies Disallowed Transformed Request Body and nil Response Body
+    ${inputStr} =    Catenate
+    ...              update aws.s3.bucket_abac_rubbish 
+    ...              set "Status" = 'Enabled' 
+    ...              where "Bucket" = 'my-bucket' 
+    ...              and region = 'ap-southeast-1';
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${EMPTY}
+    ...    unsupported template type: golang_template_text_v0.1.999
+    ...    stdout=${CURDIR}/tmp/Obsolete-AWS-S3-Bucket-ABAC-Update-Exemplifies-Disallowed-Transformed-Request-Body-and-nil-Response-Body.tmp
+    ...    stderr=${CURDIR}/tmp/Obsolete-AWS-S3-Bucket-ABAC-Update-Exemplifies-Disallowed-Transformed-Request-Body-and-nil-Response-Body-stderr.tmp
+
 AWS Transfer Servers Update Simple Exemplifies Non Null Response Body and Non Null Request Body Update
     ${inputStr} =    Catenate
     ...              update aws.transfer.servers 
