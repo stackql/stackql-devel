@@ -2000,6 +2000,18 @@ Registry Pull Google Provider Specific Version
     ...    registry pull google v0.1.2 ; 
     ...    successfully installed
 
+Registry Pull Google Provider Advanced Version
+    Should Stackql Exec Inline Contain Stderr
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_MOCKED_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    registry pull google v0.2.1 ; 
+    ...    successfully installed
+
 Basic Floating Point Projection Display Plus Bearer And User Password Auth Encoding
     Should Stackql Exec Inline Contain
     ...    ${STACKQL_EXE}

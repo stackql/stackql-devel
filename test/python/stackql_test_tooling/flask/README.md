@@ -133,4 +133,10 @@ There are some decent examples in vendor documentation, eg:
 
 - [Azure vendor documenation](https://learn.microsoft.com/en-us/rest/api/azure/).
 
+## Preparing mock registry entries
 
+```bash
+
+tar -czvf <name>.tgz <source dir>
+
+```
