@@ -7831,6 +7831,23 @@ Select Star From Transformed XML Response Body
     ...    stdout=${CURDIR}/tmp/Select-Star-From-Transformed-XML-Response-Body.tmp
     ...    stderr=${CURDIR}/tmp/Select-Star-From-Transformed-XML-Response-Body-stderr.tmp
 
+Select Leveraging Unsupported Transform Does Not Cause a Crash
+    ${inputStr} =    Catenate
+    ...    select * from aws.ec2.volumes_poorly_presented where region = 'ap-southeast-2' order by volume_id;
+    Should Stackql Exec Inline Equal Both Streams
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${EMPTY}
+    ...    error processing response: invalid character '<' looking for beginning of value
+    ...    stdout=${CURDIR}/tmp/Select-Star-From-Transformed-XML-Response-Body.tmp
+    ...    stderr=${CURDIR}/tmp/Select-Star-From-Transformed-XML-Response-Body-stderr.tmp
+
 Select Projection From Transformed XML Response Body
     ${inputStr} =    Catenate
     ...    select volume_id, create_time, region, size from aws.ec2.volumes_presented where region = 'ap-southeast-2'  order by volume_id;
