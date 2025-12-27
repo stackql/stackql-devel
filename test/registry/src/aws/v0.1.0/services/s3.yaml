@@ -22151,7 +22151,6 @@ components:
           operation:
             $ref: '#/paths/~1?abac/put'
           response:
-            mediaType: application/json
             openAPIDocKey: '200'
           request:
             mediaType: application/xml

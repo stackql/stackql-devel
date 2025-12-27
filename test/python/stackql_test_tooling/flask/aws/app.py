@@ -217,7 +217,7 @@ def handle_bucket_abac_put_enabled_request():
     if 'abac' not in request.args:
         return generic_handler(request)
 
-    target_xml = b'<AbacStatus xmlns="s3.amazonaws.com"><Status>Enabled</Status></AbacStatus>'
+    target_xml = b'<AbacStatus xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Status>Enabled</Status></AbacStatus>'
     
     raw_body = request.get_data()
 
