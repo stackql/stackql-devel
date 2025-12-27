@@ -127,12 +127,18 @@ var shellCmd = &cobra.Command{
 		iqlerror.PrintErrorAndExitOneIfError(err)
 		inputBundle.WithStdOut(outfile).WithStdErr(outErrFile)
 
-		handlerCtx, handlerrErr := handler.NewHandlerCtx("", runtimeCtx, queryCache, inputBundle)
+		handlerCtx, handlerrErr := handler.NewHandlerCtx(
+			"",
+			runtimeCtx,
+			queryCache,
+			inputBundle,
+			getSemver(),
+		)
 		if handlerrErr != nil {
 			fmt.Fprintln( //nolint:gosimple // legacy
 				outErrFile,
 				fmt.Sprintf(
-					"Error setting up handler context for provider '%s': \"%s\"",
+					"Error setting up handler context for provider '%s': \"%s\"\n",
 					runtimeCtx.ProviderStr, handlerrErr))
 		}
 		var authCtx *dto.AuthCtx

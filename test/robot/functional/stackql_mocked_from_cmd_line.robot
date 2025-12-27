@@ -1989,7 +1989,7 @@ Registry List Google Provider
     ...    ${REGISTRY_GOOGLE_PROVIDER_LIST_EXPECTED}
 
 Registry Pull Google Provider Specific Version
-    Should Stackql Exec Inline Contain Stderr
+    Should Stackql Exec Inline Equal Stderr
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
     ...    ${GITHUB_SECRET_STR}
@@ -1998,7 +1998,7 @@ Registry Pull Google Provider Specific Version
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    registry pull google v0.1.2 ; 
-    ...    successfully installed
+    ...    google provider, version 'v0.1.2' successfully installed
 
 Registry Pull Google Provider Advanced Version
     Should Stackql Exec Inline Contain Stderr
@@ -2010,7 +2010,7 @@ Registry Pull Google Provider Advanced Version
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    registry pull google v0.2.1 ; 
-    ...    successfully installed
+    ...    requires minimum stackql version
 
 Basic Floating Point Projection Display Plus Bearer And User Password Auth Encoding
     Should Stackql Exec Inline Contain
