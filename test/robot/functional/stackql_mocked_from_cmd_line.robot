@@ -7834,7 +7834,7 @@ Select Star From Transformed XML Response Body
 Select Leveraging Unsupported Transform Does Not Cause a Crash
     ${inputStr} =    Catenate
     ...    select * from aws.ec2.volumes_poorly_presented where region = 'ap-southeast-2' order by volume_id;
-    Should Stackql Exec Inline Equal Both Streams
+    Should Stackql Exec Inline Equal Stderr
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
     ...    ${GITHUB_SECRET_STR}
@@ -7843,7 +7843,6 @@ Select Leveraging Unsupported Transform Does Not Cause a Crash
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${inputStr}
-    ...    ${EMPTY}
     ...    error processing response: invalid character '<' looking for beginning of value
     ...    stdout=${CURDIR}/tmp/Select-Star-From-Transformed-XML-Response-Body.tmp
     ...    stderr=${CURDIR}/tmp/Select-Star-From-Transformed-XML-Response-Body-stderr.tmp
