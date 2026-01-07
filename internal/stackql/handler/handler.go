@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path"
 	"strings"
@@ -104,6 +105,9 @@ type HandlerContext interface { //nolint:revive // don't mind stuttering this on
 
 	//
 	SetConfigAtPath(path string, rhs interface{}, scope string) error
+
+	// for testing only
+	SetDefaultHTTPClient(client *http.Client)
 }
 
 type standardHandlerContext struct {
@@ -141,6 +145,12 @@ type standardHandlerContext struct {
 	walInstance         tsm.TSM
 	exportNamespace     string
 	stackqlSemver       string
+	defaultHTTPClient   *http.Client
+}
+
+// for testing only
+func (hc *standardHandlerContext) SetDefaultHTTPClient(client *http.Client) {
+	hc.defaultHTTPClient = client
 }
 
 func (hc *standardHandlerContext) GetDataFlowCfg() dto.DataFlowCfg {
@@ -337,7 +347,7 @@ func (hc *standardHandlerContext) GetProvider(providerName string) (provider.IPr
 		prov, err = provider.GenerateProvider(
 			hc.runtimeContext, ds.Name, ds.Tag,
 			hc.registry, hc.sqlSystem, hc.persistenceSystem,
-			nil,
+			hc.defaultHTTPClient,
 		)
 		if err == nil {
 			hc.providers[providerName] = prov
@@ -549,6 +559,7 @@ func (hc *standardHandlerContext) Clone() HandlerContext {
 		sessionContext:      hc.sessionContext,
 		exportNamespace:     hc.exportNamespace,
 		stackqlSemver:       hc.stackqlSemver,
+		defaultHTTPClient:   hc.defaultHTTPClient,
 	}
 	return &rv
 }

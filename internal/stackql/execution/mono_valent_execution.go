@@ -1081,7 +1081,8 @@ type standardProcessor struct {
 
 func NewProcessor(payload ProcessorPayload) Processor {
 	return &standardProcessor{
-		payload: payload,
+		payload:           payload,
+		defaultHTTPClient: payload.GetDefaultHTTPClient(),
 	}
 }
 
