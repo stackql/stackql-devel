@@ -79,7 +79,7 @@ type monoValentExecution struct {
 	isSkipResponse             bool
 	isMutation                 bool
 	isAwait                    bool
-	defaultHttpClient          *http.Client // for testing purposes only
+	defaultHTTPClient          *http.Client // for testing purposes only
 }
 
 func NewMonoValentExecutorFactory(
@@ -101,11 +101,11 @@ func NewMonoValentExecutorFactory(
 	if stream == nil {
 		stream = streaming.NewNopMapStream()
 	}
-	var defaultHttpClient *http.Client
+	var defaultHTTPClient *http.Client
 	if tableMeta != nil {
 		prov, provErr := tableMeta.GetProvider()
 		if provErr == nil && prov != nil {
-			defaultHttpClient = prov.GetDefaultHttpClient()
+			defaultHTTPClient = prov.GetDefaultHTTPClient()
 		}
 	}
 	return &monoValentExecution{
@@ -121,7 +121,7 @@ func NewMonoValentExecutorFactory(
 		isSkipResponse:             isSkipResponse,
 		isMutation:                 isMutation,
 		isAwait:                    isAwait,
-		defaultHttpClient:          defaultHttpClient,
+		defaultHTTPClient:          defaultHTTPClient,
 	}
 }
 
@@ -423,7 +423,7 @@ func page(
 	rtCtx dto.RuntimeCtx,
 	authCtx *dto.AuthCtx,
 	outErrFile io.Writer,
-	defaultHttpClient *http.Client,
+	defaultHTTPClient *http.Client,
 ) PagingState {
 	npt := inferNextPageResponseElement(provider, method)
 	nptRequest := inferNextPageRequestElement(provider, method)
@@ -439,7 +439,7 @@ func page(
 	if reqErr != nil {
 		return newPagingState(pageCount, true, nil, reqErr)
 	}
-	cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName(), defaultHttpClient)
+	cc := anysdk.NewAnySdkClientConfigurator(rtCtx, provider.GetName(), defaultHTTPClient)
 	response, apiErr := anysdk.CallFromSignature(
 		cc, rtCtx, authCtx, authCtx.Type, false, outErrFile, provider,
 		anysdk.NewAnySdkOpStoreDesignation(method),
@@ -600,7 +600,7 @@ type AgnosticatePayload interface {
 	IsSkipResponse() bool
 	IsMutation() bool
 	IsAwait() bool
-	GetDefaultHttpClient() *http.Client // testing purposes only
+	GetDefaultHTTPClient() *http.Client // testing purposes only
 }
 
 type httpAgnosticatePayload struct {
@@ -620,7 +620,7 @@ type httpAgnosticatePayload struct {
 	isSkipResponse          bool
 	isMutation              bool
 	isAwait                 bool
-	defaultHttpClient       *http.Client // testing purposes only
+	defaultHTTPClient       *http.Client // testing purposes only
 }
 
 func newHTTPAgnosticatePayload(
@@ -640,7 +640,7 @@ func newHTTPAgnosticatePayload(
 	isSkipResponse bool,
 	isMutation bool,
 	isAwait bool,
-	defaultHttpClient *http.Client,
+	defaultHTTPClient *http.Client,
 ) AgnosticatePayload {
 	return &httpAgnosticatePayload{
 		tableMeta:               tableMeta,
@@ -659,7 +659,7 @@ func newHTTPAgnosticatePayload(
 		isSkipResponse:          isSkipResponse,
 		isMutation:              isMutation,
 		isAwait:                 isAwait,
-		defaultHttpClient:       defaultHttpClient,
+		defaultHTTPClient:       defaultHTTPClient,
 	}
 }
 
@@ -667,8 +667,8 @@ func (ap *httpAgnosticatePayload) GetPolyHandler() PolyHandler {
 	return ap.polyHandler
 }
 
-func (ap *httpAgnosticatePayload) GetDefaultHttpClient() *http.Client {
-	return ap.defaultHttpClient
+func (ap *httpAgnosticatePayload) GetDefaultHTTPClient() *http.Client {
+	return ap.defaultHTTPClient
 }
 
 func (ap *httpAgnosticatePayload) IsAwait() bool {
@@ -778,7 +778,7 @@ func agnosticate(
 	isSkipResponse := agPayload.IsNilResponseAcceptable()
 	isMutation := agPayload.IsMutation()
 	isAwait := agPayload.IsAwait()
-	defaultHttpClient := agPayload.GetDefaultHttpClient()
+	defaultHTTPClient := agPayload.GetDefaultHTTPClient()
 	// TODO: TCC setup
 	armoury, armouryErr := agPayload.GetArmoury()
 	if armouryErr != nil {
@@ -832,7 +832,7 @@ func agnosticate(
 				false,
 				isMutation,
 				"",
-				defaultHttpClient,
+				defaultHTTPClient,
 			),
 		)
 		processorResponse = processor.Process()
@@ -861,7 +861,7 @@ type ProcessorPayload interface {
 	IsAwait() bool
 	IsReverseRequired() bool
 	GetVerb() string
-	GetDefaultHttpClient() *http.Client // testing purposes only
+	GetDefaultHTTPClient() *http.Client // testing purposes only
 }
 
 func NewProcessorPayload(
@@ -882,7 +882,7 @@ func NewProcessorPayload(
 	isReverseRequired bool,
 	isMutation bool,
 	verb string,
-	defaultHttpClient *http.Client,
+	defaultHTTPClient *http.Client,
 ) ProcessorPayload {
 	return &standardProcessorPayload{
 		armouryParams:         armouryParams,
@@ -902,7 +902,7 @@ func NewProcessorPayload(
 		isReverseRequired:     isReverseRequired,
 		isMutation:            isMutation,
 		verb:                  verb,
-		defaultHttpClient:     defaultHttpClient,
+		defaultHTTPClient:     defaultHTTPClient,
 	}
 }
 
@@ -924,7 +924,7 @@ type standardProcessorPayload struct {
 	isReverseRequired     bool
 	isMutation            bool
 	verb                  string
-	defaultHttpClient     *http.Client // testing purposes only
+	defaultHTTPClient     *http.Client // testing purposes only
 }
 
 func (pp *standardProcessorPayload) GetArmouryParams() anysdk.HTTPArmouryParameters {
@@ -935,8 +935,8 @@ func (pp *standardProcessorPayload) IsSkipResponse() bool {
 	return pp.isSkipResponse
 }
 
-func (pp *standardProcessorPayload) GetDefaultHttpClient() *http.Client {
-	return pp.defaultHttpClient
+func (pp *standardProcessorPayload) GetDefaultHTTPClient() *http.Client {
+	return pp.defaultHTTPClient
 }
 
 func (pp *standardProcessorPayload) IsAwait() bool {
@@ -1076,7 +1076,7 @@ type Processor interface {
 
 type standardProcessor struct {
 	payload           ProcessorPayload
-	defaultHttpClient *http.Client
+	defaultHTTPClient *http.Client
 }
 
 func NewProcessor(payload ProcessorPayload) Processor {
@@ -1119,7 +1119,7 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 		return newHTTPProcessorResponse(nil, reversalStream, false, nil)
 	}
 	// TODO: fix cloning ops
-	cc := anysdk.NewAnySdkClientConfigurator(runtimeCtx, provider.GetName(), sp.defaultHttpClient)
+	cc := anysdk.NewAnySdkClientConfigurator(runtimeCtx, provider.GetName(), sp.defaultHTTPClient)
 	response, apiErr := anysdk.CallFromSignature(
 		cc,
 		runtimeCtx,
@@ -1253,7 +1253,7 @@ func (sp *standardProcessor) Process() ProcessorResponse {
 			runtimeCtx,
 			authCtx,
 			outErrFile,
-			sp.defaultHttpClient,
+			sp.defaultHTTPClient,
 		)
 		httpResponse, httpResponseErr = pageResult.GetHTTPResponse()
 		// if httpResponse != nil && httpResponse.Body != nil {
@@ -1447,7 +1447,7 @@ func (mv *monoValentExecution) GetExecutor() (func(pc primitive.IPrimitiveCtx) i
 				mv.isSkipResponse,
 				mv.isMutation,
 				mv.isAwait,
-				mv.defaultHttpClient,
+				mv.defaultHTTPClient,
 			)
 			processorResponse, agnosticErr := agnosticate(agnosticatePayload)
 			if agnosticErr != nil {

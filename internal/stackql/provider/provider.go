@@ -40,7 +40,7 @@ type IProvider interface {
 
 	CheckCredentialFile(authCtx *dto.AuthCtx) error
 
-	GetDefaultHttpClient() *http.Client
+	GetDefaultHTTPClient() *http.Client
 
 	EnhanceMetadataFilter(
 		string,
@@ -108,6 +108,7 @@ type IProvider interface {
 	ShowAuth(authCtx *dto.AuthCtx) (*anysdk.AuthMetadata, error)
 }
 
+//nolint:revive // TODO: review
 func GenerateProvider(
 	runtimeCtx dto.RuntimeCtx,
 	providerStr,
@@ -115,11 +116,12 @@ func GenerateProvider(
 	reg anysdk.RegistryAPI,
 	sqlSystem sql_system.SQLSystem,
 	persistenceSystem sdk_persistence.PersistenceSystem,
-	defaultHttpClient *http.Client,
+	defaultHTTPClient *http.Client,
 ) (IProvider, error) {
 	switch providerStr { //nolint:gocritic // TODO: review
 	default:
-		return newGenericProvider(runtimeCtx, providerStr, providerVersion, reg, sqlSystem, persistenceSystem, defaultHttpClient)
+		return newGenericProvider(
+			runtimeCtx, providerStr, providerVersion, reg, sqlSystem, persistenceSystem, defaultHTTPClient)
 	}
 }
 
@@ -132,6 +134,7 @@ func getURL(prov string) (string, error) { //nolint:unparam // TODO: review
 	}
 }
 
+//nolint:revive // TODO: review
 func newGenericProvider(
 	rtCtx dto.RuntimeCtx,
 	providerStr,
@@ -139,7 +142,7 @@ func newGenericProvider(
 	reg anysdk.RegistryAPI,
 	_ sql_system.SQLSystem,
 	persistenceSystem sdk_persistence.PersistenceSystem,
-	defaultHttpClient *http.Client,
+	defaultHTTPClient *http.Client,
 ) (IProvider, error) {
 	methSel, err := methodselect.NewMethodSelector(providerStr, versionStr)
 	if err != nil {
@@ -176,8 +179,8 @@ func newGenericProvider(
 		discoveryAdapter: da,
 		apiVersion:       versionStr,
 		methodSelector:   methSel,
-		authUtil:         auth_util.NewAuthUtility(defaultHttpClient),
-		defaultClient:    defaultHttpClient,
+		authUtil:         auth_util.NewAuthUtility(defaultHTTPClient),
+		defaultClient:    defaultHTTPClient,
 	}
 	return gp, err
 }

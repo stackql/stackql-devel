@@ -154,7 +154,7 @@ func (gp *GenericProvider) GetMethodForAction(
 	return gp.methodSelector.GetMethodForAction(rsc, iqlAction, parameters)
 }
 
-func (gp *GenericProvider) GetDefaultHttpClient() *http.Client {
+func (gp *GenericProvider) GetDefaultHTTPClient() *http.Client {
 	return gp.defaultClient
 }
 

@@ -166,7 +166,7 @@ func (gh *genericHTTPReversal) Build() error {
 						gh.isUndo,
 						true,
 						"undo",
-						prov.GetDefaultHttpClient(), // for testing purposes only
+						prov.GetDefaultHTTPClient(), // for testing purposes only
 					)
 					processor := execution.NewProcessor(pp)
 					processorResponse := processor.Process()

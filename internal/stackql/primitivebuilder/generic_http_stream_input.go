@@ -315,7 +315,7 @@ func (gh *genericHTTPStreamInput) Build() error {
 						gh.isUndo,
 						gh.isMutation,
 						"",
-						prov.GetDefaultHttpClient(), // for testing purposes only
+						prov.GetDefaultHTTPClient(), // for testing purposes only
 					)
 					processor := execution.NewProcessor(pp)
 					processorResponse := processor.Process()
