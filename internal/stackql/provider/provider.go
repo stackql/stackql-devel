@@ -40,6 +40,8 @@ type IProvider interface {
 
 	CheckCredentialFile(authCtx *dto.AuthCtx) error
 
+	GetDefaultHttpClient() *http.Client
+
 	EnhanceMetadataFilter(
 		string,
 		func(anysdk.ITable) (anysdk.ITable, error),
@@ -113,10 +115,11 @@ func GenerateProvider(
 	reg anysdk.RegistryAPI,
 	sqlSystem sql_system.SQLSystem,
 	persistenceSystem sdk_persistence.PersistenceSystem,
+	defaultHttpClient *http.Client,
 ) (IProvider, error) {
 	switch providerStr { //nolint:gocritic // TODO: review
 	default:
-		return newGenericProvider(runtimeCtx, providerStr, providerVersion, reg, sqlSystem, persistenceSystem)
+		return newGenericProvider(runtimeCtx, providerStr, providerVersion, reg, sqlSystem, persistenceSystem, defaultHttpClient)
 	}
 }
 
@@ -136,6 +139,7 @@ func newGenericProvider(
 	reg anysdk.RegistryAPI,
 	_ sql_system.SQLSystem,
 	persistenceSystem sdk_persistence.PersistenceSystem,
+	defaultHttpClient *http.Client,
 ) (IProvider, error) {
 	methSel, err := methodselect.NewMethodSelector(providerStr, versionStr)
 	if err != nil {
@@ -172,7 +176,8 @@ func newGenericProvider(
 		discoveryAdapter: da,
 		apiVersion:       versionStr,
 		methodSelector:   methSel,
-		authUtil:         auth_util.NewAuthUtility(),
+		authUtil:         auth_util.NewAuthUtility(defaultHttpClient),
+		defaultClient:    defaultHttpClient,
 	}
 	return gp, err
 }
