@@ -148,7 +148,7 @@ type standardHandlerContext struct {
 	defaultHTTPClient   *http.Client
 }
 
-// for testing only
+// for testing only.
 func (hc *standardHandlerContext) SetDefaultHTTPClient(client *http.Client) {
 	hc.defaultHTTPClient = client
 }
