@@ -537,6 +537,11 @@ jobs:
           ./*.deb
 
   linuxtest:
+    env:
+      COMPOSE_BAKE: '0'
+      DOCKER_BUILDKIT: '0'
+      COMPOSE_DOCKER_CLI_BUILD: '0'
+
     name: Linux Test
     needs:
       - linuxbuild
