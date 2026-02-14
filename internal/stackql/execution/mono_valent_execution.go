@@ -1,6 +1,7 @@
 package execution
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -17,6 +18,7 @@ import (
 	"github.com/stackql/any-sdk/pkg/response"
 	"github.com/stackql/any-sdk/pkg/stream_transform"
 	"github.com/stackql/any-sdk/pkg/streaming"
+
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/drm"
@@ -24,9 +26,11 @@ import (
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
+	"github.com/stackql/stackql/internal/stackql/providerinvokers/anysdkhttp"
 	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 	"github.com/stackql/stackql/internal/stackql/util"
+	"github.com/stackql/stackql/pkg/providerinvoker"
 
 	sdk_internal_dto "github.com/stackql/any-sdk/pkg/internaldto"
 )
@@ -64,6 +68,7 @@ type MonitorMonoValentExecutorFactory interface {
 
 //nolint:unused // TODO: refactor
 type monoValentExecution struct {
+	invoker                    providerinvoker.Invoker
 	graphHolder                primitivegraph.PrimitiveGraphHolder
 	handlerCtx                 handler.HandlerContext
 	tableMeta                  tablemetadata.ExtendedTableMetadata
@@ -122,6 +127,7 @@ func NewMonoValentExecutorFactory(
 		isMutation:                 isMutation,
 		isAwait:                    isAwait,
 		defaultHTTPClient:          defaultHTTPClient,
+		invoker:                    anysdkhttp.New(),
 	}
 }
 
@@ -449,7 +455,7 @@ func page(
 }
 
 type ActionInsertPayload interface {
-	GetItemisationResult() ItemisationResult
+	GetItemisationResult() anysdkhttp.ItemisationResult
 	IsHousekeepingDone() bool
 	GetTableName() string
 	GetParamsUsed() map[string]interface{}
@@ -464,7 +470,7 @@ type httpActionInsertPayload struct {
 	reqEncoding       string
 }
 
-func (ap *httpActionInsertPayload) GetItemisationResult() ItemisationResult {
+func (ap *httpActionInsertPayload) GetItemisationResult() anysdkhttp.ItemisationResult {
 	return ap.itemisationResult
 }
 
@@ -506,8 +512,8 @@ type InsertPreparator interface {
 
 //nolint:nestif,gocognit // acceptable for now
 func (mv *monoValentExecution) ActionInsertPreparation(
-	payload ActionInsertPayload,
-) ActionInsertResult {
+	payload anysdkhttp.ActionInsertPayload,
+) anysdkhttp.ActionInsertResult {
 	itemisationResult := payload.GetItemisationResult()
 	housekeepingDone := payload.IsHousekeepingDone()
 	tableName := payload.GetTableName()
@@ -1427,49 +1433,45 @@ func (mv *monoValentExecution) GetExecutor() (func(pc primitive.IPrimitiveCtx) i
 				nil,
 			)
 		case client.HTTP:
-			agnosticatePayload := newHTTPAgnosticatePayload(
-				mv.tableMeta,
-				provider,
-				m,
-				tableName,
-				authCtx,
-				mv.handlerCtx.GetRuntimeContext(),
-				mv.handlerCtx.GetOutErrFile(),
-				mr,
-				mv.elideActionIfPossible(
+			invRes, invErr := mv.invoker.Invoke(context.Background(), providerinvoker.Request{Payload: anysdkhttp.Payload{
+				TableMeta:         mv.tableMeta,
+				Provider:          provider,
+				Method:            m,
+				TableName:         tableName,
+				AuthCtx:           authCtx,
+				RuntimeCtx:        mv.handlerCtx.GetRuntimeContext(),
+				OutErrFile:        mv.handlerCtx.GetOutErrFile(),
+				MaxResultsElement: mr,
+				Elider: mv.elideActionIfPossible(
 					currentTcc,
 					tableName,
 					"", // late binding, should remove AOT reference
 				),
-				true,
-				polyHandler,
-				mv.tableMeta.GetSelectItemsKey(),
-				mv,
-				mv.isSkipResponse,
-				mv.isMutation,
-				mv.isAwait,
-				mv.defaultHTTPClient,
-			)
-			processorResponse, agnosticErr := agnosticate(agnosticatePayload)
-			if agnosticErr != nil {
-				return internaldto.NewErroneousExecutorOutput(agnosticErr)
+				NilOK:             true,
+				PolyHandler:       polyHandler,
+				SelectItemsKey:    mv.tableMeta.GetSelectItemsKey(),
+				InsertPreparator:  mv,
+				SkipResponse:      mv.isSkipResponse,
+				IsMutation:        mv.isMutation,
+				IsAwait:           mv.isAwait,
+				DefaultHTTPClient: mv.defaultHTTPClient,
+				HandlerCtx:        mv.handlerCtx,
+			}})
+			if invErr != nil {
+				return internaldto.NewErroneousExecutorOutput(invErr)
 			}
-			messages := polyHandler.GetMessages()
 			var castMessages internaldto.BackendMessages
-			if len(messages) > 0 {
-				castMessages = internaldto.NewBackendMessages(messages)
+			if len(invRes.Messages) > 0 {
+				castMessages = internaldto.NewBackendMessages(invRes.Messages)
 			}
-			if processorResponse != nil && len(processorResponse.GetSuccessMessages()) > 0 {
-				if len(messages) == 0 {
-					castMessages = internaldto.NewBackendMessages(processorResponse.GetSuccessMessages())
-				} else {
-					castMessages.AppendMessages(processorResponse.GetSuccessMessages())
-				}
-			}
-			if processorResponse == nil {
+			if invRes.Body == nil {
 				return internaldto.NewExecutorOutput(nil, nil, nil, castMessages, nil)
 			}
-			return internaldto.NewExecutorOutput(nil, processorResponse.GetSingletonBody(), nil, castMessages, err)
+			bdyMap, bodyMapOk := invRes.Body.(map[string]interface{})
+			if !bodyMapOk {
+				return internaldto.NewErroneousExecutorOutput(fmt.Errorf("unexpected body type '%T'", invRes.Body))
+			}
+			return internaldto.NewExecutorOutput(nil, bdyMap, nil, castMessages, err)
 		default:
 			return internaldto.NewErroneousExecutorOutput(
 				fmt.Errorf("unsupported protocol type '%v'", protocolType))
