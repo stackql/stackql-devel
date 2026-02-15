@@ -20,21 +20,6 @@ import (
 	"github.com/stackql/stackql/pkg/providerinvoker"
 )
 
-type ActionInsertPayload interface {
-	GetItemisationResult() ItemisationResult
-	IsHousekeepingDone() bool
-	GetTableName() string
-	GetParamsUsed() map[string]interface{}
-	GetReqEncoding() string
-}
-
-type ItemisationResult interface {
-	GetItems() (interface{}, bool)
-	GetSingltetonResponse() (map[string]interface{}, bool)
-	IsOk() bool
-	IsNilPayload() bool
-}
-
 type itemsDTO struct {
 	items             interface{}
 	ok                bool
@@ -63,7 +48,7 @@ func newItemisationResult(
 	ok bool,
 	isNilPayload bool,
 	singletonResponse map[string]interface{},
-) ItemisationResult {
+) providerinvoker.ItemisationResult {
 	return &itemsDTO{
 		items:             items,
 		ok:                ok,
@@ -73,7 +58,7 @@ func newItemisationResult(
 }
 
 type InsertPreparator interface {
-	ActionInsertPreparation(payload ActionInsertPayload) ActionInsertResult
+	ActionInsertPreparation(payload providerinvoker.ActionInsertPayload) providerinvoker.ActionInsertResult
 }
 type methodElider interface {
 	IsElide(string, ...any) bool
@@ -82,11 +67,6 @@ type methodElider interface {
 type actionInsertResult struct {
 	err                error
 	isHousekeepingDone bool
-}
-
-type ActionInsertResult interface {
-	GetError() (error, bool)
-	IsHousekeepingDone() bool
 }
 
 func NewPayload(
@@ -1000,12 +980,12 @@ func shallowGenerateSuccessMessagesFromHeirarchy(isAwait bool) []string {
 }
 
 func newHTTPActionInsertPayload(
-	itemisationResult ItemisationResult,
+	itemisationResult providerinvoker.ItemisationResult,
 	housekeepingDone bool,
 	tableName string,
 	paramsUsed map[string]interface{},
 	reqEncoding string,
-) ActionInsertPayload {
+) providerinvoker.ActionInsertPayload {
 	return &httpActionInsertPayload{
 		itemisationResult: itemisationResult,
 		housekeepingDone:  housekeepingDone,
@@ -1082,14 +1062,14 @@ func page(
 }
 
 type httpActionInsertPayload struct {
-	itemisationResult ItemisationResult
+	itemisationResult providerinvoker.ItemisationResult
 	housekeepingDone  bool
 	tableName         string
 	paramsUsed        map[string]interface{}
 	reqEncoding       string
 }
 
-func (ap *httpActionInsertPayload) GetItemisationResult() ItemisationResult {
+func (ap *httpActionInsertPayload) GetItemisationResult() providerinvoker.ItemisationResult {
 	return ap.itemisationResult
 }
 
@@ -1114,7 +1094,7 @@ func itemise(
 	target interface{},
 	resErr error,
 	selectItemsKey string,
-) ItemisationResult {
+) providerinvoker.ItemisationResult {
 	var items interface{}
 	var ok bool
 	var singletonResponse map[string]interface{}

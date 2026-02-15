@@ -455,7 +455,7 @@ func page(
 }
 
 type ActionInsertPayload interface {
-	GetItemisationResult() anysdkhttp.ItemisationResult
+	GetItemisationResult() providerinvoker.ItemisationResult
 	IsHousekeepingDone() bool
 	GetTableName() string
 	GetParamsUsed() map[string]interface{}
@@ -463,14 +463,14 @@ type ActionInsertPayload interface {
 }
 
 type httpActionInsertPayload struct {
-	itemisationResult ItemisationResult
+	itemisationResult providerinvoker.ItemisationResult
 	housekeepingDone  bool
 	tableName         string
 	paramsUsed        map[string]interface{}
 	reqEncoding       string
 }
 
-func (ap *httpActionInsertPayload) GetItemisationResult() anysdkhttp.ItemisationResult {
+func (ap *httpActionInsertPayload) GetItemisationResult() providerinvoker.ItemisationResult {
 	return ap.itemisationResult
 }
 
@@ -491,12 +491,12 @@ func (ap *httpActionInsertPayload) GetReqEncoding() string {
 }
 
 func newHTTPActionInsertPayload(
-	itemisationResult ItemisationResult,
+	itemisationResult providerinvoker.ItemisationResult,
 	housekeepingDone bool,
 	tableName string,
 	paramsUsed map[string]interface{},
 	reqEncoding string,
-) ActionInsertPayload {
+) providerinvoker.ActionInsertPayload {
 	return &httpActionInsertPayload{
 		itemisationResult: itemisationResult,
 		housekeepingDone:  housekeepingDone,
@@ -506,14 +506,10 @@ func newHTTPActionInsertPayload(
 	}
 }
 
-type InsertPreparator interface {
-	ActionInsertPreparation(payload ActionInsertPayload) ActionInsertResult
-}
-
 //nolint:nestif,gocognit // acceptable for now
 func (mv *monoValentExecution) ActionInsertPreparation(
-	payload anysdkhttp.ActionInsertPayload,
-) anysdkhttp.ActionInsertResult {
+	payload providerinvoker.ActionInsertPayload,
+) providerinvoker.ActionInsertResult {
 	itemisationResult := payload.GetItemisationResult()
 	housekeepingDone := payload.IsHousekeepingDone()
 	tableName := payload.GetTableName()
@@ -602,7 +598,7 @@ type AgnosticatePayload interface {
 	IsNilResponseAcceptable() bool
 	GetPolyHandler() PolyHandler
 	GetSelectItemsKey() string
-	GetInsertPreparator() InsertPreparator
+	GetInsertPreparator() providerinvoker.InsertPreparator
 	IsSkipResponse() bool
 	IsMutation() bool
 	IsAwait() bool
@@ -622,7 +618,7 @@ type httpAgnosticatePayload struct {
 	isNilResponseAcceptable bool
 	polyHandler             PolyHandler
 	selectItemsKey          string
-	insertPreparator        InsertPreparator
+	insertPreparator        providerinvoker.InsertPreparator
 	isSkipResponse          bool
 	isMutation              bool
 	isAwait                 bool
@@ -642,7 +638,7 @@ func newHTTPAgnosticatePayload(
 	isNilResponseAcceptable bool,
 	polyHandler PolyHandler,
 	selectItemsKey string,
-	insertPreparator InsertPreparator,
+	insertPreparator providerinvoker.InsertPreparator,
 	isSkipResponse bool,
 	isMutation bool,
 	isAwait bool,
@@ -681,7 +677,7 @@ func (ap *httpAgnosticatePayload) IsAwait() bool {
 	return ap.isAwait
 }
 
-func (ap *httpAgnosticatePayload) GetInsertPreparator() InsertPreparator {
+func (ap *httpAgnosticatePayload) GetInsertPreparator() providerinvoker.InsertPreparator {
 	return ap.insertPreparator
 }
 
@@ -860,7 +856,7 @@ type ProcessorPayload interface {
 	GetOutErrFile() io.Writer
 	GetPolyHandler() PolyHandler
 	GetSelectItemsKey() string
-	GetInsertPreparator() InsertPreparator
+	GetInsertPreparator() providerinvoker.InsertPreparator
 	IsSkipResponse() bool
 	IsMutation() bool
 	IsMaterialiseResponse() bool
@@ -881,7 +877,7 @@ func NewProcessorPayload(
 	outErrFile io.Writer,
 	polyHandler PolyHandler,
 	selectItemsKey string,
-	insertPreparator InsertPreparator,
+	insertPreparator providerinvoker.InsertPreparator,
 	isSkipResponse bool,
 	isMaterialiseResponse bool,
 	isAwait bool,
@@ -923,7 +919,7 @@ type standardProcessorPayload struct {
 	outErrFile            io.Writer
 	polyHandler           PolyHandler
 	selectItemsKey        string
-	insertPreparator      InsertPreparator
+	insertPreparator      providerinvoker.InsertPreparator
 	isSkipResponse        bool
 	isMaterialiseResponse bool
 	isAwait               bool
@@ -1004,7 +1000,7 @@ func (pp *standardProcessorPayload) GetSelectItemsKey() string {
 	return pp.selectItemsKey
 }
 
-func (pp *standardProcessorPayload) GetInsertPreparator() InsertPreparator {
+func (pp *standardProcessorPayload) GetInsertPreparator() providerinvoker.InsertPreparator {
 	return pp.insertPreparator
 }
 
