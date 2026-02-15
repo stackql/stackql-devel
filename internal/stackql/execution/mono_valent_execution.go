@@ -20,6 +20,7 @@ import (
 	"github.com/stackql/any-sdk/pkg/streaming"
 
 	"github.com/stackql/any-sdk/pkg/providerinvoker"
+	"github.com/stackql/any-sdk/public/providerinvokers/anysdkhttp"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/drm"
@@ -27,7 +28,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/primitive"
 	"github.com/stackql/stackql/internal/stackql/primitivegraph"
-	"github.com/stackql/stackql/internal/stackql/providerinvokers/anysdkhttp"
 	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 	"github.com/stackql/stackql/internal/stackql/util"
