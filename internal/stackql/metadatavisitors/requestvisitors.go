@@ -5,6 +5,7 @@ import (
 
 	"github.com/stackql/any-sdk/anysdk"
 	"github.com/stackql/any-sdk/pkg/logging"
+	"github.com/stackql/any-sdk/public/formulation"
 
 	"sort"
 	"strings"
@@ -147,7 +148,7 @@ func ToInsertStatement(
 		}
 	}
 	if columns != nil {
-		paramsToInclude = make(map[string]anysdk.Addressable)
+		paramsToInclude = make(map[string]formulation.Addressable)
 		for _, col := range columns {
 			cName := col.GetRawVal()
 			if !isRequestBodyParam(cName, m) {
