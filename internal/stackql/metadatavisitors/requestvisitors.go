@@ -134,13 +134,25 @@ func ToInsertStatement(
 	placeHolderPrettyPrinter *prettyprint.PrettyPrinter,
 	requiredOnly bool,
 ) (string, error) {
-	paramsToInclude := m.GetNonBodyParameters()
+	rawParamsToInclude := m.GetNonBodyParameters()
+	paramsToInclude := make(map[string]formulation.Addressable)
+	for k, v := range rawParamsToInclude {
+		paramsToInclude[k] = v
+	}
 	if requiredOnly {
-		paramsToInclude = m.GetRequiredNonBodyParameters()
+		rawParamsToInclude = m.GetRequiredNonBodyParameters()
+		paramsToInclude = make(map[string]formulation.Addressable)
+		for k, v := range rawParamsToInclude {
+			paramsToInclude[k] = v
+		}
 	}
 	successfullyIncludedCols := make(map[string]bool)
 	if !extended {
-		paramsToInclude = m.GetRequiredParameters()
+		rawParamsToInclude = m.GetRequiredParameters()
+		paramsToInclude = make(map[string]formulation.Addressable)
+		for k, v := range rawParamsToInclude {
+			paramsToInclude[k] = v
+		}
 		for k := range paramsToInclude {
 			if m.IsRequestBodyAttributeRenamed(k) {
 				delete(paramsToInclude, k)
