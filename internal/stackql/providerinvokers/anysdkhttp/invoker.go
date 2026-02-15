@@ -89,9 +89,51 @@ type ActionInsertResult interface {
 	IsHousekeepingDone() bool
 }
 
-// Payload is the (still-internal) call-shape for the any-sdk HTTP invoker.
+func NewPayload(
+	tableMeta tablemetadata.ExtendedTableMetadata,
+	provider anysdk.Provider,
+	method anysdk.OperationStore,
+	tableName string,
+	authCtx *dto.AuthCtx,
+	runtimeCtx dto.RuntimeCtx,
+	outErrFile io.Writer,
+	maxResultsElement sdk_internal_dto.HTTPElement,
+	elider methodElider,
+	nilOK bool,
+	polyHandler PolyHandler,
+	selectItemsKey string,
+	insertPreparator InsertPreparator,
+	skipResponse bool,
+	isMutation bool,
+	isAwait bool,
+	defaultHTTPClient *http.Client,
+	handlerCtx handler.HandlerContext,
+) any {
+	return standardPayload{
+		TableMeta:         tableMeta,
+		Provider:          provider,
+		Method:            method,
+		TableName:         tableName,
+		AuthCtx:           authCtx,
+		RuntimeCtx:        runtimeCtx,
+		OutErrFile:        outErrFile,
+		MaxResultsElement: maxResultsElement,
+		Elider:            elider,
+		NilOK:             nilOK,
+		PolyHandler:       polyHandler,
+		SelectItemsKey:    selectItemsKey,
+		InsertPreparator:  insertPreparator,
+		SkipResponse:      skipResponse,
+		IsMutation:        isMutation,
+		IsAwait:           isAwait,
+		DefaultHTTPClient: defaultHTTPClient,
+		HandlerCtx:        handlerCtx,
+	}
+}
+
+// standardPayload is the (still-internal) call-shape for the any-sdk HTTP invoker.
 // It mirrors the data StackQL currently passes to newHTTPAgnosticatePayload()/agnosticate().
-type Payload struct {
+type standardPayload struct {
 	TableMeta         tablemetadata.ExtendedTableMetadata
 	Provider          anysdk.Provider
 	Method            anysdk.OperationStore
@@ -117,7 +159,7 @@ type Invoker struct{}
 func New() providerinvoker.Invoker { return &Invoker{} }
 
 func (i *Invoker) Invoke(ctx context.Context, req providerinvoker.Request) (providerinvoker.Result, error) {
-	p, ok := req.Payload.(Payload)
+	p, ok := req.Payload.(standardPayload)
 	if !ok {
 		return providerinvoker.Result{}, fmt.Errorf("anysdkhttp: unexpected payload type %T", req.Payload)
 	}

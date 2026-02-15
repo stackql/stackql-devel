@@ -1433,30 +1433,32 @@ func (mv *monoValentExecution) GetExecutor() (func(pc primitive.IPrimitiveCtx) i
 				nil,
 			)
 		case client.HTTP:
-			invRes, invErr := mv.invoker.Invoke(context.Background(), providerinvoker.Request{Payload: anysdkhttp.Payload{
-				TableMeta:         mv.tableMeta,
-				Provider:          provider,
-				Method:            m,
-				TableName:         tableName,
-				AuthCtx:           authCtx,
-				RuntimeCtx:        mv.handlerCtx.GetRuntimeContext(),
-				OutErrFile:        mv.handlerCtx.GetOutErrFile(),
-				MaxResultsElement: mr,
-				Elider: mv.elideActionIfPossible(
-					currentTcc,
+			invRes, invErr := mv.invoker.Invoke(context.Background(), providerinvoker.Request{
+				Payload: anysdkhttp.NewPayload(
+					mv.tableMeta,
+					provider,
+					m,
 					tableName,
-					"", // late binding, should remove AOT reference
+					authCtx,
+					mv.handlerCtx.GetRuntimeContext(),
+					mv.handlerCtx.GetOutErrFile(),
+					mr,
+					mv.elideActionIfPossible(
+						currentTcc,
+						tableName,
+						"", // late binding, should remove AOT reference
+					),
+					true,
+					polyHandler,
+					mv.tableMeta.GetSelectItemsKey(),
+					mv,
+					mv.isSkipResponse,
+					mv.isMutation,
+					mv.isAwait,
+					mv.defaultHTTPClient,
+					mv.handlerCtx,
 				),
-				NilOK:             true,
-				PolyHandler:       polyHandler,
-				SelectItemsKey:    mv.tableMeta.GetSelectItemsKey(),
-				InsertPreparator:  mv,
-				SkipResponse:      mv.isSkipResponse,
-				IsMutation:        mv.isMutation,
-				IsAwait:           mv.isAwait,
-				DefaultHTTPClient: mv.defaultHTTPClient,
-				HandlerCtx:        mv.handlerCtx,
-			}})
+			})
 			if invErr != nil {
 				return internaldto.NewErroneousExecutorOutput(invErr)
 			}
