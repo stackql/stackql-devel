@@ -19,6 +19,7 @@ import (
 	"github.com/stackql/any-sdk/pkg/stream_transform"
 	"github.com/stackql/any-sdk/pkg/streaming"
 
+	"github.com/stackql/any-sdk/pkg/providerinvoker"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/drm"
@@ -30,7 +31,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/tableinsertioncontainer"
 	"github.com/stackql/stackql/internal/stackql/tablemetadata"
 	"github.com/stackql/stackql/internal/stackql/util"
-	"github.com/stackql/stackql/pkg/providerinvoker"
 
 	sdk_internal_dto "github.com/stackql/any-sdk/pkg/internaldto"
 )
@@ -765,7 +765,7 @@ func NewStandardPolyHandler(handlerCtx handler.HandlerContext) PolyHandler {
 
 func agnosticate(
 	agPayload AgnosticatePayload,
-) (ProcessorResponse, error) {
+) (processorResponse, error) {
 	outErrFile := agPayload.GetOutErrFile()
 	runtimeCtx := agPayload.GetRuntimeCtx()
 	provider := agPayload.GetProvider()
@@ -812,7 +812,7 @@ func agnosticate(
 	}
 	reqParams := armoury.GetRequestParams()
 	logging.GetLogger().Infof("monoValentExecution.Execute() req param count = %d", len(reqParams))
-	var processorResponse ProcessorResponse
+	var processorResponse processorResponse
 	for _, rc := range reqParams {
 		rq := rc
 		processor := NewProcessor(
@@ -1004,10 +1004,10 @@ func (pp *standardProcessorPayload) GetInsertPreparator() providerinvoker.Insert
 	return pp.insertPreparator
 }
 
-type ProcessorResponse interface {
+type processorResponse interface {
 	GetError() error
 	GetSingletonBody() map[string]interface{}
-	WithSuccessMessages([]string) ProcessorResponse
+	WithSuccessMessages([]string) processorResponse
 	GetSuccessMessages() []string
 	AppendReversal(rev anysdk.HTTPPreparator)
 	GetReversalStream() anysdk.HttpPreparatorStream
@@ -1032,7 +1032,7 @@ func (hpr *httpProcessorResponse) GetFailedMessage() string {
 	return hpr.failedMessage
 }
 
-func (hpr *httpProcessorResponse) WithSuccessMessages(messages []string) ProcessorResponse {
+func (hpr *httpProcessorResponse) WithSuccessMessages(messages []string) processorResponse {
 	hpr.successMessages = messages
 	return hpr
 }
@@ -1063,7 +1063,7 @@ func newHTTPProcessorResponse(
 	reversalStream anysdk.HttpPreparatorStream,
 	isFailed bool,
 	err error,
-) ProcessorResponse {
+) processorResponse {
 	return &httpProcessorResponse{
 		body:           body,
 		err:            err,
@@ -1073,7 +1073,7 @@ func newHTTPProcessorResponse(
 }
 
 type Processor interface {
-	Process() ProcessorResponse
+	Process() processorResponse
 }
 
 type standardProcessor struct {
@@ -1089,7 +1089,7 @@ func NewProcessor(payload ProcessorPayload) Processor {
 }
 
 //nolint:funlen,bodyclose,gocognit,gocyclo,cyclop // acceptable for now
-func (sp *standardProcessor) Process() ProcessorResponse {
+func (sp *standardProcessor) Process() processorResponse {
 	processorPayload := sp.payload
 	armouryParams := processorPayload.GetArmouryParams()
 	elider := processorPayload.GetElider()

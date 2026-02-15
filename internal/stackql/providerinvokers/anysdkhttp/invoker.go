@@ -15,9 +15,8 @@ import (
 	"github.com/stackql/any-sdk/pkg/response"
 
 	sdk_internal_dto "github.com/stackql/any-sdk/pkg/internaldto"
-	"github.com/stackql/stackql/internal/stackql/handler"
-	"github.com/stackql/stackql/internal/stackql/tablemetadata"
-	"github.com/stackql/stackql/pkg/providerinvoker"
+	"github.com/stackql/any-sdk/pkg/providerinvoker"
+	"github.com/stackql/any-sdk/public/formulation"
 )
 
 type itemsDTO struct {
@@ -70,7 +69,7 @@ type actionInsertResult struct {
 }
 
 func NewPayload(
-	tableMeta tablemetadata.ExtendedTableMetadata,
+	armouryGenerator formulation.ArmouryGenerator,
 	provider anysdk.Provider,
 	method anysdk.OperationStore,
 	tableName string,
@@ -87,10 +86,10 @@ func NewPayload(
 	isMutation bool,
 	isAwait bool,
 	defaultHTTPClient *http.Client,
-	handlerCtx handler.HandlerContext,
+	messageHandler providerinvoker.MessageHandler,
 ) any {
 	return standardPayload{
-		TableMeta:         tableMeta,
+		ArmouryGenerator:  armouryGenerator,
 		Provider:          provider,
 		Method:            method,
 		TableName:         tableName,
@@ -107,14 +106,14 @@ func NewPayload(
 		IsMutation:        isMutation,
 		IsAwait:           isAwait,
 		DefaultHTTPClient: defaultHTTPClient,
-		HandlerCtx:        handlerCtx,
+		messageHandler:    messageHandler,
 	}
 }
 
 // standardPayload is the (still-internal) call-shape for the any-sdk HTTP invoker.
 // It mirrors the data StackQL currently passes to newHTTPAgnosticatePayload()/agnosticate().
 type standardPayload struct {
-	TableMeta         tablemetadata.ExtendedTableMetadata
+	ArmouryGenerator  formulation.ArmouryGenerator
 	Provider          anysdk.Provider
 	Method            anysdk.OperationStore
 	TableName         string
@@ -131,7 +130,7 @@ type standardPayload struct {
 	IsMutation        bool
 	IsAwait           bool
 	DefaultHTTPClient *http.Client
-	HandlerCtx        handler.HandlerContext
+	messageHandler    providerinvoker.MessageHandler
 }
 
 type Invoker struct{}
@@ -145,12 +144,12 @@ func (i *Invoker) Invoke(ctx context.Context, req providerinvoker.Request) (prov
 	}
 	// Ensure poly handler exists (mono previously created one outside; we keep that optional).
 	poly := p.PolyHandler
-	if poly == nil && p.HandlerCtx != nil {
-		poly = NewStandardPolyHandler(p.HandlerCtx)
+	if poly == nil && p.messageHandler != nil {
+		poly = NewStandardPolyHandler(p.messageHandler)
 	}
 
 	agPayload := newHTTPAgnosticatePayload(
-		p.TableMeta,
+		p.ArmouryGenerator,
 		p.Provider,
 		p.Method,
 		p.TableName,
@@ -211,7 +210,7 @@ type AgnosticatePayload interface {
 }
 
 type httpAgnosticatePayload struct {
-	tableMeta               tablemetadata.ExtendedTableMetadata
+	armouryGenerator        formulation.ArmouryGenerator
 	provider                anysdk.Provider
 	method                  anysdk.OperationStore
 	tableName               string
@@ -231,7 +230,7 @@ type httpAgnosticatePayload struct {
 }
 
 func newHTTPAgnosticatePayload(
-	tableMeta tablemetadata.ExtendedTableMetadata,
+	armouryGenerator formulation.ArmouryGenerator,
 	provider anysdk.Provider,
 	method anysdk.OperationStore,
 	tableName string,
@@ -250,7 +249,7 @@ func newHTTPAgnosticatePayload(
 	defaultHTTPClient *http.Client,
 ) AgnosticatePayload {
 	return &httpAgnosticatePayload{
-		tableMeta:               tableMeta,
+		armouryGenerator:        armouryGenerator,
 		provider:                provider,
 		method:                  method,
 		tableName:               tableName,
@@ -291,7 +290,7 @@ func (ap *httpAgnosticatePayload) GetSelectItemsKey() string {
 }
 
 func (ap *httpAgnosticatePayload) GetArmoury() (anysdk.HTTPArmoury, error) {
-	return ap.tableMeta.GetHTTPArmoury()
+	return ap.armouryGenerator.GetHTTPArmoury()
 }
 
 func (ap *httpAgnosticatePayload) GetProvider() anysdk.Provider {
@@ -345,12 +344,12 @@ type PolyHandler interface {
 }
 
 type standardPolyHandler struct {
-	handlerCtx handler.HandlerContext
-	messages   []string
+	messageHandler providerinvoker.MessageHandler
+	messages       []string
 }
 
 func (sph *standardPolyHandler) LogHTTPResponseMap(target interface{}) {
-	sph.handlerCtx.LogHTTPResponseMap(target)
+	sph.messageHandler.LogHTTPResponseMap(target)
 }
 
 func (sph *standardPolyHandler) MessageHandler(messages []string) {
@@ -361,10 +360,10 @@ func (sph *standardPolyHandler) GetMessages() []string {
 	return sph.messages
 }
 
-func NewStandardPolyHandler(handlerCtx handler.HandlerContext) PolyHandler {
+func NewStandardPolyHandler(messageHandler providerinvoker.MessageHandler) PolyHandler {
 	return &standardPolyHandler{
-		handlerCtx: handlerCtx,
-		messages:   []string{},
+		messageHandler: messageHandler,
+		messages:       []string{},
 	}
 }
 
