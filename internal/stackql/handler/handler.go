@@ -17,6 +17,7 @@ import (
 	"github.com/stackql/any-sdk/pkg/jsonpath"
 	"github.com/stackql/any-sdk/pkg/netutils"
 	"github.com/stackql/any-sdk/pkg/nomenclature"
+	"github.com/stackql/any-sdk/pkg/surface"
 	sdk_persistence "github.com/stackql/any-sdk/public/persistence"
 	"github.com/stackql/any-sdk/public/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/acid/tsm"
@@ -654,7 +655,7 @@ func NewHandlerCtx(
 	return &rv, nil
 }
 
-func transformOpenapiStackqlAuthToLocal(authDTO anysdk.AuthDTO) *dto.AuthCtx {
+func transformOpenapiStackqlAuthToLocal(authDTO surface.AuthDTO) *dto.AuthCtx {
 	rv := &dto.AuthCtx{
 		Scopes:                  authDTO.GetScopes(),
 		Subject:                 authDTO.GetSubject(),
