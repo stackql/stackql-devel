@@ -137,12 +137,14 @@ func ToInsertStatement(
 	rawParamsToInclude := m.GetNonBodyParameters()
 	paramsToInclude := make(map[string]formulation.Addressable)
 	for k, v := range rawParamsToInclude {
+		v := formulation.DeprecatedNewAddressable(v)
 		paramsToInclude[k] = v
 	}
 	if requiredOnly {
 		rawParamsToInclude = m.GetRequiredNonBodyParameters()
 		paramsToInclude = make(map[string]formulation.Addressable)
 		for k, v := range rawParamsToInclude {
+			v := formulation.DeprecatedNewAddressable(v)
 			paramsToInclude[k] = v
 		}
 	}
@@ -151,6 +153,7 @@ func ToInsertStatement(
 		rawParamsToInclude = m.GetRequiredParameters()
 		paramsToInclude = make(map[string]formulation.Addressable)
 		for k, v := range rawParamsToInclude {
+			v := formulation.DeprecatedNewAddressable(v)
 			paramsToInclude[k] = v
 		}
 		for k := range paramsToInclude {
@@ -168,7 +171,8 @@ func ToInsertStatement(
 				if !ok {
 					return "", fmt.Errorf("cannot generate insert statement: column '%s' not present", cName)
 				}
-				paramsToInclude[cName] = p
+				v := formulation.DeprecatedNewAddressable(p)
+				paramsToInclude[cName] = v
 				successfullyIncludedCols[cName] = true
 			}
 		}
