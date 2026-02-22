@@ -437,7 +437,7 @@ func (dc *staticDRMConfig) inferColType(col formulation.Column) string {
 
 func (dc *staticDRMConfig) inferColTypeFromSchema(schema formulation.Schema) string {
 	relationalType := textStr
-	if schema != nil && schema.GetType() != "" {
+	if schema != nil && !schema.IsEmpty() && schema.GetType() != "" {
 		relationalType = dc.GetRelationalType(schema.GetType())
 	}
 	return relationalType
@@ -648,7 +648,7 @@ func (dc *staticDRMConfig) GenerateInsertDML(
 			col := formulation.ColumnDescriptor(col)
 			relationalType := textStr
 			schema := col.GetSchema()
-			if schema != nil && schema.GetType() != "" {
+			if schema != nil && !schema.IsEmpty() && schema.GetType() != "" {
 				relationalType = dc.GetRelationalType(schema.GetType())
 			}
 			columns = append(columns, typing.NewColDescriptor(col, relationalType))
