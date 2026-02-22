@@ -155,7 +155,7 @@ func (dc *staticDRMConfig) OpenapiColumnsToRelationalColumns(
 	for _, col := range cols {
 		var typeStr string
 		schemaExists := false
-		if col.GetSchema() != nil {
+		if col.GetSchema() != nil && !col.GetSchema().IsEmpty() {
 			typeStr = dc.GetRelationalType(col.GetSchema().GetType())
 			schemaExists = true
 		} else { //nolint:gocritic // defer fix
@@ -194,7 +194,7 @@ func (dc *staticDRMConfig) OpenapiColumnsToRelationalColumn(
 	var typeStr string
 	schemaExists := false
 	//nolint:gocritic,exhaustive // defer fix
-	if col.GetSchema() != nil {
+	if col.GetSchema() != nil && !col.GetSchema().IsEmpty() {
 		typeStr = dc.GetRelationalType(col.GetSchema().GetType())
 		schemaExists = true
 	} else {
