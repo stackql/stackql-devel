@@ -1171,7 +1171,7 @@ func (pb *standardPrimitiveGenerator) AnalyzeInsert(pbi planbuilderinput.PlanBui
 	if err != nil {
 		return err
 	}
-	_, isOpenapi := svc.(formulation.OpenAPIService)
+	isOpenapi := svc.IsOpenapi()
 	if !isOpenapi {
 		err = pb.buildRequestContext(node, tbl, nil, insertValOnlyRows)
 		if err != nil {
@@ -1278,7 +1278,7 @@ func (pb *standardPrimitiveGenerator) AnalyzeUpdate(pbi planbuilderinput.PlanBui
 		firstRow[k.GetRawVal()] = v
 	}
 	updateValOnlyRowsMap := map[int]map[string]interface{}{0: firstRow}
-	_, isOpenapi := svc.(formulation.OpenAPIService)
+	isOpenapi := svc.IsOpenapi()
 	if !isOpenapi {
 		err = pb.buildRequestContextFromMapArray(
 			node,

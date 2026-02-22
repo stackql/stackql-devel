@@ -1095,7 +1095,9 @@ func (pgb *standardPlanGraphBuilder) handleMutationOperation(
 			newBldrInput.SetDependencyNode(selectPrimitiveNode)
 			newBldrInput.SetIsAwait(isAwait)
 			rhsBldr := primitivebuilder.NewSingleSelect(
-				pgb.planGraphHolder, handlerCtx, primitiveGenerator.GetPrimitiveComposer().GetSelectPreparedStatementCtx(),
+				pgb.planGraphHolder,
+				handlerCtx,
+				primitiveGenerator.GetPrimitiveComposer().GetSelectPreparedStatementCtx(),
 				[]tableinsertioncontainer.TableInsertionContainer{rc},
 				nil,
 				streaming.NewNopMapStream(),
