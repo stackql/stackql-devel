@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/stackql/any-sdk/anysdk"
 	"github.com/stackql/any-sdk/pkg/constants"
 	"github.com/stackql/any-sdk/pkg/logging"
 	"github.com/stackql/stackql/pkg/astformat"
@@ -816,12 +815,12 @@ func getDecoratedColRendition(baseDecoratedColumn, alias string) string {
 
 func CheckSQLParserTypeVsServiceColumn(
 	colUsage ColumnUsageMetadata) error {
-	return CheckSQLParserTypeVsColumn(colUsage, anysdk.ServiceConditionIsValid)
+	return CheckSQLParserTypeVsColumn(colUsage, formulation.ServiceConditionIsValid)
 }
 
 func CheckSQLParserTypeVsResourceColumn(
 	colUsage ColumnUsageMetadata) error {
-	return CheckSQLParserTypeVsColumn(colUsage, anysdk.ResourceConditionIsValid)
+	return CheckSQLParserTypeVsColumn(colUsage, formulation.ResourceConditionIsValid)
 }
 
 //nolint:mnd // TODO: remove this
