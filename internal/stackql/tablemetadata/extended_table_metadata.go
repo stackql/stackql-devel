@@ -261,7 +261,7 @@ func (ex *standardExtendedTableMetadata) GetView() (internaldto.RelationDTO, boo
 
 func (ex *standardExtendedTableMetadata) isSimple() bool {
 	//nolint:lll // complex boolean
-	return ex.heirarchyObjects != nil && (ex.heirarchyObjects.GetMethodSet().Size() > 0 || ex.heirarchyObjects.GetMethod() != nil)
+	return ex.heirarchyObjects != nil && ((ex.heirarchyObjects.GetMethodSet() != nil && ex.heirarchyObjects.GetMethodSet().Size() > 0) || ex.heirarchyObjects.GetMethod() != nil)
 }
 
 func (ex *standardExtendedTableMetadata) GetUniqueID() string {
