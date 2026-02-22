@@ -11,6 +11,8 @@ import (
 	"github.com/stackql/stackql/pkg/astformat"
 
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
+
+	"github.com/stackql/any-sdk/public/formulation"
 )
 
 const (
@@ -473,7 +475,7 @@ func ExtractSleepDuration(statement *sqlparser.Sleep) (int, error) {
 	return retVal, fmt.Errorf("sleep definition inadequate")
 }
 
-func CheckColUsagesAgainstTable(colUsages []ColumnUsageMetadata, table anysdk.OperationStore) error {
+func CheckColUsagesAgainstTable(colUsages []ColumnUsageMetadata, table formulation.OperationStore) error {
 	for _, colUsage := range colUsages {
 		param, ok := table.GetParameter(colUsage.ColName.Name.GetRawVal())
 		if ok {

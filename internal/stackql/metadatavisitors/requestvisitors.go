@@ -3,7 +3,6 @@ package metadatavisitors
 import (
 	"fmt"
 
-	"github.com/stackql/any-sdk/anysdk"
 	"github.com/stackql/any-sdk/pkg/logging"
 	"github.com/stackql/any-sdk/public/formulation"
 
@@ -121,15 +120,15 @@ func isColIncludable(key string, columns sqlparser.Columns, colMap map[string]bo
 	return colMap[key]
 }
 
-func isRequestBodyParam(paramName string, m anysdk.OperationStore) bool {
+func isRequestBodyParam(paramName string, m formulation.OperationStore) bool {
 	return m.IsRequestBodyAttributeRenamed(paramName)
 }
 
 //nolint:funlen,gocognit,revive // acceptable
 func ToInsertStatement(
 	columns sqlparser.Columns,
-	m anysdk.OperationStore,
-	svc anysdk.Service,
+	m formulation.OperationStore,
+	svc formulation.Service,
 	extended bool, prettyPrinter,
 	placeHolderPrettyPrinter *prettyprint.PrettyPrinter,
 	requiredOnly bool,
@@ -137,14 +136,12 @@ func ToInsertStatement(
 	rawParamsToInclude := m.GetNonBodyParameters()
 	paramsToInclude := make(map[string]formulation.Addressable)
 	for k, v := range rawParamsToInclude {
-		v := formulation.DeprecatedNewAddressable(v)
 		paramsToInclude[k] = v
 	}
 	if requiredOnly {
 		rawParamsToInclude = m.GetRequiredNonBodyParameters()
 		paramsToInclude = make(map[string]formulation.Addressable)
 		for k, v := range rawParamsToInclude {
-			v := formulation.DeprecatedNewAddressable(v)
 			paramsToInclude[k] = v
 		}
 	}
@@ -153,7 +150,6 @@ func ToInsertStatement(
 		rawParamsToInclude = m.GetRequiredParameters()
 		paramsToInclude = make(map[string]formulation.Addressable)
 		for k, v := range rawParamsToInclude {
-			v := formulation.DeprecatedNewAddressable(v)
 			paramsToInclude[k] = v
 		}
 		for k := range paramsToInclude {
@@ -171,8 +167,7 @@ func ToInsertStatement(
 				if !ok {
 					return "", fmt.Errorf("cannot generate insert statement: column '%s' not present", cName)
 				}
-				v := formulation.DeprecatedNewAddressable(p)
-				paramsToInclude[cName] = v
+				paramsToInclude[cName] = p
 				successfullyIncludedCols[cName] = true
 			}
 		}
@@ -264,9 +259,9 @@ func ToInsertStatement(
 
 //nolint:gocognit // acceptable
 func (sv *SchemaRequestTemplateVisitor) processSubSchemasMap(
-	sc anysdk.Schema,
-	method anysdk.OperationStore,
-	properties map[string]anysdk.Schema,
+	sc formulation.Schema,
+	method formulation.OperationStore,
+	properties map[string]formulation.Schema,
 ) (map[string]TemplatedProduct, error) {
 	retVal := make(map[string]TemplatedProduct)
 	for k, ss := range properties {
@@ -330,8 +325,8 @@ func (sv *SchemaRequestTemplateVisitor) processSubSchemasMap(
 }
 
 func (sv *SchemaRequestTemplateVisitor) RetrieveTemplate(
-	sc anysdk.Schema,
-	method anysdk.OperationStore,
+	sc formulation.Schema,
+	method formulation.OperationStore,
 	extended bool, //nolint:revive // TODO: review
 ) (map[string]TemplatedProduct, error) {
 	retVal := make(map[string]TemplatedProduct) //nolint:ineffassign,staticcheck,wastedassign // TODO: review
@@ -350,7 +345,7 @@ func (sv *SchemaRequestTemplateVisitor) RetrieveTemplate(
 		additionalProperties, additionalProprtiesExist := sc.GetAdditionalProperties()
 		if additionalProprtiesExist {
 			additionalProperties.SetKey("k1")
-			retVal, err = sv.processSubSchemasMap(sc, method, map[string]anysdk.Schema{"k1": additionalProperties})
+			retVal, err = sv.processSubSchemasMap(sc, method, map[string]formulation.Schema{"k1": additionalProperties})
 		}
 		if len(retVal) == 0 {
 			return nil, nil //nolint:nilnil // TODO: review
@@ -362,8 +357,8 @@ func (sv *SchemaRequestTemplateVisitor) RetrieveTemplate(
 
 //nolint:funlen,gocognit // acceptable
 func (sv *SchemaRequestTemplateVisitor) retrieveTemplateVal(
-	sc anysdk.Schema,
-	svc anysdk.Service, //nolint:unparam // TODO: review
+	sc formulation.Schema,
+	svc formulation.Service, //nolint:unparam // TODO: review
 	objectKey string,
 	localSchemaVisitedMap map[string]bool,
 ) (interface{}, error) {
@@ -463,8 +458,8 @@ func (sv *SchemaRequestTemplateVisitor) retrieveTemplateVal(
 
 //nolint:funlen,gocognit // acceptable
 func (sv *SchemaRequestTemplateVisitor) retrieveJsonnetPlaceholderVal(
-	sc anysdk.Schema,
-	svc anysdk.Service, //nolint:unparam // TODO: review
+	sc formulation.Schema,
+	svc formulation.Service, //nolint:unparam // TODO: review
 	objectKey string,
 	localSchemaVisitedMap map[string]bool,
 ) (interface{}, error) {
@@ -560,7 +555,7 @@ func (sv *SchemaRequestTemplateVisitor) retrieveJsonnetPlaceholderVal(
 	}
 }
 
-func getAdditionalStuff(ss anysdk.Schema, templateValName string) string {
+func getAdditionalStuff(ss formulation.Schema, templateValName string) string {
 	valBase := fmt.Sprintf("{{ %s[0].val }}", templateValName)
 	switch ss.GetType() {
 	case strType:
@@ -572,7 +567,7 @@ func getAdditionalStuff(ss anysdk.Schema, templateValName string) string {
 	}
 }
 
-func getAdditionalStuffPlaceholder(ss anysdk.Schema, templateValName string) string {
+func getAdditionalStuffPlaceholder(ss formulation.Schema, templateValName string) string {
 	valBase := fmt.Sprintf("<< %s[0].val >>", templateValName)
 	switch ss.GetType() {
 	case strType:
