@@ -213,8 +213,8 @@ func (pgr *standardDBMSInternalRouter) analyzeTableExprAllRDBMS(node sqlparser.T
 		}
 	case *sqlparser.JoinTableExpr:
 		lhs := pgr.analyzeTableExprAllRDBMS(node.LeftExpr)
-		if lhs {
-			return true
+		if !lhs {
+			return false
 		}
 		rhs := pgr.analyzeTableExprAllRDBMS(node.RightExpr)
 		if rhs {
