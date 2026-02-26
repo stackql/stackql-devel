@@ -25,6 +25,7 @@ func IsSelectDynamic(node *sqlparser.Select) bool {
 }
 
 func isScalarSQLVal(expr *sqlparser.SQLVal) bool {
+	//nolint:exhaustive // this is not exhaustive, but it is sufficient for our use cases
 	switch expr.Type {
 	case sqlparser.IntVal, sqlparser.FloatVal, sqlparser.HexNum, sqlparser.HexVal, sqlparser.ValArg:
 		return true
