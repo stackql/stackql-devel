@@ -231,11 +231,13 @@ var shellCmd = &cobra.Command{
 				if len(splitQueries) > 0 {
 					for i, s := range splitQueries {
 						if i == len(splitQueries)-1 && !hasRHSSemiColon {
+							// Last piece has no trailing semicolon;
+							// accumulate for multi-line continuation.
 							sb.Reset()
 							sb.WriteString(s)
+							continue
 						}
-						line = s
-						sb.WriteString(" " + line)
+						sb.WriteString(" " + s)
 						rawQuery := sb.String()
 						queryToExecute, qErr := entryutil.PreprocessInline(runtimeCtx, rawQuery)
 						if qErr != nil {
@@ -243,6 +245,7 @@ var shellCmd = &cobra.Command{
 						}
 						l.WriteToHistory(rawQuery) //nolint:errcheck // TODO: investigate
 						sessionRunnerInstance.RunCommand(queryToExecute)
+						sb.Reset()
 					}
 				} else {
 					sb.WriteString(" " + line)
