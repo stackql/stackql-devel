@@ -113,17 +113,11 @@ func isAnnotationIndirection(annotationCtx taxonomy.AnnotationCtx) bool {
 // Unlike regular tables that need HTTP acquisition, indirections are already materialized by the
 // "create tail" builder and appear in the FROM clause as inline subqueries.
 // This method creates a NopBuilder as a placeholder in the execution DAG.
+// Indirections are NOT added to dp.tableSlice because they appear as inline subqueries
+// with their own internal control columns; adding them would generate incorrect outer WHERE clauses.
 func (dp *standardDependencyPlanner) orchestrateIndirection(
 	annotationCtx taxonomy.AnnotationCtx,
 ) (int, error) {
-	rc, err := tableinsertioncontainer.NewTableInsertionContainer(
-		annotationCtx.GetTableMeta(),
-		dp.handlerCtx.GetSQLEngine(),
-		dp.handlerCtx.GetTxnCounterMgr(),
-	)
-	if err != nil {
-		return -1, err
-	}
 	builder := primitivebuilder.NewNopBuilder(
 		dp.primitiveComposer.GetGraphHolder(),
 		dp.primitiveComposer.GetTxnCtrlCtrs(),
@@ -133,7 +127,6 @@ func (dp *standardDependencyPlanner) orchestrateIndirection(
 	)
 	dp.execSlice = append(dp.execSlice, builder)
 	idx := len(dp.execSlice) - 1
-	dp.tableSlice = append(dp.tableSlice, rc)
 	return idx, nil
 }
 
