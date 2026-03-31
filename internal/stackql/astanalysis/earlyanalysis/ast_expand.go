@@ -152,10 +152,19 @@ func (v *indirectExpandAstVisitor) processIndirect(node sqlparser.SQLNode, indir
 	if err != nil {
 		return nil //nolint:nilerr //TODO: investigate
 	}
+	// Filter parent WHERE params to only pass down unqualified (alias-free) entries.
+	// Aliased params like "r.org" reference specific outer tables and must not
+	// leak into child indirection analysis, where the alias would be unresolvable.
+	filteredWhereParams := parserutil.NewParameterMap()
+	for k, val := range v.whereParams.GetMap() {
+		if k.Alias() == "" {
+			filteredWhereParams.Set(k, val) //nolint:errcheck // best effort
+		}
+	}
 	childAnalyzer, err := NewEarlyScreenerAnalyzer(
 		v.primitiveGenerator,
 		v.annotatedAST,
-		v.whereParams.Clone(),
+		filteredWhereParams,
 		v.indirectionDepth+1,
 	)
 	if err != nil {

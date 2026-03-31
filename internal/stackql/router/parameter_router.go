@@ -531,9 +531,7 @@ func (pr *standardParameterRouter) route(
 		}
 		t, ok := pr.tablesAliasMap[alias]
 		if !ok {
-			// Skip params from parent queries whose alias is not in the current scope.
-			// This occurs when indirections (views, subqueries) inherit parent WHERE params.
-			continue
+			return nil, fmt.Errorf("alias '%s' does not map to any table expression", alias)
 		}
 		if t == tb {
 			ref, ok := pr.colRefs[k]
@@ -551,8 +549,7 @@ func (pr *standardParameterRouter) route(
 		}
 		t, ok := pr.tablesAliasMap[alias]
 		if !ok {
-			// Skip params from parent queries whose alias is not in the current scope.
-			continue
+			return nil, fmt.Errorf("alias '%s' does not map to any table expression", alias)
 		}
 		if t == tb {
 			ref, ok := pr.colRefs[k]
