@@ -650,6 +650,7 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 
 	case *sqlparser.AliasedTableExpr:
 		var exprStr, partitionStr string
+		aliasHandledByIndirect := false
 		if node.Expr != nil {
 			anCtx, ok := v.annotations[node]
 			if !ok {
@@ -661,12 +662,18 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			if indirect, isIndirect := anCtx.GetTableMeta().GetIndirect(); isIndirect {
 				//
 				name := indirect.GetName()
+				// Use the user-specified alias if present, otherwise the view/indirect name.
+				// This prevents double aliasing when the node.As fallthrough appends the alias again.
+				if !node.As.IsEmpty() {
+					name = node.As.GetRawVal()
+				}
 				indirectType := indirect.GetType()
 				switch indirectType {
 				case astindirect.ViewType:
 					templateString := fmt.Sprintf(` ( %%s ) AS "%s" `, name)
 					v.rewrittenQuery = templateString
 					v.indirectContexts = append(v.indirectContexts, indirect.GetSelectContext())
+					aliasHandledByIndirect = true
 				case astindirect.SubqueryType:
 					// Note: CTEs are converted to SubqueryType at AST level,
 					// so this path handles both regular subqueries and CTEs.
@@ -726,7 +733,7 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			partitionStr = v.GetRewrittenQuery()
 		}
 		q := fmt.Sprintf("%s%s", exprStr, partitionStr)
-		if !node.As.IsEmpty() {
+		if !node.As.IsEmpty() && !aliasHandledByIndirect {
 			node.As.Accept(v)
 			asStr := v.GetRewrittenQuery()
 			q = fmt.Sprintf("%s as %v", q, asStr)
