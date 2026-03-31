@@ -35,11 +35,24 @@ The runtime representation of views must support:
     - Acquistion occurs as normal through primitive DAG.
     - Selection phase uses physical views.
 
+## Materialized views
+
+MAterialized views are similar in nature to views, although eager executed and lacking in mutation of internla `WHERE` clauses from outside.
+
+## User space tables
+
+These map to RDBMS tables.  The DDL is somewhat impaired; we imagine these are suseful for staging in general and applications across: ELT, IAC.
+
 
 ## Subqueries
 
 Some aspects of subquery analysis and execution will be similar to views, but not all.  What are the considerations for view implementation in the short term such that subsequent subquery implmentation is expedited and natural.
 
 To be continued...
+
+
+## Joins and aliasing on Views etc
+
+It is possible to join and alias collections of views, materialized views, subqueries and user space tables.
 
 
