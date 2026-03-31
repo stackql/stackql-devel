@@ -662,15 +662,17 @@ func (v *standardFromRewriteAstVisitor) Visit(node sqlparser.SQLNode) error {
 			if indirect, isIndirect := anCtx.GetTableMeta().GetIndirect(); isIndirect {
 				//
 				name := indirect.GetName()
-				// Use the user-specified alias if present, otherwise the view/indirect name.
-				// This prevents double aliasing when the node.As fallthrough appends the alias again.
-				if !node.As.IsEmpty() {
-					name = node.As.GetRawVal()
-				}
 				indirectType := indirect.GetType()
 				switch indirectType {
 				case astindirect.ViewType:
-					templateString := fmt.Sprintf(` ( %%s ) AS "%s" `, name)
+					// Use the user-specified alias if present, otherwise the view name.
+					// The alias is embedded in the template to prevent double aliasing
+					// when the node.As fallthrough at the end of this case would append it again.
+					viewAlias := name
+					if !node.As.IsEmpty() {
+						viewAlias = node.As.GetRawVal()
+					}
+					templateString := fmt.Sprintf(` ( %%s ) AS "%s" `, viewAlias)
 					v.rewrittenQuery = templateString
 					v.indirectContexts = append(v.indirectContexts, indirect.GetSelectContext())
 					aliasHandledByIndirect = true
