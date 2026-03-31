@@ -115,6 +115,8 @@ func isAnnotationIndirection(annotationCtx taxonomy.AnnotationCtx) bool {
 // This method creates a NopBuilder as a placeholder in the execution DAG.
 // Indirections are NOT added to dp.tableSlice because they appear as inline subqueries
 // with their own internal control columns; adding them would generate incorrect outer WHERE clauses.
+//
+//nolint:unparam,revive // acceptable
 func (dp *standardDependencyPlanner) orchestrateIndirection(
 	annotationCtx taxonomy.AnnotationCtx,
 ) (int, error) {
@@ -258,6 +260,7 @@ func (dp *standardDependencyPlanner) Plan() error {
 					continue
 				}
 				for _, e := range edges {
+					//nolint:nestif // necessary to handle indirection cases cleanly
 					if e.From().ID() == n.ID() {
 						insPsc, tcc, insErr := dp.processOrphan(tableExpr, annotation, n)
 						if insErr != nil {
@@ -317,6 +320,7 @@ func (dp *standardDependencyPlanner) Plan() error {
 					}
 					continue
 				}
+				//nolint:nestif // necessary to handle indirection cases cleanly
 				if fromIsIndirection {
 					// Source is indirection, destination is a regular table.
 					fromIdx := dp.nodeIDIdxMap[fromNode.ID()]
@@ -343,6 +347,7 @@ func (dp *standardDependencyPlanner) Plan() error {
 					}
 					continue
 				}
+				//nolint:nestif // necessary to handle indirection cases cleanly
 				if toIsIndirection {
 					// Destination is indirection, source is a regular table.
 					toIdx := dp.nodeIDIdxMap[toNode.ID()]
