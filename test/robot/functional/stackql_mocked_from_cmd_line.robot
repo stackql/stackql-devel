@@ -9597,6 +9597,147 @@ Three Way View Subquery Provider Table Join Returns Results
     ...    stdout=${CURDIR}/tmp/Three-Way-View-Subquery-Provider-Table-Join-Returns-Results-stdout.tmp
     ...    stderr=${CURDIR}/tmp/Three-Way-View-Subquery-Provider-Table-Join-Returns-Results-stderr.tmp
 
+Three Way View Provider Table Materialized View Join Returns Results
+    ${inputStr} =    Catenate
+    ...    create or replace view vw_repos as select name, url from stackql_repositories;
+    ...    create or replace materialized view mv_repos as select name from stackql_repositories;
+    ...    select v1.name from vw_repos v1 inner join github.repos.repos r on v1.name = r.name inner join mv_repos mv on v1.name = mv.name where r.org = 'stackql';
+    Should Stackql Exec Inline Contain
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    dummyapp.io
+    ...    stdout=${CURDIR}/tmp/Three-Way-View-Provider-Table-Materialized-View-Join-Returns-Results-stdout.tmp
+    ...    stderr=${CURDIR}/tmp/Three-Way-View-Provider-Table-Materialized-View-Join-Returns-Results-stderr.tmp
+
+Three Way Materialized View Subquery Provider Table Join Returns Results
+    ${inputStr} =    Catenate
+    ...    create or replace materialized view mv_repos as select name from stackql_repositories;
+    ...    select mv.name from mv_repos mv inner join (select name, url from stackql_repositories) sq on mv.name = sq.name inner join github.repos.repos r on mv.name = r.name where r.org = 'stackql';
+    Should Stackql Exec Inline Contain
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    dummyapp.io
+    ...    stdout=${CURDIR}/tmp/Three-Way-Materialized-View-Subquery-Provider-Table-Join-Returns-Results-stdout.tmp
+    ...    stderr=${CURDIR}/tmp/Three-Way-Materialized-View-Subquery-Provider-Table-Join-Returns-Results-stderr.tmp
+
+Three Way View View Subquery Join Returns Results
+    ${inputStr} =    Catenate
+    ...    create or replace view vw_repos_name as select name from stackql_repositories;
+    ...    create or replace view vw_repos_url as select name, url from stackql_repositories;
+    ...    select v1.name from vw_repos_name v1 inner join vw_repos_url v2 on v1.name = v2.name inner join (select name from stackql_repositories) sq on v1.name = sq.name;
+    Should Stackql Exec Inline Contain
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    dummyapp.io
+    ...    stdout=${CURDIR}/tmp/Three-Way-View-View-Subquery-Join-Returns-Results-stdout.tmp
+    ...    stderr=${CURDIR}/tmp/Three-Way-View-View-Subquery-Join-Returns-Results-stderr.tmp
+
+Four Way View Subquery Materialized View Provider Table Join Returns Results
+    ${inputStr} =    Catenate
+    ...    create or replace view vw_repos as select name, url from stackql_repositories;
+    ...    create or replace materialized view mv_repos as select name from stackql_repositories;
+    ...    select v1.name from vw_repos v1 inner join (select name from stackql_repositories) sq on v1.name = sq.name inner join mv_repos mv on v1.name = mv.name inner join github.repos.repos r on v1.name = r.name where r.org = 'stackql';
+    Should Stackql Exec Inline Contain
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    dummyapp.io
+    ...    stdout=${CURDIR}/tmp/Four-Way-View-Subquery-Materialized-View-Provider-Table-Join-Returns-Results-stdout.tmp
+    ...    stderr=${CURDIR}/tmp/Four-Way-View-Subquery-Materialized-View-Provider-Table-Join-Returns-Results-stderr.tmp
+
+View Left Outer Join View Returns Results
+    ${inputStr} =    Catenate
+    ...    create or replace view vw_repos_name as select name from stackql_repositories;
+    ...    create or replace view vw_repos_url as select name, url from stackql_repositories;
+    ...    select v1.name, v2.url from vw_repos_name v1 left outer join vw_repos_url v2 on v1.name = v2.name;
+    Should Stackql Exec Inline Contain
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    dummyapp.io
+    ...    stdout=${CURDIR}/tmp/View-Left-Outer-Join-View-Returns-Results-stdout.tmp
+    ...    stderr=${CURDIR}/tmp/View-Left-Outer-Join-View-Returns-Results-stderr.tmp
+
+View Left Outer Join Subquery Returns Results
+    ${inputStr} =    Catenate
+    ...    create or replace view vw_repos as select name, url from stackql_repositories;
+    ...    select v1.name from vw_repos v1 left outer join (select name from stackql_repositories) sq on v1.name = sq.name;
+    Should Stackql Exec Inline Contain
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    dummyapp.io
+    ...    stdout=${CURDIR}/tmp/View-Left-Outer-Join-Subquery-Returns-Results-stdout.tmp
+    ...    stderr=${CURDIR}/tmp/View-Left-Outer-Join-Subquery-Returns-Results-stderr.tmp
+
+View Left Outer Join Materialized View Returns Results
+    ${inputStr} =    Catenate
+    ...    create or replace view vw_repos as select name, url from stackql_repositories;
+    ...    create or replace materialized view mv_repos as select name from stackql_repositories;
+    ...    select v1.name from vw_repos v1 left outer join mv_repos mv on v1.name = mv.name;
+    Should Stackql Exec Inline Contain
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    dummyapp.io
+    ...    stdout=${CURDIR}/tmp/View-Left-Outer-Join-Materialized-View-Returns-Results-stdout.tmp
+    ...    stderr=${CURDIR}/tmp/View-Left-Outer-Join-Materialized-View-Returns-Results-stderr.tmp
+
+Three Way View Inner Join Subquery Left Outer Join Provider Table Returns Results
+    ${inputStr} =    Catenate
+    ...    create or replace view vw_repos as select name, url from stackql_repositories;
+    ...    select v1.name from vw_repos v1 inner join (select name from stackql_repositories) sq on v1.name = sq.name left outer join github.repos.repos r on v1.name = r.name where r.org = 'stackql';
+    Should Stackql Exec Inline Contain
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    dummyapp.io
+    ...    stdout=${CURDIR}/tmp/Three-Way-View-Inner-Join-Subquery-Left-Outer-Join-Provider-Table-Returns-Results-stdout.tmp
+    ...    stderr=${CURDIR}/tmp/Three-Way-View-Inner-Join-Subquery-Left-Outer-Join-Provider-Table-Returns-Results-stderr.tmp
+
 CTE Within View Returns Results
     ${inputStr} =    Catenate
     ...    create or replace view vw_cte as with sub as (select name from stackql_repositories) select name from sub;
