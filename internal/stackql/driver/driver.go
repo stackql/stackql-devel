@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/stackql/any-sdk/pkg/logging"
 	"github.com/stackql/any-sdk/public/sqlengine"
@@ -19,9 +22,10 @@ import (
 )
 
 var (
-	_ StackQLDriver                = &basicStackQLDriver{}
-	_ sqlbackend.SQLBackendFactory = &basicStackQLDriverFactory{}
-	_ StackQLDriverFactory         = &basicStackQLDriverFactory{}
+	_ StackQLDriver                    = &basicStackQLDriver{}
+	_ sqlbackend.IExtendedQueryBackend = &basicStackQLDriver{}
+	_ sqlbackend.SQLBackendFactory     = &basicStackQLDriverFactory{}
+	_ StackQLDriverFactory             = &basicStackQLDriverFactory{}
 )
 
 type StackQLDriverFactory interface {
@@ -192,6 +196,72 @@ func NewStackQLDriver(handlerCtx handler.HandlerContext) (StackQLDriver, error) 
 		handlerCtx:      handlerCtx,
 		txnOrchestrator: txnOrchestrator,
 	}, nil
+}
+
+func (dr *basicStackQLDriver) HandleParse(
+	ctx context.Context, stmtName string, query string, paramOIDs []uint32,
+) ([]uint32, error) {
+	return paramOIDs, nil
+}
+
+func (dr *basicStackQLDriver) HandleBind(
+	ctx context.Context, portalName string, stmtName string,
+	paramFormats []int16, paramValues [][]byte, resultFormats []int16,
+) error {
+	return nil
+}
+
+func (dr *basicStackQLDriver) HandleDescribeStatement(
+	ctx context.Context, stmtName string, query string, paramOIDs []uint32,
+) ([]uint32, []sqldata.ISQLColumn, error) {
+	return paramOIDs, nil, nil
+}
+
+func (dr *basicStackQLDriver) HandleDescribePortal(
+	ctx context.Context, portalName string, stmtName string, query string, paramOIDs []uint32,
+) ([]sqldata.ISQLColumn, error) {
+	return nil, nil
+}
+
+func (dr *basicStackQLDriver) HandleExecute(
+	ctx context.Context, portalName string, stmtName string, query string,
+	paramFormats []int16, paramValues [][]byte, resultFormats []int16, maxRows int32,
+) (sqldata.ISQLResultStream, error) {
+	resolved := substituteParams(query, paramFormats, paramValues)
+	return dr.HandleSimpleQuery(ctx, resolved)
+}
+
+var paramPlaceholderRegex = regexp.MustCompile(`\$(\d+)`)
+
+// substituteParams replaces $1, $2, ... placeholders with their bound values.
+// NULL parameters are substituted as the literal NULL.
+// String values are single-quote escaped.
+func substituteParams(query string, paramFormats []int16, paramValues [][]byte) string {
+	if len(paramValues) == 0 {
+		return query
+	}
+	return paramPlaceholderRegex.ReplaceAllStringFunc(query, func(match string) string {
+		idxStr := match[1:] // strip leading $
+		idx, err := strconv.Atoi(idxStr)
+		if err != nil || idx < 1 || idx > len(paramValues) {
+			return match // leave unrecognised placeholders as-is
+		}
+		val := paramValues[idx-1]
+		if val == nil {
+			return "NULL"
+		}
+		text := string(val)
+		escaped := strings.ReplaceAll(text, "'", "''")
+		return "'" + escaped + "'"
+	})
+}
+
+func (dr *basicStackQLDriver) HandleCloseStatement(ctx context.Context, stmtName string) error {
+	return nil
+}
+
+func (dr *basicStackQLDriver) HandleClosePortal(ctx context.Context, portalName string) error {
+	return nil
 }
 
 func (dr *basicStackQLDriver) processQueryOrQueries(
