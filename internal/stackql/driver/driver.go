@@ -14,7 +14,9 @@ import (
 	"github.com/stackql/stackql/internal/stackql/acid/tsm_physio"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
+	"github.com/stackql/stackql/internal/stackql/planbuilder"
 	"github.com/stackql/stackql/internal/stackql/responsehandler"
+	"github.com/stackql/stackql/internal/stackql/typing"
 	"github.com/stackql/stackql/internal/stackql/util"
 	"github.com/stackql/stackql/pkg/txncounter"
 
@@ -214,13 +216,54 @@ func (dr *basicStackQLDriver) HandleBind(
 func (dr *basicStackQLDriver) HandleDescribeStatement(
 	ctx context.Context, stmtName string, query string, paramOIDs []uint32,
 ) ([]uint32, []sqldata.ISQLColumn, error) {
-	return paramOIDs, nil, nil
+	columns, err := dr.describeColumns(query)
+	if err != nil {
+		return nil, nil, err
+	}
+	return paramOIDs, columns, nil
 }
 
 func (dr *basicStackQLDriver) HandleDescribePortal(
 	ctx context.Context, portalName string, stmtName string, query string, paramOIDs []uint32,
 ) ([]sqldata.ISQLColumn, error) {
-	return nil, nil
+	return dr.describeColumns(query)
+}
+
+// describeColumns builds a query plan (without executing) and extracts
+// result column metadata.  For non-SELECT statements the plan carries no
+// column metadata, so nil is returned and the wire library sends NoData.
+func (dr *basicStackQLDriver) describeColumns(query string) ([]sqldata.ISQLColumn, error) {
+	clonedCtx := dr.handlerCtx.Clone()
+	clonedCtx.SetQuery(query)
+	clonedCtx.SetRawQuery(query)
+	pb := planbuilder.NewPlanBuilder(nil)
+	qPlan, err := pb.BuildPlanFromContext(clonedCtx)
+	if err != nil || qPlan == nil {
+		return nil, nil //nolint:nilerr // plan failure → NoData is acceptable
+	}
+	colMeta := qPlan.GetColumnMetadata()
+	if len(colMeta) == 0 {
+		return nil, nil
+	}
+	return columnMetadataToSQLColumns(colMeta), nil
+}
+
+// columnMetadataToSQLColumns converts internal column metadata to wire protocol columns.
+func columnMetadataToSQLColumns(cols []typing.ColumnMetadata) []sqldata.ISQLColumn {
+	table := sqldata.NewSQLTable(0, "")
+	result := make([]sqldata.ISQLColumn, len(cols))
+	for i, col := range cols {
+		result[i] = sqldata.NewSQLColumn(
+			table,
+			col.GetIdentifier(),
+			0,
+			uint32(col.GetColumnOID()),
+			-1,
+			0,
+			"text",
+		)
+	}
+	return result
 }
 
 func (dr *basicStackQLDriver) HandleExecute(

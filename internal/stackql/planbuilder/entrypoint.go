@@ -181,6 +181,11 @@ func (pb *standardPlanBuilder) BuildPlanFromContext(handlerCtx handler.HandlerCo
 
 	qPlan.SetInstructions(pGBuilder.getPlanGraphHolder())
 
+	// Extract column metadata from the plan for extended query protocol Describe support.
+	if selCtx := pGBuilder.getRootPrimitiveGenerator().GetPrimitiveComposer().GetSelectPreparedStatementCtx(); selCtx != nil {
+		qPlan.SetColumnMetadata(selCtx.GetNonControlColumns())
+	}
+
 	if qPlan.GetInstructions() != nil {
 		err = qPlan.GetInstructions().GetPrimitiveGraph().Optimise()
 		if err != nil {
