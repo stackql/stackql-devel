@@ -53,3 +53,16 @@ class PsycoPG2Client(object):
         for col in cur.description
       ]
 
+
+  def exec_prepared_query(self, query :str, params :tuple) -> typing.List[typing.Dict]:
+    """Execute a parameterised query (extended query protocol) and return rows as dicts."""
+    with self._connection.cursor(cursor_factory=RealDictCursor) as cur:
+      cur.execute(query, params)
+      rv = []
+      try:
+        for r in cur:
+          rv.append(dict(r))
+      except Exception:
+        pass
+      return rv
+
