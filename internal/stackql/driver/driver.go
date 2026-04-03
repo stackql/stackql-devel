@@ -71,6 +71,7 @@ func (sdf *basicStackQLDriverFactory) newSQLDriver() (StackQLDriver, error) {
 		debugBuf:        buf,
 		handlerCtx:      clonedCtx,
 		txnOrchestrator: txnOrchestrator,
+		shapeInferrer:   queryshape.NewInferrer(clonedCtx),
 	}
 	return rv, nil
 }
@@ -134,6 +135,7 @@ type basicStackQLDriver struct {
 	debugBuf        *bytes.Buffer
 	handlerCtx      handler.HandlerContext
 	txnOrchestrator tsm_physio.Orchestrator
+	shapeInferrer   queryshape.Inferrer
 }
 
 func (dr *basicStackQLDriver) GetDebugStr() string {
@@ -196,6 +198,7 @@ func NewStackQLDriver(handlerCtx handler.HandlerContext) (StackQLDriver, error) 
 	return &basicStackQLDriver{
 		handlerCtx:      handlerCtx,
 		txnOrchestrator: txnOrchestrator,
+		shapeInferrer:   queryshape.NewInferrer(handlerCtx),
 	}, nil
 }
 
@@ -215,14 +218,13 @@ func (dr *basicStackQLDriver) HandleBind(
 func (dr *basicStackQLDriver) HandleDescribeStatement(
 	ctx context.Context, stmtName string, query string, paramOIDs []uint32,
 ) ([]uint32, []sqldata.ISQLColumn, error) {
-	columns := queryshape.InferResultColumns(dr.handlerCtx, query)
-	return paramOIDs, columns, nil
+	return paramOIDs, dr.shapeInferrer.InferResultColumns(query), nil
 }
 
 func (dr *basicStackQLDriver) HandleDescribePortal(
 	ctx context.Context, portalName string, stmtName string, query string, paramOIDs []uint32,
 ) ([]sqldata.ISQLColumn, error) {
-	return queryshape.InferResultColumns(dr.handlerCtx, query), nil
+	return dr.shapeInferrer.InferResultColumns(query), nil
 }
 
 func (dr *basicStackQLDriver) HandleExecute(
