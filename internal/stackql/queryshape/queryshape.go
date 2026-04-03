@@ -18,6 +18,9 @@ package queryshape
 
 import (
 	"math"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/lib/pq/oid"
 	"github.com/stackql/psql-wire/pkg/sqldata"
@@ -178,4 +181,51 @@ func columnMetadataToSQLColumns(cols []typing.ColumnMetadata) []sqldata.ISQLColu
 		)
 	}
 	return result
+}
+
+var paramPlaceholderRegex = regexp.MustCompile(`\$(\d+)`)
+
+// SubstituteParams replaces $1, $2, ... placeholders with their bound values.
+// NULL parameters (nil entries in paramValues) are substituted as the literal NULL.
+// String values are single-quote escaped.
+func SubstituteParams(query string, paramFormats []int16, paramValues [][]byte) string {
+	if len(paramValues) == 0 {
+		return query
+	}
+	return paramPlaceholderRegex.ReplaceAllStringFunc(query, func(match string) string {
+		idxStr := match[1:] // strip leading $
+		idx, err := strconv.Atoi(idxStr)
+		if err != nil || idx < 1 || idx > len(paramValues) {
+			return match // leave unrecognised placeholders as-is
+		}
+		val := paramValues[idx-1]
+		if val == nil {
+			return "NULL"
+		}
+		text := string(val)
+		escaped := strings.ReplaceAll(text, "'", "''")
+		return "'" + escaped + "'"
+	})
+}
+
+// SubstituteDecodedParams replaces $1, $2, ... placeholders with
+// pre-decoded string values.  "NULL" values are substituted unquoted;
+// all other values are single-quote escaped.
+func SubstituteDecodedParams(query string, decodedValues []string) string {
+	if len(decodedValues) == 0 {
+		return query
+	}
+	return paramPlaceholderRegex.ReplaceAllStringFunc(query, func(match string) string {
+		idxStr := match[1:]
+		idx, err := strconv.Atoi(idxStr)
+		if err != nil || idx < 1 || idx > len(decodedValues) {
+			return match
+		}
+		val := decodedValues[idx-1]
+		if val == "NULL" {
+			return "NULL"
+		}
+		escaped := strings.ReplaceAll(val, "'", "''")
+		return "'" + escaped + "'"
+	})
 }
