@@ -726,6 +726,15 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
 
 
   @keyword
+  def should_PG_client_column_descriptions_equal(self, conn_str :str, query :str, expected_descriptions :typing.List[typing.Dict], **kwargs):
+    """Execute a query via psycopg2 and verify column descriptions (name + type_code OID)."""
+    client = PsycoPG2Client(conn_str)
+    result = client.get_column_descriptions(query)
+    self.log(f"Column descriptions: {result}")
+    return self.lists_should_be_equal(result, expected_descriptions)
+
+
+  @keyword
   def should_PG_client_V2_session_inline_equal(self, conn_str :str, queries :typing.List[str], expected_output :typing.List[typing.Dict], **kwargs):
     client = PsycoPG2Client(conn_str)
     result =  client.run_queries(
