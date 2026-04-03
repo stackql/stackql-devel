@@ -17,6 +17,8 @@
 package queryshape
 
 import (
+	"math"
+
 	"github.com/lib/pq/oid"
 	"github.com/stackql/psql-wire/pkg/sqldata"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
@@ -142,12 +144,16 @@ func relationalColumnsToSQLColumns(cols []typing.RelationalColumn) []sqldata.ISQ
 		if storedOID, ok := col.GetOID(); ok {
 			colOID = storedOID
 		}
+		w := col.GetWidth()
+		if w > math.MaxInt16 || w < math.MinInt16 {
+			w = -1
+		}
 		result[i] = sqldata.NewSQLColumn(
 			table,
 			col.GetIdentifier(),
 			0,
 			uint32(colOID),
-			int16(col.GetWidth()),
+			int16(w), //nolint:gosec // bounds checked above
 			0,
 			"text",
 		)

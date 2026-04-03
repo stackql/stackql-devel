@@ -202,7 +202,6 @@ linters:
         path: internal\/stackql\/driver\/.*\.go
       - linters:
           - stylecheck
-          - gosec
         path: internal\/stackql\/queryshape\/.*\.go
       - linters:
           - revive
