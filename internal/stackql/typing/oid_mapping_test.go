@@ -1,4 +1,4 @@
-package typing
+package typing //nolint:testpackage // tests exported functions in same package for simplicity
 
 import (
 	"testing"

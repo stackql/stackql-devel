@@ -256,8 +256,8 @@ func (dr *basicStackQLDriver) HandleDescribeStatement(
 func (dr *basicStackQLDriver) HandleDescribePortal(
 	ctx context.Context, portalName string, stmtName string, query string, paramOIDs []uint32,
 ) ([]sqldata.ISQLColumn, error) {
-	if portal, ok := dr.portalCache[portalName]; ok {
-		if cached, ok := dr.stmtCache[portal.stmtName]; ok {
+	if portal, portalFound := dr.portalCache[portalName]; portalFound {
+		if cached, stmtFound := dr.stmtCache[portal.stmtName]; stmtFound {
 			return cached.columns, nil
 		}
 	}
@@ -270,8 +270,8 @@ func (dr *basicStackQLDriver) HandleExecute(
 ) (sqldata.ISQLResultStream, error) {
 	// Look up cached param OIDs for format-aware decoding.
 	var paramOIDs []uint32
-	if portal, ok := dr.portalCache[portalName]; ok {
-		if cached, ok := dr.stmtCache[portal.stmtName]; ok {
+	if portal, portalFound := dr.portalCache[portalName]; portalFound {
+		if cached, stmtFound := dr.stmtCache[portal.stmtName]; stmtFound {
 			paramOIDs = cached.paramOIDs
 		}
 	}

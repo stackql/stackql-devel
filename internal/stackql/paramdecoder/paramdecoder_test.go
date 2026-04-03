@@ -1,4 +1,4 @@
-package paramdecoder
+package paramdecoder_test
 
 import (
 	"encoding/binary"
@@ -6,10 +6,11 @@ import (
 	"testing"
 
 	"github.com/lib/pq/oid"
+	"github.com/stackql/stackql/internal/stackql/paramdecoder"
 )
 
 func TestDecodeTextParams(t *testing.T) {
-	d := NewDecoder()
+	d := paramdecoder.NewDecoder()
 	results, err := d.DecodeParams(
 		[]uint32{uint32(oid.T_text), uint32(oid.T_text)},
 		[]int16{0}, // all text
@@ -24,7 +25,7 @@ func TestDecodeTextParams(t *testing.T) {
 }
 
 func TestDecodeNullParam(t *testing.T) {
-	d := NewDecoder()
+	d := paramdecoder.NewDecoder()
 	results, err := d.DecodeParams(
 		[]uint32{uint32(oid.T_text)},
 		nil,
@@ -39,7 +40,7 @@ func TestDecodeNullParam(t *testing.T) {
 }
 
 func TestDecodeBinaryInt4(t *testing.T) {
-	d := NewDecoder()
+	d := paramdecoder.NewDecoder()
 	val := make([]byte, 4)
 	binary.BigEndian.PutUint32(val, uint32(42))
 	results, err := d.DecodeParams(
@@ -56,7 +57,7 @@ func TestDecodeBinaryInt4(t *testing.T) {
 }
 
 func TestDecodeBinaryInt8(t *testing.T) {
-	d := NewDecoder()
+	d := paramdecoder.NewDecoder()
 	val := make([]byte, 8)
 	binary.BigEndian.PutUint64(val, uint64(9999999999))
 	results, err := d.DecodeParams(
@@ -73,7 +74,7 @@ func TestDecodeBinaryInt8(t *testing.T) {
 }
 
 func TestDecodeBinaryFloat8(t *testing.T) {
-	d := NewDecoder()
+	d := paramdecoder.NewDecoder()
 	val := make([]byte, 8)
 	binary.BigEndian.PutUint64(val, math.Float64bits(3.14))
 	results, err := d.DecodeParams(
@@ -90,7 +91,7 @@ func TestDecodeBinaryFloat8(t *testing.T) {
 }
 
 func TestDecodeBinaryBool(t *testing.T) {
-	d := NewDecoder()
+	d := paramdecoder.NewDecoder()
 	results, err := d.DecodeParams(
 		[]uint32{uint32(oid.T_bool), uint32(oid.T_bool)},
 		[]int16{1},
@@ -105,7 +106,7 @@ func TestDecodeBinaryBool(t *testing.T) {
 }
 
 func TestDecodeMixedFormats(t *testing.T) {
-	d := NewDecoder()
+	d := paramdecoder.NewDecoder()
 	int4Val := make([]byte, 4)
 	binary.BigEndian.PutUint32(int4Val, uint32(100))
 	results, err := d.DecodeParams(
@@ -122,7 +123,7 @@ func TestDecodeMixedFormats(t *testing.T) {
 }
 
 func TestDecodeUnknownOIDBinaryFallsBackToText(t *testing.T) {
-	d := NewDecoder()
+	d := paramdecoder.NewDecoder()
 	results, err := d.DecodeParams(
 		[]uint32{99999},
 		[]int16{1}, // binary

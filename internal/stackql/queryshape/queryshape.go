@@ -188,7 +188,9 @@ var paramPlaceholderRegex = regexp.MustCompile(`\$(\d+)`)
 // SubstituteParams replaces $1, $2, ... placeholders with their bound values.
 // NULL parameters (nil entries in paramValues) are substituted as the literal NULL.
 // String values are single-quote escaped.
-func SubstituteParams(query string, paramFormats []int16, paramValues [][]byte) string {
+//
+//nolint:revive // paramFormats retained for future binary format support
+func SubstituteParams(query string, paramFormats []int16, paramValues [][]byte) string { //nolint:revive // future use
 	if len(paramValues) == 0 {
 		return query
 	}

@@ -1,4 +1,4 @@
-package queryshape
+package queryshape //nolint:testpackage // tests unexported extractSingleTableName
 
 import (
 	"encoding/json"
@@ -32,10 +32,10 @@ func TestExtractSingleTableName(t *testing.T) {
 }
 
 type SubstituteParamsCase struct {
-	Description string   `json:"description"`
-	Query       string   `json:"query"`
+	Description string    `json:"description"`
+	Query       string    `json:"query"`
 	ParamValues []*string `json:"paramValues"` // nil entries represent SQL NULL
-	Expected    string   `json:"expected"`
+	Expected    string    `json:"expected"`
 }
 
 func (c *SubstituteParamsCase) toByteSlices() [][]byte {
