@@ -1389,7 +1389,7 @@ Create and Interrogate Materialized View With Userspace Table Join and Aliasing 
 
 Subquery Left Joined With Aliasing and Name Collision
     ${inputStr} =    Catenate
-    ...    select u1.UserName, u.UserId, u.Arn, u1.region from ( select Arn, UserName, UserId from aws.iam.users where region = 'us-east-1' ) u inner join aws.iam.users u1 on u1.Arn = u.Arn where region = 'us-east-1'  order by u1.UserName desc;
+    ...    select u1.UserName, u.UserId, u.Arn, u1.region from ( select Arn, UserName, UserId from aws.iam.users where region = 'us-east-1' ) u left join aws.iam.users u1 on u1.Arn = u.Arn where region = 'us-east-1'  order by u1.UserName desc;
     ${outputStr} =    Catenate    SEPARATOR=\n
     ...    |----------|-----------------------|--------------------------------------------------------------------------------|-----------|
     ...    |${SPACE}UserName${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}UserId${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}Arn${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}${SPACE}region${SPACE}${SPACE}${SPACE}|
@@ -2535,7 +2535,7 @@ Left Outer Join Network Infra Scalar in ON Condition
     ...    ${outputStr}
     ...    stdout=${CURDIR}/tmp/Left-Outer-Join-Network-Infra-Scalar-in-ON-Condition.tmp
 
-Left Inner Join Users
+Inner Join Users Cross Cloud Fuzzy Match
     ${sqliteInputStr} =    Catenate
     ...    select 
     ...    aid.UserName as aws_user_name
@@ -2591,7 +2591,7 @@ Left Inner Join Users
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${inputStr}
     ...    ${outputStr}
-    ...    stdout=${CURDIR}/tmp/Left-Inner-Join-Users.tmp
+    ...    stdout=${CURDIR}/tmp/Inner-Join-Users-Cross-Cloud-Fuzzy-Match.tmp
 
 Google Admin Directory Small Response Also De Facto Credentials Path Env Var
     Set Environment Variable    GOOGLE_APPLICATION_CREDENTIALS    ${GOOGLE_APPLICATION_CREDENTIALS}
