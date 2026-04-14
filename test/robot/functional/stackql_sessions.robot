@@ -46,7 +46,7 @@ Shell Session Multiple Statements Inline
     ...    dummyapp.io
     ...    stdout=${CURDIR}/tmp/Shell-Session-Multiple-Statements-Inline.tmp
     # Verify readline history preserves trailing semicolons
-    ${readline_content} =    Get File    ${REPOSITORY_ROOT}${/}.stackql${/}readline${/}readline.tmp
+    ${readline_content} =    Get File    ${REPOSITORY_ROOT}${/}test${/}.stackql${/}readline${/}readline.tmp
     Should Contain    ${readline_content}    stackql_repositories;
     Should Contain    ${readline_content}    order by name desc;
     [Teardown]    Stackql Per Test Teardown
