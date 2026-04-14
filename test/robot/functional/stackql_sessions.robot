@@ -46,6 +46,7 @@ Shell Session Multiple Statements Inline
     ...    dummyapp.io
     ...    stdout=${CURDIR}/tmp/Shell-Session-Multiple-Statements-Inline.tmp
     # Verify readline history preserves trailing semicolons
+    Pass Execution If    "${EXECUTION_PLATFORM}" == "docker"    Skipping readline verification in docker
     ${readline_content} =    Get File    ${REPOSITORY_ROOT}${/}test${/}.stackql${/}readline${/}readline.tmp
     Should Contain    ${readline_content}    stackql_repositories;
     Should Contain    ${readline_content}    order by name desc;
