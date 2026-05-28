@@ -888,7 +888,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
         *args,
         **cfg
       )
-      return self._verify_both_streams(result, expected_output, expected_stderr_output, **cfg)
+      self._verify_both_streams(result, expected_output, expected_stderr_output, **cfg)
 
 
   @keyword
@@ -996,19 +996,21 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     *args,
     **cfg
   ):
-    result = self._run_stackql_exec_command(
-      stackql_exe, 
-      okta_secret_str,
-      github_secret_str,
-      k8s_secret_str,
-      registry_cfg, 
-      auth_cfg_str, 
-      sql_backend_cfg_str,
-      query,
-      *args,
-      **cfg
-    )
-    return self._contain_both_streams(result, expected_output, expected_output_stderr)
+    repeat_count = int(cfg.pop('repeat_count', 1))
+    for _ in range(repeat_count):
+      result = self._run_stackql_exec_command(
+        stackql_exe,
+        okta_secret_str,
+        github_secret_str,
+        k8s_secret_str,
+        registry_cfg,
+        auth_cfg_str,
+        sql_backend_cfg_str,
+        query,
+        *args,
+        **cfg
+      )
+      self._contain_both_streams(result, expected_output, expected_output_stderr)
 
 
   @keyword
