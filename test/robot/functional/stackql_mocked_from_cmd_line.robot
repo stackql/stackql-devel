@@ -4514,7 +4514,7 @@ ID Fed AWS S3 Buckets Traffic Light Canonical
     Create File    ${CURDIR}/tmp/id-fed-aws-subject-token.jwt    mock-oidc-subject-token-aws
     ${authCfg} =    Catenate
     ...    {"aws":{"type":"aws_web_identity","aws_role_arn":"arn:aws:iam::123456789012:role/mock-idfed-role","aws_sts_region":"us-east-1","aws_sts_endpoint":"https://${LOCAL_HOST_ALIAS}:${MOCKSERVER_PORT_OAUTH_CLIENT_CREDENTIALS_TOKEN}/aws/sts","oidc_subject_token_file":"${CURDIR}/tmp/id-fed-aws-subject-token.jwt"}}
-    Should Stackql Exec Inline Contain Both Streams
+    Should Stackql Exec Inline Equal Both Streams
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
     ...    ${GITHUB_SECRET_STR}
@@ -4523,7 +4523,7 @@ ID Fed AWS S3 Buckets Traffic Light Canonical
     ...    ${authCfg}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_AWS_S3_BUCKETS}
-    ...    CreationDate
+    ...    ${SELECT_AWS_S3_BUCKETS_EXPECTED}
     ...    ${EMPTY}
     ...    stdout=${CURDIR}/tmp/ID-Fed-AWS-S3-Buckets-Traffic-Light-Canonical-stdout.tmp
     ...    stderr=${CURDIR}/tmp/ID-Fed-AWS-S3-Buckets-Traffic-Light-Canonical-stderr.tmp
@@ -4535,9 +4535,7 @@ ID Fed Azure Public Keys Traffic Light Canonical
     Create File    ${CURDIR}/tmp/id-fed-azure-subject-token.jwt    mock-oidc-subject-token-azure
     ${authCfg} =    Catenate
     ...    {"azure":{"type":"azure_federated","azure_tenant_id":"00000000-0000-0000-0000-000000000000","client_id":"11111111-1111-1111-1111-111111111111","scopes":["https://management.azure.com/.default"],"azure_federated_endpoint":"https://${LOCAL_HOST_ALIAS}:${MOCKSERVER_PORT_OAUTH_CLIENT_CREDENTIALS_TOKEN}/azure/federated/token","oidc_subject_token_file":"${CURDIR}/tmp/id-fed-azure-subject-token.jwt"}}
-    ${inputStr} =    Catenate
-    ...    select name from azure.network.virtual_networks where subscriptionId = 'subid' order by name asc;
-    Should Stackql Exec Inline Contain Both Streams
+    Should Stackql Exec Inline Equal Both Streams
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
     ...    ${GITHUB_SECRET_STR}
@@ -4545,8 +4543,8 @@ ID Fed Azure Public Keys Traffic Light Canonical
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${authCfg}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
-    ...    ${inputStr}
-    ...    name
+    ...    ${SELECT_AZURE_COMPUTE_PUBLIC_KEYS}
+    ...    ${SELECT_AZURE_COMPUTE_PUBLIC_KEYS_EXPECTED}
     ...    ${EMPTY}
     ...    stdout=${CURDIR}/tmp/ID-Fed-Azure-Public-Keys-Traffic-Light-Canonical-stdout.tmp
     ...    stderr=${CURDIR}/tmp/ID-Fed-Azure-Public-Keys-Traffic-Light-Canonical-stderr.tmp
@@ -4558,7 +4556,7 @@ ID Fed Google Container Agg Desc Traffic Light Canonical
     Create File    ${CURDIR}/tmp/id-fed-gcp-subject-token.jwt    mock-oidc-subject-token-gcp
     ${authCfg} =    Catenate
     ...    {"google":{"type":"gcp_workload_identity","gcp_workload_identity_audience":"//iam.googleapis.com/projects/123456789/locations/global/workloadIdentityPools/mock-pool/providers/mock-provider","gcp_workload_identity_token_url":"https://${LOCAL_HOST_ALIAS}:${MOCKSERVER_PORT_OAUTH_CLIENT_CREDENTIALS_TOKEN}/gcp/sts/token","gcp_service_account_impersonation_url":"https://${LOCAL_HOST_ALIAS}:${MOCKSERVER_PORT_OAUTH_CLIENT_CREDENTIALS_TOKEN}/gcp/iamcredentials/generateAccessToken","scopes":["https://www.googleapis.com/auth/cloud-platform"],"oidc_subject_token_file":"${CURDIR}/tmp/id-fed-gcp-subject-token.jwt"}}
-    Should Stackql Exec Inline Contain Both Streams
+    Should Stackql Exec Inline Equal Both Streams
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
     ...    ${GITHUB_SECRET_STR}
@@ -4567,7 +4565,7 @@ ID Fed Google Container Agg Desc Traffic Light Canonical
     ...    ${authCfg}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${SELECT_CONTAINER_SUBNET_AGG_DESC}
-    ...    ipCidrRange
+    ...    ${SELECT_CONTAINER_SUBNET_AGG_DESC_EXPECTED}
     ...    ${EMPTY}
     ...    stdout=${CURDIR}/tmp/ID-Fed-Google-Container-Agg-Desc-Traffic-Light-Canonical-stdout.tmp
     ...    stderr=${CURDIR}/tmp/ID-Fed-Google-Container-Agg-Desc-Traffic-Light-Canonical-stderr.tmp

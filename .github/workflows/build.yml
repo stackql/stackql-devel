@@ -817,6 +817,39 @@ jobs:
           python cicd/python/build.py --robot-test  --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true" } }'
         fi
 
+    - name: Run mocked ID federation traffic light tests
+      if: ((startsWith(github.ref_name, 'build-traffic-lights') && github.ref_type == 'tag') || (github.repository == 'stackql/stackql' && github.event_name == 'push' && github.ref == 'refs/heads/main')) && matrix.registry == 'test/registry'
+      env:
+        PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
+      run: |
+        echo "## Stray flask apps to be killed before robot tests ##"
+        pgrep -f flask | xargs kill -9 || true
+        echo "## End ##"
+        if robot \
+          --variable 'SUNDRY_CONFIG:{"registry_path": "test/registry"}' \
+          --variable RUN_ID_FED_TRAFFIC_LIGHTS:true \
+          --include id_fed_traffic_lightANDtls_proxied \
+          -d test/robot/reports-id-fed-traffic-lights \
+          test/robot/functional/stackql_mocked_from_cmd_line.robot; then
+          echo "✅ Mocked ID federation traffic light tests **all** passed"
+        else
+          rv="$?"
+          echo "🟡 **some** mocked ID federation traffic light tests failed code = $rv"
+        fi
+        {
+          echo "ID_FED_TRAFFIC_LIGHTS_COMPLETED=true"
+        } >> "$GITHUB_ENV"
+
+    - name: Output from mocked ID federation traffic light tests
+      if: env.ID_FED_TRAFFIC_LIGHTS_COMPLETED == 'true'
+      run: |
+        cat ./test/robot/reports-id-fed-traffic-lights/output.xml || true
+
+    - name: Output from mocked ID federation traffic lights tmp dir
+      if: env.ID_FED_TRAFFIC_LIGHTS_COMPLETED == 'true'
+      run: |
+        cat ./test/robot/functional/tmp/ID-Fed-* || true
+
     - name: Output from mocked functional tests
       if: always()
       run: |
