@@ -817,6 +817,13 @@ jobs:
       run: |
         cat ./test/robot/id-fed-traffic-lights/tmp/* || true
 
+    - name: ID Fed - clear cloud env vars before downstream tests
+      if: always()
+      run: |
+        for v in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_REGION AWS_DEFAULT_REGION AWS_ROLE_ARN AWS_WEB_IDENTITY_TOKEN_FILE GOOGLE_APPLICATION_CREDENTIALS GOOGLE_GHA_CREDS_PATH CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE CLOUDSDK_CORE_PROJECT CLOUDSDK_PROJECT GCLOUD_PROJECT GCP_PROJECT GCP_ACCESS_TOKEN AZURE_HTTP_USER_AGENT AZUREPS_HOST_ENVIRONMENT; do
+          echo "${v}=" >> "$GITHUB_ENV"
+        done
+
     - name: Generate hosts file and nginx materials
       env:
         BUILDCOMMITSHA: ${{github.sha}}
