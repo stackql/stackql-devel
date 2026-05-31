@@ -54,10 +54,10 @@ ID Fed Azure VNETs List
 
 ID Fed Google Buckets List
     Sleep    2s
-    ${gcpCredentialsFile} =    OperatingSystem.Get Environment Variable    GOOGLE_APPLICATION_CREDENTIALS
-    Should Not Be Empty    ${gcpCredentialsFile}
+    ${gcpAccessToken} =    OperatingSystem.Get Environment Variable    GCP_ACCESS_TOKEN
+    Should Not Be Empty    ${gcpAccessToken}
     ${gcpAuthCfg} =    Catenate
-    ...    { "google": { "type":"service_account", "credentialsfilepath": "${gcpCredentialsFile}" } }
+    ...    { "google": { "type":"bearer", "credentialsenvvar": "GCP_ACCESS_TOKEN" } }
     ${bucketsListQuery} =    Catenate
     ...    select location, name from google.storage.buckets where project = 'stackql-demo';
     ${result} =    Run Process

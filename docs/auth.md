@@ -77,9 +77,9 @@ Workflow needs `permissions: id-token: write`, then per cloud:
 --auth '{"aws":{"type":"aws_signing_v4","keyIDenvvar":"AWS_ACCESS_KEY_ID","credentialsenvvar":"AWS_SECRET_ACCESS_KEY"}}'
 ```
 
-**GCP** — [GitHub docs](https://github.com/google-github-actions/auth#setup). Workload Identity **Pool** + Provider, SA bound via `roles/iam.workloadIdentityUser`; `google-github-actions/auth@v2` with `workload_identity_provider` + `service_account`.
+**GCP** — [GitHub docs](https://github.com/google-github-actions/auth#setup). Workload Identity **Pool** + Provider, SA bound via `roles/iam.workloadIdentityUser`; `google-github-actions/auth@v2` with `workload_identity_provider` + `service_account` + `token_format: 'access_token'`. Capture the action's `access_token` output into an env var (e.g. `GCP_ACCESS_TOKEN`) for the stackql step. The action's default `external_account` credentials file isn't consumable by stackql's `service_account` type.
 ```
---auth '{"google":{"type":"service_account","credentialsfilepath":"'"${GOOGLE_APPLICATION_CREDENTIALS}"'"}}'
+--auth '{"google":{"type":"bearer","credentialsenvvar":"GCP_ACCESS_TOKEN"}}'
 ```
 
 **Azure** — [action docs](https://github.com/Azure/login#login-with-openid-connect-oidc-recommended). Entra app + federated credential (one per org — Azure won't accept `repository_owner` matching); `azure/login@v2` with client/tenant/subscription IDs.
