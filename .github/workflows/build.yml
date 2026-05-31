@@ -764,6 +764,7 @@ jobs:
     
     - name: ID Fed - configure AWS credentials (OIDC)
       if: ((startsWith(github.ref_name, 'build-traffic-lights') && github.ref_type == 'tag') || (github.repository == 'stackql/stackql' && github.event_name == 'push' && github.ref == 'refs/heads/main')) && matrix.registry == 'test/registry'
+      continue-on-error: true
       uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: ${{ secrets.STACKQL_ID_FED_AWS_ROLE_ARN }}
@@ -772,6 +773,7 @@ jobs:
     - name: ID Fed - authenticate to Google Cloud (OIDC)
       id: gcp_auth
       if: ((startsWith(github.ref_name, 'build-traffic-lights') && github.ref_type == 'tag') || (github.repository == 'stackql/stackql' && github.event_name == 'push' && github.ref == 'refs/heads/main')) && matrix.registry == 'test/registry'
+      continue-on-error: true
       uses: google-github-actions/auth@v2
       with:
         workload_identity_provider: ${{ secrets.STACKQL_ID_FED_GCP_WORKLOAD_IDENTITY_PROVIDER }}
@@ -780,6 +782,7 @@ jobs:
 
     - name: ID Fed - login to Azure (OIDC)
       if: ((startsWith(github.ref_name, 'build-traffic-lights') && github.ref_type == 'tag') || (github.repository == 'stackql/stackql' && github.event_name == 'push' && github.ref == 'refs/heads/main')) && matrix.registry == 'test/registry'
+      continue-on-error: true
       uses: azure/login@v2
       with:
         client-id: ${{ secrets.STACKQL_ID_FED_AZURE_CLIENT_ID }}
