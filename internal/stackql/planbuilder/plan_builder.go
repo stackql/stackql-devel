@@ -17,6 +17,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/builder_input"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/primitive_context"
+	"github.com/stackql/stackql/internal/stackql/intrinsic"
 	"github.com/stackql/stackql/internal/stackql/iqlerror"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/plan"
@@ -342,6 +343,17 @@ func (pgb *standardPlanGraphBuilder) handleDescribe(pbi planbuilderinput.PlanBui
 	if !ok {
 		return fmt.Errorf("could not cast node of type '%T' to required DescribeTable", pbi.GetStatement())
 	}
+	if intrinsic.IsDescribeInfo(node, handlerCtx.GetCurrentProvider()) {
+		extended := strings.TrimSpace(strings.ToUpper(node.Extended)) == "EXTENDED"
+		pr := primitive.NewMetaDataPrimitive(
+			nil,
+			func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
+				return intrinsic.DescribeInfoOutput(handlerCtx.GetTypingConfig(), extended)
+			},
+		)
+		pgb.planGraphHolder.CreatePrimitiveNode(pr)
+		return nil
+	}
 	primitiveGenerator := pgb.rootPrimitiveGenerator
 	err := primitiveGenerator.AnalyzeStatement(pbi)
 	if err != nil {
@@ -391,6 +403,20 @@ func (pgb *standardPlanGraphBuilder) handleDescribeMethod(pbi planbuilderinput.P
 	node, ok := pbi.GetDescribeMethod()
 	if !ok {
 		return fmt.Errorf("could not cast node of type '%T' to required DescribeMethod", pbi.GetStatement())
+	}
+	if intrinsic.IsDescribeIntrinsicMethod(node, handlerCtx.GetCurrentProvider()) {
+		if !intrinsic.IsDescribeSelectMethod(node, handlerCtx.GetCurrentProvider()) {
+			return fmt.Errorf("provider '%s' supports DESCRIBE METHOD for '%s' only", intrinsic.ProviderName, intrinsic.SelectMethodName)
+		}
+		extended := strings.TrimSpace(strings.ToLower(node.Extended)) == "extended"
+		pr := primitive.NewMetaDataPrimitive(
+			nil,
+			func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
+				return intrinsic.DescribeMethodOutput(handlerCtx.GetTypingConfig(), extended)
+			},
+		)
+		pgb.planGraphHolder.CreatePrimitiveNode(pr)
+		return nil
 	}
 	providerName := node.Provider.GetRawVal()
 	serviceName := node.Service.GetRawVal()
@@ -591,6 +617,15 @@ func (pgb *standardPlanGraphBuilder) handleSelect(
 	node, ok := pbi.GetSelect()
 	if !ok {
 		return nil, nil, fmt.Errorf("could not cast statement of type '%T' to required Select", pbi.GetStatement())
+	}
+	if tableName, tableErr := parserutil.TableFromSelectNode(node); tableErr == nil && intrinsic.IsInfoTable(tableName, handlerCtx.GetCurrentProvider()) {
+		pr := primitive.NewLocalPrimitive(
+			func(_ primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
+				return intrinsic.SelectInfoOutput(handlerCtx.GetTypingConfig())
+			},
+		)
+		rv := pgb.planGraphHolder.CreatePrimitiveNode(pr)
+		return rv, rv, nil
 	}
 	if !handlerCtx.GetRuntimeContext().TestWithoutAPICalls { //nolint:nestif // acceptable
 		primitiveGenerator := pgb.rootPrimitiveGenerator
@@ -1293,12 +1328,34 @@ func (pgb *standardPlanGraphBuilder) handleShow(pbi planbuilderinput.PlanBuilder
 	if !ok {
 		return fmt.Errorf("could not cast statement of type '%T' to required Show", pbi.GetStatement())
 	}
+	nodeTypeUpper := strings.ToUpper(node.Type)
+	if intrinsic.IsShowServices(node, handlerCtx.GetCurrentProvider()) ||
+		intrinsic.IsShowResources(node, handlerCtx.GetCurrentProvider()) ||
+		intrinsic.IsShowMethods(node, handlerCtx.GetCurrentProvider()) {
+		extended := strings.TrimSpace(strings.ToUpper(node.Extended)) == "EXTENDED"
+		pr := primitive.NewMetaDataPrimitive(
+			nil,
+			func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
+				switch nodeTypeUpper {
+				case "SERVICES":
+					return intrinsic.ShowServicesOutput(handlerCtx.GetTypingConfig(), extended)
+				case "RESOURCES":
+					return intrinsic.ShowResourcesOutput(handlerCtx.GetTypingConfig(), extended)
+				case "METHODS":
+					return intrinsic.ShowMethodsOutput(handlerCtx.GetTypingConfig(), extended)
+				default:
+					return internaldto.NewErroneousExecutorOutput(fmt.Errorf("unsupported intrinsic show type '%s'", nodeTypeUpper))
+				}
+			},
+		)
+		pgb.planGraphHolder.CreatePrimitiveNode(pr)
+		return nil
+	}
 	primitiveGenerator := pgb.rootPrimitiveGenerator
 	err := primitiveGenerator.AnalyzeStatement(pbi)
 	if err != nil {
 		return err
 	}
-	nodeTypeUpper := strings.ToUpper(node.Type)
 	var tbl tablemetadata.ExtendedTableMetadata
 	switch nodeTypeUpper {
 	case "TRANSACTION_ISOLATION_LEVEL":

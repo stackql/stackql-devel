@@ -9,6 +9,7 @@ import (
 	"github.com/stackql/any-sdk/public/formulation"
 	"github.com/stackql/stackql/internal/stackql/docparser"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
+	"github.com/stackql/stackql/internal/stackql/intrinsic"
 	"github.com/stackql/stackql/internal/stackql/methodselect"
 	"github.com/stackql/stackql/internal/stackql/parserutil"
 	"github.com/stackql/stackql/internal/stackql/sql_system"
@@ -117,6 +118,8 @@ func GenerateProvider(
 	defaultHTTPClient *http.Client,
 ) (IProvider, error) {
 	switch providerStr { //nolint:gocritic // TODO: review
+	case intrinsic.ProviderName:
+		return newIntrinsicProvider(runtimeCtx), nil
 	default:
 		return newGenericProvider(
 			runtimeCtx, providerStr, providerVersion, reg, sqlSystem, persistenceSystem, defaultHTTPClient)
