@@ -10,6 +10,9 @@ Get Providers
     Should StackQL Novel Exec Contain    ${SHOW_PROVIDERS_STR}   v0.3.1
     Should StackQL Exec Contain JSON output    ${SHOW_PROVIDERS_STR}   okta
 
+Get Providers JSONL
+    Should StackQL Exec Contain JSONL output    ${SHOW_PROVIDERS_STR}    "name":"okta"
+
 Get Providers No Config
     Should StackQL No Cfg Exec Contain    ${SHOW_PROVIDERS_STR}   name
 
@@ -952,6 +955,45 @@ Should StackQL Exec Contain JSON output
     ...    ${_EXEC_CMD_STR}
     ...    ${_EXEC_CMD_EXPECTED_OUTPUT}
     ...    \-o\=json
+    ...    &{kwargs}
+
+Should StackQL Exec Contain JSONL output
+    [Arguments]    ${_EXEC_CMD_STR}    ${_EXEC_CMD_EXPECTED_OUTPUT}    @{varargs}    &{kwargs}
+    Should StackQL Exec Inline Contain
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${_EXEC_CMD_STR}
+    ...    ${_EXEC_CMD_EXPECTED_OUTPUT}
+    ...    \-o\=jsonl
+    ...    &{kwargs}
+    Should StackQL Exec Inline Contain
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_CANONICAL_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${_EXEC_CMD_STR}
+    ...    ${_EXEC_CMD_EXPECTED_OUTPUT}
+    ...    \-o\=jsonl
+    ...    &{kwargs}
+    Should StackQL Exec Inline Contain
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_DEPRECATED_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${_EXEC_CMD_STR}
+    ...    ${_EXEC_CMD_EXPECTED_OUTPUT}
+    ...    \-o\=jsonl
     ...    &{kwargs}
 
 Should StackQL Novel Exec Contain
