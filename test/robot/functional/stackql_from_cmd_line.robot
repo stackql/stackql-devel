@@ -13,6 +13,10 @@ Get Providers
 Get Providers JSONL
     Should StackQL Exec Contain JSONL output    ${SHOW_PROVIDERS_STR}    "name":"okta"
 
+AWS VPN Gateways Empty JSONL Exact
+    [Documentation]    Deterministic mock-backed query with ORDER BY; expect exact empty JSONL output.
+    Should StackQL Exec Equal JSONL output    ${SELECT_AWS_EC2_VPN_GATEWAYS_NULL}    ${EMPTY}
+
 Get Providers No Config
     Should StackQL No Cfg Exec Contain    ${SHOW_PROVIDERS_STR}   name
 
@@ -984,6 +988,45 @@ Should StackQL Exec Contain JSONL output
     ...    \-o\=jsonl
     ...    &{kwargs}
     Should StackQL Exec Inline Contain
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_DEPRECATED_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${_EXEC_CMD_STR}
+    ...    ${_EXEC_CMD_EXPECTED_OUTPUT}
+    ...    \-o\=jsonl
+    ...    &{kwargs}
+
+Should StackQL Exec Equal JSONL output
+    [Arguments]    ${_EXEC_CMD_STR}    ${_EXEC_CMD_EXPECTED_OUTPUT}    @{varargs}    &{kwargs}
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${_EXEC_CMD_STR}
+    ...    ${_EXEC_CMD_EXPECTED_OUTPUT}
+    ...    \-o\=jsonl
+    ...    &{kwargs}
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_CANONICAL_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${_EXEC_CMD_STR}
+    ...    ${_EXEC_CMD_EXPECTED_OUTPUT}
+    ...    \-o\=jsonl
+    ...    &{kwargs}
+    Should StackQL Exec Inline Equal
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
     ...    ${GITHUB_SECRET_STR}
