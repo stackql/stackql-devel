@@ -10695,7 +10695,7 @@ Intrinsic Show Resources Returns Info Resource
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    show resources in stackql_intrinsic.audit;
-    ...    name,id\ninfo,info
+    ...    name,id\ninfo,info\ncatalog,catalog
     ...    \-o\=csv
 
 Intrinsic Show Methods Returns Select Only
@@ -10735,4 +10735,35 @@ Intrinsic Describe Select Method Returns Response Fields
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    describe method stackql_intrinsic.audit.info.select;
     ...    name,type,param_type,shape\ntitle,text,response,text\ndescription,text,response,text
+    ...    \-o\=csv
+
+Intrinsic Catalog Select Returns Omnisdk Resources
+    [Documentation]    The catalog relation is materialised from the omnisdk
+    ...                built-in catalog and, like info, composes as a relation.
+    ${query} =    Catenate    SEPARATOR=${SPACE}
+    ...    select path, summary from stackql_intrinsic.audit.catalog
+    ...    where path = 'aws.s3.buckets';
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${query}
+    ...    path,summary\naws.s3.buckets,AWS S3 buckets
+    ...    \-o\=csv
+
+Intrinsic Catalog Describe Returns Text Columns
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    describe stackql_intrinsic.audit.catalog;
+    ...    name,type\npath,text\nsummary,text
     ...    \-o\=csv

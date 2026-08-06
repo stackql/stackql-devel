@@ -1,19 +1,24 @@
 // Package intrinsic implements the built-in "stackql_intrinsic" provider.
 //
-// Statements addressed to this provider are answered from static, in-process
+// Meta statements (USE, SHOW, DESCRIBE) are answered from static, in-process
 // data; they never touch the provider registry, the anysdk hierarchy resolver
 // or any HTTP machinery. The plan builder consults GeneratePrimitiveFunc ahead
-// of its normal statement dispatch, so this package is the sole plan generator
-// for the intrinsic provider.
+// of its normal statement dispatch.
 //
-// The surface is deliberately a placeholder: a single service ("audit") holding
-// a single resource ("info") with a select-only method.
+// SELECT is deliberately NOT handled here. Each intrinsic relation is
+// materialised as a view over SQL literals (see RegisterRelations), so that it
+// composes anywhere a relation is legal - subqueries, joins, CTEs, views over
+// it - with the SQL backend applying projection, predicates and ordering
+// natively. A bespoke SELECT primitive could not do that.
+//
+// The service is "audit"; its relations are declared in the tables registry.
 package intrinsic
 
 import (
 	"fmt"
 	"strings"
 
+	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
 	"github.com/stackql/any-sdk/public/formulation"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/typing"
@@ -32,13 +37,51 @@ const (
 const (
 	serviceName      = "audit"
 	serviceTitle     = "Intrinsic Audit"
-	resourceName     = "info"
 	selectMethodName = "select"
-
-	titleColumn       = "title"
-	descriptionColumn = "description"
-	columnType        = "text"
+	// columnType is the type reported by DESCRIBE. Every intrinsic column is a
+	// SQL literal, hence text.
+	columnType = "text"
 )
+
+// column is one column of an intrinsic relation.
+type column struct {
+	name        string
+	description string
+}
+
+// table is one intrinsic relation. rows supplies the literal row values, in
+// column order, at registration time; the catalog it draws from is fixed for
+// the life of the binary, so materialising once per handler context is sound.
+type table struct {
+	name        string
+	description string
+	columns     []column
+	rows        func() ([][]string, error)
+}
+
+// tables is the intrinsic relation registry. Adding a relation is a matter of
+// adding an entry: SELECT, SHOW RESOURCES, SHOW METHODS and DESCRIBE all read
+// from here.
+var tables = []table{ //nolint:gochecknoglobals // compile-time relation registry
+	{
+		name:        "info",
+		description: "built-in intrinsic info resource",
+		columns: []column{
+			{name: "title", description: "intrinsic info title"},
+			{name: "description", description: "intrinsic info description"},
+		},
+		rows: infoRows,
+	},
+	{
+		name:        "catalog",
+		description: "omnisdk resource catalog",
+		columns: []column{
+			{name: "path", description: "dot-path addressing the omnisdk resource"},
+			{name: "summary", description: "human readable summary of the resource"},
+		},
+		rows: catalogRows,
+	},
+}
 
 // queryContext is the narrow slice of the handler context that intrinsic
 // planning needs. It is declared here, rather than imported, so that this
@@ -57,25 +100,92 @@ type relationRegistrar interface {
 	CreateView(viewName string, rawDDL string, replaceAllowed bool, requiredParams []string) error
 }
 
-// infoDDL is the body of the "info" relation. Registering it as a view, rather
-// than answering SELECT from a bespoke primitive, is what lets the relation be
-// referenced anywhere a relation is legal: subqueries, joins, CTEs, views over
-// it, and so on. The SQL backend then applies projection, predicates and
-// ordering natively.
-const infoDDL = `SELECT 'intrinsic' AS title, ` +
-	`'placeholder audit info row' AS description ` +
-	`UNION ALL ` +
-	`SELECT 'placeholder', 'second placeholder audit info row'`
+func infoRows() ([][]string, error) {
+	return [][]string{
+		{"intrinsic", "placeholder audit info row"},
+		{"placeholder", "second placeholder audit info row"},
+	}, nil
+}
+
+// catalogRows renders the omnisdk built-in catalog. The catalog is
+// hand-authored and compile-time constant, so it needs no refresh.
+func catalogRows() ([][]string, error) {
+	resources, err := omnisdk.Default().Resources(".*")
+	if err != nil {
+		return nil, fmt.Errorf("intrinsic: cannot read omnisdk catalog: %w", err)
+	}
+	rows := make([][]string, 0, len(resources))
+	for _, resource := range resources {
+		rows = append(rows, []string{resource.Path, resource.Summary})
+	}
+	return rows, nil
+}
 
 // RegisterRelations registers the intrinsic relations with the SQL backend. It
 // is idempotent and is invoked once per handler context.
 func RegisterRelations(registrar relationRegistrar) error {
-	return registrar.CreateView(
-		fmt.Sprintf("%s.%s.%s", ProviderName, serviceName, resourceName),
-		infoDDL,
-		true,
-		nil,
-	)
+	for _, tbl := range tables {
+		ddl, err := tbl.ddl()
+		if err != nil {
+			return err
+		}
+		if err = registrar.CreateView(tbl.qualifiedName(), ddl, true, nil); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (t table) qualifiedName() string {
+	return fmt.Sprintf("%s.%s.%s", ProviderName, serviceName, t.name)
+}
+
+// ddl renders the relation as a UNION ALL of literal SELECTs. Only the first
+// leg names the columns, which is what fixes the relation's column order.
+func (t table) ddl() (string, error) {
+	rows, err := t.rows()
+	if err != nil {
+		return "", err
+	}
+	if len(rows) == 0 {
+		return t.emptyDDL(), nil
+	}
+	var builder strings.Builder
+	for i, row := range rows {
+		if len(row) != len(t.columns) {
+			return "", fmt.Errorf(
+				"intrinsic: relation '%s' row %d has %d values, want %d",
+				t.name, i, len(row), len(t.columns))
+		}
+		if i > 0 {
+			builder.WriteString(" UNION ALL ")
+		}
+		builder.WriteString("SELECT ")
+		for j, value := range row {
+			if j > 0 {
+				builder.WriteString(", ")
+			}
+			builder.WriteString(sqlLiteral(value))
+			if i == 0 {
+				builder.WriteString(" AS " + t.columns[j].name)
+			}
+		}
+	}
+	return builder.String(), nil
+}
+
+// emptyDDL yields a correctly shaped relation with no rows.
+func (t table) emptyDDL() string {
+	projections := make([]string, 0, len(t.columns))
+	for _, col := range t.columns {
+		projections = append(projections, fmt.Sprintf("CAST(NULL AS TEXT) AS %s", col.name))
+	}
+	return "SELECT " + strings.Join(projections, ", ") + " WHERE 1 = 0"
+}
+
+// sqlLiteral renders s as a SQL string literal, doubling embedded quotes.
+func sqlLiteral(s string) string {
+	return "'" + strings.ReplaceAll(s, "'", "''") + "'"
 }
 
 // GeneratePrimitiveFunc returns an executor for stmt, and true, when stmt is
@@ -96,8 +206,6 @@ func GeneratePrimitiveFunc(
 	case *sqlparser.DescribeMethod:
 		return describeMethodFunc(ctx, node, current)
 	}
-	// SELECT is deliberately absent: the "info" relation is registered as a
-	// view (see RegisterRelations) so that it composes with arbitrary SQL.
 	return nil, false
 }
 
@@ -117,10 +225,22 @@ func resolveProvider(providerName string, currentProvider string) string {
 	return currentProvider
 }
 
-func isAuditInfo(providerName, serviceStr, resourceStr, currentProvider string) bool {
+func isAuditService(providerName, serviceStr, currentProvider string) bool {
 	return IsProvider(resolveProvider(providerName, currentProvider)) &&
-		strings.EqualFold(serviceStr, serviceName) &&
-		strings.EqualFold(resourceStr, resourceName)
+		strings.EqualFold(serviceStr, serviceName)
+}
+
+// lookupTable resolves a fully addressed intrinsic relation.
+func lookupTable(providerName, serviceStr, resourceStr, currentProvider string) (table, bool) {
+	if !isAuditService(providerName, serviceStr, currentProvider) {
+		return table{}, false
+	}
+	for _, tbl := range tables {
+		if strings.EqualFold(resourceStr, tbl.name) {
+			return tbl, true
+		}
+	}
+	return table{}, false
 }
 
 func isExtended(extended string) bool {
@@ -153,19 +273,19 @@ func showFunc(
 		return func() internaldto.ExecutorOutput { return showServices(ctx, extended) }, true
 	case "RESOURCES":
 		// SHOW RESOURCES IN <provider>.<service>
-		if !IsProvider(resolveProvider(node.OnTable.Qualifier.GetRawVal(), currentProvider)) ||
-			!strings.EqualFold(node.OnTable.Name.GetRawVal(), serviceName) {
+		if !isAuditService(
+			node.OnTable.Qualifier.GetRawVal(), node.OnTable.Name.GetRawVal(), currentProvider) {
 			return nil, false
 		}
 		return func() internaldto.ExecutorOutput { return showResources(ctx, extended) }, true
 	case "METHODS":
 		// SHOW METHODS IN <provider>.<service>.<resource>
-		if !isAuditInfo(
+		if _, ok := lookupTable(
 			node.OnTable.QualifierSecond.GetRawVal(),
 			node.OnTable.Qualifier.GetRawVal(),
 			node.OnTable.Name.GetRawVal(),
 			currentProvider,
-		) {
+		); !ok {
 			return nil, false
 		}
 		return func() internaldto.ExecutorOutput { return showMethods(ctx, extended) }, true
@@ -178,16 +298,17 @@ func describeTableFunc(
 	node *sqlparser.DescribeTable,
 	currentProvider string,
 ) (func() internaldto.ExecutorOutput, bool) {
-	if !isAuditInfo(
+	tbl, ok := lookupTable(
 		node.Table.QualifierSecond.GetRawVal(),
 		node.Table.Qualifier.GetRawVal(),
 		node.Table.Name.GetRawVal(),
 		currentProvider,
-	) {
+	)
+	if !ok {
 		return nil, false
 	}
 	extended := isExtended(node.Extended)
-	return func() internaldto.ExecutorOutput { return describeInfo(ctx, extended) }, true
+	return func() internaldto.ExecutorOutput { return describeTable(ctx, tbl, extended) }, true
 }
 
 func describeMethodFunc(
@@ -195,12 +316,13 @@ func describeMethodFunc(
 	node *sqlparser.DescribeMethod,
 	currentProvider string,
 ) (func() internaldto.ExecutorOutput, bool) {
-	if !isAuditInfo(
+	tbl, ok := lookupTable(
 		node.Provider.GetRawVal(),
 		node.Service.GetRawVal(),
 		node.Resource.GetRawVal(),
 		currentProvider,
-	) {
+	)
+	if !ok {
 		return nil, false
 	}
 	methodName := node.Method.GetRawVal()
@@ -215,7 +337,7 @@ func describeMethodFunc(
 		}, true
 	}
 	extended := isExtended(node.Extended)
-	return func() internaldto.ExecutorOutput { return describeMethod(ctx, extended) }, true
+	return func() internaldto.ExecutorOutput { return describeMethod(ctx, tbl, extended) }, true
 }
 
 func prepare(
@@ -251,19 +373,18 @@ func showServices(ctx queryContext, extended bool) internaldto.ExecutorOutput {
 }
 
 func showResources(ctx queryContext, extended bool) internaldto.ExecutorOutput {
-	row := map[string]interface{}{
-		"id":   resourceName,
-		"name": resourceName,
+	rows := make(map[string]map[string]interface{}, len(tables))
+	for i, tbl := range tables {
+		row := map[string]interface{}{
+			"id":   tbl.name,
+			"name": tbl.name,
+		}
+		if extended {
+			row["description"] = tbl.description
+		}
+		rows[fmt.Sprintf("%06d", i)] = row
 	}
-	if extended {
-		row["description"] = "built-in intrinsic info resource"
-	}
-	return prepare(
-		ctx,
-		formulation.GetResourcesHeader(extended),
-		map[string]map[string]interface{}{"000001": row},
-		util.DefaultRowSort,
-	)
+	return prepare(ctx, formulation.GetResourcesHeader(extended), rows, util.DefaultRowSort)
 }
 
 func showMethods(ctx queryContext, extended bool) internaldto.ExecutorOutput {
@@ -280,47 +401,43 @@ func showMethods(ctx queryContext, extended bool) internaldto.ExecutorOutput {
 	return prepare(ctx, columnOrder, map[string]map[string]interface{}{"000001": row}, util.DefaultRowSort)
 }
 
-func describeInfo(ctx queryContext, extended bool) internaldto.ExecutorOutput {
+func describeTable(ctx queryContext, tbl table, extended bool) internaldto.ExecutorOutput {
 	return prepare(
 		ctx,
 		formulation.GetDescribeHeader(extended),
-		columnRows(extended, nil),
+		columnRows(tbl, extended, nil),
 		util.DescribeRowSort,
 	)
 }
 
-func describeMethod(ctx queryContext, extended bool) internaldto.ExecutorOutput {
+func describeMethod(ctx queryContext, tbl table, extended bool) internaldto.ExecutorOutput {
 	columnOrder := []string{"name", "type", "param_type", "shape"}
 	if extended {
 		columnOrder = append(columnOrder, "description")
 	}
-	rows := columnRows(extended, func(row map[string]interface{}) {
+	rows := columnRows(tbl, extended, func(row map[string]interface{}) {
 		row["param_type"] = "response"
 		row["shape"] = columnType
 	})
 	return prepare(ctx, columnOrder, rows, util.DescribeRowSort)
 }
 
-// columnRows renders the "info" column set as description rows, applying
+// columnRows renders a relation's column set as description rows, applying
 // decorate (when non-nil) to each row, so that DESCRIBE and DESCRIBE METHOD
-// share one source of truth for the table shape.
+// share one source of truth for the relation shape.
 func columnRows(
+	tbl table,
 	extended bool,
 	decorate func(map[string]interface{}),
 ) map[string]map[string]interface{} {
-	descriptions := map[string]string{
-		titleColumn:       "intrinsic info title",
-		descriptionColumn: "intrinsic info description",
-	}
-	columnNames := []string{titleColumn, descriptionColumn}
-	rows := make(map[string]map[string]interface{}, len(columnNames))
-	for i, columnName := range columnNames {
+	rows := make(map[string]map[string]interface{}, len(tbl.columns))
+	for i, col := range tbl.columns {
 		row := map[string]interface{}{
-			"name": columnName,
+			"name": col.name,
 			"type": columnType,
 		}
 		if extended {
-			row["description"] = descriptions[columnName]
+			row["description"] = col.description
 		}
 		if decorate != nil {
 			decorate(row)
