@@ -10628,3 +10628,111 @@ Select With JSON Structured Param Fans Out Through Query Transposition
     ...    ${query}
     ...    instanceType\nc5.xlarge\nm5.large\nt3.large
     ...    \-o\=csv
+
+# ===========================================================================
+# The built-in "stackql_intrinsic" provider is answered entirely in process:
+# meta queries come from the intrinsic plan generator, while the "audit.info"
+# relation is registered as a view so that it composes with arbitrary SQL.
+# ===========================================================================
+
+Intrinsic Audit Info Select Returns Static Rows
+    ${query} =    Catenate    SEPARATOR=${SPACE}
+    ...    select title, description from stackql_intrinsic.audit.info
+    ...    order by title desc;
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${query}
+    ...    title,description\nplaceholder,second placeholder audit info row\nintrinsic,placeholder audit info row
+    ...    \-o\=csv
+
+Intrinsic Audit Info Composes In Subquery And Join
+    [Documentation]    The intrinsic relation is not a bespoke result set; it
+    ...                participates in subqueries, joins and predicates like any
+    ...                other relation.
+    ${query} =    Catenate    SEPARATOR=${SPACE}
+    ...    select t.title from
+    ...    (select title from stackql_intrinsic.audit.info where title = 'intrinsic') t
+    ...    inner join stackql_intrinsic.audit.info i on t.title = i.title
+    ...    order by t.title;
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${query}
+    ...    title\nintrinsic
+    ...    \-o\=csv
+
+Intrinsic Show Services Returns Audit Service
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    show services in stackql_intrinsic;
+    ...    id,name,title\naudit,audit,Intrinsic Audit
+    ...    \-o\=csv
+
+Intrinsic Show Resources Returns Info Resource
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    show resources in stackql_intrinsic.audit;
+    ...    name,id\ninfo,info
+    ...    \-o\=csv
+
+Intrinsic Show Methods Returns Select Only
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    show methods in stackql_intrinsic.audit.info;
+    ...    MethodName,RequiredParams,SQLVerb\nselect,,SELECT
+    ...    \-o\=csv
+
+Intrinsic Describe Info Returns Text Columns
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    describe stackql_intrinsic.audit.info;
+    ...    name,type\ntitle,text\ndescription,text
+    ...    \-o\=csv
+
+Intrinsic Describe Select Method Returns Response Fields
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    describe method stackql_intrinsic.audit.info.select;
+    ...    name,type,param_type,shape\ntitle,text,response,text\ndescription,text,response,text
+    ...    \-o\=csv

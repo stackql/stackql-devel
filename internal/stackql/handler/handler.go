@@ -677,6 +677,9 @@ func NewHandlerCtx(
 		return nil, err
 	}
 	rv.drmConfig = drmCfg
+	if err = intrinsic.RegisterRelations(inputBundle.GetSQLSystem()); err != nil {
+		return nil, err
+	}
 	return &rv, nil
 }
 
