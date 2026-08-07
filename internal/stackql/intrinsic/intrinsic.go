@@ -5,21 +5,20 @@
 // or any HTTP machinery. The plan builder consults GeneratePrimitiveFunc ahead
 // of its normal statement dispatch.
 //
-// SELECT is deliberately NOT handled here. Each intrinsic relation is
-// materialised as a view over SQL literals (see RegisterRelations), so that it
-// composes anywhere a relation is legal - subqueries, joins, CTEs, views over
-// it - with the SQL backend applying projection, predicates and ordering
-// natively. A bespoke SELECT primitive could not do that.
-//
-// The service is "audit"; its relations are declared in the tables registry.
+// Relations come in two flavours, both under the "audit" service. View
+// relations ("info", "catalog", "methods") materialise as SQL literals and so
+// compose anywhere a relation is legal; SELECT over them is left to the normal
+// relational path. Data relations - one per omnisdk resource - stream the
+// product of a method plan straight to the output writer, and SELECT over
+// those IS handled here. See omnisdk.go for the trade-off that entails.
 package intrinsic
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
 	"github.com/stackql/any-sdk/public/formulation"
+	"github.com/stackql/psql-wire/pkg/sqldata"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/typing"
 	"github.com/stackql/stackql/internal/stackql/util"
@@ -49,14 +48,20 @@ type column struct {
 	description string
 }
 
-// table is one intrinsic relation. rows supplies the literal row values, in
-// column order, at registration time; the catalog it draws from is fixed for
-// the life of the binary, so materialising once per handler context is sound.
+// table is one intrinsic relation, in exactly one of two flavours.
+//
+// rows != nil: a view relation. The values are rendered as SQL literals at
+// registration time and materialise as a view, so the relation composes with
+// arbitrary SQL.
+//
+// stream != nil: a data relation. Rows are produced at query time and pushed
+// straight to the output writer; see omnisdk.go for what that costs.
 type table struct {
 	name        string
 	description string
 	columns     []column
 	rows        func() ([][]string, error)
+	stream      func(params map[string]string) (sqldata.ISQLResultStream, error)
 }
 
 // tables is the intrinsic relation registry. Adding a relation is a matter of
@@ -77,10 +82,32 @@ var tables = []table{ //nolint:gochecknoglobals // compile-time relation registr
 		description: "omnisdk resource catalog",
 		columns: []column{
 			{name: "path", description: "dot-path addressing the omnisdk resource"},
+			{name: "relation", description: "stackql relation name for the resource"},
 			{name: "summary", description: "human readable summary of the resource"},
 		},
 		rows: catalogRows,
 	},
+	{
+		name:        "methods",
+		description: "omnisdk method catalog",
+		columns: []column{
+			{name: "path", description: "dot-path addressing the omnisdk method"},
+			{name: "relation", description: "stackql relation the method belongs to"},
+			{name: "summary", description: "human readable summary of the method"},
+			{name: "required_params", description: "comma separated required parameter names"},
+		},
+		rows: methodRows,
+	},
+}
+
+// allTables is the view relations plus the omnisdk data relations. SHOW
+// RESOURCES, SHOW METHODS and DESCRIBE all read from here.
+func allTables() ([]table, error) {
+	data, err := dataTables()
+	if err != nil {
+		return nil, err
+	}
+	return append(append([]table{}, tables...), data...), nil
 }
 
 // queryContext is the narrow slice of the handler context that intrinsic
@@ -107,24 +134,13 @@ func infoRows() ([][]string, error) {
 	}, nil
 }
 
-// catalogRows renders the omnisdk built-in catalog. The catalog is
-// hand-authored and compile-time constant, so it needs no refresh.
-func catalogRows() ([][]string, error) {
-	resources, err := omnisdk.Default().Resources(".*")
-	if err != nil {
-		return nil, fmt.Errorf("intrinsic: cannot read omnisdk catalog: %w", err)
-	}
-	rows := make([][]string, 0, len(resources))
-	for _, resource := range resources {
-		rows = append(rows, []string{resource.Path, resource.Summary})
-	}
-	return rows, nil
-}
-
 // RegisterRelations registers the intrinsic relations with the SQL backend. It
 // is idempotent and is invoked once per handler context.
 func RegisterRelations(registrar relationRegistrar) error {
 	for _, tbl := range tables {
+		if tbl.rows == nil {
+			continue
+		}
 		ddl, err := tbl.ddl()
 		if err != nil {
 			return err
@@ -209,6 +225,17 @@ func GeneratePrimitiveFunc(
 	return nil, false
 }
 
+// GenerateStreamFunc returns a streaming executor for a SELECT over an omnisdk
+// data relation. Such a relation is not backed by a view, so it must be planned
+// before analysis tries to resolve it as a registry-backed provider relation;
+// callers invoke this ahead of that analysis. Every other SELECT returns false.
+func GenerateStreamFunc(
+	ctx queryContext,
+	node *sqlparser.Select,
+) (func() internaldto.ExecutorOutput, bool) {
+	return selectFunc(ctx, node, ctx.GetCurrentProvider())
+}
+
 // IsProvider reports whether name designates the intrinsic provider. The
 // intrinsic provider has no registry document and no auth, so callers that
 // eagerly resolve provider strings must skip it.
@@ -235,7 +262,11 @@ func lookupTable(providerName, serviceStr, resourceStr, currentProvider string) 
 	if !isAuditService(providerName, serviceStr, currentProvider) {
 		return table{}, false
 	}
-	for _, tbl := range tables {
+	registry, err := allTables()
+	if err != nil {
+		return table{}, false
+	}
+	for _, tbl := range registry {
 		if strings.EqualFold(resourceStr, tbl.name) {
 			return tbl, true
 		}
@@ -373,8 +404,12 @@ func showServices(ctx queryContext, extended bool) internaldto.ExecutorOutput {
 }
 
 func showResources(ctx queryContext, extended bool) internaldto.ExecutorOutput {
-	rows := make(map[string]map[string]interface{}, len(tables))
-	for i, tbl := range tables {
+	registry, err := allTables()
+	if err != nil {
+		return internaldto.NewErroneousExecutorOutput(err)
+	}
+	rows := make(map[string]map[string]interface{}, len(registry))
+	for i, tbl := range registry {
 		row := map[string]interface{}{
 			"id":   tbl.name,
 			"name": tbl.name,

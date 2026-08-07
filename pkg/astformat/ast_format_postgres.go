@@ -21,6 +21,13 @@ var (
 
 func PostgresSelectExprsFormatter(buf *sqlparser.TrackedBuffer, node sqlparser.SQLNode) {
 	switch node := node.(type) {
+	case *sqlparser.SQLVal:
+		if node.Type == sqlparser.StrVal {
+			formatStrVal(node, buf)
+			return
+		}
+		node.Format(buf)
+		return
 	case *sqlparser.ColName:
 		formatColName(node, buf)
 	case sqlparser.ColIdent:
@@ -73,6 +80,17 @@ func PostgresSelectExprsFormatter(buf *sqlparser.TrackedBuffer, node sqlparser.S
 		node.Format(buf)
 		return
 	}
+}
+
+// formatStrVal renders a string literal with SQL-standard escaping, doubling
+// embedded single quotes. The parser's own Format renders MySQL-style
+// backslash escapes, which neither SQLite nor Postgres accepts; a literal
+// containing an apostrophe would otherwise be re-rendered into a syntax error
+// on any round trip through the AST (view DDL, for instance).
+func formatStrVal(node *sqlparser.SQLVal, buf *sqlparser.TrackedBuffer) {
+	buf.WriteString("'")
+	buf.WriteString(strings.ReplaceAll(string(node.Val), "'", "''"))
+	buf.WriteString("'")
 }
 
 func formatColIdent(node sqlparser.ColIdent, buf *sqlparser.TrackedBuffer) {
