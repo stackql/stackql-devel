@@ -373,3 +373,68 @@ func equalityPredicates(where *sqlparser.Where) map[string]string {
 	walk(where.Expr)
 	return params
 }
+
+// relationMethod is one method a relation exposes to SHOW METHODS.
+type relationMethod struct {
+	name           string
+	description    string
+	requiredParams []string
+}
+
+// methods reports the relation's callable methods. A view relation has only
+// the synthetic "select"; a data relation reports the omnisdk methods behind
+// it, carrying their required parameters so that a caller can see what must be
+// supplied as WHERE predicates.
+func (t table) methods() []relationMethod {
+	viewMethod := []relationMethod{{
+		name:        selectMethodName,
+		description: "select-only intrinsic method",
+	}}
+	if t.stream == nil {
+		return viewMethod
+	}
+	resource, ok := lookupDataRelation(t.name)
+	if !ok {
+		return viewMethod
+	}
+	sdkMethods, err := omnisdk.Default().Methods(resource.Path)
+	if err != nil {
+		return viewMethod
+	}
+	out := make([]relationMethod, 0, len(sdkMethods))
+	for _, method := range sdkMethods {
+		out = append(out, relationMethod{
+			name:           lastSegment(method.Path),
+			description:    method.Summary,
+			requiredParams: requiredParamNames(method),
+		})
+	}
+	return out
+}
+
+// methodColumns resolves the response shape of one of the relation's methods.
+// For a data relation each omnisdk method carries its own schema, so the shape
+// is the method's, not the resource's.
+func (t table) methodColumns(methodName string) ([]column, bool) {
+	if t.stream == nil {
+		if strings.EqualFold(methodName, selectMethodName) {
+			return t.columns, true
+		}
+		return nil, false
+	}
+	resource, ok := lookupDataRelation(t.name)
+	if !ok {
+		return nil, false
+	}
+	sdkMethods, err := omnisdk.Default().Methods(resource.Path)
+	if err != nil {
+		return nil, false
+	}
+	for _, method := range sdkMethods {
+		if strings.EqualFold(lastSegment(method.Path), methodName) ||
+			strings.EqualFold(method.Path, methodName) {
+			return schemaColumns(method.Schema), true
+		}
+	}
+	return nil, false
+}

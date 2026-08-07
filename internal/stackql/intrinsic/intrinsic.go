@@ -311,15 +311,16 @@ func showFunc(
 		return func() internaldto.ExecutorOutput { return showResources(ctx, extended) }, true
 	case "METHODS":
 		// SHOW METHODS IN <provider>.<service>.<resource>
-		if _, ok := lookupTable(
+		tbl, ok := lookupTable(
 			node.OnTable.QualifierSecond.GetRawVal(),
 			node.OnTable.Qualifier.GetRawVal(),
 			node.OnTable.Name.GetRawVal(),
 			currentProvider,
-		); !ok {
+		)
+		if !ok {
 			return nil, false
 		}
-		return func() internaldto.ExecutorOutput { return showMethods(ctx, extended) }, true
+		return func() internaldto.ExecutorOutput { return showMethods(ctx, tbl, extended) }, true
 	}
 	return nil, false
 }
@@ -357,18 +358,21 @@ func describeMethodFunc(
 		return nil, false
 	}
 	methodName := node.Method.GetRawVal()
-	if !strings.EqualFold(methodName, selectMethodName) {
+	// A data relation describes the named omnisdk method, whose response shape
+	// is its own; a view relation has only the synthetic "select".
+	columns, ok := tbl.methodColumns(methodName)
+	if !ok {
 		return func() internaldto.ExecutorOutput {
 			return internaldto.NewErroneousExecutorOutput(
 				fmt.Errorf(
-					"provider '%s' supports method '%s' only; got '%s'",
-					ProviderName, selectMethodName, methodName,
+					"relation '%s.%s.%s' has no method '%s'; run SHOW METHODS to list them",
+					ProviderName, serviceName, tbl.name, methodName,
 				),
 			)
 		}, true
 	}
 	extended := isExtended(node.Extended)
-	return func() internaldto.ExecutorOutput { return describeMethod(ctx, tbl, extended) }, true
+	return func() internaldto.ExecutorOutput { return describeMethod(ctx, columns, extended) }, true
 }
 
 func prepare(
@@ -422,35 +426,45 @@ func showResources(ctx queryContext, extended bool) internaldto.ExecutorOutput {
 	return prepare(ctx, formulation.GetResourcesHeader(extended), rows, util.DefaultRowSort)
 }
 
-func showMethods(ctx queryContext, extended bool) internaldto.ExecutorOutput {
+// showMethods lists a relation's methods. A view relation has the one
+// synthetic "select"; a data relation reports the omnisdk methods it can run,
+// with their real required parameters, since those are what a caller must
+// supply as WHERE predicates.
+func showMethods(ctx queryContext, tbl table, extended bool) internaldto.ExecutorOutput {
 	columnOrder := []string{"MethodName", "RequiredParams", "SQLVerb"}
-	row := map[string]interface{}{
-		"MethodName":     selectMethodName,
-		"RequiredParams": "",
-		"SQLVerb":        strings.ToUpper(selectMethodName),
-	}
 	if extended {
 		columnOrder = append(columnOrder, "description")
-		row["description"] = "select-only intrinsic method"
 	}
-	return prepare(ctx, columnOrder, map[string]map[string]interface{}{"000001": row}, util.DefaultRowSort)
+	rows := make(map[string]map[string]interface{})
+	for i, meth := range tbl.methods() {
+		row := map[string]interface{}{
+			"MethodName":     meth.name,
+			"RequiredParams": strings.Join(meth.requiredParams, ", "),
+			"SQLVerb":        strings.ToUpper(selectMethodName),
+		}
+		if extended {
+			row["description"] = meth.description
+		}
+		rows[fmt.Sprintf("%06d", i)] = row
+	}
+	return prepare(ctx, columnOrder, rows, util.DefaultRowSort)
 }
 
 func describeTable(ctx queryContext, tbl table, extended bool) internaldto.ExecutorOutput {
 	return prepare(
 		ctx,
 		formulation.GetDescribeHeader(extended),
-		columnRows(tbl, extended, nil),
+		columnRows(tbl.columns, extended, nil),
 		util.DescribeRowSort,
 	)
 }
 
-func describeMethod(ctx queryContext, tbl table, extended bool) internaldto.ExecutorOutput {
+func describeMethod(ctx queryContext, cols []column, extended bool) internaldto.ExecutorOutput {
 	columnOrder := []string{"name", "type", "param_type", "shape"}
 	if extended {
 		columnOrder = append(columnOrder, "description")
 	}
-	rows := columnRows(tbl, extended, func(row map[string]interface{}) {
+	rows := columnRows(cols, extended, func(row map[string]interface{}) {
 		row["param_type"] = "response"
 		row["shape"] = columnType
 	})
@@ -461,12 +475,12 @@ func describeMethod(ctx queryContext, tbl table, extended bool) internaldto.Exec
 // decorate (when non-nil) to each row, so that DESCRIBE and DESCRIBE METHOD
 // share one source of truth for the relation shape.
 func columnRows(
-	tbl table,
+	cols []column,
 	extended bool,
 	decorate func(map[string]interface{}),
 ) map[string]map[string]interface{} {
-	rows := make(map[string]map[string]interface{}, len(tbl.columns))
-	for i, col := range tbl.columns {
+	rows := make(map[string]map[string]interface{}, len(cols))
+	for i, col := range cols {
 		row := map[string]interface{}{
 			"name": col.name,
 			"type": columnType,
