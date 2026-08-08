@@ -1,22 +1,12 @@
 package intrinsic
 
-// This file holds the omnisdk-backed relations. There are two kinds:
-//
-//   - Metadata relations ("catalog", "methods") are small, compile-time
-//     constant listings. They materialise as views, so they compose with
-//     arbitrary SQL.
-//   - Data relations - one per omnisdk resource - are the product of running a
-//     method plan. Their rows stream from Plan.Open straight to the output
-//     writer and never enter the SQL backend, so they do NOT compose into
-//     subqueries, joins or CTEs, and ORDER BY / GROUP BY over them is not
-//     applied. That is the deliberate cost of eager streaming.
-
 import (
 	"context"
 	"errors"
 	"fmt"
 	"io"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/lib/pq/oid"
@@ -27,16 +17,10 @@ import (
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 )
 
-// methodPredicate is the reserved WHERE key that names the omnisdk method to
-// run, disambiguating when a resource has several satisfiable methods.
 const methodPredicate = "method"
 
-// streamBatchSize is the number of rows accumulated per ISQLResultStream read.
-// Small, because the point is to emit rows as they arrive.
 const streamBatchSize = 64
 
-// relationName maps an omnisdk dot-path to a stackql resource name; a stackql
-// relation is provider.service.resource, so the path's dots cannot survive.
 func relationName(path string) string {
 	return strings.ReplaceAll(path, ".", "_")
 }
@@ -87,7 +71,6 @@ func requiredParamNames(method omnisdk.Method) []string {
 	return names
 }
 
-// dataTables synthesises one streaming relation per omnisdk resource.
 func dataTables() ([]table, error) {
 	resources, err := omnisdk.Default().Resources(".*")
 	if err != nil {
@@ -109,9 +92,6 @@ func dataTable(resource omnisdk.Resource) table {
 	}
 }
 
-// schemaColumns reads a JSON Schema's "required" list, which omnisdk builds in
-// egress column order. A schema that declares no columns (an open object)
-// yields none, and the columns are then taken from the rows themselves.
 func schemaColumns(schema map[string]any) []column {
 	required, ok := schema["required"].([]string)
 	if !ok {
@@ -126,7 +106,6 @@ func schemaColumns(schema map[string]any) []column {
 	return cols
 }
 
-// lookupDataRelation resolves a stackql resource name to its omnisdk resource.
 func lookupDataRelation(name string) (omnisdk.Resource, bool) {
 	resources, err := omnisdk.Default().Resources(".*")
 	if err != nil {
@@ -140,10 +119,6 @@ func lookupDataRelation(name string) (omnisdk.Resource, bool) {
 	return omnisdk.Resource{}, false
 }
 
-// pickMethod selects the method to run for a resource. An explicit `method`
-// predicate wins; otherwise exactly one method's required params must be
-// satisfied by the supplied predicates. Ambiguity is an error rather than a
-// guess.
 func pickMethod(resourcePath string, params map[string]string) (omnisdk.Method, error) {
 	methods, err := omnisdk.Default().Methods(resourcePath)
 	if err != nil {
@@ -202,8 +177,6 @@ func lastSegment(path string) string {
 	return path
 }
 
-// openStream plans and opens the omnisdk method, returning a lazy cursor.
-// Credentials come from stackql's auth context for the relevant cloud.
 func openStream(
 	ctx queryContext, resourcePath string, params map[string]string) (*rowStream, error) {
 	method, err := pickMethod(resourcePath, params)
@@ -222,10 +195,6 @@ func openStream(
 	return &rowStream{rows: rows, columns: schemaColumns(method.Schema)}, nil
 }
 
-// rowStream adapts an omnisdk cursor to sqldata.ISQLResultStream. Each Read
-// pulls the next batch, so rows reach the output writer as they arrive. The
-// final Read returns its batch together with io.EOF, which is the contract the
-// output writers expect.
 type rowStream struct {
 	rows    omnisdk.Rows
 	columns []column
@@ -234,7 +203,6 @@ type rowStream struct {
 	done    bool
 }
 
-// columnFactory is the slice of typing.Config needed to render columns.
 type columnFactory interface {
 	GetPlaceholderColumn(table sqldata.ISQLTable, colName string, colOID oid.Oid) sqldata.ISQLColumn
 }
@@ -251,7 +219,6 @@ func (rs *rowStream) Read() (sqldata.ISQLResult, error) {
 		rs.done = true
 		return rs.result(nil), err
 	}
-	// A short batch means the cursor is exhausted; emit it with io.EOF.
 	if len(batch) < streamBatchSize {
 		rs.done = true
 		return rs.result(batch), io.EOF
@@ -259,8 +226,6 @@ func (rs *rowStream) Read() (sqldata.ISQLResult, error) {
 	return rs.result(batch), nil
 }
 
-// result renders a batch, fixing the column order from the first batch seen
-// when the method schema did not declare one.
 func (rs *rowStream) result(batch []omnisdk.Row) sqldata.ISQLResult {
 	if len(rs.columns) == 0 && len(batch) > 0 {
 		for _, name := range sortedKeys(batch[0]) {
@@ -275,7 +240,7 @@ func (rs *rowStream) result(batch []omnisdk.Row) sqldata.ISQLResult {
 	for _, row := range batch {
 		values := make([]interface{}, 0, len(rs.columns))
 		for _, col := range rs.columns {
-			values = append(values, row[col.name])
+			values = append(values, textValue(row[col.name]))
 		}
 		rows = append(rows, sqldata.NewSQLRow(values))
 	}
@@ -299,9 +264,6 @@ func sortedKeys(row omnisdk.Row) []string {
 	return keys
 }
 
-// selectFunc routes a SELECT over an omnisdk data relation to a streaming
-// executor. Selects over the view-backed relations return false, so that they
-// continue through the normal relational path.
 func selectFunc(
 	ctx queryContext,
 	node *sqlparser.Select,
@@ -334,11 +296,6 @@ func selectFunc(
 		}
 		stream.table = sqldata.NewSQLTable(0, relationName(resource.Path))
 		stream.typCfg = ctx.GetTypingConfig()
-		// Pull the first batch here rather than leaving it to the output
-		// writer. A writer that hits an error on its first read returns before
-		// emitting anything, and HandleResponse discards that error, so a
-		// failure would otherwise surface as silence. Probing converts it into
-		// a reported error; the remaining batches still stream.
 		primed, readErr := newPrimedStream(stream)
 		if readErr != nil {
 			return internaldto.NewErroneousExecutorOutput(readErr)
@@ -347,8 +304,6 @@ func selectFunc(
 	}, true
 }
 
-// equalityPredicates collects simple `column = 'literal'` conjuncts, which is
-// how a caller supplies an omnisdk method's parameters.
 func equalityPredicates(where *sqlparser.Where) map[string]string {
 	params := map[string]string{}
 	if where == nil {
@@ -376,17 +331,12 @@ func equalityPredicates(where *sqlparser.Where) map[string]string {
 	return params
 }
 
-// relationMethod is one method a relation exposes to SHOW METHODS.
 type relationMethod struct {
 	name           string
 	description    string
 	requiredParams []string
 }
 
-// methods reports the relation's callable methods. A view relation has only
-// the synthetic "select"; a data relation reports the omnisdk methods behind
-// it, carrying their required parameters so that a caller can see what must be
-// supplied as WHERE predicates.
 func (t table) methods() []relationMethod {
 	viewMethod := []relationMethod{{
 		name:        selectMethodName,
@@ -414,9 +364,6 @@ func (t table) methods() []relationMethod {
 	return out
 }
 
-// methodColumns resolves the response shape of one of the relation's methods.
-// For a data relation each omnisdk method carries its own schema, so the shape
-// is the method's, not the resource's.
 func (t table) methodColumns(methodName string) ([]column, bool) {
 	if !t.isData {
 		if strings.EqualFold(methodName, selectMethodName) {
@@ -441,9 +388,6 @@ func (t table) methodColumns(methodName string) ([]column, bool) {
 	return nil, false
 }
 
-// cloudProviders maps the leading segment of an omnisdk resource path to the
-// stackql provider whose auth context supplies its credentials. omnisdk uses
-// both "google" and "gcp" prefixes for Google Cloud.
 var cloudProviders = map[string]string{ //nolint:gochecknoglobals // fixed mapping
 	"aws":    "aws",
 	"google": "google",
@@ -451,12 +395,6 @@ var cloudProviders = map[string]string{ //nolint:gochecknoglobals // fixed mappi
 	"azure":  "azure",
 }
 
-// omnisdkAuth translates the stackql auth context for the cloud behind a
-// resource into omnisdk's auth DTO. Values are resolved through the AuthCtx
-// accessors, which already apply stackql's inline -> env var -> file
-// precedence, so omnisdk receives literals and stackql's configuration stays
-// authoritative. A nil return leaves omnisdk to fall back to its own canonical
-// environment variables.
 func omnisdkAuth(ctx queryContext, resourcePath string) *omnisdk.Auth {
 	cloud, _, _ := strings.Cut(resourcePath, ".")
 	providerName, ok := cloudProviders[cloud]
@@ -474,8 +412,6 @@ func omnisdkAuth(ctx queryContext, resourcePath string) *omnisdk.Auth {
 		Scopes:      authCtx.Scopes,
 		TokenURL:    authCtx.GetTokenURL(),
 	}
-	// The credential blob is the AWS secret key, the GCP service-account JSON,
-	// or the bearer token, depending on the cloud.
 	if credentials, credErr := authCtx.GetCredentialsBytes(); credErr == nil {
 		auth.SecretAccessKey = string(credentials)
 		auth.Credentials = string(credentials)
@@ -495,9 +431,6 @@ func omnisdkAuth(ctx queryContext, resourcePath string) *omnisdk.Auth {
 	return auth
 }
 
-// primedStream is a rowStream whose first batch has already been read, so that
-// an immediate failure is reported rather than swallowed. It replays that
-// batch, then delegates.
 type primedStream struct {
 	inner    *rowStream
 	first    sqldata.ISQLResult
@@ -505,8 +438,6 @@ type primedStream struct {
 	replayed bool
 }
 
-// newPrimedStream reads the first batch. A genuine failure is returned as the
-// error; exhaustion (io.EOF) is not a failure and is replayed to the caller.
 func newPrimedStream(inner *rowStream) (sqldata.ISQLResultStream, error) {
 	first, err := inner.Read()
 	if err != nil && !errors.Is(err, io.EOF) {
@@ -532,33 +463,21 @@ func (ps *primedStream) Close() error {
 	return ps.inner.Close()
 }
 
-// reportedType is the type DESCRIBE shows for the column.
 func (c column) reportedType() string {
-	if c.dataType == "" {
-		return columnType
-	}
-	return c.dataType
-}
-
-// oid maps the column's declared JSON Schema type onto a postgres OID, which is
-// what fixes the column's type on the wire and in typed output formats.
-func (c column) oid() oid.Oid {
 	switch c.dataType {
+	case "":
+		return columnType
 	case "boolean":
-		return oid.T_bool
-	case "integer":
-		return oid.T_int8
-	case "number":
-		return oid.T_float8
+		return "bool"
 	default:
-		return oid.T_text
+		return c.dataType
 	}
 }
 
-// schemaTypeOf reads a JSON Schema property's type. A nullable column is
-// declared as a ["<type>", "null"] union, so the non-null member is the type.
-// omnisdk also carries numerics losslessly as strings tagged with a `format`
-// naming the logical type; that format is the truth for such a column.
+func (c column) oid() oid.Oid {
+	return oid.T_text
+}
+
 func schemaTypeOf(property map[string]any) string {
 	if lossless, ok := property["x-omnisdk-lossless"].(bool); ok && lossless {
 		switch format, _ := property["format"].(string); format {
@@ -579,4 +498,17 @@ func schemaTypeOf(property map[string]any) string {
 		}
 	}
 	return ""
+}
+
+func textValue(value any) any {
+	switch typed := value.(type) {
+	case nil:
+		return nil
+	case string:
+		return typed
+	case bool:
+		return strconv.FormatBool(typed)
+	default:
+		return fmt.Sprintf("%v", typed)
+	}
 }

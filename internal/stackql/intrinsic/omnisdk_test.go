@@ -1,6 +1,7 @@
 package intrinsic //nolint:testpackage // tests unexported rowStream and pickMethod
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -8,7 +9,10 @@ import (
 
 	"github.com/lib/pq/oid"
 	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
+	"github.com/stackql/any-sdk/pkg/dto"
 	"github.com/stackql/psql-wire/pkg/sqldata"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
+	"github.com/stackql/stackql/internal/stackql/output"
 )
 
 type fakeRows struct {
@@ -51,9 +55,6 @@ func newTestStream(rows []omnisdk.Row, columnNames []string) (*rowStream, *fakeR
 	}, cursor
 }
 
-// drain reads the stream to exhaustion, returning every row in order. It
-// asserts the output-writer contract: the terminating read carries io.EOF
-// alongside a usable result rather than instead of one.
 func drain(t *testing.T, stream *rowStream) [][]interface{} {
 	t.Helper()
 	var out [][]interface{}
@@ -93,8 +94,6 @@ func TestRowStreamEmitsRowsInColumnOrder(t *testing.T) {
 	}
 }
 
-// A cursor longer than one batch must span several reads, which is what makes
-// the rows reach the output writer as they arrive rather than all at once.
 func TestRowStreamBatchesLargeCursor(t *testing.T) {
 	total := streamBatchSize*2 + 3
 	rows := make([]omnisdk.Row, 0, total)
@@ -123,7 +122,6 @@ func TestRowStreamBatchesLargeCursor(t *testing.T) {
 	}
 }
 
-// With no schema-declared column order, the first batch fixes it.
 func TestRowStreamDerivesColumnsFromFirstRow(t *testing.T) {
 	stream, _ := newTestStream([]omnisdk.Row{{"zeta": "z", "alpha": "a"}}, nil)
 	got := drain(t, stream)
@@ -147,8 +145,6 @@ func TestRowStreamPropagatesCursorError(t *testing.T) {
 }
 
 func TestPickMethodDisambiguates(t *testing.T) {
-	// aws.s3.buckets has several methods all requiring only "region", so an
-	// unqualified select must refuse rather than guess.
 	if _, err := pickMethod("aws.s3.buckets", map[string]string{"region": "us-east-1"}); err == nil {
 		t.Fatal("want ambiguity error, got nil")
 	}
@@ -165,5 +161,43 @@ func TestPickMethodDisambiguates(t *testing.T) {
 func TestPickMethodReportsMissingParams(t *testing.T) {
 	if _, err := pickMethod("aws.s3.buckets", map[string]string{}); err == nil {
 		t.Fatal("want missing-parameter error, got nil")
+	}
+}
+
+func TestBooleanValuesRenderLikeOtherProviders(t *testing.T) {
+	stream, _ := newTestStream(
+		[]omnisdk.Row{{"name": "b1", "public": false, "versioning": true}}, nil)
+	stream.columns = []column{
+		{name: "name", dataType: "string"},
+		{name: "public", dataType: "boolean"},
+		{name: "versioning", dataType: "boolean"},
+	}
+	var buf, errBuf bytes.Buffer
+	writer, err := output.GetOutputWriter(&buf, &errBuf, internaldto.OutputContext{
+		RuntimeContext: dto.RuntimeCtx{OutputFormat: "csv", Delimiter: ","},
+		Result:         stream,
+	})
+	if err != nil {
+		t.Fatalf("writer: %v", err)
+	}
+	if writeErr := writer.Write(stream); writeErr != nil {
+		t.Fatalf("write: %v", writeErr)
+	}
+	want := "name,public,versioning\nb1,false,true\n"
+	if buf.String() != want {
+		t.Fatalf("got %q, want %q", buf.String(), want)
+	}
+}
+
+func TestReportedTypeUsesStackqlVocabulary(t *testing.T) {
+	for _, tc := range []struct{ declared, want string }{
+		{"boolean", "bool"},
+		{"string", "string"},
+		{"integer", "integer"},
+		{"", "text"},
+	} {
+		if got := (column{dataType: tc.declared}).reportedType(); got != tc.want {
+			t.Errorf("declared %q: got %q, want %q", tc.declared, got, tc.want)
+		}
 	}
 }

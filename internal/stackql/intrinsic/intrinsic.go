@@ -1,16 +1,3 @@
-// Package intrinsic implements the built-in "stackql_intrinsic" provider.
-//
-// Meta statements (USE, SHOW, DESCRIBE) are answered from static, in-process
-// data; they never touch the provider registry, the anysdk hierarchy resolver
-// or any HTTP machinery. The plan builder consults GeneratePrimitiveFunc ahead
-// of its normal statement dispatch.
-//
-// Relations come in two flavours, both under the "audit" service. View
-// relations ("info", "catalog", "methods") materialise as SQL literals and so
-// compose anywhere a relation is legal; SELECT over them is left to the normal
-// relational path. Data relations - one per omnisdk resource - stream the
-// product of a method plan straight to the output writer, and SELECT over
-// those IS handled here. See omnisdk.go for the trade-off that entails.
 package intrinsic
 
 import (
@@ -27,9 +14,7 @@ import (
 )
 
 const (
-	// ProviderName is the sole provider routed to intrinsic plan generation.
-	ProviderName = "stackql_intrinsic"
-	// ProviderVersion is reported by SHOW PROVIDERS.
+	ProviderName    = "stackql_intrinsic"
 	ProviderVersion = "internal"
 )
 
@@ -37,29 +22,15 @@ const (
 	serviceName      = "audit"
 	serviceTitle     = "Intrinsic Audit"
 	selectMethodName = "select"
-	// columnType is the type reported by DESCRIBE for a column whose schema
-	// declares none; view relations are all SQL literals, hence text.
-	columnType = "text"
+	columnType       = "text"
 )
 
-// column is one column of an intrinsic relation.
 type column struct {
 	name        string
 	description string
-	// dataType is the JSON Schema type name ("string", "boolean", "integer",
-	// "number"). Empty means text, which is what every view relation is.
-	dataType string
+	dataType    string
 }
 
-// table is one intrinsic relation, in exactly one of two flavours.
-//
-// rows != nil: a view relation. The values are rendered as SQL literals at
-// registration time and materialise as a view, so the relation composes with
-// arbitrary SQL.
-//
-// isData: a data relation. Rows are produced at query time by running an
-// omnisdk method plan and are pushed straight to the output writer; see
-// omnisdk.go for what that costs.
 type table struct {
 	name        string
 	description string
@@ -68,9 +39,6 @@ type table struct {
 	isData      bool
 }
 
-// tables is the intrinsic relation registry. Adding a relation is a matter of
-// adding an entry: SELECT, SHOW RESOURCES, SHOW METHODS and DESCRIBE all read
-// from here.
 var tables = []table{ //nolint:gochecknoglobals // compile-time relation registry
 	{
 		name:        "info",
@@ -104,8 +72,6 @@ var tables = []table{ //nolint:gochecknoglobals // compile-time relation registr
 	},
 }
 
-// allTables is the view relations plus the omnisdk data relations. SHOW
-// RESOURCES, SHOW METHODS and DESCRIBE all read from here.
 func allTables() ([]table, error) {
 	data, err := dataTables()
 	if err != nil {
@@ -114,10 +80,6 @@ func allTables() ([]table, error) {
 	return append(append([]table{}, tables...), data...), nil
 }
 
-// queryContext is the narrow slice of the handler context that intrinsic
-// planning needs. It is declared here, rather than imported, so that this
-// package remains a leaf and `handler` may import it without a cycle.
-// handler.HandlerContext satisfies it structurally.
 type queryContext interface {
 	GetCurrentProvider() string
 	SetCurrentProvider(string)
@@ -125,9 +87,6 @@ type queryContext interface {
 	GetAuthContext(providerName string) (*dto.AuthCtx, error)
 }
 
-// relationRegistrar is the narrow slice of sql_system.SQLSystem needed to
-// register the intrinsic relations. As with queryContext, it is declared here
-// to keep this package a leaf.
 type relationRegistrar interface {
 	CreateView(viewName string, rawDDL string, replaceAllowed bool, requiredParams []string) error
 }
@@ -139,8 +98,6 @@ func infoRows() ([][]string, error) {
 	}, nil
 }
 
-// RegisterRelations registers the intrinsic relations with the SQL backend. It
-// is idempotent and is invoked once per handler context.
 func RegisterRelations(registrar relationRegistrar) error {
 	for _, tbl := range tables {
 		if tbl.rows == nil {
@@ -161,8 +118,6 @@ func (t table) qualifiedName() string {
 	return fmt.Sprintf("%s.%s.%s", ProviderName, serviceName, t.name)
 }
 
-// ddl renders the relation as a UNION ALL of literal SELECTs. Only the first
-// leg names the columns, which is what fixes the relation's column order.
 func (t table) ddl() (string, error) {
 	rows, err := t.rows()
 	if err != nil {
@@ -195,7 +150,6 @@ func (t table) ddl() (string, error) {
 	return builder.String(), nil
 }
 
-// emptyDDL yields a correctly shaped relation with no rows.
 func (t table) emptyDDL() string {
 	projections := make([]string, 0, len(t.columns))
 	for _, col := range t.columns {
@@ -204,14 +158,10 @@ func (t table) emptyDDL() string {
 	return "SELECT " + strings.Join(projections, ", ") + " WHERE 1 = 0"
 }
 
-// sqlLiteral renders s as a SQL string literal, doubling embedded quotes.
 func sqlLiteral(s string) string {
 	return "'" + strings.ReplaceAll(s, "'", "''") + "'"
 }
 
-// GeneratePrimitiveFunc returns an executor for stmt, and true, when stmt is
-// routed to the intrinsic provider. It returns false for every other
-// statement, leaving the caller's normal dispatch untouched.
 func GeneratePrimitiveFunc(
 	ctx queryContext,
 	stmt sqlparser.SQLNode,
@@ -230,10 +180,6 @@ func GeneratePrimitiveFunc(
 	return nil, false
 }
 
-// GenerateStreamFunc returns a streaming executor for a SELECT over an omnisdk
-// data relation. Such a relation is not backed by a view, so it must be planned
-// before analysis tries to resolve it as a registry-backed provider relation;
-// callers invoke this ahead of that analysis. Every other SELECT returns false.
 func GenerateStreamFunc(
 	ctx queryContext,
 	node *sqlparser.Select,
@@ -241,15 +187,10 @@ func GenerateStreamFunc(
 	return selectFunc(ctx, node, ctx.GetCurrentProvider())
 }
 
-// IsProvider reports whether name designates the intrinsic provider. The
-// intrinsic provider has no registry document and no auth, so callers that
-// eagerly resolve provider strings must skip it.
 func IsProvider(name string) bool {
 	return strings.EqualFold(strings.TrimSpace(name), ProviderName)
 }
 
-// resolveProvider prefers an explicitly qualified provider, falling back to the
-// session provider set by USE.
 func resolveProvider(providerName string, currentProvider string) string {
 	if strings.TrimSpace(providerName) != "" {
 		return providerName
@@ -262,7 +203,6 @@ func isAuditService(providerName, serviceStr, currentProvider string) bool {
 		strings.EqualFold(serviceStr, serviceName)
 }
 
-// lookupTable resolves a fully addressed intrinsic relation.
 func lookupTable(providerName, serviceStr, resourceStr, currentProvider string) (table, bool) {
 	if !isAuditService(providerName, serviceStr, currentProvider) {
 		return table{}, false
@@ -302,20 +242,17 @@ func showFunc(
 	extended := isExtended(node.Extended)
 	switch strings.ToUpper(strings.TrimSpace(node.Type)) {
 	case "SERVICES":
-		// SHOW SERVICES IN <provider>
 		if !IsProvider(resolveProvider(node.OnTable.Name.GetRawVal(), currentProvider)) {
 			return nil, false
 		}
 		return func() internaldto.ExecutorOutput { return showServices(ctx, extended) }, true
 	case "RESOURCES":
-		// SHOW RESOURCES IN <provider>.<service>
 		if !isAuditService(
 			node.OnTable.Qualifier.GetRawVal(), node.OnTable.Name.GetRawVal(), currentProvider) {
 			return nil, false
 		}
 		return func() internaldto.ExecutorOutput { return showResources(ctx, extended) }, true
 	case "METHODS":
-		// SHOW METHODS IN <provider>.<service>.<resource>
 		tbl, ok := lookupTable(
 			node.OnTable.QualifierSecond.GetRawVal(),
 			node.OnTable.Qualifier.GetRawVal(),
@@ -363,8 +300,6 @@ func describeMethodFunc(
 		return nil, false
 	}
 	methodName := node.Method.GetRawVal()
-	// A data relation describes the named omnisdk method, whose response shape
-	// is its own; a view relation has only the synthetic "select".
 	columns, ok := tbl.methodColumns(methodName)
 	if !ok {
 		return func() internaldto.ExecutorOutput {
@@ -431,10 +366,6 @@ func showResources(ctx queryContext, extended bool) internaldto.ExecutorOutput {
 	return prepare(ctx, formulation.GetResourcesHeader(extended), rows, util.DefaultRowSort)
 }
 
-// showMethods lists a relation's methods. A view relation has the one
-// synthetic "select"; a data relation reports the omnisdk methods it can run,
-// with their real required parameters, since those are what a caller must
-// supply as WHERE predicates.
 func showMethods(ctx queryContext, tbl table, extended bool) internaldto.ExecutorOutput {
 	columnOrder := []string{"MethodName", "RequiredParams", "SQLVerb"}
 	if extended {
@@ -476,9 +407,6 @@ func describeMethod(ctx queryContext, cols []column, extended bool) internaldto.
 	return prepare(ctx, columnOrder, rows, util.DescribeRowSort)
 }
 
-// columnRows renders a relation's column set as description rows, applying
-// decorate (when non-nil) to each row, so that DESCRIBE and DESCRIBE METHOD
-// share one source of truth for the relation shape.
 func columnRows(
 	cols []column,
 	extended bool,
