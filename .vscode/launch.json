@@ -9,6 +9,7 @@
       "id": "queryString",
       "description": "SQL Query string",
       "options": [
+        "select * from stackql_intrinsic.audit.aws_s3_buckets where region = 'ap-southeast-2' and method = 'list';",
         "select * from aws.ec2_native.vpcs where region = 'ap-southeast-2';",
         "select \"Key\", Size, StorageClass from  aws.s3.objects where region = 'ap-southeast-1' and bucket = 'stackql-trial-bucket-01' order by \"Key\" ASC;",
         "SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'public' AND c.relkind in ('r', 'p')",

@@ -17,8 +17,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/stackql/any-sdk/pkg/dto"
 	"github.com/stackql/any-sdk/public/formulation"
-	"github.com/stackql/psql-wire/pkg/sqldata"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/typing"
 	"github.com/stackql/stackql/internal/stackql/util"
@@ -37,8 +37,8 @@ const (
 	serviceName      = "audit"
 	serviceTitle     = "Intrinsic Audit"
 	selectMethodName = "select"
-	// columnType is the type reported by DESCRIBE. Every intrinsic column is a
-	// SQL literal, hence text.
+	// columnType is the type reported by DESCRIBE for a column whose schema
+	// declares none; view relations are all SQL literals, hence text.
 	columnType = "text"
 )
 
@@ -46,6 +46,9 @@ const (
 type column struct {
 	name        string
 	description string
+	// dataType is the JSON Schema type name ("string", "boolean", "integer",
+	// "number"). Empty means text, which is what every view relation is.
+	dataType string
 }
 
 // table is one intrinsic relation, in exactly one of two flavours.
@@ -54,14 +57,15 @@ type column struct {
 // registration time and materialise as a view, so the relation composes with
 // arbitrary SQL.
 //
-// stream != nil: a data relation. Rows are produced at query time and pushed
-// straight to the output writer; see omnisdk.go for what that costs.
+// isData: a data relation. Rows are produced at query time by running an
+// omnisdk method plan and are pushed straight to the output writer; see
+// omnisdk.go for what that costs.
 type table struct {
 	name        string
 	description string
 	columns     []column
 	rows        func() ([][]string, error)
-	stream      func(params map[string]string) (sqldata.ISQLResultStream, error)
+	isData      bool
 }
 
 // tables is the intrinsic relation registry. Adding a relation is a matter of
@@ -118,6 +122,7 @@ type queryContext interface {
 	GetCurrentProvider() string
 	SetCurrentProvider(string)
 	GetTypingConfig() typing.Config
+	GetAuthContext(providerName string) (*dto.AuthCtx, error)
 }
 
 // relationRegistrar is the narrow slice of sql_system.SQLSystem needed to
@@ -466,7 +471,7 @@ func describeMethod(ctx queryContext, cols []column, extended bool) internaldto.
 	}
 	rows := columnRows(cols, extended, func(row map[string]interface{}) {
 		row["param_type"] = "response"
-		row["shape"] = columnType
+		row["shape"] = row["type"]
 	})
 	return prepare(ctx, columnOrder, rows, util.DescribeRowSort)
 }
@@ -483,7 +488,7 @@ func columnRows(
 	for i, col := range cols {
 		row := map[string]interface{}{
 			"name": col.name,
-			"type": columnType,
+			"type": col.reportedType(),
 		}
 		if extended {
 			row["description"] = col.description

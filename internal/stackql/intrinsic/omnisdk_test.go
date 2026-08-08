@@ -39,11 +39,15 @@ func (fakeColumnFactory) GetPlaceholderColumn(
 
 func newTestStream(rows []omnisdk.Row, columnNames []string) (*rowStream, *fakeRows) {
 	cursor := &fakeRows{rows: rows}
+	cols := make([]column, 0, len(columnNames))
+	for _, name := range columnNames {
+		cols = append(cols, column{name: name})
+	}
 	return &rowStream{
-		rows:        cursor,
-		columnNames: columnNames,
-		table:       sqldata.NewSQLTable(0, "t"),
-		typCfg:      fakeColumnFactory{},
+		rows:    cursor,
+		columns: cols,
+		table:   sqldata.NewSQLTable(0, "t"),
+		typCfg:  fakeColumnFactory{},
 	}, cursor
 }
 

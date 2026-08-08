@@ -13,6 +13,7 @@ package intrinsic
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"sort"
@@ -100,14 +101,11 @@ func dataTables() ([]table, error) {
 }
 
 func dataTable(resource omnisdk.Resource) table {
-	path := resource.Path
 	return table{
-		name:        relationName(path),
+		name:        relationName(resource.Path),
 		description: resource.Summary,
 		columns:     schemaColumns(resource.Schema),
-		stream: func(params map[string]string) (sqldata.ISQLResultStream, error) {
-			return openStream(path, params)
-		},
+		isData:      true,
 	}
 }
 
@@ -119,9 +117,11 @@ func schemaColumns(schema map[string]any) []column {
 	if !ok {
 		return nil
 	}
+	properties, _ := schema["properties"].(map[string]any)
 	cols := make([]column, 0, len(required))
 	for _, name := range required {
-		cols = append(cols, column{name: name, description: ""})
+		property, _ := properties[name].(map[string]any)
+		cols = append(cols, column{name: name, dataType: schemaTypeOf(property)})
 	}
 	return cols
 }
@@ -202,15 +202,15 @@ func lastSegment(path string) string {
 	return path
 }
 
-// openStream plans and opens the omnisdk method, returning a lazy cursor. Auth
-// is left nil, so omnisdk resolves credentials from its canonical environment
-// variables.
-func openStream(resourcePath string, params map[string]string) (sqldata.ISQLResultStream, error) {
+// openStream plans and opens the omnisdk method, returning a lazy cursor.
+// Credentials come from stackql's auth context for the relevant cloud.
+func openStream(
+	ctx queryContext, resourcePath string, params map[string]string) (*rowStream, error) {
 	method, err := pickMethod(resourcePath, params)
 	if err != nil {
 		return nil, err
 	}
-	args := omnisdk.Args{Params: params}
+	args := omnisdk.Args{Params: params, Auth: omnisdkAuth(ctx, resourcePath)}
 	plan, err := omnisdk.Default().New(method.Path, args)
 	if err != nil {
 		return nil, err
@@ -219,15 +219,7 @@ func openStream(resourcePath string, params map[string]string) (sqldata.ISQLResu
 	if err != nil {
 		return nil, err
 	}
-	return &rowStream{rows: rows, columnNames: columnNamesFor(method)}, nil
-}
-
-func columnNamesFor(method omnisdk.Method) []string {
-	names := make([]string, 0)
-	for _, col := range schemaColumns(method.Schema) {
-		names = append(names, col.name)
-	}
-	return names
+	return &rowStream{rows: rows, columns: schemaColumns(method.Schema)}, nil
 }
 
 // rowStream adapts an omnisdk cursor to sqldata.ISQLResultStream. Each Read
@@ -235,11 +227,11 @@ func columnNamesFor(method omnisdk.Method) []string {
 // final Read returns its batch together with io.EOF, which is the contract the
 // output writers expect.
 type rowStream struct {
-	rows        omnisdk.Rows
-	columnNames []string
-	table       sqldata.ISQLTable
-	typCfg      columnFactory
-	done        bool
+	rows    omnisdk.Rows
+	columns []column
+	table   sqldata.ISQLTable
+	typCfg  columnFactory
+	done    bool
 }
 
 // columnFactory is the slice of typing.Config needed to render columns.
@@ -270,18 +262,20 @@ func (rs *rowStream) Read() (sqldata.ISQLResult, error) {
 // result renders a batch, fixing the column order from the first batch seen
 // when the method schema did not declare one.
 func (rs *rowStream) result(batch []omnisdk.Row) sqldata.ISQLResult {
-	if len(rs.columnNames) == 0 && len(batch) > 0 {
-		rs.columnNames = sortedKeys(batch[0])
+	if len(rs.columns) == 0 && len(batch) > 0 {
+		for _, name := range sortedKeys(batch[0]) {
+			rs.columns = append(rs.columns, column{name: name})
+		}
 	}
-	columns := make([]sqldata.ISQLColumn, 0, len(rs.columnNames))
-	for _, name := range rs.columnNames {
-		columns = append(columns, rs.typCfg.GetPlaceholderColumn(rs.table, name, oid.T_text))
+	columns := make([]sqldata.ISQLColumn, 0, len(rs.columns))
+	for _, col := range rs.columns {
+		columns = append(columns, rs.typCfg.GetPlaceholderColumn(rs.table, col.name, col.oid()))
 	}
 	rows := make([]sqldata.ISQLRow, 0, len(batch))
 	for _, row := range batch {
-		values := make([]interface{}, 0, len(rs.columnNames))
-		for _, name := range rs.columnNames {
-			values = append(values, row[name])
+		values := make([]interface{}, 0, len(rs.columns))
+		for _, col := range rs.columns {
+			values = append(values, row[col.name])
 		}
 		rows = append(rows, sqldata.NewSQLRow(values))
 	}
@@ -334,14 +328,22 @@ func selectFunc(
 	}
 	params := equalityPredicates(node.Where)
 	return func() internaldto.ExecutorOutput {
-		stream, err := openStream(resource.Path, params)
+		stream, err := openStream(ctx, resource.Path, params)
 		if err != nil {
 			return internaldto.NewErroneousExecutorOutput(err)
 		}
-		concrete, _ := stream.(*rowStream)
-		concrete.table = sqldata.NewSQLTable(0, relationName(resource.Path))
-		concrete.typCfg = ctx.GetTypingConfig()
-		return internaldto.NewExecutorOutput(stream, nil, nil, nil, nil)
+		stream.table = sqldata.NewSQLTable(0, relationName(resource.Path))
+		stream.typCfg = ctx.GetTypingConfig()
+		// Pull the first batch here rather than leaving it to the output
+		// writer. A writer that hits an error on its first read returns before
+		// emitting anything, and HandleResponse discards that error, so a
+		// failure would otherwise surface as silence. Probing converts it into
+		// a reported error; the remaining batches still stream.
+		primed, readErr := newPrimedStream(stream)
+		if readErr != nil {
+			return internaldto.NewErroneousExecutorOutput(readErr)
+		}
+		return internaldto.NewExecutorOutput(primed, nil, nil, nil, nil)
 	}, true
 }
 
@@ -390,7 +392,7 @@ func (t table) methods() []relationMethod {
 		name:        selectMethodName,
 		description: "select-only intrinsic method",
 	}}
-	if t.stream == nil {
+	if !t.isData {
 		return viewMethod
 	}
 	resource, ok := lookupDataRelation(t.name)
@@ -416,7 +418,7 @@ func (t table) methods() []relationMethod {
 // For a data relation each omnisdk method carries its own schema, so the shape
 // is the method's, not the resource's.
 func (t table) methodColumns(methodName string) ([]column, bool) {
-	if t.stream == nil {
+	if !t.isData {
 		if strings.EqualFold(methodName, selectMethodName) {
 			return t.columns, true
 		}
@@ -437,4 +439,144 @@ func (t table) methodColumns(methodName string) ([]column, bool) {
 		}
 	}
 	return nil, false
+}
+
+// cloudProviders maps the leading segment of an omnisdk resource path to the
+// stackql provider whose auth context supplies its credentials. omnisdk uses
+// both "google" and "gcp" prefixes for Google Cloud.
+var cloudProviders = map[string]string{ //nolint:gochecknoglobals // fixed mapping
+	"aws":    "aws",
+	"google": "google",
+	"gcp":    "google",
+	"azure":  "azure",
+}
+
+// omnisdkAuth translates the stackql auth context for the cloud behind a
+// resource into omnisdk's auth DTO. Values are resolved through the AuthCtx
+// accessors, which already apply stackql's inline -> env var -> file
+// precedence, so omnisdk receives literals and stackql's configuration stays
+// authoritative. A nil return leaves omnisdk to fall back to its own canonical
+// environment variables.
+func omnisdkAuth(ctx queryContext, resourcePath string) *omnisdk.Auth {
+	cloud, _, _ := strings.Cut(resourcePath, ".")
+	providerName, ok := cloudProviders[cloud]
+	if !ok {
+		return nil
+	}
+	authCtx, err := ctx.GetAuthContext(providerName)
+	if err != nil || authCtx == nil {
+		return nil
+	}
+	auth := &omnisdk.Auth{
+		Type:        authCtx.Type,
+		ValuePrefix: authCtx.ValuePrefix,
+		Name:        authCtx.Name,
+		Scopes:      authCtx.Scopes,
+		TokenURL:    authCtx.GetTokenURL(),
+	}
+	// The credential blob is the AWS secret key, the GCP service-account JSON,
+	// or the bearer token, depending on the cloud.
+	if credentials, credErr := authCtx.GetCredentialsBytes(); credErr == nil {
+		auth.SecretAccessKey = string(credentials)
+		auth.Credentials = string(credentials)
+	}
+	if keyID, keyErr := authCtx.GetKeyIDString(); keyErr == nil {
+		auth.AccessKeyID = keyID
+	}
+	if sessionToken, tokErr := authCtx.GetAwsSessionTokenString(); tokErr == nil {
+		auth.SessionToken = sessionToken
+	}
+	if clientID, idErr := authCtx.GetClientID(); idErr == nil {
+		auth.ClientID = clientID
+	}
+	if clientSecret, secErr := authCtx.GetClientSecret(); secErr == nil {
+		auth.ClientSecret = clientSecret
+	}
+	return auth
+}
+
+// primedStream is a rowStream whose first batch has already been read, so that
+// an immediate failure is reported rather than swallowed. It replays that
+// batch, then delegates.
+type primedStream struct {
+	inner    *rowStream
+	first    sqldata.ISQLResult
+	firstErr error
+	replayed bool
+}
+
+// newPrimedStream reads the first batch. A genuine failure is returned as the
+// error; exhaustion (io.EOF) is not a failure and is replayed to the caller.
+func newPrimedStream(inner *rowStream) (sqldata.ISQLResultStream, error) {
+	first, err := inner.Read()
+	if err != nil && !errors.Is(err, io.EOF) {
+		inner.Close() //nolint:errcheck // the read error is the one worth reporting
+		return nil, err
+	}
+	return &primedStream{inner: inner, first: first, firstErr: err}, nil
+}
+
+func (ps *primedStream) Read() (sqldata.ISQLResult, error) {
+	if !ps.replayed {
+		ps.replayed = true
+		return ps.first, ps.firstErr
+	}
+	return ps.inner.Read()
+}
+
+func (ps *primedStream) Write(sqldata.ISQLResult) error {
+	return fmt.Errorf("intrinsic: omnisdk result stream is read-only")
+}
+
+func (ps *primedStream) Close() error {
+	return ps.inner.Close()
+}
+
+// reportedType is the type DESCRIBE shows for the column.
+func (c column) reportedType() string {
+	if c.dataType == "" {
+		return columnType
+	}
+	return c.dataType
+}
+
+// oid maps the column's declared JSON Schema type onto a postgres OID, which is
+// what fixes the column's type on the wire and in typed output formats.
+func (c column) oid() oid.Oid {
+	switch c.dataType {
+	case "boolean":
+		return oid.T_bool
+	case "integer":
+		return oid.T_int8
+	case "number":
+		return oid.T_float8
+	default:
+		return oid.T_text
+	}
+}
+
+// schemaTypeOf reads a JSON Schema property's type. A nullable column is
+// declared as a ["<type>", "null"] union, so the non-null member is the type.
+// omnisdk also carries numerics losslessly as strings tagged with a `format`
+// naming the logical type; that format is the truth for such a column.
+func schemaTypeOf(property map[string]any) string {
+	if lossless, ok := property["x-omnisdk-lossless"].(bool); ok && lossless {
+		switch format, _ := property["format"].(string); format {
+		case "int32", "int64":
+			return "integer"
+		case "float", "double":
+			return "number"
+		}
+	}
+	switch declared := property["type"].(type) {
+	case string:
+		return declared
+	case []any:
+		for _, member := range declared {
+			if name, isString := member.(string); isString && name != "null" {
+				return name
+			}
+		}
+	}
+	return ""
 }
