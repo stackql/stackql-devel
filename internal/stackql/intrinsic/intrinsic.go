@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	ProviderName    = "stackql_intrinsic"
+	ProviderName    = "stackql_preview"
 	ProviderVersion = "internal"
 )
 

@@ -7627,11 +7627,13 @@ Alternate App Root Persists All Temp Materials in Alotted Directory
     ...    registry pull google v0.1.2;
     ...    show providers;
     ${outputStr} =    Catenate    SEPARATOR=\n
-    ...    |--------|---------|
-    ...    |${SPACE}${SPACE}name${SPACE}${SPACE}|${SPACE}version${SPACE}|
-    ...    |--------|---------|
-    ...    |${SPACE}google${SPACE}|${SPACE}v0.1.2${SPACE}${SPACE}|
-    ...    |--------|---------|
+    ...    |-----------------|----------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}name${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}version${SPACE}${SPACE}|
+    ...    |-----------------|----------|
+    ...    |${SPACE}google${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}v0.1.2${SPACE}${SPACE}${SPACE}|
+    ...    |-----------------|----------|
+    ...    |${SPACE}stackql_preview${SPACE}|${SPACE}internal${SPACE}|
+    ...    |-----------------|----------|
     ${outputErrStr} =    Catenate    SEPARATOR=\n
     ...    google provider, version 'v0.1.2' successfully installed
     Should Stackql Exec Inline Equal Both Streams
@@ -10630,14 +10632,14 @@ Select With JSON Structured Param Fans Out Through Query Transposition
     ...    \-o\=csv
 
 # ===========================================================================
-# The built-in "stackql_intrinsic" provider is answered entirely in process:
+# The built-in "stackql_preview" provider is answered entirely in process:
 # meta queries come from the intrinsic plan generator, while the "audit.info"
 # relation is registered as a view so that it composes with arbitrary SQL.
 # ===========================================================================
 
 Intrinsic Audit Info Select Returns Static Rows
     ${query} =    Catenate    SEPARATOR=${SPACE}
-    ...    select title, description from stackql_intrinsic.audit.info
+    ...    select title, description from stackql_preview.audit.info
     ...    order by title desc;
     Should StackQL Exec Inline Equal
     ...    ${STACKQL_EXE}
@@ -10657,8 +10659,8 @@ Intrinsic Audit Info Composes In Subquery And Join
     ...                other relation.
     ${query} =    Catenate    SEPARATOR=${SPACE}
     ...    select t.title from
-    ...    (select title from stackql_intrinsic.audit.info where title = 'intrinsic') t
-    ...    inner join stackql_intrinsic.audit.info i on t.title = i.title
+    ...    (select title from stackql_preview.audit.info where title = 'intrinsic') t
+    ...    inner join stackql_preview.audit.info i on t.title = i.title
     ...    order by t.title;
     Should StackQL Exec Inline Equal
     ...    ${STACKQL_EXE}
@@ -10681,11 +10683,11 @@ Intrinsic Show Services Returns Audit Service
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
-    ...    show services in stackql_intrinsic;
+    ...    show services in stackql_preview;
     ...    id,name,title\naudit,audit,Intrinsic Audit
     ...    \-o\=csv
 
-Intrinsic Show Resources Returns Info Resource
+Intrinsic Show Resources Lists View And Data Relations
     Should StackQL Exec Inline Equal
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
@@ -10694,8 +10696,8 @@ Intrinsic Show Resources Returns Info Resource
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
-    ...    show resources in stackql_intrinsic.audit;
-    ...    name,id\ninfo,info\ncatalog,catalog
+    ...    show resources in stackql_preview.audit;
+    ...    name,id\ninfo,info\ncatalog,catalog\nmethods,methods\naws_ec2_networks,aws_ec2_networks\naws_s3_buckets,aws_s3_buckets\nazure_network_subnets,azure_network_subnets\nazure_storage_accounts,azure_storage_accounts\ngcp_compute_networks,gcp_compute_networks\ngoogle_storage_buckets,google_storage_buckets\nomni_storage_buckets,omni_storage_buckets
     ...    \-o\=csv
 
 Intrinsic Show Methods Returns Select Only
@@ -10707,7 +10709,7 @@ Intrinsic Show Methods Returns Select Only
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
-    ...    show methods in stackql_intrinsic.audit.info;
+    ...    show methods in stackql_preview.audit.info;
     ...    MethodName,RequiredParams,SQLVerb\nselect,,SELECT
     ...    \-o\=csv
 
@@ -10720,7 +10722,7 @@ Intrinsic Describe Info Returns Text Columns
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
-    ...    describe stackql_intrinsic.audit.info;
+    ...    describe stackql_preview.audit.info;
     ...    name,type\ntitle,text\ndescription,text
     ...    \-o\=csv
 
@@ -10733,7 +10735,7 @@ Intrinsic Describe Select Method Returns Response Fields
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
-    ...    describe method stackql_intrinsic.audit.info.select;
+    ...    describe method stackql_preview.audit.info.select;
     ...    name,type,param_type,shape\ntitle,text,response,text\ndescription,text,response,text
     ...    \-o\=csv
 
@@ -10741,7 +10743,7 @@ Intrinsic Catalog Select Returns Omnisdk Resources
     [Documentation]    The catalog relation is materialised from the omnisdk
     ...                built-in catalog and, like info, composes as a relation.
     ${query} =    Catenate    SEPARATOR=${SPACE}
-    ...    select path, summary from stackql_intrinsic.audit.catalog
+    ...    select path, summary from stackql_preview.audit.catalog
     ...    where path = 'aws.s3.buckets';
     Should StackQL Exec Inline Equal
     ...    ${STACKQL_EXE}
@@ -10764,6 +10766,6 @@ Intrinsic Catalog Describe Returns Text Columns
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
-    ...    describe stackql_intrinsic.audit.catalog;
-    ...    name,type\npath,text\nsummary,text
+    ...    describe stackql_preview.audit.catalog;
+    ...    name,type\npath,text\nrelation,text\nsummary,text
     ...    \-o\=csv
