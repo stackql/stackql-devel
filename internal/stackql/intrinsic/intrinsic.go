@@ -19,8 +19,8 @@ const (
 )
 
 const (
-	serviceName      = "audit"
-	serviceTitle     = "Intrinsic Audit"
+	auditService     = "audit"
+	auditTitle       = "omnisdk audited resources"
 	selectMethodName = "select"
 	columnType       = "text"
 )
@@ -32,52 +32,14 @@ type column struct {
 }
 
 type table struct {
+	service     string
 	name        string
 	description string
 	columns     []column
-	rows        func() ([][]string, error)
-	isData      bool
-}
-
-var tables = []table{ //nolint:gochecknoglobals // compile-time relation registry
-	{
-		name:        "info",
-		description: "built-in intrinsic info resource",
-		columns: []column{
-			{name: "title", description: "intrinsic info title"},
-			{name: "description", description: "intrinsic info description"},
-		},
-		rows: infoRows,
-	},
-	{
-		name:        "catalog",
-		description: "omnisdk resource catalog",
-		columns: []column{
-			{name: "path", description: "dot-path addressing the omnisdk resource"},
-			{name: "relation", description: "stackql relation name for the resource"},
-			{name: "summary", description: "human readable summary of the resource"},
-		},
-		rows: catalogRows,
-	},
-	{
-		name:        "methods",
-		description: "omnisdk method catalog",
-		columns: []column{
-			{name: "path", description: "dot-path addressing the omnisdk method"},
-			{name: "relation", description: "stackql relation the method belongs to"},
-			{name: "summary", description: "human readable summary of the method"},
-			{name: "required_params", description: "comma separated required parameter names"},
-		},
-		rows: methodRows,
-	},
 }
 
 func allTables() ([]table, error) {
-	data, err := dataTables()
-	if err != nil {
-		return nil, err
-	}
-	return append(append([]table{}, tables...), data...), nil
+	return dataTables()
 }
 
 type queryContext interface {
@@ -85,81 +47,6 @@ type queryContext interface {
 	SetCurrentProvider(string)
 	GetTypingConfig() typing.Config
 	GetAuthContext(providerName string) (*dto.AuthCtx, error)
-}
-
-type relationRegistrar interface {
-	CreateView(viewName string, rawDDL string, replaceAllowed bool, requiredParams []string) error
-}
-
-func infoRows() ([][]string, error) {
-	return [][]string{
-		{"intrinsic", "placeholder audit info row"},
-		{"placeholder", "second placeholder audit info row"},
-	}, nil
-}
-
-func RegisterRelations(registrar relationRegistrar) error {
-	for _, tbl := range tables {
-		if tbl.rows == nil {
-			continue
-		}
-		ddl, err := tbl.ddl()
-		if err != nil {
-			return err
-		}
-		if err = registrar.CreateView(tbl.qualifiedName(), ddl, true, nil); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (t table) qualifiedName() string {
-	return fmt.Sprintf("%s.%s.%s", ProviderName, serviceName, t.name)
-}
-
-func (t table) ddl() (string, error) {
-	rows, err := t.rows()
-	if err != nil {
-		return "", err
-	}
-	if len(rows) == 0 {
-		return t.emptyDDL(), nil
-	}
-	var builder strings.Builder
-	for i, row := range rows {
-		if len(row) != len(t.columns) {
-			return "", fmt.Errorf(
-				"intrinsic: relation '%s' row %d has %d values, want %d",
-				t.name, i, len(row), len(t.columns))
-		}
-		if i > 0 {
-			builder.WriteString(" UNION ALL ")
-		}
-		builder.WriteString("SELECT ")
-		for j, value := range row {
-			if j > 0 {
-				builder.WriteString(", ")
-			}
-			builder.WriteString(sqlLiteral(value))
-			if i == 0 {
-				builder.WriteString(" AS " + t.columns[j].name)
-			}
-		}
-	}
-	return builder.String(), nil
-}
-
-func (t table) emptyDDL() string {
-	projections := make([]string, 0, len(t.columns))
-	for _, col := range t.columns {
-		projections = append(projections, fmt.Sprintf("CAST(NULL AS TEXT) AS %s", col.name))
-	}
-	return "SELECT " + strings.Join(projections, ", ") + " WHERE 1 = 0"
-}
-
-func sqlLiteral(s string) string {
-	return "'" + strings.ReplaceAll(s, "'", "''") + "'"
 }
 
 func GeneratePrimitiveFunc(
@@ -198,13 +85,15 @@ func resolveProvider(providerName string, currentProvider string) string {
 	return currentProvider
 }
 
-func isAuditService(providerName, serviceStr, currentProvider string) bool {
-	return IsProvider(resolveProvider(providerName, currentProvider)) &&
-		strings.EqualFold(serviceStr, serviceName)
+func isService(providerName, serviceStr, currentProvider string) bool {
+	if !IsProvider(resolveProvider(providerName, currentProvider)) {
+		return false
+	}
+	return strings.EqualFold(serviceStr, auditService)
 }
 
 func lookupTable(providerName, serviceStr, resourceStr, currentProvider string) (table, bool) {
-	if !isAuditService(providerName, serviceStr, currentProvider) {
+	if !isService(providerName, serviceStr, currentProvider) {
 		return table{}, false
 	}
 	registry, err := allTables()
@@ -212,7 +101,7 @@ func lookupTable(providerName, serviceStr, resourceStr, currentProvider string) 
 		return table{}, false
 	}
 	for _, tbl := range registry {
-		if strings.EqualFold(resourceStr, tbl.name) {
+		if strings.EqualFold(serviceStr, tbl.service) && strings.EqualFold(resourceStr, tbl.name) {
 			return tbl, true
 		}
 	}
@@ -247,11 +136,11 @@ func showFunc(
 		}
 		return func() internaldto.ExecutorOutput { return showServices(ctx, extended) }, true
 	case "RESOURCES":
-		if !isAuditService(
-			node.OnTable.Qualifier.GetRawVal(), node.OnTable.Name.GetRawVal(), currentProvider) {
+		serviceStr := node.OnTable.Name.GetRawVal()
+		if !isService(node.OnTable.Qualifier.GetRawVal(), serviceStr, currentProvider) {
 			return nil, false
 		}
-		return func() internaldto.ExecutorOutput { return showResources(ctx, extended) }, true
+		return func() internaldto.ExecutorOutput { return showResources(ctx, serviceStr, extended) }, true
 	case "METHODS":
 		tbl, ok := lookupTable(
 			node.OnTable.QualifierSecond.GetRawVal(),
@@ -306,7 +195,7 @@ func describeMethodFunc(
 			return internaldto.NewErroneousExecutorOutput(
 				fmt.Errorf(
 					"relation '%s.%s.%s' has no method '%s'; run SHOW METHODS to list them",
-					ProviderName, serviceName, tbl.name, methodName,
+					ProviderName, tbl.service, tbl.name, methodName,
 				),
 			)
 		}, true
@@ -330,32 +219,34 @@ func prepare(
 
 func showServices(ctx queryContext, extended bool) internaldto.ExecutorOutput {
 	row := map[string]interface{}{
-		"id":    serviceName,
-		"name":  serviceName,
-		"title": serviceTitle,
+		"id":    fmt.Sprintf("%s:%s", auditService, ProviderVersion),
+		"name":  auditService,
+		"title": auditTitle,
 	}
 	if extended {
-		row["description"] = "built-in intrinsic service"
+		row["description"] = auditTitle
 		row["version"] = ProviderVersion
-		row["preferred"] = true
+		row["preferred"] = nil
 	}
-	return prepare(
-		ctx,
-		formulation.GetServicesHeader(extended),
-		map[string]map[string]interface{}{"000001": row},
-		util.DefaultRowSort,
-	)
+	return prepare(ctx, formulation.GetServicesHeader(extended),
+		map[string]map[string]interface{}{"000001": row}, util.DefaultRowSort)
 }
 
-func showResources(ctx queryContext, extended bool) internaldto.ExecutorOutput {
-	registry, err := allTables()
+func showResources(ctx queryContext, serviceStr string, extended bool) internaldto.ExecutorOutput {
+	all, err := allTables()
 	if err != nil {
 		return internaldto.NewErroneousExecutorOutput(err)
+	}
+	var registry []table
+	for _, tbl := range all {
+		if strings.EqualFold(serviceStr, tbl.service) {
+			registry = append(registry, tbl)
+		}
 	}
 	rows := make(map[string]map[string]interface{}, len(registry))
 	for i, tbl := range registry {
 		row := map[string]interface{}{
-			"id":   tbl.name,
+			"id":   fmt.Sprintf("%s.%s.%s", ProviderName, tbl.service, tbl.name),
 			"name": tbl.name,
 		}
 		if extended {

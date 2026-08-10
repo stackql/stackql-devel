@@ -25,42 +25,6 @@ func relationName(path string) string {
 	return strings.ReplaceAll(path, ".", "_")
 }
 
-func catalogRows() ([][]string, error) {
-	resources, err := omnisdk.Default().Resources(".*")
-	if err != nil {
-		return nil, fmt.Errorf("intrinsic: cannot read omnisdk catalog: %w", err)
-	}
-	rows := make([][]string, 0, len(resources))
-	for _, resource := range resources {
-		rows = append(rows, []string{resource.Path, relationName(resource.Path), resource.Summary})
-	}
-	return rows, nil
-}
-
-func methodRows() ([][]string, error) {
-	resources, err := omnisdk.Default().Resources(".*")
-	if err != nil {
-		return nil, fmt.Errorf("intrinsic: cannot read omnisdk catalog: %w", err)
-	}
-	var rows [][]string
-	for _, resource := range resources {
-		methods, methodsErr := omnisdk.Default().Methods(resource.Path)
-		if methodsErr != nil {
-			return nil, fmt.Errorf(
-				"intrinsic: cannot read omnisdk methods for '%s': %w", resource.Path, methodsErr)
-		}
-		for _, method := range methods {
-			rows = append(rows, []string{
-				method.Path,
-				relationName(resource.Path),
-				method.Summary,
-				strings.Join(requiredParamNames(method), ", "),
-			})
-		}
-	}
-	return rows, nil
-}
-
 func requiredParamNames(method omnisdk.Method) []string {
 	var names []string
 	for _, param := range method.Params {
@@ -85,10 +49,10 @@ func dataTables() ([]table, error) {
 
 func dataTable(resource omnisdk.Resource) table {
 	return table{
+		service:     auditService,
 		name:        relationName(resource.Path),
 		description: resource.Summary,
 		columns:     schemaColumns(resource.Schema),
-		isData:      true,
 	}
 }
 
@@ -145,7 +109,7 @@ func pickMethod(resourcePath string, params map[string]string) (omnisdk.Method, 
 	case 0:
 		return omnisdk.Method{}, fmt.Errorf(
 			"intrinsic: no method of '%s' has its required parameters supplied; run SHOW METHODS IN %s.%s.%s",
-			resourcePath, ProviderName, serviceName, relationName(resourcePath))
+			resourcePath, ProviderName, auditService, relationName(resourcePath))
 	default:
 		return omnisdk.Method{}, fmt.Errorf(
 			"intrinsic: several methods of '%s' are satisfiable (%s); disambiguate with %s = '<name>'",
@@ -280,8 +244,8 @@ func selectFunc(
 	if !ok {
 		return nil, false
 	}
-	if !isAuditService(
-		tableName.QualifierSecond.GetRawVal(), tableName.Qualifier.GetRawVal(), currentProvider) {
+	if !strings.EqualFold(tableName.Qualifier.GetRawVal(), auditService) ||
+		!IsProvider(resolveProvider(tableName.QualifierSecond.GetRawVal(), currentProvider)) {
 		return nil, false
 	}
 	resource, ok := lookupDataRelation(tableName.Name.GetRawVal())
@@ -342,9 +306,6 @@ func (t table) methods() []relationMethod {
 		name:        selectMethodName,
 		description: "select-only intrinsic method",
 	}}
-	if !t.isData {
-		return viewMethod
-	}
 	resource, ok := lookupDataRelation(t.name)
 	if !ok {
 		return viewMethod
@@ -365,12 +326,6 @@ func (t table) methods() []relationMethod {
 }
 
 func (t table) methodColumns(methodName string) ([]column, bool) {
-	if !t.isData {
-		if strings.EqualFold(methodName, selectMethodName) {
-			return t.columns, true
-		}
-		return nil, false
-	}
 	resource, ok := lookupDataRelation(t.name)
 	if !ok {
 		return nil, false
