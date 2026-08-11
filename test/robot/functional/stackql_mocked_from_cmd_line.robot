@@ -10702,22 +10702,61 @@ Preview Omni Storage Buckets Select Without Region Reports Method Selection Erro
     ...    select * from stackql_preview.audit.omni_storage_buckets;
     ...    no method of 'omni.storage.buckets' has its required parameters supplied
 
-Preview Show Providers Jsonl Set Is Order Insensitive
-    [Documentation]    Streamed relations cannot honour ORDER BY, since the rows
-    ...                never reach the SQL backend. Their contents are still
+Preview Jsonl Row Set Is Order Insensitive
+    [Documentation]    Streamed relations cannot honour ORDER BY, since their
+    ...                rows never reach the SQL backend. Contents remain
     ...                deterministic, so JSONL rows are asserted as an unordered
-    ...                set. This exercises that comparison on a relation whose
-    ...                rows need no cloud credentials.
+    ...                set. Deliberately declared in an order the query does not
+    ...                emit, so an order-sensitive comparison would fail here.
     ${expected} =    Catenate    SEPARATOR=\n
-    ...    {"name":"stackql_preview","version":"internal"}
-    ...    {"name":"google","version":"v0.1.2"}
+    ...    {"id":"stackql_preview.audit.omni_storage_buckets","name":"omni_storage_buckets"}
+    ...    {"id":"stackql_preview.audit.aws_s3_buckets","name":"aws_s3_buckets"}
+    ...    {"id":"stackql_preview.audit.gcp_compute_networks","name":"gcp_compute_networks"}
+    ...    {"id":"stackql_preview.audit.aws_ec2_networks","name":"aws_ec2_networks"}
+    ...    {"id":"stackql_preview.audit.google_storage_buckets","name":"google_storage_buckets"}
+    ...    {"id":"stackql_preview.audit.azure_network_subnets","name":"azure_network_subnets"}
+    ...    {"id":"stackql_preview.audit.azure_storage_accounts","name":"azure_storage_accounts"}
     Should StackQL Exec Inline Jsonl Set Equal
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
     ...    ${GITHUB_SECRET_STR}
     ...    ${K8S_SECRET_STR}
-    ...    ${REGISTRY_MOCKED_CFG_STR}
-    ...    ${AUTH_CFG_DEFECTIVE_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
-    ...    registry pull google v0.1.2; show providers;
+    ...    show resources in stackql_preview.audit;
+    ...    ${expected}
+
+Preview Omni Storage Buckets Jsonl Row Set Matches Expectation
+    [Tags]    robot:skip
+    [Documentation]    DISABLED pending a mockable variant: this calls the real
+    ...                clouds, so it cannot pass in CI. Remove the robot:skip tag
+    ...                once omnisdk can be pointed at a local endpoint.
+    ...                The multi-cloud audit select, order-insensitive. This is a
+    ...                regression test: the expectation file must be present and
+    ...                every row must match, otherwise it fails. Rows come from
+    ...                live AWS, Azure and GCP; omnisdk exposes no endpoint
+    ...                override, so it cannot be mocked. No ORDER BY, because a
+    ...                streamed relation never reaches the SQL backend and
+    ...                ordering is therefore not applied.
+    ${expected_path} =    OperatingSystem.Get Environment Variable
+    ...    PREVIEW_AUDIT_EXPECTED_JSONL_PATH
+    ...    ${CURDIR}${/}..${/}..${/}assets${/}expected${/}preview${/}omni-storage-buckets.jsonl
+    ${google_org} =    OperatingSystem.Get Environment Variable    PREVIEW_AUDIT_GOOGLE_ORG    ${EMPTY}
+    ${aws_region} =    OperatingSystem.Get Environment Variable    PREVIEW_AUDIT_AWS_REGION    ap-southeast-2
+    Should Not Be Empty    ${google_org}    PREVIEW_AUDIT_GOOGLE_ORG must be set
+    OperatingSystem.File Should Exist    ${expected_path}
+    ${expected} =    OperatingSystem.Get File    ${expected_path}
+    ${query} =    Catenate    SEPARATOR=${SPACE}
+    ...    select * from stackql_preview.audit.omni_storage_buckets
+    ...    where region = '${aws_region}' and google_org = '${google_org}';
+    Should StackQL Exec Inline Jsonl Set Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${query}
     ...    ${expected}

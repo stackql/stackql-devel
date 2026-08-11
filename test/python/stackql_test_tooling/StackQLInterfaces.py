@@ -905,6 +905,8 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
         *args,
         **cfg
       )
+      if result.stderr is not None and result.stderr.strip() != '':
+        raise Exception(f'query emitted stderr, so the row set is not trustworthy: {result.stderr.strip()}')
       self._verify_jsonl_set(result.stdout, expected_jsonl)
 
   def _verify_jsonl_set(self, actual_stdout :str, expected_jsonl :str):
