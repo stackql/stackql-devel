@@ -10661,3 +10661,43 @@ Preview Select Without Required Params Reports Method Selection Error
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    select * from stackql_preview.audit.aws_ec2_networks;
     ...    no method of 'aws.ec2.networks' has its required parameters supplied
+
+Preview Omni Storage Buckets Describe Reports Uniform Blob Shape
+    [Documentation]    The multi-cloud relation projects one uniform shape
+    ...                regardless of which cloud a row came from.
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    describe stackql_preview.audit.omni_storage_buckets;
+    ...    name,type\nprovider,string\nname,string\nencryption_status,string\nencryption_class,string\npublic,bool\nversioning,bool\nhttps,bool
+    ...    \-o\=csv
+
+Preview Omni Storage Buckets Show Methods Reports Required Region
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    show methods in stackql_preview.audit.omni_storage_buckets;
+    ...    MethodName,RequiredParams,SQLVerb\nlist,region,SELECT
+    ...    \-o\=csv
+
+Preview Omni Storage Buckets Select Without Region Reports Method Selection Error
+    Should StackQL Exec Inline Contain Stderr
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    select * from stackql_preview.audit.omni_storage_buckets order by name;
+    ...    no method of 'omni.storage.buckets' has its required parameters supplied
