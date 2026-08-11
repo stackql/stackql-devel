@@ -10699,5 +10699,25 @@ Preview Omni Storage Buckets Select Without Region Reports Method Selection Erro
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
-    ...    select * from stackql_preview.audit.omni_storage_buckets order by name;
+    ...    select * from stackql_preview.audit.omni_storage_buckets;
     ...    no method of 'omni.storage.buckets' has its required parameters supplied
+
+Preview Show Providers Jsonl Set Is Order Insensitive
+    [Documentation]    Streamed relations cannot honour ORDER BY, since the rows
+    ...                never reach the SQL backend. Their contents are still
+    ...                deterministic, so JSONL rows are asserted as an unordered
+    ...                set. This exercises that comparison on a relation whose
+    ...                rows need no cloud credentials.
+    ${expected} =    Catenate    SEPARATOR=\n
+    ...    {"name":"stackql_preview","version":"internal"}
+    ...    {"name":"google","version":"v0.1.2"}
+    Should StackQL Exec Inline Jsonl Set Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_MOCKED_CFG_STR}
+    ...    ${AUTH_CFG_DEFECTIVE_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    registry pull google v0.1.2; show providers;
+    ...    ${expected}

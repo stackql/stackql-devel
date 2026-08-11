@@ -869,6 +869,70 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
   
 
   @keyword
+  def should_stackql_exec_inline_jsonl_set_equal(
+    self,
+    stackql_exe :str,
+    okta_secret_str :str,
+    github_secret_str :str,
+    k8s_secret_str :str,
+    registry_cfg :RegistryCfg,
+    auth_cfg_str :str,
+    sql_backend_cfg_str :str,
+    query :str,
+    expected_jsonl :str,
+    *args,
+    **cfg
+  ):
+    """
+    Compare JSONL output against an expected set, ignoring row order.
+
+    Relations whose rows are streamed cannot honour ORDER BY, because the rows
+    never reach the SQL backend. Their contents are still deterministic, so the
+    emitted objects are compared as an unordered multiset.
+    """
+    repeat_count = int(cfg.pop('repeat_count', 1))
+    for _ in range(repeat_count):
+      result = self._run_stackql_exec_command(
+        stackql_exe,
+        okta_secret_str,
+        github_secret_str,
+        k8s_secret_str,
+        registry_cfg,
+        auth_cfg_str,
+        sql_backend_cfg_str,
+        query,
+        '-o=jsonl',
+        *args,
+        **cfg
+      )
+      self._verify_jsonl_set(result.stdout, expected_jsonl)
+
+  def _verify_jsonl_set(self, actual_stdout :str, expected_jsonl :str):
+    actual = self._parse_jsonl(actual_stdout, 'actual')
+    expected = self._parse_jsonl(expected_jsonl, 'expected')
+    if actual == expected:
+      return
+    missing = [r for r in expected if expected.count(r) > actual.count(r)]
+    unexpected = [r for r in actual if actual.count(r) > expected.count(r)]
+    raise Exception(
+      f'JSONL row sets differ.\nMissing ({len(missing)}): {missing}\n'
+      f'Unexpected ({len(unexpected)}): {unexpected}'
+    )
+
+  def _parse_jsonl(self, payload :str, label :str) -> list:
+    rows = []
+    for line_number, line in enumerate(payload.splitlines(), start=1):
+      stripped = line.strip()
+      if not stripped:
+        continue
+      try:
+        parsed = json.loads(stripped)
+      except json.JSONDecodeError as exc:
+        raise Exception(f'{label} line {line_number} is not JSON: {stripped!r}') from exc
+      rows.append(json.dumps(parsed, sort_keys=True))
+    return sorted(rows)
+
+  @keyword
   def should_stackql_exec_inline_equal_both_streams(
     self, 
     stackql_exe :str, 
