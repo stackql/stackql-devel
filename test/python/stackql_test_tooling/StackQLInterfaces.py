@@ -246,6 +246,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     rv = [ f"--export.alias='{b[15:]}'" if type(b) == str and b.startswith('--export.alias=') else b for b in list(rv) ]
     rv = [ f"--http.log.enabled='{b[19:]}'" if type(b) == str and b.startswith('--http.log.enabled=') else b for b in list(rv) ]
     rv = [ f"--approot='{b[10:]}'" if type(b) == str and b.startswith('--approot=') else b for b in list(rv) ]
+    rv = [ f"--preview='{b[10:]}'" if type(b) == str and b.startswith('--preview=') else b for b in list(rv) ]
     return rv
 
   def _run_stackql_exec_command_docker(

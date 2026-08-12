@@ -10769,7 +10769,8 @@ Preview Omni Storage Buckets Jsonl Row Set Matches Expectation
     ...    {"aws.s3":${mock},
     ...    "azure.login":${mock},"azure.mgmt":${mock},
     ...    "gcp.oauth":${mock},"gcp.storage":${mock},"gcp.crm":${mock}}
-    Set Environment Variable    STACKQL_PREVIEW_ENDPOINT    ${endpoints}
+    ${preview} =    Catenate    SEPARATOR=
+    ...    {"endpoint":${endpoints}}
     ${query} =    Catenate    SEPARATOR=${SPACE}
     ...    select * from stackql_preview.audit.omni_storage_buckets
     ...    where region = 'us-east-1' and google_org = '123456789';
@@ -10783,6 +10784,7 @@ Preview Omni Storage Buckets Jsonl Row Set Matches Expectation
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${query}
     ...    ${expected}
+    ...    --preview\=${preview}
     ...    stdout=${CURDIR}${/}tmp${/}Preview-Omni-Storage-Buckets-Jsonl-Row-Set-Matches-Expectation.tmp
     ...    stderr=${CURDIR}${/}tmp${/}Preview-Omni-Storage-Buckets-Jsonl-Row-Set-Matches-Expectation-stderr.tmp
 
@@ -10795,7 +10797,8 @@ Preview Rows Are Emitted Throughout The Run
     [Setup]    Write Gcp Service Account    ${OMNISDK_MOCK_GCP_SA_HOST}
     [Teardown]    Remove Preview Mock Environment
     ${mock} =    Set Variable    {"scheme":"http","host":"${LOCAL_HOST_ALIAS}","port":"${MOCKSERVER_PORT_OMNISDK}"}
-    Set Environment Variable    STACKQL_PREVIEW_ENDPOINT    {"aws.s3":${mock}}
+    ${preview} =    Catenate    SEPARATOR=
+    ...    {"batchSize":10,"flushInterval":"50ms","endpoint":{"aws.s3":${mock}}}
     Set Environment Variable    AWS_ACCESS_KEY_ID    AK
     Set Environment Variable    AWS_SECRET_ACCESS_KEY    SK
     ${query} =    Catenate    SEPARATOR=${SPACE}
@@ -10813,5 +10816,6 @@ Preview Rows Are Emitted Throughout The Run
     ...    79
     ...    0.2
     ...    \-o\=jsonl
+    ...    --preview\=${preview}
     ...    stdout=${CURDIR}${/}tmp${/}Preview-Rows-Are-Emitted-Throughout-The-Run.tmp
     ...    stderr=${CURDIR}${/}tmp${/}Preview-Rows-Are-Emitted-Throughout-The-Run-stderr.tmp

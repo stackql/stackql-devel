@@ -2,11 +2,10 @@ package intrinsic
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
-	"net/url"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -24,23 +23,7 @@ import (
 
 const methodPredicate = "method"
 
-// endpointEnvVar retargets omnisdk at a local mock. Transport configuration, so
-// it stays out of the query.
-const endpointEnvVar = "STACKQL_PREVIEW_ENDPOINT"
-
-// batchSizeKey caps how many rows a read gathers before emitting. It rides on
-// the provider's auth context values, which is how per-provider configuration
-// already reaches this package:
-//
-//	--auth='{"stackql_preview":{"values":{"batch_size":["10"]}}}'
-const batchSizeKey = "batch_size"
-
 const defaultBatchSize = 100
-
-// flushIntervalKey bounds how long a read waits for a batch to fill. Without it
-// a result smaller than the batch would not be emitted until the cursor ended,
-// so small results would not stream at all.
-const flushIntervalKey = "flush_interval"
 
 const defaultFlushInterval = 50 * time.Millisecond
 
@@ -170,11 +153,10 @@ func openStream(
 	if err != nil {
 		return nil, err
 	}
-	authCtx := providerAuthContext(ctx, resourcePath)
-	input := newBackendInput(authCtx)
+	input := previewCfg
 	args := omnisdk.Args{
 		Params:   params,
-		Auth:     omnisdkAuth(authCtx),
+		Auth:     omnisdkAuth(providerAuthContext(ctx, resourcePath)),
 		Endpoint: input.getEndpoint(),
 	}
 	plan, err := omnisdk.Default().New(method.Path, args)
@@ -631,16 +613,59 @@ type standardBackendInput struct {
 	flushInterval time.Duration
 }
 
-func newBackendInput(authCtx *dto.AuthCtx) backendInput {
-	values := url.Values{}
-	if authCtx != nil {
-		values = authCtx.GetValues()
+// previewCfg is the parsed --preview argument. Cobra binds the raw string in
+// internal/stackql/cmd, which calls Init exactly once; nothing else writes it.
+//
+//nolint:gochecknoglobals // set once from the CLI, read thereafter
+var previewCfg = newBackendInput(previewCfgDTO{})
+
+// CfgRawKey is the CLI argument that configures this provider's backend.
+const CfgRawKey = "preview"
+
+// previewCfgDTO is the wire shape of the --preview argument. Endpoint accepts
+// either form omnisdk does: a base URL for every service, or an object of
+// service to override. Both ride through as the string omnisdk parses.
+type previewCfgDTO struct {
+	BatchSize     int             `json:"batchSize"`
+	FlushInterval string          `json:"flushInterval"`
+	Endpoint      json.RawMessage `json:"endpoint"`
+}
+
+func (c previewCfgDTO) endpoint() string {
+	if len(c.Endpoint) == 0 {
+		return ""
 	}
-	return &standardBackendInput{
-		batchSize:     valueInt(values, batchSizeKey, defaultBatchSize),
-		endpoint:      os.Getenv(endpointEnvVar),
-		flushInterval: valueDuration(values, flushIntervalKey, defaultFlushInterval),
+	var asURL string
+	if err := json.Unmarshal(c.Endpoint, &asURL); err == nil {
+		return asURL
 	}
+	return string(c.Endpoint)
+}
+
+// Init records the --preview argument. It is called once, from cmd, before any
+// query runs.
+func Init(raw string) {
+	var cfg previewCfgDTO
+	if strings.TrimSpace(raw) != "" {
+		//nolint:errcheck // a malformed argument leaves the defaults in place
+		_ = json.Unmarshal([]byte(raw), &cfg)
+	}
+	previewCfg = newBackendInput(cfg)
+}
+
+func newBackendInput(cfg previewCfgDTO) backendInput {
+	rv := &standardBackendInput{
+		batchSize:     defaultBatchSize,
+		endpoint:      cfg.endpoint(),
+		flushInterval: defaultFlushInterval,
+	}
+	if cfg.BatchSize > 0 {
+		rv.batchSize = cfg.BatchSize
+	}
+	if parsed, err := time.ParseDuration(cfg.FlushInterval); err == nil && parsed > 0 {
+		rv.flushInterval = parsed
+	}
+	return rv
 }
 
 func (b *standardBackendInput) getBatchSize() int { return b.batchSize }
@@ -648,21 +673,3 @@ func (b *standardBackendInput) getBatchSize() int { return b.batchSize }
 func (b *standardBackendInput) getEndpoint() string { return b.endpoint }
 
 func (b *standardBackendInput) getFlushInterval() time.Duration { return b.flushInterval }
-
-func valueDuration(values url.Values, key string, fallback time.Duration) time.Duration {
-	if raw := values.Get(key); raw != "" {
-		if parsed, err := time.ParseDuration(raw); err == nil && parsed > 0 {
-			return parsed
-		}
-	}
-	return fallback
-}
-
-func valueInt(values url.Values, key string, fallback int) int {
-	if raw := values.Get(key); raw != "" {
-		if parsed, err := strconv.Atoi(raw); err == nil && parsed > 0 {
-			return parsed
-		}
-	}
-	return fallback
-}
