@@ -10,6 +10,7 @@ ${USE_STACKQL_PREINSTALLED}            false   # to be overridden from command l
 ${SUNDRY_CONFIG}                       {}  # to be overridden from command line, with string value
 ${CWD_FOR_EXEC}                        ${REPOSITORY_ROOT}  # works for self repository, can be overwritten when shared
 ${WEB_SERVICE_LIBRARY}                 stackql_test_tooling.web_service_keywords
+${OMNISDK_MOCK_GCP_SA}                 ${CURDIR}${/}tmp${/}omnisdk-gcp-sa.json
 ${STACKQL_INTERFACE_LIBRARY}           stackql_test_tooling.StackQLInterfaces
 ${CLOUD_INTEGRATION_LIBRARY}           stackql_test_tooling.CloudIntegration
 
@@ -192,3 +193,22 @@ Stackql Per Test Teardown
         Log     Container removed
         # Should Be Equal As Integers    ${restwo.rc}    0
     END
+
+Start Omnisdk Mock
+    ${mock_dir} =    Get Omnisdk Mock Dir
+    ${python} =    Python Executable
+    ${port} =    Get Free Port
+    Set Suite Variable    ${OMNISDK_MOCK_PORT}    ${port}
+    ${out} =    Set Variable    ${CURDIR}${/}tmp${/}omnisdk-mock.out
+    ${err} =    Set Variable    ${CURDIR}${/}tmp${/}omnisdk-mock.err
+    ${proc} =    Start Process    flask    --app\=${mock_dir}${/}app.py    run
+    ...    --host\=0.0.0.0    --port\=${port}
+    ...    stdout=${out}    stderr=${err}
+    Set Suite Variable    ${OMNISDK_MOCK_PROC}    ${proc}
+    Wait For Server    http://127.0.0.1:${port}/    stdout=${out}    stderr=${err}
+    ${host} =    Set Variable If    "${EXECUTION_PLATFORM}" == "docker"    host.docker.internal    127.0.0.1
+    Set Suite Variable    ${OMNISDK_MOCK_HOST}    ${host}
+    Write Gcp Service Account    ${OMNISDK_MOCK_GCP_SA}
+
+Stop Omnisdk Mock
+    Run Keyword And Ignore Error    Terminate Process    ${OMNISDK_MOCK_PROC}

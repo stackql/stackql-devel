@@ -10661,3 +10661,107 @@ Preview Select Without Required Params Reports Method Selection Error
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    select * from stackql_preview.audit.aws_ec2_networks;
     ...    no method of 'aws.ec2.networks' has its required parameters supplied
+
+Preview Omni Storage Buckets Describe Reports Uniform Blob Shape
+    [Documentation]    The multi-cloud relation projects one uniform shape
+    ...                regardless of which cloud a row came from.
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    describe stackql_preview.audit.omni_storage_buckets;
+    ...    name,type\nprovider,string\nname,string\nencryption_status,string\nencryption_class,string\npublic,bool\nversioning,bool\nhttps,bool
+    ...    \-o\=csv
+
+Preview Omni Storage Buckets Show Methods Reports Required Region
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    show methods in stackql_preview.audit.omni_storage_buckets;
+    ...    MethodName,RequiredParams,SQLVerb\nlist,region,SELECT
+    ...    \-o\=csv
+
+Preview Omni Storage Buckets Select Without Region Reports Method Selection Error
+    Should StackQL Exec Inline Contain Stderr
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    select * from stackql_preview.audit.omni_storage_buckets;
+    ...    no method of 'omni.storage.buckets' has its required parameters supplied
+
+Preview Jsonl Row Set Is Order Insensitive
+    [Documentation]    Streamed relations cannot honour ORDER BY, since their
+    ...                rows never reach the SQL backend. Contents remain
+    ...                deterministic, so JSONL rows are asserted as an unordered
+    ...                set. Deliberately declared in an order the query does not
+    ...                emit, so an order-sensitive comparison would fail here.
+    ${expected} =    Catenate    SEPARATOR=\n
+    ...    {"id":"stackql_preview.audit.omni_storage_buckets","name":"omni_storage_buckets"}
+    ...    {"id":"stackql_preview.audit.aws_s3_buckets","name":"aws_s3_buckets"}
+    ...    {"id":"stackql_preview.audit.gcp_compute_networks","name":"gcp_compute_networks"}
+    ...    {"id":"stackql_preview.audit.aws_ec2_networks","name":"aws_ec2_networks"}
+    ...    {"id":"stackql_preview.audit.google_storage_buckets","name":"google_storage_buckets"}
+    ...    {"id":"stackql_preview.audit.azure_network_subnets","name":"azure_network_subnets"}
+    ...    {"id":"stackql_preview.audit.azure_storage_accounts","name":"azure_storage_accounts"}
+    Should StackQL Exec Inline Jsonl Set Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    show resources in stackql_preview.audit;
+    ...    ${expected}
+
+Preview Omni Storage Buckets Jsonl Row Set Matches Expectation
+    [Documentation]    The multi-cloud audit select, order-insensitive, against
+    ...                omnisdk's bundled mock. Rows are declared by omnisdk's own
+    ...                fixture; no ORDER BY, because a streamed relation never
+    ...                reaches the SQL backend and ordering is not applied.
+    ...                Each service the fan-out touches is retargeted explicitly:
+    ...                the S3 leg, both Azure legs (login exchange then mgmt) and
+    ...                all three GCP legs (oauth exchange, storage, crm org
+    ...                descent).
+    [Setup]    Start Omnisdk Mock
+    [Teardown]    Stop Omnisdk Mock
+    ${expected} =    OperatingSystem.Get File
+    ...    ${CURDIR}${/}..${/}..${/}assets${/}expected${/}preview${/}omni-storage-buckets.jsonl
+    ${mock} =    Set Variable    {"scheme":"http","host":"${OMNISDK_MOCK_HOST}","port":"${OMNISDK_MOCK_PORT}"}
+    ${endpoints} =    Catenate    SEPARATOR=
+    ...    {"aws.s3":${mock},
+    ...    "azure.login":${mock},"azure.mgmt":${mock},
+    ...    "gcp.oauth":${mock},"gcp.storage":${mock},"gcp.crm":${mock}}
+    ${query} =    Catenate    SEPARATOR=${SPACE}
+    ...    select * from stackql_preview.audit.omni_storage_buckets
+    ...    where region = 'us-east-1' and google_org = '123456789';
+    Should StackQL Exec Inline Jsonl Set Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${query}
+    ...    ${expected}
+    ...    env:STACKQL_PREVIEW_ENDPOINT=${endpoints}
+    ...    env:AWS_ACCESS_KEY_ID=AK
+    ...    env:AWS_SECRET_ACCESS_KEY=SK
+    ...    env:AZURE_TENANT_ID=mock-tenant
+    ...    env:AZURE_CLIENT_ID=mock-client
+    ...    env:AZURE_CLIENT_SECRET=mock-secret
+    ...    env:GOOGLE_APPLICATION_CREDENTIALS=${OMNISDK_MOCK_GCP_SA}

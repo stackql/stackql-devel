@@ -3,6 +3,7 @@
 from asyncio import subprocess
 import json
 import os
+import sys
 import time
 import typing
 
@@ -869,6 +870,142 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
   
 
   @keyword
+  def get_omnisdk_mock_dir(self) -> str:
+    """Resolve the pinned omnisdk module's bundled flask mock, so the mock always
+    matches the version in go.mod rather than a vendored copy that can drift."""
+    import subprocess
+    module_dir = subprocess.run(
+      ['go', 'list', '-m', '-f', '{{.Dir}}', 'github.com/stackql-labs/omnisdk'],
+      capture_output=True, text=True, check=True,
+    ).stdout.strip()
+    return os.path.join(module_dir, 'test', 'mock')
+
+  @keyword
+  def python_executable(self) -> str:
+    return sys.executable
+
+  @keyword
+  def get_free_port(self) -> int:
+    """Reserve an ephemeral port from the OS. A fixed port is the usual cause of
+    a mock that starts on one CI run and not the next."""
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+      sock.bind(('127.0.0.1', 0))
+      return sock.getsockname()[1]
+
+  @keyword
+  def wait_for_server(self, url :str, timeout :float = 60, stdout :str = None, stderr :str = None):
+    import urllib.request
+    deadline = time.time() + float(timeout)
+    last = None
+    while time.time() < deadline:
+      try:
+        urllib.request.urlopen(url, timeout=2)
+        return
+      except Exception as exc:
+        last = exc
+        time.sleep(0.2)
+    raise AssertionError(
+      f'server not up at {url}: {last}\n'
+      f'--- stdout ---\n{self._read_if_present(stdout)}\n'
+      f'--- stderr ---\n{self._read_if_present(stderr)}'
+    )
+
+  def _read_if_present(self, path :str) -> str:
+    if not path or not os.path.exists(path):
+      return f'(no file at {path})'
+    with open(path) as fh:
+      return fh.read()[-4000:]
+
+  @keyword
+  def write_gcp_service_account(self, path :str):
+    """Throwaway RSA service-account key so the OAuth exchange can sign a JWT; the
+    mock ignores the signature. Generated per run, never a real credential."""
+    import subprocess
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    pem = subprocess.run(
+      ['openssl', 'genpkey', '-algorithm', 'RSA', '-pkeyopt', 'rsa_keygen_bits:2048'],
+      capture_output=True, text=True, check=True,
+    ).stdout
+    with open(path, 'w') as fh:
+      json.dump({
+        'type': 'service_account',
+        'project_id': 'mock-project',
+        'client_email': 'mock@mock-project.iam.gserviceaccount.com',
+        'private_key': pem,
+        'token_uri': 'https://oauth2.googleapis.com/token',
+      }, fh)
+
+  @keyword
+  def should_stackql_exec_inline_jsonl_set_equal(
+    self,
+    stackql_exe :str,
+    okta_secret_str :str,
+    github_secret_str :str,
+    k8s_secret_str :str,
+    registry_cfg :RegistryCfg,
+    auth_cfg_str :str,
+    sql_backend_cfg_str :str,
+    query :str,
+    expected_jsonl :str,
+    *args,
+    **cfg
+  ):
+    """
+    Compare JSONL output against an expected set, ignoring row order.
+
+    Relations whose rows are streamed cannot honour ORDER BY, because the rows
+    never reach the SQL backend. Their contents are still deterministic, so the
+    emitted objects are compared as an unordered multiset.
+    """
+    repeat_count = int(cfg.pop('repeat_count', 1))
+    for _ in range(repeat_count):
+      result = self._run_stackql_exec_command(
+        stackql_exe,
+        okta_secret_str,
+        github_secret_str,
+        k8s_secret_str,
+        registry_cfg,
+        auth_cfg_str,
+        sql_backend_cfg_str,
+        query,
+        '-o=jsonl',
+        *args,
+        **cfg
+      )
+      # Under docker the compose status logs land on stderr (see
+      # _verify_both_streams), so stderr is only a usable failure signal natively.
+      if self._execution_platform != 'docker':
+        if result.stderr is not None and result.stderr.strip() != '':
+          raise Exception(f'query emitted stderr, so the row set is not trustworthy: {result.stderr.strip()}')
+      self._verify_jsonl_set(result.stdout, expected_jsonl)
+
+  def _verify_jsonl_set(self, actual_stdout :str, expected_jsonl :str):
+    actual = self._parse_jsonl(actual_stdout, 'actual')
+    expected = self._parse_jsonl(expected_jsonl, 'expected')
+    if actual == expected:
+      return
+    missing = [r for r in expected if expected.count(r) > actual.count(r)]
+    unexpected = [r for r in actual if actual.count(r) > expected.count(r)]
+    raise Exception(
+      f'JSONL row sets differ.\nMissing ({len(missing)}): {missing}\n'
+      f'Unexpected ({len(unexpected)}): {unexpected}'
+    )
+
+  def _parse_jsonl(self, payload :str, label :str) -> list:
+    rows = []
+    for line_number, line in enumerate(payload.splitlines(), start=1):
+      stripped = line.strip()
+      if not stripped:
+        continue
+      try:
+        parsed = json.loads(stripped)
+      except json.JSONDecodeError as exc:
+        raise Exception(f'{label} line {line_number} is not JSON: {stripped!r}') from exc
+      rows.append(json.dumps(parsed, sort_keys=True))
+    return sorted(rows)
+
+  @keyword
   def should_stackql_exec_inline_equal_both_streams(
     self, 
     stackql_exe :str, 
@@ -1153,4 +1290,3 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       collapse_spaces=cfg.pop('collapse_spaces', False),
       strip_spaces=cfg.pop('strip_spaces', False),
     )
-
