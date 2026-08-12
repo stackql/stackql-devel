@@ -331,10 +331,14 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
 
   def _get_allowed_docker_env_keys(self):
     return [ 
+        'AWS_ACCESS_KEY_ID',
+        'AWS_SECRET_ACCESS_KEY',
         'AZURE_CLIENT_ID',
         'AZURE_CLIENT_SECRET',
         'AZURE_INTEGRATION_TESTING_SUB_ID',
-        'AZURE_TENANT_ID'
+        'AZURE_TENANT_ID',
+        'GOOGLE_APPLICATION_CREDENTIALS',
+        'STACKQL_PREVIEW_ENDPOINT'
     ]
 
 

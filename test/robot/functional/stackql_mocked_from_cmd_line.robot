@@ -10758,11 +10758,18 @@ Preview Omni Storage Buckets Jsonl Row Set Matches Expectation
     ...    ${CURDIR}${/}..${/}..${/}assets${/}expected${/}preview${/}omni-storage-buckets.jsonl
     ${gcp_sa} =    Set Variable If    "${EXECUTION_PLATFORM}" == "docker"
     ...    /opt/test/tmp/omnisdk-gcp-sa.json    ${OMNISDK_MOCK_GCP_SA_HOST}
+    Set Environment Variable    AWS_ACCESS_KEY_ID    AK
+    Set Environment Variable    AWS_SECRET_ACCESS_KEY    SK
+    Set Environment Variable    AZURE_TENANT_ID    mock-tenant
+    Set Environment Variable    AZURE_CLIENT_ID    mock-client
+    Set Environment Variable    AZURE_CLIENT_SECRET    mock-secret
+    Set Environment Variable    GOOGLE_APPLICATION_CREDENTIALS    ${gcp_sa}
     ${mock} =    Set Variable    {"scheme":"http","host":"${LOCAL_HOST_ALIAS}","port":"${MOCKSERVER_PORT_OMNISDK}"}
     ${endpoints} =    Catenate    SEPARATOR=
     ...    {"aws.s3":${mock},
     ...    "azure.login":${mock},"azure.mgmt":${mock},
     ...    "gcp.oauth":${mock},"gcp.storage":${mock},"gcp.crm":${mock}}
+    Set Environment Variable    STACKQL_PREVIEW_ENDPOINT    ${endpoints}
     ${query} =    Catenate    SEPARATOR=${SPACE}
     ...    select * from stackql_preview.audit.omni_storage_buckets
     ...    where region = 'us-east-1' and google_org = '123456789';
@@ -10776,13 +10783,6 @@ Preview Omni Storage Buckets Jsonl Row Set Matches Expectation
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${query}
     ...    ${expected}
-    ...    env:STACKQL_PREVIEW_ENDPOINT=${endpoints}
-    ...    env:AWS_ACCESS_KEY_ID=AK
-    ...    env:AWS_SECRET_ACCESS_KEY=SK
-    ...    env:AZURE_TENANT_ID=mock-tenant
-    ...    env:AZURE_CLIENT_ID=mock-client
-    ...    env:AZURE_CLIENT_SECRET=mock-secret
-    ...    env:GOOGLE_APPLICATION_CREDENTIALS=${gcp_sa}
     ...    stdout=${CURDIR}${/}tmp${/}Preview-Omni-Storage-Buckets-Jsonl-Row-Set-Matches-Expectation.tmp
     ...    stderr=${CURDIR}${/}tmp${/}Preview-Omni-Storage-Buckets-Jsonl-Row-Set-Matches-Expectation-stderr.tmp
 
