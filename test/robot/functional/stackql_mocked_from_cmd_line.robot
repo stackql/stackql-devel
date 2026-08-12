@@ -10753,9 +10753,11 @@ Preview Omni Storage Buckets Jsonl Row Set Matches Expectation
     ...                the S3 leg, both Azure legs (login exchange then mgmt) and
     ...                all three GCP legs (oauth exchange, storage, crm org
     ...                descent).
-    [Setup]    Write Gcp Service Account    ${OMNISDK_MOCK_GCP_SA}
+    [Setup]    Write Gcp Service Account    ${OMNISDK_MOCK_GCP_SA_HOST}
     ${expected} =    OperatingSystem.Get File
     ...    ${CURDIR}${/}..${/}..${/}assets${/}expected${/}preview${/}omni-storage-buckets.jsonl
+    ${gcp_sa} =    Set Variable If    "${EXECUTION_PLATFORM}" == "docker"
+    ...    /opt/test/tmp/omnisdk-gcp-sa.json    ${OMNISDK_MOCK_GCP_SA_HOST}
     ${mock} =    Set Variable    {"scheme":"http","host":"${LOCAL_HOST_ALIAS}","port":"${MOCKSERVER_PORT_OMNISDK}"}
     ${endpoints} =    Catenate    SEPARATOR=
     ...    {"aws.s3":${mock},
@@ -10780,7 +10782,7 @@ Preview Omni Storage Buckets Jsonl Row Set Matches Expectation
     ...    env:AZURE_TENANT_ID=mock-tenant
     ...    env:AZURE_CLIENT_ID=mock-client
     ...    env:AZURE_CLIENT_SECRET=mock-secret
-    ...    env:GOOGLE_APPLICATION_CREDENTIALS=${OMNISDK_MOCK_GCP_SA}
+    ...    env:GOOGLE_APPLICATION_CREDENTIALS=${gcp_sa}
     ...    stdout=${CURDIR}${/}tmp${/}Preview-Omni-Storage-Buckets-Jsonl-Row-Set-Matches-Expectation.tmp
     ...    stderr=${CURDIR}${/}tmp${/}Preview-Omni-Storage-Buckets-Jsonl-Row-Set-Matches-Expectation-stderr.tmp
 

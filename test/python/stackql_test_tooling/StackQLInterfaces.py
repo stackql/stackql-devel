@@ -969,9 +969,9 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       if self._execution_platform != 'docker':
         if result.stderr is not None and result.stderr.strip() != '':
           raise Exception(f'query emitted stderr, so the row set is not trustworthy: {result.stderr.strip()}')
-      self._verify_jsonl_set(result.stdout, expected_jsonl)
+      self._verify_jsonl_set(result.stdout, expected_jsonl, result.stderr)
 
-  def _verify_jsonl_set(self, actual_stdout :str, expected_jsonl :str):
+  def _verify_jsonl_set(self, actual_stdout :str, expected_jsonl :str, actual_stderr :str = None):
     actual = self._parse_jsonl(actual_stdout, 'actual')
     expected = self._parse_jsonl(expected_jsonl, 'expected')
     if actual == expected:
@@ -979,8 +979,9 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     missing = [r for r in expected if expected.count(r) > actual.count(r)]
     unexpected = [r for r in actual if actual.count(r) > expected.count(r)]
     raise Exception(
-      f'JSONL row sets differ.\nMissing ({len(missing)}): {missing}\n'
-      f'Unexpected ({len(unexpected)}): {unexpected}'
+      f'JSONL row sets differ.\nMissing ({len(missing)}): {missing[:5]}\n'
+      f'Unexpected ({len(unexpected)}): {unexpected[:5]}\n'
+      f'stderr: {(actual_stderr or "").strip()[-2000:]}'
     )
 
   def _parse_jsonl(self, payload :str, label :str) -> list:
