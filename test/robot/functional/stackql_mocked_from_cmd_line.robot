@@ -10732,14 +10732,22 @@ Preview Omni Storage Buckets Jsonl Row Set Matches Expectation
     ...                omnisdk's bundled mock. Rows are declared by omnisdk's own
     ...                fixture; no ORDER BY, because a streamed relation never
     ...                reaches the SQL backend and ordering is not applied.
+    ...                Each service the fan-out touches is retargeted explicitly:
+    ...                the S3 leg, both Azure legs (login exchange then mgmt) and
+    ...                all three GCP legs (oauth exchange, storage, crm org
+    ...                descent).
     [Setup]    Start Omnisdk Mock
     [Teardown]    Stop Omnisdk Mock
     ${expected} =    OperatingSystem.Get File
     ...    ${CURDIR}${/}..${/}..${/}assets${/}expected${/}preview${/}omni-storage-buckets.jsonl
+    ${mock} =    Set Variable    {"scheme":"http","host":"127.0.0.1","port":"${OMNISDK_MOCK_PORT}"}
+    ${endpoints} =    Catenate    SEPARATOR=
+    ...    {"aws.s3":${mock},
+    ...    "azure.login":${mock},"azure.mgmt":${mock},
+    ...    "gcp.oauth":${mock},"gcp.storage":${mock},"gcp.crm":${mock}}
     ${query} =    Catenate    SEPARATOR=${SPACE}
     ...    select * from stackql_preview.audit.omni_storage_buckets
-    ...    where region = 'us-east-1' and google_org = '123456789'
-    ...    and endpoint = 'http://127.0.0.1:${OMNISDK_MOCK_PORT}';
+    ...    where region = 'us-east-1' and google_org = '123456789';
     Should StackQL Exec Inline Jsonl Set Equal
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
@@ -10750,6 +10758,7 @@ Preview Omni Storage Buckets Jsonl Row Set Matches Expectation
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${query}
     ...    ${expected}
+    ...    env:STACKQL_PREVIEW_ENDPOINT=${endpoints}
     ...    env:AWS_ACCESS_KEY_ID=AK
     ...    env:AWS_SECRET_ACCESS_KEY=SK
     ...    env:AZURE_TENANT_ID=mock-tenant

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -19,7 +20,9 @@ import (
 
 const methodPredicate = "method"
 
-const endpointPredicate = "endpoint"
+// endpointEnvVar retargets omnisdk at a local mock. Transport configuration, so
+// it stays out of the query.
+const endpointEnvVar = "STACKQL_PREVIEW_ENDPOINT"
 
 func relationName(path string) string {
 	return strings.ReplaceAll(path, ".", "_")
@@ -150,7 +153,7 @@ func openStream(
 	args := omnisdk.Args{
 		Params:   params,
 		Auth:     omnisdkAuth(ctx, resourcePath),
-		Endpoint: params[endpointPredicate],
+		Endpoint: os.Getenv(endpointEnvVar),
 	}
 	plan, err := omnisdk.Default().New(method.Path, args)
 	if err != nil {
