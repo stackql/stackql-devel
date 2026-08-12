@@ -273,7 +273,24 @@ func selectFunc(
 	if !ok {
 		return nil, false
 	}
-	params := equalityPredicates(node.Where)
+	if unsupported := unsupportedClauses(node); len(unsupported) > 0 {
+		return func() internaldto.ExecutorOutput {
+			return internaldto.NewErroneousExecutorOutput(fmt.Errorf(
+				"relation '%s.%s.%s' streams its rows, so %s cannot be applied; remove %s from the query",
+				ProviderName, auditService, relationName(resource.Path),
+				strings.Join(unsupported, ", "), pluralClause(len(unsupported))))
+		}, true
+	}
+	params, badPredicates := equalityPredicates(node.Where)
+	if len(badPredicates) > 0 {
+		return func() internaldto.ExecutorOutput {
+			return internaldto.NewErroneousExecutorOutput(fmt.Errorf(
+				"relation '%s.%s.%s' streams its rows, so only equality predicates are applied; "+
+					"%s cannot be honoured",
+				ProviderName, auditService, relationName(resource.Path),
+				strings.Join(badPredicates, ", ")))
+		}, true
+	}
 	return func() internaldto.ExecutorOutput {
 		stream, err := openStream(ctx, resource.Path, params)
 		if err != nil {
@@ -289,10 +306,52 @@ func selectFunc(
 	}, true
 }
 
-func equalityPredicates(where *sqlparser.Where) map[string]string {
+// unsupportedClauses names the parts of a select that the streaming path cannot
+// honour. Rows never reach the SQL backend, so anything the backend would have
+// applied has to be refused rather than quietly dropped.
+func unsupportedClauses(node *sqlparser.Select) []string {
+	var out []string
+	if len(node.OrderBy) > 0 {
+		out = append(out, "ORDER BY")
+	}
+	if len(node.GroupBy) > 0 {
+		out = append(out, "GROUP BY")
+	}
+	if node.Having != nil {
+		out = append(out, "HAVING")
+	}
+	if node.Distinct {
+		out = append(out, "DISTINCT")
+	}
+	if node.Limit != nil {
+		out = append(out, "LIMIT")
+	}
+	if !isSelectStar(node.SelectExprs) {
+		out = append(out, "column projection")
+	}
+	return out
+}
+
+func isSelectStar(exprs sqlparser.SelectExprs) bool {
+	if len(exprs) != 1 {
+		return false
+	}
+	_, isStar := exprs[0].(*sqlparser.StarExpr)
+	return isStar
+}
+
+func pluralClause(n int) string {
+	if n == 1 {
+		return "it"
+	}
+	return "them"
+}
+
+func equalityPredicates(where *sqlparser.Where) (map[string]string, []string) {
 	params := map[string]string{}
+	var bad []string
 	if where == nil {
-		return params
+		return params, bad
 	}
 	var walk func(expr sqlparser.Expr)
 	walk = func(expr sqlparser.Expr) {
@@ -301,19 +360,19 @@ func equalityPredicates(where *sqlparser.Where) map[string]string {
 			walk(node.Left)
 			walk(node.Right)
 		case *sqlparser.ComparisonExpr:
-			if node.Operator != sqlparser.EqualStr {
-				return
-			}
 			col, isCol := node.Left.(*sqlparser.ColName)
 			val, isVal := node.Right.(*sqlparser.SQLVal)
-			if !isCol || !isVal {
+			if !isCol || !isVal || node.Operator != sqlparser.EqualStr {
+				bad = append(bad, sqlparser.String(expr))
 				return
 			}
 			params[col.Name.GetRawVal()] = string(val.Val)
+		default:
+			bad = append(bad, sqlparser.String(expr))
 		}
 	}
 	walk(where.Expr)
-	return params
+	return params, bad
 }
 
 type relationMethod struct {
