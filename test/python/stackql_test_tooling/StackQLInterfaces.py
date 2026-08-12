@@ -870,17 +870,6 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
   
 
   @keyword
-  def get_omnisdk_mock_dir(self) -> str:
-    """Resolve the pinned omnisdk module's bundled flask mock, so the mock always
-    matches the version in go.mod rather than a vendored copy that can drift."""
-    import subprocess
-    module_dir = subprocess.run(
-      ['go', 'list', '-m', '-f', '{{.Dir}}', 'github.com/stackql-labs/omnisdk'],
-      capture_output=True, text=True, check=True,
-    ).stdout.strip()
-    return os.path.join(module_dir, 'test', 'mock')
-
-  @keyword
   def python_executable(self) -> str:
     return sys.executable
 
@@ -921,12 +910,14 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
   def write_gcp_service_account(self, path :str):
     """Throwaway RSA service-account key so the OAuth exchange can sign a JWT; the
     mock ignores the signature. Generated per run, never a real credential."""
-    import subprocess
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric import rsa
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    pem = subprocess.run(
-      ['openssl', 'genpkey', '-algorithm', 'RSA', '-pkeyopt', 'rsa_keygen_bits:2048'],
-      capture_output=True, text=True, check=True,
-    ).stdout
+    pem = rsa.generate_private_key(public_exponent=65537, key_size=2048).private_bytes(
+      serialization.Encoding.PEM,
+      serialization.PrivateFormat.PKCS8,
+      serialization.NoEncryption(),
+    ).decode()
     with open(path, 'w') as fh:
       json.dump({
         'type': 'service_account',

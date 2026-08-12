@@ -195,8 +195,7 @@ Stackql Per Test Teardown
     END
 
 Start Omnisdk Mock
-    ${mock_dir} =    Get Omnisdk Mock Dir
-    ${python} =    Python Executable
+    ${mock_dir} =    Set Variable    ${LOCAL_LIB_HOME}${/}stackql_test_tooling${/}flask${/}omnisdk
     ${port} =    Get Free Port
     Set Suite Variable    ${OMNISDK_MOCK_PORT}    ${port}
     ${out} =    Set Variable    ${CURDIR}${/}tmp${/}omnisdk-mock.out
