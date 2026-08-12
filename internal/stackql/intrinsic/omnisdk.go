@@ -24,6 +24,13 @@ const methodPredicate = "method"
 // it stays out of the query.
 const endpointEnvVar = "STACKQL_PREVIEW_ENDPOINT"
 
+// batchSizeEnvVar sets how many rows are gathered per read. One row per read is
+// the most eager, emitting each row as the engine produces it; a larger batch
+// trades latency for fewer writes.
+const batchSizeEnvVar = "STACKQL_PREVIEW_BATCH_SIZE"
+
+const defaultBatchSize = 1
+
 func relationName(path string) string {
 	return strings.ReplaceAll(path, ".", "_")
 }
@@ -163,15 +170,16 @@ func openStream(
 	if err != nil {
 		return nil, err
 	}
-	return &rowStream{rows: rows, columns: schemaColumns(method.Schema)}, nil
+	return &rowStream{rows: rows, columns: schemaColumns(method.Schema), batchSize: batchSize()}, nil
 }
 
 type rowStream struct {
-	rows    omnisdk.Rows
-	columns []column
-	table   sqldata.ISQLTable
-	typCfg  columnFactory
-	done    bool
+	rows      omnisdk.Rows
+	batchSize int
+	columns   []column
+	table     sqldata.ISQLTable
+	typCfg    columnFactory
+	done      bool
 }
 
 type columnFactory interface {
@@ -182,15 +190,25 @@ func (rs *rowStream) Read() (sqldata.ISQLResult, error) {
 	if rs.done {
 		return rs.result(nil), io.EOF
 	}
-	rs.done = true
-	var batch []omnisdk.Row
-	for rs.rows.Next() {
+	size := rs.batchSize
+	if size < 1 {
+		size = defaultBatchSize
+	}
+	batch := make([]omnisdk.Row, 0, size)
+	for len(batch) < size && rs.rows.Next() {
 		batch = append(batch, rs.rows.Row())
 	}
-	if err := rs.rows.Err(); err != nil {
-		return rs.result(nil), err
+	// A short batch means the cursor is exhausted, so emit it with io.EOF.
+	if len(batch) < size {
+		rs.done = true
+		if err := rs.rows.Err(); err != nil {
+			return rs.result(nil), err
+		}
 	}
-	return rs.result(batch), io.EOF
+	if rs.done {
+		return rs.result(batch), io.EOF
+	}
+	return rs.result(batch), nil
 }
 
 func (rs *rowStream) result(batch []omnisdk.Row) sqldata.ISQLResult {
@@ -469,4 +487,13 @@ func textValue(value any) any {
 	default:
 		return fmt.Sprintf("%v", typed)
 	}
+}
+
+func batchSize() int {
+	if raw := os.Getenv(batchSizeEnvVar); raw != "" {
+		if parsed, err := strconv.Atoi(raw); err == nil && parsed > 0 {
+			return parsed
+		}
+	}
+	return defaultBatchSize
 }
