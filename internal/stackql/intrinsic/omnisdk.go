@@ -19,7 +19,7 @@ import (
 
 const methodPredicate = "method"
 
-const streamBatchSize = 64
+const endpointPredicate = "endpoint"
 
 func relationName(path string) string {
 	return strings.ReplaceAll(path, ".", "_")
@@ -147,7 +147,11 @@ func openStream(
 	if err != nil {
 		return nil, err
 	}
-	args := omnisdk.Args{Params: params, Auth: omnisdkAuth(ctx, resourcePath)}
+	args := omnisdk.Args{
+		Params:   params,
+		Auth:     omnisdkAuth(ctx, resourcePath),
+		Endpoint: params[endpointPredicate],
+	}
 	plan, err := omnisdk.Default().New(method.Path, args)
 	if err != nil {
 		return nil, err
@@ -175,19 +179,15 @@ func (rs *rowStream) Read() (sqldata.ISQLResult, error) {
 	if rs.done {
 		return rs.result(nil), io.EOF
 	}
-	batch := make([]omnisdk.Row, 0, streamBatchSize)
-	for len(batch) < streamBatchSize && rs.rows.Next() {
+	rs.done = true
+	var batch []omnisdk.Row
+	for rs.rows.Next() {
 		batch = append(batch, rs.rows.Row())
 	}
 	if err := rs.rows.Err(); err != nil {
-		rs.done = true
 		return rs.result(nil), err
 	}
-	if len(batch) < streamBatchSize {
-		rs.done = true
-		return rs.result(batch), io.EOF
-	}
-	return rs.result(batch), nil
+	return rs.result(batch), io.EOF
 }
 
 func (rs *rowStream) result(batch []omnisdk.Row) sqldata.ISQLResult {

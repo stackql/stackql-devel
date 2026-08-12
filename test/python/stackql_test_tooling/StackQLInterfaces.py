@@ -3,6 +3,7 @@
 from asyncio import subprocess
 import json
 import os
+import sys
 import time
 import typing
 
@@ -869,6 +870,54 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
   
 
   @keyword
+  def get_omnisdk_mock_dir(self) -> str:
+    """Resolve the pinned omnisdk module's bundled flask mock, so the mock always
+    matches the version in go.mod rather than a vendored copy that can drift."""
+    import subprocess
+    module_dir = subprocess.run(
+      ['go', 'list', '-m', '-f', '{{.Dir}}', 'github.com/stackql-labs/omnisdk'],
+      capture_output=True, text=True, check=True,
+    ).stdout.strip()
+    return os.path.join(module_dir, 'test', 'mock')
+
+  @keyword
+  def python_executable(self) -> str:
+    return sys.executable
+
+  @keyword
+  def wait_for_server(self, url :str, timeout :float = 30):
+    import urllib.request
+    deadline = time.time() + float(timeout)
+    last = None
+    while time.time() < deadline:
+      try:
+        urllib.request.urlopen(url, timeout=1)
+        return
+      except Exception as exc:
+        last = exc
+        time.sleep(0.2)
+    raise AssertionError(f'server not up at {url}: {last}')
+
+  @keyword
+  def write_gcp_service_account(self, path :str):
+    """Throwaway RSA service-account key so the OAuth exchange can sign a JWT; the
+    mock ignores the signature. Generated per run, never a real credential."""
+    import subprocess
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    pem = subprocess.run(
+      ['openssl', 'genpkey', '-algorithm', 'RSA', '-pkeyopt', 'rsa_keygen_bits:2048'],
+      capture_output=True, text=True, check=True,
+    ).stdout
+    with open(path, 'w') as fh:
+      json.dump({
+        'type': 'service_account',
+        'project_id': 'mock-project',
+        'client_email': 'mock@mock-project.iam.gserviceaccount.com',
+        'private_key': pem,
+        'token_uri': 'https://oauth2.googleapis.com/token',
+      }, fh)
+
+  @keyword
   def should_stackql_exec_inline_jsonl_set_equal(
     self,
     stackql_exe :str,
@@ -1219,4 +1268,3 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       collapse_spaces=cfg.pop('collapse_spaces', False),
       strip_spaces=cfg.pop('strip_spaces', False),
     )
-

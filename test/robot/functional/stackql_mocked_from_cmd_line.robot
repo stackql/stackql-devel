@@ -10728,28 +10728,18 @@ Preview Jsonl Row Set Is Order Insensitive
     ...    ${expected}
 
 Preview Omni Storage Buckets Jsonl Row Set Matches Expectation
-    [Tags]    robot:skip
-    [Documentation]    DISABLED pending a mockable variant: this calls the real
-    ...                clouds, so it cannot pass in CI. Remove the robot:skip tag
-    ...                once omnisdk can be pointed at a local endpoint.
-    ...                The multi-cloud audit select, order-insensitive. This is a
-    ...                regression test: the expectation file must be present and
-    ...                every row must match, otherwise it fails. Rows come from
-    ...                live AWS, Azure and GCP; omnisdk exposes no endpoint
-    ...                override, so it cannot be mocked. No ORDER BY, because a
-    ...                streamed relation never reaches the SQL backend and
-    ...                ordering is therefore not applied.
-    ${expected_path} =    OperatingSystem.Get Environment Variable
-    ...    PREVIEW_AUDIT_EXPECTED_JSONL_PATH
+    [Documentation]    The multi-cloud audit select, order-insensitive, against
+    ...                omnisdk's bundled mock. Rows are declared by omnisdk's own
+    ...                fixture; no ORDER BY, because a streamed relation never
+    ...                reaches the SQL backend and ordering is not applied.
+    [Setup]    Start Omnisdk Mock
+    [Teardown]    Stop Omnisdk Mock
+    ${expected} =    OperatingSystem.Get File
     ...    ${CURDIR}${/}..${/}..${/}assets${/}expected${/}preview${/}omni-storage-buckets.jsonl
-    ${google_org} =    OperatingSystem.Get Environment Variable    PREVIEW_AUDIT_GOOGLE_ORG    ${EMPTY}
-    ${aws_region} =    OperatingSystem.Get Environment Variable    PREVIEW_AUDIT_AWS_REGION    ap-southeast-2
-    Should Not Be Empty    ${google_org}    PREVIEW_AUDIT_GOOGLE_ORG must be set
-    OperatingSystem.File Should Exist    ${expected_path}
-    ${expected} =    OperatingSystem.Get File    ${expected_path}
     ${query} =    Catenate    SEPARATOR=${SPACE}
     ...    select * from stackql_preview.audit.omni_storage_buckets
-    ...    where region = '${aws_region}' and google_org = '${google_org}';
+    ...    where region = 'us-east-1' and google_org = '123456789'
+    ...    and endpoint = 'http://127.0.0.1:${OMNISDK_MOCK_PORT}';
     Should StackQL Exec Inline Jsonl Set Equal
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
@@ -10760,3 +10750,9 @@ Preview Omni Storage Buckets Jsonl Row Set Matches Expectation
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${query}
     ...    ${expected}
+    ...    env:AWS_ACCESS_KEY_ID=AK
+    ...    env:AWS_SECRET_ACCESS_KEY=SK
+    ...    env:AZURE_TENANT_ID=mock-tenant
+    ...    env:AZURE_CLIENT_ID=mock-client
+    ...    env:AZURE_CLIENT_SECRET=mock-secret
+    ...    env:GOOGLE_APPLICATION_CREDENTIALS=${OMNISDK_MOCK_GCP_SA}

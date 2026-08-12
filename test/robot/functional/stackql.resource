@@ -10,6 +10,8 @@ ${USE_STACKQL_PREINSTALLED}            false   # to be overridden from command l
 ${SUNDRY_CONFIG}                       {}  # to be overridden from command line, with string value
 ${CWD_FOR_EXEC}                        ${REPOSITORY_ROOT}  # works for self repository, can be overwritten when shared
 ${WEB_SERVICE_LIBRARY}                 stackql_test_tooling.web_service_keywords
+${OMNISDK_MOCK_PORT}                   8085
+${OMNISDK_MOCK_GCP_SA}                 ${CURDIR}${/}tmp${/}omnisdk-gcp-sa.json
 ${STACKQL_INTERFACE_LIBRARY}           stackql_test_tooling.StackQLInterfaces
 ${CLOUD_INTEGRATION_LIBRARY}           stackql_test_tooling.CloudIntegration
 
@@ -192,3 +194,17 @@ Stackql Per Test Teardown
         Log     Container removed
         # Should Be Equal As Integers    ${restwo.rc}    0
     END
+
+Start Omnisdk Mock
+    ${mock_dir} =    Get Omnisdk Mock Dir
+    ${python} =    Python Executable
+    ${proc} =    Start Process    ${python}    ${mock_dir}${/}app.py
+    ...    env:PORT=${OMNISDK_MOCK_PORT}
+    ...    stdout=${CURDIR}${/}tmp${/}omnisdk-mock.out
+    ...    stderr=${CURDIR}${/}tmp${/}omnisdk-mock.err
+    Set Suite Variable    ${OMNISDK_MOCK_PROC}    ${proc}
+    Wait For Server    http://127.0.0.1:${OMNISDK_MOCK_PORT}/
+    Write Gcp Service Account    ${OMNISDK_MOCK_GCP_SA}
+
+Stop Omnisdk Mock
+    Run Keyword And Ignore Error    Terminate Process    ${OMNISDK_MOCK_PROC}
