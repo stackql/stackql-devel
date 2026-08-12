@@ -11,6 +11,7 @@ ${SUNDRY_CONFIG}                       {}  # to be overridden from command line,
 ${CWD_FOR_EXEC}                        ${REPOSITORY_ROOT}  # works for self repository, can be overwritten when shared
 ${WEB_SERVICE_LIBRARY}                 stackql_test_tooling.web_service_keywords
 ${OMNISDK_MOCK_GCP_SA}                 ${CURDIR}${/}tmp${/}omnisdk-gcp-sa.json
+${OMNISDK_MOCK_URL}                     http://${LOCAL_HOST_ALIAS}:${MOCKSERVER_PORT_OMNISDK}
 ${STACKQL_INTERFACE_LIBRARY}           stackql_test_tooling.StackQLInterfaces
 ${CLOUD_INTEGRATION_LIBRARY}           stackql_test_tooling.CloudIntegration
 
@@ -44,6 +45,7 @@ Start All Mock Servers
     ...    digitalocean=${MOCKSERVER_PORT_DIGITALOCEAN}
     ...    retry=${MOCKSERVER_PORT_RETRY}
     ...    native_test=${MOCKSERVER_PORT_NATIVE_TEST}
+    ...    omnisdk=${MOCKSERVER_PORT_OMNISDK}
     Start All Webservers    port_dict=${port_dict}
 
 Reset Retry Mock Counters
@@ -194,20 +196,3 @@ Stackql Per Test Teardown
         # Should Be Equal As Integers    ${restwo.rc}    0
     END
 
-Start Omnisdk Mock
-    ${mock_dir} =    Set Variable    ${LOCAL_LIB_HOME}${/}stackql_test_tooling${/}flask${/}omnisdk
-    ${port} =    Get Free Port
-    Set Suite Variable    ${OMNISDK_MOCK_PORT}    ${port}
-    ${out} =    Set Variable    ${CURDIR}${/}tmp${/}omnisdk-mock.out
-    ${err} =    Set Variable    ${CURDIR}${/}tmp${/}omnisdk-mock.err
-    ${proc} =    Start Process    flask    --app\=${mock_dir}${/}app.py    run
-    ...    --host\=0.0.0.0    --port\=${port}
-    ...    stdout=${out}    stderr=${err}
-    Set Suite Variable    ${OMNISDK_MOCK_PROC}    ${proc}
-    Wait For Server    http://127.0.0.1:${port}/    stdout=${out}    stderr=${err}
-    ${host} =    Set Variable If    "${EXECUTION_PLATFORM}" == "docker"    host.docker.internal    127.0.0.1
-    Set Suite Variable    ${OMNISDK_MOCK_HOST}    ${host}
-    Write Gcp Service Account    ${OMNISDK_MOCK_GCP_SA}
-
-Stop Omnisdk Mock
-    Run Keyword And Ignore Error    Terminate Process    ${OMNISDK_MOCK_PROC}
