@@ -10796,7 +10796,6 @@ Preview Rows Are Emitted Throughout The Run
     [Teardown]    Remove Preview Mock Environment
     ${mock} =    Set Variable    {"scheme":"http","host":"${LOCAL_HOST_ALIAS}","port":"${MOCKSERVER_PORT_OMNISDK}"}
     Set Environment Variable    STACKQL_PREVIEW_ENDPOINT    {"aws.s3":${mock}}
-    Set Environment Variable    STACKQL_PREVIEW_BATCH_SIZE    10
     Set Environment Variable    AWS_ACCESS_KEY_ID    AK
     Set Environment Variable    AWS_SECRET_ACCESS_KEY    SK
     ${query} =    Catenate    SEPARATOR=${SPACE}

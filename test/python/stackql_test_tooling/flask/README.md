@@ -180,10 +180,11 @@ PYTHONPATH="${PWD}/test/python" robot \
 ```
 
 The streaming test asserts that stdout grows at several distinct times rather
-than in one write at the end. `STACKQL_PREVIEW_BATCH_SIZE` (default 100) sets
-how many rows a read gathers before emitting; the test sets it to `10` so the
-79 mock buckets span several writes. A batch larger than the whole result set
-emits it in one go, which is what the test is there to catch.
+than in one write at the end. The batch size is a provider input, not an environment variable: it rides on
+the auth context values, eg
+`--auth='{"aws":{"values":{"batch_size":["10"]}}}'`. It caps how many rows a
+read gathers; a flush interval (`flush_interval`, default `50ms`) bounds how
+long a read waits, so a result smaller than the batch still streams.
 
 To drive the mock by hand:
 
@@ -194,7 +195,6 @@ OMNISDK_MOCK_DELAY_MS=50 PORT=8085 python3 app.py
 # then, in another shell
 export AWS_ACCESS_KEY_ID=AK AWS_SECRET_ACCESS_KEY=SK
 export STACKQL_PREVIEW_ENDPOINT='{"aws.s3":{"scheme":"http","host":"127.0.0.1","port":"8085"}}'
-export STACKQL_PREVIEW_BATCH_SIZE=1
 ./build/stackql exec \
   "select * from stackql_preview.audit.aws_s3_buckets where region = 'us-east-1' and method = 'list';" \
   -o=jsonl

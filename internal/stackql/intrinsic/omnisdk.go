@@ -5,13 +5,17 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/lib/pq/oid"
 	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
+	"github.com/stackql/any-sdk/pkg/dto"
 	"github.com/stackql/psql-wire/pkg/sqldata"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 
@@ -24,12 +28,21 @@ const methodPredicate = "method"
 // it stays out of the query.
 const endpointEnvVar = "STACKQL_PREVIEW_ENDPOINT"
 
-// batchSizeEnvVar sets how many rows are gathered per read. A read waits for the
-// batch to fill, so a batch larger than the whole result emits it in one go;
-// lower it to trade writes for latency, down to one row per read.
-const batchSizeEnvVar = "STACKQL_PREVIEW_BATCH_SIZE"
+// batchSizeKey caps how many rows a read gathers before emitting. It rides on
+// the provider's auth context values, which is how per-provider configuration
+// already reaches this package:
+//
+//	--auth='{"stackql_preview":{"values":{"batch_size":["10"]}}}'
+const batchSizeKey = "batch_size"
 
 const defaultBatchSize = 100
+
+// flushIntervalKey bounds how long a read waits for a batch to fill. Without it
+// a result smaller than the batch would not be emitted until the cursor ended,
+// so small results would not stream at all.
+const flushIntervalKey = "flush_interval"
+
+const defaultFlushInterval = 50 * time.Millisecond
 
 func relationName(path string) string {
 	return strings.ReplaceAll(path, ".", "_")
@@ -157,10 +170,11 @@ func openStream(
 	if err != nil {
 		return nil, err
 	}
-	input := newBackendInput()
+	authCtx := providerAuthContext(ctx, resourcePath)
+	input := newBackendInput(authCtx)
 	args := omnisdk.Args{
 		Params:   params,
-		Auth:     omnisdkAuth(ctx, resourcePath),
+		Auth:     omnisdkAuth(authCtx),
 		Endpoint: input.getEndpoint(),
 	}
 	plan, err := omnisdk.Default().New(method.Path, args)
@@ -171,16 +185,24 @@ func openStream(
 	if err != nil {
 		return nil, err
 	}
-	return &rowStream{rows: rows, columns: schemaColumns(method.Schema), batchSize: input.getBatchSize()}, nil
+	return &rowStream{
+		rows:          rows,
+		columns:       schemaColumns(method.Schema),
+		batchSize:     input.getBatchSize(),
+		flushInterval: input.getFlushInterval(),
+	}, nil
 }
 
 type rowStream struct {
-	rows      omnisdk.Rows
-	batchSize int
-	columns   []column
-	table     sqldata.ISQLTable
-	typCfg    columnFactory
-	done      bool
+	rows          omnisdk.Rows
+	batchSize     int
+	flushInterval time.Duration
+	produced      chan omnisdk.Row
+	producerOnce  sync.Once
+	columns       []column
+	table         sqldata.ISQLTable
+	typCfg        columnFactory
+	done          bool
 }
 
 type columnFactory interface {
@@ -191,25 +213,62 @@ func (rs *rowStream) Read() (sqldata.ISQLResult, error) {
 	if rs.done {
 		return rs.result(nil), io.EOF
 	}
+	rs.startProducer()
 	size := rs.batchSize
 	if size < 1 {
 		size = defaultBatchSize
 	}
 	batch := make([]omnisdk.Row, 0, size)
-	for len(batch) < size && rs.rows.Next() {
-		batch = append(batch, rs.rows.Row())
-	}
-	// A short batch means the cursor is exhausted, so emit it with io.EOF.
-	if len(batch) < size {
+	// Block for the first row, then take whatever else has arrived within the
+	// flush interval. A batch is therefore a cap, not a threshold: a result
+	// smaller than the batch still reaches the caller promptly.
+	row, ok := <-rs.produced
+	if !ok {
 		rs.done = true
 		if err := rs.rows.Err(); err != nil {
 			return rs.result(nil), err
 		}
+		return rs.result(nil), io.EOF
 	}
-	if rs.done {
-		return rs.result(batch), io.EOF
+	batch = append(batch, row)
+	deadline := time.After(rs.flushIntervalOrDefault())
+	for len(batch) < size {
+		select {
+		case next, more := <-rs.produced:
+			if !more {
+				rs.done = true
+				if err := rs.rows.Err(); err != nil {
+					return rs.result(batch), err
+				}
+				return rs.result(batch), io.EOF
+			}
+			batch = append(batch, next)
+		case <-deadline:
+			return rs.result(batch), nil
+		}
 	}
 	return rs.result(batch), nil
+}
+
+func (rs *rowStream) flushIntervalOrDefault() time.Duration {
+	if rs.flushInterval <= 0 {
+		return defaultFlushInterval
+	}
+	return rs.flushInterval
+}
+
+// startProducer pulls the cursor on its own goroutine, so a read can bound how
+// long it waits for a batch to fill without abandoning rows already produced.
+func (rs *rowStream) startProducer() {
+	rs.producerOnce.Do(func() {
+		rs.produced = make(chan omnisdk.Row)
+		go func() {
+			defer close(rs.produced)
+			for rs.rows.Next() {
+				rs.produced <- rs.rows.Row()
+			}
+		}()
+	})
 }
 
 func (rs *rowStream) result(batch []omnisdk.Row) sqldata.ISQLResult {
@@ -431,14 +490,23 @@ var cloudProviders = map[string]string{ //nolint:gochecknoglobals // fixed mappi
 	"azure":  "azure",
 }
 
-func omnisdkAuth(ctx queryContext, resourcePath string) *omnisdk.Auth {
+// providerAuthContext is the stackql auth context for the cloud behind a
+// resource. It carries both the credentials and the tuning values.
+func providerAuthContext(ctx queryContext, resourcePath string) *dto.AuthCtx {
 	cloud, _, _ := strings.Cut(resourcePath, ".")
 	providerName, ok := cloudProviders[cloud]
 	if !ok {
 		return nil
 	}
 	authCtx, err := ctx.GetAuthContext(providerName)
-	if err != nil || authCtx == nil {
+	if err != nil {
+		return nil
+	}
+	return authCtx
+}
+
+func omnisdkAuth(authCtx *dto.AuthCtx) *omnisdk.Auth {
+	if authCtx == nil {
 		return nil
 	}
 	auth := &omnisdk.Auth{
@@ -554,17 +622,24 @@ func textValue(value any) any {
 type backendInput interface {
 	getBatchSize() int
 	getEndpoint() string
+	getFlushInterval() time.Duration
 }
 
 type standardBackendInput struct {
-	batchSize int
-	endpoint  string
+	batchSize     int
+	endpoint      string
+	flushInterval time.Duration
 }
 
-func newBackendInput() backendInput {
+func newBackendInput(authCtx *dto.AuthCtx) backendInput {
+	values := url.Values{}
+	if authCtx != nil {
+		values = authCtx.GetValues()
+	}
 	return &standardBackendInput{
-		batchSize: envInt(batchSizeEnvVar, defaultBatchSize),
-		endpoint:  os.Getenv(endpointEnvVar),
+		batchSize:     valueInt(values, batchSizeKey, defaultBatchSize),
+		endpoint:      os.Getenv(endpointEnvVar),
+		flushInterval: valueDuration(values, flushIntervalKey, defaultFlushInterval),
 	}
 }
 
@@ -572,8 +647,19 @@ func (b *standardBackendInput) getBatchSize() int { return b.batchSize }
 
 func (b *standardBackendInput) getEndpoint() string { return b.endpoint }
 
-func envInt(name string, fallback int) int {
-	if raw := os.Getenv(name); raw != "" {
+func (b *standardBackendInput) getFlushInterval() time.Duration { return b.flushInterval }
+
+func valueDuration(values url.Values, key string, fallback time.Duration) time.Duration {
+	if raw := values.Get(key); raw != "" {
+		if parsed, err := time.ParseDuration(raw); err == nil && parsed > 0 {
+			return parsed
+		}
+	}
+	return fallback
+}
+
+func valueInt(values url.Values, key string, fallback int) int {
+	if raw := values.Get(key); raw != "" {
 		if parsed, err := strconv.Atoi(raw); err == nil && parsed > 0 {
 			return parsed
 		}

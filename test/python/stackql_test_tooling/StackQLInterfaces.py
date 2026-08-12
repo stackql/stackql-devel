@@ -338,7 +338,6 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
         'AZURE_INTEGRATION_TESTING_SUB_ID',
         'AZURE_TENANT_ID',
         'GOOGLE_APPLICATION_CREDENTIALS',
-        'STACKQL_PREVIEW_BATCH_SIZE',
         'STACKQL_PREVIEW_ENDPOINT'
     ]
 
