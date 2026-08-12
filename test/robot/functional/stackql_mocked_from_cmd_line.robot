@@ -10754,6 +10754,7 @@ Preview Omni Storage Buckets Jsonl Row Set Matches Expectation
     ...                all three GCP legs (oauth exchange, storage, crm org
     ...                descent).
     [Setup]    Write Gcp Service Account    ${OMNISDK_MOCK_GCP_SA_HOST}
+    [Teardown]    Remove Preview Mock Environment
     ${expected} =    OperatingSystem.Get File
     ...    ${CURDIR}${/}..${/}..${/}assets${/}expected${/}preview${/}omni-storage-buckets.jsonl
     ${gcp_sa} =    Set Variable If    "${EXECUTION_PLATFORM}" == "docker"
