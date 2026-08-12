@@ -10819,3 +10819,24 @@ Preview Rows Are Emitted Throughout The Run
     ...    --preview\=${preview}
     ...    stdout=${CURDIR}${/}tmp${/}Preview-Rows-Are-Emitted-Throughout-The-Run.tmp
     ...    stderr=${CURDIR}${/}tmp${/}Preview-Rows-Are-Emitted-Throughout-The-Run-stderr.tmp
+
+Preview Order By Is Refused Rather Than Ignored
+    [Documentation]    A streamed relation never reaches the SQL backend, so
+    ...                ORDER BY cannot be applied. It is refused outright rather
+    ...                than silently dropped, which would return rows in an
+    ...                order the caller did not ask for.
+    ${query} =    Catenate    SEPARATOR=${SPACE}
+    ...    select name, provider, encryption_class from stackql_preview.audit.omni_storage_buckets
+    ...    where region = 'us-east-1' and google_org = '123456789' order by name;
+    Should StackQL Exec Inline Contain Stderr
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${query}
+    ...    streams its rows, so ORDER BY cannot be applied; remove it from the query
+    ...    stdout=${CURDIR}${/}tmp${/}Preview-Order-By-Is-Refused-Rather-Than-Ignored.tmp
+    ...    stderr=${CURDIR}${/}tmp${/}Preview-Order-By-Is-Refused-Rather-Than-Ignored-stderr.tmp
