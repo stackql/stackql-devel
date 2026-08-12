@@ -70,12 +70,15 @@ var (
 	replicateCtrMgr bool = false //nolint:unused // TODO: investigate and test then remove if possible
 )
 
-// rootCmd represents the base command when called without any subcommands.
+// previewCfgRaw is the raw --preview argument; cobra binds it here and
+// initConfig hands it to the intrinsic package once.
 //
-//nolint:gochecknoglobals // global vars are a pattern for this lib
 //nolint:gochecknoglobals // cobra binds flags to package scope
 var previewCfgRaw string
 
+// rootCmd represents the base command when called without any subcommands.
+//
+//nolint:gochecknoglobals // global vars are a pattern for this lib
 var rootCmd = &cobra.Command{
 	Use:   "stackql",
 	Short: "Cloud asset management and automation using SQL",

@@ -148,7 +148,8 @@ func lastSegment(path string) string {
 }
 
 func openStream(
-	ctx queryContext, resourcePath string, params map[string]string) (*rowStream, error) {
+	ctx queryContext, resourcePath string, params map[string]string,
+	exprs sqlparser.SelectExprs) (*rowStream, error) {
 	method, err := pickMethod(resourcePath, params)
 	if err != nil {
 		return nil, err
@@ -167,9 +168,13 @@ func openStream(
 	if err != nil {
 		return nil, err
 	}
+	selected, projectionErr := projection(exprs, schemaColumns(method.Schema))
+	if projectionErr != nil {
+		return nil, projectionErr
+	}
 	return &rowStream{
 		rows:          rows,
-		columns:       schemaColumns(method.Schema),
+		columns:       selected,
 		batchSize:     input.getBatchSize(),
 		flushInterval: input.getFlushInterval(),
 	}, nil
@@ -267,7 +272,7 @@ func (rs *rowStream) result(batch []omnisdk.Row) sqldata.ISQLResult {
 	for _, row := range batch {
 		values := make([]interface{}, 0, len(rs.columns))
 		for _, col := range rs.columns {
-			values = append(values, textValue(row[col.name]))
+			values = append(values, textValue(row[col.sourceKey()]))
 		}
 		rows = append(rows, sqldata.NewSQLRow(values))
 	}
@@ -323,6 +328,14 @@ func selectFunc(
 				strings.Join(unsupported, ", "), pluralClause(len(unsupported))))
 		}, true
 	}
+	_, projectionErr := projection(node.SelectExprs, schemaColumns(resource.Schema))
+	if projectionErr != nil {
+		return func() internaldto.ExecutorOutput {
+			return internaldto.NewErroneousExecutorOutput(fmt.Errorf(
+				"relation '%s.%s.%s' streams its rows: %w",
+				ProviderName, auditService, relationName(resource.Path), projectionErr))
+		}, true
+	}
 	params, badPredicates := equalityPredicates(node.Where)
 	if len(badPredicates) > 0 {
 		return func() internaldto.ExecutorOutput {
@@ -334,7 +347,7 @@ func selectFunc(
 		}, true
 	}
 	return func() internaldto.ExecutorOutput {
-		stream, err := openStream(ctx, resource.Path, params)
+		stream, err := openStream(ctx, resource.Path, params, node.SelectExprs)
 		if err != nil {
 			return internaldto.NewErroneousExecutorOutput(err)
 		}
@@ -368,18 +381,44 @@ func unsupportedClauses(node *sqlparser.Select) []string {
 	if node.Limit != nil {
 		out = append(out, "LIMIT")
 	}
-	if !isSelectStar(node.SelectExprs) {
-		out = append(out, "column projection")
-	}
 	return out
 }
 
-func isSelectStar(exprs sqlparser.SelectExprs) bool {
-	if len(exprs) != 1 {
-		return false
+// projection resolves the select list against the relation's columns. A star
+// selects them all; named columns are emitted in the order asked for. Anything
+// else - an aggregate, a function, a literal - needs the SQL backend, which
+// streamed rows never reach, so it is refused rather than quietly dropped.
+func projection(exprs sqlparser.SelectExprs, available []column) ([]column, error) {
+	if len(exprs) == 1 {
+		if _, isStar := exprs[0].(*sqlparser.StarExpr); isStar {
+			return available, nil
+		}
 	}
-	_, isStar := exprs[0].(*sqlparser.StarExpr)
-	return isStar
+	byName := make(map[string]column, len(available))
+	for _, col := range available {
+		byName[strings.ToLower(col.name)] = col
+	}
+	out := make([]column, 0, len(exprs))
+	for _, expr := range exprs {
+		aliased, isAliased := expr.(*sqlparser.AliasedExpr)
+		if !isAliased {
+			return nil, fmt.Errorf("'%s' cannot be applied to a streamed relation", sqlparser.String(expr))
+		}
+		colName, isCol := aliased.Expr.(*sqlparser.ColName)
+		if !isCol {
+			return nil, fmt.Errorf("'%s' cannot be applied to a streamed relation", sqlparser.String(expr))
+		}
+		found, ok := byName[strings.ToLower(colName.Name.GetRawVal())]
+		if !ok {
+			return nil, fmt.Errorf("column '%s' does not exist", colName.Name.GetRawVal())
+		}
+		if alias := aliased.As.GetRawVal(); alias != "" {
+			found.name = alias
+			found.sourceName = colName.Name.GetRawVal()
+		}
+		out = append(out, found)
+	}
+	return out, nil
 }
 
 func pluralClause(n int) string {
@@ -673,3 +712,12 @@ func (b *standardBackendInput) getBatchSize() int { return b.batchSize }
 func (b *standardBackendInput) getEndpoint() string { return b.endpoint }
 
 func (b *standardBackendInput) getFlushInterval() time.Duration { return b.flushInterval }
+
+// sourceKey is the row key a column reads from: its own name, unless an alias
+// renamed it.
+func (c column) sourceKey() string {
+	if c.sourceName != "" {
+		return c.sourceName
+	}
+	return c.name
+}
