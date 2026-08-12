@@ -10786,3 +10786,33 @@ Preview Omni Storage Buckets Jsonl Row Set Matches Expectation
     ...    stdout=${CURDIR}${/}tmp${/}Preview-Omni-Storage-Buckets-Jsonl-Row-Set-Matches-Expectation.tmp
     ...    stderr=${CURDIR}${/}tmp${/}Preview-Omni-Storage-Buckets-Jsonl-Row-Set-Matches-Expectation-stderr.tmp
 
+Preview Rows Are Emitted Throughout The Run
+    [Documentation]    A streamed relation must put rows on the output stream as
+    ...                the upstream produces them, not accumulate and flush at
+    ...                the end. The mock delays each per-bucket request, so a
+    ...                buffered implementation writes stdout in one go while a
+    ...                streaming one grows it steadily.
+    [Setup]    Write Gcp Service Account    ${OMNISDK_MOCK_GCP_SA_HOST}
+    [Teardown]    Remove Preview Mock Environment
+    ${mock} =    Set Variable    {"scheme":"http","host":"${LOCAL_HOST_ALIAS}","port":"${MOCKSERVER_PORT_OMNISDK}"}
+    Set Environment Variable    STACKQL_PREVIEW_ENDPOINT    {"aws.s3":${mock}}
+    Set Environment Variable    STACKQL_PREVIEW_BATCH_SIZE    10
+    Set Environment Variable    AWS_ACCESS_KEY_ID    AK
+    Set Environment Variable    AWS_SECRET_ACCESS_KEY    SK
+    ${query} =    Catenate    SEPARATOR=${SPACE}
+    ...    select * from stackql_preview.audit.aws_s3_buckets
+    ...    where region = 'us-east-1' and method = 'list';
+    Should StackQL Exec Stream Incrementally
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${query}
+    ...    79
+    ...    0.2
+    ...    \-o\=jsonl
+    ...    stdout=${CURDIR}${/}tmp${/}Preview-Rows-Are-Emitted-Throughout-The-Run.tmp
+    ...    stderr=${CURDIR}${/}tmp${/}Preview-Rows-Are-Emitted-Throughout-The-Run-stderr.tmp

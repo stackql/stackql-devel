@@ -24,12 +24,12 @@ const methodPredicate = "method"
 // it stays out of the query.
 const endpointEnvVar = "STACKQL_PREVIEW_ENDPOINT"
 
-// batchSizeEnvVar sets how many rows are gathered per read. One row per read is
-// the most eager, emitting each row as the engine produces it; a larger batch
-// trades latency for fewer writes.
+// batchSizeEnvVar sets how many rows are gathered per read. A read waits for the
+// batch to fill, so a batch larger than the whole result emits it in one go;
+// lower it to trade writes for latency, down to one row per read.
 const batchSizeEnvVar = "STACKQL_PREVIEW_BATCH_SIZE"
 
-const defaultBatchSize = 1
+const defaultBatchSize = 100
 
 func relationName(path string) string {
 	return strings.ReplaceAll(path, ".", "_")
@@ -157,10 +157,11 @@ func openStream(
 	if err != nil {
 		return nil, err
 	}
+	input := newBackendInput()
 	args := omnisdk.Args{
 		Params:   params,
 		Auth:     omnisdkAuth(ctx, resourcePath),
-		Endpoint: os.Getenv(endpointEnvVar),
+		Endpoint: input.getEndpoint(),
 	}
 	plan, err := omnisdk.Default().New(method.Path, args)
 	if err != nil {
@@ -170,7 +171,7 @@ func openStream(
 	if err != nil {
 		return nil, err
 	}
-	return &rowStream{rows: rows, columns: schemaColumns(method.Schema), batchSize: batchSize()}, nil
+	return &rowStream{rows: rows, columns: schemaColumns(method.Schema), batchSize: input.getBatchSize()}, nil
 }
 
 type rowStream struct {
@@ -548,11 +549,34 @@ func textValue(value any) any {
 	}
 }
 
-func batchSize() int {
-	if raw := os.Getenv(batchSizeEnvVar); raw != "" {
+// backendInput carries the tunables for a streaming run. It is read once, at
+// construction, and only read thereafter.
+type backendInput interface {
+	getBatchSize() int
+	getEndpoint() string
+}
+
+type standardBackendInput struct {
+	batchSize int
+	endpoint  string
+}
+
+func newBackendInput() backendInput {
+	return &standardBackendInput{
+		batchSize: envInt(batchSizeEnvVar, defaultBatchSize),
+		endpoint:  os.Getenv(endpointEnvVar),
+	}
+}
+
+func (b *standardBackendInput) getBatchSize() int { return b.batchSize }
+
+func (b *standardBackendInput) getEndpoint() string { return b.endpoint }
+
+func envInt(name string, fallback int) int {
+	if raw := os.Getenv(name); raw != "" {
 		if parsed, err := strconv.Atoi(raw); err == nil && parsed > 0 {
 			return parsed
 		}
 	}
-	return defaultBatchSize
+	return fallback
 }
