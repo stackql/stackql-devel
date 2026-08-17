@@ -188,6 +188,7 @@ type rowStream struct {
 	producerOnce  sync.Once
 	columns       []column
 	table         sqldata.ISQLTable
+	projection    sqlparser.SelectExprs
 	typCfg        columnFactory
 	done          bool
 }
@@ -263,6 +264,11 @@ func (rs *rowStream) result(batch []omnisdk.Row) sqldata.ISQLResult {
 		for _, name := range sortedKeys(batch[0]) {
 			rs.columns = append(rs.columns, column{name: name})
 		}
+		if len(rs.projection) > 0 {
+			if selected, err := projection(rs.projection, rs.columns); err == nil {
+				rs.columns = selected
+			}
+		}
 	}
 	columns := make([]sqldata.ISQLColumn, 0, len(rs.columns))
 	for _, col := range rs.columns {
@@ -311,6 +317,11 @@ func selectFunc(
 	tableName, ok := aliased.Expr.(sqlparser.TableName)
 	if !ok {
 		return nil, false
+	}
+	if bundle, isDoc := docProvider(
+		resolveProvider(tableName.QualifierSecond.GetRawVal(), currentProvider)); isDoc {
+		return docSelectFunc(ctx, node, bundle,
+			tableName.Qualifier.GetRawVal(), tableName.Name.GetRawVal())
 	}
 	if !strings.EqualFold(tableName.Qualifier.GetRawVal(), auditService) ||
 		!IsProvider(resolveProvider(tableName.QualifierSecond.GetRawVal(), currentProvider)) {
