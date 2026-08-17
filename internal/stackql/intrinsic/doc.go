@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/stackql-labs/omnisdk/pkg/docparse/aot"
 	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
 	"github.com/stackql/any-sdk/public/formulation"
 	"github.com/stackql/psql-wire/pkg/sqldata"
@@ -16,10 +17,10 @@ import (
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 )
 
-// UnstablePrefix names the document-driven providers. One provider per bundle in
-// stackql's own registry root, so `stackql_unstable_google` addresses the same
-// documents `registry pull google` wrote.
-const UnstablePrefix = "stackql_unstable_"
+// UnstablePrefix names the document-driven providers. The convention is
+// omnisdk's own, and its addresses carry the prefixed provider name, so this is
+// its constant rather than a copy of the literal.
+const UnstablePrefix = aot.DefaultProviderPrefix
 
 // docProvider is the bundle behind an unstable provider name, or false.
 func docProvider(name string) (string, bool) {
@@ -128,7 +129,7 @@ func docSelectFunc(
 				"%s cannot be honoured",
 			UnstablePrefix, bundle, service, resource, strings.Join(badPredicates, ", "))), true
 	}
-	address := fmt.Sprintf("%s.%s.%s", bundle, service, resource)
+	address := fmt.Sprintf("%s%s.%s.%s", UnstablePrefix, bundle, service, resource)
 	return func() internaldto.ExecutorOutput {
 		input := previewCfg
 		dir, dirErr := docRoot(ctx, bundle)
