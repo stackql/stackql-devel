@@ -156,9 +156,10 @@ func openStream(
 	}
 	input := previewCfg
 	args := omnisdk.Args{
-		Params:   params,
-		Auth:     omnisdkAuth(providerAuthContext(ctx, resourcePath)),
-		Endpoint: input.getEndpoint(),
+		Params:                params,
+		Auth:                  omnisdkAuth(providerAuthContext(ctx, resourcePath)),
+		Endpoint:              input.getEndpoint(),
+		InsecureSkipTLSVerify: input.getInsecureSkipTLSVerify(),
 	}
 	plan, err := omnisdk.Default().New(method.Path, args)
 	if err != nil {
@@ -655,12 +656,14 @@ type backendInput interface {
 	getBatchSize() int
 	getEndpoint() string
 	getFlushInterval() time.Duration
+	getInsecureSkipTLSVerify() bool
 }
 
 type standardBackendInput struct {
-	batchSize     int
-	endpoint      string
-	flushInterval time.Duration
+	batchSize             int
+	endpoint              string
+	flushInterval         time.Duration
+	insecureSkipTLSVerify bool
 }
 
 // previewCfg is the parsed --preview argument. Cobra binds the raw string in
@@ -676,9 +679,10 @@ const CfgRawKey = "preview"
 // either form omnisdk does: a base URL for every service, or an object of
 // service to override. Both ride through as the string omnisdk parses.
 type previewCfgDTO struct {
-	BatchSize     int             `json:"batchSize"`
-	FlushInterval string          `json:"flushInterval"`
-	Endpoint      json.RawMessage `json:"endpoint"`
+	BatchSize             int             `json:"batchSize"`
+	FlushInterval         string          `json:"flushInterval"`
+	Endpoint              json.RawMessage `json:"endpoint"`
+	InsecureSkipTLSVerify bool            `json:"insecureSkipTLSVerify"`
 }
 
 func (c previewCfgDTO) endpoint() string {
@@ -705,9 +709,10 @@ func Init(raw string) {
 
 func newBackendInput(cfg previewCfgDTO) backendInput {
 	rv := &standardBackendInput{
-		batchSize:     defaultBatchSize,
-		endpoint:      cfg.endpoint(),
-		flushInterval: defaultFlushInterval,
+		batchSize:             defaultBatchSize,
+		endpoint:              cfg.endpoint(),
+		flushInterval:         defaultFlushInterval,
+		insecureSkipTLSVerify: cfg.InsecureSkipTLSVerify,
 	}
 	if cfg.BatchSize > 0 {
 		rv.batchSize = cfg.BatchSize
@@ -723,6 +728,8 @@ func (b *standardBackendInput) getBatchSize() int { return b.batchSize }
 func (b *standardBackendInput) getEndpoint() string { return b.endpoint }
 
 func (b *standardBackendInput) getFlushInterval() time.Duration { return b.flushInterval }
+
+func (b *standardBackendInput) getInsecureSkipTLSVerify() bool { return b.insecureSkipTLSVerify }
 
 // sourceKey is the row key a column reads from: its own name, unless an alias
 // renamed it.

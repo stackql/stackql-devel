@@ -137,9 +137,10 @@ func docSelectFunc(
 			return internaldto.NewErroneousExecutorOutput(dirErr)
 		}
 		plan, err := omnisdk.NewFromCatalog(dir, address, omnisdk.Args{
-			Params:   params,
-			Auth:     omnisdkAuth(providerAuthContext(ctx, address)),
-			Endpoint: input.getEndpoint(),
+			Params:                params,
+			Auth:                  omnisdkAuth(providerAuthContext(ctx, bundle)),
+			Endpoint:              input.getEndpoint(),
+			InsecureSkipTLSVerify: input.getInsecureSkipTLSVerify(),
 		})
 		if err != nil {
 			return internaldto.NewErroneousExecutorOutput(err)
