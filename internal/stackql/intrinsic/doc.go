@@ -24,8 +24,18 @@ import (
 // its constant rather than a copy of the literal.
 const UnstablePrefix = aot.DefaultProviderPrefix
 
+// IsUnstableEnabled reports whether the document-driven providers were opted
+// into. They are documents read straight from disk, with none of the registry's
+// curation behind them, so nothing exposes them until a caller asks.
+func IsUnstableEnabled() bool {
+	return previewCfg.getUnstableEnabled()
+}
+
 // docProvider is the bundle behind an unstable provider name, or false.
 func docProvider(name string) (string, bool) {
+	if !IsUnstableEnabled() {
+		return "", false
+	}
 	trimmed := strings.TrimSpace(name)
 	if !strings.HasPrefix(strings.ToLower(trimmed), UnstablePrefix) {
 		return "", false

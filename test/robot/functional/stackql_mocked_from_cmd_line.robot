@@ -7590,15 +7590,13 @@ Alternate App Root Persists All Temp Materials in Alotted Directory
     ...    registry pull google v0.1.2;
     ...    show providers;
     ${outputStr} =    Catenate    SEPARATOR=\n
-    ...    |-------------------------|----------|
-    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}name${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}version${SPACE}${SPACE}|
-    ...    |-------------------------|----------|
-    ...    |${SPACE}google${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}v0.1.2${SPACE}${SPACE}${SPACE}|
-    ...    |-------------------------|----------|
-    ...    |${SPACE}stackql_preview${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}internal${SPACE}|
-    ...    |-------------------------|----------|
-    ...    |${SPACE}stackql_unstable_google${SPACE}|${SPACE}internal${SPACE}|
-    ...    |-------------------------|----------|
+    ...    |-----------------|----------|
+    ...    |${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}name${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}version${SPACE}${SPACE}|
+    ...    |-----------------|----------|
+    ...    |${SPACE}google${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}${SPACE}|${SPACE}v0.1.2${SPACE}${SPACE}${SPACE}|
+    ...    |-----------------|----------|
+    ...    |${SPACE}stackql_preview${SPACE}|${SPACE}internal${SPACE}|
+    ...    |-----------------|----------|
     ${outputErrStr} =    Catenate    SEPARATOR=\n
     ...    google provider, version 'v0.1.2' successfully installed
     Should Stackql Exec Inline Equal Both Streams
@@ -10898,7 +10896,7 @@ Unstable Github Org Members Jsonl Row Set Matches Expectation
     [Teardown]    Remove Preview Mock Environment
     ${preview} =    Catenate    SEPARATOR=
     ...    {"endpoint":"https://${LOCAL_HOST_ALIAS}:${MOCKSERVER_PORT_GITHUB}",
-    ...    "insecureSkipTLSVerify":true}
+    ...    "insecureSkipTLSVerify":true,"unstable":true}
     ${expected} =    Catenate    SEPARATOR=\n
     ...    {"id":"1","login":"some-jimbo-10","type":"User"}
     ...    {"id":"1","login":"some-jimbo-9","type":"User"}
@@ -10939,7 +10937,7 @@ Unstable Google Kms Key Rings Jsonl Row Set Matches Expectation
     Set Environment Variable    GOOGLE_APPLICATION_CREDENTIALS    ${gcp_sa}
     ${preview} =    Catenate    SEPARATOR=
     ...    {"endpoint":"https://${LOCAL_HOST_ALIAS}:${MOCKSERVER_PORT_GOOGLE}",
-    ...    "insecureSkipTLSVerify":true}
+    ...    "insecureSkipTLSVerify":true,"unstable":true}
     # The suite's google credentials are PKCS1; omnisdk needs PKCS8, so this
     # points at the key the setup generates.
     ${auth} =    Set Variable    {"google":{"credentialsfilepath":"${gcp_sa}"}}

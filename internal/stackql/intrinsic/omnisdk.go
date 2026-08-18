@@ -657,6 +657,7 @@ type backendInput interface {
 	getEndpoint() string
 	getFlushInterval() time.Duration
 	getInsecureSkipTLSVerify() bool
+	getUnstableEnabled() bool
 }
 
 type standardBackendInput struct {
@@ -664,6 +665,7 @@ type standardBackendInput struct {
 	endpoint              string
 	flushInterval         time.Duration
 	insecureSkipTLSVerify bool
+	unstableEnabled       bool
 }
 
 // previewCfg is the parsed --preview argument. Cobra binds the raw string in
@@ -683,6 +685,7 @@ type previewCfgDTO struct {
 	FlushInterval         string          `json:"flushInterval"`
 	Endpoint              json.RawMessage `json:"endpoint"`
 	InsecureSkipTLSVerify bool            `json:"insecureSkipTLSVerify"`
+	Unstable              bool            `json:"unstable"`
 }
 
 func (c previewCfgDTO) endpoint() string {
@@ -713,6 +716,7 @@ func newBackendInput(cfg previewCfgDTO) backendInput {
 		endpoint:              cfg.endpoint(),
 		flushInterval:         defaultFlushInterval,
 		insecureSkipTLSVerify: cfg.InsecureSkipTLSVerify,
+		unstableEnabled:       cfg.Unstable,
 	}
 	if cfg.BatchSize > 0 {
 		rv.batchSize = cfg.BatchSize
@@ -730,6 +734,8 @@ func (b *standardBackendInput) getEndpoint() string { return b.endpoint }
 func (b *standardBackendInput) getFlushInterval() time.Duration { return b.flushInterval }
 
 func (b *standardBackendInput) getInsecureSkipTLSVerify() bool { return b.insecureSkipTLSVerify }
+
+func (b *standardBackendInput) getUnstableEnabled() bool { return b.unstableEnabled }
 
 // sourceKey is the row key a column reads from: its own name, unless an alias
 // renamed it.
