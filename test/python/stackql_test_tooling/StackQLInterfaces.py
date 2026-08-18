@@ -311,7 +311,7 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     invocation_str = f"{sleep_prefix}stackql exec {' '.join(supplied_args)} '{query_escaped}'"
     if query_from_input_file_path:
       invocation_str = f"{sleep_prefix}stackql exec {' '.join(supplied_args)}"
-    res = super().run_process(
+    docker_args = (
       "docker",
       "compose",
       "-p",
@@ -323,6 +323,13 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
       "bash",
       "-c",
       invocation_str,
+    )
+    if cfg.pop('start_only', False):
+      # Non-blocking, so the caller can watch stdout grow. Robot's Process
+      # library is used from the main thread; no threads are involved.
+      return super().start_process(*docker_args, **cfg)
+    res = super().run_process(
+      *docker_args,
       **cfg
     )
     self.log(res.stdout)
