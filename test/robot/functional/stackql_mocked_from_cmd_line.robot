@@ -11120,3 +11120,226 @@ OTel Output Zero Row Statement Emits Only Completion
     ...    ${expected}
     ...    stdout=${CURDIR}${/}tmp${/}OTel-Output-Zero-Rows.tmp
     ...    stderr=${CURDIR}${/}tmp${/}OTel-Output-Zero-Rows-stderr.tmp
+
+# ===========================================================================
+# The "stackql_dynamic" and "stackql_iac" aliases present omnisdk's graph query
+# and converge run as relations. Discovery is answered in process, and a run is
+# specified by predicate rather than by column, so these assert the catalogue
+# and the refusals; the runs themselves reach live clouds and are covered by
+# omnisdk's own suite.
+# ===========================================================================
+
+Dynamic Alias Show Services Returns Graph Service
+    ${preview} =    Set Variable    {"unstable":true}
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    show services in stackql_dynamic;
+    ...    id,name,title\nstackql_dynamic.graph,graph,graph
+    ...    \-o\=csv
+    ...    --preview\=${preview}
+    ...    stdout=${CURDIR}${/}tmp${/}Dynamic-Alias-Show-Services.tmp
+    ...    stderr=${CURDIR}${/}tmp${/}Dynamic-Alias-Show-Services-stderr.tmp
+
+IaC Alias Show Services Returns Blueprints And Converge
+    ${preview} =    Set Variable    {"unstable":true}
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    show services in stackql_iac;
+    ...    id,name,title\nstackql_iac.blueprints,blueprints,blueprints\nstackql_iac.converge,converge,converge
+    ...    \-o\=csv
+    ...    --preview\=${preview}
+    ...    stdout=${CURDIR}${/}tmp${/}IaC-Alias-Show-Services.tmp
+    ...    stderr=${CURDIR}${/}tmp${/}IaC-Alias-Show-Services-stderr.tmp
+
+IaC Alias Show Resources Lists Blueprint Handles
+    [Documentation]    A blueprint handle is written with hyphens, which no
+    ...                unquoted SQL identifier can carry, so it is presented
+    ...                under the relation name it takes.
+    ${preview} =    Set Variable    {"unstable":true}
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    show resources in stackql_iac.blueprints;
+    ...    name,id\naws_vpc_subnet,stackql_iac.blueprints.aws_vpc_subnet
+    ...    \-o\=csv
+    ...    --preview\=${preview}
+    ...    stdout=${CURDIR}${/}tmp${/}IaC-Alias-Show-Resources.tmp
+    ...    stderr=${CURDIR}${/}tmp${/}IaC-Alias-Show-Resources-stderr.tmp
+
+IaC Alias Describe Blueprint Reports Declared Inputs
+    ${preview} =    Set Variable    {"unstable":true}
+    ${expected} =    Catenate    SEPARATOR=\n
+    ...    name,type
+    ...    region,string
+    ...    vpc_cidr,string
+    ...    subnet_cidr,string
+    ...    vpc_tags,object
+    ...    subnet_tags,object
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    describe stackql_iac.blueprints.aws_vpc_subnet;
+    ...    ${expected}
+    ...    \-o\=csv
+    ...    --preview\=${preview}
+    ...    stdout=${CURDIR}${/}tmp${/}IaC-Alias-Describe-Blueprint.tmp
+    ...    stderr=${CURDIR}${/}tmp${/}IaC-Alias-Describe-Blueprint-stderr.tmp
+
+Dynamic Alias Select Without Spec Is Refused
+    ${preview} =    Set Variable    {"unstable":true}
+    ${expected} =    Catenate    SEPARATOR=${SPACE}
+    ...    relation 'stackql_dynamic.graph.query' needs a 'spec' predicate
+    ...    naming the exchanges and their wiring
+    Should StackQL Exec Inline Equal Stderr
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    select * from stackql_dynamic.graph.query;
+    ...    ${expected}
+    ...    --preview\=${preview}
+    ...    stdout=${CURDIR}${/}tmp${/}Dynamic-Alias-No-Spec.tmp
+    ...    stderr=${CURDIR}${/}tmp${/}Dynamic-Alias-No-Spec-stderr.tmp
+
+IaC Alias Converge Without Collection Is Refused
+    ${preview} =    Set Variable    {"unstable":true}
+    ${query} =    Catenate    SEPARATOR=${SPACE}
+    ...    select * from stackql_iac.converge.run
+    ...    where blueprint = 'aws-vpc-subnet';
+    ${expected} =    Catenate    SEPARATOR=${SPACE}
+    ...    relation 'stackql_iac.converge.run' needs a 'collection' predicate;
+    ...    it is the ledger key prefix, the lease scope and the correlation
+    ...    stamp, and it is how a later run addresses the same resources
+    Should StackQL Exec Inline Equal Stderr
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${query}
+    ...    ${expected}
+    ...    --preview\=${preview}
+    ...    stdout=${CURDIR}${/}tmp${/}IaC-Alias-No-Collection.tmp
+    ...    stderr=${CURDIR}${/}tmp${/}IaC-Alias-No-Collection-stderr.tmp
+
+IaC Alias Converge Needs Exactly One Of Blueprint Or Resources
+    ${preview} =    Set Variable    {"unstable":true}
+    ${query} =    Catenate    SEPARATOR=${SPACE}
+    ...    select * from stackql_iac.converge.run where collection = 'scratch';
+    ${expected} =    Catenate    SEPARATOR=${SPACE}
+    ...    relation 'stackql_iac.converge.run' needs exactly one of 'blueprint'
+    ...    or 'resources'; a blueprint renders the resources, a specification
+    ...    states them
+    Should StackQL Exec Inline Equal Stderr
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${query}
+    ...    ${expected}
+    ...    --preview\=${preview}
+    ...    stdout=${CURDIR}${/}tmp${/}IaC-Alias-Ambiguous-Source.tmp
+    ...    stderr=${CURDIR}${/}tmp${/}IaC-Alias-Ambiguous-Source-stderr.tmp
+
+IaC Alias Unknown Blueprint Names The Catalogue
+    ${preview} =    Set Variable    {"unstable":true}
+    ${query} =    Catenate    SEPARATOR=${SPACE}
+    ...    select * from stackql_iac.converge.run
+    ...    where collection = 'scratch' and blueprint = 'no-such-thing';
+    ${expected} =    Catenate    SEPARATOR=${SPACE}
+    ...    intrinsic: no blueprint 'no-such-thing'; run SHOW RESOURCES IN
+    ...    stackql_iac.blueprints to list them
+    Should StackQL Exec Inline Equal Stderr
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${query}
+    ...    ${expected}
+    ...    --preview\=${preview}
+    ...    stdout=${CURDIR}${/}tmp${/}IaC-Alias-Unknown-Blueprint.tmp
+    ...    stderr=${CURDIR}${/}tmp${/}IaC-Alias-Unknown-Blueprint-stderr.tmp
+
+Dynamic Alias Wiring Outside Graph Is Refused By Omnisdk
+    [Documentation]    The 'spec' predicate maps onto omnisdk's own constructors
+    ...                one field at a time, so its validation is what a caller
+    ...                sees: an edge naming an exchange the query does not run is
+    ...                caught where it can name the address.
+    ${preview} =    Set Variable    {"unstable":true}
+    ${spec} =    Catenate    SEPARATOR=
+    ...    {"addresses":["stackql_unstable_aws.ec2.vpcs"],"wirings":
+    ...    [{"to":"stackql_unstable_aws.ec2.subnets","inbound":
+    ...    [{"from":"stackql_unstable_aws.ec2.vpcs","src":"VpcId","as":"vpc_id"}]}]}
+    ${query} =    Catenate    SEPARATOR=${SPACE}
+    ...    select * from stackql_dynamic.graph.query where spec = '${spec}';
+    ${expected} =    Catenate    SEPARATOR=${SPACE}
+    ...    omnisdk: wiring targets "stackql_unstable_aws.ec2.subnets",
+    ...    which the graph does not include
+    Should StackQL Exec Inline Equal Stderr
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${query}
+    ...    ${expected}
+    ...    --preview\=${preview}
+    ...    stdout=${CURDIR}${/}tmp${/}Dynamic-Alias-Wiring-Outside-Graph.tmp
+    ...    stderr=${CURDIR}${/}tmp${/}Dynamic-Alias-Wiring-Outside-Graph-stderr.tmp
+
+IaC Alias Resource Without Provider Is Refused By Omnisdk
+    [Documentation]    The 'resources' predicate maps onto omnisdk's NewResource
+    ...                one field at a time; this asserts a malformed entry is
+    ...                caught by the SDK before any effect is attempted.
+    ${preview} =    Set Variable    {"unstable":true}
+    ${query} =    Catenate    SEPARATOR=${SPACE}
+    ...    select * from stackql_iac.converge.run where collection = 'scratch'
+    ...    and resources = '[{"key":"a/b/c"}]';
+    Should StackQL Exec Inline Equal Stderr
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${query}
+    ...    omnisdk: resource "a/b/c" names no provider or address
+    ...    --preview\=${preview}
+    ...    stdout=${CURDIR}${/}tmp${/}IaC-Alias-Resource-No-Provider.tmp
+    ...    stderr=${CURDIR}${/}tmp${/}IaC-Alias-Resource-No-Provider-stderr.tmp

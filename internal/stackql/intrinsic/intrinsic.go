@@ -81,6 +81,9 @@ func IsProvider(name string) bool {
 	if strings.EqualFold(strings.TrimSpace(name), ProviderName) {
 		return true
 	}
+	if _, isAlias := aliasProvider(name); isAlias {
+		return true
+	}
 	_, isDoc := docProvider(name)
 	return isDoc
 }
@@ -136,6 +139,9 @@ func showFunc(
 	currentProvider string,
 ) (func() internaldto.ExecutorOutput, bool) {
 	extended := isExtended(node.Extended)
+	if fn, isAlias := showAliasFunc(ctx, node, currentProvider, extended); isAlias {
+		return fn, true
+	}
 	switch strings.ToUpper(strings.TrimSpace(node.Type)) {
 	case "SERVICES":
 		provider := resolveProvider(node.OnTable.Name.GetRawVal(), currentProvider)
@@ -185,6 +191,9 @@ func describeTableFunc(
 	node *sqlparser.DescribeTable,
 	currentProvider string,
 ) (func() internaldto.ExecutorOutput, bool) {
+	if fn, isAlias := describeAliasTableFunc(ctx, node, currentProvider); isAlias {
+		return fn, true
+	}
 	tbl, ok := lookupTable(
 		node.Table.QualifierSecond.GetRawVal(),
 		node.Table.Qualifier.GetRawVal(),

@@ -316,6 +316,16 @@ func (hc *standardHandlerContext) GetSupportedProviders(extended bool) (map[stri
 		"name":    intrinsic.ProviderName,
 		"version": intrinsic.ProviderVersion,
 	}
+	// The alias providers read documents straight from disk, so they appear
+	// alongside the document-driven bundles rather than unconditionally.
+	if intrinsic.IsUnstableEnabled() {
+		for _, alias := range []string{intrinsic.DynamicProviderName, intrinsic.IaCProviderName} {
+			retVal[alias] = map[string]interface{}{
+				"name":    alias,
+				"version": intrinsic.ProviderVersion,
+			}
+		}
+	}
 	// Supporting SQL data sources
 	// These will be overwritten by any documented providers with the same name
 	for k := range hc.sqlDataSources {
