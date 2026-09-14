@@ -105,6 +105,8 @@ Let us look at some `omnicli` invocations and their `stackql` equivalents.
 ### Bindings across exchanges
 
 
+Here is the example `omnicli` functionality:
+
 ```bash
 omnicli doc-graph /path/to/registry '{
   "addresses": ["stackql_unstable_aws.ec2.vpcs", "stackql_unstable_aws.ec2.subnets"],
@@ -119,8 +121,17 @@ omnicli doc-graph /path/to/registry '{
 ```
 
 
+Here is the equivalent `stackql` functionality:
+
+```bash
+
+```
+
+
 ### IAC with exchanges
 
+
+Here is the example `omnicli` functionality:
 
 ```bash
 omnicli iac-apply /path/to/registry '{
@@ -141,3 +152,8 @@ omnicli iac-apply /path/to/registry '{
 }' --aws-region us-east-1
 ```
 
+Here is the equivalent `stackql` functionality:
+
+```bash
+
+```
