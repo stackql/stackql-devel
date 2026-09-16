@@ -181,6 +181,13 @@ func (pp *Preprocessor) Render(input io.Reader) (io.Reader, error) {
 	if err != nil {
 		return nil, err
 	}
+	// Nothing to substitute means nothing to render: a query carrying no declaration block, no
+	// variable and no context file is passed through as written. Rendering it regardless rewrites
+	// text the caller meant literally - "{{ .vpc_id }}" inside a transform program becomes
+	// "<no value>" - and the query then runs with a value it never asked for.
+	if len(pp.contents) == 0 {
+		return bytes.NewReader(inContents), nil
+	}
 	tmpl, err := template.New("iqlTmpl").Parse(string(inContents))
 	if err != nil {
 		return nil, err
