@@ -11372,3 +11372,31 @@ Preview Iac Resource Without Provider Is Refused By Omnisdk
     ...    --preview\=${preview}
     ...    stdout=${CURDIR}${/}tmp${/}Preview-Iac-Resource-No-Provider.tmp
     ...    stderr=${CURDIR}${/}tmp${/}Preview-Iac-Resource-No-Provider-stderr.tmp
+
+Preview Dynamic Graph Program Braces Survive The Preprocessor
+    [Documentation]    A transform program is a go template, and its braces are
+    ...                the caller's text rather than the query's. Rendering the
+    ...                query itself rewrote them to "<no value>" before the
+    ...                relation ever saw the specification, so a wiring silently
+    ...                filtered on a value nobody asked for. The braces must
+    ...                arrive verbatim; the refusal quoting them is the evidence.
+    ${preview} =    Set Variable    {"unstable":true}
+    ${query} =    Catenate    SEPARATOR=${SPACE}
+    ...    select * from stackql_preview.dynamic_graph.query
+    ...    where spec = '{{ .vpc_id }}';
+    ${expected} =    Catenate    SEPARATOR=${SPACE}
+    ...    intrinsic: 'spec' is not a valid graph specification:
+    ...    invalid character '{' looking for beginning of object key string
+    Should StackQL Exec Inline Equal Stderr
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${query}
+    ...    ${expected}
+    ...    --preview\=${preview}
+    ...    stdout=${CURDIR}${/}tmp${/}Preview-Graph-Braces-Survive.tmp
+    ...    stderr=${CURDIR}${/}tmp${/}Preview-Graph-Braces-Survive-stderr.tmp
