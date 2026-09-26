@@ -2,6 +2,7 @@ package intrinsic //nolint:testpackage // tests unexported translation
 
 import (
 	"fmt"
+	"path/filepath"
 	"reflect"
 	"testing"
 
@@ -64,8 +65,7 @@ func TestTranslateSelectJoins(t *testing.T) {
 
 func TestTranslateSelectResolvesAgainstRegistry(t *testing.T) {
 	withUnstable(t, true)
-	dir := "../../../test/registry-mocked/src"
-	sel := parseSelect(t, "select login from stackql_unstable_github.orgs.members "+
+	sel := parseSelect(t, "select login from stackql_unstable_fixture.orgs.members "+
 		"where org = 'dummyorg' and (type = 'User' or not id = 2) and login in ('a', 'b')")
 	dq, err := translateSelect(sel, "")
 	if err != nil {
@@ -73,7 +73,7 @@ func TestTranslateSelectResolvesAgainstRegistry(t *testing.T) {
 	}
 	tables := map[string]omnisdk.Table{}
 	for _, j := range dq.getQuery().From() {
-		tbl, describeErr := omnisdk.DescribeTable(dir, j.Resource().Handle())
+		tbl, describeErr := omnisdk.DescribeTable(filepath.Join("testdata", "registry"), j.Resource().Handle())
 		if describeErr != nil {
 			t.Fatalf("describe: %v", describeErr)
 		}
@@ -83,8 +83,17 @@ func TestTranslateSelectResolvesAgainstRegistry(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolve: %v", err)
 	}
-	if !reflect.DeepEqual(res.Params(), map[string]string{"org": "dummyorg"}) {
-		t.Fatalf("params: got %v", res.Params())
+	// org is the method's path parameter, so it binds to the node; the OR and
+	// the IN list are row filters.
+	nodes := res.Graph().Nodes()
+	if len(nodes) != 1 || !reflect.DeepEqual(nodes[0].Params(), map[string]string{"org": "dummyorg"}) {
+		t.Fatalf("nodes: got %d, first params %v", len(nodes), nodes[0].Params())
+	}
+	if len(res.Params()) != 0 {
+		t.Fatalf("query-wide params: got %v, want none", res.Params())
+	}
+	if n := len(res.Graph().Filters()); n != 2 {
+		t.Fatalf("filters: got %d, want 2", n)
 	}
 }
 
