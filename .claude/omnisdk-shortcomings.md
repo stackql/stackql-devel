@@ -8,7 +8,7 @@
 3. Any WAL, ledgers and the like should be configurable in location, substrate (eg: local vs, s3, different os...) and the like.  Must be extensible and abstacted, no excuses.
 4. `omnisdk` will support all functionality in `any-sdk`, but with clean implementation.  Breaking changes will be specified ahead of time.  The api is wildly different, but functional coverage will not be lesser.
 5. `omnisdk` does not stage results in RDBMS or otherwise, it eagerly streams generated records.  This is a significant and highly beneficial difference to `any-sdk`.  Any ordering, aggregation or set operations (union and the like) is imposed post `omnisdk` query fulfilment.
-6. `omnisdk` is required to support SQL extension funstions, including: scalar, redord and table valued ones.  We do not  expect the very first version to have total coverage and so some queries may need to be routed away from `omnisdk` at times.
+6. `omnisdk` is required to support SQL extension funstions, including: scalar, redord and table valued ones.  We do not  expect the very first version to have total coverage and so some queries may need to be routed away from `omnisdk` at times, by logic within `stackql`.
 7. `omnisdk` is to support all of the request and response trandsform grammars and shorthands already in `any-sdk`.
 8. `omnisdk` will at some point support both SQL style saga rollbacks and also an IAC saga variant with fine grained locking and abstracted latches that are objectively superior to `terraform` style crude locks and failure modes.  That said, early IAC forms are per stack locked.  Patience is our watchword.
 
