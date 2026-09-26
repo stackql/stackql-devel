@@ -14,7 +14,7 @@
 
 ## Migration plan at coarse grain
 
-- (a) Support joins, sql functions consuming only `omnisdk`, in `stackql_unstable-<provider>` namespace.  It may take some time to acheive full covereage, in stages.
+- (a) Support joins, sql functions consuming only `omnisdk`, in `stackql_unstable_<provider>` namespace.  It may take some time to acheive full covereage, in stages.
 - (b) Cut versions and releases of both `omnisdk` and `stackql` along the way as useful milestones are reached.  
 
 
@@ -25,6 +25,12 @@
 - (iii) We need an orderly abstraction and catalogue of supported request and response processing grammars and shorthands in `omnisdk`.  These are expected to mirror the `main` branch of `any-sdk` but be cleanly implemented in a discrete `pkg` with minimal dependencies and **zero** relation to `any-sdk`.  See below `Expected Transformation Grammars and Shorthands` section.
 - (iv) We want support for user/agent composed cross cloud rapid audit queries.
 - (v) I want an SOC or whatever corporate audit query suite asap.
+- (vi) `Args.Auth` is one struct shared by every node in the graph; each node reads the fields its scheme needs and falls back to env vars for any left empty. Two providers cannot carry distinct credentials in one query. Need per-provider credentials. Blocks (i) and (iv).
+- (vii) `DescribeTable`/`DescribeMutation` drop parameters declared via `$ref` to `components/parameters` (e.g. github `org` on `orgs.members`, `username` on `users.users`), so joins and mutations cannot bind them.
+- (viii) `DescribeMutation(dir, "stackql_unstable_google.storage.buckets", "insert")` fails with "read services: is a directory" while `DescribeTable` on the same address works; a `provider.yaml` service `$ref` to a missing file (`compute-v1.yaml`) gives the same message instead of naming the file.
+- (ix) `Table` gives column names but no types, so every column reaches stackql as text.
+- (x) Mutation outcomes ("was rejected" vs "may or may not have taken effect") are `fmt.Errorf` strings only; need sentinel errors for `errors.Is`.
+- (xi) A mutation target carries one assignment set, so multi-row `INSERT ... VALUES` cannot be expressed.
 
 ## Supporting information
 
