@@ -20,7 +20,7 @@ registry pull google v26.08.00446;
 Streaming high volume queries at low latency has releveance for audit and related use cases.
 
 
-```sql
+```bash
 
 ./build/stackql exec --preview='{"unstable":true}' --output jsonl \
 "select name, location, storageClass, timeCreated
