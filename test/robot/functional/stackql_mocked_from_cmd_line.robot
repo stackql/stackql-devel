@@ -11286,6 +11286,25 @@ Unstable Google Kms Key Ring Insert Returning Jsonl Row Set Matches Expectation
     ...    stdout=${CURDIR}${/}tmp${/}Unstable-Google-Kms-Key-Ring-Insert-Returning.tmp
     ...    stderr=${CURDIR}${/}tmp${/}Unstable-Google-Kms-Key-Ring-Insert-Returning-stderr.tmp
 
+Unstable Show Methods Reports Each Method Sql Verb
+    [Documentation]    SHOW METHODS on a document-driven relation reports the
+    ...                verb the document maps each method to, and EXEC for a
+    ...                method no verb maps.
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    show methods in stackql_unstable_github.orgs.orgs;
+    ...    MethodName,RequiredParams,SQLVerb\nget,,SELECT\nlist,,SELECT\nlist_for_authenticated_user,,EXEC\nlist_for_user,,SELECT\nupdate,,UPDATE
+    ...    \-o\=csv
+    ...    --preview\={"unstable":true}
+    ...    stdout=${CURDIR}${/}tmp${/}Unstable-Show-Methods-Reports-Each-Method-Sql-Verb.tmp
+    ...    stderr=${CURDIR}${/}tmp${/}Unstable-Show-Methods-Reports-Each-Method-Sql-Verb-stderr.tmp
+
 OTel Output Emits One Record Per Row Plus Completion
     [Documentation]    Issue #738: --output otel writes one OTLP/JSON LogsData per
     ...                row and a completion record with the row values as typed

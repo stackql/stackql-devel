@@ -132,9 +132,22 @@ func docMethods(ctx queryContext, bundle, service, resource string) ([]relationM
 	}
 	out := make([]relationMethod, 0, len(methods))
 	for _, method := range methods {
-		out = append(out, relationMethod{name: method.Name, description: method.OperationID})
+		out = append(out, relationMethod{
+			name:        method.Name,
+			description: method.OperationID,
+			sqlVerb:     docSQLVerb(method.SQLVerb),
+		})
 	}
 	return out, nil
+}
+
+// docSQLVerb is the verb a document maps a method to, upper-cased as SHOW
+// METHODS reports it. A method no verb maps is reachable only through EXEC.
+func docSQLVerb(verb string) string {
+	if verb == "" {
+		return "EXEC"
+	}
+	return strings.ToUpper(verb)
 }
 
 // docSelectFunc routes a SELECT over document-driven relations. omnisdk
@@ -311,7 +324,7 @@ func showDocMethods(
 		row := map[string]interface{}{
 			"MethodName":     method.name,
 			"RequiredParams": strings.Join(method.requiredParams, ", "),
-			"SQLVerb":        strings.ToUpper(selectMethodName),
+			"SQLVerb":        method.sqlVerb,
 		}
 		if extended {
 			row["description"] = method.description

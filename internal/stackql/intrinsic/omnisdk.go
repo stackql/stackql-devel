@@ -511,6 +511,7 @@ type relationMethod struct {
 	name           string
 	description    string
 	requiredParams []string
+	sqlVerb        string
 }
 
 func (t table) methods() []relationMethod {
@@ -568,7 +569,8 @@ func providerAuthContext(ctx queryContext, resourcePath string) *dto.AuthCtx {
 	cloud, _, _ := strings.Cut(resourcePath, ".")
 	providerName, ok := cloudProviders[cloud]
 	if !ok {
-		return nil
+		// A document-driven provider is addressed by its own stackql name.
+		providerName = cloud
 	}
 	authCtx, err := ctx.GetAuthContext(providerName)
 	if err != nil {
@@ -582,11 +584,15 @@ func omnisdkAuth(authCtx *dto.AuthCtx) *omnisdk.Auth {
 		return nil
 	}
 	auth := &omnisdk.Auth{
-		Type:        authCtx.Type,
-		ValuePrefix: authCtx.ValuePrefix,
-		Name:        authCtx.Name,
-		Scopes:      authCtx.Scopes,
-		TokenURL:    authCtx.GetTokenURL(),
+		Type:           authCtx.Type,
+		ValuePrefix:    authCtx.ValuePrefix,
+		Name:           authCtx.Name,
+		Scopes:         authCtx.Scopes,
+		TokenURL:       authCtx.GetTokenURL(),
+		Username:       authCtx.Username,
+		Password:       authCtx.Password,
+		UsernameEnvVar: authCtx.EnvVarUsername,
+		PasswordEnvVar: authCtx.EnvVarPassword,
 	}
 	if credentials, credErr := authCtx.GetCredentialsBytes(); credErr == nil {
 		auth.SecretAccessKey = string(credentials)
