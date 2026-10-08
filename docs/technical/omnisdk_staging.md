@@ -5,6 +5,8 @@
 
 For query outputs that are not thus suitable for direct display, a staging into an RDBMS (eg: embedded `sqliute`, or `tcp`-routed `postgres`) is indicated.
 
+Because the output is not staged strictly per-row eagerly like `any-sdk` output, there is scope for flexible and runtime adaptive batching policy.
+
 ## High level details of staging
 
 TBA.
