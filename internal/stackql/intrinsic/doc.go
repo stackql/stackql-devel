@@ -28,17 +28,21 @@ const UnstablePrefix = aot.DefaultProviderPrefix
 // into. They are documents read straight from disk, with none of the registry's
 // curation behind them, so nothing exposes them until a caller asks.
 func IsUnstableEnabled() bool {
-	return previewCfg.getUnstableEnabled()
+	return previewCfg.getUnstableEnabled() || previewCfg.getOmniAll()
 }
 
-// docProvider is the bundle behind an unstable provider name, or false.
+// docProvider is the bundle behind an unstable provider name, or false. Once
+// every provider is routed to omnisdk, an unprefixed name is one too.
 func docProvider(name string) (string, bool) {
 	if !IsUnstableEnabled() {
 		return "", false
 	}
 	trimmed := strings.TrimSpace(name)
 	if !strings.HasPrefix(strings.ToLower(trimmed), UnstablePrefix) {
-		return "", false
+		if !previewCfg.getOmniAll() || trimmed == "" || strings.EqualFold(trimmed, ProviderName) {
+			return "", false
+		}
+		return trimmed, true
 	}
 	bundle := trimmed[len(UnstablePrefix):]
 	if bundle == "" {

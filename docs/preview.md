@@ -189,6 +189,13 @@ source ./cicd/vol/vendor-secrets/secrets.sh
    where org = 'stackql'
    order by stargazers_count desc limit 5 offset 1;"
 
+./build/stackql exec --preview='{"omni":"all","staging":true}' --auth '{ "github": { "credentialsenvvar": "STACKQL_GITHUB_TOKEN", "type": "api_key", "valuePrefix": "Bearer " } }' --output csv \
+"select name, stargazers_count
+   from github.repos.repos
+   where org = 'stackql'
+   order by stargazers_count desc limit 5 offset 1;"
+
+
 ## Grouping and aggregation.
 ./build/stackql exec --preview='{"unstable":true,"staging":true}' --output csv \
 "select language, count(*) as repo_count

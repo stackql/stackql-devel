@@ -27,6 +27,8 @@ const defaultBatchSize = 100
 
 const defaultFlushInterval = 50 * time.Millisecond
 
+const omniAll = "all"
+
 func relationName(path string) string {
 	return strings.ReplaceAll(path, ".", "_")
 }
@@ -734,6 +736,7 @@ type backendInput interface {
 	getInsecureSkipTLSVerify() bool
 	getUnstableEnabled() bool
 	getStagingEnabled() bool
+	getOmniAll() bool
 }
 
 type standardBackendInput struct {
@@ -743,6 +746,7 @@ type standardBackendInput struct {
 	insecureSkipTLSVerify bool
 	unstableEnabled       bool
 	stagingEnabled        bool
+	omniAll               bool
 }
 
 // previewCfg is the parsed --preview argument. Cobra binds the raw string in
@@ -766,6 +770,8 @@ type previewCfgDTO struct {
 	// Staging opts SELECTs over document-driven relations into RDBMS staging
 	// for the SQL omnisdk leaves unapplied, instead of refusing them.
 	Staging bool `json:"staging"`
+	// Omni "all" routes every provider through omnisdk, never any-sdk.
+	Omni string `json:"omni"`
 }
 
 func (c previewCfgDTO) endpoint() string {
@@ -798,6 +804,7 @@ func newBackendInput(cfg previewCfgDTO) backendInput {
 		insecureSkipTLSVerify: cfg.InsecureSkipTLSVerify,
 		unstableEnabled:       cfg.Unstable,
 		stagingEnabled:        cfg.Staging,
+		omniAll:               strings.EqualFold(cfg.Omni, omniAll),
 	}
 	if cfg.BatchSize > 0 {
 		rv.batchSize = cfg.BatchSize
@@ -819,6 +826,8 @@ func (b *standardBackendInput) getInsecureSkipTLSVerify() bool { return b.insecu
 func (b *standardBackendInput) getUnstableEnabled() bool { return b.unstableEnabled }
 
 func (b *standardBackendInput) getStagingEnabled() bool { return b.stagingEnabled }
+
+func (b *standardBackendInput) getOmniAll() bool { return b.omniAll }
 
 // sourceKey is the row key a column reads from: its own name, unless an alias
 // renamed it.
