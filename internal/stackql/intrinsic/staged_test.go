@@ -140,6 +140,11 @@ func newStagingTestCtx(t *testing.T, endpoint string) *stagingTestCtx {
 	if err != nil {
 		t.Fatal(err)
 	}
+	db, err := engine.GetDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = db.Close() })
 	typCfg, err := typing.NewTypingConfig(sqlCfg.GetSQLDialect())
 	if err != nil {
 		t.Fatal(err)
