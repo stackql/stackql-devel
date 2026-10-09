@@ -611,6 +611,12 @@ func omnisdkAuth(authCtx *dto.AuthCtx) *omnisdk.Auth {
 		UsernameEnvVar: authCtx.EnvVarUsername,
 		PasswordEnvVar: authCtx.EnvVarPassword,
 	}
+	if strings.EqualFold(authCtx.Type, "api_key") && auth.Name == "" {
+		auth.Name = "Authorization"
+		if auth.ValuePrefix == "" {
+			auth.ValuePrefix = "Bearer "
+		}
+	}
 	if credentials, credErr := authCtx.GetCredentialsBytes(); credErr == nil {
 		auth.SecretAccessKey = string(credentials)
 		auth.Credentials = string(credentials)
