@@ -29,10 +29,55 @@ Reading a batch and inserting it form a back-pressured pipeline: the next batch 
 
 ## Concrete descisions
 
+### Decision 1: Savage cut in transaction control counters
+
+The prior `any-sdk` implementation is supported by counters for:
+
+- `Generation ID`.
+- `Sessions ID`.
+- `Transaction ID`.
+- `Insert ID`.
+
+The new, `omnisdk` implementation will require only one counter, `Query ID`.  This is because staging happens only per query.  We do reserve the right to split queries, so shall maintain a concurrency safe hierarchy store for `Query ID` parent-child associations.
+
+### Decision 2: New tablespace for omnisdk staging
 
 
 
-## Terse comaprison
+```bash
+./build/stackql exec \
+  --sqlBackend='{"dsn":"file:./stackql.db"}' \
+  "SELECT
+     v.vpc_id,
+     s.subnet_id
+   FROM aws.ec2.vpcs AS v
+   INNER JOIN aws.ec2.subnets AS s
+     ON v.vpc_id = s.vpc_id
+   WHERE v.region = 'ap-southeast-2'
+     AND s.region = 'ap-southeast-2';"
+```
+
+**Figure MQ-1** Model query 1.  A simple working query.
+
+---
+
+**Table T-1**: Tablespace comparison for model query MQ-1.
+
+| sdk | RDBMS | tables |
+|---|---|---|
+| any-sdk | sqlite | `"aws.ec2.vpcs.generation_<v>"`, <br/> `"aws.ec2.subnets.generation_<s>"`  |
+| any-sdk | postgres |  `"<table_schema>"."aws.ec2.vpcs.generation_<v>"`, <br/> `"<table_schema>"."aws.ec2.subnets.generation_<s>"` |
+| omnisdk | sqlite |  `"__iql__.queries.<Query ID>"`  |
+| omnisdk | postgres | `"<query_schema>"."<Query ID>"`  |
+
+## Decision 3: GC simplification for omnisdk
+
+For omnisdk, any materializations needed will be created eagerly, **in the same place for prior** and all query tables can be marked for deletion immediately where no cache is in operation, or at whatever future time if cacheing is in effect.  We will need a robust mechanism in place from day 1, default to no cache.
+
+This does imply a keyval store to look up tombstone times and find query ID by query plaintext.  Intuitively, I favour a new GC mechanism with the old one phased out when `any-sdk` is decommissioned.
+
+
+## Terse comparison prior any-sdk vs omnisdk
 
 | Aspect | any-sdk | omnisdk | Commment |
 |----|----|----|----|
