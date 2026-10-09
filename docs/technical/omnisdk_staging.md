@@ -7,25 +7,27 @@ Unlike the eager, per-row RDBMS ingestion used by the `any-sdk` path, Omni stagi
 
 ## High level details of staging
 
-Let $Q$ be a StackQL query and let $R_i$ be the result relation of its $i$th logical Omni-backed input. An Omni plan may contain multiple exchanges, but it is one producer of $R_i$; exchange boundaries do not create staging tables.
+Let $Q$ be a StackQL query with query ID $q$. Omni executes the joins and exchanges in its own query plan and produces a single final relation $R_Q$. An Omni plan may contain multiple exchanges, but exchange boundaries do not create staging tables or query IDs.
 
-The cursor partitions each result into batches without changing its contents:
-
-$$
-R_i = B_{i,1} \mathbin{\|} B_{i,2} \mathbin{\|} \cdots \mathbin{\|} B_{i,n_i}
-$$
-
-Here $\|$ denotes concatenation in cursor order. Batch size affects transport and insertion cost, not the relational result. A downstream operator that can be evaluated incrementally with the available streaming state consumes these batches directly. If an operator needs its complete input to produce the required result, the planner stages only the logical input relations that operator needs:
+The cursor partitions $R_Q$ into batches without changing its contents:
 
 $$
-T_{Q,i} = \biguplus_{k=1}^{n_i} B_{i,k}
+R_Q = B_{1} \mathbin{\|} B_{2} \mathbin{\|} \cdots \mathbin{\|} B_{n}
 $$
 
-The RDBMS then evaluates the blocking operation over the staged relations, and its result cursor becomes the output stream. For example, a global `ORDER BY` may require all candidate rows before the first output row is known; a grouping or set operation may likewise require an RDBMS boundary when it cannot be evaluated within the chosen streaming-state bound. Operators that do not require that boundary continue to stream. The planner, not the mere presence of an Omni exchange, determines where materialization is needed.
+Here $\|$ denotes concatenation in cursor order. Batch size affects transport and insertion cost, not the relational result. The SQL operators that remain after Omni planning (for example global `ORDER BY`, aggregation, `DISTINCT`, set operations, or a `LIMIT` that depends on ordering) are evaluated over $R_Q$. If each of them can be evaluated incrementally within the chosen streaming-state bound, batches flow directly to the result consumer and no table is created. Otherwise $R_Q$ is staged, as a multiset, in exactly one query-owned table:
 
-Each query owns a disjoint staging namespace $S_Q$ in the RDBMS. Names are stable for a logical relation within $Q$ and collision-resistant across concurrent queries. Thus rows from two queries cannot share a staging relation, and cleanup is scoped to the query that created those relations. A multi-exchange Omni plan does not require one table per exchange; separate tables are needed only for distinct logical inputs that the blocking relational operation must evaluate separately.
+$$
+T_{q} = \biguplus_{k=1}^{n} B_{k}
+$$
 
-Reading a batch and inserting it form a back-pressured pipeline: the next batch is requested as the staging consumer is ready, rather than eagerly loading every result into application memory. Cursor exhaustion marks completion; query ownership tracks staged relations for cleanup on success, error, or cancellation. No per-exchange counters are required for correctness. When no blocking operation requires materialization, $S_Q$ remains unused and Omni rows flow directly to the result consumer.
+The RDBMS then evaluates the remaining SQL over $T_q$, and its result cursor becomes the output stream. The planner, not the mere presence of an Omni exchange, determines whether materialization is needed.
+
+A blocking operation whose inputs Omni cannot combine into one relation (for example a set operation over two independent Omni plans) is not staged as several tables under one query ID. Pre-analysis instead splits $Q$ into child queries $q_1, \ldots, q_m$; each child owns at most one table $T_{q_j}$, and the parent evaluates the operation over those tables. Child IDs therefore correspond only to real pre-analysis splits, and the invariant is one table per query ID.
+
+Query IDs are allocated by the RDBMS itself (a PostgreSQL sequence, or an SQLite `AUTOINCREMENT` table), so they are collision free across concurrent queries and across processes sharing a backend. Rows from two queries never share a table, and cleanup is scoped to a query and its descendants.
+
+Reading a batch and inserting it form a back-pressured pipeline: the next batch is requested only after the previous one is written, rather than eagerly loading every result into application memory. Cursor exhaustion marks completion; query ownership tracks staged tables for cleanup on success, error, or cancellation.
 
 ## Concrete descisions
 
@@ -69,6 +71,8 @@ The new, `omnisdk` implementation will require only one counter, `Query ID`.  Th
 | any-sdk | postgres |  `"<table_schema>"."aws.ec2.vpcs.generation_<v>"`, <br/> `"<table_schema>"."aws.ec2.subnets.generation_<s>"` |
 | omnisdk | sqlite |  `"__iql__.queries.<Query ID>"`  |
 | omnisdk | postgres | `"<query_schema>"."<Query ID>"`  |
+
+`<query_schema>` is configured with `schemata.querySchema` in `--sqlBackend` and defaults to `stackql_queries`.
 
 ## Decision 3: GC simplification for omnisdk
 
