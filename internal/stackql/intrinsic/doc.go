@@ -159,6 +159,9 @@ func docSelectFunc(
 	node *sqlparser.Select,
 	currentProvider string,
 ) (func() internaldto.ExecutorOutput, bool) {
+	if previewCfg.getStagingEnabled() && needsStaging(node) {
+		return stagedSelectFunc(ctx, node, currentProvider), true
+	}
 	translated, err := translateSelect(node, currentProvider)
 	if err != nil {
 		return refuse(err), true
@@ -192,15 +195,16 @@ func docMutationFunc(
 
 const mutationSuccessMessage = "The operation was despatched successfully"
 
-// runDocQuery describes each relation, resolves the query and runs it.
-func runDocQuery(ctx queryContext, translated docQuery) internaldto.ExecutorOutput {
+// openDocQuery describes each relation, resolves the query and opens its
+// cursor, returning it with the alias of the relation it reports.
+func openDocQuery(ctx queryContext, translated docQuery) (omnisdk.Rows, string, error) {
 	registry := registryRoot(ctx)
 	q := translated.getQuery()
 	tables := make(map[string]omnisdk.Table, len(q.From())+1)
 	for _, join := range q.From() {
 		tbl, describeErr := omnisdk.DescribeTable(registry, join.Resource().Handle())
 		if describeErr != nil {
-			return internaldto.NewErroneousExecutorOutput(describeErr)
+			return nil, "", describeErr
 		}
 		tables[join.Resource().Alias()] = tbl
 	}
@@ -209,7 +213,7 @@ func runDocQuery(ctx queryContext, translated docQuery) internaldto.ExecutorOutp
 		tbl, describeErr := omnisdk.DescribeMutation(
 			registry, target.Resource().Handle(), target.Verb().String())
 		if describeErr != nil {
-			return internaldto.NewErroneousExecutorOutput(describeErr)
+			return nil, "", describeErr
 		}
 		tables[target.Resource().Alias()] = tbl
 		relation = target.Resource().Alias()
@@ -218,7 +222,7 @@ func runDocQuery(ctx queryContext, translated docQuery) internaldto.ExecutorOutp
 	}
 	res, resolveErr := omnisdk.Resolve(q, tables)
 	if resolveErr != nil {
-		return internaldto.NewErroneousExecutorOutput(resolveErr)
+		return nil, "", resolveErr
 	}
 	// omnisdk takes one credential per run: the first relation's cloud - a
 	// mutation's target - leaving the rest to the canonical environment
@@ -227,12 +231,22 @@ func runDocQuery(ctx queryContext, translated docQuery) internaldto.ExecutorOutp
 	args.Tuning.Limit = translated.getLimit()
 	plan, planErr := omnisdk.NewGraphSelectQuery(registry, res.Graph(), args)
 	if planErr != nil {
-		return internaldto.NewErroneousExecutorOutput(planErr)
+		return nil, "", planErr
 	}
 	rows, openErr := plan.Open(context.Background())
 	if openErr != nil {
-		return internaldto.NewErroneousExecutorOutput(openErr)
+		return nil, "", openErr
 	}
+	return rows, relation, nil
+}
+
+// runDocQuery runs the query and streams its rows back.
+func runDocQuery(ctx queryContext, translated docQuery) internaldto.ExecutorOutput {
+	rows, relation, err := openDocQuery(ctx, translated)
+	if err != nil {
+		return internaldto.NewErroneousExecutorOutput(err)
+	}
+	q := translated.getQuery()
 	if q.Target() != nil && len(translated.getOutputs()) == 0 {
 		return drainMutation(rows)
 	}

@@ -727,6 +727,7 @@ type backendInput interface {
 	getFlushInterval() time.Duration
 	getInsecureSkipTLSVerify() bool
 	getUnstableEnabled() bool
+	getStagingEnabled() bool
 }
 
 type standardBackendInput struct {
@@ -735,6 +736,7 @@ type standardBackendInput struct {
 	flushInterval         time.Duration
 	insecureSkipTLSVerify bool
 	unstableEnabled       bool
+	stagingEnabled        bool
 }
 
 // previewCfg is the parsed --preview argument. Cobra binds the raw string in
@@ -755,6 +757,9 @@ type previewCfgDTO struct {
 	Endpoint              json.RawMessage `json:"endpoint"`
 	InsecureSkipTLSVerify bool            `json:"insecureSkipTLSVerify"`
 	Unstable              bool            `json:"unstable"`
+	// Staging opts SELECTs over document-driven relations into RDBMS staging
+	// for the SQL omnisdk leaves unapplied, instead of refusing them.
+	Staging bool `json:"staging"`
 }
 
 func (c previewCfgDTO) endpoint() string {
@@ -786,6 +791,7 @@ func newBackendInput(cfg previewCfgDTO) backendInput {
 		flushInterval:         defaultFlushInterval,
 		insecureSkipTLSVerify: cfg.InsecureSkipTLSVerify,
 		unstableEnabled:       cfg.Unstable,
+		stagingEnabled:        cfg.Staging,
 	}
 	if cfg.BatchSize > 0 {
 		rv.batchSize = cfg.BatchSize
@@ -805,6 +811,8 @@ func (b *standardBackendInput) getFlushInterval() time.Duration { return b.flush
 func (b *standardBackendInput) getInsecureSkipTLSVerify() bool { return b.insecureSkipTLSVerify }
 
 func (b *standardBackendInput) getUnstableEnabled() bool { return b.unstableEnabled }
+
+func (b *standardBackendInput) getStagingEnabled() bool { return b.stagingEnabled }
 
 // sourceKey is the row key a column reads from: its own name, unless an alias
 // renamed it.
