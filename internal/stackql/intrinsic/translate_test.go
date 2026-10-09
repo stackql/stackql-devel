@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
@@ -108,10 +109,6 @@ func TestTranslateSelectRefusals(t *testing.T) {
 			"stackql_unstable_* relations",
 		"select login from stackql_unstable_github.orgs.members limit 1, 2": "OFFSET cannot be applied to " +
 			"stackql_unstable_* relations",
-		"select login from stackql_unstable_github.orgs.members where login like 'a%'": "condition " +
-			"'`login` like 'a%'' cannot be applied to stackql_unstable_* relations",
-		"select a.login from stackql_unstable_github.orgs.members a, stackql_unstable_github.orgs.members b": "a " +
-			"comma-separated FROM cannot be applied to stackql_unstable_* relations; use JOIN ... ON",
 		"select a.login from stackql_unstable_github.orgs.members a right join " +
 			"stackql_unstable_github.orgs.members b on a.login = b.login": "RIGHT JOIN cannot be applied to " +
 			"stackql_unstable_* relations",
@@ -321,4 +318,99 @@ func TestDocProviderUnderOmniAll(t *testing.T) {
 			t.Errorf("%+v %q: got %q %v, want %q %v", tc.cfg, tc.name, bundle, isDoc, tc.wantBundle, tc.wantDoc)
 		}
 	}
+}
+
+// Predicates SQL spells as operators become calls omnisdk evaluates: IS [NOT] NULL, [NOT] LIKE with an
+// optional ESCAPE, and [NOT] BETWEEN.
+func TestTranslateOperatorPredicates(t *testing.T) {
+	withUnstable(t, true)
+	for cond, want := range map[string]string{
+		"login is null":                   "is_null(login)",
+		"login is not null":               "not is_null(login)",
+		"login like 'a%'":                 "like(login, a%)",
+		"login not like 'a!%' escape '!'": "not like(login, a!%, !)",
+		"id between 1 and 10":             "between(id, 1, 10)",
+		"id not between 1 and 10":         "not between(id, 1, 10)",
+	} {
+		sel := parseSelect(t, "select login from stackql_unstable_github.orgs.members where "+cond)
+		dq, err := translateSelect(sel, "")
+		if err != nil {
+			t.Fatalf("%s: %v", cond, err)
+		}
+		where := dq.getQuery().Where()
+		if len(where) != 1 {
+			t.Fatalf("%s: %d conjuncts", cond, len(where))
+		}
+		if got := describePredicate(where[0]); got != want {
+			t.Errorf("%s: got %s, want %s", cond, got, want)
+		}
+	}
+}
+
+// A comma-separated FROM, CROSS JOIN and a JOIN with no condition are cross joins; JOIN ... USING is
+// an inner join on each named column.
+func TestTranslateCrossAndUsing(t *testing.T) {
+	withUnstable(t, true)
+	for sql, want := range map[string][]query.JoinForm{
+		"select a.login from stackql_unstable_github.orgs.members a, stackql_unstable_github.orgs.members b":           {query.Base, query.Cross},
+		"select a.login from stackql_unstable_github.orgs.members a cross join stackql_unstable_github.orgs.members b": {query.Base, query.Cross},
+		"select a.login from stackql_unstable_github.orgs.members a join stackql_unstable_github.orgs.members b":       {query.Base, query.Cross},
+	} {
+		dq, err := translateSelect(parseSelect(t, sql), "")
+		if err != nil {
+			t.Fatalf("%s: %v", sql, err)
+		}
+		var got []query.JoinForm
+		for _, j := range dq.getQuery().From() {
+			got = append(got, j.Form())
+		}
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("%s: forms %v, want %v", sql, got, want)
+		}
+	}
+	dq, err := translateSelect(parseSelect(t, "select a.login from stackql_unstable_github.orgs.members a "+
+		"join stackql_unstable_github.orgs.members b using (login, id)"), "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	b := dq.getQuery().From()[1]
+	var on []string
+	for _, p := range b.On() {
+		on = append(on, describePredicate(p))
+	}
+	if b.Form() != query.Inner || strings.Join(on, "; ") != "a.login = b.login; a.id = b.id" {
+		t.Errorf("using: form %v, on %v", b.Form(), on)
+	}
+}
+
+// describePredicate renders the predicate shapes these tests build.
+func describePredicate(p query.Predicate) string {
+	switch p := p.(type) {
+	case query.Not:
+		return "not " + describePredicate(p.Negated())
+	case query.Test:
+		return describeExpr(p.Cond())
+	case query.Compare:
+		return describeExpr(p.Left()) + " " + string(p.Op()) + " " + describeExpr(p.Right())
+	}
+	return fmt.Sprintf("%T", p)
+}
+
+func describeExpr(e query.Expr) string {
+	switch e := e.(type) {
+	case query.Column:
+		if e.Qualifier() == "" {
+			return e.Name()
+		}
+		return e.Qualifier() + "." + e.Name()
+	case query.Literal:
+		return fmt.Sprint(e.Value())
+	case query.Call:
+		var args []string
+		for _, a := range e.Args() {
+			args = append(args, describeExpr(a))
+		}
+		return e.Func() + "(" + strings.Join(args, ", ") + ")"
+	}
+	return fmt.Sprintf("%T", e)
 }
