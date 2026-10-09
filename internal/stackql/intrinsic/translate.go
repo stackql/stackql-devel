@@ -123,13 +123,16 @@ func translateSelect(node *sqlparser.Select, currentProvider string) (docQuery, 
 // translateSource translates a SELECT's FROM and WHERE: the joins omnisdk runs
 // and the conjuncts it applies to them.
 func translateSource(node *sqlparser.Select, currentProvider string) (*translator, []query.Predicate, error) {
-	if len(node.From) != 1 {
-		return nil, nil, fmt.Errorf("a comma-separated FROM cannot be applied to %s relations; use JOIN ... ON",
-			UnstablePrefix+"*")
-	}
 	t := &translator{currentProvider: currentProvider}
-	if err := t.from(node.From[0], query.Base, nil); err != nil {
-		return nil, nil, err
+	// A comma-separated FROM is a cross join of its items; WHERE then says how they relate.
+	for i, item := range node.From {
+		form := query.Cross
+		if i == 0 {
+			form = query.Base
+		}
+		if err := t.from(item, form, nil); err != nil {
+			return nil, nil, err
+		}
 	}
 	if node.Where == nil {
 		return t, nil, nil
@@ -210,17 +213,23 @@ func (t *translator) from(expr sqlparser.TableExpr, form query.JoinForm, on []qu
 		if err != nil {
 			return err
 		}
-		if len(node.Condition.Using) > 0 {
-			return fmt.Errorf("JOIN ... USING cannot be applied to %s relations; use ON", UnstablePrefix+"*")
-		}
 		if err = t.from(node.LeftExpr, form, on); err != nil {
 			return err
 		}
 		var rightOn []query.Predicate
-		if node.Condition.On != nil {
+		switch {
+		case node.Condition.On != nil:
 			if rightOn, err = conjuncts(node.Condition.On); err != nil {
 				return err
 			}
+		case len(node.Condition.Using) > 0:
+			// USING (c) is ON left.c = right.c, left being the table joined just before.
+			if rightOn, err = t.using(node.RightExpr, node.Condition.Using); err != nil {
+				return err
+			}
+		case rightForm == query.Inner:
+			// A JOIN with no condition, CROSS JOIN among them, pairs every row with every row.
+			rightForm = query.Cross
 		}
 		return t.from(node.RightExpr, rightForm, rightOn)
 	default:
@@ -240,6 +249,29 @@ func (t *translator) resource(tableName sqlparser.TableName, as sqlparser.TableI
 	address := fmt.Sprintf("%s%s.%s.%s", UnstablePrefix, bundle,
 		tableName.Qualifier.GetRawVal(), tableName.Name.GetRawVal())
 	return query.NewResource(alias, address)
+}
+
+// using is the ON a JOIN ... USING spells: each column equal on the table joined just before and on
+// the right side.
+func (t *translator) using(right sqlparser.TableExpr, cols sqlparser.Columns) ([]query.Predicate, error) {
+	aliased, isAliased := right.(*sqlparser.AliasedTableExpr)
+	if !isAliased || len(t.joins) == 0 {
+		return nil, fmt.Errorf("JOIN ... USING needs a table on each side")
+	}
+	rightName, isName := aliased.Expr.(sqlparser.TableName)
+	if !isName {
+		return nil, fmt.Errorf("JOIN ... USING needs a table on each side")
+	}
+	rightAlias := aliased.As.GetRawVal()
+	if rightAlias == "" {
+		rightAlias = rightName.Name.GetRawVal()
+	}
+	leftAlias := t.joins[len(t.joins)-1].Resource().Alias()
+	out := make([]query.Predicate, 0, len(cols))
+	for _, c := range cols {
+		out = append(out, query.NewEq(query.NewColumn(leftAlias, c.GetRawVal()), query.NewColumn(rightAlias, c.GetRawVal())))
+	}
+	return out, nil
 }
 
 func qualifiedName(tableName sqlparser.TableName) string {
@@ -326,6 +358,34 @@ func predicate(expr sqlparser.Expr) (query.Predicate, error) {
 		return query.NewNot(inner), nil
 	case *sqlparser.ComparisonExpr:
 		return comparison(node)
+	case *sqlparser.IsExpr:
+		// IS NULL is never unknown: is_null is true or false, so NOT of it is exact.
+		e, err := expression(node.Expr)
+		if err != nil {
+			return nil, err
+		}
+		switch node.Operator {
+		case sqlparser.IsNullStr:
+			return query.NewTest(query.NewCall("is_null", e)), nil
+		case sqlparser.IsNotNullStr:
+			return query.NewNot(query.NewTest(query.NewCall("is_null", e))), nil
+		}
+		return nil, fmt.Errorf("condition '%s' cannot be applied to %s relations",
+			sqlparser.String(expr), UnstablePrefix+"*")
+	case *sqlparser.RangeCond:
+		args := make([]query.Expr, 0, 3)
+		for _, part := range []sqlparser.Expr{node.Left, node.From, node.To} {
+			e, err := expression(part)
+			if err != nil {
+				return nil, err
+			}
+			args = append(args, e)
+		}
+		between := query.NewTest(query.NewCall("between", args...))
+		if node.Operator == sqlparser.NotBetweenStr {
+			return query.NewNot(between), nil
+		}
+		return between, nil
 	case *sqlparser.FuncExpr:
 		call, err := expression(node)
 		if err != nil {
@@ -352,6 +412,20 @@ func comparison(node *sqlparser.ComparisonExpr) (query.Predicate, error) {
 		return query.NewIn(left, right), nil
 	case sqlparser.NotInStr:
 		return query.NewNot(query.NewIn(left, right)), nil
+	case sqlparser.LikeStr, sqlparser.NotLikeStr:
+		args := []query.Expr{left, right}
+		if node.Escape != nil {
+			escape, escErr := expression(node.Escape)
+			if escErr != nil {
+				return nil, escErr
+			}
+			args = append(args, escape)
+		}
+		like := query.NewTest(query.NewCall("like", args...))
+		if node.Operator == sqlparser.NotLikeStr {
+			return query.NewNot(like), nil
+		}
+		return like, nil
 	}
 	op, known := compareOps[node.Operator]
 	if !known {
