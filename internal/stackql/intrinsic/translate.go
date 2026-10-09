@@ -359,33 +359,9 @@ func predicate(expr sqlparser.Expr) (query.Predicate, error) {
 	case *sqlparser.ComparisonExpr:
 		return comparison(node)
 	case *sqlparser.IsExpr:
-		// IS NULL is never unknown: is_null is true or false, so NOT of it is exact.
-		e, err := expression(node.Expr)
-		if err != nil {
-			return nil, err
-		}
-		switch node.Operator {
-		case sqlparser.IsNullStr:
-			return query.NewTest(query.NewCall("is_null", e)), nil
-		case sqlparser.IsNotNullStr:
-			return query.NewNot(query.NewTest(query.NewCall("is_null", e))), nil
-		}
-		return nil, fmt.Errorf("condition '%s' cannot be applied to %s relations",
-			sqlparser.String(expr), UnstablePrefix+"*")
+		return isNull(node)
 	case *sqlparser.RangeCond:
-		args := make([]query.Expr, 0, 3)
-		for _, part := range []sqlparser.Expr{node.Left, node.From, node.To} {
-			e, err := expression(part)
-			if err != nil {
-				return nil, err
-			}
-			args = append(args, e)
-		}
-		between := query.NewTest(query.NewCall("between", args...))
-		if node.Operator == sqlparser.NotBetweenStr {
-			return query.NewNot(between), nil
-		}
-		return between, nil
+		return between(node)
 	case *sqlparser.FuncExpr:
 		call, err := expression(node)
 		if err != nil {
@@ -396,6 +372,39 @@ func predicate(expr sqlparser.Expr) (query.Predicate, error) {
 		return nil, fmt.Errorf("condition '%s' cannot be applied to %s relations",
 			sqlparser.String(expr), UnstablePrefix+"*")
 	}
+}
+
+// isNull is never unknown: is_null is true or false, so NOT of it is exact.
+func isNull(node *sqlparser.IsExpr) (query.Predicate, error) {
+	e, err := expression(node.Expr)
+	if err != nil {
+		return nil, err
+	}
+	switch node.Operator {
+	case sqlparser.IsNullStr:
+		return query.NewTest(query.NewCall("is_null", e)), nil
+	case sqlparser.IsNotNullStr:
+		return query.NewNot(query.NewTest(query.NewCall("is_null", e))), nil
+	}
+	return nil, fmt.Errorf("condition '%s' cannot be applied to %s relations",
+		sqlparser.String(node), UnstablePrefix+"*")
+}
+
+func between(node *sqlparser.RangeCond) (query.Predicate, error) {
+	parts := []sqlparser.Expr{node.Left, node.From, node.To}
+	args := make([]query.Expr, 0, len(parts))
+	for _, part := range parts {
+		e, err := expression(part)
+		if err != nil {
+			return nil, err
+		}
+		args = append(args, e)
+	}
+	test := query.NewTest(query.NewCall("between", args...))
+	if node.Operator == sqlparser.NotBetweenStr {
+		return query.NewNot(test), nil
+	}
+	return test, nil
 }
 
 func comparison(node *sqlparser.ComparisonExpr) (query.Predicate, error) {
