@@ -131,7 +131,7 @@ func newStagingTestCtx(t *testing.T, endpoint string) *stagingTestCtx {
 	if err = os.Symlink(registry, filepath.Join(dir, "src")); err != nil {
 		t.Fatal(err)
 	}
-	sqlBackendRaw := `{"dsn":"file:` + filepath.Join(dir, "stackql.db") + `"}`
+	sqlBackendRaw := `{"dsn":"file:` + filepath.ToSlash(filepath.Join(dir, "stackql.db")) + `"}`
 	sqlCfg, err := dto.GetSQLBackendCfg(sqlBackendRaw)
 	if err != nil {
 		t.Fatal(err)
@@ -156,7 +156,7 @@ func newStagingTestCtx(t *testing.T, endpoint string) *stagingTestCtx {
 	return &stagingTestCtx{
 		engine: engine,
 		runtime: dto.RuntimeCtx{
-			RegistryRaw:      `{"url":"file:` + filepath.Join(dir, "registry") + `"}`,
+			RegistryRaw:      `{"url":"file:` + filepath.ToSlash(filepath.Join(dir, "registry")) + `"}`,
 			SQLBackendCfgRaw: sqlBackendRaw,
 		},
 		typCfg: typCfg,
