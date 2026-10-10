@@ -1004,6 +1004,22 @@ jobs:
       run: |
         cat ./test/robot/reports/output.xml
 
+    # Omni cutover readiness, best effort: the same suite with every stackql run opted in to the
+    # document-driven (omnisdk) paths. Reports a traffic light; never fails the job.
+    - name: Omni readiness traffic light
+      if: always() && matrix.registry != 'test/registry'
+      continue-on-error: true
+      env:
+        PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
+        STACKQL_ROBOT_DEFAULT_PREVIEW: '{"unstable":true,"staging":true}'
+      run: |
+        pgrep -f flask | xargs kill -9 || true
+        if python cicd/python/build.py --robot-test --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true" } }'; then
+          echo "🟢 Omni readiness: all robot tests pass with the omni preview" >> "${GITHUB_STEP_SUMMARY}"
+        else
+          echo "🟡 Omni readiness: some robot tests fail with the omni preview" >> "${GITHUB_STEP_SUMMARY}"
+        fi
+
     - name: Run robot mocked functional tests with aggressive concurrency
       if: success() && matrix.registry != 'test/registry'
       run: |
