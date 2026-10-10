@@ -9,7 +9,6 @@ import (
 
 	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
 	"github.com/stackql-labs/omnisdk/pkg/query"
-	"github.com/stackql-labs/omnisdk/pkg/sqlfn"
 
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 )
@@ -33,7 +32,7 @@ func TestTranslateSelectJoins(t *testing.T) {
 		"inner join stackql_unstable_google.cloudkms.crypto_keys c on c.keyRingsId = split_part(k.name, '/', 6) "+
 		"left join stackql_unstable_google.cloudkms.crypto_keys c2 on c2.name = c.name "+
 		"where k.projectsId = 'p' and k.locationsId = 'global' limit 5")
-	dq, err := translateSelect(sel, "", sqlfn.SQLite)
+	dq, err := newDocTranslator("", sqliteDialect{}).selectQuery(sel)
 	if err != nil {
 		t.Fatalf("translate: %v", err)
 	}
@@ -69,7 +68,7 @@ func TestTranslateSelectResolvesAgainstRegistry(t *testing.T) {
 	withUnstable(t, true)
 	sel := parseSelect(t, "select login from stackql_unstable_fixture.orgs.members "+
 		"where org = 'dummyorg' and (type = 'User' or not id = 2) and login in ('a', 'b')")
-	dq, err := translateSelect(sel, "", sqlfn.SQLite)
+	dq, err := newDocTranslator("", sqliteDialect{}).selectQuery(sel)
 	if err != nil {
 		t.Fatalf("translate: %v", err)
 	}
@@ -114,7 +113,7 @@ func TestTranslateSelectRefusals(t *testing.T) {
 			"stackql_unstable_github.orgs.members b on a.login = b.login": "RIGHT JOIN cannot be applied to " +
 			"stackql_unstable_* relations",
 	} {
-		_, err := translateSelect(parseSelect(t, sql), "", sqlfn.SQLite)
+		_, err := newDocTranslator("", sqliteDialect{}).selectQuery(parseSelect(t, sql))
 		if err == nil || err.Error() != want {
 			t.Errorf("%s:\n got %v\nwant %s", sql, err, want)
 		}
@@ -236,7 +235,7 @@ func TestTranslateMutations(t *testing.T) {
 			where: 2,
 		},
 	} {
-		dq, err := translateMutation(parseStatement(t, tc.sql), "", sqlfn.SQLite)
+		dq, err := newDocTranslator("", sqliteDialect{}).mutation(parseStatement(t, tc.sql))
 		if err != nil {
 			t.Errorf("%s: %v", tc.sql, err)
 			continue
@@ -276,7 +275,7 @@ func TestTranslateMutationRefusals(t *testing.T) {
 		"delete from stackql_unstable_google.compute.firewalls where project = 'p' limit 1": "ORDER BY and " +
 			"LIMIT cannot be applied to a DELETE of stackql_unstable_* relations",
 	} {
-		_, err := translateMutation(parseStatement(t, sql), "", sqlfn.SQLite)
+		_, err := newDocTranslator("", sqliteDialect{}).mutation(parseStatement(t, sql))
 		if err == nil || err.Error() != want {
 			t.Errorf("%s:\n got %v\nwant %s", sql, err, want)
 		}
@@ -334,7 +333,7 @@ func TestTranslateOperatorPredicates(t *testing.T) {
 		"id not between 1 and 10":         "not between(id, 1, 10)",
 	} {
 		sel := parseSelect(t, "select login from stackql_unstable_github.orgs.members where "+cond)
-		dq, err := translateSelect(sel, "", sqlfn.SQLite)
+		dq, err := newDocTranslator("", sqliteDialect{}).selectQuery(sel)
 		if err != nil {
 			t.Fatalf("%s: %v", cond, err)
 		}
@@ -357,7 +356,7 @@ func TestTranslateLikePostgres(t *testing.T) {
 		"login not like 'a!%' escape '!'": "not like(login, like_escape(a!%, !))",
 	} {
 		sel := parseSelect(t, "select login from stackql_unstable_github.orgs.members where "+cond)
-		dq, err := translateSelect(sel, "", sqlfn.Postgres)
+		dq, err := newDocTranslator("", postgresDialect{}).selectQuery(sel)
 		if err != nil {
 			t.Fatalf("%s: %v", cond, err)
 		}
@@ -376,7 +375,7 @@ func TestTranslateCrossAndUsing(t *testing.T) {
 		"select a.login from stackql_unstable_github.orgs.members a cross join stackql_unstable_github.orgs.members b": {query.Base, query.Cross},
 		"select a.login from stackql_unstable_github.orgs.members a join stackql_unstable_github.orgs.members b":       {query.Base, query.Cross},
 	} {
-		dq, err := translateSelect(parseSelect(t, sql), "", sqlfn.SQLite)
+		dq, err := newDocTranslator("", sqliteDialect{}).selectQuery(parseSelect(t, sql))
 		if err != nil {
 			t.Fatalf("%s: %v", sql, err)
 		}
@@ -388,8 +387,8 @@ func TestTranslateCrossAndUsing(t *testing.T) {
 			t.Errorf("%s: forms %v, want %v", sql, got, want)
 		}
 	}
-	dq, err := translateSelect(parseSelect(t, "select a.login from stackql_unstable_github.orgs.members a "+
-		"join stackql_unstable_github.orgs.members b using (login, id)"), "", sqlfn.SQLite)
+	dq, err := newDocTranslator("", sqliteDialect{}).selectQuery(parseSelect(t, "select a.login from stackql_unstable_github.orgs.members a "+
+		"join stackql_unstable_github.orgs.members b using (login, id)"))
 	if err != nil {
 		t.Fatal(err)
 	}

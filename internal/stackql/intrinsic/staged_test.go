@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stackql-labs/omnisdk/pkg/sqlfn"
 	"github.com/stackql/any-sdk/pkg/dto"
 	"github.com/stackql/any-sdk/public/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
@@ -85,7 +84,7 @@ func TestPlanStagedSelectOuterStatement(t *testing.T) {
 		},
 	}
 	for _, tc := range cases {
-		staged, err := planStagedSelect(sel, "", sqlfn.SQLite, tc.formatter)
+		staged, err := planStagedSelect(sel, newDocTranslator("", sqliteDialect{}), tc.formatter)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -103,7 +102,7 @@ func TestPlanStagedSelectOuterStatement(t *testing.T) {
 		}
 	}
 	if _, err := planStagedSelect(parseSelect(t,
-		"select * from stackql_unstable_github.orgs.members order by login"), "", sqlfn.SQLite,
+		"select * from stackql_unstable_github.orgs.members order by login"), newDocTranslator("", sqliteDialect{}),
 		astformat.SQLiteSelectExprsFormatter); err == nil ||
 		err.Error() != "'*' cannot be staged for stackql_unstable_* relations; name the columns" {
 		t.Fatalf("star refusal: got %v", err)

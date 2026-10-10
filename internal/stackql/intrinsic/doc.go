@@ -170,7 +170,7 @@ func docSelectFunc(
 	if err != nil {
 		return refuse(err), true
 	}
-	translated, err := translateSelect(node, currentProvider, dialect)
+	translated, err := newDocTranslator(currentProvider, dialect).selectQuery(node)
 	if err != nil {
 		return refuse(err), true
 	}
@@ -198,7 +198,7 @@ func docMutationFunc(
 	if err != nil {
 		return refuse(err), true
 	}
-	translated, err := translateMutation(stmt, currentProvider, dialect)
+	translated, err := newDocTranslator(currentProvider, dialect).mutation(stmt)
 	if err != nil {
 		return refuse(err), true
 	}
@@ -236,7 +236,7 @@ func openDocQuery(ctx queryContext, translated docQuery) (omnisdk.Rows, string, 
 	if dialectErr != nil {
 		return nil, "", dialectErr
 	}
-	res, resolveErr := omnisdk.ResolveIn(q, tables, dialect)
+	res, resolveErr := omnisdk.ResolveIn(q, tables, dialect.catalogue())
 	if resolveErr != nil {
 		return nil, "", resolveErr
 	}

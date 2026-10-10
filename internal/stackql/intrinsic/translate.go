@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/stackql-labs/omnisdk/pkg/query"
-	"github.com/stackql-labs/omnisdk/pkg/sqlfn"
 
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 )
@@ -93,11 +92,11 @@ func fromDocProviders(from sqlparser.TableExprs, currentProvider string) (bool, 
 	return true, nil
 }
 
-// translateSelect builds the omnisdk query for a SELECT over document-driven
+// selectQuery builds the omnisdk query for a SELECT over document-driven
 // relations. What omnisdk leaves to the caller - ordering, grouping,
 // aggregation, de-duplication - is refused until stackql applies it over the
 // streamed rows.
-func translateSelect(node *sqlparser.Select, currentProvider string, dialect sqlfn.Dialect) (docQuery, error) {
+func (d docTranslation) selectQuery(node *sqlparser.Select) (docQuery, error) {
 	if unsupported := unsupportedDocClauses(node); len(unsupported) > 0 {
 		return nil, fmt.Errorf("%s cannot be applied to %s relations; remove %s from the query",
 			strings.Join(unsupported, ", "), UnstablePrefix+"*", pluralClause(len(unsupported)))
@@ -106,7 +105,7 @@ func translateSelect(node *sqlparser.Select, currentProvider string, dialect sql
 	if err != nil {
 		return nil, err
 	}
-	t, where, err := translateSource(node, currentProvider, dialect)
+	t, where, err := d.translateSource(node)
 	if err != nil {
 		return nil, err
 	}
@@ -123,10 +122,8 @@ func translateSelect(node *sqlparser.Select, currentProvider string, dialect sql
 
 // translateSource translates a SELECT's FROM and WHERE: the joins omnisdk runs
 // and the conjuncts it applies to them.
-func translateSource(
-	node *sqlparser.Select, currentProvider string, dialect sqlfn.Dialect,
-) (*translator, []query.Predicate, error) {
-	t := &translator{currentProvider: currentProvider, dialect: dialect}
+func (d docTranslation) translateSource(node *sqlparser.Select) (*translator, []query.Predicate, error) {
+	t := &translator{currentProvider: d.currentProvider, dialect: d.dialect}
 	// A comma-separated FROM is a cross join of its items; WHERE then says how they relate.
 	for i, item := range node.From {
 		form := query.Cross
@@ -186,8 +183,56 @@ func pushedLimit(limit *sqlparser.Limit) (int, error) {
 	return n, nil
 }
 
+// docTranslator turns stackql SQL over document-driven relations into omnisdk queries, spelling
+// what the parse holds as operators in the backend's dialect.
+type docTranslator interface {
+	// selectQuery is a SELECT, whole.
+	selectQuery(node *sqlparser.Select) (docQuery, error)
+	// mutation is an INSERT, UPDATE or DELETE.
+	mutation(stmt sqlparser.Statement) (docQuery, error)
+	// source is a SELECT's FROM and WHERE alone, the rest left to the caller.
+	source(node *sqlparser.Select) (translatedSource, error)
+}
+
+// translatedSource is a SELECT's FROM and WHERE as omnisdk takes them.
+type translatedSource interface {
+	joins() []query.Join
+	where() []query.Predicate
+	bundles() []string
+}
+
+// newDocTranslator is the translator for queries whose current provider is currentProvider, on a
+// backend of dialect d.
+func newDocTranslator(currentProvider string, d sqlDialect) docTranslator {
+	return docTranslation{currentProvider: currentProvider, dialect: d}
+}
+
+type docTranslation struct {
+	currentProvider string
+	dialect         sqlDialect
+}
+
+func (d docTranslation) source(node *sqlparser.Select) (translatedSource, error) {
+	t, where, err := d.translateSource(node)
+	if err != nil {
+		return nil, err
+	}
+	return source{joinList: t.joins, conjuncts: where, bundleList: t.bundles}, nil
+}
+
+type source struct {
+	joinList   []query.Join
+	conjuncts  []query.Predicate
+	bundleList []string
+}
+
+func (s source) joins() []query.Join      { return s.joinList }
+func (s source) where() []query.Predicate { return s.conjuncts }
+func (s source) bundles() []string        { return s.bundleList }
+
+// translator is one statement's translation in progress.
 type translator struct {
-	dialect         sqlfn.Dialect
+	dialect         sqlDialect
 	currentProvider string
 	joins           []query.Join
 	bundles         []string
@@ -411,23 +456,6 @@ func between(node *sqlparser.RangeCond) (query.Predicate, error) {
 	return test, nil
 }
 
-// like is value LIKE pattern [ESCAPE escape] as the backend's dialect calls it: SQLite's function
-// like(pattern, value[, escape]), or Postgres's like(value, pattern), an ESCAPE clause rewriting the
-// pattern through like_escape(pattern, escape) as Postgres's parser does.
-func (t *translator) like(value, pattern, escape query.Expr) query.Expr {
-	if t.dialect == sqlfn.Postgres {
-		if escape != nil {
-			pattern = query.NewCall("like_escape", pattern, escape)
-		}
-		return query.NewCall("like", value, pattern)
-	}
-	args := []query.Expr{pattern, value}
-	if escape != nil {
-		args = append(args, escape)
-	}
-	return query.NewCall("like", args...)
-}
-
 func (t *translator) comparison(node *sqlparser.ComparisonExpr) (query.Predicate, error) {
 	left, err := expression(node.Left)
 	if err != nil {
@@ -450,7 +478,7 @@ func (t *translator) comparison(node *sqlparser.ComparisonExpr) (query.Predicate
 				return nil, escErr
 			}
 		}
-		like := query.NewTest(t.like(left, right, escape))
+		like := query.NewTest(t.dialect.like(left, right, escape))
 		if node.Operator == sqlparser.NotLikeStr {
 			return query.NewNot(like), nil
 		}
@@ -583,11 +611,11 @@ func mutationTables(stmt sqlparser.Statement) (sqlparser.TableExprs, bool) {
 	}
 }
 
-// translateMutation builds the omnisdk mutation for an INSERT, UPDATE or
+// mutation builds the omnisdk mutation for an INSERT, UPDATE or
 // DELETE whose target is a document-driven relation. A RETURNING list becomes
 // the mutation's outputs.
-func translateMutation(stmt sqlparser.Statement, currentProvider string, dialect sqlfn.Dialect) (docQuery, error) {
-	t := &translator{currentProvider: currentProvider, dialect: dialect}
+func (d docTranslation) mutation(stmt sqlparser.Statement) (docQuery, error) {
+	t := &translator{currentProvider: d.currentProvider, dialect: d.dialect}
 	var (
 		target    query.Target
 		where     []query.Predicate

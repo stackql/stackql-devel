@@ -27,8 +27,8 @@ func TestBackendDialect(t *testing.T) {
 	}
 	for raw, want := range cases {
 		got, err := backendDialect(backendCtx{raw: raw})
-		if err != nil || got != want {
-			t.Errorf("%s: got %q, %v; want %q", raw, got, err, want)
+		if err != nil || got.catalogue() != want {
+			t.Errorf("%s: got %v, %v; want %q", raw, got, err, want)
 		}
 	}
 	if _, err := backendDialect(backendCtx{raw: `{"sqlDialect": "snowflake"}`}); err == nil {
