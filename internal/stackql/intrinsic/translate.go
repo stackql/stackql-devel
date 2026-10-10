@@ -422,7 +422,7 @@ func comparison(node *sqlparser.ComparisonExpr) (query.Predicate, error) {
 	case sqlparser.NotInStr:
 		return query.NewNot(query.NewIn(left, right)), nil
 	case sqlparser.LikeStr, sqlparser.NotLikeStr:
-		args := []query.Expr{left, right}
+		args := []query.Expr{right, left} // like(pattern, value), as SQLite's like() takes them
 		if node.Escape != nil {
 			escape, escErr := expression(node.Escape)
 			if escErr != nil {
