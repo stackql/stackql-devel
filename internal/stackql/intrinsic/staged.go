@@ -18,6 +18,7 @@ import (
 
 	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
 	"github.com/stackql-labs/omnisdk/pkg/query"
+	"github.com/stackql-labs/omnisdk/pkg/sqlfn"
 	"github.com/stackql/any-sdk/pkg/dto"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/omnistaging"
@@ -139,7 +140,11 @@ func stagedSelectFunc(
 	node *sqlparser.Select,
 	currentProvider string,
 ) func() internaldto.ExecutorOutput {
-	staged, err := planStagedSelect(node, currentProvider, ctx.GetASTFormatter())
+	dialect, err := backendDialect(ctx)
+	if err != nil {
+		return refuse(err)
+	}
+	staged, err := planStagedSelect(node, currentProvider, dialect, ctx.GetASTFormatter())
 	if err != nil {
 		return refuse(err)
 	}
@@ -248,9 +253,10 @@ func (r *stagedRefs) collectSelectExprs(
 func planStagedSelect(
 	node *sqlparser.Select,
 	currentProvider string,
+	dialect sqlfn.Dialect,
 	formatter sqlparser.NodeFormatter,
 ) (stagedSelect, error) {
-	t, where, err := translateSource(node, currentProvider)
+	t, where, err := translateSource(node, currentProvider, dialect)
 	if err != nil {
 		return nil, err
 	}

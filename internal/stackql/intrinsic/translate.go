@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/stackql-labs/omnisdk/pkg/query"
+	"github.com/stackql-labs/omnisdk/pkg/sqlfn"
 
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 )
@@ -96,7 +97,7 @@ func fromDocProviders(from sqlparser.TableExprs, currentProvider string) (bool, 
 // relations. What omnisdk leaves to the caller - ordering, grouping,
 // aggregation, de-duplication - is refused until stackql applies it over the
 // streamed rows.
-func translateSelect(node *sqlparser.Select, currentProvider string) (docQuery, error) {
+func translateSelect(node *sqlparser.Select, currentProvider string, dialect sqlfn.Dialect) (docQuery, error) {
 	if unsupported := unsupportedDocClauses(node); len(unsupported) > 0 {
 		return nil, fmt.Errorf("%s cannot be applied to %s relations; remove %s from the query",
 			strings.Join(unsupported, ", "), UnstablePrefix+"*", pluralClause(len(unsupported)))
@@ -105,7 +106,7 @@ func translateSelect(node *sqlparser.Select, currentProvider string) (docQuery, 
 	if err != nil {
 		return nil, err
 	}
-	t, where, err := translateSource(node, currentProvider)
+	t, where, err := translateSource(node, currentProvider, dialect)
 	if err != nil {
 		return nil, err
 	}
@@ -122,8 +123,10 @@ func translateSelect(node *sqlparser.Select, currentProvider string) (docQuery, 
 
 // translateSource translates a SELECT's FROM and WHERE: the joins omnisdk runs
 // and the conjuncts it applies to them.
-func translateSource(node *sqlparser.Select, currentProvider string) (*translator, []query.Predicate, error) {
-	t := &translator{currentProvider: currentProvider}
+func translateSource(
+	node *sqlparser.Select, currentProvider string, dialect sqlfn.Dialect,
+) (*translator, []query.Predicate, error) {
+	t := &translator{currentProvider: currentProvider, dialect: dialect}
 	// A comma-separated FROM is a cross join of its items; WHERE then says how they relate.
 	for i, item := range node.From {
 		form := query.Cross
@@ -137,7 +140,7 @@ func translateSource(node *sqlparser.Select, currentProvider string) (*translato
 	if node.Where == nil {
 		return t, nil, nil
 	}
-	where, err := conjuncts(node.Where.Expr)
+	where, err := t.conjuncts(node.Where.Expr)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -184,6 +187,7 @@ func pushedLimit(limit *sqlparser.Limit) (int, error) {
 }
 
 type translator struct {
+	dialect         sqlfn.Dialect
 	currentProvider string
 	joins           []query.Join
 	bundles         []string
@@ -219,7 +223,7 @@ func (t *translator) from(expr sqlparser.TableExpr, form query.JoinForm, on []qu
 		var rightOn []query.Predicate
 		switch {
 		case node.Condition.On != nil:
-			if rightOn, err = conjuncts(node.Condition.On); err != nil {
+			if rightOn, err = t.conjuncts(node.Condition.On); err != nil {
 				return err
 			}
 		case len(node.Condition.Using) > 0:
@@ -299,19 +303,19 @@ func joinForm(join string) (query.JoinForm, error) {
 }
 
 // conjuncts splits a condition at its top-level ANDs.
-func conjuncts(expr sqlparser.Expr) ([]query.Predicate, error) {
+func (t *translator) conjuncts(expr sqlparser.Expr) ([]query.Predicate, error) {
 	if and, isAnd := expr.(*sqlparser.AndExpr); isAnd {
-		left, err := conjuncts(and.Left)
+		left, err := t.conjuncts(and.Left)
 		if err != nil {
 			return nil, err
 		}
-		right, err := conjuncts(and.Right)
+		right, err := t.conjuncts(and.Right)
 		if err != nil {
 			return nil, err
 		}
 		return append(left, right...), nil
 	}
-	p, err := predicate(expr)
+	p, err := t.predicate(expr)
 	if err != nil {
 		return nil, err
 	}
@@ -327,10 +331,10 @@ var compareOps = map[string]query.CompareOp{ //nolint:gochecknoglobals // fixed 
 	sqlparser.GreaterEqualStr: query.Ge,
 }
 
-func predicate(expr sqlparser.Expr) (query.Predicate, error) {
+func (t *translator) predicate(expr sqlparser.Expr) (query.Predicate, error) {
 	switch node := expr.(type) {
 	case *sqlparser.AndExpr:
-		parts, err := conjuncts(node)
+		parts, err := t.conjuncts(node)
 		if err != nil {
 			return nil, err
 		}
@@ -341,23 +345,23 @@ func predicate(expr sqlparser.Expr) (query.Predicate, error) {
 		}
 		return query.NewNot(query.NewOr(negated...)), nil
 	case *sqlparser.OrExpr:
-		left, err := predicate(node.Left)
+		left, err := t.predicate(node.Left)
 		if err != nil {
 			return nil, err
 		}
-		right, err := predicate(node.Right)
+		right, err := t.predicate(node.Right)
 		if err != nil {
 			return nil, err
 		}
 		return query.NewOr(left, right), nil
 	case *sqlparser.NotExpr:
-		inner, err := predicate(node.Expr)
+		inner, err := t.predicate(node.Expr)
 		if err != nil {
 			return nil, err
 		}
 		return query.NewNot(inner), nil
 	case *sqlparser.ComparisonExpr:
-		return comparison(node)
+		return t.comparison(node)
 	case *sqlparser.IsExpr:
 		return isNull(node)
 	case *sqlparser.RangeCond:
@@ -407,7 +411,24 @@ func between(node *sqlparser.RangeCond) (query.Predicate, error) {
 	return test, nil
 }
 
-func comparison(node *sqlparser.ComparisonExpr) (query.Predicate, error) {
+// like is value LIKE pattern [ESCAPE escape] as the backend's dialect calls it: SQLite's function
+// like(pattern, value[, escape]), or Postgres's like(value, pattern), an ESCAPE clause rewriting the
+// pattern through like_escape(pattern, escape) as Postgres's parser does.
+func (t *translator) like(value, pattern, escape query.Expr) query.Expr {
+	if t.dialect == sqlfn.Postgres {
+		if escape != nil {
+			pattern = query.NewCall("like_escape", pattern, escape)
+		}
+		return query.NewCall("like", value, pattern)
+	}
+	args := []query.Expr{pattern, value}
+	if escape != nil {
+		args = append(args, escape)
+	}
+	return query.NewCall("like", args...)
+}
+
+func (t *translator) comparison(node *sqlparser.ComparisonExpr) (query.Predicate, error) {
 	left, err := expression(node.Left)
 	if err != nil {
 		return nil, err
@@ -422,15 +443,14 @@ func comparison(node *sqlparser.ComparisonExpr) (query.Predicate, error) {
 	case sqlparser.NotInStr:
 		return query.NewNot(query.NewIn(left, right)), nil
 	case sqlparser.LikeStr, sqlparser.NotLikeStr:
-		args := []query.Expr{right, left} // like(pattern, value), as SQLite's like() takes them
+		var escape query.Expr
 		if node.Escape != nil {
-			escape, escErr := expression(node.Escape)
-			if escErr != nil {
+			var escErr error
+			if escape, escErr = expression(node.Escape); escErr != nil {
 				return nil, escErr
 			}
-			args = append(args, escape)
 		}
-		like := query.NewTest(query.NewCall("like", args...))
+		like := query.NewTest(t.like(left, right, escape))
 		if node.Operator == sqlparser.NotLikeStr {
 			return query.NewNot(like), nil
 		}
@@ -566,8 +586,8 @@ func mutationTables(stmt sqlparser.Statement) (sqlparser.TableExprs, bool) {
 // translateMutation builds the omnisdk mutation for an INSERT, UPDATE or
 // DELETE whose target is a document-driven relation. A RETURNING list becomes
 // the mutation's outputs.
-func translateMutation(stmt sqlparser.Statement, currentProvider string) (docQuery, error) {
-	t := &translator{currentProvider: currentProvider}
+func translateMutation(stmt sqlparser.Statement, currentProvider string, dialect sqlfn.Dialect) (docQuery, error) {
+	t := &translator{currentProvider: currentProvider, dialect: dialect}
 	var (
 		target    query.Target
 		where     []query.Predicate
@@ -665,7 +685,7 @@ func (t *translator) insertSelect(rows *sqlparser.Select) ([]sqlparser.Expr, []q
 	if err := t.from(rows.From[0], query.Base, nil); err != nil {
 		return nil, nil, err
 	}
-	where, err := whereConjuncts(rows.Where)
+	where, err := t.whereConjuncts(rows.Where)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -705,7 +725,7 @@ func (t *translator) update(node *sqlparser.Update) (query.Target, []query.Predi
 		}
 		assignments = append(assignments, query.NewAssignment(set.Name.Name.GetRawVal(), translated))
 	}
-	where, err := whereConjuncts(node.Where)
+	where, err := t.whereConjuncts(node.Where)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -724,7 +744,7 @@ func (t *translator) delete(node *sqlparser.Delete) (query.Target, []query.Predi
 	if err != nil {
 		return nil, nil, err
 	}
-	where, err := whereConjuncts(node.Where)
+	where, err := t.whereConjuncts(node.Where)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -770,9 +790,9 @@ func (t *translator) sources(from sqlparser.TableExprs) error {
 	}
 }
 
-func whereConjuncts(where *sqlparser.Where) ([]query.Predicate, error) {
+func (t *translator) whereConjuncts(where *sqlparser.Where) ([]query.Predicate, error) {
 	if where == nil {
 		return nil, nil
 	}
-	return conjuncts(where.Expr)
+	return t.conjuncts(where.Expr)
 }
