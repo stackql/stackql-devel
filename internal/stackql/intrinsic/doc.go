@@ -166,7 +166,11 @@ func docSelectFunc(
 	if previewCfg.getStagingEnabled() && needsStaging(node) {
 		return stagedSelectFunc(ctx, node, currentProvider), true
 	}
-	translated, err := translateSelect(node, currentProvider)
+	dialect, err := backendDialect(ctx)
+	if err != nil {
+		return refuse(err), true
+	}
+	translated, err := translateSelect(node, currentProvider, dialect)
 	if err != nil {
 		return refuse(err), true
 	}
@@ -190,7 +194,11 @@ func docMutationFunc(
 	} else if err != nil {
 		return refuse(err), true
 	}
-	translated, err := translateMutation(stmt, currentProvider)
+	dialect, err := backendDialect(ctx)
+	if err != nil {
+		return refuse(err), true
+	}
+	translated, err := translateMutation(stmt, currentProvider, dialect)
 	if err != nil {
 		return refuse(err), true
 	}
