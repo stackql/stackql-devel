@@ -224,14 +224,21 @@ func openDocQuery(ctx queryContext, translated docQuery) (omnisdk.Rows, string, 
 	} else {
 		relation = q.From()[0].Resource().Alias()
 	}
-	res, resolveErr := omnisdk.Resolve(q, tables)
+	dialect, dialectErr := backendDialect(ctx)
+	if dialectErr != nil {
+		return nil, "", dialectErr
+	}
+	res, resolveErr := omnisdk.ResolveIn(q, tables, dialect)
 	if resolveErr != nil {
 		return nil, "", resolveErr
 	}
 	// omnisdk takes one credential per run: the first relation's cloud - a
 	// mutation's target - leaving the rest to the canonical environment
 	// variables.
-	args := previewArgs(ctx, translated.getBundles()[0], res.Params())
+	args, argsErr := previewArgs(ctx, translated.getBundles()[0], res.Params())
+	if argsErr != nil {
+		return nil, "", argsErr
+	}
 	args.Tuning.Limit = translated.getLimit()
 	plan, planErr := omnisdk.NewGraphSelectQuery(registry, res.Graph(), args)
 	if planErr != nil {

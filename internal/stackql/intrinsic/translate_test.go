@@ -327,8 +327,8 @@ func TestTranslateOperatorPredicates(t *testing.T) {
 	for cond, want := range map[string]string{
 		"login is null":                   "is_null(login)",
 		"login is not null":               "not is_null(login)",
-		"login like 'a%'":                 "like(login, a%)",
-		"login not like 'a!%' escape '!'": "not like(login, a!%, !)",
+		"login like 'a%'":                 "like(a%, login)",
+		"login not like 'a!%' escape '!'": "not like(a!%, login, !)",
 		"id between 1 and 10":             "between(id, 1, 10)",
 		"id not between 1 and 10":         "not between(id, 1, 10)",
 	} {
