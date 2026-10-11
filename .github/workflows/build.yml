@@ -137,7 +137,7 @@ jobs:
       with:
         cache: pip
         python-version: '3.12' 
-        architecture: x64
+        architecture: x64 # needed due to missing arm64 distributions
 
     - name: Cache Chocolatey packages
       id: cache-choco
