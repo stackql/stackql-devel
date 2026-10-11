@@ -137,6 +137,7 @@ jobs:
       with:
         cache: pip
         python-version: '3.12' 
+        architecture: x64
 
     - name: Cache Chocolatey packages
       id: cache-choco
