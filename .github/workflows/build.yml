@@ -103,7 +103,7 @@ jobs:
 
   winbuild:
     name: Windows Build
-    runs-on: matrix.isa == 'amd64' && 'windows-2025-vs2026' || 'windows-11-vs2026-arm'
+    runs-on: matrix.isa == 'amd64' && 'latest' || 'windows-11-arm'
     strategy:
       matrix:
         isa:
