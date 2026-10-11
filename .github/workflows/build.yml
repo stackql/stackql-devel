@@ -314,7 +314,7 @@ jobs:
       uses: actions/upload-artifact@v7.0.1
       if: success()
       with:
-        name: stackql_windows_amd64
+        name: stackql_windows_${{matrix.isa}}
         path: build/stackql.exe
 
     # Consumed by winarmsmoke, so that the MCP robot scenarios run there too.
@@ -322,7 +322,7 @@ jobs:
       uses: actions/upload-artifact@v7.0.1
       if: success()
       with:
-        name: stackql_mcp_client_windows_amd64
+        name: stackql_mcp_client_windows_${{matrix.isa}}
         path: build/stackql_mcp_client.exe
 
 
