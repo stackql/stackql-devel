@@ -1,4 +1,4 @@
-FROM golang:1.25.3-bookworm AS sourceprep
+FROM golang:1.27.2-bookworm AS sourceprep
 
 ENV SRC_DIR=/work/stackql/src
 
