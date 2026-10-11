@@ -104,6 +104,10 @@ jobs:
   winbuild:
     name: Windows Build
     runs-on: ${{ matrix.isa == 'amd64' && 'windows-latest' || 'windows-11-arm' }}
+    defaults:
+      ## This is a nop hack to prevent actionlint from assuming bash
+      run:
+        shell: pwsh
     strategy:
       matrix:
         isa:
