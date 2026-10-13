@@ -32,7 +32,8 @@ const (
 )
 
 var (
-	_ Config = &staticDRMConfig{}
+	_ Config                       = &staticDRMConfig{}
+	_ formulation.ColumnDescriptor = (*displayColumnDescriptor)(nil)
 )
 
 type Config interface {
@@ -511,6 +512,56 @@ func (dc *staticDRMConfig) obtainRelationFromAddressSpace(
 	return inferredRelation, nil
 }
 
+type displayColumnDescriptor struct {
+	formulation.ColumnDescriptor
+	name     string
+	wireName string
+}
+
+func newDisplayColumnDescriptor(column formulation.ColumnDescriptor, name string) formulation.ColumnDescriptor {
+	return &displayColumnDescriptor{ColumnDescriptor: column, name: name, wireName: column.GetWireName()}
+}
+
+func (column *displayColumnDescriptor) GetName() string { return column.name }
+
+func (column *displayColumnDescriptor) GetWireName() string { return column.wireName }
+
+func relationColumnDescriptors(
+	relation formulation.Relation,
+	parameters map[string]formulation.Addressable,
+) []formulation.ColumnDescriptor {
+	names := make(map[string]bool)
+	for _, column := range relation.GetColumns() {
+		names[column.GetName()] = true
+	}
+	var columns []formulation.ColumnDescriptor
+	for _, column := range relation.GetColumnDescriptors() {
+		if !names[column.GetName()] {
+			for alias, parameter := range parameters {
+				if alias != parameter.GetName() && parameter.GetName() == column.GetName() {
+					column = newDisplayColumnDescriptor(column, alias)
+					break
+				}
+			}
+		}
+		columns = append(columns, column)
+		names[column.GetName()] = true
+	}
+	for alias, parameter := range parameters {
+		if alias == parameter.GetName() || names[alias] {
+			continue
+		}
+		column := formulation.NewColumnDescriptor(alias, alias, "", "", nil, nil, nil)
+		columns = append(columns, &displayColumnDescriptor{
+			ColumnDescriptor: column,
+			name:             alias,
+			wireName:         parameter.GetName(),
+		})
+		names[alias] = true
+	}
+	return columns
+}
+
 func (dc *staticDRMConfig) genRelationalTable(
 	tabAnn util.AnnotatedTabulation,
 	prov formulation.Provider,
@@ -547,14 +598,27 @@ func (dc *staticDRMConfig) genRelationalTable(
 		return nil, inferredRelationErr
 	}
 	tableColumns := inferredRelation.GetColumns()
+	columnNames := make(map[string]struct{}, len(tableColumns))
 	for _, col := range tableColumns {
 		colName := col.GetName()
+		columnNames[colName] = struct{}{}
 		colType := dc.inferColType(col)
 		// relationalType := dc.GetRelationalType(colType)
 		// TODO: add drm logic to infer / transform width as suplied by openapi doc
 		colWidth := col.GetWidth()
 		relationalColumn := typing.NewRelationalColumn(colName, colType).WithWidth(colWidth)
 		relationalTable.PushBackColumn(relationalColumn)
+	}
+	for alias, parameter := range m.GetParametersIncludingNativeCasing() {
+		if alias == parameter.GetName() {
+			continue
+		}
+		if _, exists := columnNames[alias]; exists {
+			continue
+		}
+		colType := dc.GetRelationalType(parameter.GetType())
+		relationalTable.PushBackColumn(typing.NewRelationalColumn(alias, colType))
+		columnNames[alias] = struct{}{}
 	}
 	return relationalTable, nil
 }
@@ -643,7 +707,7 @@ func (dc *staticDRMConfig) GenerateInsertDML(
 		if relationErr != nil {
 			return nil, relationErr
 		}
-		tableColumns := inferredRelation.GetColumnDescriptors()
+		tableColumns := relationColumnDescriptors(inferredRelation, method.GetParametersIncludingNativeCasing())
 		for _, col := range tableColumns {
 			//nolint:unconvert // defer fix
 			col := formulation.ColumnDescriptor(col)

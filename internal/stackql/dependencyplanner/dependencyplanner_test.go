@@ -25,6 +25,28 @@ type projectionTabulation struct {
 
 func (tab projectionTabulation) GetColumns() []formulation.ColumnDescriptor { return tab.columns }
 
+type projectionParameter struct {
+	formulation.Addressable
+	name string
+}
+
+func (parameter projectionParameter) GetName() string { return parameter.name }
+
+func TestDestinationRequestProjection(t *testing.T) {
+	projection := map[string]string{"AccessKeyId": "access_key_id", "other": "unchanged"}
+	parameters := map[string]formulation.Addressable{
+		"access_key_id": projectionParameter{name: "AccessKeyId"},
+	}
+	translated := destinationRequestProjection(projection, parameters)
+	want := map[string]string{"AccessKeyId": "AccessKeyId", "other": "unchanged"}
+	if !reflect.DeepEqual(translated, want) {
+		t.Fatalf("projection = %v, want %v", translated, want)
+	}
+	if projection["AccessKeyId"] != "access_key_id" {
+		t.Fatal("source projection was mutated")
+	}
+}
+
 func TestSourceResponseProjection(t *testing.T) {
 	projection := map[string]string{
 		"access_key_id": "access_key_id",

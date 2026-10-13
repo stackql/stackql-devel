@@ -858,9 +858,20 @@ func (dp *standardDependencyPlanner) getStreamFromEdge(
 		return nil, err
 	}
 	projection = sourceResponseProjection(projection, e.GetSource().GetAnnotation().GetSchema().Tabulate(false, ""))
+	method, err := toAc.GetTableMeta().GetMethod()
+	if err != nil {
+		return nil, err
+	}
+	requestParameters := method.GetParametersIncludingNativeCasing()
+	projection = destinationRequestProjection(projection, requestParameters)
 	incomingCols := make(map[string]struct{})
 	for _, v := range projection {
 		incomingCols[v] = struct{}{}
+	}
+	for alias, parameter := range requestParameters {
+		if _, dynamic := incomingCols[parameter.GetName()]; dynamic {
+			incomingCols[alias] = struct{}{}
+		}
 	}
 	params := toAc.GetParameters()
 	staticParams := make(map[string]interface{})
@@ -889,6 +900,20 @@ func sourceResponseProjection(projection map[string]string, tab formulation.Tabu
 	for source, destination := range projection {
 		if wireName := wireNames[source]; wireName != "" {
 			source = wireName
+		}
+		translated[source] = destination
+	}
+	return translated
+}
+
+func destinationRequestProjection(
+	projection map[string]string,
+	parameters map[string]formulation.Addressable,
+) map[string]string {
+	translated := make(map[string]string, len(projection))
+	for source, destination := range projection {
+		if parameter, ok := parameters[destination]; ok {
+			destination = parameter.GetName()
 		}
 		translated[source] = destination
 	}
