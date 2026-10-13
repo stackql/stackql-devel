@@ -895,6 +895,7 @@ func sourceResponseProjection(projection map[string]string, tab formulation.Tabu
 	wireNames := make(map[string]string)
 	for _, column := range tab.GetColumns() {
 		wireNames[column.GetName()] = column.GetWireName()
+		wireNames[column.GetIdentifier()] = column.GetWireName()
 	}
 	translated := make(map[string]string, len(projection))
 	for source, destination := range projection {

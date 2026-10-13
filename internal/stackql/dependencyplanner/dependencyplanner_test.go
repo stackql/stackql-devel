@@ -11,11 +11,18 @@ import (
 
 type projectionColumn struct {
 	formulation.ColumnDescriptor
-	name     string
-	wireName string
+	name       string
+	identifier string
+	wireName   string
 }
 
-func (column projectionColumn) GetName() string     { return column.name }
+func (column projectionColumn) GetName() string { return column.name }
+func (column projectionColumn) GetIdentifier() string {
+	if column.identifier != "" {
+		return column.identifier
+	}
+	return column.name
+}
 func (column projectionColumn) GetWireName() string { return column.wireName }
 
 type projectionTabulation struct {
@@ -55,7 +62,7 @@ func TestSourceResponseProjection(t *testing.T) {
 		"empty_wire":    "empty_destination",
 	}
 	tab := projectionTabulation{columns: []formulation.ColumnDescriptor{
-		projectionColumn{name: "access_key_id", wireName: "AccessKeyId"},
+		projectionColumn{name: "AccessKeyId", identifier: "access_key_id", wireName: "AccessKeyId"},
 		projectionColumn{name: "unchanged", wireName: "unchanged"},
 		projectionColumn{name: "empty_wire"},
 	}}
