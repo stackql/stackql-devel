@@ -857,6 +857,7 @@ func (dp *standardDependencyPlanner) getStreamFromEdge(
 	if err != nil {
 		return nil, err
 	}
+	projection = sourceResponseProjection(projection, e.GetSource().GetAnnotation().GetSchema().Tabulate(false, ""))
 	incomingCols := make(map[string]struct{})
 	for _, v := range projection {
 		incomingCols[v] = struct{}{}
@@ -877,6 +878,21 @@ func (dp *standardDependencyPlanner) getStreamFromEdge(
 		}
 	}
 	return streaming.NewSimpleProjectionMapStream(projection, staticParams), nil
+}
+
+func sourceResponseProjection(projection map[string]string, tab formulation.Tabulation) map[string]string {
+	wireNames := make(map[string]string)
+	for _, column := range tab.GetColumns() {
+		wireNames[column.GetName()] = column.GetWireName()
+	}
+	translated := make(map[string]string, len(projection))
+	for source, destination := range projection {
+		if wireName := wireNames[source]; wireName != "" {
+			source = wireName
+		}
+		translated[source] = destination
+	}
+	return translated
 }
 
 // This is very naive but safe because there is only ever one source table.
