@@ -971,6 +971,9 @@ func (dp *standardDependencyPlanner) sourceOnlyFilters(sourceAnnotation taxonomy
 		requestParameters[name] = struct{}{}
 		requestParameters[parameter.GetName()] = struct{}{}
 	}
+	for name := range sourceAnnotation.GetParameters() {
+		requestParameters[name] = struct{}{}
+	}
 	var filters []string
 	for _, conjunct := range sqlparser.SplitAndExpression(nil, where.Expr) {
 		if isSourceOnlyResponseExpr(conjunct, alias, requestParameters) {
