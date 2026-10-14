@@ -2038,7 +2038,7 @@ GitHub Join Input Params Select
     ...    ${CURDIR}/tmp/GitHub-Join-Input-Params-Select.tmp
 
 GitHub Join Source Only Filter Prevents Dependent Requests
-    [Documentation]    The archived repository's collaborators endpoint returns 500, so the
+    [Documentation]    The archived repository (id 2) has a collaborators endpoint that returns 500, so the
     ...    query succeeds only if the WHERE filter on the driving table prevents that request.
     ${outputStr} =    Catenate    SEPARATOR=\n
     ...    name,login
@@ -2052,7 +2052,7 @@ GitHub Join Source Only Filter Prevents Dependent Requests
     ...    ${REGISTRY_NO_VERIFY_CFG_STR}
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
-    ...    select r.name, col.login from github.repos.collaborators col inner join github.repos.repos r on col.repo \= r.name where col.owner \= 'joinfaultorg' and r.org \= 'joinfaultorg' and r.archived \= 0 order by r.name;
+    ...    select r.name, col.login from github.repos.collaborators col inner join github.repos.repos r on col.repo \= r.name where col.owner \= 'joinfaultorg' and r.org \= 'joinfaultorg' and r.id <> 2 order by r.name;
     ...    ${outputStr}
     ...    ${EMPTY}
     ...    \-o\=csv
@@ -2060,6 +2060,7 @@ GitHub Join Source Only Filter Prevents Dependent Requests
     ...    stderr=${CURDIR}/tmp/GitHub-Join-Source-Only-Filter-Prevents-Dependent-Requests-stderr.tmp
 
 GitHub Join Ignores Opted In Upstream Status
+    Pass Execution If    "${EXECUTION_PLATFORM}" == "docker"    the container shell strips the quotes from the JSON flag value
     ${outputStr} =    Catenate    SEPARATOR=\n
     ...    name,login
     ...    active-repo-a,active-repo-a-collaborator
