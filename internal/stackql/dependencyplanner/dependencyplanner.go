@@ -812,51 +812,60 @@ func (dp *standardDependencyPlanner) isVectorParam(param interface{}) bool {
 	return false
 }
 
-//nolint:gocognit,nestif // live with it
+//nolint:nestif // live with it
+func (dp *standardDependencyPlanner) getSQLStreamFromEdge(
+	e dataflow.Edge,
+	toAc taxonomy.AnnotationCtx,
+	tcc internaldto.TxnControlCounters,
+) (streaming.MapStream, error) {
+	columnDescriptors, err := e.GetColumnDescriptors()
+	if err != nil {
+		return nil, err
+	}
+	selectCtx, err := dp.generateSelectDML(e.GetSource().GetAnnotation(), columnDescriptors, tcc, nil)
+	if err != nil {
+		return nil, err
+	}
+	ann := e.GetSource().GetAnnotation()
+	meta := ann.GetTableMeta()
+	insertContainer, err := tableinsertioncontainer.NewTableInsertionContainer(meta,
+		dp.handlerCtx.GetSQLEngine(),
+		dp.handlerCtx.GetTxnCounterMgr())
+	if err != nil {
+		return nil, err
+	}
+	toParams := toAc.GetParameters()
+
+	transformedToStaticParams, paramTransformErr := util.TransformSQLRawParameters(toParams, false)
+	if paramTransformErr != nil {
+		return nil, paramTransformErr
+	}
+	for k, v := range transformedToStaticParams {
+		hasSourceAttr := e.HasSourceAttribute(k)
+		if !hasSourceAttr {
+			vIsUnpopulated := k == v
+			if vIsUnpopulated {
+				delete(transformedToStaticParams, k)
+			}
+		}
+	}
+	return sqlstream.NewSimpleSQLMapStream(
+		selectCtx,
+		insertContainer,
+		dp.handlerCtx.GetDrmConfig(),
+		dp.handlerCtx.GetSQLEngine(),
+		transformedToStaticParams,
+	), nil
+}
+
+//nolint:gocognit // live with it
 func (dp *standardDependencyPlanner) getStreamFromEdge(
 	e dataflow.Edge,
 	toAc taxonomy.AnnotationCtx,
 	tcc internaldto.TxnControlCounters,
 ) (streaming.MapStream, error) {
 	if e.IsSQL() {
-		columnDescriptors, err := e.GetColumnDescriptors()
-		if err != nil {
-			return nil, err
-		}
-		selectCtx, err := dp.generateSelectDML(e.GetSource().GetAnnotation(), columnDescriptors, tcc, nil)
-		if err != nil {
-			return nil, err
-		}
-		ann := e.GetSource().GetAnnotation()
-		meta := ann.GetTableMeta()
-		insertContainer, err := tableinsertioncontainer.NewTableInsertionContainer(meta,
-			dp.handlerCtx.GetSQLEngine(),
-			dp.handlerCtx.GetTxnCounterMgr())
-		if err != nil {
-			return nil, err
-		}
-		toParams := toAc.GetParameters()
-
-		transformedToStaticParams, paramTransformErr := util.TransformSQLRawParameters(toParams, false)
-		if paramTransformErr != nil {
-			return nil, paramTransformErr
-		}
-		for k, v := range transformedToStaticParams {
-			hasSourceAttr := e.HasSourceAttribute(k)
-			if !hasSourceAttr {
-				vIsUnpopulated := k == v
-				if vIsUnpopulated {
-					delete(transformedToStaticParams, k)
-				}
-			}
-		}
-		return sqlstream.NewSimpleSQLMapStream(
-			selectCtx,
-			insertContainer,
-			dp.handlerCtx.GetDrmConfig(),
-			dp.handlerCtx.GetSQLEngine(),
-			transformedToStaticParams,
-		), nil
+		return dp.getSQLStreamFromEdge(e, toAc, tcc)
 	}
 	projection, err := e.GetProjection()
 	if err != nil {
