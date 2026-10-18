@@ -12140,9 +12140,11 @@ Preview Iac Resources File Without Provider Is Refused By Omnisdk
     ...                which also takes an object whose 'resources' is the list; a
     ...                malformed entry is caught before any effect is attempted.
     ${preview} =    Set Variable    {"unstable":true}
+    ${nativeResourcesFile} =    Replace String
+    ...    ${REPOSITORY_ROOT}${/}test${/}assets${/}input${/}iac${/}resource-without-provider.json    \\    /
     ${resourcesFile} =    Set Variable If    "${EXECUTION_PLATFORM}" == "docker"
     ...    /opt/stackql/input/iac/resource-without-provider.json
-    ...    ${REPOSITORY_ROOT}${/}test${/}assets${/}input${/}iac${/}resource-without-provider.json
+    ...    ${nativeResourcesFile}
     ${query} =    Catenate    SEPARATOR=${SPACE}
     ...    select * from stackql_preview.iac.run where collection = 'scratch'
     ...    and resources_file = '${resourcesFile}';
