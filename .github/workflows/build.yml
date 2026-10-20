@@ -900,10 +900,17 @@ jobs:
         STACKQL_ROBOT_DEFAULT_PREVIEW: '{"unstable":true,"staging":true,"omni":"all"}'
       run: |
         pgrep -f flask | xargs kill -9 || true
-        if python cicd/python/build.py --robot-test --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true" } }'; then
-          echo "🟢 Omni readiness: all robot tests pass with the omni preview" >> "${GITHUB_STEP_SUMMARY}"
+        python cicd/python/build.py --robot-test --config='{ "variables": { "SHOULD_RUN_DOCKER_EXTERNAL_TESTS": "true" } }' || true
+        if [ -f test/robot/reports/output.xml ]; then
+          python test/python/stackql_test_tooling/robot_summary.py \
+            --output test/robot/reports/output.xml \
+            --title "Omni cutover readiness" \
+            --context "Mocked functional suite, every run opted in with STACKQL_ROBOT_DEFAULT_PREVIEW=${STACKQL_ROBOT_DEFAULT_PREVIEW}" \
+            >> "${GITHUB_STEP_SUMMARY}"
         else
-          echo "🟡 Omni readiness: some robot tests fail with the omni preview" >> "${GITHUB_STEP_SUMMARY}"
+          echo "# 🔴 Omni cutover readiness" >> "${GITHUB_STEP_SUMMARY}"
+          echo "" >> "${GITHUB_STEP_SUMMARY}"
+          echo "No robot output was produced; the suite did not run." >> "${GITHUB_STEP_SUMMARY}"
         fi
 
     - name: Output from omni functional tests
