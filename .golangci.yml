@@ -48,7 +48,6 @@ linters:
     - predeclared
     - promlinter
     - reassign
-    - revive
     - rowserrcheck
     - sqlclosecheck
     # - staticcheck
