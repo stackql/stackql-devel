@@ -908,9 +908,11 @@ jobs:
             --context "Mocked functional suite, every run opted in with STACKQL_ROBOT_DEFAULT_PREVIEW=${STACKQL_ROBOT_DEFAULT_PREVIEW}" \
             >> "${GITHUB_STEP_SUMMARY}"
         else
-          echo "# 🔴 Omni cutover readiness" >> "${GITHUB_STEP_SUMMARY}"
-          echo "" >> "${GITHUB_STEP_SUMMARY}"
-          echo "No robot output was produced; the suite did not run." >> "${GITHUB_STEP_SUMMARY}"
+          {
+            echo "# 🔴 Omni cutover readiness"
+            echo ""
+            echo "No robot output was produced; the suite did not run."
+          } >> "${GITHUB_STEP_SUMMARY}"
         fi
 
     - name: Output from omni functional tests
