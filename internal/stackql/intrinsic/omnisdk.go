@@ -149,6 +149,15 @@ func lastSegment(path string) string {
 	return path
 }
 
+// apiRequestTimeout preserves the CLI zero value as an explicit disable.
+func apiRequestTimeout(ctx queryContext) time.Duration {
+	seconds := ctx.GetRuntimeContext().APIRequestTimeout
+	if seconds == 0 {
+		return -1
+	}
+	return time.Duration(seconds) * time.Second
+}
+
 func openStream(
 	ctx queryContext, resourcePath string, params map[string]string,
 	exprs sqlparser.SelectExprs) (*rowStream, error) {
@@ -162,6 +171,7 @@ func openStream(
 		AuthByProvider:        providerAuthByProvider(ctx, resourcePath),
 		Endpoint:              input.getEndpoint(),
 		InsecureSkipTLSVerify: input.getInsecureSkipTLSVerify(),
+		Tuning:                omnisdk.Tuning{RequestTimeout: apiRequestTimeout(ctx)},
 	}
 	plan, err := omnisdk.Default().New(method.Path, args)
 	if err != nil {
