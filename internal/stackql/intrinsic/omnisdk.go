@@ -170,7 +170,7 @@ func openStream(
 		Params:                params,
 		AuthByProvider:        providerAuthByProvider(ctx, resourcePath),
 		Endpoint:              input.getEndpoint(),
-		InsecureSkipTLSVerify: input.getInsecureSkipTLSVerify(),
+		InsecureSkipTLSVerify: input.getInsecureSkipTLSVerify() || ctx.GetRuntimeContext().AllowInsecure,
 		Tuning:                omnisdk.Tuning{RequestTimeout: apiRequestTimeout(ctx)},
 	}
 	plan, err := omnisdk.Default().New(method.Path, args)

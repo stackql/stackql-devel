@@ -598,7 +598,7 @@ func mutationTables(stmt sqlparser.Statement) (sqlparser.TableExprs, bool) {
 	switch node := stmt.(type) {
 	case *sqlparser.Insert:
 		tables := sqlparser.TableExprs{&sqlparser.AliasedTableExpr{Expr: node.Table}}
-		if sel, isSelect := node.Rows.(*sqlparser.Select); isSelect {
+		if sel, isSelect := node.Rows.(*sqlparser.Select); isSelect && !literalSource(sel.From) {
 			tables = append(tables, sel.From...)
 		}
 		return tables, true
@@ -710,8 +710,10 @@ func (t *translator) insertSelect(rows *sqlparser.Select) ([]sqlparser.Expr, []q
 		return nil, nil, fmt.Errorf("a comma-separated FROM cannot be applied to %s relations; use JOIN ... ON",
 			UnstablePrefix+"*")
 	}
-	if err := t.from(rows.From[0], query.Base, nil); err != nil {
-		return nil, nil, err
+	if !literalSource(rows.From) {
+		if err := t.from(rows.From[0], query.Base, nil); err != nil {
+			return nil, nil, err
+		}
 	}
 	where, err := t.whereConjuncts(rows.Where)
 	if err != nil {
@@ -730,7 +732,7 @@ func (t *translator) insertSelect(rows *sqlparser.Select) ([]sqlparser.Expr, []q
 }
 
 func (t *translator) update(node *sqlparser.Update) (query.Target, []query.Predicate, error) {
-	if !strings.EqualFold(node.Action, sqlparser.UpdateStr) {
+	if !strings.EqualFold(node.Action, sqlparser.UpdateStr) && !strings.EqualFold(node.Action, "replace") {
 		return nil, nil, fmt.Errorf("%s cannot be applied to %s relations; use UPDATE",
 			strings.ToUpper(node.Action), UnstablePrefix+"*")
 	}
@@ -756,6 +758,9 @@ func (t *translator) update(node *sqlparser.Update) (query.Target, []query.Predi
 	where, err := t.whereConjuncts(node.Where)
 	if err != nil {
 		return nil, nil, err
+	}
+	if strings.EqualFold(node.Action, "replace") {
+		return query.NewReplace(resource, assignments...), where, nil
 	}
 	return query.NewUpdate(resource, assignments...), where, nil
 }
@@ -823,4 +828,17 @@ func (t *translator) whereConjuncts(where *sqlparser.Where) ([]query.Predicate, 
 		return nil, nil
 	}
 	return t.conjuncts(where.Expr)
+}
+
+// literalSource is the parser's source for SELECT values without a resource.
+func literalSource(from sqlparser.TableExprs) bool {
+	if len(from) != 1 {
+		return false
+	}
+	aliased, ok := from[0].(*sqlparser.AliasedTableExpr)
+	if !ok || !aliased.As.IsEmpty() {
+		return false
+	}
+	table, ok := aliased.Expr.(sqlparser.TableName)
+	return ok && table.Qualifier.IsEmpty() && strings.EqualFold(table.Name.String(), "dual")
 }

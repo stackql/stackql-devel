@@ -137,9 +137,10 @@ func docMethods(ctx queryContext, bundle, service, resource string) ([]relationM
 	out := make([]relationMethod, 0, len(methods))
 	for _, method := range methods {
 		out = append(out, relationMethod{
-			name:        method.Name,
-			description: method.OperationID,
-			sqlVerb:     docSQLVerb(method.SQLVerb),
+			requiredParams: method.RequiredParams,
+			name:           method.Name,
+			description:    method.OperationID,
+			sqlVerb:        docSQLVerb(method.SQLVerb),
 		})
 	}
 	return out, nil
