@@ -613,6 +613,21 @@ func omnisdkAuth(authCtx *dto.AuthCtx) *omnisdk.Auth {
 		return nil
 	}
 	auth := &omnisdk.Auth{
+		TenancyOCID:          authCtx.OciTenancyOCID,
+		TenancyOCIDEnvVar:    authCtx.OciTenancyOCIDEnvVar,
+		UserOCID:             authCtx.OciUserOCID,
+		UserOCIDEnvVar:       authCtx.OciUserOCIDEnvVar,
+		Fingerprint:          authCtx.OciFingerprint,
+		FingerprintEnvVar:    authCtx.OciFingerprintEnvVar,
+		PrivateKey:           authCtx.OciPrivateKey,
+		PrivateKeyEnvVar:     authCtx.OciPrivateKeyEnvVar,
+		PrivateKeyPath:       authCtx.OciPrivateKeyFilePath,
+		PrivateKeyPathEnvVar: authCtx.OciPrivateKeyFilePathEnvVar,
+		Passphrase:           authCtx.OciPassphrase,
+		PassphraseEnvVar:     authCtx.OciPassphraseEnvVar,
+		ConfigFilePath:       authCtx.OciConfigFilePath,
+		Profile:              authCtx.OciProfile,
+
 		Type:           authCtx.Type,
 		ValuePrefix:    authCtx.ValuePrefix,
 		Name:           authCtx.Name,
@@ -623,9 +638,13 @@ func omnisdkAuth(authCtx *dto.AuthCtx) *omnisdk.Auth {
 		UsernameEnvVar: authCtx.EnvVarUsername,
 		PasswordEnvVar: authCtx.EnvVarPassword,
 	}
-	if strings.EqualFold(authCtx.Type, "api_key") && auth.Name == "" {
+	if strings.EqualFold(authCtx.Type, "basic") && auth.ValuePrefix == "" {
+		// Preserve the CLI's established Basic scheme spelling.
+		auth.ValuePrefix = "BASIC "
+	}
+	if (strings.EqualFold(authCtx.Type, "api_key") || strings.EqualFold(authCtx.Type, "custom")) && auth.Name == "" {
 		auth.Name = "Authorization"
-		if auth.ValuePrefix == "" {
+		if auth.ValuePrefix == "" && strings.EqualFold(authCtx.Type, "api_key") {
 			auth.ValuePrefix = "Bearer "
 		}
 	}

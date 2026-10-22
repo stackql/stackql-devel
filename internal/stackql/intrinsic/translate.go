@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
 	"github.com/stackql-labs/omnisdk/pkg/query"
 
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
@@ -33,11 +34,17 @@ type standardDocQuery struct {
 	outputs []string
 	limit   int
 	bundles []string
+	hints   map[string]omnisdk.ReadHints
 }
 
-func newDocQuery(q query.Unresolved, outputs []string, limit int, bundles []string) docQuery {
-	return &standardDocQuery{q: q, outputs: outputs, limit: limit, bundles: bundles}
+func newDocQuery(q query.Unresolved, outputs []string, limit int, bundles []string, hints ...map[string]omnisdk.ReadHints) docQuery {
+	var read map[string]omnisdk.ReadHints
+	if len(hints) > 0 {
+		read = hints[0]
+	}
+	return &standardDocQuery{q: q, outputs: outputs, limit: limit, bundles: bundles, hints: read}
 }
+func (d *standardDocQuery) getReadHints() map[string]omnisdk.ReadHints { return d.hints }
 
 func (d *standardDocQuery) getQuery() query.Unresolved { return d.q }
 
@@ -117,7 +124,7 @@ func (d docTranslation) selectQuery(node *sqlparser.Select) (docQuery, error) {
 	if err != nil {
 		return nil, err
 	}
-	return newDocQuery(q, names, limit, t.bundles), nil
+	return newDocQuery(q, names, limit, t.bundles, readHints(node)), nil
 }
 
 // translateSource translates a SELECT's FROM and WHERE: the joins omnisdk runs

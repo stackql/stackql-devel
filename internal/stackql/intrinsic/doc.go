@@ -87,7 +87,16 @@ func localDocRoot(runtimeCtx dto.RuntimeCtx) string {
 // root is addressed as "<provider>.<service>.<resource>" and a provider whose
 // name carries a dot ("googleapis.com") cannot be named that way.
 func docRoot(ctx queryContext, bundle string) (string, error) {
-	root := filepath.Join(localDocRoot(ctx.GetRuntimeContext()), "src", bundleDir(bundle))
+	runtime := ctx.GetRuntimeContext()
+	prefix := "src"
+	var registryCfg formulation.RegistryConfig
+	if err := yaml.Unmarshal([]byte(runtime.RegistryRaw), &registryCfg); err != nil {
+		return "", err
+	}
+	if registryCfg.SrcPrefix != nil {
+		prefix = *registryCfg.SrcPrefix
+	}
+	root := filepath.Join(localDocRoot(runtime), prefix, bundleDir(bundle))
 	matches, err := filepath.Glob(filepath.Join(root, "*", "provider.yaml"))
 	if err != nil || len(matches) == 0 {
 		return "", fmt.Errorf("no provider document for '%s%s' under '%s'", UnstablePrefix, bundle, root)
@@ -164,6 +173,11 @@ func docSelectFunc(
 	node *sqlparser.Select,
 	currentProvider string,
 ) (func() internaldto.ExecutorOutput, bool) {
+	expanded, expandErr := expandDocumentViews(ctx, node, currentProvider)
+	if expandErr != nil {
+		return refuse(expandErr), true
+	}
+	node = expanded
 	if previewCfg.getStagingEnabled() && needsStaging(node) {
 		return stagedSelectFunc(ctx, node, currentProvider), true
 	}
@@ -249,6 +263,11 @@ func openDocQuery(ctx queryContext, translated docQuery) (omnisdk.Rows, string, 
 		return nil, "", argsErr
 	}
 	args.Tuning.Limit = translated.getLimit()
+	if hinted, ok := translated.(interface {
+		getReadHints() map[string]omnisdk.ReadHints
+	}); ok {
+		args.ReadHintsByAlias = hinted.getReadHints()
+	}
 	plan, planErr := omnisdk.NewGraphQuery(registry, res.Graph(), args)
 	if planErr != nil {
 		return nil, "", planErr
@@ -305,26 +324,30 @@ func refuse(err error) func() internaldto.ExecutorOutput {
 	}
 }
 
-func showDocServices(ctx queryContext, bundle string, extended bool) internaldto.ExecutorOutput {
-	services, err := docServices(ctx, bundle)
+func showDocServices(ctx queryContext, bundle string, extended bool, filters ...*sqlparser.Show) internaldto.ExecutorOutput {
+	dir, err := docRoot(ctx, bundle)
+	if err != nil {
+		return internaldto.NewErroneousExecutorOutput(err)
+	}
+	services, err := omnisdk.DocServices(dir, bundle)
 	if err != nil {
 		return internaldto.NewErroneousExecutorOutput(err)
 	}
 	rows := make(map[string]map[string]interface{}, len(services))
 	for i, service := range services {
-		row := map[string]interface{}{"id": service, "name": service, "title": service}
+		row := map[string]interface{}{"id": service.ID, "name": service.Name, "title": service.Title}
 		if extended {
-			row["description"] = service
-			row["version"] = ProviderVersion
-			row["preferred"] = nil
+			row["description"] = service.Description
+			row["version"] = service.Version
+			row["preferred"] = service.Preferred
 		}
 		rows[fmt.Sprintf("%06d", i)] = row
 	}
-	return prepare(ctx, formulation.GetServicesHeader(extended), rows, util.DefaultRowSort)
+	return prepareDocMetadata(ctx, formulation.GetServicesHeader(extended), rows, filters)
 }
 
 func showDocResources(
-	ctx queryContext, bundle, service string, extended bool) internaldto.ExecutorOutput {
+	ctx queryContext, bundle, service string, extended bool, filters ...*sqlparser.Show) internaldto.ExecutorOutput {
 	tables, err := docResourceTables(ctx, bundle, service)
 	if err != nil {
 		return internaldto.NewErroneousExecutorOutput(err)
@@ -332,7 +355,7 @@ func showDocResources(
 	rows := make(map[string]map[string]interface{}, len(tables))
 	for i, tbl := range tables {
 		row := map[string]interface{}{
-			"id":   fmt.Sprintf("%s%s.%s.%s", UnstablePrefix, bundle, service, tbl.name),
+			"id":   fmt.Sprintf("%s.%s.%s", metadataProviderName(bundle, filters), service, tbl.name),
 			"name": tbl.name,
 		}
 		if extended {
@@ -340,11 +363,11 @@ func showDocResources(
 		}
 		rows[fmt.Sprintf("%06d", i)] = row
 	}
-	return prepare(ctx, formulation.GetResourcesHeader(extended), rows, util.DefaultRowSort)
+	return prepareDocMetadata(ctx, formulation.GetResourcesHeader(extended), rows, filters)
 }
 
 func showDocMethods(
-	ctx queryContext, bundle, service, resource string, extended bool) internaldto.ExecutorOutput {
+	ctx queryContext, bundle, service, resource string, extended bool, alphabetical ...bool) internaldto.ExecutorOutput {
 	methods, err := docMethods(ctx, bundle, service, resource)
 	if err != nil {
 		return internaldto.NewErroneousExecutorOutput(err)
@@ -363,7 +386,11 @@ func showDocMethods(
 		if extended {
 			row["description"] = method.description
 		}
-		rows[fmt.Sprintf("%06d", i)] = row
+		rank := map[string]int{"SELECT": 0, "INSERT": 1, "DELETE": 2, "UPDATE": 3, "REPLACE": 4, "EXEC": 5}[method.sqlVerb]
+		if len(alphabetical) > 0 && alphabetical[0] {
+			rank = 0
+		}
+		rows[fmt.Sprintf("%02d_%s_%06d", rank, method.name, i)] = row
 	}
 	return prepare(ctx, columnOrder, rows, util.DefaultRowSort)
 }
