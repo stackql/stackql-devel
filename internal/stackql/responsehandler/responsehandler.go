@@ -3,9 +3,10 @@ package responsehandler
 import (
 	"errors"
 	"fmt"
-	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
 	"os"
 	"strings"
+
+	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
 
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
@@ -49,7 +50,11 @@ func HandleResponse(handlerCtx handler.HandlerContext, response internaldto.Exec
 			return err
 		}
 		if writeErr := outputWriter.Write(sqlResult); writeErr != nil {
-			outputWriter.WriteError(presentationError(writeErr), handlerCtx.GetErrorPresentation()) //nolint:errcheck // preserve the original stream failure
+			//nolint:errcheck // Preserve the original stream failure.
+			outputWriter.WriteError(
+				presentationError(writeErr),
+				handlerCtx.GetErrorPresentation(),
+			)
 			return writeErr
 		}
 	} else if sqlErr != nil {
@@ -67,7 +72,11 @@ func HandleResponse(handlerCtx handler.HandlerContext, response internaldto.Exec
 			handleEmptyWriter(outputWriter, err)
 			return sqlErr
 		}
-		outputWriter.WriteError(presentationError(sqlErr), handlerCtx.GetErrorPresentation()) //nolint:errcheck // outstream write
+		//nolint:errcheck // Preserve the original query error.
+		outputWriter.WriteError(
+			presentationError(sqlErr),
+			handlerCtx.GetErrorPresentation(),
+		)
 		return sqlErr
 	}
 	return err
@@ -80,7 +89,10 @@ func presentationError(err error) error {
 	if !errors.As(err, &response) {
 		return err
 	}
-	diagnostic := fmt.Sprintf("http response status code: %d, response body: %s", response.StatusCode(), response.ResponseBody())
+	diagnostic := fmt.Sprintf(
+		"http response status code: %d, response body: %s",
+		response.StatusCode(), response.ResponseBody(),
+	)
 	if response.ResponseBody() == "" {
 		diagnostic = fmt.Sprintf("http response status code: %d, response body is nil", response.StatusCode())
 	}

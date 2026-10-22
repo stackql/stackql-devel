@@ -1,3 +1,4 @@
+//nolint:testpackage // These tests exercise the unexported read-hint planner.
 package intrinsic
 
 import (

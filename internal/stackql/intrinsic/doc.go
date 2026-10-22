@@ -105,16 +105,6 @@ func docRoot(ctx queryContext, bundle string) (string, error) {
 	return filepath.Dir(matches[len(matches)-1]), nil
 }
 
-// docServices lists the services a bundle ships documents for.
-func docServices(ctx queryContext, bundle string) ([]string, error) {
-	dir, err := docRoot(ctx, bundle)
-	if err != nil {
-		return nil, err
-	}
-	services, _, err := omnisdk.DocCatalog(dir, bundle)
-	return services, err
-}
-
 // docResourceTables presents a service's resources as relations.
 func docResourceTables(ctx queryContext, bundle, service string) ([]table, error) {
 	dir, err := docRoot(ctx, bundle)
@@ -324,7 +314,12 @@ func refuse(err error) func() internaldto.ExecutorOutput {
 	}
 }
 
-func showDocServices(ctx queryContext, bundle string, extended bool, filters ...*sqlparser.Show) internaldto.ExecutorOutput {
+func showDocServices(
+	ctx queryContext,
+	bundle string,
+	extended bool,
+	filters ...*sqlparser.Show,
+) internaldto.ExecutorOutput {
 	dir, err := docRoot(ctx, bundle)
 	if err != nil {
 		return internaldto.NewErroneousExecutorOutput(err)
@@ -386,6 +381,7 @@ func showDocMethods(
 		if extended {
 			row["description"] = method.description
 		}
+		//nolint:mnd // These values define stable output ordering.
 		rank := map[string]int{"SELECT": 0, "INSERT": 1, "DELETE": 2, "UPDATE": 3, "REPLACE": 4, "EXEC": 5}[method.sqlVerb]
 		if len(alphabetical) > 0 && alphabetical[0] {
 			rank = 0

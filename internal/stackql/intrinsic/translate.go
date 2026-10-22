@@ -37,7 +37,13 @@ type standardDocQuery struct {
 	hints   map[string]omnisdk.ReadHints
 }
 
-func newDocQuery(q query.Unresolved, outputs []string, limit int, bundles []string, hints ...map[string]omnisdk.ReadHints) docQuery {
+func newDocQuery(
+	q query.Unresolved,
+	outputs []string,
+	limit int,
+	bundles []string,
+	hints ...map[string]omnisdk.ReadHints,
+) docQuery {
 	var read map[string]omnisdk.ReadHints
 	if len(hints) > 0 {
 		read = hints[0]

@@ -116,7 +116,12 @@ type standardStagedSelect struct {
 	offset        int
 }
 
-func newStagedSelect(source docQuery, columns, outputNames []string, outerTemplate string, offsets ...int) stagedSelect {
+func newStagedSelect(
+	source docQuery,
+	columns, outputNames []string,
+	outerTemplate string,
+	offsets ...int,
+) stagedSelect {
 	offset := 0
 	if len(offsets) > 0 {
 		offset = offsets[0]
@@ -326,7 +331,9 @@ func planStagedSelect(
 		offset, _ = rowCount(node.Limit.Offset)
 	}
 	return newStagedSelect(
-		newDocQuery(q, refs.names, 0, src.bundles(), readHints(node)), refs.names, outputNames, buf.String()+limit, offset), nil
+		newDocQuery(q, refs.names, 0, src.bundles(), readHints(node)),
+		refs.names, outputNames, buf.String()+limit, offset,
+	), nil
 }
 
 // stagedLimit renders LIMIT and OFFSET in the form both backends accept.
@@ -415,7 +422,7 @@ func stageAndQuery(
 	}
 	statement := staged.renderOuter(manager.TableName(id))
 	if effects, ok := rows.(omnisdk.ReadEffects); ok && effects.AppliedOffset() > 0 {
-		if adjusted, ok := staged.(interface{ renderAfterOffset(string, int) string }); ok {
+		if adjusted, hasOffsetRenderer := staged.(interface{ renderAfterOffset(string, int) string }); hasOffsetRenderer {
 			statement = adjusted.renderAfterOffset(manager.TableName(id), effects.AppliedOffset())
 		}
 	}

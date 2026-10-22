@@ -13,7 +13,13 @@ import (
 // expandDocumentViews substitutes a single FROM view before the normal SDK
 // planner runs. SQL expressions remain AST nodes and are evaluated by the same
 // configured backend as ordinary projections. No view is executed while planning.
-func expandDocumentViews(ctx queryContext, original *sqlparser.Select, current string) (*sqlparser.Select, error) {
+//
+//nolint:errcheck,gocognit,funlen // Parsed SELECT AST shape and bounded recursive expansion are intentional.
+func expandDocumentViews(
+	ctx queryContext,
+	original *sqlparser.Select,
+	current string,
+) (*sqlparser.Select, error) {
 	node := original
 	seen := map[string]bool{}
 	for depth := 0; depth < 16; depth++ {
@@ -65,7 +71,8 @@ func expandDocumentViews(ctx queryContext, original *sqlparser.Select, current s
 		if !ok {
 			return nil, fmt.Errorf("view %s must declare a SELECT", key)
 		}
-		if len(projection.GroupBy) > 0 || projection.Having != nil || projection.Distinct || projection.Limit != nil || len(projection.OrderBy) > 0 {
+		if len(projection.GroupBy) > 0 || projection.Having != nil || projection.Distinct ||
+			projection.Limit != nil || len(projection.OrderBy) > 0 {
 			return nil, fmt.Errorf("view %s requires a separate relational staging boundary", key)
 		}
 		// Clone the caller before replacing any AST references.
@@ -112,6 +119,7 @@ func viewSQL(view aot.View, dialect sqlfn.Dialect) (string, error) {
 	return "", fmt.Errorf("view fallback exceeds the depth bound")
 }
 
+//nolint:errcheck,govet,gocognit,gocyclo,nestif,cyclop,funlen // AST rewriting keeps these cases together.
 func inlineDocumentView(node, view *sqlparser.Select, alias string) (*sqlparser.Select, error) {
 	columns := map[string]sqlparser.Expr{}
 	for _, selection := range view.SelectExprs {

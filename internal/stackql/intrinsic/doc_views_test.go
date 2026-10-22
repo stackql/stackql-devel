@@ -1,9 +1,11 @@
+//nolint:testpackage // These tests exercise the unexported view-expansion helper.
 package intrinsic
 
 import (
-	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"strings"
 	"testing"
+
+	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 )
 
 func TestInlineDocumentViewPreservesBusinessFiltersAndCallerScope(t *testing.T) {

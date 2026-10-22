@@ -174,7 +174,11 @@ func showFunc(
 			service := node.OnTable.Qualifier.GetRawVal()
 			resource := node.OnTable.Name.GetRawVal()
 			return func() internaldto.ExecutorOutput {
-				return showDocMethods(ctx, bundle, service, resource, extended, strings.HasPrefix(resolveProvider(node.OnTable.QualifierSecond.GetRawVal(), currentProvider), UnstablePrefix))
+				isUnstable := strings.HasPrefix(
+					resolveProvider(node.OnTable.QualifierSecond.GetRawVal(), currentProvider),
+					UnstablePrefix,
+				)
+				return showDocMethods(ctx, bundle, service, resource, extended, isUnstable)
 			}, true
 		}
 		tbl, ok := lookupTable(

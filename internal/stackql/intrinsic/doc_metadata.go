@@ -2,6 +2,7 @@ package intrinsic
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -23,14 +24,24 @@ func metadataProviderName(bundle string, filters []*sqlparser.Show) string {
 
 // Metadata filters run in the configured SQL backend, retaining that backend's
 // comparison and LIKE semantics. All values are bound parameters.
-func prepareDocMetadata(ctx queryContext, columns []string, rows map[string]map[string]interface{}, filters []*sqlparser.Show) internaldto.ExecutorOutput {
-	if len(filters) == 0 || filters[0] == nil || filters[0].ShowTablesOpt == nil || filters[0].ShowTablesOpt.Filter == nil {
+func prepareDocMetadata(
+	ctx queryContext,
+	columns []string,
+	rows map[string]map[string]interface{},
+	filters []*sqlparser.Show,
+) internaldto.ExecutorOutput {
+	if len(filters) == 0 || filters[0] == nil || filters[0].ShowTablesOpt == nil ||
+		filters[0].ShowTablesOpt.Filter == nil {
 		return prepare(ctx, columns, rows, util.DefaultRowSort)
 	}
 	filter := filters[0].ShowTablesOpt.Filter
 	var predicate sqlparser.Expr = filter.Filter
 	if filter.Like != "" {
-		predicate = &sqlparser.ComparisonExpr{Operator: sqlparser.LikeStr, Left: &sqlparser.ColName{Name: sqlparser.NewColIdent("name")}, Right: sqlparser.NewStrVal([]byte(filter.Like))}
+		predicate = &sqlparser.ComparisonExpr{
+			Operator: sqlparser.LikeStr,
+			Left:     &sqlparser.ColName{Name: sqlparser.NewColIdent("name")},
+			Right:    sqlparser.NewStrVal([]byte(filter.Like)),
+		}
 	}
 	if predicate == nil {
 		return prepare(ctx, columns, rows, util.DefaultRowSort)
@@ -55,8 +66,8 @@ func prepareDocMetadata(ctx queryContext, columns []string, rows map[string]map[
 		}
 		statement := "SELECT 1 FROM (SELECT " + strings.Join(fields, ",") + ") AS metadata WHERE " + formatter.String()
 		var found int
-		err := db.QueryRow(statement, args...).Scan(&found)
-		if err == sql.ErrNoRows {
+		err = db.QueryRow(statement, args...).Scan(&found)
+		if errors.Is(err, sql.ErrNoRows) {
 			delete(rows, key)
 		} else if err != nil {
 			return internaldto.NewErroneousExecutorOutput(err)

@@ -10,6 +10,8 @@ import (
 // readHints preserves original SQL controls across the staging boundary. These
 // are optimisations only; the backend still applies the original SQL, except
 // for offsets the SDK explicitly reports as already consumed by the API.
+//
+//nolint:gocognit,govet // AST traversal keeps the related hint rules together.
 func readHints(node *sqlparser.Select) map[string]omnisdk.ReadHints {
 	if len(node.From) != 1 {
 		return nil
@@ -82,7 +84,9 @@ func readHints(node *sqlparser.Select) map[string]omnisdk.ReadHints {
 			column = selected
 		}
 		add(column)
-		hint.OrderBy = append(hint.OrderBy, omnisdk.ReadOrder{Column: column.Name.GetRawVal(), Descending: strings.EqualFold(term.Direction, "desc")})
+		hint.OrderBy = append(hint.OrderBy, omnisdk.ReadOrder{
+			Column: column.Name.GetRawVal(), Descending: strings.EqualFold(term.Direction, "desc"),
+		})
 	}
 	if node.Limit != nil {
 		if node.Limit.Rowcount != nil {

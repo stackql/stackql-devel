@@ -1,3 +1,4 @@
+//nolint:testpackage // The test stream exercises the package's output writer behavior.
 package output
 
 import (
