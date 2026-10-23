@@ -247,6 +247,20 @@ func TestStagedSelectEndToEnd(t *testing.T) {
 	}{
 
 		{
+			sql:  "select login, case when id=10 then 'chosen' else json('invalid-json') end as choice" + from + " and id=10",
+			want: "login,choice\nb,chosen\n",
+		},
+		{
+			sql: "select login from stackql_unstable_fixture.orgs.members m join local_people p " +
+				"on p.id=case m.id when 10 then m.id else -1 end where m.org='dummyorg'",
+			want: "login\nb\n",
+		},
+		{
+			sql:  "select substr(login,1,instr(login,'b')-1) as prefix" + from + " and id=10",
+			want: "prefix\n\n",
+		},
+
+		{
 			sql:  "select 'member:' || login as label" + from + " and id=10",
 			want: "label\nmember:b\n",
 		},

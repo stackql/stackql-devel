@@ -163,8 +163,11 @@ func previewArgs(ctx queryContext, cloud string, params map[string]string) (omni
 		AuthByProvider:        providerAuthByProvider(ctx, cloud),
 		Endpoint:              input.getEndpoint(),
 		InsecureSkipTLSVerify: input.getInsecureSkipTLSVerify() || ctx.GetRuntimeContext().AllowInsecure,
-		Tuning:                omnisdk.Tuning{RequestTimeout: apiRequestTimeout(ctx)},
-		Dialect:               dialect.catalogue(),
+		Tuning: omnisdk.Tuning{
+			RequestTimeout: apiRequestTimeout(ctx),
+			PageLimit:      ctx.GetRuntimeContext().HTTPPageLimit,
+		},
+		Dialect: dialect.catalogue(),
 	}, nil
 }
 

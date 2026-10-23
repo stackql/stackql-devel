@@ -552,7 +552,8 @@ func expression(expr sqlparser.Expr) (query.Expr, error) {
 		// backend expression; predicate() handles logical OR separately.
 		return binaryExpression("||", node.Left, node.Right)
 	case *sqlparser.BinaryExpr:
-		if node.Operator != "||" {
+		if node.Operator != "||" && node.Operator != "+" && node.Operator != "-" &&
+			node.Operator != "*" && node.Operator != "/" && node.Operator != "%" {
 			return nil, fmt.Errorf("unsupported scalar operator %s", node.Operator)
 		}
 		return binaryExpression(node.Operator, node.Left, node.Right)
@@ -577,12 +578,88 @@ func expression(expr sqlparser.Expr) (query.Expr, error) {
 			items = append(items, translated)
 		}
 		return query.NewCollection(items...), nil
+	case *sqlparser.CaseExpr:
+		return caseExpression(node)
 	case *sqlparser.FuncExpr:
 		return functionExpression(node)
 	default:
 		return nil, fmt.Errorf("'%s' cannot be applied to %s relations",
 			sqlparser.String(expr), UnstablePrefix+"*")
 	}
+}
+
+func conditionExpression(node sqlparser.Expr) (query.Expr, error) {
+	switch condition := node.(type) {
+	case *sqlparser.AndExpr:
+		return logicalExpression("and", condition.Left, condition.Right)
+	case *sqlparser.OrExpr:
+		return logicalExpression("or", condition.Left, condition.Right)
+	case *sqlparser.NotExpr:
+		test, err := conditionExpression(condition.Expr)
+		return query.NewCall("not", test), err
+	case *sqlparser.IsExpr:
+		value, err := expression(condition.Expr)
+		if err != nil {
+			return nil, err
+		}
+		test := query.NewCall("is_null", value)
+		if condition.Operator == sqlparser.IsNullStr {
+			return test, nil
+		}
+		if condition.Operator == sqlparser.IsNotNullStr {
+			return query.NewCall("not", test), nil
+		}
+		return nil, fmt.Errorf("unsupported CASE test %s", condition.Operator)
+	default:
+		return expression(node)
+	}
+}
+
+func logicalExpression(operator string, left, right sqlparser.Expr) (query.Expr, error) {
+	lhs, err := conditionExpression(left)
+	if err != nil {
+		return nil, err
+	}
+	rhs, err := conditionExpression(right)
+	return query.NewCall(operator, lhs, rhs), err
+}
+
+func caseExpression(node *sqlparser.CaseExpr) (query.Expr, error) {
+	args := []query.Expr{}
+	name := "case_when"
+	if node.Expr != nil {
+		base, err := expression(node.Expr)
+		if err != nil {
+			return nil, err
+		}
+		args = append(args, base)
+		name = "case_value"
+	}
+	for _, branch := range node.Whens {
+		condition := branch.Cond
+		translate := conditionExpression
+		if node.Expr != nil {
+			translate = expression
+		}
+		test, err := translate(condition)
+		if err != nil {
+			return nil, err
+		}
+		value, err := expression(branch.Val)
+		if err != nil {
+			return nil, err
+		}
+		args = append(args, test, value)
+	}
+	var otherwise query.Expr = query.NewLiteral(nil)
+	if node.Else != nil {
+		var err error
+		otherwise, err = expression(node.Else)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return query.NewCall(name, append(args, otherwise)...), nil
 }
 
 func functionExpression(node *sqlparser.FuncExpr) (query.Expr, error) {

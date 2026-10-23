@@ -12331,3 +12331,22 @@ Omni CTEs Preserve Ordered Boundaries And Column Names
     ...    ${expectedStr}
     ...    \-o\=csv
     ...    --preview\={"unstable":true,"staging":true,"omni":"all"}
+
+
+Omni CASE Join Skips Unselected Error Branches
+    ${query} =    Catenate
+    ...    select count(*) as n from (select login from github.repos.contributors
+    ...    where owner='dummyorg' and repo='dummyapp.io' order by login limit 1) c
+    ...    join (select 1 as join_key) one on one.join_key=case when c.login is not null then 1 else json('invalid-json') end;
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${query}
+    ...    n\n1
+    ...    \-o\=csv
+    ...    --preview\={"unstable":true,"staging":true,"omni":"all"}
