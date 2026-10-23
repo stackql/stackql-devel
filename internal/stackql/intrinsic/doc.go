@@ -137,7 +137,7 @@ func docMethods(ctx queryContext, bundle, service, resource string) ([]relationM
 	out := make([]relationMethod, 0, len(methods))
 	for _, method := range methods {
 		out = append(out, relationMethod{
-			requiredParams: method.RequiredParams,
+			requiredParams: unresolvedServerParams(method),
 			name:           method.Name,
 			description:    method.OperationID,
 			sqlVerb:        docSQLVerb(method.SQLVerb),
@@ -209,10 +209,15 @@ func docMutationFunc(
 	if err != nil {
 		return refuse(err), true
 	}
+	stmt, relations, err := prepareMutationRelations(ctx, stmt, currentProvider)
+	if err != nil {
+		return refuse(err), true
+	}
 	translated, err := newDocTranslator(currentProvider, dialect).mutation(stmt)
 	if err != nil {
 		return refuse(err), true
 	}
+	translated = withRelations(translated, relations)
 	return func() internaldto.ExecutorOutput { return runDocQuery(ctx, translated) }, true
 }
 
@@ -260,6 +265,10 @@ func openDocQueryIn(ctx queryContext, translated docQuery, runCtx context.Contex
 	dialect, dialectErr := backendDialect(ctx)
 	if dialectErr != nil {
 		return nil, "", dialectErr
+	}
+	q, environmentErr := bindServerEnvironment(q, tables)
+	if environmentErr != nil {
+		return nil, "", environmentErr
 	}
 	res, resolveErr := omnisdk.ResolveIn(q, tables, dialect.catalogue())
 	if resolveErr != nil {
