@@ -9,6 +9,7 @@ import (
 
 	"github.com/stackql-labs/omnisdk/pkg/docparse/aot"
 	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
+	"github.com/stackql-labs/omnisdk/pkg/query"
 	"github.com/stackql/any-sdk/pkg/dto"
 	"github.com/stackql/any-sdk/public/formulation"
 	"github.com/stackql/psql-wire/pkg/sqldata"
@@ -162,12 +163,13 @@ func docSelectFunc(
 	ctx queryContext,
 	node *sqlparser.Select,
 	currentProvider string,
+	initial ...map[string]omnisdk.Relation,
 ) (func() internaldto.ExecutorOutput, bool) {
 	expanded, expandErr := expandDocumentViews(ctx, node, currentProvider)
 	if expandErr != nil {
 		return refuse(expandErr), true
 	}
-	node, relations, relationErr := resolveDerivedRelations(ctx, expanded, currentProvider, 0)
+	node, relations, relationErr := resolveDerivedRelations(ctx, expanded, currentProvider, 0, initial...)
 	if relationErr != nil {
 		return refuse(relationErr), true
 	}
@@ -228,6 +230,9 @@ func openDocQueryIn(ctx queryContext, translated docQuery, runCtx context.Contex
 	relations := queryRelations(translated)
 	tables := make(map[string]omnisdk.Table, len(q.From())+1)
 	for _, join := range q.From() {
+		if _, function := join.Resource().(query.TableFunction); function {
+			continue
+		}
 		var tbl omnisdk.Table
 		var describeErr error
 		if relation, ok := relations[join.Resource().Handle()]; ok {
@@ -260,13 +265,13 @@ func openDocQueryIn(ctx queryContext, translated docQuery, runCtx context.Contex
 	if resolveErr != nil {
 		return nil, "", resolveErr
 	}
-	// omnisdk takes one credential per run: the first relation's cloud - a
-	// mutation's target - leaving the rest to the canonical environment
-	// variables.
+	// Preserve the host's configured credential for every provider, including
+	// providers following an opaque derived relation in the FROM order.
 	args, argsErr := previewArgs(ctx, translated.getBundles()[0], res.Params())
 	if argsErr != nil {
 		return nil, "", argsErr
 	}
+	args.AuthByProvider = queryProviderAuth(ctx, translated.getBundles())
 	args.Relations = relations
 	args.Tuning.Limit = translated.getLimit()
 	if hinted, ok := translated.(interface {
@@ -283,6 +288,17 @@ func openDocQueryIn(ctx queryContext, translated docQuery, runCtx context.Contex
 		return nil, "", openErr
 	}
 	return rows, relation, nil
+}
+
+// queryProviderAuth preserves configured credentials independently for every provider.
+func queryProviderAuth(ctx queryContext, bundles []string) map[string]*omnisdk.Auth {
+	credentials := map[string]*omnisdk.Auth{}
+	for _, bundle := range bundles {
+		for provider, credential := range providerAuthByProvider(ctx, bundle) {
+			credentials[provider] = credential
+		}
+	}
+	return credentials
 }
 
 // runDocQuery runs the query and streams its rows back.

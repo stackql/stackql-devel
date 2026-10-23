@@ -156,7 +156,11 @@ func stagedSelectWithRelations(
 	if err != nil {
 		return refuse(err)
 	}
-	staged, err := planStagedSelect(node, newDocTranslator(currentProvider, dialect), ctx.GetASTFormatter())
+	translator := newDocTranslator(currentProvider, dialect)
+	if err = expandDerivedStars(ctx, node, translator, relations); err != nil {
+		return refuse(err)
+	}
+	staged, err := planStagedSelect(node, translator, ctx.GetASTFormatter())
 	if err != nil {
 		return refuse(err)
 	}
@@ -294,10 +298,10 @@ func planStagedSelect(
 		}
 	}
 	// A statement referencing no column, such as count(*), still needs one
-	// staged row per source row. omnisdk outputs only columns, so the rows
-	// are taken whole and staged as a single null placeholder column.
+	// staged row per source row. Read only the first source so joined sources
+	// with duplicate column names do not cause ambiguous wildcard expansion.
 	if len(refs.outputs) == 0 {
-		refs.outputs = append(refs.outputs, query.NewOutput("", query.NewStar("")))
+		refs.outputs = append(refs.outputs, query.NewOutput("", query.NewStar(src.joins()[0].Resource().Alias())))
 		refs.names = append(refs.names, stagedColumnPrefix+"0")
 	}
 	aliasOutputs, err := whereAliasOutputs(node)

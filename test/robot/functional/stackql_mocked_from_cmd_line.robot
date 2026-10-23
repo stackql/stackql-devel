@@ -12290,3 +12290,44 @@ Omni Nested Derived Relation Preserves Aggregate Boundary
     ...    n\n2
     ...    \-o\=csv
     ...    --preview\={"unstable":true,"staging":true,"omni":"all"}
+
+Omni Stored View Joins Provider Through Read Handles
+    ${query} =    Catenate    SEPARATOR=${SPACE}
+    ...    create or replace view omni_members as select login,contributions from github.repos.contributors where owner='dummyorg' and repo='dummyapp.io';
+    ...    select count(*) as n from (select login from omni_members order by contributions desc limit 2) v
+    ...    join github.repos.contributors c on v.login=c.login where c.owner='dummyorg' and c.repo='dummyapp.io';
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${query}
+    ...    n\n2
+    ...    \-o\=csv
+    ...    --preview\={"unstable":true,"staging":true,"omni":"all"}
+
+
+Omni CTEs Preserve Ordered Boundaries And Column Names
+    ${inputStr} =    Catenate
+    ...    with picked as (select login,contributions from github.repos.contributors
+    ...    where owner='dummyorg' and repo='dummyapp.io' order by contributions desc limit 2),
+    ...    tallied(member_count) as (select count(*) from picked)
+    ...    select member_count from tallied;
+    ${expectedStr} =    Catenate    SEPARATOR=\n
+    ...    member_count
+    ...    2
+    Should StackQL Exec Inline Equal
+    ...    ${STACKQL_EXE}
+    ...    ${OKTA_SECRET_STR}
+    ...    ${GITHUB_SECRET_STR}
+    ...    ${K8S_SECRET_STR}
+    ...    ${REGISTRY_NO_VERIFY_CFG_STR}
+    ...    ${AUTH_CFG_STR}
+    ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
+    ...    ${inputStr}
+    ...    ${expectedStr}
+    ...    \-o\=csv
+    ...    --preview\={"unstable":true,"staging":true,"omni":"all"}

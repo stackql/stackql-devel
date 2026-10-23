@@ -359,6 +359,9 @@ func selectFunc(
 	node *sqlparser.Select,
 	currentProvider string,
 ) (func() internaldto.ExecutorOutput, bool) {
+	if execute, handled := storedSelectFunc(ctx, node, currentProvider); handled {
+		return execute, true
+	}
 	if isDoc, err := fromDocProviders(node.From, currentProvider); isDoc {
 		if err != nil {
 			return refuse(err), true

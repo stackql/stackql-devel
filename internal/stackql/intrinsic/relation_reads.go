@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"maps"
 	"sort"
 
 	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
@@ -48,6 +49,7 @@ const derivedRelationMaxDepth = 32
 // Planning performs no reads; each child retains its own relational boundary.
 func resolveDerivedRelations(
 	ctx queryContext, original *sqlparser.Select, current string, depth int,
+	inherited ...map[string]omnisdk.Relation,
 ) (*sqlparser.Select, map[string]omnisdk.Relation, error) {
 	if depth >= derivedRelationMaxDepth {
 		return nil, nil, fmt.Errorf("derived relations exceed nesting bound")
@@ -55,6 +57,11 @@ func resolveDerivedRelations(
 	clone := *original
 	clone.From = cloneRelationTables(original.From)
 	relations := map[string]omnisdk.Relation{}
+	if len(inherited) > 0 {
+		for handle, relation := range inherited[0] {
+			relations[handle] = relation
+		}
+	}
 	var walk func(sqlparser.TableExpr) error
 	walk = func(expr sqlparser.TableExpr) error {
 		switch table := expr.(type) {
@@ -101,7 +108,7 @@ func resolveDerivedTable(
 	if err != nil {
 		return err
 	}
-	prepared, children, err := resolveDerivedRelations(ctx, expanded, current, depth+1)
+	prepared, children, err := resolveDerivedRelations(ctx, expanded, current, depth+1, maps.Clone(relations))
 	if err != nil {
 		return err
 	}

@@ -38,6 +38,10 @@ func expandDocumentViews(
 		if !isDoc {
 			return node, nil
 		}
+		// Analyzer-owned handles have no provider document or resource view.
+		if bundle == "omni_relations" {
+			return node, nil
+		}
 		service, resource := name.Qualifier.GetRawVal(), name.Name.GetRawVal()
 		root, err := docRoot(ctx, bundle)
 		if err != nil {

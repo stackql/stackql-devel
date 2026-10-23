@@ -94,6 +94,9 @@ func fromDocProviders(from sqlparser.TableExprs, currentProvider string) (bool, 
 				return
 			}
 			others = append(others, qualifiedName(tableName))
+		case *sqlparser.TableValuedFuncTableExpr:
+			// Function signatures and lateral inputs are resolved by Omni.
+			return
 		case *sqlparser.JoinTableExpr:
 			walk(node.LeftExpr)
 			walk(node.RightExpr)
@@ -269,6 +272,8 @@ type translator struct {
 // the join's form and ON; everything on its left keeps its own.
 func (t *translator) from(expr sqlparser.TableExpr, form query.JoinForm, on []query.Predicate) error {
 	switch node := expr.(type) {
+	case *sqlparser.TableValuedFuncTableExpr:
+		return t.tableFunction(node, form, on)
 	case *sqlparser.AliasedTableExpr:
 		tableName, isName := node.Expr.(sqlparser.TableName)
 		if !isName {
@@ -311,6 +316,25 @@ func (t *translator) from(expr sqlparser.TableExpr, form query.JoinForm, on []qu
 	default:
 		return fmt.Errorf("'%s' cannot be read from %s relations", sqlparser.String(node), UnstablePrefix+"*")
 	}
+}
+
+func (t *translator) tableFunction(
+	node *sqlparser.TableValuedFuncTableExpr, form query.JoinForm, on []query.Predicate,
+) error {
+	call, err := expression(node.FuncExpr)
+	if err != nil {
+		return err
+	}
+	function, ok := call.(query.Call)
+	if !ok {
+		return fmt.Errorf("table function requires a function call")
+	}
+	alias := node.As.GetRawVal()
+	if alias == "" {
+		alias = function.Func()
+	}
+	t.joins = append(t.joins, query.NewJoin(query.NewTableFunction(alias, function), form, on...))
+	return nil
 }
 
 // resource addresses a relation by its registry handle, aliased as written or
@@ -523,6 +547,20 @@ func expression(expr sqlparser.Expr) (query.Expr, error) {
 	switch node := expr.(type) {
 	case *sqlparser.ColName:
 		return query.NewColumn(node.Qualifier.Name.GetRawVal(), node.Name.GetRawVal()), nil
+	case *sqlparser.OrExpr:
+		// This parser formats the node as ||. In value position, retain that
+		// backend expression; predicate() handles logical OR separately.
+		return binaryExpression("||", node.Left, node.Right)
+	case *sqlparser.BinaryExpr:
+		if node.Operator != "||" {
+			return nil, fmt.Errorf("unsupported scalar operator %s", node.Operator)
+		}
+		return binaryExpression(node.Operator, node.Left, node.Right)
+	case *sqlparser.ComparisonExpr:
+		if _, known := compareOps[node.Operator]; !known {
+			return nil, fmt.Errorf("unsupported scalar comparison %s", node.Operator)
+		}
+		return binaryExpression(node.Operator, node.Left, node.Right)
 	case *sqlparser.SQLVal:
 		return literal(node)
 	case sqlparser.BoolVal:
@@ -540,28 +578,44 @@ func expression(expr sqlparser.Expr) (query.Expr, error) {
 		}
 		return query.NewCollection(items...), nil
 	case *sqlparser.FuncExpr:
-		if node.IsAggregate() || node.Distinct || node.Over != nil {
-			return nil, fmt.Errorf("'%s' cannot be applied to %s relations",
-				sqlparser.String(node), UnstablePrefix+"*")
-		}
-		args := make([]query.Expr, 0, len(node.Exprs))
-		for _, arg := range node.Exprs {
-			aliased, isAliased := arg.(*sqlparser.AliasedExpr)
-			if !isAliased {
-				return nil, fmt.Errorf("argument '%s' cannot be applied to %s relations",
-					sqlparser.String(arg), UnstablePrefix+"*")
-			}
-			translated, err := expression(aliased.Expr)
-			if err != nil {
-				return nil, err
-			}
-			args = append(args, translated)
-		}
-		return query.NewCall(node.Name.Lowered(), args...), nil
+		return functionExpression(node)
 	default:
 		return nil, fmt.Errorf("'%s' cannot be applied to %s relations",
 			sqlparser.String(expr), UnstablePrefix+"*")
 	}
+}
+
+func functionExpression(node *sqlparser.FuncExpr) (query.Expr, error) {
+	if node.IsAggregate() || node.Distinct || node.Over != nil {
+		return nil, fmt.Errorf("'%s' cannot be applied to %s relations",
+			sqlparser.String(node), UnstablePrefix+"*")
+	}
+	args := make([]query.Expr, 0, len(node.Exprs))
+	for _, arg := range node.Exprs {
+		aliased, isAliased := arg.(*sqlparser.AliasedExpr)
+		if !isAliased {
+			return nil, fmt.Errorf("argument '%s' cannot be applied to %s relations",
+				sqlparser.String(arg), UnstablePrefix+"*")
+		}
+		translated, err := expression(aliased.Expr)
+		if err != nil {
+			return nil, err
+		}
+		args = append(args, translated)
+	}
+	return query.NewCall(node.Name.Lowered(), args...), nil
+}
+
+func binaryExpression(operator string, left, right sqlparser.Expr) (query.Expr, error) {
+	lhs, err := expression(left)
+	if err != nil {
+		return nil, err
+	}
+	rhs, err := expression(right)
+	if err != nil {
+		return nil, err
+	}
+	return query.NewCall(operator, lhs, rhs), nil
 }
 
 func literal(val *sqlparser.SQLVal) (query.Expr, error) {
