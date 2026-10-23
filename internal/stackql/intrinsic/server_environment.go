@@ -34,10 +34,11 @@ func bindServerEnvironment(q query.Unresolved, tables map[string]omnisdk.Table) 
 			where = append(where, query.NewEq(query.NewColumn(alias, name), query.NewLiteral(value)))
 		}
 	}
-	if target := q.Target(); target != nil {
-		return query.NewMutation(target, q.From(), where, q.Select())
+	bound, err := queryWithWhere(q, where)
+	if err != nil {
+		return nil, err
 	}
-	return query.New(q.From(), where, q.Select())
+	return bindServerTransport(bound, tables)
 }
 
 func explicitServerBinding(q query.Unresolved, alias, name string) bool {
@@ -71,6 +72,9 @@ func explicitServerBinding(q query.Unresolved, alias, name string) bool {
 func unresolvedServerParams(method omnisdk.DocMethod) []string {
 	required := make([]string, 0, len(method.RequiredParams))
 	for _, name := range method.RequiredParams {
+		if method.TransportDefaults[name] != "" {
+			continue
+		}
 		if environment := method.ServerEnvironment[name]; environment != "" {
 			if value, exists := os.LookupEnv(environment); exists && value != "" {
 				continue

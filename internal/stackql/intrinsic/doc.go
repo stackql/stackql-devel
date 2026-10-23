@@ -218,6 +218,9 @@ func docMutationFunc(
 		return refuse(err), true
 	}
 	translated = withRelations(translated, relations)
+	if mutationAwait(stmt) {
+		translated = awaitedDocQuery{docQuery: translated}
+	}
 	return func() internaldto.ExecutorOutput { return runDocQuery(ctx, translated) }, true
 }
 
@@ -252,8 +255,7 @@ func openDocQueryIn(ctx queryContext, translated docQuery, runCtx context.Contex
 	}
 	var relation string
 	if target := q.Target(); target != nil {
-		tbl, describeErr := omnisdk.DescribeMutation(
-			registry, target.Resource().Handle(), target.Verb().String())
+		tbl, describeErr := describeMutationTable(registry, target, queryAwaitsMutation(translated))
 		if describeErr != nil {
 			return nil, "", describeErr
 		}
@@ -281,6 +283,9 @@ func openDocQueryIn(ctx queryContext, translated docQuery, runCtx context.Contex
 		return nil, "", argsErr
 	}
 	args.AuthByProvider = queryProviderAuth(ctx, translated.getBundles())
+	if completionErr := configureMutationCompletion(ctx, translated, &args); completionErr != nil {
+		return nil, "", completionErr
+	}
 	args.Relations = relations
 	args.Tuning.Limit = translated.getLimit()
 	if hinted, ok := translated.(interface {
@@ -318,7 +323,11 @@ func runDocQuery(ctx queryContext, translated docQuery) internaldto.ExecutorOutp
 	}
 	q := translated.getQuery()
 	if q.Target() != nil && len(translated.getOutputs()) == 0 {
-		return drainMutation(rows)
+		result := drainMutation(rows)
+		if queryAwaitsMutation(translated) && result.GetError() == nil {
+			return internaldto.NewExecutorOutput(nil, nil, nil, nil, nil)
+		}
+		return result
 	}
 	input := previewCfg
 	stream := &rowStream{

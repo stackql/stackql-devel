@@ -357,12 +357,23 @@ func newReadErrorPolicy(ctx queryContext, config dto.HTTPUpstreamErrorCfg) omnis
 	}
 	return &readErrorPolicy{HTTPUpstreamErrorCfg: config, writer: writer}
 }
+
+// StackQL presents absent provider resources as empty tables. This host policy
+// applies only to resource reads; SDK mutation and auth exchanges remain strict.
+func (p *readErrorPolicy) IsIgnored(status int) bool {
+	return status == http.StatusNotFound || p.HTTPUpstreamErrorCfg.IsIgnored(status)
+}
 func (p *readErrorPolicy) IgnoredStatus(status int, body string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	diagnostic := fmt.Sprintf("http response status code: %d, response body: %s", status, body)
 	if body == "" {
 		diagnostic = fmt.Sprintf("http response status code: %d, response body is nil", status)
+	}
+	if status == http.StatusNotFound && !p.HTTPUpstreamErrorCfg.IsIgnored(status) {
+		// Absence ends only this read, retaining the host's established diagnostic.
+		fmt.Fprintln(p.writer, diagnostic) //nolint:errcheck // Diagnostics do not change the read result.
+		return
 	}
 	//nolint:errcheck // Diagnostics do not change the read result.
 	fmt.Fprintf(p.writer, "%s\nignoring upstream response: %d %s\n",

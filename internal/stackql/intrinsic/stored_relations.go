@@ -31,11 +31,17 @@ func newStoredResolver(ctx queryContext, system sql_system.SQLSystem) storedRela
 func prepareStoredRelations(
 	ctx queryContext, node *sqlparser.Select,
 ) (*sqlparser.Select, map[string]omnisdk.Relation, error) {
-	host, ok := ctx.(interface{ GetSQLSystem() sql_system.SQLSystem })
-	if !IsUnstableEnabled() || !ok || host.GetSQLSystem() == nil {
+	if !IsUnstableEnabled() {
 		return node, nil, nil
 	}
-	return newStoredResolver(ctx, host.GetSQLSystem()).Prepare(node)
+	var system sql_system.SQLSystem
+	if host, ok := ctx.(interface{ GetSQLSystem() sql_system.SQLSystem }); ok {
+		system = host.GetSQLSystem()
+	}
+	if _, external := ctx.(sqlSourceProvider); system == nil && !external {
+		return node, nil, nil
+	}
+	return newStoredResolver(ctx, system).Prepare(node)
 }
 func (r *storedResolver) Prepare(node *sqlparser.Select) (*sqlparser.Select, map[string]omnisdk.Relation, error) {
 	prepared, err := r.selectNode(node, 0)
@@ -196,6 +202,12 @@ func (r *storedResolver) named(table *sqlparser.AliasedTableExpr, name sqlparser
 			return nil
 		}
 	}
+	if source, exists := externalSource(r.ctx, name); exists {
+		return r.registerExternal(table, name, source)
+	}
+	if r.system == nil {
+		return nil
+	}
 	if view, exists := r.system.GetViewByName(address); exists {
 		return r.expandView(table, name, view, depth)
 	}
@@ -340,7 +352,7 @@ func storedSelectFunc(
 	if err != nil {
 		return refuse(err), true
 	}
-	if !containsProviderRead(prepared, currentProvider, stored) {
+	if !containsProviderRead(prepared, currentProvider, stored) && !hasExternalRelations(stored) {
 		return nil, false
 	}
 	isDoc, err := fromDocProviders(prepared.From, currentProvider)
