@@ -164,14 +164,78 @@ func (d docTranslation) translateSource(node *sqlparser.Select) (*translator, []
 			return nil, nil, err
 		}
 	}
+	deferred := t.deferForwardInnerConditions()
 	if node.Where == nil {
-		return t, nil, nil
+		return t, deferred, nil
 	}
 	where, err := t.conjuncts(node.Where.Expr)
 	if err != nil {
 		return nil, nil, err
 	}
-	return t, where, nil
+	return t, append(deferred, where...), nil
+}
+
+// SQLite accepts INNER JOIN conditions referring to a later comma relation.
+// Move only those predicates to WHERE; outer-join conditions retain their boundary.
+func (t *translator) deferForwardInnerConditions() []query.Predicate {
+	scope := map[string]bool{}
+	var deferred []query.Predicate
+	for i, join := range t.joins {
+		scope[join.Resource().Alias()] = true
+		if join.Form() != query.Inner {
+			continue
+		}
+		var retained []query.Predicate
+		for _, predicate := range join.On() {
+			if joinPredicateInScope(predicate, scope) {
+				retained = append(retained, predicate)
+			} else {
+				deferred = append(deferred, predicate)
+			}
+		}
+		t.joins[i] = query.NewJoin(join.Resource(), join.Form(), retained...)
+	}
+	return deferred
+}
+
+func joinPredicateInScope(predicate query.Predicate, scope map[string]bool) bool {
+	switch p := predicate.(type) {
+	case query.Compare:
+		return joinExpressionInScope(p.Left(), scope) && joinExpressionInScope(p.Right(), scope)
+	case query.In:
+		return joinExpressionInScope(p.Expr(), scope) && joinExpressionInScope(p.Set(), scope)
+	case query.Test:
+		return joinExpressionInScope(p.Cond(), scope)
+	case query.Or:
+		for _, child := range p.Any() {
+			if !joinPredicateInScope(child, scope) {
+				return false
+			}
+		}
+	case query.Not:
+		return joinPredicateInScope(p.Negated(), scope)
+	}
+	return true
+}
+
+func joinExpressionInScope(expression query.Expr, scope map[string]bool) bool {
+	switch e := expression.(type) {
+	case query.Column:
+		return e.Qualifier() == "" || scope[e.Qualifier()]
+	case query.Call:
+		for _, child := range e.Args() {
+			if !joinExpressionInScope(child, scope) {
+				return false
+			}
+		}
+	case query.Collection:
+		for _, child := range e.Items() {
+			if !joinExpressionInScope(child, scope) {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 // unsupportedDocClauses names what omnisdk returns unapplied: its row stream is

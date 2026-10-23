@@ -247,6 +247,12 @@ func TestStagedSelectEndToEnd(t *testing.T) {
 	}{
 
 		{
+			sql: "select m.login from stackql_unstable_fixture.orgs.members m join local_people p " +
+				"on p.id=e.value, json_each('[10]') e where m.org='dummyorg' and m.id=p.id",
+			want: "login\nb\n",
+		},
+
+		{
 			sql:  "select login, case when id=10 then 'chosen' else json('invalid-json') end as choice" + from + " and id=10",
 			want: "login,choice\nb,chosen\n",
 		},

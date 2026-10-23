@@ -556,9 +556,6 @@ func (s *omniBatchSource) Next(context.Context) ([][]any, error) {
 		return batch, nil
 	}
 	if err := s.rows.Err(); err != nil {
-		if s.readRows == 0 {
-			return nil, err
-		}
 		// Preserve completed pages, then surface the failed continuation to the
 		// client after the partial result. The upstream failure remains an error.
 		s.terminalErr = err

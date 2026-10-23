@@ -319,12 +319,40 @@ func runDocQuery(ctx queryContext, translated docQuery) internaldto.ExecutorOutp
 		table:         sqldata.NewSQLTable(0, relation),
 		typCfg:        ctx.GetTypingConfig(),
 		outputs:       translated.getOutputs(),
+		emptyColumns:  func() []column { return declaredEmptyColumns(ctx, translated) },
 	}
 	primed, readErr := newPrimedStream(stream)
 	if readErr != nil {
 		return internaldto.NewErroneousExecutorOutput(readErr)
 	}
 	return internaldto.NewExecutorOutput(primed, nil, nil, nil, nil)
+}
+
+// Empty star results still have the schema declared by their read relations.
+// Actual rows continue to determine nonempty star results, including ragged fields.
+func declaredEmptyColumns(ctx queryContext, translated docQuery) []column {
+	q := translated.getQuery()
+	resources := q.From()
+	if target := q.Target(); target != nil {
+		resources = []query.Join{query.NewJoin(target.Resource(), query.Base)}
+	}
+	fields := omnisdk.Row{}
+	for _, join := range resources {
+		if _, function := join.Resource().(query.TableFunction); function {
+			continue
+		}
+		names, err := declaredRelationColumns(ctx, join.Resource().Handle(), queryRelations(translated))
+		if err != nil {
+			continue
+		}
+		for _, name := range names {
+			fields[name] = nil
+		}
+	}
+	if len(fields) == 0 {
+		return nil
+	}
+	return outputColumns(translated.getOutputs(), []omnisdk.Row{fields})
 }
 
 // drainMutation pulls a mutation's cursor to the end, which is what sends its

@@ -13,10 +13,14 @@ package intrinsic
 import (
 	"context"
 	"fmt"
+	"io"
+	"net/http"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
+	"github.com/stackql/any-sdk/pkg/dto"
 	"github.com/stackql/any-sdk/public/formulation"
 	"github.com/stackql/psql-wire/pkg/sqldata"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
@@ -158,11 +162,17 @@ func previewArgs(ctx queryContext, cloud string, params map[string]string) (omni
 		return omnisdk.Args{}, err
 	}
 	input := previewCfg
+	upstream, err := dto.GetUpstreamErrorCfg(ctx.GetRuntimeContext().UpstreamErrorCfgRaw)
+	if err != nil {
+		return omnisdk.Args{}, err
+	}
 	return omnisdk.Args{
-		Params:                params,
-		AuthByProvider:        providerAuthByProvider(ctx, cloud),
-		Endpoint:              input.getEndpoint(),
-		InsecureSkipTLSVerify: input.getInsecureSkipTLSVerify() || ctx.GetRuntimeContext().AllowInsecure,
+		HTTPReadErrors:          newReadErrorPolicy(ctx, upstream.HTTP),
+		StrictResponseSelection: true,
+		Params:                  params,
+		AuthByProvider:          providerAuthByProvider(ctx, cloud),
+		Endpoint:                input.getEndpoint(),
+		InsecureSkipTLSVerify:   input.getInsecureSkipTLSVerify() || ctx.GetRuntimeContext().AllowInsecure,
 		Tuning: omnisdk.Tuning{
 			RequestTimeout: apiRequestTimeout(ctx),
 			PageLimit:      ctx.GetRuntimeContext().HTTPPageLimit,
@@ -331,4 +341,30 @@ func describePreviewTableFunc(
 		"relation '%s' takes a specification rather than columns; "+
 			"run SHOW RESOURCES IN %s.%s for what it accepts",
 		relationAddress(service, resource), ProviderName, service)), true
+}
+
+// The host owns diagnostic wording and its output stream.
+type readErrorPolicy struct {
+	dto.HTTPUpstreamErrorCfg
+	writer io.Writer
+	mu     sync.Mutex
+}
+
+func newReadErrorPolicy(ctx queryContext, config dto.HTTPUpstreamErrorCfg) omnisdk.HTTPReadErrorPolicy {
+	var writer io.Writer = io.Discard
+	if output, ok := ctx.(interface{ GetOutErrFile() io.Writer }); ok {
+		writer = output.GetOutErrFile()
+	}
+	return &readErrorPolicy{HTTPUpstreamErrorCfg: config, writer: writer}
+}
+func (p *readErrorPolicy) IgnoredStatus(status int, body string) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	diagnostic := fmt.Sprintf("http response status code: %d, response body: %s", status, body)
+	if body == "" {
+		diagnostic = fmt.Sprintf("http response status code: %d, response body is nil", status)
+	}
+	//nolint:errcheck // Diagnostics do not change the read result.
+	fmt.Fprintf(p.writer, "%s\nignoring upstream response: %d %s\n",
+		diagnostic, status, strings.ToUpper(http.StatusText(status)))
 }
