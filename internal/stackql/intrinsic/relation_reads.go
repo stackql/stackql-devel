@@ -352,7 +352,7 @@ func expandDerivedStars(
 			expressions = append(expressions, expr)
 			continue
 		}
-		expanded, expandErr := derivedStarColumns(ctx, source, star, relations)
+		expanded, expandErr := resolvedStarColumns(ctx, source, star, relations)
 		if expandErr != nil {
 			return expandErr
 		}
@@ -360,32 +360,6 @@ func expandDerivedStars(
 	}
 	node.SelectExprs = expressions
 	return nil
-}
-
-func derivedStarColumns(
-	ctx queryContext, source translatedSource, star *sqlparser.StarExpr, relations map[string]omnisdk.Relation,
-) (sqlparser.SelectExprs, error) {
-	var expressions sqlparser.SelectExprs
-	for _, join := range source.joins() {
-		resource := join.Resource()
-		if qualifier := star.TableName.Name.GetRawVal(); qualifier != "" && qualifier != resource.Alias() {
-			continue
-		}
-		names, err := declaredRelationColumns(ctx, resource.Handle(), relations)
-		if err != nil {
-			return nil, err
-		}
-		for _, name := range names {
-			expressions = append(expressions, &sqlparser.AliasedExpr{Expr: &sqlparser.ColName{
-				Name:      sqlparser.NewColIdent(name),
-				Qualifier: sqlparser.TableName{Name: sqlparser.NewTableIdent(resource.Alias())},
-			}})
-		}
-	}
-	if len(expressions) == 0 {
-		return nil, fmt.Errorf("unknown derived star qualifier %s", star.TableName.Name.GetRawVal())
-	}
-	return expressions, nil
 }
 
 func declaredRelationColumns(
