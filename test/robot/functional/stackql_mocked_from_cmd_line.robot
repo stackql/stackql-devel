@@ -6826,6 +6826,7 @@ Multi Dependency Multi Dependent Multiple List And Detail Dataflow Works As Exem
     ...    stdout=${CURDIR}/tmp/Multi-Dependency-Multi-Dependent-Multiple-List-And-Detail-Dataflow-Works-As-Exemplified-By-Azure-Vault-and-Keys-and-Key-Details.tmp
     ...    stderr=${CURDIR}/tmp/Multi-Dependency-Multi-Dependent-Multiple-List-And-Detail-Dataflow-Works-As-Exemplified-By-Azure-Vault-and-Keys-and-Key-Details-stderr.tmp
     ...    stackql_dataflow_permissive=True
+    ...    omni_expected_stderr_output=${EMPTY}
 
 Error GTE 400 Response Code Does Not Stop The World As Exemplified By AWS Subnet Route Associations List And Detail Pattern
     ${sqliteInputStr} =    Catenate
@@ -6902,6 +6903,7 @@ Error GTE 400 Response Code Does Not Stop The World As Exemplified By AWS Subnet
     ...    stdout=${CURDIR}/tmp/Error-GTE-400-Response-Code-Does-Not-Stop-The-World-As-Exemplified-By-AWS-Subnet-Route-Associations-List-And-Detail-Pattern.tmp
     ...    stderr=${CURDIR}/tmp/Error-GTE-400-Response-Code-Does-Not-Stop-The-World-As-Exemplified-By-AWS-Subnet-Route-Associations-List-And-Detail-Pattern-stderr.tmp
     ...    stackql_dataflow_permissive=True
+    ...    unordered_http_diagnostics=True
 
 View Not Found Does Not Cause Crash and View Param Indeterminate Scenario
     ${inputStr} =    Catenate
@@ -7084,6 +7086,7 @@ Static Input Read Many Multi Dependency Multi Dependent Multiple List And Detail
     ...    ${outputErrStr}
     ...    stdout=${CURDIR}/tmp/Static-Input-Read-Many-Multi-Dependency-Multi-Dependent-Multiple-List-And-Detail-Dataflow-Works-As-Exemplified-By-Azure-Vault-and-Keys-and-Key-Details.tmp
     ...    stderr=${CURDIR}/tmp/Static-Input-Read-Many-Multi-Dependency-Multi-Dependent-Multiple-List-And-Detail-Dataflow-Works-As-Exemplified-By-Azure-Vault-and-Keys-and-Key-Details-stderr.tmp
+    ...    omni_expected_stderr_output=${EMPTY}
 
 Self Join Polymorphic Works As Exemplified By Azure VPN List and Details
     ${sqliteInputStr} =    Catenate

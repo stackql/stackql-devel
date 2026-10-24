@@ -89,6 +89,10 @@ func presentationError(err error) error {
 	if errors.As(err, &program) {
 		return fmt.Errorf("unsupported template type: %s", program.ProgramType())
 	}
+	var authentication omnisdk.AuthenticationError
+	if errors.As(err, &authentication) {
+		return err
+	}
 	var response omnisdk.HTTPStatusError
 	if !errors.As(err, &response) {
 		return err

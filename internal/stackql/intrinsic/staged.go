@@ -212,6 +212,12 @@ func (r *stagedRefs) collect(expr sqlparser.SQLNode, aliases map[string]bool) er
 // reference as its staged column.
 func (r *stagedRefs) formatter(inner sqlparser.NodeFormatter) sqlparser.NodeFormatter {
 	return func(buf *sqlparser.TrackedBuffer, node sqlparser.SQLNode) {
+		if literal, ok := node.(*sqlparser.SQLVal); ok && literal.Type == sqlparser.StrVal {
+			formatted := sqlparser.NewTrackedBuffer(inner)
+			formatted.Myprintf("%v", node)
+			buf.Myprintf("%s", strings.ReplaceAll(formatted.String(), `\"`, `"`))
+			return
+		}
 		if col, isCol := node.(*sqlparser.ColName); isCol {
 			if staged, isRenamed := r.renamed[col]; isRenamed {
 				node = &sqlparser.ColName{Name: sqlparser.NewColIdent(staged)}
@@ -234,6 +240,7 @@ func (r *stagedRefs) collectSelectExprs(
 	aliases := make(map[string]bool, len(exprs))
 	outputNames := make([]string, 0, len(exprs))
 	selectExprs := make(sqlparser.SelectExprs, 0, len(exprs))
+	anonymous := 0
 	for i, expr := range exprs {
 		aliased, isAliased := expr.(*sqlparser.AliasedExpr)
 		if !isAliased {
@@ -247,6 +254,10 @@ func (r *stagedRefs) collectSelectExprs(
 		name, err := projectionName(aliased)
 		if err != nil {
 			return nil, nil, nil, err
+		}
+		if name == "" {
+			anonymous++
+			name = fmt.Sprintf("col_%d", anonymous)
 		}
 		if aliased.As.IsEmpty() {
 			if _, isColumn := aliased.Expr.(*sqlparser.ColName); isColumn {

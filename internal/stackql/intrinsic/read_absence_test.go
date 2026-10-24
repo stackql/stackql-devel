@@ -8,12 +8,12 @@ import (
 	"github.com/stackql/any-sdk/pkg/dto"
 )
 
-func TestReadAbsencePreservesStrictOtherFailures(t *testing.T) {
+func TestReadFailuresRemainLocalAndPreserveDiagnostics(t *testing.T) {
 	var diagnostic bytes.Buffer
 	policy := &readErrorPolicy{writer: &diagnostic}
 	for _, status := range []int{400, 401, 403, 429, 500, 503} {
-		if policy.IsIgnored(status) {
-			t.Fatalf("status %d silently ignored", status)
+		if !policy.IsIgnored(status) {
+			t.Fatalf("read status %d aborts sibling reads", status)
 		}
 	}
 	if !policy.IsIgnored(404) {

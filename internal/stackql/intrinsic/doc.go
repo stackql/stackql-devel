@@ -33,6 +33,12 @@ func IsUnstableEnabled() bool {
 	return previewCfg.getUnstableEnabled() || previewCfg.getOmniAll()
 }
 
+// IsExtendedCatalogEnabled keeps the compatibility catalogue stable when
+// Omni replaces the execution backend. Explicit unstable mode adds SDK services.
+func IsExtendedCatalogEnabled() bool {
+	return previewCfg.getUnstableEnabled() && !previewCfg.getOmniAll()
+}
+
 // docProvider is the bundle behind an unstable provider name, or false. Once
 // every provider is routed to omnisdk, an unprefixed name is one too.
 func docProvider(name string) (string, bool) {
@@ -181,7 +187,11 @@ func docSelectFunc(
 	if err != nil {
 		return refuse(err), true
 	}
-	translated, err := newDocTranslator(currentProvider, dialect).selectQuery(node)
+	translator := newDocTranslator(currentProvider, dialect)
+	if err = expandDerivedStars(ctx, node, translator, relations); err != nil {
+		return refuse(err), true
+	}
+	translated, err := translator.selectQuery(node)
 	if err != nil {
 		return refuse(err), true
 	}
@@ -294,6 +304,7 @@ func openDocQueryIn(ctx queryContext, translated docQuery, runCtx context.Contex
 	args.Relations = relations
 	args.Tuning.Limit = translated.getLimit()
 	configureReadHints(translated, &args)
+	configureLegacyReadCache(ctx, q, &args)
 	plan, planErr := omnisdk.NewGraphQuery(registry, res.Graph(), args)
 	if planErr != nil {
 		return nil, "", planErr
@@ -442,11 +453,19 @@ func showDocResources(
 	if err != nil {
 		return internaldto.NewErroneousExecutorOutput(err)
 	}
+	names, nameErr := registryResourceNames(ctx, bundle, service, extended)
+	if nameErr != nil {
+		return internaldto.NewErroneousExecutorOutput(nameErr)
+	}
 	rows := make(map[string]map[string]interface{}, len(tables))
 	for i, tbl := range tables {
+		displayName := tbl.name
+		if declared, present := names[tbl.name]; present {
+			displayName = declared
+		}
 		row := map[string]interface{}{
 			"id":   fmt.Sprintf("%s.%s.%s", metadataProviderName(bundle, filters), service, tbl.name),
-			"name": tbl.name,
+			"name": displayName,
 		}
 		if extended {
 			row["description"] = tbl.description

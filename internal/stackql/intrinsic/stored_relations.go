@@ -193,6 +193,16 @@ func (r *storedResolver) table(expr sqlparser.TableExpr, depth int) error {
 }
 func (r *storedResolver) named(table *sqlparser.AliasedTableExpr, name sqlparser.TableName, depth int) error {
 	address := qualifiedName(name)
+	if cache := legacyCache(r.ctx); cache != nil && cache.namespace.IsAllowed(address) {
+		canonical := cache.namespace.GetObjectName(address)
+		if parts := strings.Split(canonical, "."); len(parts) == 3 && canonical != address {
+			name.QualifierSecond = sqlparser.NewTableIdent(parts[0])
+			name.Qualifier = sqlparser.NewTableIdent(parts[1])
+			name.Name = sqlparser.NewTableIdent(parts[2])
+			table.Expr = name
+			address = canonical
+		}
+	}
 	if name.Qualifier.IsEmpty() && name.QualifierSecond.IsEmpty() {
 		if cte, exists := r.ctes[strings.ToLower(name.Name.GetRawVal())]; exists {
 			table.Expr = &sqlparser.Subquery{Select: cte}

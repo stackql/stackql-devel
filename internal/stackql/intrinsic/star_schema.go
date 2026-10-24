@@ -12,12 +12,13 @@ import (
 // resolvedStarColumns shares operation selection with streamed execution. The
 // host only turns the resulting projection metadata back into SQL AST columns.
 func resolvedStarColumns(ctx queryContext, source translatedSource, star *sqlparser.StarExpr,
-	relations map[string]omnisdk.Relation) (sqlparser.SelectExprs, error) {
+	relations map[string]omnisdk.Relation, aliasOutputs ...query.Output) (sqlparser.SelectExprs, error) {
 	tables, err := starTables(ctx, source, relations)
 	if err != nil {
 		return nil, err
 	}
 	outputs := []query.Output{query.NewOutput("", query.NewStar(star.TableName.Name.GetRawVal()))}
+	outputs = append(outputs, aliasOutputs...)
 	q, err := query.New(source.joins(), source.where(), outputs)
 	if err != nil {
 		return nil, err
@@ -38,7 +39,11 @@ func resolvedStarColumns(ctx queryContext, source translatedSource, star *sqlpar
 	if selected, ok := resolved.(omnisdk.SelectedMethods); ok {
 		methods = selected.SelectedMethods()
 	}
-	return starSQLColumns(resolved.Graph(), methods), nil
+	excluded := map[string]bool{}
+	for _, output := range aliasOutputs {
+		excluded[output.Name()] = true
+	}
+	return starSQLColumns(resolved.Graph(), methods, excluded), nil
 }
 
 func starTables(
@@ -71,13 +76,13 @@ func starScopeNames(method omnisdk.MethodSignature) []string {
 }
 
 func starSQLColumns(
-	graph omnisdk.Graph, methods map[string]omnisdk.MethodSignature,
+	graph omnisdk.Graph, methods map[string]omnisdk.MethodSignature, excluded ...map[string]bool,
 ) sqlparser.SelectExprs {
 	var expressions sqlparser.SelectExprs
 	for _, projection := range graph.Projections() {
 		var names []string
 		for _, column := range projection.Columns() {
-			if !strings.HasPrefix(column.Out(), "\x00") {
+			if !strings.HasPrefix(column.Out(), "\x00") && (len(excluded) == 0 || !excluded[0][column.Out()]) {
 				names = append(names, column.Out())
 			}
 		}

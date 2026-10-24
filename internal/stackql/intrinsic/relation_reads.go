@@ -345,6 +345,10 @@ func expandDerivedStars(
 	if err != nil {
 		return err
 	}
+	aliases, err := whereAliasOutputs(node)
+	if err != nil {
+		return err
+	}
 	var expressions sqlparser.SelectExprs
 	for _, expr := range node.SelectExprs {
 		star, isStar := expr.(*sqlparser.StarExpr)
@@ -352,7 +356,7 @@ func expandDerivedStars(
 			expressions = append(expressions, expr)
 			continue
 		}
-		expanded, expandErr := resolvedStarColumns(ctx, source, star, relations)
+		expanded, expandErr := resolvedStarColumns(ctx, source, star, relations, aliases...)
 		if expandErr != nil {
 			return expandErr
 		}

@@ -762,7 +762,7 @@ func binaryExpression(operator string, left, right sqlparser.Expr) (query.Expr, 
 func literal(val *sqlparser.SQLVal) (query.Expr, error) {
 	switch val.Type { //nolint:exhaustive // hex, bit and bind values have no omnisdk literal
 	case sqlparser.StrVal:
-		return query.NewLiteral(string(val.Val)), nil
+		return query.NewLiteral(strings.ReplaceAll(string(val.Val), `\"`, `"`)), nil
 	case sqlparser.IntVal:
 		n, err := strconv.ParseInt(string(val.Val), 10, 64)
 		if err != nil {
@@ -786,6 +786,7 @@ func literal(val *sqlparser.SQLVal) (query.Expr, error) {
 func selectOutputs(exprs sqlparser.SelectExprs) ([]query.Output, []string, error) {
 	outputs := make([]query.Output, 0, len(exprs))
 	names := make([]string, 0, len(exprs))
+	anonymous := 0
 	for _, expr := range exprs {
 		switch node := expr.(type) {
 		case *sqlparser.StarExpr:
@@ -799,6 +800,10 @@ func selectOutputs(exprs sqlparser.SelectExprs) ([]query.Output, []string, error
 			name, err := projectionName(node)
 			if err != nil {
 				return nil, nil, err
+			}
+			if name == "" {
+				anonymous++
+				name = fmt.Sprintf("col_%d", anonymous)
 			}
 			outputs = append(outputs, query.NewOutput(name, translated))
 			names = append(names, name)

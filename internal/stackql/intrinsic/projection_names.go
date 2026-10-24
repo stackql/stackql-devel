@@ -14,6 +14,12 @@ func projectionName(node *sqlparser.AliasedExpr) (string, error) {
 	if col, ok := node.Expr.(*sqlparser.ColName); ok {
 		return col.Name.GetRawVal(), nil
 	}
+	if _, ok := node.Expr.(*sqlparser.OrExpr); ok {
+		return "", nil
+	}
+	if binary, ok := node.Expr.(*sqlparser.BinaryExpr); ok && binary.Operator == "||" {
+		return "", nil
+	}
 	function, isFunction := node.Expr.(*sqlparser.FuncExpr)
 	if isFunction && len(function.Exprs) > 1 && !function.IsAggregate() && function.Over == nil {
 		handles, err := parserutil.ExtractSelectColumnNames(&sqlparser.Select{SelectExprs: sqlparser.SelectExprs{node}}, nil)
