@@ -34,7 +34,11 @@ func resolvedStarColumns(ctx queryContext, source translatedSource, star *sqlpar
 	if err != nil {
 		return nil, err
 	}
-	return starSQLColumns(resolved.Graph(), tables, starBoundInputs(resolved)), nil
+	var methods map[string]omnisdk.MethodSignature
+	if selected, ok := resolved.(omnisdk.SelectedMethods); ok {
+		methods = selected.SelectedMethods()
+	}
+	return starSQLColumns(resolved.Graph(), methods), nil
 }
 
 func starTables(
@@ -59,46 +63,15 @@ func starTables(
 	return tables, nil
 }
 
-func starBoundInputs(resolved omnisdk.Resolution) map[string]map[string]bool {
-	bound := map[string]map[string]bool{}
-	for _, node := range resolved.Graph().Nodes() {
-		inputs := map[string]bool{}
-		for name := range resolved.Params() {
-			inputs[name] = true
-		}
-		for name := range node.Params() {
-			inputs[name] = true
-		}
-		for name := range node.Fanout() {
-			inputs[name] = true
-		}
-		bound[node.Alias()] = inputs
+func starScopeNames(method omnisdk.MethodSignature) []string {
+	if declared, ok := method.(omnisdk.ServerBindings); ok {
+		return declared.ServerVariables()
 	}
-	for _, wiring := range resolved.Graph().Wirings() {
-		for _, input := range wiring.Inbound() {
-			bound[wiring.To()][input.As()] = true
-		}
-	}
-	return bound
-}
-
-func starScopeNames(table omnisdk.Table, inputs map[string]bool) []string {
-	if table == nil {
-		return nil
-	}
-	var names []string
-	for _, method := range table.Methods() {
-		for _, input := range method.Params() {
-			if input.In() == "path" && inputs[input.Name()] {
-				names = append(names, input.Name())
-			}
-		}
-	}
-	return names
+	return nil
 }
 
 func starSQLColumns(
-	graph omnisdk.Graph, tables map[string]omnisdk.Table, bound map[string]map[string]bool,
+	graph omnisdk.Graph, methods map[string]omnisdk.MethodSignature,
 ) sqlparser.SelectExprs {
 	var expressions sqlparser.SelectExprs
 	for _, projection := range graph.Projections() {
@@ -112,7 +85,7 @@ func starSQLColumns(
 			continue
 		}
 		// Scope columns describe host output; they do not introduce value producers.
-		names = append(names, starScopeNames(tables[projection.Alias()], bound[projection.Alias()])...)
+		names = append(names, starScopeNames(methods[projection.Alias()])...)
 		slices.Sort(names)
 		for _, name := range slices.Compact(names) {
 			expressions = append(expressions, &sqlparser.AliasedExpr{Expr: &sqlparser.ColName{
