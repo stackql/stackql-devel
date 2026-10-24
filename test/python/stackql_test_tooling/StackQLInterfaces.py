@@ -131,7 +131,19 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     stdout_ok = self.should_be_equal(result.stdout, expected_output, **pass_through)
     if cfg.pop('unordered_http_diagnostics', False):
       records = lambda text: sorted(part.strip() for part in re.split(r'(?m)(?=^http response status code:)', text) if part.strip())
-      stderr_ok = self.should_be_equal(records(result.stderr), records(expected_stderr_output))
+      actual_stderr = result.stderr
+      if self._execution_platform == "docker":
+        # Compose writes launcher diagnostics to the same pipe as the application.
+        # Remove only known launcher lines; retain every application diagnostic.
+        compose_line = re.compile(
+          r'^time="[^"]+" level=warning msg="(?:'
+          r'The .* variable is not set\. Defaulting to a blank string\.'
+          r'|[^"\n]*docker-compose\.ya?ml: the attribute .*version.* is obsolete,.*)"$'
+          r'|^ (?:Container|Network|Volume) \S+ +'
+          r'(?:Running|Creating|Created|Starting|Started|Waiting|Healthy|Stopping|Stopped|Removing|Removed)$')
+        actual_stderr = "\n".join(
+          line for line in actual_stderr.splitlines() if not compose_line.fullmatch(line))
+      stderr_ok = self.should_be_equal(records(actual_stderr), records(expected_stderr_output))
       return stdout_ok and stderr_ok
     if self._execution_platform == "docker":
       # cannot silence stupid compose status logs
