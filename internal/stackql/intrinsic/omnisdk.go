@@ -194,18 +194,19 @@ func openStream(
 }
 
 type rowStream struct {
-	rows          omnisdk.Rows
-	batchSize     int
-	flushInterval time.Duration
-	produced      chan omnisdk.Row
-	producerOnce  sync.Once
-	columns       []column
-	table         sqldata.ISQLTable
-	projection    sqlparser.SelectExprs
-	outputs       []string
-	emptyColumns  func() []column
-	typCfg        columnFactory
-	done          bool
+	suppressFailedHeaders bool
+	rows                  omnisdk.Rows
+	batchSize             int
+	flushInterval         time.Duration
+	produced              chan omnisdk.Row
+	producerOnce          sync.Once
+	columns               []column
+	table                 sqldata.ISQLTable
+	projection            sqlparser.SelectExprs
+	outputs               []string
+	emptyColumns          func() []column
+	typCfg                columnFactory
+	done                  bool
 }
 
 type columnFactory interface {
@@ -215,7 +216,7 @@ type columnFactory interface {
 func (rs *rowStream) Read() (sqldata.ISQLResult, error) {
 	if rs.done {
 		if err := rs.rows.Err(); err != nil {
-			return rs.result(nil), err
+			return rs.errorResult(), err
 		}
 		return rs.result(nil), io.EOF
 	}
@@ -232,7 +233,7 @@ func (rs *rowStream) Read() (sqldata.ISQLResult, error) {
 	if !ok {
 		rs.done = true
 		if err := rs.rows.Err(); err != nil {
-			return rs.result(nil), err
+			return rs.errorResult(), err
 		}
 		return rs.result(nil), io.EOF
 	}
@@ -255,6 +256,13 @@ func (rs *rowStream) Read() (sqldata.ISQLResult, error) {
 		}
 	}
 	return rs.result(batch), nil
+}
+
+func (rs *rowStream) errorResult() sqldata.ISQLResult {
+	if rs.suppressFailedHeaders {
+		return nil
+	}
+	return rs.result(nil)
 }
 
 func (rs *rowStream) flushIntervalOrDefault() time.Duration {

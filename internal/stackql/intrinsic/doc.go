@@ -13,6 +13,7 @@ import (
 	"github.com/stackql/any-sdk/pkg/dto"
 	"github.com/stackql/any-sdk/public/formulation"
 	"github.com/stackql/psql-wire/pkg/sqldata"
+	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/util"
 
@@ -282,17 +283,17 @@ func openDocQueryIn(ctx queryContext, translated docQuery, runCtx context.Contex
 	if argsErr != nil {
 		return nil, "", argsErr
 	}
-	args.AuthByProvider = queryProviderAuth(ctx, translated.getBundles())
+	args.AuthByProvider, argsErr = queryProviderAuth(ctx, translated.getBundles())
+	if argsErr != nil {
+		return nil, "", argsErr
+	}
 	if completionErr := configureMutationCompletion(ctx, translated, &args); completionErr != nil {
 		return nil, "", completionErr
 	}
+	configureMutationObserver(ctx, q.Target() != nil, &args)
 	args.Relations = relations
 	args.Tuning.Limit = translated.getLimit()
-	if hinted, ok := translated.(interface {
-		getReadHints() map[string]omnisdk.ReadHints
-	}); ok {
-		args.ReadHintsByAlias = hinted.getReadHints()
-	}
+	configureReadHints(translated, &args)
 	plan, planErr := omnisdk.NewGraphQuery(registry, res.Graph(), args)
 	if planErr != nil {
 		return nil, "", planErr
@@ -305,14 +306,20 @@ func openDocQueryIn(ctx queryContext, translated docQuery, runCtx context.Contex
 }
 
 // queryProviderAuth preserves configured credentials independently for every provider.
-func queryProviderAuth(ctx queryContext, bundles []string) map[string]*omnisdk.Auth {
+func queryProviderAuth(ctx queryContext, bundles []string) (map[string]*omnisdk.Auth, error) {
 	credentials := map[string]*omnisdk.Auth{}
 	for _, bundle := range bundles {
+		auth := providerAuthContext(ctx, bundle)
+		if auth != nil && (auth.KeyFilePath != "" || auth.KeyFilePathEnvVar != "" || auth.KeyEnvVar != "") {
+			if _, err := auth.GetCredentialsBytes(); err != nil {
+				return nil, fmt.Errorf("service account credentials error: %w", err)
+			}
+		}
 		for provider, credential := range providerAuthByProvider(ctx, bundle) {
 			credentials[provider] = credential
 		}
 	}
-	return credentials
+	return credentials, nil
 }
 
 // runDocQuery runs the query and streams its rows back.
@@ -324,20 +331,30 @@ func runDocQuery(ctx queryContext, translated docQuery) internaldto.ExecutorOutp
 	q := translated.getQuery()
 	if q.Target() != nil && len(translated.getOutputs()) == 0 {
 		result := drainMutation(rows)
+		if mutationErr := result.GetError(); mutationErr != nil {
+			return internaldto.NewErroneousExecutorOutput(mutationHTTPFailure(ctx, q.Target().Verb().String(), mutationErr))
+		}
+		address := strings.TrimPrefix(q.Target().Resource().Handle(), UnstablePrefix)
+		message := "Undo the " + q.Target().Verb().String() + " on " + address
+		result.SetUndoLog(binlog.NewSimpleLogEntry(nil, []string{message}))
 		if queryAwaitsMutation(translated) && result.GetError() == nil {
 			return internaldto.NewExecutorOutput(nil, nil, nil, nil, nil)
+		}
+		if result.GetError() == nil && inlineMutation(ctx, q.Target().Resource().Handle(), q.Target().Verb().String()) {
+			return internaldto.NewExecutorOutput(nil, nil, nil, internaldto.NewBackendMessages([]string{"OK"}), nil)
 		}
 		return result
 	}
 	input := previewCfg
 	stream := &rowStream{
-		rows:          rows,
-		batchSize:     input.getBatchSize(),
-		flushInterval: input.getFlushInterval(),
-		table:         sqldata.NewSQLTable(0, relation),
-		typCfg:        ctx.GetTypingConfig(),
-		outputs:       translated.getOutputs(),
-		emptyColumns:  func() []column { return declaredEmptyColumns(ctx, translated) },
+		suppressFailedHeaders: true,
+		rows:                  rows,
+		batchSize:             input.getBatchSize(),
+		flushInterval:         input.getFlushInterval(),
+		table:                 sqldata.NewSQLTable(0, relation),
+		typCfg:                ctx.GetTypingConfig(),
+		outputs:               translated.getOutputs(),
+		emptyColumns:          func() []column { return declaredEmptyColumns(ctx, translated) },
 	}
 	primed, readErr := newPrimedStream(stream)
 	if readErr != nil {
@@ -467,4 +484,25 @@ func showDocMethods(
 		rows[fmt.Sprintf("%02d_%s_%06d", rank, method.name, i)] = row
 	}
 	return prepare(ctx, columnOrder, rows, util.DefaultRowSort)
+}
+
+func inlineMutation(ctx queryContext, address, verb string) bool {
+	table, err := omnisdk.DescribeMutation(registryRoot(ctx), address, verb)
+	if err != nil {
+		return false
+	}
+	for _, method := range table.Methods() {
+		if local, ok := method.(omnisdk.InlineCommand); ok && len(local.InlineCommand()) > 0 {
+			return true
+		}
+	}
+	return false
+}
+
+func configureReadHints(translated docQuery, args *omnisdk.Args) {
+	if hinted, ok := translated.(interface {
+		getReadHints() map[string]omnisdk.ReadHints
+	}); ok {
+		args.ReadHintsByAlias = hinted.getReadHints()
+	}
 }
