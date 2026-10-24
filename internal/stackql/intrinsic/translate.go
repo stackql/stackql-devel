@@ -782,7 +782,7 @@ func literal(val *sqlparser.SQLVal) (query.Expr, error) {
 }
 
 // selectOutputs names every output: an alias, else a bare column's own name,
-// else the expression as written. A star is left unnamed for omnisdk to expand.
+// else the host's legacy expression label. A star is left unnamed for omnisdk to expand.
 func selectOutputs(exprs sqlparser.SelectExprs) ([]query.Output, []string, error) {
 	outputs := make([]query.Output, 0, len(exprs))
 	names := make([]string, 0, len(exprs))
@@ -796,13 +796,9 @@ func selectOutputs(exprs sqlparser.SelectExprs) ([]query.Output, []string, error
 			if err != nil {
 				return nil, nil, err
 			}
-			name := node.As.GetRawVal()
-			if name == "" {
-				if col, isCol := node.Expr.(*sqlparser.ColName); isCol {
-					name = col.Name.GetRawVal()
-				} else {
-					name = sqlparser.String(node.Expr)
-				}
+			name, err := projectionName(node)
+			if err != nil {
+				return nil, nil, err
 			}
 			outputs = append(outputs, query.NewOutput(name, translated))
 			names = append(names, name)

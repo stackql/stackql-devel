@@ -167,6 +167,7 @@ func previewArgs(ctx queryContext, cloud string, params map[string]string) (omni
 		return omnisdk.Args{}, err
 	}
 	return omnisdk.Args{
+		LegacyPagination:        true,
 		HTTPReadErrors:          newReadErrorPolicy(ctx, upstream.HTTP),
 		StrictResponseSelection: true,
 		Params:                  params,

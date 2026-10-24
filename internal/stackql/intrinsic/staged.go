@@ -241,23 +241,24 @@ func (r *stagedRefs) collectSelectExprs(
 				sqlparser.String(expr), UnstablePrefix+"*")
 		}
 		// Output names match the streamed path: an alias, else a bare
-		// column's own name, else the expression as written. The last is
+		// column's own name, else its legacy expression label. The last is
 		// reported by position, so the outer statement aliases it safely.
 		outerExpr := &sqlparser.AliasedExpr{Expr: aliased.Expr, As: aliased.As}
-		name := aliased.As.GetRawVal()
-		if name == "" {
-			if col, isCol := aliased.Expr.(*sqlparser.ColName); isCol {
-				name = col.Name.GetRawVal()
+		name, err := projectionName(aliased)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		if aliased.As.IsEmpty() {
+			if _, isColumn := aliased.Expr.(*sqlparser.ColName); isColumn {
 				outerExpr.As = sqlparser.NewColIdent(name)
 			} else {
-				name = sqlparser.String(aliased.Expr)
 				outerExpr.As = sqlparser.NewColIdent(stagedColumnPrefix + "out_" + strconv.Itoa(i))
 			}
 		}
 		outputNames = append(outputNames, name)
 		selectExprs = append(selectExprs, outerExpr)
 		aliases[strings.ToLower(outerExpr.As.GetRawVal())] = true
-		if err := r.collect(aliased.Expr, nil); err != nil {
+		if err = r.collect(aliased.Expr, nil); err != nil {
 			return nil, nil, nil, err
 		}
 	}
