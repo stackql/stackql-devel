@@ -22,7 +22,49 @@ type storedResolver struct {
 	system    sql_system.SQLSystem
 	relations map[string]omnisdk.Relation
 	active    map[string]bool
-	ctes      map[string]*sqlparser.Select
+	ctes      map[string]sqlparser.SelectStatement
+}
+
+func describeStoredFunc(
+	ctx queryContext, node *sqlparser.DescribeTable, current string,
+) (func() internaldto.ExecutorOutput, bool) {
+	host, ok := ctx.(interface{ GetSQLSystem() sql_system.SQLSystem })
+	if !ok || host.GetSQLSystem() == nil {
+		return nil, false
+	}
+	system := host.GetSQLSystem()
+	name := qualifiedName(node.Table)
+	_, view := system.GetViewByName(name)
+	materialized, mv := system.GetMaterializedViewByName(name)
+	physical, tableExists := system.GetPhysicalTableByName(name)
+	if !view && !mv && !tableExists {
+		return nil, false
+	}
+	return func() internaldto.ExecutorOutput {
+		var columns []column
+		if view {
+			selectNode := &sqlparser.Select{
+				SelectExprs: sqlparser.SelectExprs{&sqlparser.StarExpr{}},
+				From:        sqlparser.TableExprs{&sqlparser.AliasedTableExpr{Expr: node.Table}},
+			}
+			names, _, err := planStatementRead(ctx, selectNode, current, 0, nil)
+			if err != nil {
+				return internaldto.NewErroneousExecutorOutput(err)
+			}
+			for _, name := range names {
+				columns = append(columns, column{name: name})
+			}
+		} else {
+			metadata := physical
+			if mv {
+				metadata = materialized
+			}
+			for _, declared := range metadata.GetColumns() {
+				columns = append(columns, column{name: declared.GetName(), dataType: declared.GetType()})
+			}
+		}
+		return describeTable(ctx, table{columns: columns}, isExtended(node.Extended))
+	}, true
 }
 
 func newStoredResolver(ctx queryContext, system sql_system.SQLSystem) storedRelationResolver {
@@ -31,9 +73,6 @@ func newStoredResolver(ctx queryContext, system sql_system.SQLSystem) storedRela
 func prepareStoredRelations(
 	ctx queryContext, node *sqlparser.Select,
 ) (*sqlparser.Select, map[string]omnisdk.Relation, error) {
-	if !IsUnstableEnabled() {
-		return node, nil, nil
-	}
 	var system sql_system.SQLSystem
 	if host, ok := ctx.(interface{ GetSQLSystem() sql_system.SQLSystem }); ok {
 		system = host.GetSQLSystem()
@@ -95,7 +134,7 @@ func (r *storedResolver) selectNode(node *sqlparser.Select, depth int) (*sqlpars
 	parent := r.ctes
 	r.ctes = maps.Clone(parent)
 	if r.ctes == nil {
-		r.ctes = map[string]*sqlparser.Select{}
+		r.ctes = map[string]sqlparser.SelectStatement{}
 	}
 	defer func() { r.ctes = parent }()
 	if err := r.with(node.With, depth); err != nil {
@@ -122,15 +161,11 @@ func (r *storedResolver) with(clause *sqlparser.With, depth int) error {
 		return fmt.Errorf("recursive provider CTEs require an iterative execution boundary")
 	}
 	for _, definition := range clause.CTEs {
-		query, isSelect := definition.Select.(*sqlparser.Select)
-		if !isSelect {
-			return fmt.Errorf("CTE %s requires a SELECT boundary", definition.Name.GetRawVal())
-		}
-		prepared, err := r.selectNode(query, depth+1)
+		prepared, err := r.selectStatement(definition.Select, depth+1)
 		if err != nil {
 			return err
 		}
-		if err = renameCTEColumns(prepared, definition.Columns); err != nil {
+		if err = renameCTEColumns(firstSelect(prepared), definition.Columns); err != nil {
 			return err
 		}
 		r.ctes[strings.ToLower(definition.Name.GetRawVal())] = prepared
@@ -141,6 +176,9 @@ func (r *storedResolver) with(clause *sqlparser.With, depth int) error {
 func renameCTEColumns(node *sqlparser.Select, columns sqlparser.Columns) error {
 	if len(columns) == 0 {
 		return nil
+	}
+	if node == nil {
+		return fmt.Errorf("CTE requires a SELECT projection")
 	}
 	if len(columns) != len(node.SelectExprs) {
 		return fmt.Errorf("CTE column count does not match its projection")
@@ -174,13 +212,11 @@ func (r *storedResolver) table(expr sqlparser.TableExpr, depth int) error {
 		}
 	case *sqlparser.AliasedTableExpr:
 		if sub, isSub := table.Expr.(*sqlparser.Subquery); isSub {
-			if inner, isSelect := sub.Select.(*sqlparser.Select); isSelect {
-				prepared, err := r.selectNode(inner, depth+1)
-				if err != nil {
-					return err
-				}
-				table.Expr = &sqlparser.Subquery{Select: prepared}
+			prepared, err := r.selectStatement(sub.Select, depth+1)
+			if err != nil {
+				return err
 			}
+			table.Expr = &sqlparser.Subquery{Select: prepared}
 			return nil
 		}
 		name, isName := table.Expr.(sqlparser.TableName)
@@ -335,11 +371,11 @@ func (r *storedResolver) expandView(
 	if err != nil {
 		return err
 	}
-	query, isSelect := statement.(*sqlparser.Select)
+	query, isSelect := statement.(sqlparser.SelectStatement)
 	if !isSelect {
 		return fmt.Errorf("stored view %s requires SELECT", address)
 	}
-	prepared, err := r.selectNode(query, depth+1)
+	prepared, err := r.selectStatement(query, depth+1)
 	if err != nil {
 		return err
 	}
@@ -354,15 +390,10 @@ func storedSelectFunc(
 	ctx queryContext, node *sqlparser.Select, currentProvider string,
 ) (func() internaldto.ExecutorOutput, bool) {
 	prepared, stored, err := prepareStoredRelations(ctx, node)
-	// Preserve established view expansion for queries without a direct provider
-	// or stored-table read. Those paths also resolve parameterized views and unions.
-	if !containsProviderRead(node, currentProvider, nil) && len(stored) == 0 {
-		return nil, false
-	}
 	if err != nil {
 		return refuse(err), true
 	}
-	if !containsProviderRead(prepared, currentProvider, stored) && !hasExternalRelations(stored) {
+	if !containsProviderRead(prepared, currentProvider, stored) && len(stored) == 0 {
 		return nil, false
 	}
 	isDoc, err := fromDocProviders(prepared.From, currentProvider)
@@ -373,4 +404,60 @@ func storedSelectFunc(
 		return refuse(err), true
 	}
 	return docSelectFunc(ctx, prepared, currentProvider, stored)
+}
+
+func firstSelect(stmt sqlparser.SelectStatement) *sqlparser.Select {
+	switch node := stmt.(type) {
+	case *sqlparser.Select:
+		return node
+	case *sqlparser.ParenSelect:
+		return firstSelect(node.Select)
+	case *sqlparser.Union:
+		return firstSelect(node.FirstStatement)
+	}
+	return nil
+}
+
+func (r *storedResolver) selectStatement(stmt sqlparser.SelectStatement, depth int) (sqlparser.SelectStatement, error) {
+	if depth >= derivedRelationMaxDepth {
+		return nil, fmt.Errorf("stored relation expansion exceeds nesting bound")
+	}
+	switch node := stmt.(type) {
+	case *sqlparser.Select:
+		return r.selectNode(node, depth)
+	case *sqlparser.ParenSelect:
+		clone := *node
+		var err error
+		clone.Select, err = r.selectStatement(node.Select, depth+1)
+		return &clone, err
+	case *sqlparser.Union:
+		parent := r.ctes
+		r.ctes = maps.Clone(parent)
+		if r.ctes == nil {
+			r.ctes = map[string]sqlparser.SelectStatement{}
+		}
+		defer func() { r.ctes = parent }()
+		clone := *node
+		if first := firstSelect(node.FirstStatement); first != nil {
+			if err := r.with(first.With, depth+1); err != nil {
+				return nil, err
+			}
+		}
+		var err error
+		clone.FirstStatement, err = r.selectStatement(node.FirstStatement, depth+1)
+		if err != nil {
+			return nil, err
+		}
+		clone.UnionSelects = make([]*sqlparser.UnionSelect, len(node.UnionSelects))
+		for i, branch := range node.UnionSelects {
+			child := *branch
+			child.Statement, err = r.selectStatement(branch.Statement, depth+1)
+			if err != nil {
+				return nil, err
+			}
+			clone.UnionSelects[i] = &child
+		}
+		return &clone, nil
+	}
+	return nil, fmt.Errorf("unsupported stored read %T", stmt)
 }

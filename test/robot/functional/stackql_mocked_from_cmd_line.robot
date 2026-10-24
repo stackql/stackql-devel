@@ -11643,14 +11643,14 @@ Unstable Github Org Members Staged Group By Exact Match
     ...    stdout=${CURDIR}${/}tmp${/}Unstable-Github-Org-Members-Staged-Group-By.tmp
     ...    stderr=${CURDIR}${/}tmp${/}Unstable-Github-Org-Members-Staged-Group-By-stderr.tmp
 
-Omni All Github Org Members Staged Order By With Offset Exact Match
-    [Documentation]    With omni set to all, a canonical provider name is routed
-    ...                to omnisdk rather than any-sdk, and staging applies the
+Omni Default Github Org Members Staged Order By With Offset Exact Match
+    [Documentation]    A canonical provider name uses omnisdk by default,
+    ...                and staging applies the
     ...                ORDER BY, LIMIT and OFFSET.
     [Teardown]    Remove Preview Mock Environment
     ${preview} =    Catenate    SEPARATOR=
     ...    {"endpoint":"https://${LOCAL_HOST_ALIAS}:${MOCKSERVER_PORT_GITHUB}",
-    ...    "insecureSkipTLSVerify":true,"omni":"all","staging":true}
+    ...    "insecureSkipTLSVerify":true}
     ${query} =    Catenate    SEPARATOR=${SPACE}
     ...    select login, type from github.orgs.members
     ...    where org = 'dummyorg' order by login desc limit 3 offset 1;
@@ -12260,8 +12260,8 @@ Preview Iac Destroy Without Collection Is Refused
     ...    stdout=${CURDIR}${/}tmp${/}Preview-Iac-Destroy-No-Collection.tmp
     ...    stderr=${CURDIR}${/}tmp${/}Preview-Iac-Destroy-No-Collection-stderr.tmp
 
-Omni Derived Relation Preserves Inner Order And Limit
-    [Documentation]    Derived relations execute through analyzer-owned Omni read handles.
+Omni Default Derived Relation Preserves Inner Order And Limit
+    [Documentation]    Derived relations execute through Omni read handles with no preview opt-in.
     ${query} =    Catenate    SEPARATOR=${SPACE}
     ...    select count(*) as n from (select login, contributions from github.repos.contributors where owner = 'dummyorg' and repo = 'dummyapp.io' order by contributions desc limit 2) contributors;
     Should StackQL Exec Inline Equal
@@ -12275,10 +12275,9 @@ Omni Derived Relation Preserves Inner Order And Limit
     ...    ${query}
     ...    n\n2
     ...    \-o\=csv
-    ...    --preview\={"unstable":true,"staging":true,"omni":"all"}
 
 Omni Nested Derived Relation Preserves Aggregate Boundary
-    [Documentation]    Derived relations execute through analyzer-owned Omni read handles.
+    [Documentation]    Derived relations execute through Omni read handles with no preview opt-in.
     ${query} =    Catenate    SEPARATOR=${SPACE}
     ...    select max(n) as n from (select count(*) as n from (select login from github.repos.contributors where owner = 'dummyorg' and repo = 'dummyapp.io' limit 2) limited) counted;
     Should StackQL Exec Inline Equal
@@ -12292,7 +12291,6 @@ Omni Nested Derived Relation Preserves Aggregate Boundary
     ...    ${query}
     ...    n\n2
     ...    \-o\=csv
-    ...    --preview\={"unstable":true,"staging":true,"omni":"all"}
 
 Omni Stored View Joins Provider Through Read Handles
     ${query} =    Catenate    SEPARATOR=${SPACE}
@@ -12310,7 +12308,6 @@ Omni Stored View Joins Provider Through Read Handles
     ...    ${query}
     ...    n\n2
     ...    \-o\=csv
-    ...    --preview\={"unstable":true,"staging":true,"omni":"all"}
 
 
 Omni CTEs Preserve Ordered Boundaries And Column Names
@@ -12333,7 +12330,6 @@ Omni CTEs Preserve Ordered Boundaries And Column Names
     ...    ${inputStr}
     ...    ${expectedStr}
     ...    \-o\=csv
-    ...    --preview\={"unstable":true,"staging":true,"omni":"all"}
 
 
 Omni CASE Join Skips Unselected Error Branches
@@ -12352,4 +12348,3 @@ Omni CASE Join Skips Unselected Error Branches
     ...    ${query}
     ...    n\n1
     ...    \-o\=csv
-    ...    --preview\={"unstable":true,"staging":true,"omni":"all"}

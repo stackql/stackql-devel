@@ -8,7 +8,6 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/stackql/stackql/internal/stackql/execution"
 	"github.com/stackql/stackql/internal/stackql/provider"
 	"github.com/stackql/stackql/internal/stackql/util"
 
@@ -483,7 +482,6 @@ func SetupSimpleInsertGoogleComputeNetworks(t *testing.T) {
 	}
 	testhttpapi.StartServer(t, expectations)
 	provider.DummyAuth = true
-	execution.MonitorPollIntervalSeconds = 2
 }
 
 func SetupDependentInsertGoogleComputeDisks(t *testing.T) {
@@ -499,7 +497,6 @@ func SetupDependentInsertGoogleComputeDisks(t *testing.T) {
 	}
 	testhttpapi.StartServer(t, expectations)
 	provider.DummyAuth = true
-	execution.MonitorPollIntervalSeconds = 2
 }
 
 func SetupExecGoogleOrganizationsGetIamPolicy(t *testing.T) {
@@ -524,7 +521,6 @@ func SetupDependentInsertGoogleComputeDisksReversed(t *testing.T) {
 	}
 	testhttpapi.StartServer(t, expectations)
 	provider.DummyAuth = true
-	execution.MonitorPollIntervalSeconds = 2
 }
 
 func SetupDependentInsertGoogleBQDatasets(t *testing.T) {
@@ -556,7 +552,6 @@ func SetupDependentInsertGoogleBQDatasets(t *testing.T) {
 	}
 	testhttpapi.StartServer(t, expectations)
 	provider.DummyAuth = true
-	execution.MonitorPollIntervalSeconds = 2
 }
 
 func SetupSimpleDeleteGoogleComputeNetworks(t *testing.T) {
@@ -566,7 +561,6 @@ func SetupSimpleDeleteGoogleComputeNetworks(t *testing.T) {
 	}
 	testhttpapi.StartServer(t, expectations)
 	provider.DummyAuth = true
-	execution.MonitorPollIntervalSeconds = 2
 }
 
 func SetupK8sTheHardWayE2eSuccess(t *testing.T) {
@@ -603,7 +597,6 @@ func SetupK8sTheHardWayE2eSuccess(t *testing.T) {
 	}
 	testhttpapi.StartServer(t, expectations)
 	provider.DummyAuth = true
-	execution.MonitorPollIntervalSeconds = 2
 }
 
 //nolint:mnd // TODO: tech debt sweep mnd hacks
@@ -639,5 +632,4 @@ func SetupInsertDependentComputeDiskSuccess(t *testing.T) {
 	}
 	testhttpapi.StartServer(t, expectations)
 	provider.DummyAuth = true
-	execution.MonitorPollIntervalSeconds = 2
 }

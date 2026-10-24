@@ -10,11 +10,10 @@ import (
 	"github.com/stackql-labs/omnisdk/pkg/docparse/aot"
 	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
 	"github.com/stackql-labs/omnisdk/pkg/query"
-	"github.com/stackql/any-sdk/pkg/dto"
-	"github.com/stackql/any-sdk/public/formulation"
 	"github.com/stackql/psql-wire/pkg/sqldata"
 	"github.com/stackql/stackql/internal/stackql/acid/binlog"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
+	dto "github.com/stackql/stackql/internal/stackql/runtimeconfig"
 	"github.com/stackql/stackql/internal/stackql/util"
 
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
@@ -26,37 +25,23 @@ import (
 // its constant rather than a copy of the literal.
 const UnstablePrefix = aot.DefaultProviderPrefix
 
-// IsUnstableEnabled reports whether the document-driven providers were opted
-// into. They are documents read straight from disk, with none of the registry's
-// curation behind them, so nothing exposes them until a caller asks.
-func IsUnstableEnabled() bool {
-	return previewCfg.getUnstableEnabled() || previewCfg.getOmniAll()
-}
-
-// IsExtendedCatalogEnabled keeps the compatibility catalogue stable when
-// Omni replaces the execution backend. Explicit unstable mode adds SDK services.
+// IsExtendedCatalogEnabled reports whether the preview catalogue was requested.
 func IsExtendedCatalogEnabled() bool {
-	return previewCfg.getUnstableEnabled() && !previewCfg.getOmniAll()
+	return previewCfg.getUnstableEnabled()
 }
 
-// docProvider is the bundle behind an unstable provider name, or false. Once
-// every provider is routed to omnisdk, an unprefixed name is one too.
+// docProvider resolves provider documents through omnisdk. The built-in preview
+// provider keeps its own routing, including the opt-in IaC service.
 func docProvider(name string) (string, bool) {
-	if !IsUnstableEnabled() {
-		return "", false
-	}
 	trimmed := strings.TrimSpace(name)
-	if !strings.HasPrefix(strings.ToLower(trimmed), UnstablePrefix) {
-		if !previewCfg.getOmniAll() || trimmed == "" || strings.EqualFold(trimmed, ProviderName) {
-			return "", false
-		}
-		return trimmed, true
-	}
-	bundle := trimmed[len(UnstablePrefix):]
-	if bundle == "" {
+	if trimmed == "" || strings.EqualFold(trimmed, ProviderName) {
 		return "", false
 	}
-	return bundle, true
+	bundle := trimmed
+	if strings.HasPrefix(strings.ToLower(trimmed), UnstablePrefix) {
+		bundle = trimmed[len(UnstablePrefix):]
+	}
+	return bundle, bundle != ""
 }
 
 // bundleAliases maps the provider name stackql presents onto the directory the
@@ -77,7 +62,7 @@ func bundleDir(label string) string {
 // the canonical providers resolve it, so an unstable provider reads whatever
 // documents are already on disk rather than needing assets of its own.
 func localDocRoot(runtimeCtx dto.RuntimeCtx) string {
-	var registryCfg formulation.RegistryConfig
+	var registryCfg omnisdk.RegistryConfig
 	if err := yaml.Unmarshal([]byte(runtimeCtx.RegistryRaw), &registryCfg); err == nil {
 		if registryCfg.LocalDocRoot != "" {
 			return registryCfg.LocalDocRoot
@@ -97,7 +82,7 @@ func localDocRoot(runtimeCtx dto.RuntimeCtx) string {
 func docRoot(ctx queryContext, bundle string) (string, error) {
 	runtime := ctx.GetRuntimeContext()
 	prefix := "src"
-	var registryCfg formulation.RegistryConfig
+	var registryCfg omnisdk.RegistryConfig
 	if err := yaml.Unmarshal([]byte(runtime.RegistryRaw), &registryCfg); err != nil {
 		return "", err
 	}
@@ -161,6 +146,43 @@ func docMethods(ctx queryContext, bundle, service, resource string) ([]relationM
 	return out, nil
 }
 
+// describeDocument obtains response metadata from the same SDK catalogue used
+// for execution, without selecting or executing a provider operation in the host.
+func describeDocument(
+	ctx queryContext, bundle, service, resource, method string, extended bool,
+) internaldto.ExecutorOutput {
+	opts, err := documentOptions(ctx)
+	if err != nil {
+		return internaldto.NewErroneousExecutorOutput(err)
+	}
+	address := UnstablePrefix + bundle + "." + service + "." + resource
+	var signature omnisdk.MethodSignature
+	if method != "" {
+		signature, err = omnisdk.DescribeMethod(registryRoot(ctx), address, method, opts...)
+	} else {
+		var declared omnisdk.Table
+		declared, err = omnisdk.DescribeTable(registryRoot(ctx), address, opts...)
+		if err == nil && len(declared.Methods()) > 0 {
+			signature = declared.Methods()[0]
+		}
+	}
+	if err != nil {
+		return internaldto.NewErroneousExecutorOutput(err)
+	}
+	if signature == nil {
+		return internaldto.NewErroneousExecutorOutput(fmt.Errorf("%s declares no response schema", address))
+	}
+	types := signature.ColumnTypes()
+	columns := make([]column, 0, len(signature.Columns()))
+	for _, name := range signature.Columns() {
+		columns = append(columns, column{name: name, dataType: types[name].Type})
+	}
+	if method != "" {
+		return describeMethod(ctx, columns, extended)
+	}
+	return describeTable(ctx, table{columns: columns}, extended)
+}
+
 // docSQLVerb is the verb a document maps a method to, upper-cased as SHOW
 // METHODS reports it. A method no verb maps is reachable only through EXEC.
 func docSQLVerb(verb string) string {
@@ -188,7 +210,7 @@ func docSelectFunc(
 	if relationErr != nil {
 		return refuse(relationErr), true
 	}
-	if previewCfg.getStagingEnabled() && needsStaging(node) {
+	if needsStaging(node) {
 		return stagedSelectWithRelations(ctx, node, currentProvider, relations), true
 	}
 	dialect, err := backendDialect(ctx)
@@ -461,7 +483,7 @@ func showDocServices(
 		}
 		rows[fmt.Sprintf("%06d", i)] = row
 	}
-	return prepareDocMetadata(ctx, formulation.GetServicesHeader(extended), rows, filters)
+	return prepareDocMetadata(ctx, util.GetServicesHeader(extended), rows, filters)
 }
 
 func showDocResources(
@@ -489,7 +511,7 @@ func showDocResources(
 		}
 		rows[fmt.Sprintf("%06d", i)] = row
 	}
-	return prepareDocMetadata(ctx, formulation.GetResourcesHeader(extended), rows, filters)
+	return prepareDocMetadata(ctx, util.GetResourcesHeader(extended), rows, filters)
 }
 
 func showDocMethods(

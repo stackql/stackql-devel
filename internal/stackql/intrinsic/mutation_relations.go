@@ -41,6 +41,7 @@ func prepareMutationRelations(
 	if err = expandDerivedStars(ctx, prepared, translator, relations); err != nil {
 		return nil, nil, err
 	}
+	local := fmt.Sprintf("r%d", len(relations))
 	sourcePlan := *prepared
 	sourcePlan.SelectExprs = make(sqlparser.SelectExprs, len(prepared.SelectExprs))
 	projected := make(sqlparser.SelectExprs, len(prepared.SelectExprs))
@@ -56,7 +57,10 @@ func prepareMutationRelations(
 		cloned := *expression
 		cloned.As = sqlparser.NewColIdent(field)
 		sourcePlan.SelectExprs[i] = &cloned
-		projected[i] = &sqlparser.AliasedExpr{Expr: &sqlparser.ColName{Name: sqlparser.NewColIdent(field)}}
+		projected[i] = &sqlparser.AliasedExpr{Expr: &sqlparser.ColName{
+			Name:      sqlparser.NewColIdent(field),
+			Qualifier: sqlparser.TableName{Name: sqlparser.NewTableIdent(local)},
+		}}
 	}
 	names, open, err := planDerivedRead(ctx, &sourcePlan, translator, relations)
 	if err != nil {
@@ -66,7 +70,6 @@ func prepareMutationRelations(
 	if err != nil {
 		return nil, nil, err
 	}
-	local := fmt.Sprintf("r%d", len(relations))
 	handle := UnstablePrefix + "omni_relations.sources." + local
 	relation, err := omnisdk.NewRelation(handle, nil, columns, open)
 	if err != nil {

@@ -16,7 +16,7 @@ import (
 // follows the same Omni planning and staging path as an ordinary SELECT.
 func storedInsertSelectFunc(ctx queryContext, stmt sqlparser.Statement) (func() internaldto.ExecutorOutput, bool) {
 	insert, ok := stmt.(*sqlparser.Insert)
-	if !ok || !previewCfg.getOmniAll() {
+	if !ok {
 		return nil, false
 	}
 	source, ok := insert.Rows.(*sqlparser.Select)

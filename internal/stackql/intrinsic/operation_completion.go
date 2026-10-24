@@ -21,6 +21,10 @@ type awaitedDocQuery struct{ docQuery }
 
 func (awaitedDocQuery) awaitsMutation() bool { return true }
 
+func (q awaitedDocQuery) getRelations() map[string]omnisdk.Relation {
+	return queryRelations(q.docQuery)
+}
+
 func mutationAwait(stmt sqlparser.Statement) bool {
 	var comments sqlparser.Comments
 	switch node := stmt.(type) {
@@ -139,13 +143,17 @@ func (c *linkedOperationCompletion) Complete(
 		return nil, fmt.Errorf("AWAIT operation failed: %v", failure)
 	}
 	c.diagnosticf("%s: %s complete\n", kind, action)
-	if verb == "delete" {
+	if operationDeletesResource(verb, action) {
 		return nil, nil //nolint:nilnil // Successful DELETE has no resource row.
 	}
 	if target == "" {
 		return nil, fmt.Errorf("AWAIT completed without targetLink")
 	}
 	return c.read(ctx, target, inputs)
+}
+
+func operationDeletesResource(verb, action string) bool {
+	return verb == "delete" || (verb == "exec" && action == "delete")
 }
 
 func (c *linkedOperationCompletion) diagnosticf(format string, values ...any) {

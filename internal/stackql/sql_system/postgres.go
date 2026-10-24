@@ -10,16 +10,16 @@ import (
 	"time"
 
 	"github.com/lib/pq/oid"
-	"github.com/stackql/any-sdk/pkg/constants"
-	"github.com/stackql/any-sdk/pkg/db/sqlcontrol"
-	"github.com/stackql/any-sdk/pkg/dto"
-	"github.com/stackql/any-sdk/pkg/logging"
-	"github.com/stackql/any-sdk/public/formulation"
-	"github.com/stackql/any-sdk/public/sqlengine"
+	"github.com/stackql/stackql/internal/stackql/constants"
+	dto "github.com/stackql/stackql/internal/stackql/runtimeconfig"
+
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/astfuncrewrite"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/relationaldto"
+	"github.com/stackql/stackql/internal/stackql/logging"
+	"github.com/stackql/stackql/internal/stackql/sqlengine"
+	sqlcontrol "github.com/stackql/stackql/internal/stackql/sqlengine/control"
 	"github.com/stackql/stackql/internal/stackql/typing"
 	"github.com/stackql/stackql/pkg/serde"
 	"github.com/stackql/stackql/pkg/textutil"
@@ -144,14 +144,14 @@ func (eng *postgresSystem) GenerateDDL(
 
 func (eng *postgresSystem) RegisterExternalTable(
 	connectionName string,
-	tableDetails formulation.SQLExternalTable,
+	tableDetails sqlengine.SQLExternalTable,
 ) error {
 	return eng.registerExternalTable(connectionName, tableDetails)
 }
 
 func (eng *postgresSystem) registerExternalTable(
 	connectionName string,
-	tableDetails formulation.SQLExternalTable,
+	tableDetails sqlengine.SQLExternalTable,
 ) error {
 	q := `
 	INSERT INTO "__iql__.external.columns" (

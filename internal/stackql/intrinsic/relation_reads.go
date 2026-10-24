@@ -97,30 +97,10 @@ func resolveDerivedTable(
 	if !isSubquery {
 		return nil
 	}
-	inner, isSelect := sub.Select.(*sqlparser.Select)
-	if !isSelect {
-		return fmt.Errorf("derived relation requires SELECT")
-	}
 	if table.As.IsEmpty() {
 		return fmt.Errorf("derived relation requires an alias")
 	}
-	expanded, err := expandDocumentViews(ctx, inner, current)
-	if err != nil {
-		return err
-	}
-	prepared, children, err := resolveDerivedRelations(ctx, expanded, current, depth+1, maps.Clone(relations))
-	if err != nil {
-		return err
-	}
-	dialect, err := backendDialect(ctx)
-	if err != nil {
-		return err
-	}
-	translator := newDocTranslator(current, dialect)
-	if err = expandDerivedStars(ctx, prepared, translator, children); err != nil {
-		return err
-	}
-	names, open, err := planDerivedRead(ctx, prepared, translator, children)
+	names, open, err := planStatementRead(ctx, sub.Select, current, depth+1, maps.Clone(relations))
 	if err != nil {
 		return err
 	}
@@ -152,9 +132,6 @@ func planDerivedRead(
 		return planBackendRead(ctx, node)
 	}
 	if needsStaging(node) {
-		if !previewCfg.getStagingEnabled() {
-			return nil, nil, fmt.Errorf("derived relation requires staging")
-		}
 		staged, err := planStagedSelect(node, translator, ctx.GetASTFormatter())
 		if err != nil {
 			return nil, nil, err

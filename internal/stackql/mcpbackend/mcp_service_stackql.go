@@ -342,12 +342,12 @@ func isRetryableHTTPStatus(status int) bool {
 		status >= http.StatusInternalServerError
 }
 
-// isCredentialResolutionError matches any-sdk's credential-resolution error
-// shapes; these fail before any HTTP request so carry no upstream status.
+// Credential resolution fails before any HTTP request and carries no upstream status.
 func isCredentialResolutionError(err error) bool {
 	msg := err.Error()
 	return strings.Contains(msg, "credentials error") ||
-		strings.Contains(msg, "references empty string")
+		strings.Contains(msg, "references empty string") ||
+		strings.Contains(msg, "custom credentials cannot be used")
 }
 
 // queryProviderName extracts the provider of the first provider-qualified

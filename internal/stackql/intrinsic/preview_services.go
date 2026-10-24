@@ -20,10 +20,9 @@ import (
 	"sync"
 
 	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
-	"github.com/stackql/any-sdk/pkg/dto"
-	"github.com/stackql/any-sdk/public/formulation"
 	"github.com/stackql/psql-wire/pkg/sqldata"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
+	dto "github.com/stackql/stackql/internal/stackql/runtimeconfig"
 	"github.com/stackql/stackql/internal/stackql/util"
 
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
@@ -60,7 +59,7 @@ const (
 // reports false. They read documents from disk, so they appear only once that
 // was opted into, exactly as the unstable providers do.
 func previewService(providerName, serviceStr, currentProvider string) (string, bool) {
-	if !IsUnstableEnabled() {
+	if !previewCfg.getUnstableEnabled() {
 		return "", false
 	}
 	resolved := strings.TrimSpace(resolveProvider(providerName, currentProvider))
@@ -81,7 +80,7 @@ func previewService(providerName, serviceStr, currentProvider string) (string, b
 // It is a no-op without the opt-in, which keeps the catalogue exactly as it was
 // for anyone who has not asked for them.
 func appendPreviewServices(rows map[string]map[string]interface{}, extended bool) {
-	if !IsExtendedCatalogEnabled() {
+	if !previewCfg.getUnstableEnabled() {
 		return
 	}
 	for i, svc := range []struct{ name, title string }{
@@ -108,7 +107,7 @@ func appendPreviewServices(rows map[string]map[string]interface{}, extended bool
 func registryRoot(ctx queryContext) string {
 	runtime := ctx.GetRuntimeContext()
 	prefix := "src"
-	var cfg formulation.RegistryConfig
+	var cfg omnisdk.RegistryConfig
 	if err := yaml.Unmarshal([]byte(runtime.RegistryRaw), &cfg); err == nil && cfg.SrcPrefix != nil {
 		prefix = *cfg.SrcPrefix
 	}
@@ -274,7 +273,7 @@ func showPreviewResources(
 		}
 		rows[fmt.Sprintf("%06d", i)] = row
 	}
-	return prepare(ctx, formulation.GetResourcesHeader(extended), rows, util.DefaultRowSort)
+	return prepare(ctx, util.GetResourcesHeader(extended), rows, util.DefaultRowSort)
 }
 
 func showPreviewMethods(ctx queryContext, extended bool) internaldto.ExecutorOutput {
