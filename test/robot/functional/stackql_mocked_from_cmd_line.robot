@@ -1937,8 +1937,7 @@ Response Error Printed by Default on 403 Null Body Error
     ...    stderr=${CURDIR}/tmp/Response-Error-Printed-by-Default-on-403-Error-stderr.tmp
 
 Create Changing Dynamic Materialized View Scenario Working
-    ${reset} =    Run Process    curl    -skf    -X    POST    https://${LOCAL_HOST_ALIAS}:${MOCKSERVER_PORT_GOOGLE}/reset/changing-firewalls
-    Should Be Equal As Integers    ${reset.rc}    0
+    Reset Changing Firewalls    ${EXECUTION_PLATFORM}    ${MOCKSERVER_PORT_GOOGLE}
     ${inputStr} =    Catenate
     ...    create materialized view silly_changing_mv as select * from google.compute.firewalls where project = 'changing-project';
     ...    select name, id from silly_changing_mv order by name desc, id desc;
