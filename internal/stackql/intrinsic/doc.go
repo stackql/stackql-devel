@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 
@@ -136,8 +137,14 @@ func docMethods(ctx queryContext, bundle, service, resource string) ([]relationM
 	}
 	out := make([]relationMethod, 0, len(methods))
 	for _, method := range methods {
+		signature, describeErr := omnisdk.DescribeMethod(
+			registryRoot(ctx), UnstablePrefix+bundle+"."+service+"."+resource, method.Name, opts...)
+		if describeErr != nil {
+			return nil, describeErr
+		}
+		required := requiredMethodInputs(method, signature)
 		out = append(out, relationMethod{
-			requiredParams: unresolvedServerParams(method),
+			requiredParams: required,
 			name:           method.Name,
 			description:    method.OperationID,
 			sqlVerb:        docSQLVerb(method.SQLVerb),
@@ -178,7 +185,7 @@ func describeDocument(
 		columns = append(columns, column{name: name, dataType: types[name].Type})
 	}
 	if method != "" {
-		return describeMethod(ctx, columns, extended)
+		return describeDocumentMethod(ctx, signature, columns, extended)
 	}
 	return describeTable(ctx, table{columns: columns}, extended)
 }
@@ -314,7 +321,11 @@ func openDocQueryIn(ctx queryContext, translated docQuery, runCtx context.Contex
 	if dialectErr != nil {
 		return nil, "", dialectErr
 	}
-	q, environmentErr := bindServerEnvironment(q, tables)
+	q, environmentErr := bindReadPageSize(q, tables, ctx.GetRuntimeContext().HTTPMaxResults)
+	if environmentErr != nil {
+		return nil, "", environmentErr
+	}
+	q, environmentErr = bindServerEnvironment(q, tables)
 	if environmentErr != nil {
 		return nil, "", environmentErr
 	}
@@ -440,13 +451,15 @@ func declaredEmptyColumns(ctx queryContext, translated docQuery) []column {
 // effects, and reports the outcome.
 func drainMutation(rows omnisdk.Rows) internaldto.ExecutorOutput {
 	defer rows.Close()
-	for rows.Next() { //nolint:revive // draining sends the effects
+	var messages []string
+	for rows.Next() {
+		messages = append(messages, mutationSuccessMessage)
 	}
 	if err := rows.Err(); err != nil {
 		return internaldto.NewErroneousExecutorOutput(err)
 	}
 	return internaldto.NewExecutorOutput(nil, nil, nil,
-		internaldto.NewBackendMessages([]string{mutationSuccessMessage}), nil)
+		internaldto.NewBackendMessages(messages), nil)
 }
 
 func refuse(err error) func() internaldto.ExecutorOutput {
@@ -563,4 +576,23 @@ func configureReadHints(translated docQuery, args *omnisdk.Args) {
 	}); ok {
 		args.ReadHintsByAlias = hinted.getReadHints()
 	}
+}
+
+func requiredMethodInputs(method omnisdk.DocMethod, signature omnisdk.MethodSignature) []string {
+	required := unresolvedServerParams(method)
+	metadata, ok := signature.(omnisdk.RequestMetadata)
+	if !ok || metadata.RequestBodySchema() == nil {
+		return required
+	}
+	body, declared := metadata.RequestBodySchema().(aot.RequiredSchema)
+	if !declared {
+		return required
+	}
+	for _, name := range body.RequiredProperties() {
+		input := "data__" + metadata.InputName(name)
+		if !slices.Contains(required, input) {
+			required = append(required, input)
+		}
+	}
+	return required
 }

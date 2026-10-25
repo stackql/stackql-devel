@@ -47,7 +47,7 @@ func execPlan(ctx queryContext, node *sqlparser.Exec) (omnisdk.Plan, omnisdk.Met
 		return nil, nil, err
 	}
 	if node.Await || sqlparser.ExtractCommentDirectives(node.Comments).IsSet("AWAIT") {
-		args.MutationCompletion, err = newOperationCompletion(ctx, address)
+		args.MutationCompletion, err = newOperationCompletion(ctx, address, false)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -103,7 +103,11 @@ func execFunc(ctx queryContext, node *sqlparser.Exec) func() internaldto.Executo
 		if err != nil {
 			return internaldto.NewErroneousExecutorOutput(err)
 		}
-		return drainMutation(rows)
+		result := drainMutation(rows)
+		if result.GetError() == nil && (node.Await || sqlparser.ExtractCommentDirectives(node.Comments).IsSet("AWAIT")) {
+			return internaldto.NewExecutorOutput(nil, nil, nil, nil, nil)
+		}
+		return result
 	}
 }
 

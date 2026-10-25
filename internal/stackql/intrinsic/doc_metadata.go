@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/util"
@@ -74,4 +75,40 @@ func prepareDocMetadata(
 		}
 	}
 	return prepare(ctx, columns, rows, util.DefaultRowSort)
+}
+
+func describeDocumentMethod(
+	ctx queryContext, signature omnisdk.MethodSignature, columns []column, extended bool,
+) internaldto.ExecutorOutput {
+	order := []string{"name", "type", "param_type", "shape"}
+	if extended {
+		order = append(order, "description")
+	}
+	rows := make(map[string]map[string]interface{})
+	appendRow := func(name, kind, parameterType string) {
+		row := map[string]interface{}{"name": name, "type": kind, "param_type": parameterType, "shape": kind}
+		if extended {
+			row["description"] = ""
+		}
+		rows[fmt.Sprintf("%06d", len(rows))] = row
+	}
+	for _, parameter := range signature.Params() {
+		name := parameter.Name()
+		if parameter.In() == "body" {
+			name = "data__" + name
+		}
+		kind := "string"
+		if typed, ok := parameter.(interface{ Type() string }); ok && typed.Type() != "" {
+			kind = typed.Type()
+		}
+		parameterType := "input_optional"
+		if parameter.Required() {
+			parameterType = "input_required"
+		}
+		appendRow(name, kind, parameterType)
+	}
+	for _, col := range columns {
+		appendRow(col.name, col.dataType, "output")
+	}
+	return prepare(ctx, order, rows, util.DefaultRowSort)
 }
