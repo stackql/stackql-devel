@@ -695,6 +695,8 @@ func (c column) reportedType() string {
 		return columnType
 	case "boolean":
 		return "bool"
+	case "unknown":
+		return ""
 	default:
 		return c.dataType
 	}

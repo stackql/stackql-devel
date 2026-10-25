@@ -140,6 +140,10 @@ func (r *storedResolver) selectNode(node *sqlparser.Select, depth int) (*sqlpars
 	if err := r.with(node.With, depth); err != nil {
 		return nil, err
 	}
+	if expanded, handled, err := r.inlineView(node, depth); handled || err != nil {
+		return expanded, err
+	}
+
 	clone := *node
 	clone.With = nil
 	clone.From = cloneRelationTables(node.From)
@@ -281,10 +285,7 @@ func (r *storedResolver) register(
 	if len(names) == 0 {
 		return fmt.Errorf("stored relation %s has no declared columns", metadata.GetName())
 	}
-	actualName, err := r.system.GetFullyQualifiedTableName(metadata.GetName())
-	if err != nil {
-		return err
-	}
+	actualName := r.system.DelimitFullyQualifiedRelationName(metadata.GetName())
 	// Identifiers come from registered metadata and are quoted; data is never interpolated.
 	//nolint:gosec // G202: metadata identifiers only.
 	statement := "SELECT " + strings.Join(quoted, ",") + " FROM " + actualName
@@ -303,7 +304,7 @@ func (r *storedResolver) register(
 	if err != nil {
 		return err
 	}
-	r.relations[handle] = relation
+	r.relations[handle] = newOrderedRelation(relation, names)
 	table.Expr = sqlparser.TableName{
 		QualifierSecond: sqlparser.NewTableIdent(UnstablePrefix + "omni_relations"),
 		Qualifier:       sqlparser.NewTableIdent("sources"), Name: sqlparser.NewTableIdent(handleName),
@@ -460,4 +461,155 @@ func (r *storedResolver) selectStatement(stmt sqlparser.SelectStatement, depth i
 		return &clone, nil
 	}
 	return nil, fmt.Errorf("unsupported stored read %T", stmt)
+}
+
+// Only SDK-declared request inputs can replace a stored view's default bindings.
+func bindStoredViewInputs(ctx queryContext, view *sqlparser.Select, where *sqlparser.Where, alias string) error {
+	if len(view.From) != 1 || view.Where == nil {
+		return nil
+	}
+	table, ok := view.From[0].(*sqlparser.AliasedTableExpr)
+	if !ok {
+		return nil
+	}
+	name, ok := table.Expr.(sqlparser.TableName)
+	if !ok || name.Qualifier.IsEmpty() {
+		return nil
+	}
+	bundle, ok := docProvider(resolveProvider(name.QualifierSecond.GetRawVal(), ctx.GetCurrentProvider()))
+	if !ok {
+		return nil
+	}
+	options, err := documentOptions(ctx)
+	if err != nil {
+		return err
+	}
+	address := UnstablePrefix + bundle + "." + name.Qualifier.GetRawVal() + "." + name.Name.GetRawVal()
+	declared, err := omnisdk.DescribeTable(registryRoot(ctx), address, options...)
+	if err != nil {
+		return err
+	}
+	inputs := map[string]bool{}
+	for _, method := range declared.Methods() {
+		for _, param := range method.Params() {
+			inputs[param.Name()] = true
+		}
+	}
+	bindings := viewLiteralBindings(where, alias, alias)
+	rewritten := sqlparser.Rewrite(view.Where.Expr, func(cursor *sqlparser.Cursor) bool {
+		compare, isComparison := cursor.Node().(*sqlparser.ComparisonExpr)
+		if !isComparison || !literalViewBinding(compare) {
+			return true
+		}
+		col, isColumn := compare.Left.(*sqlparser.ColName)
+		if !isColumn || !inputs[col.Name.GetRawVal()] {
+			return true
+		}
+		if replacement := bindings[col.Name.GetRawVal()]; replacement != nil {
+			clone := *replacement
+			clone.Left = col
+			cursor.Replace(&clone)
+			return false
+		}
+		return true
+	}, nil)
+	view.Where.Expr, ok = rewritten.(sqlparser.Expr)
+	if !ok {
+		return fmt.Errorf("view binding rewrite requires an expression")
+	}
+	return nil
+}
+
+type orderedRelation interface {
+	omnisdk.Relation
+	columnOrder() []string
+}
+type declaredOrderedRelation struct {
+	omnisdk.Relation
+	names []string
+}
+
+func newOrderedRelation(relation omnisdk.Relation, names []string) orderedRelation {
+	return &declaredOrderedRelation{Relation: relation, names: append([]string(nil), names...)}
+}
+func (r *declaredOrderedRelation) columnOrder() []string { return append([]string(nil), r.names...) }
+
+func (r *declaredOrderedRelation) Methods() []omnisdk.MethodSignature {
+	methods := r.Relation.Methods()
+	result := make([]omnisdk.MethodSignature, len(methods))
+	for i, method := range methods {
+		result[i] = orderedSignature{MethodSignature: method, relation: r}
+	}
+	return result
+}
+
+type orderedSignature struct {
+	omnisdk.MethodSignature
+	relation orderedRelation
+}
+
+func (s orderedSignature) Columns() []string { return s.relation.columnOrder() }
+
+// Simple views share the caller's request bindings; aggregations keep their boundary.
+func (r *storedResolver) inlineView(node *sqlparser.Select, depth int) (*sqlparser.Select, bool, error) {
+	if len(node.From) != 1 || r.system == nil {
+		return nil, false, nil
+	}
+	table, isTable := node.From[0].(*sqlparser.AliasedTableExpr)
+	if !isTable {
+		return nil, false, nil
+	}
+	name, isName := table.Expr.(sqlparser.TableName)
+	if !isName {
+		return nil, false, nil
+	}
+	address := qualifiedName(name)
+	view, exists := r.system.GetViewByName(address)
+	if !exists {
+		return nil, false, nil
+	}
+	if r.active[address] {
+		return nil, true, fmt.Errorf("stored view cycle at %s", address)
+	}
+	parsed, err := sqlparser.Parse(view.GetRawQuery())
+	if err != nil {
+		return nil, true, err
+	}
+	projection, isSelect := parsed.(*sqlparser.Select)
+	if !isSelect || projection.With != nil || needsStaging(projection) {
+		return nil, false, nil
+	}
+	for _, selection := range projection.SelectExprs {
+		if _, named := selection.(*sqlparser.AliasedExpr); !named {
+			return nil, false, nil
+		}
+	}
+	maximum := r.ctx.GetRuntimeContext().IndirectDepthMax
+	if depth+1 > maximum {
+		return nil, true, fmt.Errorf(
+			"indirection chain length %d > %d; please do not cite views at too deep a level", depth+1, maximum)
+	}
+	cloned, err := sqlparser.Parse(statementSQL(node))
+	if err != nil {
+		return nil, true, err
+	}
+	caller, isCaller := cloned.(*sqlparser.Select)
+	if !isCaller {
+		return nil, true, fmt.Errorf("view caller must be SELECT")
+	}
+	alias := table.As.GetRawVal()
+	if alias == "" {
+		alias = name.Name.GetRawVal()
+	}
+	if err = bindStoredViewInputs(r.ctx, projection, node.Where, alias); err != nil {
+		return nil, true, err
+	}
+	expanded, err := inlineDocumentView(caller, projection, alias)
+	if err != nil {
+		return nil, true, err
+	}
+	r.active[address] = true
+	result, err := r.selectNode(expanded, depth+1)
+	delete(r.active, address)
+	return result, true, err
 }

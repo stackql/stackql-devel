@@ -36,7 +36,8 @@ func execPlan(ctx queryContext, node *sqlparser.Exec) (omnisdk.Plan, omnisdk.Met
 		if valueErr != nil {
 			return nil, nil, valueErr
 		}
-		params[variable.ColIdent.GetRawVal()] = fmt.Sprint(textValue(value))
+		name := execInputName(signature, variable.ColIdent.GetRawVal())
+		params[name] = fmt.Sprint(textValue(value))
 	}
 	body, err := execPayload(node.OptExecPayload, signature)
 	if err != nil {
@@ -184,4 +185,15 @@ func execRelation(
 		Name:            sqlparser.NewTableIdent(local),
 	}
 	return &cloned, nil
+}
+
+func execInputName(signature omnisdk.MethodSignature, name string) string {
+	if metadata, ok := signature.(omnisdk.RequestMetadata); ok {
+		for _, parameter := range signature.Params() {
+			if metadata.InputName(parameter.Name()) == name {
+				return parameter.Name()
+			}
+		}
+	}
+	return name
 }

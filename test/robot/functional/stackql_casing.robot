@@ -400,8 +400,8 @@ Wire Spelled Order By Sorts Snake Display Column
 
 Unknown Snake Projection Still Rejected
     [Documentation]    Negative: a column absent from the schema is not conjured by the
-    ...    display-name re-keying; the backend rejects it in its own dialect.
-    ${expected} =    Set Variable If    "${SQL_BACKEND}" == "postgres_tcp"    column "vpc_idz" does not exist    no such column: vpc_idz
+    ...    display-name re-keying; Omni rejects the unknown column before backend execution.
+    ${expected} =    Set Variable    no such column: vpc_idz
     Should Stackql Exec Inline Contain Stderr
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}

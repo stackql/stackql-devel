@@ -22,7 +22,8 @@ func materializedFunc(ctx queryContext, stmt sqlparser.Statement) (func() intern
 		if !parserutil.IsCreateMaterializedView(node) {
 			return nil, false
 		}
-		selected, name, ddl, replace = node.SelectStatement, qualifiedName(node.Table), sqlparser.String(node), node.OrReplace
+		selected, name, replace = node.SelectStatement, qualifiedName(node.Table), node.OrReplace
+		ddl = "create materialized view " + sqlparser.String(node.Table) + " as " + statementSQL(selected)
 	case *sqlparser.RefreshMaterializedView:
 		selected, name, refresh = node.ImplicitSelect, qualifiedName(node.ViewName), true
 	default:
@@ -97,5 +98,37 @@ func materialize(
 			return err
 		}
 	}
-	return system.CreateMaterializedView(name, columns, ddl, replace, query)
+	return system.CreateMaterializedView(system.GetFullyQualifiedRelationName(name), columns, ddl, replace, query)
+}
+
+// Preserve qualification across SQL serialization; the parser's default table
+// formatter quotes the entire address as one identifier.
+func statementSQL(statement sqlparser.SQLNode) string {
+	buffer := sqlparser.NewTrackedBuffer(func(buf *sqlparser.TrackedBuffer, node sqlparser.SQLNode) {
+		if table, ok := node.(sqlparser.TableName); ok {
+			first := true
+			parts := []sqlparser.TableIdent{table.QualifierThird, table.QualifierSecond, table.Qualifier, table.Name}
+			for _, part := range parts {
+				if part.IsEmpty() {
+					continue
+				}
+				if !first {
+					buf.WriteString(".")
+				}
+				buf.WriteString(quoteRelationIdentifier(part.GetRawVal()))
+				first = false
+			}
+			return
+		}
+		switch identifier := node.(type) {
+		case sqlparser.ColIdent:
+			buf.WriteString(quoteRelationIdentifier(identifier.GetRawVal()))
+		case sqlparser.TableIdent:
+			buf.WriteString(quoteRelationIdentifier(identifier.GetRawVal()))
+		default:
+			node.Format(buf)
+		}
+	})
+	buffer.Myprintf("%v", statement)
+	return buffer.String()
 }

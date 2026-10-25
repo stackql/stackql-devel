@@ -62,7 +62,11 @@ func prepareDocMetadata(
 		fields := make([]string, 0, len(names))
 		args := make([]any, 0, len(names))
 		for i, name := range names {
-			fields = append(fields, fmt.Sprintf("$%d AS \"%s\"", i+1, strings.ReplaceAll(name, "\"", "\"\"")))
+			parameterType := "TEXT"
+			if _, boolean := row[name].(bool); boolean {
+				parameterType = "BOOLEAN"
+			}
+			fields = append(fields, fmt.Sprintf("CAST($%d AS %s) AS %s", i+1, parameterType, quoteRelationIdentifier(name)))
 			args = append(args, row[name])
 		}
 		statement := "SELECT 1 FROM (SELECT " + strings.Join(fields, ",") + ") AS metadata WHERE " + formatter.String()

@@ -494,3 +494,25 @@ func testStatementReads(t *testing.T, ctx *stagingTestCtx) {
 		}
 	}
 }
+
+func TestValidateStatementDoesNotDispatchRequests(t *testing.T) {
+	t.Setenv("FIXTURE_TOKEN", "test-token")
+	ctx := newStagingTestCtx(t, "https://unused.invalid")
+	for _, test := range []struct {
+		sql   string
+		valid bool
+	}{
+		{"select login from fixture.orgs.members where org = 'dummyorg'", true},
+		{"select count(*) from fixture.orgs.members where org = 'dummyorg'", true},
+		{"select login from fixture.orgs.missing", false},
+	} {
+		statement, err := sqlparser.Parse(test.sql)
+		if err != nil {
+			t.Fatal(err)
+		}
+		handled, err := ValidateStatement(ctx, statement)
+		if !handled || (err == nil) != test.valid {
+			t.Fatalf("%s: handled=%v err=%v", test.sql, handled, err)
+		}
+	}
+}

@@ -3,9 +3,11 @@ package intrinsic
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"maps"
 	"sort"
+	"strings"
 
 	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
@@ -114,7 +116,7 @@ func resolveDerivedTable(
 	if err != nil {
 		return err
 	}
-	relations[handle] = relation
+	relations[handle] = newOrderedRelation(relation, names)
 	table.Expr = sqlparser.TableName{
 		QualifierSecond: sqlparser.NewTableIdent(UnstablePrefix + "omni_relations"),
 		Qualifier:       sqlparser.NewTableIdent("sources"),
@@ -137,6 +139,9 @@ func planDerivedRead(
 			return nil, nil, err
 		}
 		staged = withStagedRelations(staged, children)
+		if _, _, planErr := planDocQuery(ctx, staged.getSource()); planErr != nil {
+			return nil, nil, planErr
+		}
 		open := func(runCtx context.Context, _ map[string]any) (omnisdk.Rows, error) {
 			if cancelErr := runCtx.Err(); cancelErr != nil {
 				return nil, cancelErr
@@ -150,9 +155,12 @@ func planDerivedRead(
 		return nil, nil, err
 	}
 	translated = withRelations(translated, children)
+	plan, _, err := planDocQuery(ctx, translated)
+	if err != nil {
+		return nil, nil, err
+	}
 	open := func(runCtx context.Context, _ map[string]any) (omnisdk.Rows, error) {
-		rows, _, openErr := openDocQueryIn(ctx, translated, runCtx)
-		return rows, openErr
+		return plan.Open(runCtx)
 	}
 	return translated.getOutputs(), open, nil
 }
@@ -206,6 +214,10 @@ func materializeSQLRows(
 	defer result.Close()
 	var err error
 	var rows []omnisdk.Row
+	numeric, err := numericSQLColumns(result)
+	if err != nil {
+		return nil, err
+	}
 	for result.Next() {
 		values := make([]any, len(names))
 		pointers := make([]any, len(names))
@@ -217,11 +229,7 @@ func materializeSQLRows(
 		}
 		row := omnisdk.Row{}
 		for i, name := range names {
-			value := values[i]
-			if raw, ok := value.([]byte); ok {
-				value = string(raw)
-			}
-			row[name] = value
+			row[name] = nativeSQLValue(values[i], numeric[i])
 		}
 		rows = append(rows, row)
 	}
@@ -348,6 +356,9 @@ func declaredRelationColumns(
 ) ([]string, error) {
 	var table omnisdk.Table
 	if relation, present := relations[handle]; present {
+		if ordered, ok := relation.(orderedRelation); ok {
+			return ordered.columnOrder(), nil
+		}
 		table = relation
 	} else {
 		opts, err := documentOptions(ctx)
@@ -416,4 +427,32 @@ func planBackendRead(ctx queryContext, node *sqlparser.Select) ([]string, derive
 		return materializeSQLRows(runCtx, result, names, nil)
 	}
 	return names, open, nil
+}
+
+func numericSQLColumns(rows *sql.Rows) ([]bool, error) {
+	types, err := rows.ColumnTypes()
+	if err != nil {
+		return nil, err
+	}
+	numeric := make([]bool, len(types))
+	for i, column := range types {
+		switch strings.ToLower(column.DatabaseTypeName()) {
+		case "numeric", "decimal", "integer", "int", "int2", "int4", "int8", "bigint", "smallint",
+			"float4", "float8", "real", "double precision":
+			numeric[i] = true
+		}
+	}
+	return numeric, nil
+}
+
+// Database drivers may return NUMERIC as bytes or text; retain its numeric
+// identity when rows cross back into Omni for a parent query.
+func nativeSQLValue(value any, numeric bool) any {
+	if raw, ok := value.([]byte); ok {
+		value = string(raw)
+	}
+	if text, ok := value.(string); ok && numeric {
+		return json.Number(text)
+	}
+	return value
 }

@@ -137,12 +137,15 @@ func docMethods(ctx queryContext, bundle, service, resource string) ([]relationM
 	}
 	out := make([]relationMethod, 0, len(methods))
 	for _, method := range methods {
-		signature, describeErr := omnisdk.DescribeMethod(
-			registryRoot(ctx), UnstablePrefix+bundle+"."+service+"."+resource, method.Name, opts...)
-		if describeErr != nil {
-			return nil, describeErr
+		required := unresolvedServerParams(method)
+		if method.Name != "__view__" {
+			signature, describeErr := omnisdk.DescribeMethod(
+				registryRoot(ctx), UnstablePrefix+bundle+"."+service+"."+resource, method.Name, opts...)
+			if describeErr != nil {
+				return nil, describeErr
+			}
+			required = requiredMethodInputs(method, signature)
 		}
-		required := requiredMethodInputs(method, signature)
 		out = append(out, relationMethod{
 			requiredParams: required,
 			name:           method.Name,
@@ -163,6 +166,19 @@ func describeDocument(
 		return internaldto.NewErroneousExecutorOutput(err)
 	}
 	address := UnstablePrefix + bundle + "." + service + "." + resource
+	if method == "" {
+		root, rootErr := docRoot(ctx, bundle)
+		if rootErr != nil {
+			return internaldto.NewErroneousExecutorOutput(rootErr)
+		}
+		view, exists, viewErr := omnisdk.DocView(root, bundle, service, resource, opts...)
+		if viewErr != nil {
+			return internaldto.NewErroneousExecutorOutput(viewErr)
+		}
+		if exists {
+			return describeDocumentView(ctx, view, extended)
+		}
+	}
 	var signature omnisdk.MethodSignature
 	if method != "" {
 		signature, err = omnisdk.DescribeMethod(registryRoot(ctx), address, method, opts...)
@@ -187,7 +203,7 @@ func describeDocument(
 	if method != "" {
 		return describeDocumentMethod(ctx, signature, columns, extended)
 	}
-	return describeTable(ctx, table{columns: columns}, extended)
+	return describeDocumentColumns(ctx, columns, extended)
 }
 
 // docSQLVerb is the verb a document maps a method to, upper-cased as SHOW
@@ -280,8 +296,17 @@ func openDocQuery(ctx queryContext, translated docQuery) (omnisdk.Rows, string, 
 	return openDocQueryIn(ctx, translated, context.Background())
 }
 
-//nolint:gocognit,funlen // The cognitive complexity of this function is high but acceptable for now
 func openDocQueryIn(ctx queryContext, translated docQuery, runCtx context.Context) (omnisdk.Rows, string, error) {
+	plan, relation, err := planDocQuery(ctx, translated)
+	if err != nil {
+		return nil, "", err
+	}
+	rows, err := plan.Open(runCtx)
+	return rows, relation, err
+}
+
+//nolint:gocognit,funlen // Resolving metadata and assembling a plan never executes it.
+func planDocQuery(ctx queryContext, translated docQuery) (omnisdk.Plan, string, error) {
 	opts, err := documentOptions(ctx)
 	if err != nil {
 		return nil, "", err
@@ -355,11 +380,7 @@ func openDocQueryIn(ctx queryContext, translated docQuery, runCtx context.Contex
 	if planErr != nil {
 		return nil, "", planErr
 	}
-	rows, openErr := plan.Open(runCtx)
-	if openErr != nil {
-		return nil, "", openErr
-	}
-	return rows, relation, nil
+	return plan, relation, nil
 }
 
 // queryProviderAuth preserves configured credentials independently for every provider.
@@ -458,6 +479,9 @@ func drainMutation(rows omnisdk.Rows) internaldto.ExecutorOutput {
 	if err := rows.Err(); err != nil {
 		return internaldto.NewErroneousExecutorOutput(err)
 	}
+	if len(messages) == 0 {
+		messages = append(messages, mutationSuccessMessage)
+	}
 	return internaldto.NewExecutorOutput(nil, nil, nil,
 		internaldto.NewBackendMessages(messages), nil)
 }
@@ -512,7 +536,7 @@ func showDocResources(
 	rows := make(map[string]map[string]interface{}, len(tables))
 	for i, tbl := range tables {
 		displayName := tbl.name
-		if declared, present := names[tbl.name]; present {
+		if declared, present := names[tbl.name]; present && declared != "" {
 			displayName = declared
 		}
 		row := map[string]interface{}{
@@ -595,4 +619,13 @@ func requiredMethodInputs(method omnisdk.DocMethod, signature omnisdk.MethodSign
 		}
 	}
 	return required
+}
+
+func describeDocumentColumns(ctx queryContext, columns []column, extended bool) internaldto.ExecutorOutput {
+	rows := columnRows(columns, extended, nil)
+	named := make(map[string]map[string]interface{}, len(rows))
+	for i, column := range columns {
+		named[column.name] = rows[fmt.Sprintf("%06d", i)]
+	}
+	return prepare(ctx, util.GetDescribeHeader(extended), named, util.DescribeRowSort)
 }

@@ -401,3 +401,37 @@ func columnRows(
 	}
 	return rows
 }
+
+// ValidateStatement builds an Omni plan without opening its cursor or dispatching requests.
+func ValidateStatement(ctx queryContext, stmt sqlparser.Statement) (bool, error) {
+	dialect, err := backendDialect(ctx)
+	if err != nil {
+		return true, err
+	}
+	translator := newDocTranslator(ctx.GetCurrentProvider(), dialect)
+	var translated docQuery
+	switch node := stmt.(type) {
+	case *sqlparser.Select:
+		handled, sourceErr := fromDocProviders(node.From, ctx.GetCurrentProvider())
+		if !handled {
+			return false, sourceErr
+		}
+		if sourceErr != nil {
+			return true, sourceErr
+		}
+		_, _, err = planStatementRead(ctx, node, ctx.GetCurrentProvider(), 0, nil)
+		return true, err
+	case *sqlparser.Insert, *sqlparser.Update, *sqlparser.Delete:
+		translated, err = translator.mutation(stmt)
+	case *sqlparser.Exec:
+		_, _, err = execPlan(ctx, node)
+		return true, err
+	default:
+		return false, nil
+	}
+	if err != nil {
+		return true, err
+	}
+	_, _, err = planDocQuery(ctx, translated)
+	return true, err
+}

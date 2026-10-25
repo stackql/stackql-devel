@@ -170,7 +170,7 @@ func previewArgs(ctx queryContext, cloud string, params map[string]string) (omni
 		return omnisdk.Args{}, err
 	}
 	policy := newReadErrorPolicy(ctx, upstream.HTTP)
-	return omnisdk.Args{
+	args := omnisdk.Args{
 		DocumentVerifier:         verifier,
 		Params:                   params,
 		AuthByProvider:           providerAuthByProvider(ctx, cloud),
@@ -188,7 +188,8 @@ func previewArgs(ctx queryContext, cloud string, params map[string]string) (omni
 			RequestTimeout: apiRequestTimeout(ctx),
 			PageLimit:      ctx.GetRuntimeContext().HTTPPageLimit,
 		},
-	}, nil
+	}
+	return args, nil
 }
 
 // previewSelectFunc routes a SELECT over an extended preview relation.
@@ -357,6 +358,7 @@ func describePreviewTableFunc(
 type readErrorPolicy struct {
 	dto.HTTPUpstreamErrorCfg
 	writer io.Writer
+	strict bool
 	mu     sync.Mutex
 }
 
@@ -365,12 +367,17 @@ func newReadErrorPolicy(ctx queryContext, config dto.HTTPUpstreamErrorCfg) *read
 	if output, ok := ctx.(interface{ GetOutErrFile() io.Writer }); ok {
 		writer = output.GetOutErrFile()
 	}
-	return &readErrorPolicy{HTTPUpstreamErrorCfg: config, writer: writer}
+	return &readErrorPolicy{
+		HTTPUpstreamErrorCfg: config, writer: writer, strict: ctx.GetRuntimeContext().StrictUpstreamErrors,
+	}
 }
 
 // StackQL presents absent provider resources as empty tables. This host policy
 // applies only to resource reads; SDK mutation and auth exchanges remain strict.
 func (p *readErrorPolicy) IsIgnored(status int) bool {
+	if p.strict {
+		return status == http.StatusNotFound || p.HTTPUpstreamErrorCfg.IsIgnored(status)
+	}
 	return status >= http.StatusBadRequest && status <= 599 || p.HTTPUpstreamErrorCfg.IsIgnored(status)
 }
 func (p *readErrorPolicy) IgnoredStatus(status int, body string) {

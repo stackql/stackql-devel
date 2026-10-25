@@ -1234,11 +1234,6 @@ class StackQLInterfaces(OperatingSystem, Process, BuiltIn, Collections):
     **cfg
   ):
     comparison = {'unordered_http_diagnostics': cfg.pop('unordered_http_diagnostics', False)}
-    omni_expected = cfg.pop('omni_expected_stderr_output', None)
-    effective_preview = next((arg.split('=', 1)[1] for arg in _with_default_preview(args)
-                              if isinstance(arg, str) and arg.startswith('--preview=')), '{}')
-    if omni_expected is not None and json.loads(effective_preview).get('omni') == 'all':
-      expected_stderr_output = omni_expected
     repeat_count = int(cfg.pop('repeat_count', 1))
     for _ in range(repeat_count):
       result = self._run_stackql_exec_command(

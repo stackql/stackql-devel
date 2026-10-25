@@ -50,6 +50,7 @@ type RuntimeCtx struct {
 	GCCfgRaw                     string
 	ACIDCfgRaw                   string
 	UpstreamErrorCfgRaw          string
+	StrictUpstreamErrors         bool
 	QueryCacheSize               int
 	TemplateCtxFilePath          string
 	TestWithoutAPICalls          bool
@@ -266,6 +267,7 @@ func (rc RuntimeCtx) Copy() RuntimeCtx {
 		GCCfgRaw:                     rc.GCCfgRaw,
 		ACIDCfgRaw:                   rc.ACIDCfgRaw,
 		UpstreamErrorCfgRaw:          rc.UpstreamErrorCfgRaw,
+		StrictUpstreamErrors:         rc.StrictUpstreamErrors,
 		QueryCacheSize:               rc.QueryCacheSize,
 		TemplateCtxFilePath:          rc.TemplateCtxFilePath,
 		TestWithoutAPICalls:          rc.TestWithoutAPICalls,

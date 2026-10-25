@@ -25,14 +25,11 @@ func prepareMutationRelations(
 	if !ok || literalSource(source.From) {
 		return stmt, nil, nil
 	}
-	expanded, err := expandDocumentViews(ctx, source, current)
+	prepared, relations, err := prepareMutationSource(ctx, source, current)
 	if err != nil {
 		return nil, nil, err
 	}
-	prepared, relations, err := resolveDerivedRelations(ctx, expanded, current, 0)
-	if err != nil {
-		return nil, nil, err
-	}
+
 	dialect, err := backendDialect(ctx)
 	if err != nil {
 		return nil, nil, err
@@ -83,4 +80,18 @@ func prepareMutationRelations(
 			Qualifier:       sqlparser.NewTableIdent("sources"), Name: sqlparser.NewTableIdent(local),
 		}}}}
 	return &clone, relations, nil
+}
+
+func prepareMutationSource(ctx queryContext, source *sqlparser.Select, current string) (
+	*sqlparser.Select, map[string]omnisdk.Relation, error,
+) {
+	storedSource, stored, err := prepareStoredRelations(ctx, source)
+	if err != nil {
+		return nil, nil, err
+	}
+	expanded, err := expandDocumentViews(ctx, storedSource, current)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resolveDerivedRelations(ctx, expanded, current, 0, stored)
 }

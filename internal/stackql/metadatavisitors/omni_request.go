@@ -93,20 +93,23 @@ func includeRequestProperty(parent, property aot.Schema, name string, requiredOn
 	return !requiredOnly
 }
 
-const maxRequestTemplateDepth = 8
+const maxRequestTemplateDepth = 1
 
 func requestTemplate(shape aot.Schema, name string, placeholder bool, depth int) any {
 	variable := "{{ " + name + " }}"
 	if placeholder {
 		variable = "<< " + name + " >>"
 	}
-	if shape == nil || depth >= maxRequestTemplateDepth {
+	if shape == nil {
 		return variable
 	}
 	if item, array := shape.Items(); array {
-		return []any{requestTemplate(item, name+"[0]", placeholder, depth+1)}
+		return []any{requestTemplate(item, name+"[0]", placeholder, depth)}
 	}
 	if len(shape.Properties()) > 0 {
+		if depth >= maxRequestTemplateDepth {
+			return variable
+		}
 		object := make(map[string]any)
 		for _, key := range shape.Properties() {
 			property, ok := shape.Property(key)

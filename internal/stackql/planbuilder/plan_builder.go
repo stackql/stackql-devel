@@ -204,8 +204,8 @@ func (pgb *standardPlanGraphBuilder) handleExplain(pbi planbuilderinput.PlanBuil
 	if err != nil {
 		return err
 	}
-	var instructionErr error
-	if _, handled := intrinsic.GenerateStreamFunc(pbi.GetHandlerCtx(), explain.Statement); !handled {
+	handled, instructionErr := intrinsic.ValidateStatement(pbi.GetHandlerCtx(), explain.Statement)
+	if !handled {
 		instructionErr = pgb.createInstructionFor(childPbi)
 	}
 	explainMessages := []string{}

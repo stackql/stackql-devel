@@ -16,6 +16,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/lib/pq/oid"
 	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
 	"github.com/stackql-labs/omnisdk/pkg/query"
 	"github.com/stackql/psql-wire/pkg/sqldata"
@@ -571,6 +572,17 @@ func readStagedResult(
 ) (internaldto.ExecutorOutput, error) {
 	var err error
 	rowMap := make(map[string]map[string]interface{})
+	numeric, err := numericSQLColumns(result)
+	if err != nil {
+		return nil, err
+	}
+	columnOIDs := make([]oid.Oid, len(columnOrder))
+	for i := range columnOIDs {
+		columnOIDs[i] = oid.T_text
+		if numeric[i] {
+			columnOIDs[i] = oid.T_numeric
+		}
+	}
 	for i := 0; result.Next(); i++ {
 		values := make([]any, len(columnOrder))
 		pointers := make([]any, len(columnOrder))
@@ -583,13 +595,19 @@ func readStagedResult(
 		row := make(map[string]interface{}, len(columnOrder))
 		for j, name := range columnOrder {
 			row[name] = outputValue(values[j])
+			if isNumber(values[j]) {
+				columnOIDs[j] = oid.T_numeric
+			}
 		}
 		rowMap[fmt.Sprintf("%012d", i)] = row
 	}
 	if err = result.Err(); err != nil {
 		return nil, err
 	}
-	return prepare(ctx, columnOrder, rowMap, util.DefaultRowSort), nil
+	payload := internaldto.NewPrepareResultSetDTO(
+		nil, rowMap, columnOrder, util.DefaultRowSort, nil, nil, ctx.GetTypingConfig())
+	payload.ColumnOIDs = columnOIDs
+	return util.PrepareResultSet(payload), nil
 }
 
 func outputValue(value any) any {
