@@ -178,8 +178,12 @@ ENV STACKQL_CFG_ROOT="${STACKQL_CFG_ROOT}"
 
 ENV STACKQL_PG_PORT="${STACKQL_PG_PORT}"
 
-RUN groupadd --gid ${STACKQL_GID} stackql \
-    && useradd --uid ${STACKQL_UID} --gid ${STACKQL_GID} --home-dir ${STACKQL_CFG_ROOT} --no-create-home --shell /bin/bash stackql \
+RUN if getent group "${STACKQL_GID}" >/dev/null; then \
+        groupmod --new-name stackql "$(getent group "${STACKQL_GID}" | cut -d: -f1)"; \
+    else groupadd --gid "${STACKQL_GID}" stackql; fi \
+    && if getent passwd "${STACKQL_UID}" >/dev/null; then \
+        usermod --login stackql --gid "${STACKQL_GID}" --home "${STACKQL_CFG_ROOT}" --shell /bin/bash "$(getent passwd "${STACKQL_UID}" | cut -d: -f1)"; \
+    else useradd --uid "${STACKQL_UID}" --gid "${STACKQL_GID}" --home-dir "${STACKQL_CFG_ROOT}" --no-create-home --shell /bin/bash stackql; fi \
     && mkdir -p ${APP_DIR} ${STACKQL_CFG_ROOT}/keys ${STACKQL_CFG_ROOT}/srv/credentials ${STACKQL_CFG_ROOT}/credentials/dummy ${STACKQL_CFG_ROOT}/registry ${STACKQL_CFG_ROOT}/logs ${STACKQL_CFG_ROOT}/db \
     && chown -R ${STACKQL_UID}:${STACKQL_GID} ${STACKQL_CFG_ROOT}
 
