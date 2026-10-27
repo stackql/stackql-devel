@@ -199,6 +199,11 @@ RUN apt-get update \
 
 EXPOSE ${STACKQL_PG_PORT}/tcp
 
+RUN --mount=type=bind,source=cicd/docker/py-img-requirements.txt,target=/tmp/py-img-requirements.txt \
+    if command -v python3 >/dev/null 2>&1; then \
+        python3 -m pip install --no-cache-dir -r /tmp/py-img-requirements.txt; \
+    fi
+
 USER ${STACKQL_UID}:${STACKQL_GID}
 
 WORKDIR ${STACKQL_CFG_ROOT}
