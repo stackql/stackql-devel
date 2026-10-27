@@ -1,3 +1,6 @@
+
+ARG RUNTIME_IMAGE=ubuntu:26.04
+
 FROM golang:1.27.3-bookworm AS sourceprep
 
 ENV SRC_DIR=/work/stackql/src
@@ -150,7 +153,7 @@ COPY --from=builder /work/stackql/build/stackql_mcp_client ${TEST_ROOT_DIR}/buil
 
 RUN  if [ "${RUN_INTEGRATION_TESTS}" = "1" ]; then env PYTHONPATH="$PYTHONPATH:${TEST_ROOT_DIR}/test/python" robot ${TEST_ROOT_DIR}/test/robot/functional; fi
 
-FROM ubuntu:22.04 AS app
+FROM ${RUNTIME_IMAGE} AS app
 
 ARG TEST_ROOT_DIR=/opt/test/stackql
 
