@@ -2,9 +2,11 @@ package mcp_server //nolint:revive,stylecheck,mnd // fine for now
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"slices"
 	"strings"
 	"time"
@@ -29,6 +31,8 @@ const (
 
 // Config represents the complete configuration for the MCP server.
 type Config struct {
+	// AuthenticateRequest is a host-supplied transport boundary, never deserialized.
+	AuthenticateRequest func(*http.Request) (context.Context, error) `json:"-" yaml:"-"`
 	// Server contains server-specific configuration.
 	Server ServerConfig `json:"server" yaml:"server"`
 

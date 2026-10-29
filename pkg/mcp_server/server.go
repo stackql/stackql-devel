@@ -103,6 +103,17 @@ func secureHTTPHandler(handler http.Handler, config *Config) (http.Handler, erro
 		rejectRequest(w, r, http.StatusForbidden, "cross-origin request rejected")
 	}))
 	handler = protection.Handler(handler)
+	if config.AuthenticateRequest != nil {
+		next := handler
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx, err := config.AuthenticateRequest(r)
+			if err != nil {
+				rejectRequest(w, r, http.StatusUnauthorized, "caller authentication failed")
+				return
+			}
+			next.ServeHTTP(w, r.WithContext(ctx))
+		}), nil
+	}
 	envVar := config.Server.AuthTokenEnvVar
 	if envVar == "" {
 		if !config.Server.AllowUnauthenticated {
