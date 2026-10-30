@@ -2331,13 +2331,10 @@ Digitalocean Insert Droplet
     ...    stderr=${CURDIR}/tmp/Digitalocean-Insert-Droplet.tmp
 
 Transaction Rollback Digitalocean Insert Droplet
-    ${nativeOutputStr} =    Catenate    SEPARATOR=\n
+    ${outputStr} =    Catenate    SEPARATOR=\n
     ...    OK
     ...    mutating statement queued
     ...    Rollback OK
-    ${dockerOutputStr} =    Catenate    SEPARATOR=\n
-    ...    Rollback OK
-    ${outputStr} =    Set Variable If    "${EXECUTION_PLATFORM}" == "docker"     ${dockerOutputStr}    ${nativeOutputStr}
     Should Stackql Exec Inline Equal Stderr
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
@@ -2378,7 +2375,7 @@ Transaction Abort Attempted Commit Digitalocean Insert Droplet
     ...    'ubuntu-20-04-x64', true, true, true, 
     ...    '["env:prod", "web"]' ;
     ...    commit;
-    ${nativeOutputStr} =    Catenate    SEPARATOR=\n
+    ${outputStr} =    Catenate    SEPARATOR=\n
     ...    http${SPACE}response${SPACE}status${SPACE}code:${SPACE}500,${SPACE}response${SPACE}body:${SPACE}{
     ...    ${SPACE}${SPACE}"id":${SPACE}"server_error",
     ...    ${SPACE}${SPACE}"message":${SPACE}"Unexpected${SPACE}server-side${SPACE}error"
@@ -2390,9 +2387,6 @@ Transaction Abort Attempted Commit Digitalocean Insert Droplet
     ...    insert over HTTP error: 500 INTERNAL SERVER ERROR
     ...    UNDO required: Undo the insert on digitalocean.droplets.droplets
     ...    UNDO required: Undo the insert on digitalocean.droplets.droplets
-    ${dockerOutputStr} =    Catenate    SEPARATOR=\n
-    ...    UNDO required: Undo the insert on digitalocean.droplets.droplets
-    ${outputStr} =    Set Variable If    "${EXECUTION_PLATFORM}" == "docker"     ${dockerOutputStr}    ${nativeOutputStr}
     Should Stackql Exec Inline Equal Stderr
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
@@ -2411,13 +2405,10 @@ Transaction Rollback Eager Idealised Google Admin Directory User
     ...    insert into googleadmin.directory.users(data__primaryEmail)
     ...    values ('somejimbo@grubit.com');
     ...    rollback;
-    ${nativeOutputStr} =    Catenate    SEPARATOR=\n
+    ${outputStr} =    Catenate    SEPARATOR=\n
     ...    OK
     ...    The operation was despatched successfully
     ...    Rollback OK
-    ${dockerOutputStr} =    Catenate    SEPARATOR=\n
-    ...    Rollback OK
-    ${outputStr} =    Set Variable If    "${EXECUTION_PLATFORM}" == "docker"     ${dockerOutputStr}    ${nativeOutputStr}
     Should Stackql Exec Inline Equal Stderr
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
@@ -9540,7 +9531,7 @@ Explain Select Repeatably Generates Messagez
     ...    explain select * from google.storage.buckets;
     ...    explain select * from google.storage.buckets where project = 'stackql-demo';
     ...    explain select * from google.storage.buckets where project = 'stackql-demo';
-    ${outputErrStrNative} =    Catenate    SEPARATOR=\n
+    ${outputErrStr} =    Catenate    SEPARATOR=\n
     ...    Execution plan generated successfully
     ...    OK
     ...    Execution plan generated successfully
@@ -9557,7 +9548,6 @@ Explain Select Repeatably Generates Messagez
     ...    OK
     ...    Execution plan generated successfully
     ...    OK
-    ${outputErrStr} =    Set Variable If    "${EXECUTION_PLATFORM}" == "docker"    OK   ${outputErrStrNative}
     Should Stackql Exec Inline Equal Stderr
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
