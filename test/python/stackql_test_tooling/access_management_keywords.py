@@ -210,7 +210,7 @@ components:
                 signature = (signer or key).sign(message)
                 return (message + b"." + base64.urlsafe_b64encode(signature).rstrip(b"=")).decode()
 
-            prefix = (["docker", "compose", "-p", "execrun", "run", "--rm", "--no-deps", "-T", "-v", str(root) + ":" + str(root), "-e", "STACKQL_CALLER_TOKEN", "--entrypoint", "stackql", "stackqlsrv"]
+            prefix = (["docker", "compose", "-p", "execrun", "run", "--rm", "--no-deps", "-T", "--user", f"{os.getuid()}:{os.getgid()}", "--workdir", str(root), "-v", str(root) + ":" + str(root), "-e", "STACKQL_CALLER_TOKEN", "--entrypoint", "stackql", "stackqlsrv"]
                       if docker else [shutil.which(executable) or str(pathlib.Path(executable).resolve())])
             base = prefix + ["--approot", str(root), "--sqlBackend", json.dumps(cfg), "--registry", json.dumps({"localDocRoot": str(root), "verifyConfig": {"nopVerify": True}}), "--preview", '{"unstable":true}', "--output", "json"]
 
@@ -388,7 +388,7 @@ components:
                 if not postgres:
                     db.commit()
                 status, output = call(reader)
-                assert "known-item" not in output and (status != 200 or '"isError":true' in output.replace(" ", "")), "HTTP membership revocation ignored"
+                assert "known-item" not in output and (status != 200 or '"isError":true' in output.replace(" ", "")), "HTTP membership revocation ignored: " + output
                 db.execute("INSERT INTO stackql_access_memberships VALUES ('reader','readers')")
                 if not postgres:
                     db.commit()

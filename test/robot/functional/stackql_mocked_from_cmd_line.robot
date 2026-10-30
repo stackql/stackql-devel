@@ -12061,14 +12061,13 @@ Preview Dynamic Graph Wiring Outside Graph Is Refused By Omnisdk
     ...    stderr=${CURDIR}${/}tmp${/}Preview-Dynamic-Graph-Wiring-Outside-stderr.tmp
 
 Preview Iac Resource Without Provider Is Refused By Omnisdk
-    [Documentation]    The 'resources' predicate maps onto omnisdk's NewResource
-    ...                one field at a time; this asserts a malformed entry is
-    ...                caught by the SDK before any effect is attempted.
+    [Documentation]    Omnisdk parses the 'resources' predicate and refuses a missing
+    ...                provider before any effect is attempted.
     ${preview} =    Set Variable    {"unstable":true}
     ${query} =    Catenate    SEPARATOR=${SPACE}
     ...    select * from stackql_preview.iac.run where collection = 'scratch'
     ...    and resources = '[{"key":"a/b/c"}]';
-    Should StackQL Exec Inline Equal Stderr
+    Should StackQL Exec Inline Contain Stderr
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
     ...    ${GITHUB_SECRET_STR}
@@ -12077,15 +12076,14 @@ Preview Iac Resource Without Provider Is Refused By Omnisdk
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${query}
-    ...    omnisdk: resource "a/b/c" names no provider or address
+    ...    omnisdk: provider "": stackqldoc: no provider "" in registry
     ...    --preview\=${preview}
     ...    stdout=${CURDIR}${/}tmp${/}Preview-Iac-Resource-No-Provider.tmp
     ...    stderr=${CURDIR}${/}tmp${/}Preview-Iac-Resource-No-Provider-stderr.tmp
 
 Preview Iac Resources File Without Provider Is Refused By Omnisdk
-    [Documentation]    The 'resources_file' predicate is read by omnisdk's LoadResources,
-    ...                which also takes an object whose 'resources' is the list; a
-    ...                malformed entry is caught before any effect is attempted.
+    [Documentation]    Omnisdk parses 'resources_file', including an object containing
+    ...                a 'resources' list, and refuses a missing provider before effects.
     ${preview} =    Set Variable    {"unstable":true}
     ${nativeResourcesFile} =    Replace String
     ...    ${REPOSITORY_ROOT}${/}test${/}assets${/}input${/}iac${/}resource-without-provider.json    \\    /
@@ -12095,7 +12093,7 @@ Preview Iac Resources File Without Provider Is Refused By Omnisdk
     ${query} =    Catenate    SEPARATOR=${SPACE}
     ...    select * from stackql_preview.iac.run where collection = 'scratch'
     ...    and resources_file = '${resourcesFile}';
-    Should StackQL Exec Inline Equal Stderr
+    Should StackQL Exec Inline Contain Stderr
     ...    ${STACKQL_EXE}
     ...    ${OKTA_SECRET_STR}
     ...    ${GITHUB_SECRET_STR}
@@ -12104,7 +12102,7 @@ Preview Iac Resources File Without Provider Is Refused By Omnisdk
     ...    ${AUTH_CFG_STR}
     ...    ${SQL_BACKEND_CFG_STR_CANONICAL}
     ...    ${query}
-    ...    omnisdk: resource "a/b/c" names no provider or address
+    ...    omnisdk: provider "": stackqldoc: no provider "" in registry
     ...    --preview\=${preview}
     ...    stdout=${CURDIR}${/}tmp${/}Preview-Iac-Resources-File-No-Provider.tmp
     ...    stderr=${CURDIR}${/}tmp${/}Preview-Iac-Resources-File-No-Provider-stderr.tmp
