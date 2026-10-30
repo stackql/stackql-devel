@@ -27,6 +27,42 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ed25519
 
 
+class _DockerSQLite:
+    """Commit fixture writes in the same kernel as the application's SQLite readers.
+
+    Host SQLite locks and page-cache invalidation do not cross a Docker Desktop VM.
+    The sidecar uses only Python's standard library; the tested image needs no Python.
+    """
+
+    def __init__(self, path):
+        self._path = pathlib.Path(path)
+        self._pending = []
+
+    def execute(self, statement):
+        self._pending.append(statement)
+
+    def commit(self):
+        if not self._pending:
+            return
+        program = (
+            "import json, sqlite3, sys\n"
+            "with sqlite3.connect(sys.argv[1]) as db:\n"
+            "    for statement in json.load(sys.stdin):\n"
+            "        db.execute(statement)\n"
+        )
+        subprocess.run([
+            "docker", "run", "--rm", "--interactive", "--network", "none",
+            "--user", f"{os.getuid()}:{os.getgid()}",
+            "--volume", str(self._path.parent) + ":" + str(self._path.parent),
+            "--entrypoint", "python3", "python:3.13-slim-trixie",
+            "-c", program, str(self._path),
+        ], input=json.dumps(self._pending), capture_output=True, text=True, check=True, timeout=120)
+        self._pending.clear()
+
+    def close(self):
+        self._pending.clear()
+
+
 class AccessManagementKeywords:
     ROBOT_LIBRARY_SCOPE = "SUITE"
 
@@ -64,7 +100,7 @@ class AccessManagementKeywords:
                 cfg["dsn"] = urlunsplit((url.scheme, url.netloc, url.path, urlencode(options), url.fragment))
             else:
                 cfg = {"dsn": str(root / "access.db")}
-                db = sqlite3.connect(cfg["dsn"], check_same_thread=False)
+                db = _DockerSQLite(cfg["dsn"]) if docker else sqlite3.connect(cfg["dsn"], check_same_thread=False)
             key = ed25519.Ed25519PrivateKey.generate()
             public = key.public_key().public_bytes(serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo).decode()
             config = {"issuer": "access-test", "audience": "stackql", "keys": [{"kid": "local", "algorithm": "EdDSA", "public_key_pem": public}], "rules": [
