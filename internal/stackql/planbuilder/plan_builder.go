@@ -225,9 +225,14 @@ func (pgb *standardPlanGraphBuilder) handleExplain(pbi planbuilderinput.PlanBuil
 }
 
 func setLogic(pbi planbuilderinput.PlanBuilderInput, setExpr *sqlparser.SetExpr) error {
-	lhsRaw := setExpr.Name.GetRawVal()
-	lhsTrimmed := strings.TrimPrefix(lhsRaw, "$.")
-	if lhsTrimmed == lhsRaw {
+	lhsTrimmed := setExpr.Name.GetRawVal()
+	if strings.HasPrefix(lhsTrimmed, "$.") {
+		return fmt.Errorf("SET/UNSET targets must omit '$.'; use '$' only for dereferencing")
+	}
+	root, _, _ := strings.Cut(lhsTrimmed, ".")
+	switch root {
+	case "auth", "providers", "secret_store", "secrets":
+	default:
 		return nil
 	}
 	if _, reset := setExpr.Expr.(*sqlparser.Default); reset {
@@ -267,6 +272,7 @@ func (pgb *standardPlanGraphBuilder) handleSet(pbi planbuilderinput.PlanBuilderI
 			var setErr error
 			for _, assignment := range setStmt.Exprs {
 				if setErr = setLogic(pbi, assignment); setErr != nil {
+					setErr = fmt.Errorf("%w: %w", handler.ErrSessionConfiguration, setErr)
 					break
 				}
 			}

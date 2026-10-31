@@ -57,9 +57,9 @@ class ProviderSessionLibrary:
                       "--preview", json.dumps({"unstable": True, "endpoint": endpoint}), "--output", "json"]
 
     @staticmethod
-    def setting(path, value):
+    def setting(path, value, scope=""):
         raw = value if isinstance(value, str) else json.dumps(value)
-        return f'SET "$.{path}" = ' + "'" + raw.replace("'", "''") + "';"
+        return f'SET {scope} "{path}" = ' + "'" + raw.replace("'", "''") + "';"
 
     def run_sql(self, sql, expected_calls):
         before = len(self.calls)
@@ -85,20 +85,20 @@ class ProviderSessionLibrary:
         sql += self.setting("providers.secure", {"provider": "widgets", "tenancy": "secure-account", "auth_secret": "account", "params": {"region": "secure"}})
         sql += "SELECT id FROM secure.things.widgets;"
         sql += self.setting("secrets.account", json.dumps({"type": "bearer", "credentials": "rotated-token"}))
-        sql += "SELECT id FROM secure.things.widgets; UNSET \"$.providers.secure\"; UNSET \"$.secrets.account\";"
+        sql += "SELECT id FROM secure.things.widgets; UNSET \"providers.secure\"; UNSET \"secrets.account\";"
         self.run_sql(sql, [("Bearer first-token", "secure"), ("Bearer rotated-token", "secure")])
         assert json.loads((self.root / "secrets.json").read_text()) == {}, "secret was not deleted"
 
     def auth_dto_changes_and_unsets(self):
         sql = self.setting("auth.widgets", {"type": "api_key", "credentialsenvvar": "STACKQL_UNUSED_CREDENTIAL"})
-        sql += 'UNSET "$.auth.widgets.credentialsenvvar";'
+        sql += 'UNSET "auth.widgets.credentialsenvvar";'
         sql += self.setting("auth.widgets", {"type": "null_auth"})
         sql += "SELECT id FROM widgets.things.widgets WHERE region = 'plain';"
         self.run_sql(sql, [("", "plain")])
 
     def unset_alias_auth_fails_before_request(self):
         sql = self.setting("providers.disabled", {"provider": "widgets", "tenancy": "disabled-account", "auth": {"type": "bearer", "credentials": "explicit-token"}, "params": {"region": "disabled"}})
-        sql += 'UNSET "$.providers.disabled.auth"; SELECT id FROM disabled.things.widgets;'
+        sql += 'UNSET "providers.disabled.auth"; SELECT id FROM disabled.things.widgets;'
         before = len(self.calls)
         result = subprocess.run([self.binary, "exec", sql] + self.flags, text=True, capture_output=True, timeout=30)
         assert "requires resolved explicit credentials" in result.stderr, result.stderr
@@ -111,3 +111,22 @@ class ProviderSessionLibrary:
             self.worker.join(timeout=5)
         if hasattr(self, "root"):
             shutil.rmtree(self.root)
+
+    def explicit_session_scope(self):
+        binding = {"provider":"widgets", "tenancy":"scoped", "auth":{"type":"bearer","credentials":"scoped-token"}, "params":{"region":"scoped"}}
+        sql = self.setting("providers.scoped", binding, "SESSION")
+        sql += "SELECT id FROM scoped.things.widgets; UNSET SESSION \"providers.scoped\", \"auth.widgets.password\";"
+        self.run_sql(sql, [("Bearer scoped-token", "scoped")])
+
+    def unsupported_configuration_scope(self):
+        for statement in ['SET GLOBAL "auth.widgets.password" = \'value\';', 'UNSET GLOBAL "auth.widgets.password";']:
+            before = len(self.calls)
+            result = subprocess.run([self.binary, "exec", statement] + self.flags, text=True, capture_output=True, timeout=30)
+            assert result.returncode != 0 and "not supported" in result.stderr, result.stderr
+            assert len(self.calls) == before, "unsupported scope reached provider"
+
+    def dollar_assignment_target_is_rejected(self):
+        before = len(self.calls)
+        result = subprocess.run([self.binary, "exec", 'SET "$.auth.widgets.password" = \'value\';'] + self.flags, text=True, capture_output=True, timeout=30)
+        assert result.returncode != 0 and "targets must omit" in result.stderr, result.stderr
+        assert len(self.calls) == before, "invalid assignment target reached provider"

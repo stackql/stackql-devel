@@ -19,3 +19,12 @@ Auth Dto Fields Can Be Set And Unset In Memory
 
 Unset Alias Auth Fails Before Any Provider Request
     Unset Alias Auth Fails Before Request
+
+Explicit Session Scope Supports Set And Unset
+    Explicit Session Scope
+
+Global Configuration Scope Fails Before Provider Execution
+    Unsupported Configuration Scope
+
+Dollar Is Rejected On Assignment Targets
+    Dollar Assignment Target Is Rejected

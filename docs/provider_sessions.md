@@ -11,7 +11,7 @@ execution retains the alias, credential and provider/tenancy concurrency control
 Use double-quoted configuration paths and JSON objects inside SQL string literals:
 
 ```sql
-SET "$.providers.production" = '{
+SET "providers.production" = '{
   "provider": "aws",
   "tenancy": "production-account",
   "auth": {
@@ -22,7 +22,7 @@ SET "$.providers.production" = '{
   "params": {"region": "ap-southeast-2"},
   "tuning": {"max_concurrent": 4, "max_per_host": 4}
 }';
-SET "$.providers.development" = '{
+SET "providers.development" = '{
   "provider": "aws",
   "tenancy": "development-account",
   "auth": {
@@ -51,9 +51,9 @@ snapshot. Credential edits affect subsequent queries; existing executions retain
 Changing structural bindings or tuning starts a new governor generation.
 
 ```sql
-SET "$.providers.production.auth.credentials" = 'replacement-token';
-UNSET "$.providers.production.auth.credentials";
-UNSET "$.providers.production";
+SET "providers.production.auth.credentials" = 'replacement-token';
+UNSET "providers.production.auth.credentials";
+UNSET "providers.production";
 ```
 
 Aliases work with document-driven reads, metadata commands, star expansion, explicit EXEC and
@@ -68,14 +68,14 @@ The file is private, atomically replaced and synchronized; its values are base64
 Use an operator-owned private directory. Store operations honor cancellation and bounded lock waits.
 
 ```sql
-SET "$.secret_store" = '{"path":"/private/operator/stackql-secrets.json"}';
-SET "$.secrets.production" = '{"type":"bearer","credentials":"example-token"}';
-SET "$.providers.production" = '{
+SET "secret_store" = '{"path":"/private/operator/stackql-secrets.json"}';
+SET "secrets.production" = '{"type":"bearer","credentials":"example-token"}';
+SET "providers.production" = '{
   "provider":"example_provider",
   "tenancy":"production-account",
   "auth_secret":"production"
 }';
-UNSET "$.secrets.production";
+UNSET "secrets.production";
 ```
 
 Secret values remain literal strings, including JSON strings. `auth_secret` names a stored JSON
@@ -88,7 +88,7 @@ history or command arguments.
 OS storage is explicit and has no file fallback:
 
 ```sql
-SET "$.secret_store" = '{"backend":"os","namespace":"stackql/provider-auth"}';
+SET "secret_store" = '{"backend":"os","namespace":"stackql/provider-auth"}';
 ```
 
 Omni supplies Keychain on macOS, Secret Service on Linux and Credential Manager on Windows, when
@@ -97,12 +97,12 @@ adapters implement Omni's public Store interface; no database driver enters Omni
 
 ## Legacy auth configuration and reset
 
-Existing `$.auth.<provider>` paths retain the legacy StackQL AuthCtx field names:
+Existing `auth.<provider>` paths retain the legacy StackQL AuthCtx field names:
 
 ```sql
-SET "$.auth.example" = '{"type":"basic","username":"operator","password":"example"}';
-SET "$.auth.example.password" = 'replacement';
-UNSET "$.auth.example.password";
+SET "auth.example" = '{"type":"basic","username":"operator","password":"example"}';
+SET "auth.example.password" = 'replacement';
+UNSET "auth.example.password";
 ```
 
 Whole-object SET replaces that object. Field SET updates one field. UNSET removes a field or
@@ -111,14 +111,27 @@ without changing the object. Multiple assignments execute in order and stop at t
 the statement is not a transaction across assignments or persistent stores.
 
 Parser UNSET normalizes to the existing SET AST with DEFAULT-valued expressions. Thus
-`SET "$.providers.production" = DEFAULT` is equivalent to UNSET and also works with the previously
-tagged parser. The parser feature must be tagged and consumed by StackQL before UNSET syntax works
-in a standard dependency build. No repository go.mod replacement is required or supplied.
+`SET "providers.production" = DEFAULT` is equivalent to UNSET. The pinned parser supports unqualified
+UNSET and SET SESSION. Scoped UNSET requires the companion parser changes to be released and pinned;
+no repository go.mod replacement is supplied.
 
 When caller access management is enabled, configuration changes require `session/config` `write`
 permission as well as SQL statement permission. Alias execution additionally requires
 `tenancy/<canonical-provider>/<tenancy>` `use` and the existing operation/credential permissions.
 Session configuration remains opt-in; normal sessions are unaffected until configuration is set.
+
+## Scope
+
+Assignment targets omit `$`; that sigil is reserved for dereferencing values.
+Both commands accept an optional scope word:
+
+```sql
+SET SESSION "auth.example.password" = 'replacement';
+UNSET SESSION "auth.example.password";
+```
+
+Unqualified commands use SESSION. GLOBAL parses but is rejected by StackQL before changing
+configuration. Principal/group scopes and their inheritance rules are not implemented.
 
 ## Verification
 

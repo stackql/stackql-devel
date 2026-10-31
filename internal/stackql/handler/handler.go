@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -43,6 +44,9 @@ import (
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"gopkg.in/yaml.v2"
 )
+
+// ErrSessionConfiguration identifies a rejected session mutation at CLI boundaries.
+var ErrSessionConfiguration = errors.New("session configuration failed")
 
 var (
 	_ HandlerContext = &standardHandlerContext{}
@@ -546,6 +550,9 @@ func (hc *standardHandlerContext) SetConfigAtPath(path string, rhs interface{}, 
 		if err := authorization.Check(hc.GetExecutionContext(), "session/config", "write"); err != nil {
 			return err
 		}
+	}
+	if scope != "" && scope != "session" {
+		return fmt.Errorf("configuration scope %q is not supported; use SESSION", scope)
 	}
 	if handled, err := hc.setProviderSessionConfig(path, rhs, scope); handled {
 		return err
