@@ -419,6 +419,21 @@ components:
                 denied("SELECT * FROM stackql_preview.iac.destroy WHERE collection = 'acceptance' AND state = '../../escape';", operator)
                 converge("second", ["one", "two"])
                 converge("third", ["one", "two"])
+                # Reusing the original create ID must not unwind its old creates after an update.
+                snapshot = json.loads(json.dumps(managed))
+                before = counts.copy()
+                replay_spec = json.dumps([{"key": name, "provider": "accessdemo", "address": "service.items", "identity": "id", "addressed_by": "id", "desired": {"name": "upstream-reject"}} for name in ["one", "two"]])
+                replay = "SELECT * FROM stackql_preview.iac.run WHERE collection = 'acceptance' AND state = 'audit' AND run_id = 'first' AND resources = '" + replay_spec + "';"
+                code, output = run(replay, operator)
+                assert code != 0 and "already exists" in output, "reused run ID accepted: " + output
+                assert managed == snapshot and counts == before, "reused run changed existing resources"
+                # resources_file is the user-facing path; omitted run IDs must remain safe on repeat.
+                resource_file = root / "resources.json"
+                resource_file.write_text(json.dumps({"resources": [{"key": name, "provider": "accessdemo", "address": "service.items", "identity": "id", "addressed_by": "id", "desired": {"name": "third"}} for name in ["one", "two"]]}))
+                file_sql = "SELECT * FROM stackql_preview.iac.run WHERE collection = 'acceptance' AND state = 'audit' AND resources_file = '" + str(resource_file).replace("'", "''") + "';"
+                for _ in range(2):
+                    success(file_sql, operator, "applied")
+                    assert managed == snapshot, "unchanged file rerun changed resources"
                 denied("SELECT * FROM stackql_preview.iac.destroy WHERE collection = 'acceptance' AND state = 'audit' AND keys = '[]';", operator)
                 success("SELECT * FROM stackql_preview.iac.destroy WHERE collection = 'acceptance' AND state = 'audit' AND run_id = 'prune' AND keys = '[\"two\"]';", operator, "destroyed")
                 assert len(managed) == 1, "partial delete changed the retained resource set"

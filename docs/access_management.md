@@ -175,6 +175,8 @@ SELECT whoami() AS principal, groups() AS memberships;
 
 ## IaC surface
 
+For a create, rerun, update and destroy sequence, see the [AWS VPC/subnet walkthrough](iac_walkthrough.md).
+
 Use `stackql_preview.iac.run` and `.destroy` with the existing preview opt-in. Resource JSON uses
 Omni's shared parser: `write_once` carries initial request inputs, `desired` carries maintained
 state, and typed `input`, `env`, `self` and sibling bindings remain intact. Retired `params` and
@@ -198,7 +200,9 @@ SELECT * FROM stackql_preview.iac.destroy
 WHERE collection = 'deployment' AND state = 'production' AND run_id = 'destroy-001';
 ```
 
-Use unique run IDs. After pruning, remove the deleted declarations before applying again; omission
+Omit `run_id` to generate a unique ID automatically. Explicit IDs must be unique within the state
+directory; reusing one is rejected before provider execution. Reapply the latest desired-state file:
+returning to an older file can request removal of fields it no longer declares. After pruning, remove the deleted declarations before applying again; omission
 alone does not delete, and reapplying the original declaration requests recreation. Omni blocks
 selected deletion when retained resources depend on it. Failed/error/outstanding result rows become
 SQL failures and CLI failure status, while diagnostic rows remain available. `applied` can mean no-op.

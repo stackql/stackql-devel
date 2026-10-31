@@ -7,6 +7,7 @@ package intrinsic
 
 import (
 	"bytes"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/json"
 	"errors"
@@ -180,7 +181,7 @@ func ledgerPredicates(
 	}
 	runID := popPredicate(params, runIDPredicate)
 	if runID == "" {
-		runID = time.Now().UTC().Format(runIDLayout)
+		runID = time.Now().UTC().Format(runIDLayout) + "-" + rand.Text()
 	}
 	return params, omnisdk.NewLedger(collection, state, runID), nil
 }
