@@ -3,6 +3,7 @@ package mcp_server //nolint:revive,stylecheck,mnd // fine for now
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -31,6 +32,8 @@ const (
 
 // Config represents the complete configuration for the MCP server.
 type Config struct {
+	// TLSConfig is supplied by the host for verified client certificate authentication.
+	TLSConfig *tls.Config `json:"-" yaml:"-"`
 	// AuthenticateRequest is a host-supplied transport boundary, never deserialized.
 	AuthenticateRequest func(*http.Request) (context.Context, error) `json:"-" yaml:"-"`
 	// Server contains server-specific configuration.

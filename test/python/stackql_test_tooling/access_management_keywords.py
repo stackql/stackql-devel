@@ -1,5 +1,8 @@
 """Black-box caller access fixtures. Tokens stay in subprocess environments, never Robot results."""
 import base64
+import hashlib
+import secrets
+import csv
 import yaml
 import concurrent.futures
 import json
@@ -24,7 +27,10 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import ed25519
+from cryptography.hazmat.primitives.asymmetric import ed25519, rsa, ec
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature
 
 
 class _DockerSQLite:
@@ -66,7 +72,7 @@ class _DockerSQLite:
 class AccessManagementKeywords:
     ROBOT_LIBRARY_SCOPE = "SUITE"
 
-    def verify_caller_access(self, executable, backend="{}", execution_platform="native"):
+    def verify_caller_access(self, executable, backend="{}", execution_platform="native", scenario="iac"):
         with tempfile.TemporaryDirectory(prefix="stackql-access-") as directory:
             root = pathlib.Path(directory)
             docker = execution_platform == "docker"
@@ -255,7 +261,7 @@ components:
                 env.pop("STACKQL_CALLER_TOKEN", None)
                 if credential is not None:
                     env["STACKQL_CALLER_TOKEN"] = credential
-                command = base + (["--access.config", str(config_file)] if protected else []) + ["exec", sql]
+                command = base + (["--access.config", json.dumps({"path": str(config_file)})] if protected else []) + ["exec", sql]
                 result = subprocess.run(command, capture_output=True, text=True, env=env, timeout=45)
                 # Separate CLI processes initialize the shared PostgreSQL host catalog.
                 # Retry only this fixture's known read when concurrent initialization deadlocks.
@@ -280,35 +286,120 @@ components:
 
             try:
                 query = "SELECT id FROM stackql_unstable_accessdemo.service.items;"
-                code, output = run(query, protected=False)
-                assert code == 0 and "known-item" in output, "unprotected compatibility failed: " + output
                 reader = token()
-                success("SELECT whoami() AS principal, groups() AS memberships;", reader, "readers")
-                success(query, reader, "known-item")
-                success("SELECT 1 AS ordinary_integer;", reader, "ordinary_integer")
-                invalid = [None, token(signer=ed25519.Ed25519PrivateKey.generate()), token(updates={"iss": "other"}), token(updates={"aud": "other"}), token(remove=["exp"]), token(updates={"exp": int(time.time()) - 5}), token(updates={"nbf": int(time.time()) + 600}), token(updates={"iat": int(time.time()) + 600}), token(kid="unknown"), token(subject="unknown")]
-                for credential in invalid:
-                    denied(query, credential)
-                for sql in ["DELETE FROM stackql_unstable_accessdemo.service.items;", "INSERT INTO stackql_unstable_accessdemo.service.items (id) VALUES ('new');", "EXEC stackql_unstable_accessdemo.service.items.create;", "SELECT * FROM stackql_preview.iac.run WHERE collection = 'test' AND resources = '[]';", "SELECT * FROM stackql_preview.iac.destroy WHERE collection = 'test';", "SELECT * FROM stackql_access_principals;", "SELECT pg_read_file('/etc/passwd');"]:
-                    denied(sql, reader)
-                denied(query, token(subject="denied"))
-                with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-                    futures = [executor.submit(success, query, reader, "known-item"), executor.submit(denied, "SELECT 1", token(subject="denied"), True)]
-                    for future in futures:
-                        future.result()
-                self._verify_https(base, config_file, root, key, token, invalid, query, db, postgres, counts)
-                db.execute("DELETE FROM stackql_access_memberships WHERE principal_id = 'reader'")
-                if not postgres:
-                    db.commit()
-                denied(query, reader)
-                db.execute("UPDATE stackql_access_principals SET attributes = 'null' WHERE id = 'operator'")
-                if not postgres:
-                    db.commit()
-                denied(query, token(subject="operator"))
-                assert counts["mutation"] == 0, "reader performed provider mutation"
-                db.execute("UPDATE stackql_access_principals SET attributes = '{}' WHERE id = 'operator'")
-                if not postgres:
-                    db.commit()
+                invalid = {
+                    "missing": None,
+                    "signature": token(signer=ed25519.Ed25519PrivateKey.generate()),
+                    "issuer": token(updates={"iss": "other"}),
+                    "audience": token(updates={"aud": "other"}),
+                    "expiry_required": token(remove=["exp"]),
+                    "expired": token(updates={"exp": int(time.time()) - 5}),
+                    "not_before": token(updates={"nbf": int(time.time()) + 600}),
+                    "issued_at": token(updates={"iat": int(time.time()) + 600}),
+                    "key_id": token(kid="unknown"),
+                    "identity": token(subject="unknown"),
+                }
+                if scenario.startswith("bearer"):
+                    tokens = {name: secrets.token_urlsafe(32) for name in ["reader", "operator", "denied"]}
+                    config.pop("keys")
+                    config.pop("audience")
+                    config.update(type="bearer", tokens=[{"subject": name, "sha256": hashlib.sha256(value.encode()).hexdigest()} for name, value in tokens.items()])
+                    config_file.write_text(json.dumps(config))
+                    token = lambda subject="reader": tokens[subject]
+                    reader = token()
+                    invalid = {"missing": None, "wrong": secrets.token_urlsafe(32)}
+                if scenario.startswith("local_os"):
+                    config = {"type": "local_os", "issuer": "access-test", "rules": config["rules"]}
+                    config_file.write_text(json.dumps(config))
+                    if os.name == "nt":
+                        identity = next(csv.reader([subprocess.check_output(["whoami", "/user", "/fo", "csv", "/nh"], text=True).strip()]))[1]
+                    else:
+                        identity = str(os.geteuid())
+                    db.execute("UPDATE stackql_access_identities SET subject = '" + identity.replace("'", "''") + "' WHERE principal_id = 'reader'")
+                    if not postgres:
+                        db.commit()
+                    if scenario == "local_os_http_refused":
+                        result = subprocess.run(base + ["--access.config", json.dumps({"path": str(config_file)}), "--mcp.config", json.dumps({"server": {"transport": "http", "tls_cert_file": "unused.crt", "tls_key_file": "unused.key"}}), "mcp"], capture_output=True, text=True, timeout=30)
+                        assert "local OS authentication is unavailable over HTTP" in result.stdout + result.stderr
+                        assert counts == {"read": 0, "mutation": 0}
+                        return
+                    if scenario.endswith("shell") or scenario.endswith("stdio"):
+                        self._verify_local_transport(base, config_file, None, query, scenario.rsplit("_", 1)[-1])
+                        return
+                    success("SELECT whoami() AS principal, groups() AS memberships;", None, "readers")
+                    success(query, None, "known-item")
+                    success("SELECT whoami() AS principal;", "untrusted-environment-token", "reader")
+                    denied("DELETE FROM stackql_unstable_accessdemo.service.items;")
+                    db.execute("DELETE FROM stackql_access_identities WHERE principal_id = 'reader'")
+                    if not postgres:
+                        db.commit()
+                    denied(query)
+                    return
+                if scenario in ("mtls_https", "mtls_https_dns"):
+                    identity_kind = "dns_san" if scenario.endswith("_dns") else "uri_san"
+                    roots, clients = self._client_certificates(root, identity_kind)
+                    config = {"type": "mtls", "issuer": "access-test", "client_ca_pem": roots, "certificate_identity": identity_kind, "rules": config["rules"]}
+                    config_file.write_text(json.dumps(config))
+                    for name in ["reader", "operator", "denied"]:
+                        subject = name + ".example" if identity_kind == "dns_san" else "spiffe://access-test/" + name
+                        db.execute("UPDATE stackql_access_identities SET subject = '" + subject + "' WHERE principal_id = '" + name + "'")
+                    if not postgres:
+                        db.commit()
+                    self._verify_https(base, config_file, root, key, token, [], query, db, postgres, counts, clients)
+                    denied(query, reader)
+                    return
+                if scenario == "config":
+                    self._verify_configuration(base, config_file, config, reader, query, counts)
+                    return
+                if scenario.startswith("jwt_invalid:"):
+                    denied(query, invalid[scenario.split(":", 1)[1]])
+                    return
+                if scenario == "jwt_algorithms":
+                    self._verify_algorithms(config, config_file, token, run, query, counts)
+                    return
+                if scenario.endswith("shell") or scenario.endswith("stdio"):
+                    self._verify_local_transport(base, config_file, reader, query, scenario.rsplit("_", 1)[-1])
+                    self._verify_local_transport(base, config_file, None, query, scenario.rsplit("_", 1)[-1], allowed=False)
+                    return
+                if scenario.endswith("https"):
+                    self._verify_https(base, config_file, root, key, token, list(invalid.values()), query, db, postgres, counts)
+                    return
+                if scenario in ("jwt_cli", "bearer_cli"):
+                    success("SELECT whoami() AS principal, groups() AS memberships;", reader, "readers")
+                    success(query, reader, "known-item")
+                    success("SELECT 1 AS ordinary_integer;", reader, "ordinary_integer")
+                    for credential in invalid.values():
+                        denied(query, credential)
+                    denied(query, token(subject="denied"))
+                    return
+                if scenario == "compatibility":
+                    code, output = run(query, protected=False)
+                    assert code == 0 and "known-item" in output, "unprotected compatibility failed: " + output
+                    return
+                if scenario == "policy":
+                    for sql in ["DELETE FROM stackql_unstable_accessdemo.service.items;", "INSERT INTO stackql_unstable_accessdemo.service.items (id) VALUES ('new');", "EXEC stackql_unstable_accessdemo.service.items.create;", "SELECT * FROM stackql_preview.iac.run WHERE collection = 'test' AND resources = '[]';", "SELECT * FROM stackql_preview.iac.destroy WHERE collection = 'test';", "SELECT * FROM stackql_access_principals;", "SELECT pg_read_file('/etc/passwd');"]:
+                        denied(sql, reader)
+                    denied(query, token(subject="denied"))
+                    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+                        futures = [executor.submit(success, query, reader, "known-item"), executor.submit(denied, "SELECT 1", token(subject="denied"), True)]
+                        for future in futures:
+                            future.result()
+                    return
+                if scenario == "revocation":
+                    db.execute("DELETE FROM stackql_access_memberships WHERE principal_id = 'reader'")
+                    if not postgres:
+                        db.commit()
+                    denied(query, reader)
+                    db.execute("UPDATE stackql_access_principals SET attributes = 'null' WHERE id = 'operator'")
+                    if not postgres:
+                        db.commit()
+                    denied(query, token(subject="operator"))
+                    assert counts["mutation"] == 0, "reader performed provider mutation"
+                    db.execute("UPDATE stackql_access_principals SET attributes = '{}' WHERE id = 'operator'")
+                    if not postgres:
+                        db.commit()
+                    return
+                assert scenario == "iac", "unknown access scenario: " + scenario
                 operator = token(subject="operator")
                 def converge(label, keys):
                     resources = [{"key": name, "provider": "accessdemo", "address": "service.items", "identity": "id", "addressed_by": "id", "desired": {"name": {"from": "input", "attribute": "label"}}} for name in keys]
@@ -347,7 +438,7 @@ components:
                     db.execute(psycopg.sql.SQL("DROP SCHEMA {} CASCADE").format(psycopg.sql.Identifier(directory_schema)))
                 db.close()
 
-    def _verify_https(self, base, config_file, root, key, token, invalid, query, db, postgres, counts):
+    def _verify_https(self, base, config_file, root, key, token, invalid, query, db, postgres, counts, clients=None):
         subject = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "localhost")])
         now = datetime.datetime.now(datetime.timezone.utc)
         certificate = (x509.CertificateBuilder().subject_name(subject).issuer_name(subject)
@@ -369,36 +460,48 @@ components:
                   "enabled_tools": ["run_select_query"]}
         env = os.environ.copy()
         # Deliberately set a privileged process token: remote clients must never inherit it.
-        env["STACKQL_CALLER_TOKEN"] = token(subject="operator")
+        env["STACKQL_CALLER_TOKEN"] = "server-process-token" if clients else token(subject="operator")
         container = "stackql-access-" + uuid.uuid4().hex
         server_base = list(base)
         docker = server_base[0] == "docker"
         if docker:
             index = server_base.index("stackqlsrv")
             server_base[index:index] = ["--publish", "127.0.0.1:" + str(port) + ":" + str(port), "--name", container]
-        command = server_base + ["--access.config", str(config_file), "--mcp.config", json.dumps(config), "mcp"]
+        command = server_base + ["--access.config", json.dumps({"path": str(config_file)}), "--mcp.config", json.dumps(config), "mcp"]
         tls = ssl.create_default_context(cafile=str(cert_path))
+        if clients:
+            contexts = {}
+            for name, (cert, private) in clients.items():
+                context = ssl.create_default_context(cafile=str(cert_path))
+                context.load_cert_chain(str(cert), str(private))
+                contexts[name] = context
+            token = lambda subject="reader": contexts[subject]
+            invalid = [None] + [contexts[name] for name in ["untrusted", "expired", "ambiguous", "unknown"]]
         with (root / "mcp.log").open("w+") as log:
             process = subprocess.Popen(command, stdout=log, stderr=log, env=env)
             try:
                 def call(credential, sql=query):
                     headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", "MCP-Protocol-Version": "2026-07-28", "Mcp-Method": "tools/call", "Mcp-Name": "run_select_query"}
-                    if credential:
+                    if credential and not clients:
                         headers["Authorization"] = "Bearer " + credential
                     payload = {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"_meta": {"io.modelcontextprotocol/protocolVersion": "2026-07-28", "io.modelcontextprotocol/clientCapabilities": {}, "io.modelcontextprotocol/clientInfo": {"name": "access-test", "version": "1"}}, "name": "run_select_query", "arguments": {"sql": sql}}}
                     request = urllib.request.Request("https://127.0.0.1:" + str(port), data=json.dumps(payload).encode(), headers=headers)
                     try:
-                        with urllib.request.urlopen(request, context=tls, timeout=20) as response:
+                        with urllib.request.urlopen(request, context=credential if clients and credential else tls, timeout=20) as response:
                             return response.status, response.read().decode()
                     except urllib.error.HTTPError as error:
                         return error.code, error.read().decode()
+                    except (urllib.error.URLError, ssl.SSLError) as error:
+                        if clients: return 0, str(error)
+                        raise
                 for _ in range(100):
                     if process.poll() is not None:
                         log.seek(0)
                         raise AssertionError("protected HTTPS server failed to start: " + log.read())
                     try:
-                        status, _ = call(None)
-                        assert status == 401, "missing HTTP token accepted"
+                        status, response = call(token() if clients else None)
+                        if clients and status == 0: raise OSError(response)
+                        assert status == (200 if clients else 401), "HTTP readiness authentication failed"
                         break
                     except (OSError, urllib.error.URLError):
                         time.sleep(0.1)
@@ -410,7 +513,7 @@ components:
                 for credential in invalid:
                     before = counts.copy()
                     status, _ = call(credential)
-                    assert status == 401 and counts == before, "invalid HTTP credential reached execution"
+                    assert status in ((0, 401) if clients else (401,)) and counts == before, "invalid HTTP credential reached execution"
                 def read():
                     status, output = call(reader)
                     assert status == 200 and "known-item" in output, "concurrent HTTPS reader failed: " + output
@@ -440,3 +543,161 @@ components:
                 log.seek(0)
                 text = log.read()
                 assert env["STACKQL_CALLER_TOKEN"] not in text, "server token leaked into log"
+
+    def _verify_configuration(self, base, path, config, credential, query, counts):
+        env = os.environ.copy()
+        env["STACKQL_CALLER_TOKEN"] = credential
+        def execute(source):
+            return subprocess.run(base + ["--access.config", source, "exec", query], env=env, capture_output=True, text=True, timeout=45)
+        for source in [json.dumps({"path": str(path)}), str(path)]:
+            result = execute(source)
+            assert result.returncode == 0 and "known-item" in result.stdout, "valid configuration source failed: " + result.stderr
+        before = counts.copy()
+        for source in ['{}', '{"path":""}', '{"path":null}', '{"path":3}', json.dumps({"path": str(path), "unknown": True}), json.dumps({"path": str(path)}) + '{}', json.dumps({"path": str(path) + ".missing"})]:
+            result = execute(source)
+            assert result.returncode != 0 and counts == before, "invalid configuration source reached execution"
+        for changes in [{"unknown": True}, {"type": "unknown"}, {"type": "bearer"}, {"type": "local_os"}, {"type": "mtls"}]:
+            path.write_text(json.dumps(dict(config, **changes)))
+            result = execute(json.dumps({"path": str(path)}))
+            assert result.returncode != 0 and counts == before, "invalid authentication configuration reached execution"
+        path.write_text(json.dumps(config))
+
+    def _verify_algorithms(self, config, path, token, run, query, counts):
+        key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        algorithms = [("RS" + size, key, getattr(hashes, "SHA" + size)()) for size in ["256", "384", "512"]]
+        algorithms += [("PS" + size, key, getattr(hashes, "SHA" + size)()) for size in ["256", "384", "512"]]
+        algorithms += [("ES256", ec.generate_private_key(ec.SECP256R1()), hashes.SHA256()), ("ES384", ec.generate_private_key(ec.SECP384R1()), hashes.SHA384()), ("ES512", ec.generate_private_key(ec.SECP521R1()), hashes.SHA512())]
+        code, output = run(query, token())
+        assert code == 0 and "known-item" in output, "EdDSA JWT failed: " + output
+        encode = lambda value: base64.urlsafe_b64encode(value).rstrip(b"=")
+        for algorithm, private, digest in algorithms:
+            config["keys"] = [{"kid": "family", "algorithm": algorithm, "public_key_pem": private.public_key().public_bytes(serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo).decode()}]
+            path.write_text(json.dumps(config))
+            claims = {"iss": "access-test", "sub": "reader", "aud": "stackql", "exp": int(time.time()) + 300, "iat": int(time.time())}
+            message = encode(json.dumps({"alg": algorithm, "kid": "family"}).encode()) + b"." + encode(json.dumps(claims).encode())
+            if algorithm.startswith("RS"):
+                signature = private.sign(message, padding.PKCS1v15(), digest)
+            elif algorithm.startswith("PS"):
+                signature = private.sign(message, padding.PSS(mgf=padding.MGF1(digest), salt_length=digest.digest_size), digest)
+            else:
+                r, value = decode_dss_signature(private.sign(message, ec.ECDSA(digest)))
+                width = (private.curve.key_size + 7) // 8
+                signature = r.to_bytes(width, "big") + value.to_bytes(width, "big")
+            credential = (message + b"." + encode(signature)).decode()
+            code, output = run(query, credential)
+            assert code == 0 and "known-item" in output, algorithm + " JWT failed: " + output
+            config["keys"][0]["algorithm"] = "RS256" if algorithm != "RS256" else "PS256"
+            path.write_text(json.dumps(config))
+            before = counts.copy()
+            code, output = run(query, credential)
+            assert code != 0 and "known-item" not in output and counts == before, "JWT algorithm/key binding was ignored"
+
+    def _verify_local_transport(self, base, path, credential, query, transport, allowed=True):
+        env = os.environ.copy()
+        env.pop("STACKQL_CALLER_TOKEN", None)
+        if credential:
+            env["STACKQL_CALLER_TOKEN"] = credential
+        command = base + ["--access.config", json.dumps({"path": str(path)})]
+        if transport == "shell":
+            result = subprocess.run(command + ["shell"], input=query + "\nexit\n", env=env, capture_output=True, text=True, timeout=30)
+            output = result.stdout + result.stderr
+        else:
+            command += ["--mcp.config", json.dumps({"server": {"transport": "stdio", "audit": {"disabled": True}}, "enabled_tools": ["run_select_query"]}), "mcp"]
+            process = subprocess.Popen(command, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            watchdog = threading.Timer(30, process.kill)
+            watchdog.start()
+            lines = []
+            try:
+                def request(value, response_id):
+                    process.stdin.write(json.dumps(value).encode() + b"\n")
+                    process.stdin.flush()
+                    while True:
+                        line = process.stdout.readline()
+                        if not line:
+                            raise AssertionError("MCP stdio closed before its response")
+                        lines.append(line.decode())
+                        message = json.loads(line)
+                        if message.get("id") == response_id:
+                            return
+                request({"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "access-test", "version": "1"}}}, 1)
+                process.stdin.write(b'{"jsonrpc":"2.0","method":"notifications/initialized"}\n')
+                request({"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "run_select_query", "arguments": {"sql": query}}}, 2)
+                process.stdin.close()
+                process.stdin = None
+                stdout, stderr = process.communicate(timeout=10)
+                output = "".join(lines) + stdout.decode() + stderr.decode()
+                assert process.returncode == 0, "MCP stdio failed: " + output
+            finally:
+                watchdog.cancel()
+                if process.poll() is None:
+                    process.kill()
+                    process.wait()
+        assert ("known-item" in output) == allowed, transport + " caller authorization failed: " + output
+        if not allowed:
+            assert "caller authentication failed" in output, "missing credential did not fail authentication"
+        assert not credential or credential not in output, "local transport leaked a credential"
+
+    def _client_certificates(self, root, identity_kind="uri_san"):
+        now = datetime.datetime.now(datetime.timezone.utc)
+        issuer = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "access-test CA")])
+        ca_key = ed25519.Ed25519PrivateKey.generate()
+        ca = (x509.CertificateBuilder().subject_name(issuer).issuer_name(issuer).public_key(ca_key.public_key())
+              .serial_number(x509.random_serial_number()).not_valid_before(now - datetime.timedelta(days=1))
+              .not_valid_after(now + datetime.timedelta(days=1)).add_extension(x509.BasicConstraints(ca=True, path_length=0), True)
+              .sign(ca_key, None))
+        clients = {}
+        for name in ["reader", "operator", "denied", "unknown", "untrusted", "expired", "ambiguous"]:
+            private = ed25519.Ed25519PrivateKey.generate()
+            san = lambda subject: x509.DNSName(subject + ".example") if identity_kind == "dns_san" else x509.UniformResourceIdentifier("spiffe://access-test/" + subject)
+            uris = [san(name)]
+            if name == "ambiguous":
+                uris.append(san("reader"))
+            certificate = (x509.CertificateBuilder().subject_name(x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, name)]))
+                           .issuer_name(issuer).public_key(private.public_key()).serial_number(x509.random_serial_number())
+                           .not_valid_before(now - datetime.timedelta(days=2))
+                           .not_valid_after(now - datetime.timedelta(seconds=1) if name == "expired" else now + datetime.timedelta(hours=1))
+                           .add_extension(x509.SubjectAlternativeName(uris), False)
+                           .add_extension(x509.ExtendedKeyUsage([x509.oid.ExtendedKeyUsageOID.CLIENT_AUTH]), False)
+                           .sign(ed25519.Ed25519PrivateKey.generate() if name == "untrusted" else ca_key, None))
+            cert_path, key_path = root / (name + ".crt"), root / (name + ".key")
+            cert_path.write_bytes(certificate.public_bytes(serialization.Encoding.PEM))
+            key_path.write_bytes(private.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption()))
+            key_path.chmod(0o600)
+            clients[name] = (cert_path, key_path)
+        return ca.public_bytes(serialization.Encoding.PEM).decode(), clients
+
+    def verify_access_walkthrough(self, executable, mode, execution_platform="native"):
+        script = pathlib.Path(__file__).resolve().parents[3] / "docs/examples/access-management/quickstart.py"
+        with tempfile.TemporaryDirectory(prefix="stackql-access-walkthrough-") as directory:
+            root = pathlib.Path(directory).resolve()
+            docker = execution_platform == "docker"
+            container = "stackql-walkthrough-" + uuid.uuid4().hex
+            env = os.environ.copy()
+            env.pop("STACKQL_CALLER_TOKEN", None)
+            exe = shutil.which(executable) or str(pathlib.Path(executable).resolve())
+            if docker:
+                # Run the published host-side walkthrough against the actual tested image.
+                # This adapter forwards credentials through Docker's environment, never arguments.
+                proxy = root / "stackql-proxy"
+                prefix = ["docker", "run", "--rm", "--interactive", "--user", f"{os.getuid()}:{os.getgid()}",
+                          "--volume", str(root) + ":" + str(root), "--workdir", str(root),
+                          "--env", "STACKQL_CALLER_TOKEN", "--entrypoint", "stackql"]
+                image = os.environ.get("STACKQL_IMAGE_NAME", "stackql/stackql")
+                proxy.write_text("#!/usr/bin/env python3\nimport json,os,sys\n"
+                    + "prefix=" + repr(prefix) + "\nargs=sys.argv[1:]\n"
+                    + "if '--mcp.config' in args:\n"
+                    + " i=args.index('--mcp.config')+1; cfg=json.loads(args[i]); port=cfg['server']['address'].rsplit(':',1)[1]\n"
+                    + " cfg['server']['address']='0.0.0.0:'+port; args[i]=json.dumps(cfg)\n"
+                    + " prefix+=['--publish','127.0.0.1:'+port+':'+port,'--name'," + repr(container) + "]\n"
+                    + "os.execvp('docker',prefix+[" + repr(image) + "]+args)\n")
+                proxy.chmod(0o700)
+                exe = str(proxy)
+            command = [shutil.which("python3") or shutil.which("python"), str(script), "--mode", mode,
+                       "--directory", str(root / "demo"), "--stackql", exe]
+            try:
+                result = subprocess.run(command, env=env, capture_output=True, text=True, timeout=60)
+                assert result.returncode == 0, "documented walkthrough failed: " + result.stdout + result.stderr
+                assert "Verified " + mode + ": principal reader; directory group readers." in result.stdout
+            finally:
+                if docker:
+                    subprocess.run(["docker", "rm", "-f", container], capture_output=True, timeout=30)

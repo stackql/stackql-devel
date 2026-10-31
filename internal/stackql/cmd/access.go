@@ -23,15 +23,30 @@ func configureCallerMCP(host handler.HandlerContext, cfg *mcp_server.Config) err
 	if cfg.GetServerTransport() != "http" {
 		return nil
 	}
+	if manager.Mode() == "local_os" {
+		return errors.New("local OS authentication is unavailable over HTTP")
+	}
 	if cfg.Server.TLSCertFile == "" || cfg.Server.TLSKeyFile == "" {
 		return errors.New("caller access requires HTTPS for MCP HTTP")
 	}
+	cfg.TLSConfig = manager.TLSConfig()
 	cfg.AuthenticateRequest = func(req *http.Request) (context.Context, error) {
-		fields := strings.Fields(req.Header.Get("Authorization"))
-		if req.TLS == nil || len(fields) != 2 || !strings.EqualFold(fields[0], "Bearer") {
-			return nil, errors.New("TLS bearer credential required")
+		if req.TLS == nil {
+			return nil, errors.New("TLS credential required")
 		}
-		evidence := accessmanagement.WithEvidence(req.Context(), authentication.Evidence{Token: fields[1], TLS: req.TLS})
+		credential := authentication.Evidence{TLS: req.TLS}
+		if manager.Mode() == "mtls" {
+			if req.Header.Get("Authorization") != "" {
+				return nil, errors.New("mTLS accepts certificate credentials only")
+			}
+		} else {
+			fields := strings.Fields(req.Header.Get("Authorization"))
+			if len(fields) != 2 || !strings.EqualFold(fields[0], "Bearer") {
+				return nil, errors.New("TLS bearer credential required")
+			}
+			credential.Token = fields[1]
+		}
+		evidence := accessmanagement.WithEvidence(req.Context(), credential)
 		_, _, cancel, err := manager.Establish(evidence)
 		if err != nil {
 			return nil, err

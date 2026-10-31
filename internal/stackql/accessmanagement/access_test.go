@@ -4,8 +4,10 @@ import (
 	"context"
 	"crypto/ed25519"
 	"crypto/rand"
+	"crypto/sha256"
 	"crypto/x509"
 	"database/sql"
+	"encoding/hex"
 	"encoding/pem"
 	"testing"
 	"time"
@@ -13,6 +15,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stackql-labs/omnisdk/public/authentication"
 	"github.com/stackql-labs/omnisdk/public/authorization"
+	"github.com/stackql-labs/omnisdk/public/principal"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 )
 
@@ -129,5 +132,72 @@ func TestCallerSessionsRefreshAndFailClosed(t *testing.T) {
 	}
 	if _, err := establish(valid); err == nil {
 		t.Fatal("directory outage allowed access")
+	}
+}
+
+func TestConfigurationSource(t *testing.T) {
+	for _, raw := range []string{`{"path":"access.json"}`, "access.json"} {
+		path, err := configurationPath(raw)
+		if err != nil || path != "access.json" {
+			t.Fatalf("%q: path=%q error=%v", raw, path, err)
+		}
+	}
+	for _, raw := range []string{`{}`, `{"path":" "}`, `{"path":null}`, `{"path":3}`, `{"path":"access.json","extra":true}`, `{"path":"access.json"}{}`} {
+		if _, err := configurationPath(raw); err == nil {
+			t.Fatalf("accepted %q", raw)
+		}
+	}
+}
+
+func TestBearerDeadlineAndRemoteBoundary(t *testing.T) {
+	directory, err := principal.NewMemoryDirectoryFromBytes([]byte(`{"groups":["readers"],"principals":[{"id":"alice","identities":[{"issuer":"tokens","subject":"alice"}],"groups":["readers"]}]}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	digest := sha256.Sum256([]byte("test-token"))
+	manager, err := newManager(Config{Type: "bearer", Issuer: "tokens", MaxSessionSeconds: 1,
+		Tokens: []BearerToken{{Subject: "alice", SHA256: hex.EncodeToString(digest[:])}},
+		Rules:  []authorization.Rule{{Subject: "group:readers", Resource: "host/sql/read", Action: "execute"}},
+	}, directory)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("STACKQL_CALLER_TOKEN", "test-token")
+	caller, ctx, cancel, err := manager.Establish(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cancel()
+	deadline, bounded := ctx.Deadline()
+	if !bounded || time.Until(deadline) > time.Second || caller.Principal().ID() != "alice" {
+		t.Fatal("unbounded or incorrect bearer session")
+	}
+	if _, _, _, err := manager.Establish(WithEvidence(context.Background(), authentication.Evidence{})); err == nil {
+		t.Fatal("remote request inherited the process token")
+	}
+	cancel()
+	if ctx.Err() == nil {
+		t.Fatal("cancelled caller context remained live")
+	}
+}
+
+func TestModeConfigurationFailsClosed(t *testing.T) {
+	for _, cfg := range []Config{
+		{Type: "unknown"},
+		{Type: "bearer", Issuer: "tokens", Tokens: []BearerToken{{Subject: "alice", SHA256: "00"}}},
+		{Type: "local_os", Issuer: "host", Audience: "unexpected"},
+		{Type: "jwt", Issuer: "issuer", ClientCAPEM: "unexpected"},
+		{Type: "mtls", Issuer: "certs", ClientCAPEM: "not a CA", CertificateIdentity: "uri_san"},
+	} {
+		if _, _, err := configuredAuthenticator(cfg); err == nil {
+			t.Fatalf("accepted mode %q", cfg.Type)
+		}
+	}
+	manager, err := newManager(Config{Type: "local_os", Issuer: "host", Rules: []authorization.Rule{{Subject: "group:readers", Resource: "host/sql/read", Action: "execute"}}}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, _, _, err := manager.Establish(WithEvidence(context.Background(), authentication.Evidence{})); err == nil {
+		t.Fatal("remote request inherited the server OS identity")
 	}
 }

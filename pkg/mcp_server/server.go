@@ -79,7 +79,8 @@ func (s *simpleMCPServer) runHTTPServer(server *mcp.Server, config *Config) erro
 	//nolint:gosec // TODO: find viable alternative to http.ListenAndServe
 	if config.Server.TLSCertFile != "" && config.Server.TLSKeyFile != "" {
 		s.logger.Infof("Starting HTTPS server on %s", address)
-		if err := http.ListenAndServeTLS(address, config.Server.TLSCertFile, config.Server.TLSKeyFile, handlerWithLogging); err != nil {
+		https := &http.Server{Addr: address, Handler: handlerWithLogging, TLSConfig: config.TLSConfig, ReadHeaderTimeout: 10 * time.Second}
+		if err := https.ListenAndServeTLS(config.Server.TLSCertFile, config.Server.TLSKeyFile); err != nil {
 			s.logger.Errorf("HTTPS Server failed: %v", err)
 			return err
 		}

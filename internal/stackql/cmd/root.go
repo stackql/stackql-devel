@@ -160,7 +160,7 @@ func vcsBuildDate() string {
 
 //nolint:lll,funlen,gochecknoinits,mnd // init is a pattern for this lib
 func init() {
-	rootCmd.PersistentFlags().StringVar(&runtimeCtx.AccessConfigFile, "access.config", "", "Opt-in caller access configuration file; JWT credential comes from STACKQL_CALLER_TOKEN for local commands")
+	rootCmd.PersistentFlags().StringVar(&runtimeCtx.AccessConfigFile, "access.config", "", "Caller access configuration: JSON {\"path\":\"/path/to/access.json\"}; token credentials use STACKQL_CALLER_TOKEN locally")
 	buildDate := BuildDate
 	if buildDate == "" {
 		buildDate = vcsBuildDate()
