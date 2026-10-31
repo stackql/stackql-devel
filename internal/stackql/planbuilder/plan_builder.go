@@ -230,15 +230,22 @@ func setLogic(pbi planbuilderinput.PlanBuilderInput, setExpr *sqlparser.SetExpr)
 	if lhsTrimmed == lhsRaw {
 		return nil
 	}
-	exprStr := strings.Trim(sqlparser.String(setExpr.Expr), "'")
-	exprObj := map[string]interface{}{}
-	deserErr := json.Unmarshal([]byte(exprStr), &exprObj)
-	if deserErr != nil {
-		rawRv := pbi.GetHandlerCtx().SetConfigAtPath(lhsTrimmed, exprStr, setExpr.Scope)
-		return rawRv
+	if _, reset := setExpr.Expr.(*sqlparser.Default); reset {
+		return pbi.GetHandlerCtx().SetConfigAtPath(lhsTrimmed, nil, setExpr.Scope)
 	}
-	rv := pbi.GetHandlerCtx().SetConfigAtPath(lhsTrimmed, exprObj, setExpr.Scope)
-	return rv
+	value, ok := setExpr.Expr.(*sqlparser.SQLVal)
+	if !ok || value.Type != sqlparser.StrVal {
+		return fmt.Errorf("session configuration requires a string literal or DEFAULT")
+	}
+	exprStr := string(value.Val)
+	if strings.HasPrefix(lhsTrimmed, "secrets.") {
+		return pbi.GetHandlerCtx().SetConfigAtPath(lhsTrimmed, exprStr, setExpr.Scope)
+	}
+	var exprObj map[string]interface{}
+	if err := json.Unmarshal([]byte(exprStr), &exprObj); err == nil && exprObj != nil {
+		return pbi.GetHandlerCtx().SetConfigAtPath(lhsTrimmed, exprObj, setExpr.Scope)
+	}
+	return pbi.GetHandlerCtx().SetConfigAtPath(lhsTrimmed, exprStr, setExpr.Scope)
 }
 
 func (pgb *standardPlanGraphBuilder) handleSet(pbi planbuilderinput.PlanBuilderInput) error {
@@ -257,8 +264,13 @@ func (pgb *standardPlanGraphBuilder) handleSet(pbi planbuilderinput.PlanBuilderI
 	pr := primitive.NewLocalPrimitive(
 		//nolint:revive // acceptable for now
 		func(pc primitive.IPrimitiveCtx) internaldto.ExecutorOutput {
-			err = setLogic(pbi, setStmt.Exprs[0])
-			return internaldto.NewExecutorOutput(nil, nil, nil, nil, err)
+			var setErr error
+			for _, assignment := range setStmt.Exprs {
+				if setErr = setLogic(pbi, assignment); setErr != nil {
+					break
+				}
+			}
+			return internaldto.NewExecutorOutput(nil, nil, nil, nil, setErr)
 		})
 	pgb.planGraphHolder.GetPrimitiveGraph().CreatePrimitiveNode(pr)
 	return nil

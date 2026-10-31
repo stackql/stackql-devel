@@ -638,6 +638,9 @@ func authProviderName(cloud string) string {
 }
 
 func providerAuthByProvider(ctx queryContext, cloud string) map[string]*omnisdk.Auth {
+	if providerAddress(ctx, cloud) != cloud {
+		return nil
+	}
 	authCtx := providerAuthContext(ctx, cloud)
 	if authCtx == nil {
 		return nil

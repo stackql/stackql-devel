@@ -589,7 +589,7 @@ func (b *stackqlMCPService) PullProvider(ctx context.Context, input dto.Registry
 
 func (b *stackqlMCPService) withContext(ctx context.Context) *stackqlMCPService {
 	cloned := *b
-	cloned.handlerCtx = b.handlerCtx.Clone()
+	cloned.handlerCtx = handler.NewClientContext(b.handlerCtx)
 	cloned.handlerCtx.SetExecutionContext(ctx)
 	return &cloned
 }

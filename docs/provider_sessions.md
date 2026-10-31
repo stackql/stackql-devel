@@ -1,0 +1,128 @@
+# Provider sessions and secrets
+
+Provider aliases bind a canonical provider to an explicit tenancy, credential and request defaults.
+Configuration belongs to the client session; independent SQL connections do not share mutations.
+MCP request contexts are isolated; use one SQL batch when configuring and querying through MCP.
+These features use Omni's session APIs. SQL metadata lookup resolves the canonical provider while
+execution retains the alias, credential and provider/tenancy concurrency controls.
+
+## Configure and query two accounts
+
+Use double-quoted configuration paths and JSON objects inside SQL string literals:
+
+```sql
+SET "$.providers.production" = '{
+  "provider": "aws",
+  "tenancy": "production-account",
+  "auth": {
+    "type": "aws_signing_v4",
+    "access_key_id_env_var": "PRODUCTION_AWS_ACCESS_KEY_ID",
+    "secret_access_key_env_var": "PRODUCTION_AWS_SECRET_ACCESS_KEY"
+  },
+  "params": {"region": "ap-southeast-2"},
+  "tuning": {"max_concurrent": 4, "max_per_host": 4}
+}';
+SET "$.providers.development" = '{
+  "provider": "aws",
+  "tenancy": "development-account",
+  "auth": {
+    "type": "aws_signing_v4",
+    "access_key_id_env_var": "DEVELOPMENT_AWS_ACCESS_KEY_ID",
+    "secret_access_key_env_var": "DEVELOPMENT_AWS_SECRET_ACCESS_KEY"
+  },
+  "params": {"region": "ap-southeast-2"},
+  "tuning": {"max_concurrent": 2}
+}';
+SHOW SERVICES IN production;
+SELECT * FROM production.ec2.vpcs;
+SELECT * FROM development.ec2.vpcs;
+```
+
+Provider and tenancy are required. Tenancy is an explicit grouping label, not an account identity
+inferred or verified by StackQL. Aliases sharing a provider/tenancy share their HTTP request limit
+within one session and must declare identical tuning. `max_concurrent` limits total in-flight HTTP
+requests across hosts; `max_per_host` limits each host. Zero uses Omni's defaults; a negative
+`max_concurrent` explicitly removes the total limit. SQL predicates and mutation assignments override
+alias parameter defaults. Binding parameters satisfy declared required inputs during SQL analysis.
+
+Alias auth uses Omni's execution `Auth` JSON fields. It must be explicit; it does not borrow a
+canonical provider's global auth configuration. Each execution receives a detached credential
+snapshot. Credential edits affect subsequent queries; existing executions retain their snapshot.
+Changing structural bindings or tuning starts a new governor generation.
+
+```sql
+SET "$.providers.production.auth.credentials" = 'replacement-token';
+UNSET "$.providers.production.auth.credentials";
+UNSET "$.providers.production";
+```
+
+Aliases work with document-driven reads, metadata commands, star expansion, explicit EXEC and
+ordinary mutations. They do not add alias support to Omni's native built-in catalog or IaC resource
+addresses. Provider-specific asynchronous completion paths still require their supported canonical
+provider contracts; this change does not extend those contracts.
+
+## Persistent secret storage
+
+Configure the backend explicitly. Omitting `backend` selects file storage, and `path` is mandatory.
+The file is private, atomically replaced and synchronized; its values are base64 JSON, **not encrypted**.
+Use an operator-owned private directory. Store operations honor cancellation and bounded lock waits.
+
+```sql
+SET "$.secret_store" = '{"path":"/private/operator/stackql-secrets.json"}';
+SET "$.secrets.production" = '{"type":"bearer","credentials":"example-token"}';
+SET "$.providers.production" = '{
+  "provider":"example_provider",
+  "tenancy":"production-account",
+  "auth_secret":"production"
+}';
+UNSET "$.secrets.production";
+```
+
+Secret values remain literal strings, including JSON strings. `auth_secret` names a stored JSON
+`Auth` object, resolved when a query takes its snapshot. Store rotation invalidates the session's
+credential cache generation. A missing secret fails the query; it does not fall back to another
+credential. Ordinary provider/auth SET statements never write the store. There is no SQL secret
+revelation interface. Use protected SQL input files rather than placing secret literals in shell
+history or command arguments.
+
+OS storage is explicit and has no file fallback:
+
+```sql
+SET "$.secret_store" = '{"backend":"os","namespace":"stackql/provider-auth"}';
+```
+
+Omni supplies Keychain on macOS, Secret Service on Linux and Credential Manager on Windows, when
+available. The RDBMS principal directory remains separate from provider secrets. Host vault/RDBMS
+adapters implement Omni's public Store interface; no database driver enters Omni.
+
+## Legacy auth configuration and reset
+
+Existing `$.auth.<provider>` paths retain the legacy StackQL AuthCtx field names:
+
+```sql
+SET "$.auth.example" = '{"type":"basic","username":"operator","password":"example"}';
+SET "$.auth.example.password" = 'replacement';
+UNSET "$.auth.example.password";
+```
+
+Whole-object SET replaces that object. Field SET updates one field. UNSET removes a field or
+binding; whole legacy auth reset leaves an empty explicit DTO. Unknown fields and wrong types fail
+without changing the object. Multiple assignments execute in order and stop at the first error;
+the statement is not a transaction across assignments or persistent stores.
+
+Parser UNSET normalizes to the existing SET AST with DEFAULT-valued expressions. Thus
+`SET "$.providers.production" = DEFAULT` is equivalent to UNSET and also works with the previously
+tagged parser. The parser feature must be tagged and consumed by StackQL before UNSET syntax works
+in a standard dependency build. No repository go.mod replacement is required or supplied.
+
+When caller access management is enabled, configuration changes require `session/config` `write`
+permission as well as SQL statement permission. Alias execution additionally requires
+`tenancy/<canonical-provider>/<tenancy>` `use` and the existing operation/credential permissions.
+Session configuration remains opt-in; normal sessions are unaffected until configuration is set.
+
+## Verification
+
+`test/robot/functional/stackql_provider_sessions.robot` runs the real CLI against a loopback provider.
+It checks account credentials, required scope defaults, explicit SQL override, metadata, SELECT *,
+secret rotation/deletion and in-memory auth reset. Handler race tests check detached snapshots and
+isolation between clients. No live cloud or OS credential store is used by those tests.

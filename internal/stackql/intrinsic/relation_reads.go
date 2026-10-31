@@ -365,7 +365,7 @@ func declaredRelationColumns(
 		if err != nil {
 			return nil, err
 		}
-		table, err = omnisdk.DescribeTable(registryRoot(ctx), handle, opts...)
+		table, err = describeProviderTable(ctx, registryRoot(ctx), handle, opts...)
 		if err != nil {
 			return nil, err
 		}

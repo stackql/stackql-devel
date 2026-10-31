@@ -26,7 +26,7 @@ require (
 	github.com/stackql-labs/omnisdk v0.1.9-beta01
 	github.com/stackql/go-suffix-map v0.0.1-alpha02
 	github.com/stackql/psql-wire v0.1.2-beta02
-	github.com/stackql/stackql-parser v0.0.16-beta01
+	github.com/stackql/stackql-parser v0.0.17-alpha01
 	github.com/stackql/stackql-provider-registry v0.0.2-alpha01
 	github.com/stackql/stackql-provider-registry/signing v0.1.0-alpha01
 	github.com/stretchr/testify v1.11.1
