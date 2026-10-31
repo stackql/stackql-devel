@@ -10,6 +10,7 @@ import (
 	"encoding/hex"
 	"encoding/pem"
 	"testing"
+	"testing/synctest"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -155,7 +156,7 @@ func TestBearerDeadlineAndRemoteBoundary(t *testing.T) {
 		t.Fatal(err)
 	}
 	digest := sha256.Sum256([]byte("test-token"))
-	manager, err := newManager(Config{Type: "bearer", Issuer: "tokens", MaxSessionSeconds: 1,
+	manager, err := newManager(Config{Type: "bearer", Issuer: "tokens", MaxSessionSeconds: 1, EnforceSessionDeadline: true,
 		Tokens: []BearerToken{{Subject: "alice", SHA256: hex.EncodeToString(digest[:])}},
 		Rules:  []authorization.Rule{{Subject: "group:readers", Resource: "host/sql/read", Action: "execute"}},
 	}, directory)
@@ -200,4 +201,86 @@ func TestModeConfigurationFailsClosed(t *testing.T) {
 	if _, _, _, err := manager.Establish(WithEvidence(context.Background(), authentication.Evidence{})); err == nil {
 		t.Fatal("remote request inherited the server OS identity")
 	}
+}
+
+// Expiry prevents subsequent dispatch, rather than cancelling work already authorized.
+//
+//nolint:gocognit // Compare default, opted-in and caller deadlines against one authenticated session clock.
+func TestQueryContinuesAfterTokenExpiryByDefault(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		pub, key, err := ed25519.GenerateKey(rand.Reader)
+		if err != nil {
+			t.Fatal(err)
+		}
+		der, err := x509.MarshalPKIXPublicKey(pub)
+		if err != nil {
+			t.Fatal(err)
+		}
+		directory, err := principal.NewMemoryDirectoryFromBytes([]byte(`{"groups":["readers"],"principals":[{"id":"alice","identities":[{"issuer":"issuer","subject":"alice"}],"groups":["readers"]}]}`))
+		if err != nil {
+			t.Fatal(err)
+		}
+		cfg := Config{Issuer: "issuer", Audience: "stackql", MaxSessionSeconds: 1, Keys: []VerificationKey{{ID: "test", Algorithm: "EdDSA", PEM: string(pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: der}))}}, Rules: []authorization.Rule{{Subject: "group:readers", Resource: "host/sql/read", Action: "execute"}}}
+		token := jwt.NewWithClaims(jwt.SigningMethodEdDSA, jwt.MapClaims{"iss": "issuer", "sub": "alice", "aud": "stackql", "exp": time.Now().Add(time.Minute).Unix()})
+		token.Header["kid"] = "test"
+		signed, err := token.SignedString(key)
+		if err != nil {
+			t.Fatal(err)
+		}
+		m, err := newManager(cfg, directory)
+		if err != nil {
+			t.Fatal(err)
+		}
+		parent, stop := context.WithCancel(WithEvidence(context.Background(), authentication.Evidence{Token: signed}))
+		defer stop()
+		_, execution, cancel, err := m.Establish(parent)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer cancel()
+		if _, bounded := execution.Deadline(); bounded {
+			t.Fatal("default execution acquired an authentication deadline")
+		}
+		explicitParent, stopExplicit := context.WithTimeout(parent, time.Minute)
+		defer stopExplicit()
+		_, explicitExecution, cancelExplicit, err := m.Establish(explicitParent)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer cancelExplicit()
+		parentDeadline, _ := explicitParent.Deadline()
+		deadline, bounded := explicitExecution.Deadline()
+		if !bounded || !deadline.Equal(parentDeadline) {
+			t.Fatal("explicit caller deadline was lost")
+		}
+		cfg.EnforceSessionDeadline = true
+		opted, err := newManager(cfg, directory)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, limited, stopLimited, err := opted.Establish(parent)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer stopLimited()
+		time.Sleep(8 * time.Hour)
+		if limited.Err() != context.DeadlineExceeded {
+			t.Fatal("opt-in session limit did not cancel execution")
+		}
+		if explicitExecution.Err() != context.DeadlineExceeded {
+			t.Fatal("explicit caller timeout did not cancel execution")
+		}
+
+		if err := authorization.Check(execution, "host/sql/read", "execute"); err != nil {
+			t.Fatalf("authorized query did not survive expiry: %v", err)
+		}
+		if _, _, cancel, err := m.Establish(parent); err == nil {
+			cancel()
+			t.Fatal("expired token dispatched a new query")
+		}
+		stop()
+		if execution.Err() != context.Canceled {
+			t.Fatal("explicit cancellation was lost")
+		}
+	})
 }

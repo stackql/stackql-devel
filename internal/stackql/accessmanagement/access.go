@@ -22,15 +22,16 @@ import (
 
 // Config is host-owned configuration, never accepted from SQL or provider predicates.
 type Config struct {
-	Type                string               `json:"type"`
-	Tokens              []BearerToken        `json:"tokens"`
-	ClientCAPEM         string               `json:"client_ca_pem"`
-	CertificateIdentity string               `json:"certificate_identity"`
-	Issuer              string               `json:"issuer"`
-	Audience            string               `json:"audience"`
-	Keys                []VerificationKey    `json:"keys"`
-	Rules               []authorization.Rule `json:"rules"`
-	MaxSessionSeconds   int                  `json:"max_session_seconds"`
+	Type                   string               `json:"type"`
+	Tokens                 []BearerToken        `json:"tokens"`
+	ClientCAPEM            string               `json:"client_ca_pem"`
+	CertificateIdentity    string               `json:"certificate_identity"`
+	Issuer                 string               `json:"issuer"`
+	Audience               string               `json:"audience"`
+	Keys                   []VerificationKey    `json:"keys"`
+	Rules                  []authorization.Rule `json:"rules"`
+	EnforceSessionDeadline bool                 `json:"enforce_session_deadline"`
+	MaxSessionSeconds      int                  `json:"max_session_seconds"`
 }
 type VerificationKey struct {
 	ID        string `json:"kid"`
@@ -51,12 +52,13 @@ type Manager interface {
 	Establish(context.Context) (authorization.Session, context.Context, context.CancelFunc, error)
 }
 type manager struct {
-	mode          string
-	tlsConfig     *tls.Config
-	authenticator authentication.Authenticator
-	directory     principal.Directory
-	authorizer    authorization.Authorizer
-	lifetime      time.Duration
+	mode            string
+	tlsConfig       *tls.Config
+	authenticator   authentication.Authenticator
+	directory       principal.Directory
+	authorizer      authorization.Authorizer
+	lifetime        time.Duration
+	enforceDeadline bool
 }
 
 const defaultSessionLifetime = 5 * time.Minute
@@ -144,7 +146,7 @@ func newManager(cfg Config, directory principal.Directory) (Manager, error) {
 	}
 	return &manager{
 		mode: cfg.Type, tlsConfig: transport, authenticator: verifier,
-		directory: directory, authorizer: policy, lifetime: lifetime,
+		directory: directory, authorizer: policy, lifetime: lifetime, enforceDeadline: cfg.EnforceSessionDeadline,
 	}, nil
 }
 
@@ -275,12 +277,33 @@ func (m *manager) Establish(ctx context.Context) (authorization.Session, context
 	if err != nil {
 		return nil, nil, nil, errors.New("caller authentication failed")
 	}
+	execution, cancel, err := m.executionContext(ctx, evidence)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	caller, err := authorization.NewSession(execution, identity, m.directory, m.authorizer)
+	if err != nil {
+		cancel()
+		return nil, nil, nil, errors.New("caller identity resolution failed")
+	}
+	return caller, caller.Context(execution), cancel, nil
+}
+
+// executionContext preserves caller timeouts; credential-derived limits are opt-in.
+func (m *manager) executionContext(
+	ctx context.Context,
+	evidence authentication.Evidence,
+) (context.Context, context.CancelFunc, error) {
+	if !m.enforceDeadline {
+		execution, cancel := context.WithCancel(ctx)
+		return execution, cancel, nil
+	}
 	deadline := time.Now().Add(m.lifetime)
 	if m.mode == "jwt" {
 		// Inspect expiry only after the verifier authenticates this exact token.
 		claims := jwt.RegisteredClaims{}
-		if _, _, err = jwt.NewParser().ParseUnverified(evidence.Token, &claims); err != nil || claims.ExpiresAt == nil {
-			return nil, nil, nil, errors.New("caller expiry is required")
+		if _, _, err := jwt.NewParser().ParseUnverified(evidence.Token, &claims); err != nil || claims.ExpiresAt == nil {
+			return nil, nil, errors.New("caller expiry is required")
 		}
 		if claims.ExpiresAt.Time.Before(deadline) {
 			deadline = claims.ExpiresAt.Time
@@ -289,12 +312,6 @@ func (m *manager) Establish(ctx context.Context) (authorization.Session, context
 	if m.mode == "mtls" && evidence.TLS.PeerCertificates[0].NotAfter.Before(deadline) {
 		deadline = evidence.TLS.PeerCertificates[0].NotAfter
 	}
-
-	bounded, cancel := context.WithDeadline(ctx, deadline)
-	caller, err := authorization.NewSession(bounded, identity, m.directory, m.authorizer)
-	if err != nil {
-		cancel()
-		return nil, nil, nil, errors.New("caller identity resolution failed")
-	}
-	return caller, caller.Context(bounded), cancel, nil
+	execution, cancel := context.WithDeadline(ctx, deadline)
+	return execution, cancel, nil
 }

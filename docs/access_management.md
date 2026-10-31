@@ -21,6 +21,7 @@ JWT uses an explicit issuer, audience and pinned public keys:
   "type": "jwt",
   "issuer": "https://identity.example",
   "audience": "stackql",
+  "enforce_session_deadline": false,
   "max_session_seconds": 300,
   "keys": [
     {"kid": "primary", "algorithm": "EdDSA", "public_key_pem": "-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----\n"}
@@ -32,7 +33,7 @@ JWT uses an explicit issuer, audience and pinned public keys:
 }
 ```
 
-For the other modes, keep the same `rules` and optional `max_session_seconds`, but replace JWT's
+For the other modes, keep the same `rules` and optional deadline settings, but replace JWT's
 `audience` and `keys` with the following mode-specific fields:
 
 ```json
@@ -76,10 +77,15 @@ Use the real compiled method and operation identifiers from trusted provider doc
 wildcard can grant mutation methods as well as reads. Keys are bound to their configured algorithms;
 unknown key IDs, invalid signatures, missing/expired expiry and invalid temporal/issuer/audience
 claims fail closed. Token-supplied URLs and groups are not used for trust or directory membership.
-Configuration is loaded at startup; rotate policy or keys through a controlled restart. Sessions are
-bounded by `max_session_seconds` (default 300; maximum 86400), additionally shortened by JWT expiry
-or the mTLS client certificate expiry. In-flight SDK and
-backend execution receives that deadline. A new statement resolves membership again.
+Configuration is loaded at startup; rotate policy or keys through a controlled restart.
+Queries have no authentication-derived execution deadline by default. Credentials are verified and
+directory membership is refreshed for each new statement; expired credentials cannot dispatch new
+work, but expiry does not interrupt an already authorized query. Explicit caller timeouts and
+cancellation still apply.
+
+Set `"enforce_session_deadline": true` to opt into cancellation at `max_session_seconds` (default
+300; maximum 86400), shortened by JWT or mTLS certificate expiry. `max_session_seconds` has no effect
+on query execution while enforcement is disabled. This option does not enable token renewal.
 
 ## Principal directory
 

@@ -143,6 +143,8 @@ class AccessManagementKeywords:
                     pass
 
                 def do_GET(self):
+                    if scenario.startswith("query_deadline"):
+                        time.sleep(2)
                     counts["read"] += 1
                     self.send_response(200)
                     self.send_header("Content-Type", "application/json")
@@ -347,6 +349,16 @@ components:
                         db.commit()
                     self._verify_https(base, config_file, root, key, token, [], query, db, postgres, counts, clients)
                     denied(query, reader)
+                    return
+                if scenario.startswith("query_deadline"):
+                    config["max_session_seconds"] = 1
+                    config["enforce_session_deadline"] = scenario == "query_deadline_opt_in"
+                    config_file.write_text(json.dumps(config))
+                    code, output = run(query, reader)
+                    if config["enforce_session_deadline"]:
+                        assert code != 0 and "deadline" in output.lower(), "opt-in deadline did not cancel query (rc=" + str(code) + "): " + output
+                    else:
+                        assert code == 0 and "known-item" in output, "default deadline interrupted query: " + output
                     return
                 if scenario == "config":
                     self._verify_configuration(base, config_file, config, reader, query, counts)

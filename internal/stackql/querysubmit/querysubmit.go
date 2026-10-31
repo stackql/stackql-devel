@@ -122,6 +122,16 @@ func (qs *basicQuerySubmitter) SubmitQuery() internaldto.ExecutorOutput {
 		qs.handlerCtx.GetOutErrFile(),
 	)
 	result := qs.queryPlan.GetInstructions().GetPrimitiveGraph().Execute(pl)
+	// A cancelled graph must not be reported as a successful empty result.
+	if err := qs.handlerCtx.GetExecutionContext().Err(); err != nil && result.GetError() == nil {
+		if stream := result.GetSQLResult(); stream != nil {
+			_ = stream.Close()
+		}
+		if qs.cancel != nil {
+			qs.cancel()
+		}
+		return internaldto.NewErroneousExecutorOutput(err)
+	}
 	if qs.cancel != nil && qs.queryPlan.IsReadOnly() {
 		if stream := result.GetSQLResult(); stream != nil {
 			bounded := &callerStream{ISQLResultStream: stream, cancel: qs.cancel}

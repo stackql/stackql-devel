@@ -140,6 +140,14 @@ Documented Local OS Walkthrough Works
     [Documentation]    Execute the published quickstart script; provision the directory and authenticate its reader using this mode.
     Verify Access Walkthrough    ${STACKQL_EXE}    local_os    ${EXECUTION_PLATFORM}
 
+Queries Have No Authentication Deadline By Default
+    [Documentation]    Complete a slow provider query beyond max_session_seconds when deadline enforcement is disabled.
+    Verify Access Scenario    query_deadline_default
+
+Authentication Query Deadline Is Opt In
+    [Documentation]    Enable deadline enforcement and require cancellation of a slow provider query at max_session_seconds.
+    Verify Access Scenario    query_deadline_opt_in
+
 *** Keywords ***
 Verify Access Scenario
     [Arguments]    ${scenario}
