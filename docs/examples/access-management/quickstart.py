@@ -29,7 +29,7 @@ def main():
     root.mkdir(mode=0o700, parents=True, exist_ok=True)
     if any(root.iterdir()):
         parser.error("choose an empty directory; existing credentials are never overwritten")
-    exe = shutil.which(args.stackql) or str(Path(args.stackql).resolve())
+    exe = str(Path(shutil.which(args.stackql) or args.stackql).resolve())
 
     def write(name, value):
         path = root / name

@@ -720,11 +720,21 @@ components:
                 proxy.chmod(0o700)
                 exe = str(proxy)
             command = [shutil.which("python3") or shutil.which("python"), str(script), "--mode", mode,
-                       "--directory", str(root / "demo"), "--stackql", exe]
+                       "--directory", str(root / "demo"), "--stackql", exe if docker else os.path.relpath(exe)]
             try:
                 result = subprocess.run(command, env=env, capture_output=True, text=True, timeout=60)
                 assert result.returncode == 0, "documented walkthrough failed: " + result.stdout + result.stderr
                 assert "Verified " + mode + ": principal reader; directory group readers." in result.stdout
+                if mode == "local_os":
+                    # Exercise the documented next step, not just its setup script.
+                    demo = root / "demo"
+                    shell = subprocess.run([exe, "--access.config", json.dumps({"path": str(demo / "access.json")}),
+                        "--sqlBackend", (demo / "backend.json").read_text(), "--output", "json", "shell"],
+                        input="SELECT whoami() AS principal, groups() AS memberships;\n", env=env,
+                        cwd=root, capture_output=True, text=True, timeout=45)
+                    assert shell.returncode == 0, "documented authenticated shell failed: " + shell.stdout + shell.stderr
+                    assert '"principal":"reader"' in shell.stdout.replace(" ", ""), "shell did not resolve reader: " + shell.stdout
+                    assert "readers" in shell.stdout, "shell did not resolve directory membership: " + shell.stdout
             finally:
                 if docker:
                     subprocess.run(["docker", "rm", "-f", container], capture_output=True, timeout=30)

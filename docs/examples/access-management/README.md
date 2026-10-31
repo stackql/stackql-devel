@@ -1,82 +1,106 @@
-# Caller access: four executable walkthroughs
+# Try caller access locally
 
-These walkthroughs make no cloud requests. Each provisions a fresh SQLite principal directory,
-configures one authentication mode, then runs:
+Run these commands **from the StackQL repository root**, in your terminal. Use the built binary
+`./build/stackql`. Python 3 provisions the demonstration directory; JWT and mTLS also require OpenSSL.
+No cloud account is needed and these examples make no cloud requests.
+
+**`whoami()` and `groups()` require an authenticated StackQL session. They do not work in an ordinary
+shell started without `--access.config`.** Start with the local OS example below.
+
+## 1. Local OS identity: set up, then open an authenticated shell
+
+Choose an empty directory. This command creates the principal database and access configuration,
+maps your effective Unix UID or Windows SID to principal `reader`, and verifies a query:
+
+```sh
+python3 docs/examples/access-management/quickstart.py \
+  --stackql ./build/stackql --mode local_os --directory /tmp/access-os
+```
+
+Expect the confirmation:
+
+```text
+Verified local_os: principal reader; directory group readers.
+```
+
+Now open a shell using that configuration and database:
+
+```sh
+./build/stackql \
+  --access.config '{"path":"/tmp/access-os/access.json"}' \
+  --sqlBackend '{"dsn":"/tmp/access-os/principals.db"}' \
+  shell
+```
+
+**In this authenticated StackQL shell**, run:
 
 ```sql
 SELECT whoami() AS principal, groups() AS memberships;
 ```
 
-Expected identity: principal `reader`, directory group `readers`. Requirements: StackQL on `PATH`,
-Python 3 and OpenSSL. The script uses only Python's standard library. Run from the repository root.
-Use a different empty directory for each run; existing credentials are never overwritten.
+Expect one row: `principal` is `reader`, and `memberships` is `["readers"]`.
+You can repeat the query or reopen the same configured shell. No token is required. Directory
+memberships determine permissions; OS group membership does not grant access. HTTP callers cannot
+use the server's OS identity.
 
-## 1. JWT
+The setup command refuses to overwrite a nonempty directory. If you already used `/tmp/access-os`,
+reuse its configuration with the shell command above, or choose a new empty directory for setup
+and use that path in both shell flags.
 
-```sh
-python3 docs/examples/access-management/quickstart.py --mode jwt --directory /tmp/access-jwt
-```
-
-Creates an Ed25519 signing key, pins its public key and `kid` in `access.json`, issues a short-lived
-JWT with the configured issuer/audience, then supplies it through `STACKQL_CALLER_TOKEN` to `exec`.
-The directory maps `(access-demo, reader)` to principal `reader`. Token group claims grant nothing.
-In a deployment, obtain tokens from your issuer and configure its trusted public keys instead.
-
-## 2. Static bearer token
+## 2. JWT: provision and verify a signed token
 
 ```sh
-python3 docs/examples/access-management/quickstart.py --mode bearer --directory /tmp/access-bearer
+python3 docs/examples/access-management/quickstart.py \
+  --stackql ./build/stackql --mode jwt --directory /tmp/access-jwt
 ```
 
-Generates a random token. Only its SHA-256 digest and subject go into `access.json`. The credential
-is passed through the child process environment; the same issuer/subject directory mapping supplies
-permissions. A deployment provisions token digests administratively and supplies plaintext tokens
-through its secret-management environment. Restart after changing configured digests.
+Expect `Verified jwt: principal reader; directory group readers.`
 
-## 3. Local OS identity
+The script creates an Ed25519 signing key, pins its public key and `kid`, issues a five-minute JWT,
+and supplies it through `STACKQL_CALLER_TOKEN` to one CLI query. Token group claims grant nothing;
+the directory supplies `readers` membership. The token is not exported into your terminal, so opening
+a separate shell with this configuration alone will not authenticate you. For deployment, obtain
+JWTs from your issuer and configure its trusted public keys.
+
+## 3. Static bearer token: provision and verify a token digest
 
 ```sh
-python3 docs/examples/access-management/quickstart.py --mode local_os --directory /tmp/access-os
+python3 docs/examples/access-management/quickstart.py \
+  --stackql ./build/stackql --mode bearer --directory /tmp/access-bearer
 ```
 
-Maps the effective Unix UID or Windows SID to principal `reader`. No token is required. OS usernames,
-OS groups and client-supplied names do not grant permissions: directory memberships remain authoritative.
-Docker uses the container process's effective UID. HTTP callers cannot use the server's OS identity.
+Expect `Verified bearer: principal reader; directory group readers.`
 
-## 4. Mutual TLS
+The script generates a random token, stores only its SHA-256 digest and subject in `access.json`,
+and passes the token to one child CLI query through `STACKQL_CALLER_TOKEN`. The token is not exported
+into your terminal or printed. For deployment, provision a token digest and supply its plaintext
+credential through your secret-management environment. Changing configured digests requires a restart.
+
+## 4. Mutual TLS: query over HTTPS with a client certificate
 
 ```sh
-python3 docs/examples/access-management/quickstart.py --mode mtls --directory /tmp/access-mtls
+python3 docs/examples/access-management/quickstart.py \
+  --stackql ./build/stackql --mode mtls --directory /tmp/access-mtls
 ```
 
-Creates a demonstration CA, server certificate and client certificate. It starts an HTTPS MCP server,
-connects with the client certificate and verifies the server CA. The client URI SAN
-`spiffe://access-demo/reader` maps to directory principal `reader`. No bearer token is sent. The server
-requires a verified client chain and exactly one configured SAN, then stops after the query.
-In a deployment, use your managed CA and certificates; configure `client_ca_pem` and `uri_san` or `dns_san`.
-Common Name is never an identity fallback.
+Expect `Verified mtls: principal reader; directory group readers.`
 
-## Inspect or deploy the configuration
+The script creates a demonstration CA and server/client certificates, starts an HTTPS MCP server,
+queries it with the client certificate while verifying the server CA, then stops the server.
+The client URI SAN `spiffe://access-demo/reader` maps to principal `reader`. No bearer token is sent.
+The server requires a verified client chain and exactly one configured identity SAN; Common Name
+is not a fallback. For deployment, use your managed CA and certificates.
 
-Each directory contains `access.json`, `backend.json` and `principals.db`. The mTLS walkthrough also
-writes `mcp.json`. The generated private keys are for this local demonstration. Tokens are never printed
-or stored as plaintext configuration. The script's child token disappears when that child exits.
+## What these examples leave behind
 
-The actual CLI configuration form is:
+Each directory contains `access.json`, `backend.json` and `principals.db`. JWT/mTLS also create
+private keys; mTLS writes `mcp.json`. These credentials are local demonstration credentials.
+Use a separate empty directory for each setup command.
 
-```sh
-stackql --access.config '{"path":"/etc/stackql/access.json"}' \
-  --sqlBackend '{"dsn":"/var/lib/stackql/principals.db"}' \
-  exec 'SELECT whoami(), groups();'
-```
+See the [configuration reference](../../access_management.md) for policy, principal-directory
+provisioning, PostgreSQL and supported transports. For actual infrastructure deployment, see the
+[AWS VPC/subnet walkthrough](../../iac_walkthrough.md).
 
-JWT/bearer deployments must set `STACKQL_CALLER_TOKEN` before this command. Shell and MCP stdio use
-that same environment. For HTTPS, send the token in `Authorization: Bearer ...`, or use a verified
-client certificate when `type` is `mtls`. See [the configuration reference](../../access_management.md)
-for complete mode examples, PostgreSQL provisioning and transport restrictions.
-
-The same walkthrough script is executed by four individually named tests in
-[`stackql_access.robot`](../../../test/robot/functional/stackql_access.robot). Additional scenarios
-exercise each mode against real CLI/MCP transports and SQLite/PostgreSQL, including invalid credentials,
-revocation, isolation and denied effects. Docker tests run the script against the actual tested image
-through a host-side command adapter; the standard StackQL image does not acquire a Python dependency.
+Robot tests execute all four setup scripts. The local OS walkthrough test also starts the configured
+shell and runs the identity query inside it. Docker tests use the tested container image; Python
+runs on the test host and is not added to the standard image.
