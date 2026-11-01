@@ -151,12 +151,18 @@ func (hc *standardHandlerContext) setProviderSessionConfig(path string, rhs inte
 	defer state.mu.Unlock()
 	switch parts[0] {
 	case "secret_store":
+		if !hc.runtimeContext.AllowPersistentSecrets {
+			return true, fmt.Errorf("persistent secret stores are disabled; operator must enable --allow-persistent-secrets")
+		}
 		if len(parts) != 1 || rhs == nil {
 			return true, fmt.Errorf("secret_store requires an explicit configuration object")
 		}
 		var cfg secrets.Config
 		if err := decodeSessionObject(rhs, &cfg); err != nil {
 			return true, err
+		}
+		if cfg.Backend != "os" || cfg.Path != "" {
+			return true, fmt.Errorf("explicit OS backend required; flat-file secrets are not supported")
 		}
 		store, err := secrets.New(cfg)
 		if err != nil {

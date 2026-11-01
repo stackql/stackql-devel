@@ -63,12 +63,13 @@ provider contracts; this change does not extend those contracts.
 
 ## Persistent secret storage
 
-Configure the backend explicitly. Omitting `backend` selects file storage, and `path` is mandatory.
-The file is private, atomically replaced and synchronized; its values are base64 JSON, **not encrypted**.
-Use an operator-owned private directory. Store operations honor cancellation and bounded lock waits.
+Persistent secrets are **disabled by default**. An operator must start StackQL with
+`--allow-persistent-secrets` to enable the OS backend. SQL cannot enable this permission.
+Flat-file stores, paths and an omitted backend are rejected even with the flag enabled.
+In-memory provider/auth configuration remains available without this flag.
 
 ```sql
-SET "secret_store" = '{"path":"/private/operator/stackql-secrets.json"}';
+SET "secret_store" = '{"backend":"os","namespace":"stackql/provider-auth"}';
 SET "secrets.production" = '{"type":"bearer","credentials":"example-token"}';
 SET "providers.production" = '{
   "provider":"example_provider",
@@ -78,22 +79,21 @@ SET "providers.production" = '{
 UNSET "secrets.production";
 ```
 
-Secret values remain literal strings, including JSON strings. `auth_secret` names a stored JSON
-`Auth` object, resolved when a query takes its snapshot. Store rotation invalidates the session's
-credential cache generation. A missing secret fails the query; it does not fall back to another
-credential. Ordinary provider/auth SET statements never write the store. There is no SQL secret
-revelation interface. Use protected SQL input files rather than placing secret literals in shell
-history or command arguments.
+The OS backend uses Keychain on macOS, Secret Service on Linux (`secret-tool` and a
+working session service), or Credential Manager on Windows. It fails when unavailable;
+there is no file fallback. Namespaces separate keys but are not per-principal ACLs.
+The OS store operates under the server process's OS identity. Enabling it does not
+provide per-secret authorization between shared-server callers.
 
-OS storage is explicit and has no file fallback:
+Secret values are strings, including JSON strings. `auth_secret` identifies a JSON
+`Auth` object resolved for a query snapshot. Rotation invalidates the session's credential
+cache generation. Missing secrets fail rather than borrowing another credential.
+Ordinary provider/auth SET statements never write the store. SQL revelation separately
+requires `--allow-secret-dereference`. Avoid secret literals in command arguments/history.
 
-```sql
-SET "secret_store" = '{"backend":"os","namespace":"stackql/provider-auth"}';
-```
-
-Omni supplies Keychain on macOS, Secret Service on Linux and Credential Manager on Windows, when
-available. The RDBMS principal directory remains separate from provider secrets. Host vault/RDBMS
-adapters implement Omni's public Store interface; no database driver enters Omni.
+Robot OS-store scenarios mock the Keychain/Secret Service command boundaries on Unix
+so CI does not require an unlocked desktop keyring. Native Windows uses Credential Manager.
+These tests verify the CLI/store contract, not the security of a real Unix keyring service.
 
 ## Legacy auth configuration and reset
 

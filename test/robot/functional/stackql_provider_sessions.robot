@@ -9,7 +9,7 @@ Suite Teardown    Stop Session Provider
 Provider Aliases Keep Their Credentials And Scope Across Session Edits
     Provider Aliases Survive Session Edits
 
-Persistent Secrets Rotate Without Recreating The Session
+OS Secrets Rotate Without Recreating The Session
     Secret Credentials Rotate And Reset
 
 Auth Dto Fields Can Be Set And Unset In Memory
@@ -38,3 +38,18 @@ Missing Unset And Secret Variables Fail Before Dispatch
 
 Secret Dereferencing Requires Trusted Runtime Opt In
     Secret Variables Require Runtime Opt In
+
+Persistent Secret Stores Require Operator Opt In
+    Persistent Secret Stores Require Operator Opt In
+
+Flat File Secret Stores Are Rejected Even With Opt In
+    Flat File Secret Stores Are Rejected Even With Opt In
+
+OS Secrets Survive New Sessions And Namespaces Are Isolated
+    OS Secrets Survive New Sessions And Namespaces Are Isolated
+
+In Memory Auth Values Support SQL With Explicit Opt In
+    In Memory Auth Values Support SQL With Explicit Opt In
+
+Structured OS Secret Fields Support SQL With Explicit Opt In
+    Structured OS Secret Fields Support SQL With Explicit Opt In

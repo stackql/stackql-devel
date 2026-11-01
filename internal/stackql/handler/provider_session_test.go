@@ -57,32 +57,21 @@ func TestProviderSessionBindings(t *testing.T) {
 	}
 }
 
-func TestSessionSecretStore(t *testing.T) {
+func TestSessionSecretStoreConfiguration(t *testing.T) {
 	hc := sessionTestHandler()
-	cfg := map[string]interface{}{"path": filepath.Join(t.TempDir(), "secrets.json")}
-	if err := hc.SetConfigAtPath("secret_store", cfg, ""); err != nil {
-		t.Fatal(err)
+	cfg := map[string]interface{}{"backend": "os", "namespace": "stackql-test"}
+	if err := hc.SetConfigAtPath("secret_store", cfg, ""); err == nil {
+		t.Fatal("persistent secret store enabled without operator opt-in")
 	}
-	auth := `{"type":"bearer","credentials":"from-store"}`
-	if err := hc.SetConfigAtPath("secrets.production", auth, ""); err != nil {
-		t.Fatal(err)
-	}
-	binding := map[string]interface{}{"provider": "widgets", "tenancy": "account-a", "auth_secret": "production"}
-	if err := hc.SetConfigAtPath("providers.production", binding, ""); err != nil {
-		t.Fatal(err)
-	}
-	snapshot, err := hc.ProviderSessionArgs(context.Background())
-	if err != nil {
-		t.Fatal(err)
-	}
-	if snapshot.ProviderAliases["production"].Auth.Credentials != "from-store" {
-		t.Fatal("secret not resolved")
-	}
-	if err := hc.SetConfigAtPath("secrets.production", nil, ""); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := hc.ProviderSessionArgs(context.Background()); err == nil {
-		t.Fatal("deleted secret still available")
+	hc.runtimeContext.AllowPersistentSecrets = true
+	for _, denied := range []map[string]interface{}{
+		{"path": filepath.Join(t.TempDir(), "secrets.json")},
+		{"backend": "file", "path": filepath.Join(t.TempDir(), "secrets.json")},
+		{"backend": "os", "namespace": "stackql-test", "path": "not-allowed"},
+	} {
+		if err := hc.SetConfigAtPath("secret_store", denied, ""); err == nil {
+			t.Fatal("flat-file secret configuration accepted")
+		}
 	}
 }
 

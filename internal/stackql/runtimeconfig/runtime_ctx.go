@@ -3,6 +3,7 @@ package dto
 import "strconv"
 
 type RuntimeCtx struct {
+	AllowPersistentSecrets       bool
 	AllowSecretDereference       bool
 	AccessConfigFile             string
 	APIRequestTimeout            int
@@ -222,6 +223,7 @@ func (rc *RuntimeCtx) Set(key string, val string) error {
 
 func (rc RuntimeCtx) Copy() RuntimeCtx {
 	return RuntimeCtx{
+		AllowPersistentSecrets:       rc.AllowPersistentSecrets,
 		AllowSecretDereference:       rc.AllowSecretDereference,
 		AccessConfigFile:             rc.AccessConfigFile,
 		APIRequestTimeout:            rc.APIRequestTimeout,
