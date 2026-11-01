@@ -39,7 +39,7 @@ class ProviderSessionLibrary:
         self.worker.start()
         endpoint = f"http://127.0.0.1:{self.server.server_port}"
         if execution_platform == "docker":
-            self.prefix = ["docker", "--log-level", "error", "compose", "-p", "execrun", "run", "--rm", "--no-deps", "-T",
+            self.prefix = ["docker", "--log-level", "error", "compose", "--progress", "quiet", "-p", "execrun", "run", "--rm", "--no-deps", "-T",
                            "--user", f"{os.getuid()}:{os.getgid()}", "--workdir", str(self.root),
                            "-v", str(self.root) + ":" + str(self.root), "--entrypoint", "stackql", "stackqlsrv"]
             endpoint = endpoint.replace("127.0.0.1", "host.docker.internal")
