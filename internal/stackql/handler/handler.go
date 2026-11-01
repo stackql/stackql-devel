@@ -120,6 +120,7 @@ type HandlerContext interface { //nolint:revive // don't mind stuttering this on
 	GetDataFlowCfg() dto.DataFlowCfg
 
 	//
+	ResolveVariables(sqlparser.Statement) error
 	SetConfigAtPath(path string, rhs interface{}, scope string) error
 
 	// Upstream (provider HTTP) error strictness.  When true, data
@@ -554,6 +555,9 @@ func (hc *standardHandlerContext) SetConfigAtPath(path string, rhs interface{}, 
 	if scope != "" && scope != "session" {
 		return fmt.Errorf("configuration scope %q is not supported; use SESSION", scope)
 	}
+	if strings.HasPrefix(path, "variables.") {
+		return hc.setSessionVariable(path, rhs)
+	}
 	if handled, err := hc.setProviderSessionConfig(path, rhs, scope); handled {
 		return err
 	}
@@ -575,6 +579,7 @@ func (hc *standardHandlerContext) setConfigAtPath(path string, rhs interface{}, 
 	}
 }
 
+//nolint:nestif // Whole-object replacement and field reset intentionally have distinct semantics.
 func (hc *standardHandlerContext) setAuthContextAtPath(path string, rhs interface{}, scope string) error {
 	hc.authMapMutex.Lock()
 	defer hc.authMapMutex.Unlock()

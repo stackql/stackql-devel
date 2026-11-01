@@ -264,6 +264,7 @@ func describeDocumentView(ctx queryContext, view aot.View, extended bool) intern
 }
 
 func scopeProviderView(view *sqlparser.Select, alias, canonical string) *sqlparser.Select {
+	//nolint:errcheck // Root SELECT type is preserved.
 	return sqlparser.Rewrite(view, func(cursor *sqlparser.Cursor) bool {
 		table, ok := cursor.Node().(sqlparser.TableName)
 		if !ok || table.Qualifier.IsEmpty() {

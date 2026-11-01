@@ -630,6 +630,7 @@ func providerAuthContext(ctx queryContext, resourcePath string) *dto.AuthCtx {
 }
 
 func authProviderName(cloud string) string {
+	cloud = strings.TrimPrefix(cloud, UnstablePrefix)
 	if providerName, ok := cloudProviders[cloud]; ok {
 		return providerName
 	}

@@ -1,4 +1,4 @@
-package intrinsic
+package intrinsic //nolint:testpackage // Private provider-view rewriting is tested here.
 
 import (
 	"testing"
@@ -24,5 +24,13 @@ func TestProviderViewRetainsTenancyAlias(t *testing.T) {
 	}
 	if len(providers) != 3 || providers[0] != UnstablePrefix+"east" || providers[1] != "other" || providers[2] != UnstablePrefix+"east" {
 		t.Fatalf("view lost its account scope: %v", providers)
+	}
+}
+
+func TestAuthProviderNameNormalizesSQLProviderPrefix(t *testing.T) {
+	for input, want := range map[string]string{"google": "google", "stackql_unstable_google": "google", "stackql_unstable_gcp": "google", "stackql_unstable_aws": "aws", "stackql_unstable_widgets": "widgets"} {
+		if got := authProviderName(input); got != want {
+			t.Fatalf("%s: got %s, want %s", input, got, want)
+		}
 	}
 }

@@ -28,3 +28,15 @@ Global Configuration Scope Fails Before Provider Execution
 
 Dollar Is Rejected On Assignment Targets
     Dollar Assignment Target Is Rejected
+
+Scalar Variables Preserve Functions Operators And Types
+    Scalar Variables Preserve Sql Expressions
+
+Variable Predicates Resolve Before Provider Dispatch
+    Variable Predicate Resolves Before Provider Dispatch
+
+Missing Unset And Secret Variables Fail Before Dispatch
+    Variable Errors Prevent Provider Dispatch
+
+Secret Dereferencing Requires Trusted Runtime Opt In
+    Secret Variables Require Runtime Opt In

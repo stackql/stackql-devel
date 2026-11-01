@@ -224,19 +224,41 @@ func (pgb *standardPlanGraphBuilder) handleExplain(pbi planbuilderinput.PlanBuil
 	return buildErr
 }
 
+//nolint:exhaustive // Unsupported literal kinds are explicitly rejected by the default branch.
 func setLogic(pbi planbuilderinput.PlanBuilderInput, setExpr *sqlparser.SetExpr) error {
 	lhsTrimmed := setExpr.Name.GetRawVal()
-	if strings.HasPrefix(lhsTrimmed, "$.") {
+	if strings.HasPrefix(lhsTrimmed, "$") {
 		return fmt.Errorf("SET/UNSET targets must omit '$.'; use '$' only for dereferencing")
 	}
 	root, _, _ := strings.Cut(lhsTrimmed, ".")
 	switch root {
-	case "auth", "providers", "secret_store", "secrets":
+	case "auth", "providers", "secret_store", "secrets", "variables":
 	default:
 		return nil
 	}
 	if _, reset := setExpr.Expr.(*sqlparser.Default); reset {
 		return pbi.GetHandlerCtx().SetConfigAtPath(lhsTrimmed, nil, setExpr.Scope)
+	}
+	if root == "variables" {
+		var raw json.RawMessage
+		switch value := setExpr.Expr.(type) {
+		case *sqlparser.NullVal:
+			raw = json.RawMessage("null")
+		case sqlparser.BoolVal:
+			raw = json.RawMessage(fmt.Sprint(bool(value)))
+		case *sqlparser.SQLVal:
+			switch value.Type {
+			case sqlparser.StrVal:
+				raw, _ = json.Marshal(string(value.Val))
+			case sqlparser.IntVal, sqlparser.FloatVal:
+				raw = json.RawMessage(value.Val)
+			default:
+				return fmt.Errorf("variables accepts scalar literals only")
+			}
+		default:
+			return fmt.Errorf("variables accepts scalar literals only")
+		}
+		return pbi.GetHandlerCtx().SetConfigAtPath(lhsTrimmed, raw, setExpr.Scope)
 	}
 	value, ok := setExpr.Expr.(*sqlparser.SQLVal)
 	if !ok || value.Type != sqlparser.StrVal {

@@ -45,6 +45,8 @@ func (table aliasedProviderTable) ServerTransportDefaults() map[string]string {
 	}
 	return nil
 }
+
+//nolint:lll // Keep the provider API signature together.
 func describeProviderTable(ctx queryContext, registry, address string, opts ...stackqldoc.Option) (omnisdk.Table, error) {
 	canonical := providerAddress(ctx, address)
 	table, err := omnisdk.DescribeTable(registry, canonical, opts...)
@@ -57,6 +59,7 @@ func describeProviderTable(ctx queryContext, registry, address string, opts ...s
 	return aliasedProviderTable{Table: table, address: address}, nil
 }
 
+//nolint:lll // Keep the provider API signature together.
 func bindProviderDefaults(ctx queryContext, q query.Unresolved, tables map[string]omnisdk.Table) (query.Unresolved, error) {
 	host, ok := ctx.(interface {
 		ProviderBindingParams(string) map[string]string

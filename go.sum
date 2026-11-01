@@ -338,6 +338,8 @@ github.com/stackql/readline v0.0.2-alpha05 h1:ID4QzGdplFBsrSnTuz8pvKzWw96JbrJg8f
 github.com/stackql/readline v0.0.2-alpha05/go.mod h1:OFAYOdXk/X4+5GYiDXFfaGrk+bCN6Qv0SYY5HNzD2E0=
 github.com/stackql/stackql-parser v0.0.17-alpha01 h1:CiSza2Sxf9h2rXvLSJvopS95OWVD2OdHtZcLYc2tnfQ=
 github.com/stackql/stackql-parser v0.0.17-alpha01/go.mod h1:Ar4KzxFUFA6oLcXIZGVr1RIeEH47H3xRP08LJCry924=
+github.com/stackql/stackql-parser v0.0.17-alpha02 h1:Ci40DdpqT9MVneO5m05rjx8zOsDo/pp+W6ANSfTno0Y=
+github.com/stackql/stackql-parser v0.0.17-alpha02/go.mod h1:Ar4KzxFUFA6oLcXIZGVr1RIeEH47H3xRP08LJCry924=
 github.com/stackql/stackql-provider-registry v0.0.2-alpha01 h1:fPz6MhfXaMC/VPNJnjUo0sZyjTYhlifzaUWZ9Yj8NVE=
 github.com/stackql/stackql-provider-registry v0.0.2-alpha01/go.mod h1:87rVxnS2aRASK20lBQgoYA0o7FSJTZBGGRaWFR7IDm4=
 github.com/stackql/stackql-provider-registry/signing v0.1.0-alpha01 h1:KtrwwTJLMWn5+yEzguADFx96pA59k7P2JxmpAKXae6g=

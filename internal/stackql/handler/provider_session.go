@@ -18,11 +18,12 @@ import (
 )
 
 type providerSessionState struct {
-	base     omnisdk.Args
-	mu       sync.Mutex
-	client   omnisdk.ClientSession
-	store    secrets.Store
-	bindings map[string]omnisdk.ProviderBinding
+	variables map[string]any
+	base      omnisdk.Args
+	mu        sync.Mutex
+	client    omnisdk.ClientSession
+	store     secrets.Store
+	bindings  map[string]omnisdk.ProviderBinding
 }
 
 func decodeSessionObject(value interface{}, target interface{}) error {
@@ -90,6 +91,7 @@ func (state *providerSessionState) initialize() error {
 	return nil
 }
 
+//nolint:mnd // One canonical and one SQL-prefixed entry per alias.
 func (hc *standardHandlerContext) ProviderSessionArgs(ctx context.Context) (omnisdk.Args, error) {
 	state := hc.providerSessionState()
 	state.mu.Lock()
@@ -127,6 +129,7 @@ func (hc *standardHandlerContext) ResolveProviderAddress(address string) string 
 	return address
 }
 
+//nolint:gocognit,gocyclo,cyclop,govet,mnd,gosec,nestif,funlen // Explicit configuration and trusted credential storage.
 func (hc *standardHandlerContext) setProviderSessionConfig(path string, rhs interface{}, scope string) (bool, error) {
 	parts, err := jsonpath.SplitSearchPath(path)
 	if err != nil {
@@ -268,7 +271,10 @@ func NewClientContext(parent HandlerContext) HandlerContext {
 	if !ok {
 		return cloned
 	}
-	source := parent.(*standardHandlerContext)
+	source, ok := parent.(*standardHandlerContext)
+	if !ok {
+		return cloned
+	}
 	source.authMapMutex.Lock()
 	target.authContexts = source.authContexts.Clone()
 	target.docAuthProviders = map[string]struct{}{}
@@ -282,6 +288,7 @@ func NewClientContext(parent HandlerContext) HandlerContext {
 	state.mu.Lock()
 	target.providerSession = newProviderSessionState(source.runtimeContext.APIRequestTimeout)
 	target.providerSession.store = state.store
+	target.providerSession.variables = maps.Clone(state.variables)
 	target.providerSession.bindings = make(map[string]omnisdk.ProviderBinding, len(state.bindings))
 	for alias, binding := range state.bindings {
 		binding.Params = maps.Clone(binding.Params)

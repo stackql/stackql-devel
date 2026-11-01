@@ -101,7 +101,7 @@ func GenerateStreamFunc(
 			return action, true
 		}
 		action, handled := selectFunc(ctx, node, ctx.GetCurrentProvider())
-		if !handled && ctx.GetRuntimeContext().AccessConfigFile != "" && backendOnlySelect(node) {
+		if !handled && backendOnlySelect(node) {
 			return statementReadFunc(ctx, node), true
 		}
 		return action, handled

@@ -160,7 +160,9 @@ func (pgr *standardDBMSInternalRouter) analyzeShow(node *sqlparser.Show) (consta
 
 func (pgr *standardDBMSInternalRouter) analyzeSet(node *sqlparser.Set) (constants.BackendQueryType, bool) {
 	for _, n := range node.Exprs {
-		if strings.HasPrefix(n.Name.GetRawVal(), "$") {
+		root, _, _ := strings.Cut(n.Name.GetRawVal(), ".")
+		if strings.HasPrefix(root, "$") || root == "auth" || root == "providers" ||
+			root == "secrets" || root == "secret_store" || root == "variables" {
 			return pgr.negative()
 		}
 	}

@@ -401,9 +401,21 @@ func backendOnlySelect(node *sqlparser.Select) bool {
 	return isName && name.Name.GetRawVal() == "dual" && name.Qualifier.IsEmpty() && name.QualifierSecond.IsEmpty()
 }
 func planBackendRead(ctx queryContext, node *sqlparser.Select) ([]string, derivedOpener, error) {
-	_, names, err := selectOutputs(node.SelectExprs)
-	if err != nil {
-		return nil, nil, err
+	// Backend expressions need output names, not translation into provider operators.
+	names := make([]string, 0, len(node.SelectExprs))
+	for i, projection := range node.SelectExprs {
+		aliased, ok := projection.(*sqlparser.AliasedExpr)
+		if !ok {
+			return nil, nil, fmt.Errorf("backend expression must name an output")
+		}
+		name, err := projectionName(aliased)
+		if err != nil {
+			return nil, nil, err
+		}
+		if name == "" {
+			name = fmt.Sprintf("col_%d", i+1)
+		}
+		names = append(names, name)
 	}
 	formatter := sqlparser.NewTrackedBuffer(ctx.GetASTFormatter())
 	if node.With != nil {

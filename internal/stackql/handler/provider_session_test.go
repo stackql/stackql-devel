@@ -1,4 +1,4 @@
-package handler
+package handler //nolint:testpackage // Private session snapshots and state are tested here.
 
 import (
 	"context"

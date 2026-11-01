@@ -130,3 +130,40 @@ class ProviderSessionLibrary:
         result = subprocess.run([self.binary, "exec", 'SET "$.auth.widgets.password" = \'value\';'] + self.flags, text=True, capture_output=True, timeout=30)
         assert result.returncode != 0 and "targets must omit" in result.stderr, result.stderr
         assert len(self.calls) == before, "invalid assignment target reached provider"
+
+    def scalar_variables_preserve_sql_expressions(self):
+        sql = '''SET "variables.word" = 'hello'; SET "variables.number" = 9007199254740993;
+                 SET "variables.yes" = true; SET "variables.empty" = null; SET "variables.negative" = -17;
+                 SELECT upper($word) || '-world' AS label, $number AS exact_number,
+                        $yes = true AS truth, $empty IS NULL AS is_null, $negative AS negative;
+                 SET "variables.word" = 'changed'; SELECT upper($word) AS changed;'''
+        result = self.run_sql(sql, [])
+        for expected in ['HELLO-world', '9007199254740993', 'CHANGED', '-17']:
+            assert expected in result.stdout, result.stdout
+
+    def variable_predicate_resolves_before_provider_dispatch(self):
+        sql = self.setting("providers.variable", {"provider": "widgets", "tenancy": "variable", "auth": {"type": "bearer", "credentials": "variable-token"}, "params": {"region": "default"}})
+        sql += '''SET "variables.region" = 'east'; SELECT id FROM variable.things.widgets WHERE region = upper($region);'''
+        self.run_sql(sql, [("Bearer variable-token", "EAST")])
+
+    def variable_errors_prevent_provider_dispatch(self):
+        for expression in ['$missing', '"$providers.missing"', '"$auth.widgets.password"']:
+            before = len(self.calls)
+            result = subprocess.run([self.binary, "exec", 'SELECT ' + expression + ';'] + self.flags, text=True, capture_output=True, timeout=30)
+            assert result.returncode != 0 and result.stderr.strip(), (result.stdout, result.stderr)
+            assert len(self.calls) == before, "invalid variable reached provider"
+        sql = '''SET "variables.removed" = 'old'; UNSET "variables.removed"; SELECT $removed;'''
+        result = subprocess.run([self.binary, "exec", sql] + self.flags, text=True, capture_output=True, timeout=30)
+        assert result.returncode != 0 and 'not defined' in result.stderr, result.stderr
+
+    def secret_variables_require_runtime_opt_in(self):
+        sql = self.setting("secret_store", {"path": str(self.root / "dereference-secrets.json")})
+        sql += self.setting("secrets.demo", "private-demo-value")
+        sql += 'SELECT upper("$secrets.demo") AS value;'
+        before = len(self.calls)
+        denied = subprocess.run([self.binary, "exec", sql] + self.flags, text=True, capture_output=True, timeout=30)
+        assert denied.returncode != 0 and 'secret variable dereferencing is disabled' in denied.stderr, denied.stderr
+        assert 'private-demo-value' not in denied.stdout + denied.stderr, "secret leaked without opt-in"
+        allowed = subprocess.run([self.binary, "exec", sql, "--allow-secret-dereference"] + self.flags, text=True, capture_output=True, timeout=30)
+        assert allowed.returncode == 0 and 'PRIVATE-DEMO-VALUE' in allowed.stdout, allowed.stdout + allowed.stderr
+        assert len(self.calls) == before, "secret expression reached provider"

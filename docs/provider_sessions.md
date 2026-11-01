@@ -133,6 +133,37 @@ UNSET SESSION "auth.example.password";
 Unqualified commands use SESSION. GLOBAL parses but is rejected by StackQL before changing
 configuration. Principal/group scopes and their inheritance rules are not implemented.
 
+## Scalar variables and dereferencing
+
+Variables are local to the current session. Assign them without a dollar on the left:
+
+```sql
+SET "variables.region" = 'east';
+SET "variables.attempts" = 3;
+SET "variables.enabled" = true;
+SET "variables.optional" = null;
+SELECT upper($region) || '-primary' AS region, $attempts + 1 AS next_attempt,
+       $enabled AS enabled, $optional IS NULL AS absent;
+UNSET "variables.region";
+```
+
+`$name` reads `variables.name`. Quoted references can name configuration paths, for example
+`"$providers.production.params.region"`. Ordinary string literals containing `$` are unchanged.
+References are resolved once per statement, before provider dispatch, and become typed AST literals.
+SQL functions, casts, comparisons and concatenation operate normally. Numbers retain their literal
+precision at substitution; the selected SQL backend still determines arithmetic precision.
+Only strings, numbers, booleans and null are supported. Objects/arrays are rejected, and a missing
+or unset value is an error rather than null. Prepared statements resolve variables at execution.
+Statements containing references and SET commands do not reuse cached execution plans.
+
+Reading auth fields or secret-store values is disabled by default. Trusted host startup flag
+`--allow-secret-dereference` opts into exposing these values through SQL, including results,
+logs and other execution artifacts. SQL cannot enable this flag. For example, after trusted startup
+opts in, `SELECT upper("$secrets.example");` reads the stored string; a structured secret can be read
+at a scalar field such as `"$secrets.example.credentials"`. Internal provider credential resolution
+continues to work without exposing credentials to SQL. Protected sessions additionally require
+`session/variables` `read` policy permission.
+
 ## Verification
 
 `test/robot/functional/stackql_provider_sessions.robot` runs the real CLI against a loopback provider.
