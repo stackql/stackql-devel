@@ -7,11 +7,12 @@ import (
 	"testing"
 
 	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
+	"github.com/stackql/stackql/internal/stackql/provider"
 	dto "github.com/stackql/stackql/internal/stackql/runtimeconfig"
 )
 
 func sessionTestHandler() *standardHandlerContext {
-	return &standardHandlerContext{authMapMutex: &sync.Mutex{}, sessionCtxMutex: &sync.Mutex{}, authContexts: dto.AuthContexts{}, executionContext: context.Background()}
+	return &standardHandlerContext{providers: map[string]provider.IProvider{}, providersMapMutex: &sync.Mutex{}, authMapMutex: &sync.Mutex{}, sessionCtxMutex: &sync.Mutex{}, authContexts: dto.AuthContexts{}, executionContext: context.Background()}
 }
 
 func TestProviderSessionBindings(t *testing.T) {
@@ -141,5 +142,30 @@ func TestClientSessionsDoNotShareMutations(t *testing.T) {
 	args, err = queryClone.ProviderSessionArgs(context.Background())
 	if err != nil || args.ProviderAliases["private"].Auth == nil {
 		t.Fatal("query clone lost its client session")
+	}
+}
+
+func TestClientProviderCachesAreIsolated(t *testing.T) {
+	parent := sessionTestHandler()
+	first := NewClientContext(parent).(*standardHandlerContext)
+	second := NewClientContext(parent).(*standardHandlerContext)
+	first.providers["widgets"] = nil
+	if _, exists := second.providers["widgets"]; exists {
+		t.Fatal("client provider registration leaked into another client's cache")
+	}
+	if _, exists := parent.providers["widgets"]; exists {
+		t.Fatal("client provider registration leaked into the parent cache")
+	}
+}
+
+func TestProviderSessionRetainsPageLimit(t *testing.T) {
+	hc := sessionTestHandler()
+	hc.runtimeContext.HTTPPageLimit = 2
+	args, err := hc.ProviderSessionArgs(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if args.Tuning.PageLimit != 2 {
+		t.Fatalf("session lost configured page limit: %d", args.Tuning.PageLimit)
 	}
 }

@@ -1,5 +1,6 @@
 """Session configuration through the CLI and a loopback-only provider."""
 import json
+import os
 import shutil
 import subprocess
 import tempfile
@@ -12,8 +13,8 @@ from urllib.parse import parse_qs, urlparse
 class ProviderSessionLibrary:
     ROBOT_LIBRARY_SCOPE = "SUITE"
 
-    def prepare_session_provider(self, binary):
-        self.binary = str(Path(binary).resolve())
+    def prepare_session_provider(self, binary, execution_platform="native"):
+        self.prefix = [shutil.which(binary) or str(Path(binary).resolve())]
         self.root = Path(tempfile.mkdtemp(prefix="stackql-session-"))
         self.calls = []
         owner = self
@@ -33,10 +34,15 @@ class ProviderSessionLibrary:
                 self.end_headers()
                 self.wfile.write(payload)
 
-        self.server = ThreadingHTTPServer(("127.0.0.1", 0), API)
+        self.server = ThreadingHTTPServer(("0.0.0.0" if execution_platform == "docker" else "127.0.0.1", 0), API)
         self.worker = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.worker.start()
         endpoint = f"http://127.0.0.1:{self.server.server_port}"
+        if execution_platform == "docker":
+            self.prefix = ["docker", "--log-level", "error", "compose", "-p", "execrun", "run", "--rm", "--no-deps", "-T",
+                           "--user", f"{os.getuid()}:{os.getgid()}", "--workdir", str(self.root),
+                           "-v", str(self.root) + ":" + str(self.root), "--entrypoint", "stackql", "stackqlsrv"]
+            endpoint = endpoint.replace("127.0.0.1", "host.docker.internal")
         provider = {"id": "widgets", "name": "widgets", "version": "v00.00.00000",
                     "providerServices": {"things": {"id": "things:v00.00.00000", "name": "things", "preferred": True,
                                                      "service": {"$ref": "widgets/v00.00.00000/services/things.yaml"}}},
@@ -63,7 +69,7 @@ class ProviderSessionLibrary:
 
     def run_sql(self, sql, expected_calls):
         before = len(self.calls)
-        result = subprocess.run([self.binary, "exec", sql] + self.flags, text=True, capture_output=True, timeout=30)
+        result = subprocess.run(self.prefix + ["exec", sql] + self.flags, text=True, capture_output=True, timeout=30)
         assert result.returncode == 0, result.stderr
         assert not result.stderr.strip(), result.stderr
         assert self.calls[before:] == expected_calls, (self.calls[before:], result.stdout, result.stderr)
@@ -80,7 +86,7 @@ class ProviderSessionLibrary:
         self.run_sql(sql, [("Bearer east-token", "east"), ("Bearer west-token", "west"), ("Bearer changed-token", "override")])
 
     def secret_credentials_rotate_and_reset(self):
-        sql = self.setting("secret_store", {"path": str(self.root / "secrets.json")})
+        sql = self.setting("secret_store", {"path": (self.root / "secrets.json").as_posix()})
         sql += self.setting("secrets.account", json.dumps({"type": "bearer", "credentials": "first-token"}))
         sql += self.setting("providers.secure", {"provider": "widgets", "tenancy": "secure-account", "auth_secret": "account", "params": {"region": "secure"}})
         sql += "SELECT id FROM secure.things.widgets;"
@@ -100,7 +106,7 @@ class ProviderSessionLibrary:
         sql = self.setting("providers.disabled", {"provider": "widgets", "tenancy": "disabled-account", "auth": {"type": "bearer", "credentials": "explicit-token"}, "params": {"region": "disabled"}})
         sql += 'UNSET "providers.disabled.auth"; SELECT id FROM disabled.things.widgets;'
         before = len(self.calls)
-        result = subprocess.run([self.binary, "exec", sql] + self.flags, text=True, capture_output=True, timeout=30)
+        result = subprocess.run(self.prefix + ["exec", sql] + self.flags, text=True, capture_output=True, timeout=30)
         assert "requires resolved explicit credentials" in result.stderr, result.stderr
         assert len(self.calls) == before, "missing auth reached the provider"
 
@@ -121,13 +127,13 @@ class ProviderSessionLibrary:
     def unsupported_configuration_scope(self):
         for statement in ['SET GLOBAL "auth.widgets.password" = \'value\';', 'UNSET GLOBAL "auth.widgets.password";']:
             before = len(self.calls)
-            result = subprocess.run([self.binary, "exec", statement] + self.flags, text=True, capture_output=True, timeout=30)
+            result = subprocess.run(self.prefix + ["exec", statement] + self.flags, text=True, capture_output=True, timeout=30)
             assert result.returncode != 0 and "not supported" in result.stderr, result.stderr
             assert len(self.calls) == before, "unsupported scope reached provider"
 
     def dollar_assignment_target_is_rejected(self):
         before = len(self.calls)
-        result = subprocess.run([self.binary, "exec", 'SET "$.auth.widgets.password" = \'value\';'] + self.flags, text=True, capture_output=True, timeout=30)
+        result = subprocess.run(self.prefix + ["exec", 'SET "$.auth.widgets.password" = \'value\';'] + self.flags, text=True, capture_output=True, timeout=30)
         assert result.returncode != 0 and "targets must omit" in result.stderr, result.stderr
         assert len(self.calls) == before, "invalid assignment target reached provider"
 
@@ -149,21 +155,21 @@ class ProviderSessionLibrary:
     def variable_errors_prevent_provider_dispatch(self):
         for expression in ['$missing', '"$providers.missing"', '"$auth.widgets.password"']:
             before = len(self.calls)
-            result = subprocess.run([self.binary, "exec", 'SELECT ' + expression + ';'] + self.flags, text=True, capture_output=True, timeout=30)
+            result = subprocess.run(self.prefix + ["exec", 'SELECT ' + expression + ';'] + self.flags, text=True, capture_output=True, timeout=30)
             assert result.returncode != 0 and result.stderr.strip(), (result.stdout, result.stderr)
             assert len(self.calls) == before, "invalid variable reached provider"
         sql = '''SET "variables.removed" = 'old'; UNSET "variables.removed"; SELECT $removed;'''
-        result = subprocess.run([self.binary, "exec", sql] + self.flags, text=True, capture_output=True, timeout=30)
+        result = subprocess.run(self.prefix + ["exec", sql] + self.flags, text=True, capture_output=True, timeout=30)
         assert result.returncode != 0 and 'not defined' in result.stderr, result.stderr
 
     def secret_variables_require_runtime_opt_in(self):
-        sql = self.setting("secret_store", {"path": str(self.root / "dereference-secrets.json")})
+        sql = self.setting("secret_store", {"path": (self.root / "dereference-secrets.json").as_posix()})
         sql += self.setting("secrets.demo", "private-demo-value")
         sql += 'SELECT upper("$secrets.demo") AS value;'
         before = len(self.calls)
-        denied = subprocess.run([self.binary, "exec", sql] + self.flags, text=True, capture_output=True, timeout=30)
+        denied = subprocess.run(self.prefix + ["exec", sql] + self.flags, text=True, capture_output=True, timeout=30)
         assert denied.returncode != 0 and 'secret variable dereferencing is disabled' in denied.stderr, denied.stderr
         assert 'private-demo-value' not in denied.stdout + denied.stderr, "secret leaked without opt-in"
-        allowed = subprocess.run([self.binary, "exec", sql, "--allow-secret-dereference"] + self.flags, text=True, capture_output=True, timeout=30)
+        allowed = subprocess.run(self.prefix + ["exec", sql, "--allow-secret-dereference"] + self.flags, text=True, capture_output=True, timeout=30)
         assert allowed.returncode == 0 and 'PRIVATE-DEMO-VALUE' in allowed.stdout, allowed.stdout + allowed.stderr
         assert len(self.calls) == before, "secret expression reached provider"

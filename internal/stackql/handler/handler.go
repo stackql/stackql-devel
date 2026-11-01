@@ -665,7 +665,7 @@ func (hc *standardHandlerContext) Clone() HandlerContext {
 	hc.sessionCtxMutex.Lock()
 	defer hc.sessionCtxMutex.Unlock()
 	if hc.providerSession == nil {
-		hc.providerSession = newProviderSessionState(hc.runtimeContext.APIRequestTimeout)
+		hc.providerSession = newProviderSessionState(hc.runtimeContext.APIRequestTimeout, hc.runtimeContext.HTTPPageLimit)
 	}
 	rv := standardHandlerContext{
 		providerSession:  hc.providerSession,

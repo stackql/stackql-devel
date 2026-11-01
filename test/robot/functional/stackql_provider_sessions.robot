@@ -1,11 +1,9 @@
 *** Settings ***
 Documentation     Explicit provider sessions, credential rotation and UNSET through the CLI against loopback mocks.
+Resource          ${CURDIR}/stackql.resource
 Library           ProviderSessionLibrary.py
-Suite Setup       Prepare Session Provider    ${STACKQL_EXE}
+Suite Setup       Prepare Session Provider    ${STACKQL_EXE}    ${EXECUTION_PLATFORM}
 Suite Teardown    Stop Session Provider
-
-*** Variables ***
-${STACKQL_EXE}    ${EXECDIR}/build/stackql
 
 *** Test Cases ***
 Provider Aliases Keep Their Credentials And Scope Across Session Edits

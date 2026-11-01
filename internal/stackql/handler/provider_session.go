@@ -60,17 +60,17 @@ func (hc *standardHandlerContext) providerSessionState() *providerSessionState {
 	hc.sessionCtxMutex.Lock()
 	defer hc.sessionCtxMutex.Unlock()
 	if hc.providerSession == nil {
-		hc.providerSession = newProviderSessionState(hc.runtimeContext.APIRequestTimeout)
+		hc.providerSession = newProviderSessionState(hc.runtimeContext.APIRequestTimeout, hc.runtimeContext.HTTPPageLimit)
 	}
 	return hc.providerSession
 }
 
-func newProviderSessionState(seconds int) *providerSessionState {
+func newProviderSessionState(seconds int, pageLimit int) *providerSessionState {
 	timeout := time.Duration(seconds) * time.Second
 	if seconds == 0 {
 		timeout = -1
 	}
-	return &providerSessionState{base: omnisdk.Args{Tuning: omnisdk.Tuning{RequestTimeout: timeout}}}
+	return &providerSessionState{base: omnisdk.Args{Tuning: omnisdk.Tuning{RequestTimeout: timeout, PageLimit: pageLimit}}}
 }
 
 func (state *providerSessionState) sessionArgs() omnisdk.Args {
@@ -275,6 +275,10 @@ func NewClientContext(parent HandlerContext) HandlerContext {
 	if !ok {
 		return cloned
 	}
+	// Provider registration installs auth defaults, so both caches need the same client lifetime.
+	source.providersMapMutex.Lock()
+	target.providers = maps.Clone(source.providers)
+	target.providersMapMutex = &sync.Mutex{}
 	source.authMapMutex.Lock()
 	target.authContexts = source.authContexts.Clone()
 	target.docAuthProviders = map[string]struct{}{}
@@ -282,11 +286,14 @@ func NewClientContext(parent HandlerContext) HandlerContext {
 		target.docAuthProviders[name] = struct{}{}
 	}
 	source.authMapMutex.Unlock()
+	source.providersMapMutex.Unlock()
 	target.authMapMutex = &sync.Mutex{}
 	target.sessionCtxMutex = &sync.Mutex{}
 	state := source.providerSessionState()
 	state.mu.Lock()
-	target.providerSession = newProviderSessionState(source.runtimeContext.APIRequestTimeout)
+	target.providerSession = newProviderSessionState(
+		source.runtimeContext.APIRequestTimeout, source.runtimeContext.HTTPPageLimit,
+	)
 	target.providerSession.store = state.store
 	target.providerSession.variables = maps.Clone(state.variables)
 	target.providerSession.bindings = make(map[string]omnisdk.ProviderBinding, len(state.bindings))
