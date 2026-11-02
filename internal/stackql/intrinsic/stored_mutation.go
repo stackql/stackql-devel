@@ -1,8 +1,6 @@
 package intrinsic
 
 import (
-	"fmt"
-
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/sql_system"
@@ -70,15 +68,11 @@ func storedMutationFunc(ctx queryContext, statement sqlparser.Statement) (func()
 		if err != nil {
 			return internaldto.NewErroneousExecutorOutput(err)
 		}
-		result, err := db.ExecContext(executionContext(ctx), formatted.String())
+		_, err = db.ExecContext(executionContext(ctx), formatted.String())
 		if err != nil {
 			return internaldto.NewErroneousExecutorOutput(err)
 		}
-		affected, err := result.RowsAffected()
-		if err != nil {
-			return internaldto.NewErroneousExecutorOutput(err)
-		}
-		messages := internaldto.NewBackendMessages([]string{fmt.Sprintf("%d rows affected", affected)})
+		messages := internaldto.NewBackendMessages([]string{"exec completed"})
 		return internaldto.NewExecutorOutput(nil, nil, nil, messages, nil)
 	}, true
 }

@@ -511,9 +511,9 @@ esac
             result = self.run_sql(sql, [], completion_messages=["DDL Execution Completed", "DML Execution Completed", "insert into table completed"])
             assert '42' in result.stdout, result.stdout
             result = self.run_sql(setup + '''UPDATE $object_name SET "$field_name" = '43' WHERE id = CAST($some_id AS TEXT);
-                                            SELECT id FROM $object_name;''', [], completion_messages=["DML Execution Completed", "1 rows affected"])
+                                            SELECT id FROM $object_name;''', [], completion_messages=["DML Execution Completed", "exec completed"])
             assert '43' in result.stdout, result.stdout
-            self.run_sql(setup + 'DELETE FROM $object_name; DROP TABLE $object_name;', [], completion_messages=["DML Execution Completed", "DDL Execution Completed", "delete from table completed", "1 rows affected"])
+            self.run_sql(setup + 'DELETE FROM $object_name; DROP TABLE $object_name;', [], completion_messages=["DML Execution Completed", "DDL Execution Completed", "delete from table completed", "exec completed"])
         finally:
             result = subprocess.run(self.prefix + ['exec', setup + 'DROP TABLE IF EXISTS $object_name;'] + self.flags,
                                     text=True, capture_output=True, timeout=30, env=self.env)
