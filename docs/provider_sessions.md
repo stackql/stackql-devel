@@ -11,24 +11,24 @@ execution retains the alias, credential and provider/tenancy concurrency control
 Use double-quoted configuration paths and JSON objects inside SQL string literals:
 
 ```sql
-SET "providers.production" = '{
+SET "providers.aws_stackql" = '{
   "provider": "aws",
-  "tenancy": "production-account",
+  "tenancy": "stackql-account",
   "auth": {
     "type": "aws_signing_v4",
-    "access_key_id_env_var": "PRODUCTION_AWS_ACCESS_KEY_ID",
-    "secret_access_key_env_var": "PRODUCTION_AWS_SECRET_ACCESS_KEY"
+    "access_key_id_env_var": "AWS_ACCESS_KEY_ID",
+    "secret_access_key_env_var": "AWS_SECRET_ACCESS_KEY"
   },
   "params": {"region": "ap-southeast-2"},
-  "tuning": {"max_concurrent": 4, "max_per_host": 4}
+  "tuning": {"max_concurrent": 4}
 }';
-SET "providers.development" = '{
+SET "providers.aws_ryuk" = '{
   "provider": "aws",
-  "tenancy": "development-account",
+  "tenancy": "ryuk-account",
   "auth": {
     "type": "aws_signing_v4",
-    "access_key_id_env_var": "DEVELOPMENT_AWS_ACCESS_KEY_ID",
-    "secret_access_key_env_var": "DEVELOPMENT_AWS_SECRET_ACCESS_KEY"
+    "access_key_id_env_var": "RYUK_AWS_ACCESS_KEY_ID",
+    "secret_access_key_env_var": "RYUK_AWS_SECRET_ACCESS_KEY"
   },
   "params": {"region": "ap-southeast-2"},
   "tuning": {"max_concurrent": 2}
