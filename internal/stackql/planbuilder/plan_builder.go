@@ -227,19 +227,22 @@ func (pgb *standardPlanGraphBuilder) handleExplain(pbi planbuilderinput.PlanBuil
 //nolint:exhaustive // Unsupported literal kinds are explicitly rejected by the default branch.
 func setLogic(pbi planbuilderinput.PlanBuilderInput, setExpr *sqlparser.SetExpr) error {
 	lhsTrimmed := setExpr.Name.GetRawVal()
-	if strings.HasPrefix(lhsTrimmed, "$") {
-		return fmt.Errorf("SET/UNSET targets must omit '$.'; use '$' only for dereferencing")
-	}
-	root, _, _ := strings.Cut(lhsTrimmed, ".")
-	switch root {
-	case "auth", "providers", "secret_store", "secrets", "variables":
-	default:
-		return nil
+	config := strings.HasPrefix(lhsTrimmed, "$")
+	if config {
+		lhsTrimmed = strings.TrimPrefix(strings.TrimPrefix(lhsTrimmed, "$"), ".")
+		root, _, _ := strings.Cut(lhsTrimmed, ".")
+		switch root {
+		case "auth", "providers", "secret_store", "secrets":
+		default:
+			return fmt.Errorf("unknown intrinsic session configuration %q", lhsTrimmed)
+		}
+	} else if !strings.HasPrefix(lhsTrimmed, "variables.") {
+		lhsTrimmed = "variables." + lhsTrimmed
 	}
 	if _, reset := setExpr.Expr.(*sqlparser.Default); reset {
 		return pbi.GetHandlerCtx().SetConfigAtPath(lhsTrimmed, nil, setExpr.Scope)
 	}
-	if root == "variables" {
+	if !config {
 		var raw json.RawMessage
 		switch value := setExpr.Expr.(type) {
 		case *sqlparser.NullVal:

@@ -109,6 +109,9 @@ func GenerateStreamFunc(
 	if action, handled := storedInsertSelectFunc(ctx, stmt); handled {
 		return action, true
 	}
+	if action, handled := storedMutationFunc(ctx, stmt); handled {
+		return action, true
+	}
 	return docMutationFunc(ctx, stmt, ctx.GetCurrentProvider())
 }
 

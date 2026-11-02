@@ -93,6 +93,12 @@ func (pb *standardPlanBuilder) BuildPlanFromContext(handlerCtx handler.HandlerCo
 	if err = handlerCtx.ResolveVariables(statement); err != nil {
 		return createErroneousPlan(handlerCtx, qPlan, rowSort, fmt.Errorf("%w: %w", handler.ErrSessionConfiguration, err))
 	}
+	if handlerCtx.GetAccessManager() != nil {
+		if err = accessmanagement.CheckStatement(
+			handlerCtx.GetExecutionContext(), handlerCtx.GetCaller(), statement); err != nil {
+			return createErroneousPlan(handlerCtx, qPlan, rowSort, err)
+		}
+	}
 	//nolint:gocritic // acceptable
 	switch stmt := statement.(type) {
 	case *sqlparser.RefreshMaterializedView:

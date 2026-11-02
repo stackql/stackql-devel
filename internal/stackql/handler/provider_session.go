@@ -13,6 +13,7 @@ import (
 
 	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
 	"github.com/stackql-labs/omnisdk/public/secrets"
+	lrucache "github.com/stackql/stackql-parser/go/cache"
 	"github.com/stackql/stackql/internal/stackql/jsonpath"
 	dto "github.com/stackql/stackql/internal/stackql/runtimeconfig"
 )
@@ -70,7 +71,10 @@ func newProviderSessionState(seconds int, pageLimit int) *providerSessionState {
 	if seconds == 0 {
 		timeout = -1
 	}
-	return &providerSessionState{base: omnisdk.Args{Tuning: omnisdk.Tuning{RequestTimeout: timeout, PageLimit: pageLimit}}}
+	return &providerSessionState{
+		base:  omnisdk.Args{Tuning: omnisdk.Tuning{RequestTimeout: timeout, PageLimit: pageLimit}},
+		store: newSessionSecretStore(),
+	}
 }
 
 func (state *providerSessionState) sessionArgs() omnisdk.Args {
@@ -151,6 +155,10 @@ func (hc *standardHandlerContext) setProviderSessionConfig(path string, rhs inte
 	defer state.mu.Unlock()
 	switch parts[0] {
 	case "secret_store":
+		if len(parts) == 1 && rhs == nil {
+			state.store, state.client = newSessionSecretStore(), nil
+			return true, nil
+		}
 		if !hc.runtimeContext.AllowPersistentSecrets {
 			return true, fmt.Errorf("persistent secret stores are disabled; operator must enable --allow-persistent-secrets")
 		}
@@ -281,6 +289,8 @@ func NewClientContext(parent HandlerContext) HandlerContext {
 	if !ok {
 		return cloned
 	}
+	// Plans capture session configuration; client caches must not cross session boundaries.
+	target.lRUCache = lrucache.NewLRUCache(int64(source.runtimeContext.QueryCacheSize))
 	// Provider registration installs auth defaults, so both caches need the same client lifetime.
 	source.providersMapMutex.Lock()
 	target.providers = maps.Clone(source.providers)
@@ -300,7 +310,6 @@ func NewClientContext(parent HandlerContext) HandlerContext {
 	target.providerSession = newProviderSessionState(
 		source.runtimeContext.APIRequestTimeout, source.runtimeContext.HTTPPageLimit,
 	)
-	target.providerSession.store = state.store
 	target.providerSession.variables = maps.Clone(state.variables)
 	target.providerSession.bindings = make(map[string]omnisdk.ProviderBinding, len(state.bindings))
 	for alias, binding := range state.bindings {

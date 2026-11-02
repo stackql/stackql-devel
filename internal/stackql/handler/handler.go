@@ -555,6 +555,9 @@ func (hc *standardHandlerContext) SetConfigAtPath(path string, rhs interface{}, 
 	if scope != "" && scope != "session" {
 		return fmt.Errorf("configuration scope %q is not supported; use SESSION", scope)
 	}
+	if hc.lRUCache != nil {
+		hc.lRUCache.Clear()
+	}
 	if strings.HasPrefix(path, "variables.") {
 		return hc.setSessionVariable(path, rhs)
 	}

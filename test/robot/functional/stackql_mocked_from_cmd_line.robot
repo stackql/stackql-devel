@@ -7821,7 +7821,7 @@ Show Methods Path Level Parameters Considered as Exemplified by Azure Dev Center
 Set Statement Update Auth Scenario Working
     [Tags]    registry    tls_proxied
     ${inputStr} =    Catenate
-    ...    set session "auth.google.credentialsfilepath"='${AUTH_GOOGLE_SA_KEY_PATH}';
+    ...    set session "$.auth.google.credentialsfilepath"='${AUTH_GOOGLE_SA_KEY_PATH}';
     ...    select name, id, network, split_part(network, '/', 8) as network_region from google.compute.firewalls where project \= 'testing-project' order by id desc;
     ${outputStr} =    Catenate    SEPARATOR=\n
     ...    |------------------------|---------------|----------------------------------------------------------------------------------------|----------------|
@@ -7861,7 +7861,7 @@ Busted Auth Throws Error Then Set Statement Update Auth Scenario Working
     [Tags]    registry    tls_proxied
     ${inputStr} =    Catenate
     ...    select name, id, network, split_part(network, '/', 8) as network_region from google.compute.firewalls where project \= 'testing-project' order by id desc;
-    ...    set session "auth.google.credentialsfilepath"='${AUTH_GOOGLE_SA_KEY_PATH}';
+    ...    set session "$.auth.google.credentialsfilepath"='${AUTH_GOOGLE_SA_KEY_PATH}';
     ...    select name, id, network, split_part(network, '/', 8) as network_region from google.compute.firewalls where project \= 'testing-project' order by id desc;
     ${outputStr} =    Catenate    SEPARATOR=\n
     ...    |------------------------|---------------|----------------------------------------------------------------------------------------|----------------|

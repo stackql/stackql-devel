@@ -15,9 +15,25 @@ import (
 //nolint:gocognit,gocyclo,cyclop,govet,mnd,nestif,funlen // Keep statement resolution atomic.
 func (hc *standardHandlerContext) ResolveVariables(statement sqlparser.Statement) error {
 	paths := map[string]string{}
+	identifiers := false
+	assignmentTargets := map[*sqlparser.ColName]bool{}
 	if err := sqlparser.Walk(func(node sqlparser.SQLNode) (bool, error) {
+		switch item := node.(type) {
+		case *sqlparser.UpdateExpr:
+			assignmentTargets[item.Name] = true
+		case sqlparser.TableName:
+			identifiers = identifiers || strings.Contains(item.GetRawVal(), "$")
+		case *sqlparser.FuncExpr:
+			identifiers = identifiers || strings.EqualFold(item.Name.GetRawVal(), "identifier")
+		case sqlparser.ColIdent:
+			if _, isSet := statement.(*sqlparser.Set); !isSet {
+				identifiers = identifiers || strings.HasPrefix(item.GetRawVal(), "$")
+			}
+		case sqlparser.TableIdent:
+			identifiers = identifiers || strings.HasPrefix(item.GetRawVal(), "$")
+		}
 		column, ok := node.(*sqlparser.ColName)
-		if !ok {
+		if !ok || assignmentTargets[column] {
 			return true, nil
 		}
 		name := column.Name.GetRawVal()
@@ -38,7 +54,8 @@ func (hc *standardHandlerContext) ResolveVariables(statement sqlparser.Statement
 	}, statement); err != nil {
 		return err
 	}
-	if len(paths) == 0 {
+
+	if len(paths) == 0 && !identifiers {
 		return nil
 	}
 	if hc.runtimeContext.AccessConfigFile != "" {
@@ -46,14 +63,16 @@ func (hc *standardHandlerContext) ResolveVariables(statement sqlparser.Statement
 			return err
 		}
 	}
-	for _, path := range paths {
-		if secretVariablePath(path) && !hc.runtimeContext.AllowSecretDereference {
-			return fmt.Errorf("secret variable dereferencing is disabled")
-		}
-	}
 	state := hc.providerSessionState()
 	state.mu.Lock()
 	defer state.mu.Unlock()
+	for _, path := range paths {
+		variable := strings.TrimPrefix(path, "variables.")
+		_, exists := state.variables[variable]
+		if !exists && secretVariablePath(path) && !hc.runtimeContext.AllowSecretDereference {
+			return fmt.Errorf("secret variable dereferencing is disabled")
+		}
+	}
 	snapshot := map[string]any{"variables": state.variables, "providers": state.bindings}
 	if hc.runtimeContext.AllowSecretDereference {
 		snapshot["auth"] = hc.GetAuthContexts()
@@ -71,6 +90,14 @@ func (hc *standardHandlerContext) ResolveVariables(statement sqlparser.Statement
 	resolved := map[string]sqlparser.Expr{}
 	secretValues := map[string][]byte{}
 	for name, path := range paths {
+		if value, exists := state.variables[strings.TrimPrefix(path, "variables.")]; exists {
+			literal, err := scalarVariableLiteral(value)
+			if err != nil {
+				return err
+			}
+			resolved[name] = literal
+			continue
+		}
 		parts := strings.Split(path, ".")
 		var value any = values
 		if parts[0] == "secrets" {
@@ -129,7 +156,7 @@ func (hc *standardHandlerContext) ResolveVariables(statement sqlparser.Statement
 		}
 		return true
 	}, nil)
-	return nil
+	return resolveVariableIdentifiers(statement, state.variables)
 }
 
 func secretVariablePath(path string) bool {
@@ -160,7 +187,7 @@ func scalarVariableLiteral(value any) (sqlparser.Expr, error) {
 
 func (hc *standardHandlerContext) setSessionVariable(path string, rhs any) error {
 	name := strings.TrimPrefix(path, "variables.")
-	if name == "" || name == path || strings.Contains(name, ".") {
+	if name == "" || name == path {
 		return fmt.Errorf("variables requires one explicit name")
 	}
 	state := hc.providerSessionState()
