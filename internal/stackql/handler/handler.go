@@ -54,6 +54,7 @@ var (
 
 type HandlerContext interface { //nolint:revive // don't mind stuttering this one
 	Clone() HandlerContext
+	NewClientContext() HandlerContext
 	GetExecutionContext() context.Context
 	SetExecutionContext(context.Context)
 	GetAccessManager() accessmanagement.Manager

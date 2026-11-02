@@ -110,8 +110,8 @@ func TestAuthSessionResetAndSnapshots(t *testing.T) {
 func TestClientSessionsDoNotShareMutations(t *testing.T) {
 	parent := sessionTestHandler()
 	parent.ReplaceAuthContext("widgets", &dto.AuthCtx{AuthConfig: omnisdk.AuthConfig{Type: "basic", Password: "original"}})
-	first := NewClientContext(parent).(*standardHandlerContext)
-	second := NewClientContext(parent).(*standardHandlerContext)
+	first := parent.NewClientContext().(*standardHandlerContext)
+	second := parent.NewClientContext().(*standardHandlerContext)
 	if err := first.SetConfigAtPath("auth.widgets.password", "changed", ""); err != nil {
 		t.Fatal(err)
 	}
@@ -136,8 +136,8 @@ func TestClientSessionsDoNotShareMutations(t *testing.T) {
 
 func TestClientProviderCachesAreIsolated(t *testing.T) {
 	parent := sessionTestHandler()
-	first := NewClientContext(parent).(*standardHandlerContext)
-	second := NewClientContext(parent).(*standardHandlerContext)
+	first := parent.NewClientContext().(*standardHandlerContext)
+	second := parent.NewClientContext().(*standardHandlerContext)
 	first.providers["widgets"] = nil
 	if _, exists := second.providers["widgets"]; exists {
 		t.Fatal("client provider registration leaked into another client's cache")

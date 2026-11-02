@@ -18,6 +18,7 @@ class ProviderSessionLibrary:
         self.prefix = [shutil.which(binary) or str(Path(binary).resolve())]
         self.root = Path(tempfile.mkdtemp(prefix="stackql-session-"))
         self.calls = []
+        self.aws_calls = []
         self.concurrent_gate = None
         self.env = os.environ.copy()
         if os.name != "nt":
@@ -30,6 +31,39 @@ class ProviderSessionLibrary:
 
             def do_GET(self):
                 token = self.headers.get("Authorization", "")
+                if urlparse(self.path).path == "/buckets":
+                    import re
+                    match = re.search(r"Credential=([^/]+)/", token)
+                    key = match.group(1) if match else ""
+                    owner.aws_calls.append((key, parse_qs(urlparse(self.path).query).get("region", [""])[0], token))
+                    account = {"TEST_RYUK_KEY": "ryuk", "TEST_STACKQL_KEY": "stackql"}.get(key)
+                    if account is None or not token.startswith("AWS4-HMAC-SHA256 ") or "Signature=" not in token:
+                        self.send_error(403)
+                        return
+                    import hashlib
+                    import hmac
+                    scope = re.search(r"Credential=[^/]+/([^, ]+)", token).group(1)
+                    signed_headers = re.search(r"SignedHeaders=([^, ]+)", token).group(1)
+                    headers = "".join(name + ":" + " ".join(self.headers[name].split()) + "\n" for name in signed_headers.split(";"))
+                    url = urlsplit(self.path)
+                    payload_hash = self.headers.get("X-Amz-Content-Sha256", hashlib.sha256(b"").hexdigest())
+                    canonical = "\n".join(["GET", url.path, url.query, headers, signed_headers, payload_hash])
+                    to_sign = "\n".join(["AWS4-HMAC-SHA256", self.headers["X-Amz-Date"], scope, hashlib.sha256(canonical.encode()).hexdigest()])
+                    secret = {"ryuk": "dummy-ryuk-secret", "stackql": "dummy-stackql-secret"}[account]
+                    signing_key = ("AWS4" + secret).encode()
+                    for component in scope.split("/"):
+                        signing_key = hmac.new(signing_key, component.encode(), hashlib.sha256).digest()
+                    expected = hmac.new(signing_key, to_sign.encode(), hashlib.sha256).hexdigest()
+                    if not hmac.compare_digest(expected, token.split("Signature=")[1]):
+                        self.send_error(403, "incorrect account signing secret")
+                        return
+                    payload = json.dumps([{"name": account + "-bucket"}]).encode()
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json")
+                    self.send_header("Content-Length", str(len(payload)))
+                    self.end_headers()
+                    self.wfile.write(payload)
+                    return
                 region = parse_qs(urlparse(self.path).query).get("region", [""])[0]
                 if owner.concurrent_gate is not None:
                     owner.concurrent_gate.wait(timeout=10)
@@ -47,9 +81,10 @@ class ProviderSessionLibrary:
         endpoint = f"http://127.0.0.1:{self.server.server_port}"
         if execution_platform == "docker":
             self.prefix = ["docker", "--log-level", "error", "compose", "--progress", "quiet", "-p", "execrun", "run", "--rm", "--no-deps", "-T",
-                           "-e", "PATH=" + str(self.root / "os-bin") + ":/usr/local/bin:/usr/bin:/bin",
                            "--user", f"{os.getuid()}:{os.getgid()}", "--workdir", str(self.root),
-                           "-v", str(self.root) + ":" + str(self.root), "--entrypoint", "stackql", "stackqlsrv"]
+                           "-v", str(self.root) + ":" + str(self.root), "--entrypoint", "/bin/sh", "stackqlsrv",
+                           "-c", 'PATH="$1:$PATH"; export PATH; shift; exec stackql "$@"',
+                           "session-provider", str(self.root / "os-bin")]
             endpoint = endpoint.replace("127.0.0.1", "host.docker.internal")
         provider = {"id": "widgets", "name": "widgets", "version": "v00.00.00000",
                     "providerServices": {"things": {"id": "things:v00.00.00000", "name": "things", "preferred": True,
@@ -120,6 +155,53 @@ class ProviderSessionLibrary:
         sql += self.setting("providers.east.auth.credentials", "changed-token")
         sql += "SELECT id FROM east.things.widgets WHERE region = 'override';"
         self.run_sql(sql, [("Bearer east-token", "east"), ("Bearer west-token", "west"), ("Bearer changed-token", "override")])
+
+    def aws_aliases_union_buckets_with_independent_signing_credentials(self):
+        registry = self.root / "registry/src"
+        provider = json.loads((registry / "widgets/v00.00.00000/provider.yaml").read_text())
+        doc = json.loads((registry / "widgets/v00.00.00000/services/things.yaml").read_text())
+        provider = json.loads(json.dumps(provider).replace("widgets", "aws").replace("things", "s3"))
+        provider["config"]["auth"] = {"type": "aws_signing_v4"}
+        doc = json.loads(json.dumps(doc).replace("widgets.things.widgets", "aws.s3.buckets").replace("widgets", "buckets"))
+        doc["paths"]["/buckets"]["get"]["responses"]["200"]["content"]["application/json"]["schema"]["items"]["properties"] = {"name": {"type": "string"}}
+        version = registry / "aws/v00.00.00000"
+        (version / "services").mkdir(parents=True)
+        (version / "provider.yaml").write_text(json.dumps(provider))
+        (version / "services/s3.yaml").write_text(json.dumps(doc))
+        env_names = ["TEST_RYUK_ACCESS_KEY", "TEST_RYUK_SECRET_KEY", "TEST_STACKQL_ACCESS_KEY", "TEST_STACKQL_SECRET_KEY"]
+        values = ["TEST_RYUK_KEY", "dummy-ryuk-secret", "TEST_STACKQL_KEY", "dummy-stackql-secret"]
+        previous = {name: self.env.get(name) for name in env_names}
+        self.env.update(zip(env_names, values))
+        prefix = self.prefix
+        if prefix[0] == "docker":
+            self.prefix = list(prefix)
+            position = self.prefix.index("--entrypoint")
+            self.prefix[position:position] = [part for name, value in zip(env_names, values) for part in ("-e", name + "=" + value)]
+        before = len(self.aws_calls)
+        try:
+            sql = ""
+            for account, tuning in [("ryuk", {"max_concurrent": 2}), ("stackql", {"max_concurrent": 4, "max_per_host": 4})]:
+                env_prefix = "TEST_" + account.upper()
+                sql += self.setting("providers.aws_" + account, {
+                    "provider": "aws", "tenancy": account + "-account",
+                    "auth": {"type": "aws_signing_v4", "access_key_id_env_var": env_prefix + "_ACCESS_KEY", "secret_access_key_env_var": env_prefix + "_SECRET_KEY"},
+                    "params": {"region": "ap-southeast-2"}, "tuning": tuning})
+            sql += "SELECT name, 'ryuk' AS tenant FROM aws_ryuk.s3.buckets UNION ALL SELECT name, 'stackql' AS tenant FROM aws_stackql.s3.buckets;"
+            result = self.run_sql(sql, [])
+            assert sorted(json.loads(result.stdout), key=lambda row: row["tenant"]) == [
+                {"name": "ryuk-bucket", "tenant": "ryuk"}, {"name": "stackql-bucket", "tenant": "stackql"}], result.stdout
+            calls = self.aws_calls[before:]
+            assert sorted((key, region) for key, region, _ in calls) == [
+                ("TEST_RYUK_KEY", "ap-southeast-2"), ("TEST_STACKQL_KEY", "ap-southeast-2")], calls
+            assert calls[0][2].split("Signature=")[1] != calls[1][2].split("Signature=")[1], calls
+            assert all(value not in result.stdout + result.stderr for value in values), "credential leaked"
+        finally:
+            self.prefix = prefix
+            for name, value in previous.items():
+                if value is None:
+                    self.env.pop(name, None)
+                else:
+                    self.env[name] = value
 
     def secret_credentials_rotate_and_reset(self):
         sql = self.setting("secret_store", {"backend": "os", "namespace": "stackql-test-" + self.root.name})

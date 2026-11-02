@@ -53,7 +53,7 @@ func (sdf *basicStackQLDriverFactory) newSQLDriver() (StackQLDriver, error) {
 	if err != nil {
 		return nil, err
 	}
-	clonedCtx := handler.NewClientContext(sdf.handlerCtx)
+	clonedCtx := sdf.handlerCtx.NewClientContext()
 	txnOrchestrator, orcErr := tsm_physio.NewOrchestrator(clonedCtx)
 	if orcErr != nil {
 		return nil, orcErr
@@ -173,7 +173,7 @@ func (dr *basicStackQLDriver) GetDebugStr() string {
 
 func (dr *basicStackQLDriver) CloneSQLBackend() sqlbackend.ISQLBackend {
 	return &basicStackQLDriver{
-		handlerCtx: handler.NewClientContext(dr.handlerCtx),
+		handlerCtx: dr.handlerCtx.NewClientContext(),
 	}
 }
 

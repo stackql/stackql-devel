@@ -77,8 +77,8 @@ func TestVariablesRemainClientLocal(t *testing.T) {
 	if err := parent.SetConfigAtPath("variables.x", json.RawMessage(`1`), ""); err != nil {
 		t.Fatal(err)
 	}
-	first := NewClientContext(parent)
-	second := NewClientContext(parent)
+	first := parent.NewClientContext()
+	second := parent.NewClientContext()
 	if err := first.SetConfigAtPath("variables.x", json.RawMessage(`2`), ""); err != nil {
 		t.Fatal(err)
 	}

@@ -279,16 +279,9 @@ func (hc *standardHandlerContext) ProviderBindingParams(address string) map[stri
 	return params
 }
 
-func NewClientContext(parent HandlerContext) HandlerContext {
-	cloned := parent.Clone()
-	target, ok := cloned.(*standardHandlerContext)
-	if !ok {
-		return cloned
-	}
-	source, ok := parent.(*standardHandlerContext)
-	if !ok {
-		return cloned
-	}
+func (source *standardHandlerContext) NewClientContext() HandlerContext {
+	// This concrete receiver's Clone always returns its own type.
+	target := source.Clone().(*standardHandlerContext) //nolint:errcheck
 	// Plans capture session configuration; client caches must not cross session boundaries.
 	target.lRUCache = lrucache.NewLRUCache(int64(source.runtimeContext.QueryCacheSize))
 	// Provider registration installs auth defaults, so both caches need the same client lifetime.

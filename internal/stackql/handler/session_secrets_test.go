@@ -56,8 +56,8 @@ func TestClientContextsDoNotInheritSecretStores(t *testing.T) {
 	if err := parent.SetConfigAtPath("secrets.parent", "private", ""); err != nil {
 		t.Fatal(err)
 	}
-	first := NewClientContext(parent).(*standardHandlerContext)
-	second := NewClientContext(parent).(*standardHandlerContext)
+	first := parent.NewClientContext().(*standardHandlerContext)
+	second := parent.NewClientContext().(*standardHandlerContext)
 	if _, err := first.providerSessionState().store.Get(context.Background(), "parent"); !errors.Is(err, secrets.ErrNotFound) {
 		t.Fatal("client inherited another session's secret")
 	}

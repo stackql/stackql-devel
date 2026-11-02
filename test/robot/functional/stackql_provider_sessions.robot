@@ -9,6 +9,9 @@ Suite Teardown    Stop Session Provider
 Provider Aliases Keep Their Credentials And Scope Across Session Edits
     Provider Aliases Survive Session Edits
 
+AWS Aliases Union Buckets With Independent Signing Credentials
+    AWS Aliases Union Buckets With Independent Signing Credentials
+
 OS Secrets Rotate Without Recreating The Session
     Secret Credentials Rotate And Reset
 
