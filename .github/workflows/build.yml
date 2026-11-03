@@ -1752,23 +1752,30 @@ jobs:
           echo "GID=${GID}"
         } >> "${GITHUB_ENV}"
 
-    - name: Best-effort Docker Hub login before pulls
-      uses: docker/login-action@v4.6.0
-      if: env.BUILD_IMAGE_REQUIRED == 'true'
-      continue-on-error: true
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Pull Docker base images for cache purposes
       if: env.BUILD_IMAGE_REQUIRED == 'true'
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       run: |
+        if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_TOKEN" ]; then
+          printf '%s' "$DOCKERHUB_TOKEN" | docker login docker.io --username "$DOCKERHUB_USERNAME" --password-stdin \
+            || echo "Docker Hub login failed; attempting pull anyway."
+        fi
         docker pull --platform ${{ matrix.platform }} golang:1.27.3-bookworm || echo 'could not pull image for cache purposes'
         docker pull --platform ${{ matrix.platform }} ubuntu:22.04 || echo 'could not pull image for cache purposes'
 
     - name: Pull Docker image for cache purposes
       if: env.BUILD_IMAGE_REQUIRED == 'true'
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       run: |
+        if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_TOKEN" ]; then
+          printf '%s' "$DOCKERHUB_TOKEN" | docker login docker.io --username "$DOCKERHUB_USERNAME" --password-stdin \
+            || echo "Docker Hub login failed; attempting pull anyway."
+        fi
         docker pull --platform ${{ matrix.platform }} stackql/stackql:latest || echo 'could not pull image for cache purposes'
 
     - name: Build image precursors
@@ -1994,16 +2001,17 @@ jobs:
         } >> "${GITHUB_ENV}"
            
       
-    - name: Login to Docker Hub
-      uses: docker/login-action@v4.6.0
-      if: env.BUILD_IMAGE_REQUIRED == 'true'
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
       
     - name: Pull by digest
       if: env.BUILD_IMAGE_REQUIRED == 'true'
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       run: |
+        if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_TOKEN" ]; then
+          printf '%s' "$DOCKERHUB_TOKEN" | docker login docker.io --username "$DOCKERHUB_USERNAME" --password-stdin \
+            || echo "Docker Hub login failed; attempting pull anyway."
+        fi
         docker pull --platform ${{ matrix.platform }} ${{ env.STACKQL_IMAGE_NAME }}@sha256:${{ env.THIS_STACKQL_DIGEST }}
         docker tag ${{ env.STACKQL_IMAGE_NAME }}@sha256:${{ env.THIS_STACKQL_DIGEST }} ${{ env.STACKQL_IMAGE_NAME }}:latest
 
