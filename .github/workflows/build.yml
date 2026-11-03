@@ -1695,8 +1695,7 @@ jobs:
                 [ "${{ github.ref_type }}" = "branch" ] \
                 && ( \
                   [ "${{ github.ref_name }}" = "main" ] \
-                  || [[ "${{ github.ref_name }}" == stable/* ]] \
-                  || [[ "${{ github.ref_name }}" =~ ^version.* ]] \
+                  || [[ "$GITHUB_REF_NAME" == stable/* ]] \
                 ) \
                 && [ "${{ github.event_name }}" = "push" ] \
             ) \
@@ -1943,8 +1942,7 @@ jobs:
                 [ "${{ github.ref_type }}" = "branch" ] \
                 &&  ( \
                   [ "${{ github.ref_name }}" = "main" ] \
-                  || [[ "${{ github.ref_name }}" == stable/* ]] \
-                  || [[ "${{ github.ref_name }}" =~ ^version.* ]] \
+                  || [[ "$GITHUB_REF_NAME" == stable/* ]] \
                 ) \
                 && [ "${{ github.event_name }}" = "push" ] \
             ) \
@@ -2259,8 +2257,7 @@ jobs:
                   &&  ( \
                     [ "${{ github.ref_name }}" = "main" ] \
                     || [ "${{ github.ref_name }}" = "$LIVE_BRANCH" ] \
-                    || [[ "${{ github.ref_name }}" == stable/* ]] \
-                    || [[ "${{ github.ref_name }}" =~ ^version.* ]] \
+                    || [[ "$GITHUB_REF_NAME" == stable/* ]] \
                   ) \
                   && [ "${{ github.event_name }}" = "push" ] \
               ) \
