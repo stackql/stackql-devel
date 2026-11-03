@@ -2094,22 +2094,34 @@ jobs:
 
     - name: Run robot mocked functional tests
       env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
         IS_SKIP_MCP_TEST: 'true'
       if: success() && env.CI_IS_EXPRESS != 'true' && env.BUILD_IMAGE_REQUIRED == 'true' && matrix.db_backend == 'sqlite'
       timeout-minutes: ${{ vars.DEFAULT_LONG_STEP_TIMEOUT_MIN == '' && 40 || vars.DEFAULT_LONG_STEP_TIMEOUT_MIN }}
       run: |
+        if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_TOKEN" ]; then
+          printf '%s' "$DOCKERHUB_TOKEN" | docker login docker.io --username "$DOCKERHUB_USERNAME" --password-stdin \
+            || echo "Docker Hub login failed; attempting tests anyway."
+        fi
         sudo rm -rf test/tmp || true
         mkdir -p test/tmp
         python cicd/python/build.py --robot-test --config='{ "variables":  { "EXECUTION_PLATFORM": "docker" } }'
 
     - name: Run POSTGRES BACKEND robot mocked functional tests
       env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         PYTHONPATH: '${{ env.PYTHONPATH }}:${{ github.workspace }}/test/python'
         IS_SKIP_MCP_TEST: 'true'
       if: success() && env.CI_IS_EXPRESS != 'true' && matrix.platform == 'linux/amd64' && env.BUILD_IMAGE_REQUIRED == 'true' && matrix.db_backend == 'postgres_tcp'
       timeout-minutes: ${{ vars.DEFAULT_STEP_TIMEOUT_MIN == '' && 20 || vars.DEFAULT_STEP_TIMEOUT_MIN }}
       run: |
+        if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_TOKEN" ]; then
+          printf '%s' "$DOCKERHUB_TOKEN" | docker login docker.io --username "$DOCKERHUB_USERNAME" --password-stdin \
+            || echo "Docker Hub login failed; attempting tests anyway."
+        fi
         sudo rm -rf test/tmp || true
         mkdir -p test/tmp
         echo "## Stray flask apps to be killed before robot tests ##"
