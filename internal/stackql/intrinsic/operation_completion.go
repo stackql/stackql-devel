@@ -253,7 +253,8 @@ func (acceptedMutation) Complete(
 	_,
 	_ string,
 	_ map[string]any,
-	row omnisdk.Row) (omnisdk.Row, error) {
+	row omnisdk.Row,
+) (omnisdk.Row, error) {
 	return row, nil
 }
 
