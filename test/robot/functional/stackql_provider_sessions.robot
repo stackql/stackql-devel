@@ -86,3 +86,12 @@ String Boolean Integer And Null Variables Filter Provider Rows
 
 Document Merge Supports Inline JSON File Input And Reset
     Document Merge Inline File And Reset
+
+IaC Inputs File Errors Precede Provider Dispatch
+    Iac Inputs File Errors Precede Provider Dispatch
+
+Ledger Query Is Read Only And Collection Scoped
+    Ledger Query Is Read Only And Collection Scoped
+
+Recover Verified Absent Create Without Provider Calls
+    Recover Verified Absent Create Without Provider Calls

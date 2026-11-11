@@ -37,6 +37,8 @@ const (
 	graphRelation    = "query"
 	convergeRelation = "run"
 	destroyRelation  = "destroy"
+	ledgerRelation   = "ledger"
+	recoverRelation  = "recover"
 )
 
 const (
@@ -328,6 +330,14 @@ func previewTables(service string) []table {
 		isData:      true,
 		description: "every resource a named collection holds, deleted",
 	}}
+	out = append(out, table{
+		service: iacService, name: recoverRelation, isData: true,
+		description: "explicit recovery of an operator-verified pending outcome",
+	})
+	out = append(out, table{
+		service: iacService, name: ledgerRelation, isData: true,
+		description: "read-only resource identities and phases from the collection ledger",
+	})
 	return append(out, blueprintTables()...)
 }
 
@@ -348,7 +358,8 @@ func describePreviewTableFunc(
 	resource := node.Table.Name.GetRawVal()
 	extended := isExtended(node.Extended)
 	if service == iacService && !strings.EqualFold(resource, convergeRelation) &&
-		!strings.EqualFold(resource, destroyRelation) {
+		!strings.EqualFold(resource, destroyRelation) && !strings.EqualFold(resource, ledgerRelation) &&
+		!strings.EqualFold(resource, recoverRelation) {
 		blueprint, ok := blueprintFor(resource)
 		if !ok {
 			return refuse(fmt.Errorf(
