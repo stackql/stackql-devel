@@ -632,7 +632,7 @@ esac
         patch_file.write_text(json.dumps(config))
         base_doc = self.root / "registry/src/widgets/v00.00.00000/services/things.yaml"
         original = base_doc.read_bytes()
-        for value in [json.dumps(config).replace("\\", "\\\\"), "@" + str(patch_file)]:
+        for value in [json.dumps(config).replace("\\", "\\\\"), "@" + patch_file.as_posix()]:
             sql = binding + self.setting("document_merge", value) + query
             sql += 'UNSET "$.document_merge";' + query
             result = self.run_sql(sql, [("Bearer merge-token", "merge-region")] * 2)
