@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
-	"github.com/stackql-labs/omnisdk/public/authorization"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 )
@@ -51,11 +50,6 @@ func ledgerSelectFunc(ctx queryContext, node *sqlparser.Select) func() internald
 		return refuse(fmt.Errorf("the Omni dependency needs the read-only ledger capability; upgrade Omni"))
 	}
 	return func() internaldto.ExecutorOutput {
-		if ctx.GetRuntimeContext().AccessConfigFile != "" {
-			if err := authorization.Check(executionContext(ctx), "iac/ledger", "read"); err != nil {
-				return internaldto.NewErroneousExecutorOutput(err)
-			}
-		}
 		return streamPlan(ctx, ledgerReadPlan{reader: reader, resource: resource}, ledgerRelation, node.SelectExprs)
 	}
 }
