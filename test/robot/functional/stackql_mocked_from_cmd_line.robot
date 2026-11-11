@@ -11888,6 +11888,8 @@ Preview Iac Show Resources Lists Run And Blueprint Handles
     ...    name,id
     ...    run,stackql_preview.iac.run
     ...    destroy,stackql_preview.iac.destroy
+    ...    recover,stackql_preview.iac.recover
+    ...    ledger,stackql_preview.iac.ledger
     ...    aws_vpc_subnet,stackql_preview.iac.aws_vpc_subnet
     Should StackQL Exec Inline Equal
     ...    ${STACKQL_EXE}
