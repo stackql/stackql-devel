@@ -623,3 +623,20 @@ esac
         sql += "SET enabled = false; SELECT id FROM typed.things.widgets WHERE region = '42' AND active = $enabled;"
         result = self.run_sql(sql, [('Bearer typed-token', '42'), ('Bearer typed-token', '42')])
         assert result.stdout.rstrip().endswith('null'), result.stdout
+
+    def document_merge_inline_file_and_reset(self):
+        binding = self.setting("providers.merged", {"provider": "widgets", "tenancy": "merge-test", "auth": {"type": "bearer", "credentials": "merge-token"}, "params": {"region": "merge-region"}})
+        config = {"patches": [{"service": "stackql_unstable_widgets.things", "merge": {"components": {"x-stackQL-resources": {"widgets": {"methods": {"list": {"response": {"transform": {"type": "golang_template_json_v0.3.0", "body": '[{"id":"patched"}]'}}}}}}}}}]}
+        query = "SELECT id FROM merged.things.widgets;"
+        patch_file = self.root / "merge.json"
+        patch_file.write_text(json.dumps(config))
+        base_doc = self.root / "registry/src/widgets/v00.00.00000/services/things.yaml"
+        original = base_doc.read_bytes()
+        for value in [json.dumps(config).replace("\\", "\\\\"), "@" + str(patch_file)]:
+            sql = binding + self.setting("document_merge", value) + query
+            sql += 'UNSET "$.document_merge";' + query
+            result = self.run_sql(sql, [("Bearer merge-token", "merge-region")] * 2)
+            assert 'patched' in result.stdout and 'merge-region' in result.stdout, result.stdout
+            assert base_doc.read_bytes() == original, "base document changed"
+        result = self.run_sql(binding + query, [("Bearer merge-token", "merge-region")])
+        assert 'patched' not in result.stdout, "merge leaked into a new session"

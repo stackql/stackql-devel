@@ -83,3 +83,6 @@ Variable Identifiers Work In CTEs Joins And Subqueries
 
 String Boolean Integer And Null Variables Filter Provider Rows
     String Boolean Integer And Null Variables Filter Provider Rows
+
+Document Merge Supports Inline JSON File Input And Reset
+    Document Merge Inline File And Reset
