@@ -248,7 +248,12 @@ func completionAddress(catalogue aot.Catalog, service, link string) (string, map
 // acceptedMutation preserves plain SQL's return-on-acceptance contract.
 type acceptedMutation struct{}
 
-func (acceptedMutation) Complete(_ context.Context, _, _ string, _ map[string]any, row omnisdk.Row) (omnisdk.Row, error) {
+func (acceptedMutation) Complete(
+	_ context.Context,
+	_,
+	_ string,
+	_ map[string]any,
+	row omnisdk.Row) (omnisdk.Row, error) {
 	return row, nil
 }
 
