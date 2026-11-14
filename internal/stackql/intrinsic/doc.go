@@ -376,6 +376,26 @@ func planDocQuery(ctx queryContext, translated docQuery) (omnisdk.Plan, string, 
 	args.Tuning.Limit = translated.getLimit()
 	configureReadHints(translated, &args)
 	configureLegacyReadCache(ctx, q, &args)
+	if host, ok := ctx.(interface {
+		ProviderTransaction() (*omnisdk.TransactionSession, omnisdk.TransactionHandle, bool)
+	}); ok {
+		if session, handle, active := host.ProviderTransaction(); active {
+			cfg, err := session.Configuration(executionContext(ctx), handle)
+			if err != nil {
+				return nil, "", err
+			}
+			var managed []omnisdk.Managed
+			if target := q.Target(); target != nil {
+				address := target.Resource().Handle()
+				binding, found := cfg.Targets[address]
+				if !found {
+					return nil, "", fmt.Errorf("transaction target %s has no key/identity/inverse addressing declaration", address)
+				}
+				managed = append(managed, omnisdk.NewManaged(binding.Key, []string{target.Resource().Alias()}, binding.Identity, binding.AddressedBy))
+			}
+			return session.Plan(handle, registry, res.Graph(), managed, args), relation, nil
+		}
+	}
 	plan, planErr := omnisdk.NewGraphQuery(registry, res.Graph(), args)
 	if planErr != nil {
 		return nil, "", planErr

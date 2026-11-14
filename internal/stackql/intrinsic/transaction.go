@@ -74,6 +74,14 @@ func (c *inverseCapture) Complete(
 func GenerateTransactionStreamFunc(
 	ctx queryContext, stmt sqlparser.Statement,
 ) (func() internaldto.ExecutorOutput, func() internaldto.ExecutorOutput, bool) {
+	if host, ok := ctx.(interface {
+		ProviderTransaction() (*omnisdk.TransactionSession, omnisdk.TransactionHandle, bool)
+	}); ok {
+		if _, _, active := host.ProviderTransaction(); active {
+			f, handled := GenerateStreamFunc(ctx, stmt)
+			return f, nil, handled
+		}
+	}
 	if _, ok := stmt.(*sqlparser.Insert); !ok {
 		f, handled := GenerateStreamFunc(ctx, stmt)
 		return f, nil, handled
@@ -172,23 +180,7 @@ func executeDeclaredInverse(
 func inverseParameters(
 	ctx queryContext, address, method string, original map[string]string,
 ) (map[string]string, error) {
-	table, err := omnisdk.DescribeMutation(registryRoot(ctx), providerAddress(ctx, address), "delete")
-	if err != nil {
-		return nil, err
-	}
-	for _, signature := range table.Methods() {
-		if signature.Method() != method {
-			continue
-		}
-		params := map[string]string{}
-		for _, p := range signature.Params() {
-			if value, ok := original[p.Name()]; ok {
-				params[p.Name()] = value
-			}
-		}
-		return params, nil
-	}
-	return nil, fmt.Errorf("declared inverse method %s not found", method)
+	return omnisdk.InverseParameters(registryRoot(ctx), providerAddress(ctx, address), method, original)
 }
 
 type mutationPresentationError struct {

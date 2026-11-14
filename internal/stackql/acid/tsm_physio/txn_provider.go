@@ -74,5 +74,9 @@ func NewOrchestrator(handlerCtx handler.HandlerContext) (Orchestrator, error) {
 	if txnProviderErr != nil {
 		return nil, txnProviderErr
 	}
-	return txnProvider.getOrchestrator(handlerCtx)
+	legacy, err := txnProvider.getOrchestrator(handlerCtx)
+	if err != nil {
+		return nil, err
+	}
+	return &omniOrchestrator{legacy: legacy}, nil
 }
