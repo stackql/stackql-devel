@@ -16,8 +16,6 @@ import (
 	"github.com/stackql/stackql/internal/stackql/accessmanagement"
 
 	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
-	"github.com/stackql/stackql/internal/stackql/acid/tsm"
-	"github.com/stackql/stackql/internal/stackql/acid/txn_context"
 	"github.com/stackql/stackql/internal/stackql/bundle"
 	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/datasource/sql_datasource"
@@ -103,7 +101,6 @@ type HandlerContext interface { //nolint:revive // don't mind stuttering this on
 	//
 	SetOutErrFile(io.Writer)
 	//
-	GetTxnCoordinatorCtx() txn_context.ITransactionCoordinatorContext
 
 	GetTypingConfig() typing.Config
 	GetIsolationLevel() constants.IsolationLevel
@@ -111,9 +108,6 @@ type HandlerContext interface { //nolint:revive // don't mind stuttering this on
 
 	GetRollbackType() constants.RollbackType
 	UpdateRollbackType(rollbackTypeStr string) error
-
-	GetTSM() (tsm.TSM, bool)
-	SetTSM(tsm.TSM)
 
 	SetExportNamespace(string)
 	GetExportNamespace() string
@@ -169,10 +163,8 @@ type standardHandlerContext struct {
 	namespaceCollection tablenamespace.Collection
 	formatter           sqlparser.NodeFormatter
 	pgInternalRouter    dbmsinternal.Router
-	txnCoordinatorCtx   txn_context.ITransactionCoordinatorContext
 	typCfg              typing.Config
 	sessionContext      dto.SessionContext
-	walInstance         tsm.TSM
 	exportNamespace     string
 	stackqlSemver       string
 	defaultHTTPClient   *http.Client
@@ -210,18 +202,6 @@ func (hc *standardHandlerContext) SetExportNamespace(exportNamespace string) {
 
 func (hc *standardHandlerContext) GetExportNamespace() string {
 	return hc.exportNamespace
-}
-
-func (hc *standardHandlerContext) GetTSM() (tsm.TSM, bool) {
-	return hc.walInstance, hc.walInstance != nil
-}
-
-func (hc *standardHandlerContext) SetTSM(w tsm.TSM) {
-	hc.walInstance = w
-}
-
-func (hc *standardHandlerContext) GetTxnCoordinatorCtx() txn_context.ITransactionCoordinatorContext {
-	return hc.txnCoordinatorCtx
 }
 
 func (hc *standardHandlerContext) GetTypingConfig() typing.Config {
@@ -702,7 +682,6 @@ func (hc *standardHandlerContext) Clone() HandlerContext {
 		namespaceCollection:  hc.namespaceCollection,
 		formatter:            hc.formatter,
 		pgInternalRouter:     hc.pgInternalRouter,
-		txnCoordinatorCtx:    hc.txnCoordinatorCtx,
 		typCfg:               hc.typCfg,
 		sessionContext:       hc.sessionContext,
 		exportNamespace:      hc.exportNamespace,
@@ -784,7 +763,6 @@ func NewHandlerCtx(
 		formatter:           inputBundle.GetSQLSystem().GetASTFormatter(),
 		pgInternalRouter:    inputBundle.GetDBMSInternalRouter(),
 		currentProvider:     runtimeCtx.ProviderStr,
-		txnCoordinatorCtx:   inputBundle.GetTxnCoordinatorContext(),
 		typCfg:              inputBundle.GetTypingConfig(),
 		sessionContext:      inputBundle.GetSessionContext(),
 		accessManager:       accessManager,

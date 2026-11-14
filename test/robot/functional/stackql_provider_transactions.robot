@@ -41,3 +41,6 @@ Provider Missing Handle Requires Explicit Recovery Before Rollback
 
 Provider Transactions Work Without Opting Into Caller Auth
     Verify Caller Access    ${STACKQL_EXE}    ${SQL_BACKEND_CFG_STR_CANONICAL}    ${EXECUTION_PLATFORM}    provider_transaction_auth_disabled
+
+Unconfigured SQL Transactions Use Omni And Keep Creates Distinct
+    Verify Caller Access    ${STACKQL_EXE}    ${SQL_BACKEND_CFG_STR_CANONICAL}    ${EXECUTION_PLATFORM}    provider_transaction_default

@@ -1,4 +1,4 @@
-package tsm_physio
+package transaction
 
 import (
 	"context"
@@ -8,51 +8,34 @@ import (
 
 	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
-	"github.com/stackql/stackql/internal/stackql/acid/txn_context"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
 	"github.com/stackql/stackql/internal/stackql/intrinsic"
+	"github.com/stackql/stackql/internal/stackql/querysubmit"
 )
 
 type providerTransactionHost interface {
 	handler.HandlerContext
-	ProviderTransactionConfigured() bool
 	ProviderTransaction() (*omnisdk.TransactionSession, omnisdk.TransactionHandle, bool)
 	BeginProviderTransaction(context.Context) error
 	ClearProviderTransaction()
 }
 
-// SQL syntax/session integration only. Omni owns durability, ordering, locks,
-// abort state, commit and compensation. Legacy coordinators remain isolated for
-// sessions that have not opted into the new transaction contract.
-type omniOrchestrator struct{ legacy Orchestrator }
+// Orchestrator translates SQL control statements; Omni owns transaction semantics.
+type Orchestrator interface {
+	ProcessQueryOrQueries(handler.HandlerContext) ([]internaldto.ExecutorOutput, bool)
+}
+type omniOrchestrator struct{}
 type queuedSQL struct {
 	SQL string `json:"sql"`
 }
 
-func (o *omniOrchestrator) legacyQuery(hc handler.HandlerContext, sql string) ([]internaldto.ExecutorOutput, bool) {
-	switch legacy := o.legacy.(type) {
-	case *standardOrchestrator:
-		return legacy.processQuery(hc, sql)
-	case *bestEffortOrchestrator:
-		return legacy.processQuery(hc, sql)
-	default:
-		return []internaldto.ExecutorOutput{
-			internaldto.NewErroneousExecutorOutput(fmt.Errorf("unsupported legacy orchestrator")),
-		}, true
-	}
-}
+func NewOrchestrator(_ handler.HandlerContext) (Orchestrator, error) { return &omniOrchestrator{}, nil }
+
 func (o *omniOrchestrator) ProcessQueryOrQueries(hc handler.HandlerContext) ([]internaldto.ExecutorOutput, bool) {
 	host, ok := hc.(providerTransactionHost)
 	if !ok {
-		return o.legacy.ProcessQueryOrQueries(hc)
-	}
-	_, _, active := host.ProviderTransaction()
-	if !active && !host.ProviderTransactionConfigured() {
-		lower := strings.ToLower(hc.GetRawQuery())
-		if !strings.Contains(lower, "transaction") && !strings.Contains(lower, "begin") {
-			return o.legacy.ProcessQueryOrQueries(hc)
-		}
+		return providerTransactionError(fmt.Errorf("transaction host is unavailable")), true
 	}
 	pieces, err := sqlparser.SplitStatementToPieces(hc.GetRawQuery())
 	if err != nil {
@@ -64,17 +47,16 @@ func (o *omniOrchestrator) ProcessQueryOrQueries(hc handler.HandlerContext) ([]i
 			continue
 		}
 		var result []internaldto.ExecutorOutput
-		_, _, active = host.ProviderTransaction()
+		_, _, active := host.ProviderTransaction()
 		statement, parseErr := sqlparser.Parse(sql)
 		if parseErr != nil {
 			output = append(output, internaldto.NewErroneousExecutorOutput(parseErr))
 			break
 		}
-		_, begin := statement.(*sqlparser.Begin)
-		if !active && (!begin || !host.ProviderTransactionConfigured()) {
-			result, _ = o.legacyQuery(hc, sql)
+		if active || transactionControl(statement) {
+			result = markTransactionFailures(o.transactionQuery(host, sql, statement))
 		} else {
-			result = o.transactionQuery(host, sql, statement)
+			result = []internaldto.ExecutorOutput{executeProviderSQL(host, host.GetExecutionContext(), sql)}
 		}
 		output = append(output, result...)
 		if transactionOutputFailed(result) {
@@ -101,11 +83,11 @@ func executeProviderSQL(host providerTransactionHost, ctx context.Context, sql s
 	local := host.Clone()
 	local.SetQuery(sql)
 	local.SetExecutionContext(ctx)
-	stmt := NewStatement(sql, local, txn_context.NewTransactionContext(0))
-	if err := stmt.Prepare(); err != nil {
+	stmt := querysubmit.NewQuerySubmitter()
+	if err := stmt.PrepareQuery(local); err != nil {
 		return internaldto.NewErroneousExecutorOutput(err)
 	}
-	return stmt.Execute()
+	return stmt.SubmitQuery()
 }
 func (o *omniOrchestrator) transactionQuery(
 	host providerTransactionHost, sql string, statement sqlparser.Statement,
@@ -270,4 +252,27 @@ func drainProviderStatements(host providerTransactionHost, ctx context.Context,
 
 func providerTransactionError(err error) []internaldto.ExecutorOutput {
 	return []internaldto.ExecutorOutput{internaldto.NewErroneousExecutorOutput(err)}
+}
+
+func transactionControl(statement sqlparser.Statement) bool {
+	switch statement.(type) {
+	case *sqlparser.Begin, *sqlparser.Commit, *sqlparser.Rollback:
+		return true
+	default:
+		return false
+	}
+}
+
+// Transaction failures must remain failures even when caller auth is disabled.
+type transactionError struct{ error }
+
+func (e transactionError) Unwrap() error            { return e.error }
+func (e transactionError) TransactionFailure() bool { return true }
+func markTransactionFailures(results []internaldto.ExecutorOutput) []internaldto.ExecutorOutput {
+	for i, result := range results {
+		if err := result.GetError(); err != nil {
+			results[i] = internaldto.NewErroneousExecutorOutput(transactionError{err})
+		}
+	}
+	return results
 }

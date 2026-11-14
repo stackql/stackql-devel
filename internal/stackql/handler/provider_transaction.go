@@ -46,12 +46,6 @@ func (hc *standardHandlerContext) configureProviderTransaction(parts []string, r
 	state.transactionConfig = &cfg
 	return nil
 }
-func (hc *standardHandlerContext) ProviderTransactionConfigured() bool {
-	state := hc.providerSessionState()
-	state.mu.Lock()
-	defer state.mu.Unlock()
-	return state.transactionConfig != nil
-}
 func (hc *standardHandlerContext) ProviderTransaction() (*omnisdk.TransactionSession, omnisdk.TransactionHandle, bool) {
 	state := hc.providerSessionState()
 	state.mu.Lock()
@@ -65,11 +59,12 @@ func (hc *standardHandlerContext) BeginProviderTransaction(ctx context.Context) 
 		state.mu.Unlock()
 		return fmt.Errorf("nested provider transactions are unsupported")
 	}
-	if state.transactionConfig == nil {
-		state.mu.Unlock()
-		return fmt.Errorf("configure $.transaction before BEGIN")
+	cfg := ProviderTransactionConfig{TransactionConfig: omnisdk.TransactionConfig{
+		Collection: "sql", DynamicScope: true,
+	}}
+	if state.transactionConfig != nil {
+		cfg = *state.transactionConfig
 	}
-	cfg := *state.transactionConfig
 	state.transactionStarting = true
 	state.mu.Unlock()
 	defer func() { state.mu.Lock(); state.transactionStarting = false; state.mu.Unlock() }()

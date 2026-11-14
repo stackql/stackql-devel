@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/stackql/stackql/internal/stackql/acid/txn_context"
 	"github.com/stackql/stackql/internal/stackql/handler"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/builder_input"
 	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
@@ -58,7 +57,6 @@ type planGraphBuilder interface {
 type standardPlanGraphBuilder struct {
 	planGraphHolder            primitivegraph.PrimitiveGraphHolder
 	rootPrimitiveGenerator     primitivegenerator.PrimitiveGenerator
-	transactionContext         txn_context.ITransactionContext
 	preBuiltIndirectCollection []primitivebuilder.Builder
 }
 
@@ -83,10 +81,9 @@ func (pgb *standardPlanGraphBuilder) getPlanGraphHolder() primitivegraph.Primiti
 	return pgb.planGraphHolder
 }
 
-func newPlanGraphBuilder(concurrencyLimit int, transactionContext txn_context.ITransactionContext) planGraphBuilder {
+func newPlanGraphBuilder(concurrencyLimit int) planGraphBuilder {
 	return &standardPlanGraphBuilder{
-		planGraphHolder:    primitivegraph.NewPrimitiveGraphHolder(concurrencyLimit),
-		transactionContext: transactionContext,
+		planGraphHolder: primitivegraph.NewPrimitiveGraphHolder(concurrencyLimit),
 	}
 }
 

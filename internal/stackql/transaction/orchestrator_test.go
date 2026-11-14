@@ -1,5 +1,5 @@
 //nolint:testpackage // Tests the private SQL snapshot formatter without exposing it as API.
-package tsm_physio
+package transaction
 
 import (
 	"testing"

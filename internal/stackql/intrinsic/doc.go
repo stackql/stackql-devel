@@ -371,7 +371,6 @@ func planDocQuery(ctx queryContext, translated docQuery) (omnisdk.Plan, string, 
 	if completionErr := configureMutationCompletion(ctx, translated, &args); completionErr != nil {
 		return nil, "", completionErr
 	}
-	configureMutationObserver(ctx, q.Target() != nil, &args)
 	args.Relations = relations
 	args.Tuning.Limit = translated.getLimit()
 	configureReadHints(translated, &args)

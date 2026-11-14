@@ -17,6 +17,18 @@ def verify_provider_transaction(scenario, run, token, managed, counts, root, bas
     insert = "INSERT INTO stackql_unstable_accessdemo.service.items(name) SELECT 'transaction-item';"
     read = 'SELECT id FROM stackql_unstable_accessdemo.service.items;'
     operator = token(subject='operator')
+    if scenario == 'provider_transaction_default':
+        # No $.transaction SET and no caller-auth opt-in.
+        code, output = run('BEGIN;' + insert + insert + read + 'ROLLBACK;', protected=False)
+        assert code == 0 and 'Rollback OK' in output, output
+        assert not managed and counts['mutation'] == 4, (managed, counts)
+        code, output = run('BEGIN;' + insert + 'COMMIT;', protected=False)
+        assert code == 0 and len(managed) == 1 and counts['mutation'] == 5, output
+        records = list((Path(root) / 'iac').rglob('ledger/sql/.transactions/*.json'))
+        assert records, 'default SQL transaction did not persist Omni checkpoints'
+        code, output = run('ROLLBACK;', protected=False)
+        assert code != 0 and counts['mutation'] == 5, f'standalone rollback code={code}: {output}'
+        return
     if scenario == 'provider_transaction_auth_disabled':
         for mode in ('eager', 'lazy'):
             config['mode'] = mode

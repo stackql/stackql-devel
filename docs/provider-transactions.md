@@ -1,8 +1,14 @@
 # Provider transactions
 
-The opt-in `$.transaction` path delegates scheduling, journal/ledger writes,
-locking, compensation and recovery to Omni. stackql retains SQL translation,
+All SQL transactions delegate scheduling, journal/ledger writes,
+locking, compensation and recovery to Omni. Plain BEGIN needs no SET. stackql retains SQL translation,
 authentication and connection-bound handle storage.
+
+Defaults: collection `sql`, existing IaC state directory and dynamic lock scope.
+Creates get distinct durable intents and retain a conservative resource-address lock.
+A single body/toString inverse token supplies identity; ambiguous bindings need explicit targets.
+
+Optional scope/mode overrides:
 
 ```sql
 SET "$.transaction" = '{"collection":"demo","mode":"lazy","keys":["item"],"targets":{"stackql_unstable_demo.service.items":{"key":"item","identity":"id","addressed_by":"id"}}}';
@@ -34,7 +40,9 @@ change inside a transaction; nested transactions are rejected. Consume read curs
 COMMIT/ROLLBACK. Provider aliases are unsupported; each resource address currently binds
 one logical target. Leases default to 300 seconds; execution lifetime defaults to 900 seconds.
 Stop or isolate the previous executor before takeover: leases cannot fence provider
-requests already in flight. Legacy unconfigured sessions retain their previous coordinators.
+requests already in flight. Legacy coordinators, TSM, host inverse execution and the
+`--acid` depth configuration are removed. Unsupported local/provider writes fail
+before dispatch. No backend SQL ACID isolation is emulated.
 
 The new adapter requires an Omni release exposing `TransactionSession`. Local validation
 uses a build-only modfile; pin the published release before normal CI. Protocol and

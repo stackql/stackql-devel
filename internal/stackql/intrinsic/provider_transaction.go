@@ -209,7 +209,7 @@ func planProviderTransaction(ctx queryContext, translated docQuery, registry str
 		return nil, true, err
 	}
 	var managed []omnisdk.Managed
-	if target := translated.getQuery().Target(); target != nil {
+	if target := translated.getQuery().Target(); target != nil && len(cfg.Targets) > 0 {
 		address := target.Resource().Handle()
 		binding, found := cfg.Targets[address]
 		if !found {
