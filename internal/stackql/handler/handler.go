@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -33,6 +32,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/provider"
 	"github.com/stackql/stackql/internal/stackql/registry"
 	dto "github.com/stackql/stackql/internal/stackql/runtimeconfig"
+	"github.com/stackql/stackql/internal/stackql/sessionconfig"
 	"github.com/stackql/stackql/internal/stackql/sql_system"
 	"github.com/stackql/stackql/internal/stackql/sqlengine"
 	"github.com/stackql/stackql/internal/stackql/tablenamespace"
@@ -46,7 +46,7 @@ import (
 )
 
 // ErrSessionConfiguration identifies a rejected session mutation at CLI boundaries.
-var ErrSessionConfiguration = errors.New("session configuration failed")
+var ErrSessionConfiguration = sessionconfig.ErrSessionConfiguration
 
 var (
 	_ HandlerContext = &standardHandlerContext{}
