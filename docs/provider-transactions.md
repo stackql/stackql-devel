@@ -24,7 +24,11 @@ then call `stackql_preview.txn.recover` with `version`, JSON `resources` contain
 for applied creates. `continue = 'true'` explicitly attests statement completion;
 false aborts it for subsequent rollback. Recovery sends no provider request.
 
-Current limits: authenticated callers are required; only creates with a declared delete
+Caller authentication and authorization are opt-in through the existing access configuration.
+When enabled, ownership and permission checks apply to every transaction operation.
+Without it, handles remain session-bound, but durable IDs do not establish user ownership.
+
+Current limits: only creates with a declared delete
 inverse are supported. Unsupported mutations fail before dispatch. Configuration cannot
 change inside a transaction; nested transactions are rejected. Consume read cursors before
 COMMIT/ROLLBACK. Provider aliases are unsupported; each resource address currently binds

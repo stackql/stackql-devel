@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 	"strings"
+
+	"github.com/stackql/stackql-parser/go/vt/sqlparser"
 )
 
-// ApplySessionSet is the shared SET/UNSET value decoder; the host applies authorization.
+// Apply is the shared SET/UNSET value decoder; the host applies authorization.
 //
 //nolint:exhaustive // Unsupported literal kinds are explicitly rejected by the default branch.
 func Apply(host interface {
@@ -31,23 +32,9 @@ func Apply(host interface {
 		return host.SetConfigAtPath(lhsTrimmed, nil, setExpr.Scope)
 	}
 	if !config {
-		var raw json.RawMessage
-		switch value := setExpr.Expr.(type) {
-		case *sqlparser.NullVal:
-			raw = json.RawMessage("null")
-		case sqlparser.BoolVal:
-			raw = json.RawMessage(fmt.Sprint(bool(value)))
-		case *sqlparser.SQLVal:
-			switch value.Type {
-			case sqlparser.StrVal:
-				raw, _ = json.Marshal(string(value.Val))
-			case sqlparser.IntVal, sqlparser.FloatVal:
-				raw = json.RawMessage(value.Val)
-			default:
-				return fmt.Errorf("variables accepts scalar literals only")
-			}
-		default:
-			return fmt.Errorf("variables accepts scalar literals only")
+		raw, err := scalarVariable(setExpr.Expr)
+		if err != nil {
+			return err
 		}
 		return host.SetConfigAtPath(lhsTrimmed, raw, setExpr.Scope)
 	}
@@ -67,3 +54,28 @@ func Apply(host interface {
 }
 
 var ErrSessionConfiguration = errors.New("session configuration failed")
+
+func scalarVariable(expr sqlparser.Expr) (json.RawMessage, error) {
+	switch value := expr.(type) {
+	case *sqlparser.NullVal:
+		return json.RawMessage("null"), nil
+	case sqlparser.BoolVal:
+		return json.RawMessage(fmt.Sprint(bool(value))), nil
+	case *sqlparser.SQLVal:
+		return scalarSQLValue(value)
+	default:
+		return nil, fmt.Errorf("variables accepts scalar literals only")
+	}
+}
+
+//nolint:exhaustive // Non-scalar literal kinds are rejected.
+func scalarSQLValue(value *sqlparser.SQLVal) (json.RawMessage, error) {
+	switch value.Type {
+	case sqlparser.StrVal:
+		return json.Marshal(string(value.Val))
+	case sqlparser.IntVal, sqlparser.FloatVal:
+		return json.RawMessage(value.Val), nil
+	default:
+		return nil, fmt.Errorf("variables accepts scalar literals only")
+	}
+}

@@ -3,13 +3,13 @@ package intrinsic
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
-	"github.com/stackql/stackql/internal/stackql/util"
 	"strconv"
 	"strings"
 
 	"github.com/stackql-labs/omnisdk/pkg/omnisdk"
 	"github.com/stackql/stackql-parser/go/vt/sqlparser"
+	"github.com/stackql/stackql/internal/stackql/internal_data_transfer/internaldto"
+	"github.com/stackql/stackql/internal/stackql/util"
 )
 
 // ProviderTransactionMutation prevents a transaction from silently escaping to
@@ -32,7 +32,9 @@ func ProviderTransactionMutation(ctx queryContext, stmt sqlparser.Statement) err
 	return nil
 }
 
-func RollbackProviderTransaction(ctx queryContext, session *omnisdk.TransactionSession, handle omnisdk.TransactionHandle) error {
+func RollbackProviderTransaction(
+	ctx queryContext, session *omnisdk.TransactionSession, handle omnisdk.TransactionHandle,
+) error {
 	cfg, err := session.Configuration(executionContext(ctx), handle)
 	if err != nil {
 		return err
@@ -73,7 +75,9 @@ func providerTransactionRelation(node *sqlparser.Select) string {
 	}
 	return ""
 }
-func providerTransactionControlFunc(ctx queryContext, node *sqlparser.Select) (func() internaldto.ExecutorOutput, bool) {
+func providerTransactionControlFunc(
+	ctx queryContext, node *sqlparser.Select,
+) (func() internaldto.ExecutorOutput, bool) {
 	relation := providerTransactionRelation(node)
 	if relation == "" {
 		return nil, false
@@ -89,37 +93,8 @@ func providerTransactionControlFunc(ctx queryContext, node *sqlparser.Select) (f
 		if !active {
 			return internaldto.NewErroneousExecutorOutput(fmt.Errorf("no active provider transaction; BEGIN or resume first"))
 		}
-		if relation == "recover" {
-			values, unhandled := equalityPredicates(node.Where)
-			if len(unhandled) > 0 {
-				return internaldto.NewErroneousExecutorOutput(fmt.Errorf("transaction recovery requires equality predicates"))
-			}
-			recovery := omnisdk.TransactionRecovery{Version: values["version"]}
-			if recovery.Version == "" {
-				return internaldto.NewErroneousExecutorOutput(fmt.Errorf("transaction recovery requires the observed transaction version"))
-			}
-			if raw := values["resources"]; raw != "" {
-				if err := json.Unmarshal([]byte(raw), &recovery.Resources); err != nil {
-					return internaldto.NewErroneousExecutorOutput(fmt.Errorf("invalid recovery resources"))
-				}
-			}
-			if raw := values["continue"]; raw != "" {
-				value, err := strconv.ParseBool(raw)
-				if err != nil {
-					return internaldto.NewErroneousExecutorOutput(fmt.Errorf("continue must be true or false"))
-				}
-				recovery.Continue = value
-			}
-			for key := range values {
-				if key != "version" && key != "resources" && key != "continue" {
-					return internaldto.NewErroneousExecutorOutput(fmt.Errorf("unknown transaction recovery input %s", key))
-				}
-			}
-			if err := session.Recover(executionContext(ctx), handle, recovery); err != nil {
-				return internaldto.NewErroneousExecutorOutput(err)
-			}
-		} else if node.Where != nil {
-			return internaldto.NewErroneousExecutorOutput(fmt.Errorf("transaction status takes no predicates"))
+		if controlErr := applyTransactionControl(ctx, node, relation, session, handle); controlErr != nil {
+			return internaldto.NewErroneousExecutorOutput(controlErr)
 		}
 		snapshot, err := session.Status(executionContext(ctx), handle)
 		if err != nil {
@@ -130,7 +105,10 @@ func providerTransactionControlFunc(ctx queryContext, node *sqlparser.Select) (f
 			return internaldto.NewErroneousExecutorOutput(err)
 		}
 		return prepare(ctx, []string{"id", "status", "version", "pending"},
-			map[string]map[string]interface{}{"0": {"id": snapshot.ID, "status": snapshot.Status, "version": snapshot.Version, "pending": string(pending)}}, util.DefaultRowSort)
+			map[string]map[string]interface{}{"0": {
+				"id": snapshot.ID, "status": snapshot.Status,
+				"version": snapshot.Version, "pending": string(pending),
+			}}, util.DefaultRowSort)
 	}, true
 }
 
@@ -154,10 +132,91 @@ func providerTransactionArgs(ctx queryContext, cfg omnisdk.TransactionConfig) (o
 	}
 	return args, nil
 }
-func OpenProviderTransaction(ctx queryContext, session *omnisdk.TransactionSession, cfg omnisdk.TransactionConfig) (omnisdk.TransactionHandle, error) {
+func OpenProviderTransaction(
+	ctx queryContext, session *omnisdk.TransactionSession, cfg omnisdk.TransactionConfig,
+) (omnisdk.TransactionHandle, error) {
 	args, err := providerTransactionArgs(ctx, cfg)
 	if err != nil {
 		return omnisdk.TransactionHandle{}, err
 	}
 	return session.BeginWithRegistry(executionContext(ctx), cfg, registryRoot(ctx), args)
+}
+
+func applyTransactionControl(ctx queryContext, node *sqlparser.Select, relation string,
+	session *omnisdk.TransactionSession, handle omnisdk.TransactionHandle,
+) error {
+	if relation != "recover" {
+		if node.Where != nil {
+			return fmt.Errorf("transaction status takes no predicates")
+		}
+		return nil
+	}
+	recovery, err := transactionRecoveryInputs(node)
+	if err != nil {
+		return err
+	}
+	return session.Recover(executionContext(ctx), handle, recovery)
+}
+
+func transactionRecoveryInputs(node *sqlparser.Select) (omnisdk.TransactionRecovery, error) {
+	values, unhandled := equalityPredicates(node.Where)
+	recovery := omnisdk.TransactionRecovery{Version: values["version"]}
+	if len(unhandled) > 0 {
+		return recovery, fmt.Errorf("transaction recovery requires equality predicates")
+	}
+	if recovery.Version == "" {
+		return recovery, fmt.Errorf("transaction recovery requires the observed transaction version")
+	}
+	for key, raw := range values {
+		switch key {
+		case "version":
+		case "resources":
+			if raw != "" {
+				if err := json.Unmarshal([]byte(raw), &recovery.Resources); err != nil {
+					return recovery, fmt.Errorf("invalid recovery resources")
+				}
+			}
+		case "continue":
+			if raw != "" {
+				value, err := strconv.ParseBool(raw)
+				if err != nil {
+					return recovery, fmt.Errorf("continue must be true or false")
+				}
+				recovery.Continue = value
+			}
+		default:
+			return recovery, fmt.Errorf("unknown transaction recovery input %s", key)
+		}
+	}
+	return recovery, nil
+}
+
+func planProviderTransaction(ctx queryContext, translated docQuery, registry string,
+	graph omnisdk.Graph, args omnisdk.Args,
+) (omnisdk.Plan, bool, error) {
+	host, ok := ctx.(interface {
+		ProviderTransaction() (*omnisdk.TransactionSession, omnisdk.TransactionHandle, bool)
+	})
+	if !ok {
+		return nil, false, nil
+	}
+	session, handle, active := host.ProviderTransaction()
+	if !active {
+		return nil, false, nil
+	}
+	cfg, err := session.Configuration(executionContext(ctx), handle)
+	if err != nil {
+		return nil, true, err
+	}
+	var managed []omnisdk.Managed
+	if target := translated.getQuery().Target(); target != nil {
+		address := target.Resource().Handle()
+		binding, found := cfg.Targets[address]
+		if !found {
+			return nil, true, fmt.Errorf("transaction target %s has no key/identity/inverse addressing declaration", address)
+		}
+		managed = append(managed, omnisdk.NewManaged(binding.Key, []string{target.Resource().Alias()},
+			binding.Identity, binding.AddressedBy))
+	}
+	return session.Plan(handle, registry, graph, managed, args), true, nil
 }

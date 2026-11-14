@@ -17,6 +17,14 @@ def verify_provider_transaction(scenario, run, token, managed, counts, root, bas
     insert = "INSERT INTO stackql_unstable_accessdemo.service.items(name) SELECT 'transaction-item';"
     read = 'SELECT id FROM stackql_unstable_accessdemo.service.items;'
     operator = token(subject='operator')
+    if scenario == 'provider_transaction_auth_disabled':
+        for mode in ('eager', 'lazy'):
+            config['mode'] = mode
+            configure = 'SET "$.transaction" = \' ' + json.dumps(config) + "';"
+            code, output = run(configure + 'BEGIN;' + insert + read + 'ROLLBACK;', protected=False)
+            assert code == 0 and 'Rollback OK' in output and not managed, output
+        assert counts['mutation'] == 4, counts
+        return
     if scenario in ('provider_transaction_resume', 'provider_transaction_resume_queue', 'provider_transaction_recovery'):
         config['lease_seconds'] = 3
         config['mode'] = 'lazy' if scenario == 'provider_transaction_resume_queue' else 'eager'

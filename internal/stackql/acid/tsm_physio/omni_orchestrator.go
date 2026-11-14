@@ -37,7 +37,9 @@ func (o *omniOrchestrator) legacyQuery(hc handler.HandlerContext, sql string) ([
 	case *bestEffortOrchestrator:
 		return legacy.processQuery(hc, sql)
 	default:
-		return []internaldto.ExecutorOutput{internaldto.NewErroneousExecutorOutput(fmt.Errorf("unsupported legacy orchestrator"))}, true
+		return []internaldto.ExecutorOutput{
+			internaldto.NewErroneousExecutorOutput(fmt.Errorf("unsupported legacy orchestrator")),
+		}, true
 	}
 }
 func (o *omniOrchestrator) ProcessQueryOrQueries(hc handler.HandlerContext) ([]internaldto.ExecutorOutput, bool) {
@@ -62,7 +64,7 @@ func (o *omniOrchestrator) ProcessQueryOrQueries(hc handler.HandlerContext) ([]i
 			continue
 		}
 		var result []internaldto.ExecutorOutput
-		_, _, active := host.ProviderTransaction()
+		_, _, active = host.ProviderTransaction()
 		statement, parseErr := sqlparser.Parse(sql)
 		if parseErr != nil {
 			output = append(output, internaldto.NewErroneousExecutorOutput(parseErr))
@@ -75,13 +77,7 @@ func (o *omniOrchestrator) ProcessQueryOrQueries(hc handler.HandlerContext) ([]i
 			result = o.transactionQuery(host, sql, statement)
 		}
 		output = append(output, result...)
-		failed := false
-		for _, r := range result {
-			if r.GetError() != nil {
-				failed = true
-			}
-		}
-		if failed {
+		if transactionOutputFailed(result) {
 			break
 		}
 	}
@@ -111,46 +107,40 @@ func executeProviderSQL(host providerTransactionHost, ctx context.Context, sql s
 	}
 	return stmt.Execute()
 }
-func (o *omniOrchestrator) transactionQuery(host providerTransactionHost, sql string, statement sqlparser.Statement) []internaldto.ExecutorOutput {
+func (o *omniOrchestrator) transactionQuery(
+	host providerTransactionHost, sql string, statement sqlparser.Statement,
+) []internaldto.ExecutorOutput {
 	requestCtx := host.GetExecutionContext()
 	ctx, finish, err := transactionCaller(host)
 	if err != nil {
 		return []internaldto.ExecutorOutput{internaldto.NewErroneousExecutorOutput(err)}
 	}
 	defer finish()
-	refusal := func(err error) []internaldto.ExecutorOutput {
-		return []internaldto.ExecutorOutput{internaldto.NewErroneousExecutorOutput(err)}
-	}
 	if _, begin := statement.(*sqlparser.Begin); begin {
 		if err = host.BeginProviderTransaction(ctx); err != nil {
-			return refusal(err)
+			return providerTransactionError(err)
 		}
 		_, handle, _ := host.ProviderTransaction()
-		return []internaldto.ExecutorOutput{internaldto.NewNopEmptyExecutorOutput([]string{"transaction begun: " + handle.ID()})}
+		return []internaldto.ExecutorOutput{
+			internaldto.NewNopEmptyExecutorOutput([]string{"transaction begun: " + handle.ID()}),
+		}
 	}
 	session, handle, active := host.ProviderTransaction()
 	if !active {
-		return refusal(fmt.Errorf("no active provider transaction"))
+		return providerTransactionError(fmt.Errorf("no active provider transaction"))
 	}
 	if intrinsic.ProviderTransactionControlQuery(statement) {
 		return []internaldto.ExecutorOutput{executeProviderSQL(host, requestCtx, sql)}
 	}
 	var output []internaldto.ExecutorOutput
 	drain := func() error {
-		return session.Drain(ctx, handle, func(runCtx context.Context, payload json.RawMessage) error {
-			var queued queuedSQL
-			if err := json.Unmarshal(payload, &queued); err != nil {
-				return err
-			}
-			result := executeProviderSQL(host, runCtx, queued.SQL)
-			output = append(output, result)
-			return result.GetError()
-		})
+		return drainProviderStatements(host, ctx, session, handle, &output)
 	}
+
 	switch statement.(type) {
 	case *sqlparser.Rollback:
 		if err = intrinsic.RollbackProviderTransaction(host, session, handle); err != nil {
-			return refusal(err)
+			return providerTransactionError(err)
 		}
 		host.ClearProviderTransaction()
 		return []internaldto.ExecutorOutput{internaldto.NewNopEmptyExecutorOutput([]string{"Rollback OK"})}
@@ -164,42 +154,22 @@ func (o *omniOrchestrator) transactionQuery(host providerTransactionHost, sql st
 		host.ClearProviderTransaction()
 		return append(output, internaldto.NewNopEmptyExecutorOutput([]string{"transaction committed"}))
 	case *sqlparser.Insert, *sqlparser.Update, *sqlparser.Delete:
-		if err = intrinsic.ProviderTransactionMutation(host, statement); err != nil {
-			_ = session.Abort(ctx, handle, err)
-			return refusal(err)
+		queued, admissionErr := queueProviderMutation(host, ctx, session, handle, statement)
+		if admissionErr != nil {
+			_ = session.Abort(ctx, handle, admissionErr)
+			return providerTransactionError(admissionErr)
 		}
-		cfg, configErr := session.Configuration(ctx, handle)
-		if configErr != nil {
-			return refusal(configErr)
-		}
-		needsResult := false
-		switch node := statement.(type) {
-		case *sqlparser.Insert:
-			needsResult = len(node.SelectExprs) > 0
-		case *sqlparser.Update:
-			needsResult = len(node.SelectExprs) > 0
-		case *sqlparser.Delete:
-			needsResult = len(node.SelectExprs) > 0
-		}
-		if cfg.Mode == omnisdk.TransactionLazy && !needsResult {
-			if err = host.ResolveVariables(statement); err != nil {
-				_ = session.Abort(ctx, handle, err)
-				return refusal(err)
+		if queued {
+			return []internaldto.ExecutorOutput{
+				internaldto.NewNopEmptyExecutorOutput([]string{"mutating statement queued"}),
 			}
-			formatted := sqlparser.NewTrackedBuffer(formatQueuedSQL)
-			formatted.Myprintf("%v", statement)
-			payload, _ := json.Marshal(queuedSQL{SQL: formatted.String()})
-			if err = session.Queue(ctx, handle, payload); err != nil {
-				return refusal(err)
-			}
-			return []internaldto.ExecutorOutput{internaldto.NewNopEmptyExecutorOutput([]string{"mutating statement queued"})}
 		}
 	case *sqlparser.Select, *sqlparser.Union, *sqlparser.ParenSelect:
 		// A read is a dependency barrier: preceding writes must be observed.
 	default:
 		err = fmt.Errorf("statement cannot execute inside a provider transaction")
 		_ = session.Abort(ctx, handle, err)
-		return refusal(err)
+		return providerTransactionError(err)
 	}
 	if err = drain(); err != nil {
 		return append(output, internaldto.NewErroneousExecutorOutput(err))
@@ -216,7 +186,8 @@ func (o *omniOrchestrator) transactionQuery(host providerTransactionHost, sql st
 func formatQueuedSQL(buf *sqlparser.TrackedBuffer, node sqlparser.SQLNode) {
 	if table, ok := node.(sqlparser.TableName); ok {
 		first := true
-		for _, part := range []sqlparser.TableIdent{table.QualifierThird, table.QualifierSecond, table.Qualifier, table.Name} {
+		parts := []sqlparser.TableIdent{table.QualifierThird, table.QualifierSecond, table.Qualifier, table.Name}
+		for _, part := range parts {
 			if part.IsEmpty() {
 				continue
 			}
@@ -231,4 +202,72 @@ func formatQueuedSQL(buf *sqlparser.TrackedBuffer, node sqlparser.SQLNode) {
 		return
 	}
 	node.Format(buf)
+}
+
+func transactionOutputFailed(output []internaldto.ExecutorOutput) bool {
+	for _, result := range output {
+		if result.GetError() != nil {
+			return true
+		}
+	}
+	return false
+}
+
+func queueProviderMutation(host providerTransactionHost, ctx context.Context,
+	session *omnisdk.TransactionSession, handle omnisdk.TransactionHandle, statement sqlparser.Statement,
+) (bool, error) {
+	if err := intrinsic.ProviderTransactionMutation(host, statement); err != nil {
+		return false, err
+	}
+	cfg, err := session.Configuration(ctx, handle)
+	if err != nil {
+		return false, err
+	}
+	if cfg.Mode != omnisdk.TransactionLazy || mutationReturnsRows(statement) {
+		return false, nil
+	}
+	if err = host.ResolveVariables(statement); err != nil {
+		return false, err
+	}
+	formatted := sqlparser.NewTrackedBuffer(formatQueuedSQL)
+	formatted.Myprintf("%v", statement)
+	payload, err := json.Marshal(queuedSQL{SQL: formatted.String()})
+	if err != nil {
+		return false, err
+	}
+	if err = session.Queue(ctx, handle, payload); err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func mutationReturnsRows(statement sqlparser.Statement) bool {
+	switch node := statement.(type) {
+	case *sqlparser.Insert:
+		return len(node.SelectExprs) > 0
+	case *sqlparser.Update:
+		return len(node.SelectExprs) > 0
+	case *sqlparser.Delete:
+		return len(node.SelectExprs) > 0
+	default:
+		return false
+	}
+}
+
+func drainProviderStatements(host providerTransactionHost, ctx context.Context,
+	session *omnisdk.TransactionSession, handle omnisdk.TransactionHandle, output *[]internaldto.ExecutorOutput,
+) error {
+	return session.Drain(ctx, handle, func(runCtx context.Context, payload json.RawMessage) error {
+		var queued queuedSQL
+		if err := json.Unmarshal(payload, &queued); err != nil {
+			return err
+		}
+		result := executeProviderSQL(host, runCtx, queued.SQL)
+		*output = append(*output, result)
+		return result.GetError()
+	})
+}
+
+func providerTransactionError(err error) []internaldto.ExecutorOutput {
+	return []internaldto.ExecutorOutput{internaldto.NewErroneousExecutorOutput(err)}
 }
