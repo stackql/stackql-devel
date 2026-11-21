@@ -199,6 +199,47 @@ class ProviderSessionLibrary:
                      ["--http.response.maxResults=5", "--http.response.pageLimit=2"])
         assert self.page_sizes[before:] == ["7", "6", "6", "9", "7", "7", "5", "5"], self.page_sizes[before:]
 
+    def structured_config_and_env_files(self):
+        formats = {
+            "json": ('{"http.response.maxResults": 7, "configfile": {"ignored": true}}',
+                     '{"STACKQL_TEST_FILE_TOKEN": 42}', '{"nested": ["secret"]}'),
+            "toml": ('"http.response.maxResults" = 7\n[configfile]\nignored = true',
+                     'STACKQL_TEST_FILE_TOKEN = 42', 'nested = ["secret"]'),
+            **{suffix: ('http.response.maxResults: 7\nconfigfile: {ignored: true}',
+                        'STACKQL_TEST_FILE_TOKEN: 42', 'nested: [secret]')
+               for suffix in ("yaml", "yml", "yalm")},
+        }
+        sql = self.setting("providers.filetest", {"provider": "widgets", "tenancy": "filetest",
+                           "auth": {"type": "bearer", "credentialsenvvar": "STACKQL_TEST_FILE_TOKEN"},
+                           "params": {"region": "filetest"}})
+        sql += "SELECT id FROM filetest.things.widgets;"
+        legacy_config = self.root / "config.properties"
+        legacy_env = self.root / "creds.env"
+        legacy_config.write_text("http.response.maxResults=7\nconfigfile=${configfile}\n")
+        legacy_env.write_text('export STACKQL_TEST_FILE_TOKEN="legacy"\n')
+        self.run_sql(sql, [("Bearer legacy", "filetest")],
+                     ["--configfile", str(legacy_config), "--env.file", str(legacy_env)])
+        assert self.page_sizes[-1] == "7"
+        for suffix, (config, env, invalid) in formats.items():
+            config_path = self.root / f"config.{suffix}"
+            env_path = self.root / f"env.{suffix}"
+            config_path.write_text(config)
+            env_path.write_text(env)
+            flags = ["--configfile", str(config_path), "--env.file", str(env_path)]
+            self.run_sql(sql, [("Bearer 42", "filetest")], flags)
+            assert self.page_sizes[-1] == "7", suffix
+            self.run_sql(sql, [("Bearer 42", "filetest")], flags + ["--http.response.maxResults=8"])
+            assert self.page_sizes[-1] == "8", suffix
+            for path in (config_path, env_path):
+                before = len(self.calls)
+                original = path.read_text()
+                path.write_text(invalid)
+                result = subprocess.run(self.prefix + ["exec", sql] + self.flags + flags,
+                                        text=True, capture_output=True, timeout=30, env=self.env)
+                path.write_text(original)
+                assert result.returncode != 0 and "expected a scalar value" in result.stderr, result.stderr
+                assert len(self.calls) == before, suffix
+
     def aws_aliases_union_buckets_with_independent_signing_credentials(self):
         registry = self.root / "registry/src"
         provider = json.loads((registry / "widgets/v00.00.00000/provider.yaml").read_text())

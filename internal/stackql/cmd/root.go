@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -26,6 +27,7 @@ import (
 	"github.com/stackql/stackql/internal/stackql/config"
 	"github.com/stackql/stackql/internal/stackql/constants"
 	"github.com/stackql/stackql/internal/stackql/envfile"
+	"github.com/stackql/stackql/internal/stackql/flatfile"
 	"github.com/stackql/stackql/internal/stackql/intrinsic"
 	"github.com/stackql/stackql/internal/stackql/logging"
 	"github.com/stackql/stackql/internal/stackql/output"
@@ -206,7 +208,7 @@ func init() {
 	_ = rootCmd.PersistentFlags().String(dto.ColorSchemeKey, "", "DEPRECATED: color schemes are no longer supported")
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.CABundle, dto.CABundleKey, "", "Path to CA bundle, if not specified then system defaults used.")
 	rootCmd.PersistentFlags().BoolVar(&runtimeCtx.AllowInsecure, dto.AllowInsecureKey, false, "Allow trust of insecure certificates (not recommended)")
-	rootCmd.PersistentFlags().StringVar(&runtimeCtx.ConfigFilePath, dto.ConfigFilePathKey, config.GetDefaultConfigFilePath(), "Config file full path; defaults to current dir")
+	rootCmd.PersistentFlags().StringVar(&runtimeCtx.ConfigFilePath, dto.ConfigFilePathKey, config.GetDefaultConfigFilePath(), "Config file path (properties, TOML, YAML or JSON). A configfile entry in the file is ignored.")
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.ApplicationFilesRootPath, dto.ApplicationFilesRootPathKey, config.GetDefaultApplicationFilesRoot(), "Application config and cache root path")
 	rootCmd.PersistentFlags().Uint32Var(&runtimeCtx.ApplicationFilesRootPathMode, dto.ApplicationFilesRootPathModeKey, config.GetDefaultProviderCacheDirFileMode(), "Application config and cache file mode")
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.ViperCfgFileName, dto.ViperCfgFileNameKey, config.GetDefaultViperConfigFileName(), "Config filename")
@@ -278,24 +280,40 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&mcpServerType, "mcp.server.type", "", "MCP server type (http or stdio for now)")
 	rootCmd.PersistentFlags().StringVar(&mcpLogFormat, "mcp.log.format", "", "MCP audit log format: jsonl (default) or otel (OTLP/JSON log records); overrides server.audit.format in mcp.config")
 	rootCmd.PersistentFlags().StringVar(&mcpProtocolVersion, "mcp.protocol.version", "", "newest MCP protocol revision advertised: auto (default, every SDK revision), 2026-07-28 (sessionless only; implies stateless HTTP) or an older revision such as 2025-11-25 (that revision and earlier); overrides server.protocol_version in mcp.config")
-	rootCmd.PersistentFlags().StringVar(&envFilePath, "env.file", "", "optional dotenv-style file sourced into the process environment at startup, created empty if absent; the MCP reload_credentials tool re-sources it on demand")
+	rootCmd.PersistentFlags().StringVar(&envFilePath, "env.file", "", "Optional dotenv, TOML, YAML or JSON file sourced at startup and by MCP reload_credentials. Created empty if absent.")
 }
 
-func mergeConfigFromFile(runtimeCtx *dto.RuntimeCtx, flagSet pflag.FlagSet) {
-	props, err := properties.LoadFile(runtimeCtx.ConfigFilePath, properties.UTF8)
-	if err == nil {
-		propertiesMap := props.Map()
-		for k, v := range propertiesMap {
-			if flagSet.Lookup(k) != nil && !flagSet.Lookup(k).Changed {
-				runtimeCtx.Set(k, v) //nolint:errcheck // TODO: investigate
+func mergeConfigFromFile(runtimeCtx *dto.RuntimeCtx, flagSet *pflag.FlagSet) error {
+	values, err := flatfile.Load(runtimeCtx.ConfigFilePath, func(data []byte) (map[string]string, error) {
+		loader := properties.Loader{Encoding: properties.UTF8, DisableExpansion: true}
+		props, err := loader.LoadBytes(data)
+		if err != nil {
+			return nil, fmt.Errorf("invalid properties configuration")
+		}
+		return props.Map(), nil
+	}, dto.ConfigFilePathKey)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	for key, value := range values {
+		if flag := flagSet.Lookup(key); key != dto.ConfigFilePathKey && flag != nil && !flag.Changed {
+			if setErr := runtimeCtx.Set(key, value); setErr != nil {
+				return fmt.Errorf("invalid value for config key %q", key)
 			}
 		}
 	}
+	return nil
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	mergeConfigFromFile(&runtimeCtx, *rootCmd.PersistentFlags())
+	if err := mergeConfigFromFile(&runtimeCtx, rootCmd.PersistentFlags()); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to load config file '%s': %v\n", runtimeCtx.ConfigFilePath, err)
+		os.Exit(1)
+	}
 
 	intrinsic.Init(previewCfgRaw)
 	if err := output.InitOTelConfig(otelConfigRaw); err != nil {

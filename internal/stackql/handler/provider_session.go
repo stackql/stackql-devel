@@ -287,8 +287,8 @@ func (state *providerSessionState) setProviderTuning(path []string, rhs interfac
 		delete(tuning, provider)
 	} else {
 		var override omnisdk.ProviderTuning
-		if err := decodeSessionObject(rhs, &override); err != nil {
-			return err
+		if decodeErr := decodeSessionObject(rhs, &override); decodeErr != nil {
+			return decodeErr
 		}
 		if tuning == nil {
 			tuning = make(map[string]omnisdk.ProviderTuning)
@@ -316,8 +316,8 @@ func (state *providerSessionState) setProviderParams(path []string, rhs interfac
 		return nil
 	}
 	var params map[string]string
-	if err := decodeSessionObject(rhs, &params); err != nil {
-		return err
+	if decodeErr := decodeSessionObject(rhs, &params); decodeErr != nil {
+		return decodeErr
 	}
 	if state.providerParams == nil {
 		state.providerParams = make(map[string]map[string]string)
