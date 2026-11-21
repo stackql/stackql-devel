@@ -191,8 +191,6 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	var dummyString string
-
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.DBInternalCfgRaw, dto.DBInternalCfgRawKey, "{}", "JSON / YAML string to configure DBMS housekeeping query handling")
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.SQLBackendCfgRaw, dto.SQLBackendCfgRawKey, "{}", "JSON / YAML string representing SQL Backend System Config")
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.NamespaceCfgRaw, dto.NamespaceCfgRawKey, "{}", "JSON / YAML string representing namespaces for cacheing, views etc")
@@ -205,7 +203,7 @@ func init() {
 		`eg: '{ "exporter": { "endpoint": "http://localhost:4318/v1/logs", "headers": { "authorization": "<token>" } } }'`)
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.SessionCtxRaw, dto.SessionCtxKey, "{}", "JSON / YAML string representing session config")
 	rootCmd.PersistentFlags().IntVar(&runtimeCtx.APIRequestTimeout, dto.APIRequestTimeoutKey, 45, "API request timeout in seconds, 0 for no timeout.") //nolint:mnd // TODO: investigate
-	rootCmd.PersistentFlags().StringVar(&dummyString, dto.ColorSchemeKey, "", "DEPRECATED: color schems no longer active")
+	_ = rootCmd.PersistentFlags().String(dto.ColorSchemeKey, "", "DEPRECATED: color schemes are no longer supported")
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.CABundle, dto.CABundleKey, "", "Path to CA bundle, if not specified then system defaults used.")
 	rootCmd.PersistentFlags().BoolVar(&runtimeCtx.AllowInsecure, dto.AllowInsecureKey, false, "Allow trust of insecure certificates (not recommended)")
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.ConfigFilePath, dto.ConfigFilePathKey, config.GetDefaultConfigFilePath(), "Config file full path; defaults to current dir")
@@ -224,9 +222,9 @@ func init() {
 	rootCmd.PersistentFlags().IntVar(&runtimeCtx.HTTPPageLimit, dto.HTTPPAgeLimitKey, 20, "Max pages of results that will be returned per resource, any number <=0 results in no limitation") //nolint:mnd // TODO: investigate
 	rootCmd.PersistentFlags().IntVar(&runtimeCtx.HTTPProxyPort, dto.HTTPProxyPortKey, -1, "http proxy port, any number <=0 will result in the default port for a given scheme (eg: http -> 80)")
 	rootCmd.PersistentFlags().IntVar(&runtimeCtx.ExecutionConcurrencyLimit, dto.ExecutionConcurrencyLimitKey, 1, "concurrency limit for query execution")
-	rootCmd.PersistentFlags().IntVar(&runtimeCtx.IndirectDepthMax, dto.IndirectDepthMaxKey, 5, "max depth for indirect queries: views and subqueries") //nolint:mnd // TODO: investigate
-	rootCmd.PersistentFlags().IntVar(&runtimeCtx.DataflowDependencyMax, dto.DataflowDependencyMaxKey, 50, "max dataflow dependency depth for a given query")
-	rootCmd.PersistentFlags().IntVar(&runtimeCtx.DataflowComponentsMax, dto.DataflowComponentsMaxKey, 50, "max dataflow weakly connected components for a given query")
+	rootCmd.PersistentFlags().IntVar(&runtimeCtx.IndirectDepthMax, dto.IndirectDepthMaxKey, 5, "DEPRECATED: max depth for indirect queries: views and subqueries") //nolint:mnd // TODO: investigate
+	_ = rootCmd.PersistentFlags().Int(dto.DataflowDependencyMaxKey, 50, "DEPRECATED: max dataflow dependency depth for a given query")
+	_ = rootCmd.PersistentFlags().Int(dto.DataflowComponentsMaxKey, 50, "DEPRECATED: max dataflow weakly connected components for a given query")
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.HTTPProxyHost, dto.HTTPProxyHostKey, "", "http proxy host, empty means no proxy")
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.HTTPProxyScheme, dto.HTTPProxySchemeKey, "http", "http proxy scheme, eg 'http'")
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.HTTPProxyPassword, dto.HTTPProxyPasswordKey, "", "http proxy password")
@@ -234,7 +232,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.ProviderStr, dto.ProviderStrKey, "", "stackql provider")
 	rootCmd.PersistentFlags().StringVar(&runtimeCtx.ExportAlias, dto.ExportAliasKey, "", "export alias prefix (namespace or schema)")
 	rootCmd.PersistentFlags().BoolVar(&runtimeCtx.PGSrvIsDebugNoticesEnabled, dto.PgSrvIsDebugNoticesEnabledKey, false, "Publish debug notices to clients, for server mode only")
-	rootCmd.PersistentFlags().BoolVar(&runtimeCtx.WorkOffline, dto.WorkOfflineKey, false, "Work offline, using cached data")
+	_ = rootCmd.PersistentFlags().Bool(dto.WorkOfflineKey, false, "DEPRECATED: work offline using cached data")
 	rootCmd.PersistentFlags().BoolVarP(&runtimeCtx.VerboseFlag, dto.VerboseFlagKey, "v", false, "Verbose flag")
 	rootCmd.PersistentFlags().BoolVar(&runtimeCtx.DryRunFlag, dto.DryRunFlagKey, false, "dryrun flag; preprocessor only will run and output returned")
 	rootCmd.PersistentFlags().BoolVarP(&runtimeCtx.CSVHeadersDisable, dto.CSVHeadersDisableKey, "H", false, "Disable CSV headers flag")
