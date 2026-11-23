@@ -53,9 +53,9 @@ func ledgerSelectFunc(ctx queryContext, node *sqlparser.Select) func() internald
 	}
 	// Older OmniSDK releases expose rows but do not describe their schema.
 	var columns []column
-	if schema, ok := reader.(interface {
+	if schema, hasSchema := reader.(interface {
 		ColumnTypes() map[string]omnisdk.ColumnType
-	}); ok {
+	}); hasSchema {
 		types := schema.ColumnTypes()
 		columns = make([]column, 0, len(types))
 		for _, name := range slices.Sorted(maps.Keys(types)) {
@@ -63,6 +63,7 @@ func ledgerSelectFunc(ctx queryContext, node *sqlparser.Select) func() internald
 		}
 	}
 	return func() internaldto.ExecutorOutput {
-		return streamPlan(ctx, ledgerReadPlan{reader: reader, resource: resource}, ledgerRelation, node.SelectExprs, columns...)
+		plan := ledgerReadPlan{reader: reader, resource: resource}
+		return streamPlan(ctx, plan, ledgerRelation, node.SelectExprs, columns...)
 	}
 }
